@@ -23,6 +23,10 @@ This registry indexes evidence, not implementation dependencies. All research wa
 
 ## Mechanism-level additions
 
+| Source page | Origin / scope | Transfer and limits |
+|---|---|---|
+| [Local strategy wiki](agentic-strategy-wiki.md) | User-directed local source; selected sections inspected 2026-11-05 with file hashes | Glossary/context/translation patterns only. Secondary draft notes, no full source copy, external citation refresh or adopted BEAML policy. |
+
 | Source page | Source/version boundary | Local knowledge and limits |
 |---|---|---|
 | [Type-system foundations](type-system-foundations.md) | Milner 1978, author-hosted class/inference/refinement/effect papers, Software Foundations chapters, SMT-LIB 2.7 | Worked typing/inference/evidence/refinement/effect/state concepts; selected primary sections, not whole-paper proof audits. |

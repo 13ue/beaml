@@ -6,6 +6,8 @@ Start with the [specification knowledge coverage audit](wiki/planning/specificat
 
 ## Local use
 
+Use the proposed [glossary](GLOSSARY.md) for scoped working terms and the [context map](wiki/planning/context-map.md) for candidate ownership and translation boundaries. These are reviewable conventions, not adopted implementation or a complete language grammar.
+
 Read Markdown in any editor or Obsidian. Search with `rg 'topic' wiki raw`; no server, database or package installation is needed. Useful searches include `rg 'UNKNOWN|open decision' wiki`, `rg 'cancellation|stream' wiki/concepts`, and `rg 'Spec p\.' wiki`.
 
 For a new source, preserve its evidence/provenance, write a source note, reconcile affected concepts and update the index/log. For a question, read the relevant concepts and evidence, answer with uncertainty and citations, and save reusable synthesis in `wiki/queries/`. See [AGENTS.md](AGENTS.md) for the ingest/query/lint conventions. Raw inputs remain historical evidence; refresh them with a new dated capture.

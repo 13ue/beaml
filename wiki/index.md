@@ -6,6 +6,9 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 
 ## Specification, planning and retained answers
 
+- [Working glossary](../GLOSSARY.md): scoped terms, proposed owners and German aliases; no universal runtime model.
+- [Candidate context map](planning/context-map.md): language/compilation, execution and Observatory models with explicit translation boundaries.
+- [Local strategy-wiki source](sources/agentic-strategy-wiki.md): selected local glossary/context patterns and provenance; no imported business model or policy.
 - [Engineering specification v0.5](sources/engineering-spec-v0.5.md): preserved PDF, all sections, local S01-S45 inventory, exact proposed gates and phase tables.
 - [Product contract](concepts/product-contract.md): language/runtime/UI/security ownership and validation/trust boundaries.
 - [Knowledge coverage](planning/specification-knowledge-coverage.md): honest subclaim depth audit across the full spec and compiler/VM research.

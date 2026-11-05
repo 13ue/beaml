@@ -1,0 +1,55 @@
+{
+  "retrieved": "2026-11-05",
+  "origin": "User-directed local project wiki",
+  "source_root": "/Users/lennart/Projects/myo/agentic-strategy-wiki",
+  "status": "selected-local-secondary-research",
+  "inspection": "Delegated selected sections; no complete source audit or external citation refresh",
+  "capture_file": "2026-11-05-selected-patterns.md",
+  "sha256": "75940940b13921dfce1b7425b1f3dfdb49eb633c5d3ab8c4c551c43b6cde6216",
+  "retention": "Original selected paraphrases only; full source files not retained; keep local",
+  "license": "Not established for full local wiki; no upstream license applied to BEAML",
+  "sources": [
+    {
+      "path": "wiki/concepts/ddd-for-myo.md",
+      "observed_sha256": "0d25d4184d02a8fb2536014a4cd92e5c6cc39a56191901e50c411052731cafcf",
+      "observed_bytes": 92534,
+      "scope": "Selected sections only; hash identifies full observed source file"
+    },
+    {
+      "path": "wiki/controlled-language-draft.md",
+      "observed_sha256": "911177ba48fa18e2754720267f60e02bdadce6ec01ef7490fed4f6808da36bb5",
+      "observed_bytes": 8376,
+      "scope": "Selected sections only; hash identifies full observed source file"
+    },
+    {
+      "path": "wiki/sources/ddd-crew-context-mapping.md",
+      "observed_sha256": "5086e29f447833b2b38c90d8b5c3e9cabda5e857307d1f7a3909b38909b937ae",
+      "observed_bytes": 7513,
+      "scope": "Selected sections only; hash identifies full observed source file"
+    },
+    {
+      "path": "wiki/sources/contextmapper-context-map.md",
+      "observed_sha256": "1c82a12061e00b86dea763f1325e1d515869551d356c51d7c310a9a868cfbc38",
+      "observed_bytes": 6699,
+      "scope": "Selected sections only; hash identifies full observed source file"
+    },
+    {
+      "path": "wiki/sources/microsoft-azure-anti-corruption-layer.md",
+      "observed_sha256": "722c7ce1747364a4b79f856c40d5eb77cf6abef41ec1a37c16d320a3595b8d84",
+      "observed_bytes": 7506,
+      "scope": "Selected sections only; hash identifies full observed source file"
+    },
+    {
+      "path": "wiki/sources/khononov-bounded-contexts-vs-microservices.md",
+      "observed_sha256": "fd7dc4c98c6a985bbb9b2a127a9effc6db339d7b1c6864ba2994209378f3e47c",
+      "observed_bytes": 6217,
+      "scope": "Selected sections only; hash identifies full observed source file"
+    },
+    {
+      "path": "wiki/sources/jphoenix-domain-glossary-constraint.md",
+      "observed_sha256": "62718213e01048ac63c52e2c38dfe9c70d6f48f868a77e9c41a2841a8d18902f",
+      "observed_bytes": 6769,
+      "scope": "Selected sections only; hash identifies full observed source file"
+    }
+  ]
+}

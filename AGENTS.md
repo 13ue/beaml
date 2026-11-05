@@ -6,6 +6,8 @@ The current deliverable is a local Markdown knowledge base. Follow the user's cu
 
 Read `wiki/index.md`, then the relevant source and concept pages before changing content. Search for an existing treatment before creating a page. Preserve human contributions and source disagreements.
 
+Use the proposed [glossary](GLOSSARY.md) for current working terms and [context map](wiki/planning/context-map.md) for candidate ownership. In new prose, use CAPITALS for glossary terms and qualify ambiguous meanings. These are proposed conventions, not a full controlled grammar or new semantic authority.
+
 ## Evidence and page conventions
 
 - Keep `raw/` immutable after capture. Save a new dated/versioned capture when a source changes; do not replace the original. A research capture may contain selected excerpts and researcher notes rather than the full upstream document; label its coverage.

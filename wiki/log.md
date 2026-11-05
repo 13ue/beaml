@@ -73,3 +73,9 @@ Independent review found no blocking issue in the expanded source-status boundar
 ## [2026-11-05] publish | Public repository and license
 
 **[Requirement]** The repository owner requested publication of the tracked knowledge base, including the supplied specification. The owner selected Apache License 2.0. **[Verified]** Created the public [13ue/beaml repository](https://github.com/13ue/beaml). Updated the [repository overview](../README.md) and added the [license](../LICENSE). Third-party captures retain their existing terms. Raw evidence remains unchanged.
+
+## [2026-11-05] propose | Shared glossary and candidate contexts
+
+Created the [working glossary](../GLOSSARY.md) before the [context-map proposal](planning/context-map.md). Three candidate models preserve one compiler semantic authority and separate runtime outcomes from observations. Agent roles stay provisional. Foreign provider, host, UI and OTel models have explicit translation seams. The [local source note](sources/agentic-strategy-wiki.md) records selected secondary patterns with original paraphrases and source hashes; unrelated business models and source instructions were not imported. DOMAIN EVENT does not imply committed publication. OBSERVATORY can have authorized administration without redefining source or business facts. No implementation, new dependency, complete controlled grammar or certification is claimed.
+
+Independent review clarified SCHEMA WITNESS versus authority and limited ANTI-CORRUPTION LAYERS to real model differences. Full local lint passed at 62 maintained files, zero errors, PDF checks and five retained-capture hashes. A targeted check reused the validator helpers for the root glossary: four links/anchors, index entry and 30 unique terms passed. The script was unchanged; root glossary checks are manual additions to this run. No external-link crawl, full local-source audit or runtime experiment was performed.
