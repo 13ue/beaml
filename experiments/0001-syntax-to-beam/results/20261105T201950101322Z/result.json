@@ -1,0 +1,92 @@
+{
+  "experiment": "0001",
+  "run": "20261105T201950101322Z",
+  "status": "pass",
+  "steps": [
+    {
+      "name": "rust-version",
+      "command": [
+        "rustc",
+        "--version"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "cargo-version",
+      "command": [
+        "cargo",
+        "--version"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "elixir-version",
+      "command": [
+        "elixir",
+        "--version"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "compiler-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "generate",
+      "command": [
+        "cargo",
+        "run",
+        "--offline",
+        "--quiet",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml",
+        "--",
+        "experiments/0001-syntax-to-beam/example.beaml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "beam-compile",
+      "command": [
+        "elixirc",
+        "--warnings-as-errors",
+        "-o",
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/results/20261105T201950101322Z",
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/results/20261105T201950101322Z/generated.ex"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "runtime-tests",
+      "command": [
+        "elixir",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/results/20261105T201950101322Z",
+        "experiments/0001-syntax-to-beam/tests/runtime_test.exs"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "hashes": {
+    "Cargo.toml": "49aae09d2d19953c72468011bbc9f29c676e80b7bbc9004ad6a30afdfc4dc1bf",
+    "Cargo.lock": "160043b8322dcba779ad9f873e01e48f000b0a8b60e2d3fb7ef4a87fb45e362b",
+    "src/main.rs": "55051068ee3bba62aed674db63519dcaa7b5eb684124cc4a1b921c12b7b70a44",
+    "example.beaml": "94fc2eb7f16c83c7ef1efc1df58440b8f45e4df830d4394512bafdc1590e9ffb",
+    "run.py": "2bd86c67c1a4102044ecf516dbe1a13d6d9e30ea8faac4a03cfe96eb15004b04",
+    "tests/runtime_test.exs": "cd59ab501c29bf2e71cf2f78d622c34ab9c23ae5bfb5b89b6a8b87e3e50a1005",
+    "results/20261105T201950101322Z/generated.ex": "2374840b93bc1b0a9b76f4ff4cde9c2c76ea7d9bc069bc7cf1e7075eee6a654d",
+    "results/20261105T201950101322Z/Elixir.BeamlSpike.beam": "a7524ac50aa16e99993bd172613f6d7c886ca55dc49d34c85863894a9f6f3758"
+  },
+  "toolchain": {
+    "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+    "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)",
+    "elixir_otp": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nElixir 1.18.1 (compiled with Erlang/OTP 27)"
+  }
+}

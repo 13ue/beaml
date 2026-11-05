@@ -1,0 +1,11 @@
+    error: undefined function defp/2 (there is no such import)
+    │
+  4 │   defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and String.valid?(v)
+    │   ^
+    │
+    └─ experiments/0001-syntax-to-beam/results/20261105T201845474273Z/generated.ex:4:3: BeamlSpike (module)
+
+
+== Compilation error in file experiments/0001-syntax-to-beam/results/20261105T201845474273Z/generated.ex ==
+** (CompileError) experiments/0001-syntax-to-beam/results/20261105T201845474273Z/generated.ex: cannot compile module BeamlSpike (errors have been logged)
+

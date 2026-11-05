@@ -1,11 +1,13 @@
 # BEAML knowledge index
 
-Start with the [specification knowledge coverage audit](planning/specification-knowledge-coverage.md): it maps every S01-S45 requirement group to local mechanisms, sources, open BEAML decisions and missing empirical validation. Then read the [product contract](concepts/product-contract.md), [build-readiness plan](planning/build-readiness.md) or [what to build first](queries/what-to-build-first.md). This is a research knowledge base; it contains no working BEAML compiler/runtime or measured security/performance result.
+Start with the [R&D register](planning/research-and-development.md) for executable experiments and their limits. The [specification knowledge coverage audit](planning/specification-knowledge-coverage.md) maps S01-S45 to mechanisms, sources and open decisions. Then read the [product contract](concepts/product-contract.md), [build-readiness plan](planning/build-readiness.md) or [what to build first](queries/what-to-build-first.md). A small experimental compiler now exists; no production compiler/runtime or measured security/performance result is claimed.
 
 The [source registry](sources/README.md) identifies pins/provenance/coverage; [maintenance guidance](../AGENTS.md) defines claim labels and ingest/query/lint workflows. Upstream capability is not BEAML capability; original explanatory examples/probes are unexecuted unless a result explicitly says otherwise.
 
 ## Specification, planning and retained answers
 
+- [R&D register](planning/research-and-development.md): experiment process, candidate domain ownership and retained evidence.
+- [Syntax spike requirement](sources/syntax-spike-requirement.md): accepted experimental syntax, R&D request and adopted initial Elixir backend.
 - [Working glossary](../GLOSSARY.md): scoped terms, proposed owners and German aliases; no universal runtime model.
 - [Candidate context map](planning/context-map.md): language/compilation, execution and Observatory models with explicit translation boundaries.
 - [Local strategy-wiki source](sources/agentic-strategy-wiki.md): selected local glossary/context patterns and provenance; no imported business model or policy.

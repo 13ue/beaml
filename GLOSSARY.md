@@ -13,6 +13,8 @@ Use CAPITALS when naming a glossary term. Use its qualified name when the scope 
 
 | Term | One definition | Context owner | German alias |
 |---|---|---|---|
+| EXPERIMENT | A bounded test of a stated hypothesis with acceptance criteria and retained evidence. | R&D process | Experiment |
+| EXPERIMENT RUN | One recorded execution of an EXPERIMENT against identified inputs and tools. | R&D process | Experimentdurchlauf |
 | BOUNDED CONTEXT | A boundary within which one model and its language have a consistent meaning. | Context map | Begrenzter Kontext |
 | CONTEXT MAP | A description of model relationships, upstream influence, sharing and translation between BOUNDED CONTEXTS. | Context map | Kontextlandkarte |
 | UBIQUITOUS LANGUAGE | The agreed terms used to explain and change one context's model. | Each context | Gemeinsame Fachsprache |

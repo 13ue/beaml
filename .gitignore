@@ -7,3 +7,8 @@ __pycache__/
 
 # Local-only inputs; publication requires a separate decision.
 raw/private/
+
+# Local action events and generated build files.
+/.beaml/
+**/target/
+*.beam

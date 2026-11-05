@@ -10,6 +10,8 @@ updated: 2026-11-05
 
 # Specification gaps and decision queue
 
+**[Requirement]** The later [syntax spike request](../sources/syntax-spike-requirement.md) selects syntax for a small EXPERIMENT. It uses exact data interfaces, partial record patterns, unparenthesized function heads and parenthesized calls/constructors. **[Unknown]** These choices do not settle the complete grammar, generic inference, effects or production GENERATED ABI listed below.
+
 These are unresolved specification decisions and KB interpretations, not bugs in an implementation. Each row separates the source's explicit open question from analysis of what must be settled. Page numbers are physical PDF pages; [source inventory and full evidence](../sources/engineering-spec-v0.5.md). Research can inform decisions; it cannot silently authorize them.
 
 The [knowledge coverage audit](specification-knowledge-coverage.md) distinguishes missing reference knowledge from open BEAML decisions and unexecuted validation. Deep mechanism pages explain alternatives; they do not silently close the decisions listed here.

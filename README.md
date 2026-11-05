@@ -1,6 +1,12 @@
-# BEAML knowledge base
+# BEAML research and development
 
-BEAML is a proposed BAML-inspired language and toolchain targeting the BEAM. This local knowledge base connects the supplied engineering specification to primary research, unresolved decisions and a first validation plan. It contains no working BEAML compiler or runtime, and no benchmark or security proof is claimed.
+BEAML is a proposed BAML-inspired language and toolchain targeting the BEAM. This R&D repository combines a source-backed knowledge base with small executable experiments. [EXPERIMENT 0001](experiments/0001-syntax-to-beam/README.md) implements a limited syntax-to-Elixir compiler. It is not a production compiler/runtime, benchmark or security proof.
+
+Read the [R&D register](wiki/planning/research-and-development.md) for hypotheses, context ownership, evidence and limits. Run the first EXPERIMENT from this repository root:
+
+```sh
+python3 experiments/0001-syntax-to-beam/run.py
+```
 
 Start with the [specification knowledge coverage audit](wiki/planning/specification-knowledge-coverage.md), which maps every requirement group to explained mechanisms, evidence, unresolved decisions and absent validation. Use the [wiki index](wiki/index.md) for deep type/GHC/Rust/BAML/BEAM, testing, Phoenix, security and observability guides; the [product contract](wiki/concepts/product-contract.md) and [first-build answer](wiki/queries/what-to-build-first.md) give the product and implementation starting points. The [specification source note](wiki/sources/engineering-spec-v0.5.md) preserves all section requirements, exact proposed acceptance targets and phase gates. The [source registry](wiki/sources/README.md) identifies versions, provenance and limits.
 
@@ -18,6 +24,7 @@ Run `python3 scripts/lint_wiki.py --self-test` to check the validator, then `pyt
 
 ## Layout
 
+- `experiments/`: isolated compiler/runtime probes with fixtures, repeatable commands and retained run evidence.
 - `raw/`: original supplied PDF, selected attributed upstream files and dated research records.
 - `wiki/sources/`: evidence summaries, provenance and coverage limits.
 - `wiki/concepts/`: connected synthesis with requirements/facts/proposals kept distinct.

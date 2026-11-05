@@ -1,0 +1,54 @@
+interface Address {
+  city: String
+  country: String
+}
+
+interface Customer {
+  name: String
+  address: Address
+}
+
+interface Order {
+  id: String
+  customer: Customer
+}
+
+enum OrderError {
+  NotFound(String)
+  Rejected(String)
+}
+
+// This experiment uses a concrete result type. Generics are a later experiment.
+enum OrderResult {
+  Ok(Order)
+  Error(OrderError)
+}
+
+fn describe Ok(Order {
+  customer: Customer {
+    name,
+    address: Address { country: "DE", city }
+  }
+}) -> String = name + " bestellt aus " + city + ", Deutschland"
+
+fn describe Ok(Order { id, customer: Customer { name } }) -> String =
+  "Bestellung " + id + " von " + name
+
+fn describe Error(NotFound(id)) -> String =
+  "Bestellung " + id + " wurde nicht gefunden"
+
+fn describe Error(Rejected(reason)) -> String =
+  "Bestellung abgelehnt: " + reason
+
+fn send target: String, message: String -> String = target + ": " + message
+
+fn sample -> String = describe(Ok(Order {
+  id: "order-1",
+  customer: Customer {
+    name: "Kunde",
+    address: Address { city: "Berlin", country: "DE" }
+  }
+}))
+
+fn literal -> String = "#{raise(\"must stay data\")}: Grüße\n"
+fn ignore value: String -> String = "ignored"

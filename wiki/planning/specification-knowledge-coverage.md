@@ -7,6 +7,8 @@ updated: 2026-11-05
 
 # Specification knowledge coverage
 
+**[Verified]** The later [EXPERIMENT 0001](../../experiments/0001-syntax-to-beam/README.md) provides narrow execution evidence for exact data interfaces, nested patterns and a generated BEAM boundary. It does not validate an entire S01-S45 row. The absent-validation columns below still describe the broader specification.
+
 This audits **reference knowledge in the local wiki**, not implementation completion. Scope is every S01-S45 inventory row in the [supplied PDF source analysis](../sources/engineering-spec-v0.5.md#section-by-section-requirement-inventory), plus the user's explicit GHC/Rust/BAML/BEAM depth request. Bundled rows are broken into mechanisms below. Page links count only when the target explains the mechanism with evidence and failure examples; a title or a list of upstream links is not sufficient.
 
 **[Verified]** means an upstream source/definition was inspected; examples/probes labeled **[Proposal]** have not run. **[Unknown]** marks unselected BEAML semantics or unestablished evidence. Reference coverage and design readiness are different: explaining a sound unification algorithm does not select it for BEAML, and selecting it would not prove the implementation correct.

@@ -1,6 +1,15 @@
 # BEAML knowledge maintenance
 
-The current deliverable is a local Markdown knowledge base. Follow the user's current task and instructions; this file supplies repository conventions, not additional approval requirements.
+The deliverable is an R&D repository with a Markdown knowledge base and small executable experiments. Follow the user's current task and instructions; this file supplies repository conventions, not additional approval requirements.
+
+## R&D experiments
+
+Use `wiki/planning/research-and-development.md` as the experiment register. Keep each experiment under `experiments/NNNN-name/`.
+Record its question, hypothesis, context ownership, supported subset, exclusions, acceptance criteria and repeatable command.
+Retain separate result directories for each run with commands, toolchain versions, input/output hashes and actual test results. Preserve failed runs.
+Update the register and append to `wiki/log.md` when evidence changes. A passed experiment does not establish production readiness.
+Compiler action events and experiment use-case events append to `.beaml/actions.jsonl` at the repository root when run from there.
+Keep event logging enabled in normal CLI runs. Never record source text, secrets or input paths in those events.
 
 ## Start here
 

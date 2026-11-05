@@ -8,6 +8,8 @@ updated: 2026-11-05
 
 # What should BEAML build first?
 
+**[Verified]** This earlier proposal describes a broader validation slice. The owner later selected a smaller syntax probe and an R&D process. [EXPERIMENT 0001](../../experiments/0001-syntax-to-beam/README.md) now tests exact interfaces and nested patterns on the BEAM. It does not complete the prompt, cancellation, source-map or LSP work below. [Current register](../planning/research-and-development.md)
+
 **[Proposal]** Begin with a small, source-backed compiler-to-BEAM experiment after closing the core syntax and semantic contract. The highest-value evidence is one typed prompt function using a recorded response, lowered through one semantic engine and one source backend into a guarded Mix-callable API, with correct source diagnostics and one unsaved-buffer LSP edit. This exercises the central seam without assuming a broad language, BAML compatibility or a production runtime. [Compiler slice](../concepts/compiler-and-tooling.md#smallest-reproducible-vertical-slice), [runtime boundary](../concepts/beam-runtime-and-interop.md).
 
 **[Requirement]** M0 exits with typing/evaluation rules and 100 normative examples; M3 exits with validated extraction. The PDF leaves complete grammar, ABI, record/trait/refinement details and stream revisions unresolved, and mixes syntax. Treat those as decisions to make before a compatibility corpus, not invitations to copy every BAML example. Established BAML docs and its pinned canary describe different scopes; neither is already a BEAM backend. [Spec inventory/gates](../sources/engineering-spec-v0.5.md), [gap queue](../planning/specification-gaps.md), [BAML comparison](../concepts/baml-language-and-tooling.md).
@@ -18,4 +20,4 @@ updated: 2026-11-05
 
 **[Proposal]** Next, prove one Phoenix form/event contract with exact `.heex`/`~H` mappings and conservative UNKNOWN handling. The official parser's analysis-friendly internals are not a guaranteed stable API, making source-span/Unicode/indentation checks a necessary feasibility probe before broad rename support. [Phoenix evidence](../concepts/phoenix-heex-integration.md).
 
-The [build-readiness map](../planning/build-readiness.md) ties these proposals to requirements, evidence, unresolved decisions, phases and first validations. **[Unknown]** There is no implemented prototype or measured feasibility result yet; this answer prioritizes evidence production rather than reporting completed engineering.
+The [build-readiness map](../planning/build-readiness.md) ties these proposals to requirements, evidence, unresolved decisions, phases and first validations. **[Unknown]** The complete slice proposed here remains unimplemented. The smaller EXPERIMENT has separate evidence and does not establish its feasibility as a whole.

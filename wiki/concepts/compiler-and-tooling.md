@@ -56,7 +56,9 @@ Measure edits: whitespace before a declaration, local-expression change, exporte
 
 Every desugaring must preserve evaluation order, short-circuiting, error/cancellation behavior, label propagation and source origin. Generated Elixir/Erlang then needs a concrete policy for scalars/integers, nominal IDs, structs/maps, enums, closures, exceptions, process exits, cancellation and resource cleanup. BEAM compilation alone does not preserve the proposed semantics.
 
-Choose one source backend for the first slice; choosing Elixir versus Erlang remains an experiment/decision. Emit deterministic readable source and a sidecar source map. Test generated compiler diagnostics and runtime stack failures against authored spans. Erlang annotations and Elixir parser/diagnostic metadata support attribution but do not replace that map; version-gated APIs require a pinned support matrix. [Backend sources](../sources/compiler-tooling.md#backend-locations-and-testing)
+**[Requirement]** The owner adopted generated Elixir source as the initial backend, followed by the Elixir/OTP compiler and BEAM execution. [Decision source](../sources/syntax-spike-requirement.md). Direct bytecode emission is not an adopted later goal.
+
+**[Proposal]** Emit deterministic readable source and a sidecar source map. Test generated compiler diagnostics and runtime stack failures against authored spans. Erlang annotations and Elixir parser/diagnostic metadata support attribution but do not replace that map; version-gated APIs require a pinned support matrix. [Backend sources](../sources/compiler-tooling.md#backend-locations-and-testing)
 
 ## LSP boundary
 
@@ -68,7 +70,7 @@ HEEx/Elixir adapters need declared supported syntax and versioned official-parse
 
 ## Smallest reproducible vertical slice
 
-**[Proposal]** Build this after the core grammar/type decisions; none is implemented here:
+**[Proposal]** This is the earlier, broader validation slice. The later [EXPERIMENT 0001](../../experiments/0001-syntax-to-beam/README.md) tests only a smaller exact-interface and nested-pattern subset. The complete sequence below remains unimplemented:
 
 1. One record, enum/union, pure helper and prompt function with fixture response; one invalid-input and one invalid-type case.
 2. Lossless parse, deterministic formatting, name/type diagnostic and one explicit effect boundary from the same semantic core.
