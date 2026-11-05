@@ -16,6 +16,15 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Build readiness](planning/build-readiness.md): requirement/evidence/decision/probe dependencies and first validation slice.
 - [What should BEAML build first?](queries/what-to-build-first.md): source-backed saved answer.
 
+## Event flow, typed errors and replay
+
+- [Current typed replay requirement R01](sources/typed-replay-requirement.md): later user target and its relationship to the historical PDF.
+- [Broadway/Kafka sources](sources/broadway-kafka.md): pinned selected demand, failure acknowledgment, offsets and retained-log limits.
+- [Event flows and backpressure](concepts/event-flows-and-backpressure.md): per-context flows, admission, ordering, failure and measured adoption gates.
+- [Event-sourcing/replay sources](sources/event-sourcing-and-replay.md): state folds, deterministic workflow history and compiler reproducers.
+- [Pinned replay source validation](sources/replay-source-validation.md): missing workflow identity, sink isolation, compatible commands and crash uncertainty.
+- [Typed errors and replay](concepts/typed-errors-and-replay.md): compiler/runtime capture profiles, GROUND TRUTH, typed-invalid fixtures, completeness, isolated reproduction and per-context acceptance.
+
 ## Types and formal reasoning
 
 - [Type-system primary sources](sources/type-system-foundations.md): theorem, inference, evidence, refinement/effect and typestate evidence/limits.

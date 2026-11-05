@@ -38,9 +38,13 @@ updated: 2026-11-05
 
 **[Verified]** [PostgreSQL 18 RLS](https://www.postgresql.org/docs/18/ddl-rowsecurity.html) has owner/superuser/BYPASSRLS exemptions. **[Proposal]** Test real application roles and malicious tenant filters, background jobs and admin/report routes; audit Observatory reads. RBAC and tenant isolation remain required beyond any single database feature.
 
+## Current typed replay target
+
+**[Requirement]** The [later user request R01](../sources/typed-replay-requirement.md) expands the historical PDF scope to fully typed surrounding execution replay on error. The [typed error/replay design](typed-errors-and-replay.md) separates original evidence, complete authorized REPLAY HISTORY, isolated REPLAY RUNS and COUNTERFACTUAL RUNS. Ordinary sampled OBSERVATION EVENTS cannot supply that guarantee. Mandatory capture has a separate admission/failure policy; telemetry remains bounded and nonblocking. Full capture does not authorize secret collection. The [event-flow map](event-flows-and-backpressure.md) separates these channels and connector acknowledgment limits.
+
 ## Replay is a separately consented artifact
 
-**[Requirement]** Replay records explicitly allowed fixtures/provider responses, encrypted with scoped access and delete support; it is not deterministic arbitrary scheduler replay. (Spec§§10,41.) **[Proposal]** Record compiler/schema/provider configuration identifiers, the allowed request/response fixture boundary, consent/purpose/policy version and expected validator result. Keep secrets out; nondeterministic provider behavior/scheduler ordering cannot be reconstructed from spans alone.
+**[Requirement — historical PDF scope]** Replay records explicitly allowed fixtures/provider responses, encrypted with scoped access and delete support; it is not deterministic arbitrary scheduler replay. (Spec§§10,41.) **[Proposal]** Record compiler/schema/provider configuration identifiers, the allowed request/response fixture boundary, consent/purpose/policy version and expected validator result. Keep secrets out; nondeterministic provider behavior/scheduler ordering cannot be reconstructed from spans alone.
 
 **[Verified]** [ClickHouse TTL](https://clickhouse.com/docs/concepts/features/operations/delete/ttl) deletes during merges; [Amazon S3 expiry](https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-expire-general-considerations.html) is asynchronous and version-aware, potentially leaving noncurrent versions. **[Inference]** Retention eligibility, query invisibility and physical erasure are different lifecycle outcomes. **[Proposal]** Replay acceptance tests must enumerate actual object versions, encrypted backups/replicas and source/index references after deletion; set and document backend-specific timing. “S3-compatible” alone does not establish Amazon's exact behavior.
 

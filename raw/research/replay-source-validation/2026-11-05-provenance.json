@@ -1,0 +1,22 @@
+{
+  "captured_at": "2026-11-05",
+  "kind": "selected-primary-source-paraphrases",
+  "retained_capture": {
+    "path": "raw/research/replay-source-validation/2026-11-05-selected-notes.md",
+    "sha256": "88486c107ff469cbe1461b90e774f58044dbddc282296fd1deb2076476bbfee4"
+  },
+  "source_pin": {
+    "repository": "https://github.com/temporalio/sdk-typescript",
+    "commit": "137e536c8d99c779600aae1d87e09319f09b978b",
+    "file": "packages/worker/src/worker.ts",
+    "method": "public GitHub commit API resolution then exact raw revision fetch",
+    "coverage": "selected replay API/history loop/sink handling only"
+  },
+  "other_sources": "Official documentation URLs and observed versions listed in retained capture",
+  "limits": [
+    "No runtime execution",
+    "Not a complete SDK audit",
+    "Documentation URLs mutable"
+  ],
+  "attribution": "Selected paraphrases; upstream copyright retained. SDK source MIT; documentation licenses are not applied to BEAML."
+}

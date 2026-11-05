@@ -37,6 +37,16 @@ Use CAPITALS when naming a glossary term. Use its qualified name when the scope 
 | OBSERVATION EVENT | A record used to explain execution or diagnostics without establishing a domain commit. | OBSERVATORY | Beobachtungsereignis |
 | TRACE CONTEXT | Correlation identifiers and propagation state used to connect trace observations across operations. | OBSERVATORY | Trace-Kontext |
 | AUDIT RECORD | A policy-governed record of an auditable action with explicit durability and access rules. | OBSERVATORY | Prüfprotokolleintrag |
+| EVENT ENVELOPE | Versioned transport metadata and a classified payload reference or value; receipt does not certify validation or commitment. | Producing context | Ereignishülle |
+| TYPED ERROR | A versioned error variant with typed details, provenance, cause and outcome status; presentation text does not replace the variant. | Producing context | Typisierter Fehler |
+| ERROR CONTEXT | Policy-permitted state, input, source and causal references needed to explain a TYPED ERROR within a declared execution scope. | Producing context | Fehlerkontext |
+| REPLAY HISTORY | An ordered or causally constrained durable record of inputs, decisions and observed outcomes for a declared reproduction scope. | Originating context | Wiederholungshistorie |
+| REPLAY CAPSULE | A versioned manifest that binds authorized history, fixtures, state and build artifacts to one reproducible scope and its completeness evidence. | Originating context | Wiederholungskapsel |
+| CHECKPOINT | Captured resumable state with its version and history position; a broker offset alone does not establish the state. | Originating context | Wiederaufsetzpunkt |
+| CAPTURE COMPLETENESS | A scoped assessment of which required replay inputs and outcomes were captured, omitted, lost or remain unknown. | Capturing context | Erfassungsvollständigkeit |
+| GROUND TRUTH | The authoritative evidence named by its owner and scope; recorded execution evidence does not establish external factual truth. | Owning context | Maßgebliche Evidenz |
+| REPLAY RUN | An isolated reproduction that consumes a specified REPLAY CAPSULE and substitutes recorded outcomes for external effects. | Originating context through shared runner contract | Wiederholungsdurchlauf |
+| COUNTERFACTUAL RUN | An isolated execution with deliberately changed inputs, artifacts or decisions; it is not a reproduction of the original run. | Originating context | Alternativdurchlauf |
 | REPLAY FIXTURE | A permitted recorded input or provider response used in a scoped reproduction test. | EXECUTION | Wiederholungsfixture |
 | EFFECT | An operation category tracked by language rules to constrain behavior beyond pure computation. | LANGUAGE/COMPILATION | Wirkung |
 | SECURITY LABEL | A restriction attached to data or control flow and interpreted by a versioned security policy. | LANGUAGE/COMPILATION | Sicherheitskennzeichnung |

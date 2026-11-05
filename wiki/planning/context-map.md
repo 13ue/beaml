@@ -61,6 +61,16 @@ These are translations of meaning, not only renamed fields. The BEAM case spans 
 
 A possible small shared contract includes source/artifact identity, schema version and an evidence envelope. It is not adopted yet. Each field needs an owner, compatibility rule and reason to cross the boundary. Avoid a universal MODEL, EVENT or STATUS object. SCHEMA, DOMAIN EVENT, OBSERVATION EVENT and EVIDENCE STATUS answer different questions. Keep UNKNOWN and TESTED visible when a metadata projection omits details. A lossy observation view must state its omissions; translation grants no validation or declassification authority. [Evolution rules](../concepts/schema-and-api-evolution.md)
 
+## Event flows and typed replay
+
+**[Proposal]** The [event-flow map](../concepts/event-flows-and-backpressure.md) separates compiler updates, runtime operations, domain publication, observations, audit and replay capture.
+LANGUAGE/COMPILATION owns versioned semantic meaning and compiler-session history. EXECUTION owns workflow and effect history.
+OBSERVATORY owns its retained ingestion and projection facts, and presents permitted views.
+Shared replay formats and runners do not transfer semantic ownership.
+Required replay capture has its own admission and durability policy; routine telemetry may remain lossy.
+Kafka offsets and exporter acknowledgements do not establish complete typed history.
+The [connector evidence](../sources/broadway-kafka.md) gates failure recovery because failed Kafka messages can still be acknowledged.
+
 ## Optional transport and adoption decisions
 
 **[Proposal]** Kafka or Broadway may later implement an event-transport adapter. They are not selected dependencies or new semantic authorities. Keep event identity, ordering scope, delivery uncertainty, retry and idempotency in the contract. Durable domain commit/outbox publication is separate from routine telemetry and durable audit. Transport choice does not settle those guarantees.

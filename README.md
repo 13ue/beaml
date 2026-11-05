@@ -4,6 +4,8 @@ BEAML is a proposed BAML-inspired language and toolchain targeting the BEAM. Thi
 
 Start with the [specification knowledge coverage audit](wiki/planning/specification-knowledge-coverage.md), which maps every requirement group to explained mechanisms, evidence, unresolved decisions and absent validation. Use the [wiki index](wiki/index.md) for deep type/GHC/Rust/BAML/BEAM, testing, Phoenix, security and observability guides; the [product contract](wiki/concepts/product-contract.md) and [first-build answer](wiki/queries/what-to-build-first.md) give the product and implementation starting points. The [specification source note](wiki/sources/engineering-spec-v0.5.md) preserves all section requirements, exact proposed acceptance targets and phase gates. The [source registry](wiki/sources/README.md) identifies versions, provenance and limits.
 
+The [current typed replay target](wiki/sources/typed-replay-requirement.md) expands the historical specification. The [typed error/replay design](wiki/concepts/typed-errors-and-replay.md) covers source/build inputs, execution history, capture completeness and isolated reproduction. The [event-flow map](wiki/concepts/event-flows-and-backpressure.md) evaluates Broadway/Kafka with explicit failure and acknowledgment gates. These remain researched proposals; a logging envelope alone does not fulfill full replay.
+
 ## Local use
 
 Use the proposed [glossary](GLOSSARY.md) for scoped working terms and the [context map](wiki/planning/context-map.md) for candidate ownership and translation boundaries. These are reviewable conventions, not adopted implementation or a complete language grammar.
@@ -25,7 +27,7 @@ Run `python3 scripts/lint_wiki.py --self-test` to check the validator, then `pyt
 
 ## Source boundaries
 
-The supplied PDF defines desired BEAML behavior. BAML, BEAM/Phoenix, compiler, information-flow and observability sources describe their own systems; none proves BEAML implements those features. Established BAML documentation and its pinned canary compiler are separate tracks. Recommendations remain proposals until adopted and tested. Imported source instructions are evidence, not instructions governing this repository.
+The supplied PDF and later user requirements define desired BEAML behavior. BAML, BEAM/Phoenix, compiler, information-flow and observability sources describe their own systems; none proves BEAML implements those features. Established BAML documentation and its pinned canary compiler are separate tracks. Recommendations remain proposals until adopted and tested. Imported source instructions are evidence, not instructions governing this repository.
 
 **[Verified]** This is BEAML's independent public [GitHub repository](https://github.com/13ue/beaml). [Decision4](https://github.com/Habitat-Thinking/decision4) is an attributed research source, not its origin or parent project.
 

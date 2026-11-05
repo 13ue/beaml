@@ -38,7 +38,7 @@ Local requirement handles refer to [S01-S45 in the source inventory](../sources/
 | S22-S26/S31: UI descriptors, parser-backed analysis, safe rename/forms | [Phoenix/HEEx evidence](../concepts/phoenix-heex-integration.md) | Pin unofficial/internal parser dependency; .heex/~H Unicode/indent/nested slots/source spans; string ID +missing/empty/null form cases; dynamic event UNKNOWN; unsafe rename refused. | UI A-D; **required** all public browser entry points validate before commands. |
 | S33-S37/S42-S45: labels, pc, sink policy, explicit releases, foreign classification | [Jif/effects primary notes](../sources/information-flow-security.md) | Fix algebra/TCB/interop rules; join laws +direct/implicit/error-path compile-fail fixtures; sensitive default to unknown foreign sink refuses; declassification without authority refuses. | P0 core, P1 approvals/manifests, P2 advanced analysis; scope ambiguity remains open. |
 | S15/S38-S41: safe metadata, explicit context, bounded telemetry, tenant-aware Observatory | [OTel/storage evidence](../sources/observability-platforms.md) | Pin per-signal packages; command/task causality with separate supervision graph; collector outage verifies bounded memory/nonblocking business/loss counters; canary scan all sinks; actual runtime tenant-role isolation. | M7/P0 OTLP+Postgres; P1 ClickHouse after need measured. |
-| S15/S40: replay is opt-in fixture/provider replay | [Replay/storage synthesis](../concepts/observability-and-replay.md) | Purpose/consent/key/access/expiry/deletion model; canary fixture absent by default, explicit opt-in/revoke, version-aware object removal +DB index cleanup; do not claim scheduler replay. | M7/P2 encrypted replay; ordinary telemetry no unbounded spool. |
+| S15/S40: historical PDF fixture/provider replay; expanded by R01 below | [Replay/storage synthesis](../concepts/observability-and-replay.md) | Purpose/consent/key/access/expiry/deletion model; canary fixture absent by default, explicit opt-in/revoke, version-aware object removal +DB index cleanup; do not claim scheduler replay. | M7/P2 encrypted replay; ordinary telemetry no unbounded spool. |
 | S16/S17/S29/S43: reproducible performance/security/fuzz gates | [Exact source targets](../sources/engineering-spec-v0.5.md#exact-acceptance-targets-and-reproducibility-contracts) | Unify baseline/UI hardware and summary protocol; version corpora +counts +confidence; distinguish TESTED from PROVED. No benchmark is a soundness proof. | M8/UI D/P1-P2 as scoped; zero P0/P1 defects and mandatory suites required. |
 
 ## Smallest complete sequence
@@ -52,3 +52,16 @@ Local requirement handles refer to [S01-S45 in the source inventory](../sources/
 ## What this research does not settle
 
 **[Unknown]** No dependency/backend/parser support tuple has been selected; no BAML code reused; no compiler/BEAM demo, property/fuzz suite, performance benchmark, live model call, security proof or storage deletion experiment has run. The first implementation should save executable commands, toolchain versions, source/generated artifacts, normalized diagnostics, seed/counterexample and actual results alongside the existing proposals. This lets later queries answer what was tested rather than repeating aspirations.
+
+## Central typed replay slice from R01
+
+**[Requirement]** The [later request](../sources/typed-replay-requirement.md) makes full typed error-surrounding replay central. It is a new target, not deferred merely because the historical PDF staged optional replay later. **[Proposal]** Add a minimal authorized REPLAY CAPSULE and TYPED ERROR to the compiler/runtime vertical slice before broad provider/concurrency support. Use synthetic permitted fixtures first; no secret capture or live replay effects.
+
+1. Declare the supported complete scope and admission contract; define capture-required inputs, contextual identities and effect boundaries.
+2. Preserve source/build/dependency/schema/policy versions plus unsaved edit/query history where relevant. Preserve raw-invalid input without inventing VALIDATED VALUES.
+3. Record initial state, attempted effects and observed outcomes durably under an explicit crash/acknowledgment model. Keep unknown external outcomes unknown.
+4. Execute an isolated REPLAY RUN with typed recorded effect substitution. Assert capture completeness, runner status and original-error reproduction independently.
+5. Exercise missing/corrupt entries, mid-effect crash, journal outage, stream revisions, tenant denial and version mismatch. Follow the [per-context acceptance matrix](../concepts/typed-errors-and-replay.md#acceptance-by-context).
+6. Evaluate broker/consumer throughput only after the [delivery/acknowledgment gates](../concepts/event-flows-and-backpressure.md) are satisfied. Standard BroadwayKafka always-ack failure behavior cannot silently become the no-loss journal contract.
+
+These are proposed acceptance checks. No replay implementation, durable capture test or throughput result exists.

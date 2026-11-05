@@ -79,3 +79,7 @@ The [knowledge coverage audit](specification-knowledge-coverage.md) distinguishe
 4. Establish a small formal information-flow model and threat boundary before treating policy annotations as security. Include pc flows, interop UNKNOWN, errors and declassification.
 5. Measure a local OTLP+Postgres telemetry path with strict safe attributes, bounded loss under outage and canary sinks; postpone ClickHouse/replay until demonstrated need and explicit privacy policy.
 6. Ground shrinking/generator and state-machine semantics in reproducible reference implementations, especially refined types, exhaustion and precondition-preserving trace reduction.
+
+## Later typed replay requirement R01
+
+**[Requirement]** The [2026-11-05 request](../sources/typed-replay-requirement.md) expands the historical fixture-only replay target. **[Unknown]** Define full surrounding scope, required/forbidden capture, admission and durable append acknowledgment, crash windows, contextual identities, compiler edit/query capture, provider chunk/attempt capture, causal scheduling model, completeness evidence, typed error equality, version/upcaster support, expiry/deletion and safe isolation. Capture failures themselves have a fault boundary; no recursive no-loss claim is established. Keep original-error reproduction, runner success and capture completeness separate. [Design](../concepts/typed-errors-and-replay.md), [transport gates](../concepts/event-flows-and-backpressure.md)

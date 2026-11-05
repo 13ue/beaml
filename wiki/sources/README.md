@@ -42,6 +42,15 @@ This registry indexes evidence, not implementation dependencies. All research wa
 
 The expanded [information-flow source](information-flow-security.md) and [Observatory source](observability-platforms.md) add Jif authority/pc/errors, candidate policy algebra/TCB, OTel 1.62.0 SDK and OTLP 1.11.1 transport, semantic conventions 1.45.0, W3C 2021 context, Postgres 18 audit durability and actual versioned storage deletion. Mutable operations docs remain date-scoped; a generic standard does not prove an Erlang package implements every signal feature.
 
+## Event flow and typed replay evidence
+
+| Source | Pin / origin | Coverage and limits |
+|---|---|---|
+| [Typed replay request R01](typed-replay-requirement.md) | User-supplied local request, 2026-11-05; selective paraphrase | Current full typed surrounding-error replay target; expands historical fixture scope. No capture policy/framework approval. |
+| [Broadway/Kafka](broadway-kafka.md) | Broadway 1.3.0 d3a668c; BroadwayKafka 0.7.1 dedd507; GenStage 1.3.2 d1532fa; Kafka 4.4 docs | Demand/ack/offset/order/retention mechanisms. Failed connector messages are acknowledged; no complete brod audit or load test. |
+| [Event sourcing/replay](event-sourcing-and-replay.md) | Temporal mutable docs; Akka 2.10.24; current Clang manual | Selected state recovery, command replay, attempt-history omissions, serialization and compiler reproduction. No engine selected. |
+| [Replay source validation](replay-source-validation.md) | Temporal TypeScript SDK 137e536c8d99c779600aae1d87e09319f09b978b; dated OTel/Kafka/BEAM docs | History can omit contextual identity; optional sinks need isolation; command compatibility is narrower than full host replay. No runtime experiment. |
+
 ## Corrections and historical evidence
 
 Raw captures are immutable historical records. Read the maintained source/mechanism pages for the current interpretation:

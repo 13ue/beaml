@@ -1,0 +1,52 @@
+{
+  "captured_at": "2026-11-05",
+  "kind": "selected-primary-documentation-paraphrases",
+  "retained_capture": {
+    "path": "raw/research/typed-replay/2026-11-05-selected-primary-notes.md",
+    "sha256": "926bd5e7d20c032e474a22786ca5c0b39abc41121b16e20212accc37bfae853d"
+  },
+  "upstream_sources": [
+    {
+      "url": "https://docs.temporal.io/workflow-execution",
+      "version": "mutable observed 2026-11-05",
+      "coverage": "selected sections recorded in capture",
+      "method": "web open/find"
+    },
+    {
+      "url": "https://docs.temporal.io/workflow-execution/event",
+      "version": "mutable observed 2026-11-05",
+      "coverage": "selected sections recorded in capture",
+      "method": "web open/find"
+    },
+    {
+      "url": "https://docs.temporal.io/develop/go/workflows/side-effects",
+      "version": "mutable observed 2026-11-05",
+      "coverage": "selected sections recorded in capture",
+      "method": "web open/find"
+    },
+    {
+      "url": "https://docs.temporal.io/dataconversion",
+      "version": "mutable observed 2026-11-05",
+      "coverage": "selected sections recorded in capture",
+      "method": "web open/find"
+    },
+    {
+      "url": "https://doc.akka.io/libraries/akka-core/current/typed/persistence.html",
+      "version": "2.10.24 observed",
+      "coverage": "selected sections recorded in capture",
+      "method": "web open/find"
+    },
+    {
+      "url": "https://clang.llvm.org/docs/UsersManual.html",
+      "version": "current in-progress manual observed",
+      "coverage": "selected sections recorded in capture",
+      "method": "web open/find"
+    }
+  ],
+  "limits": [
+    "no runtime experiments",
+    "no source pin in this capture",
+    "no full documentation audit"
+  ],
+  "attribution": "Temporal Technologies; Akka; LLVM Project. Paraphrases, not full copies."
+}
