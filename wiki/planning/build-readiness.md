@@ -10,6 +10,8 @@ updated: 2026-11-05
 
 **[Proposal]** Build one reproducible compiler-to-BEAM slice before broad language/UI/Observatory coverage. The repository is research-ready, not implementation-ready: no compiler/runtime/prototype has run, and important semantics remain open. The [spec inventory](../sources/engineering-spec-v0.5.md) preserves exact requirements, phases and proposed numeric gates; the [gap queue](specification-gaps.md) retains unresolved alternatives rather than silently choosing them.
 
+The deeper [knowledge coverage audit](specification-knowledge-coverage.md) now routes every S01-S45 group to local mechanism/source traces and separates remaining reference knowledge, language decisions and absent execution. Use it before interpreting this concise first-build map as complete language design.
+
 ## Decide the contracts that every layer depends on
 
 | Order | Decision artifact | Why first / evidence | First validation (proposed unless marked requirement) | Spec phase anchor |

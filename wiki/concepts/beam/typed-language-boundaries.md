@@ -1,0 +1,57 @@
+# Types on BEAM: static meaning versus runtime evidence
+
+Status: **[Verified]** selected precedents; **[Inference]** boundary consequences; **[Proposal]** BEAML decisions/examples. [Typed-source inventory](../../sources/typed-beam-languages.md); [VM evidence](../../sources/beam-vm-internals.md).
+
+## Three different questions
+
+| Question | Suitable evidence | What it does not establish |
+|---|---|---|
+| Does the compiler reject a mismatch in its supported core? | Type/effect/refinement rules plus pass invariants and negative cases | Correctness of foreign code, runtime data or a model's factual claim |
+| Can static analysis find definite inconsistencies in this program? | A scoped analysis such as success typing or gradual inference | Acceptance by an all-paths safe-language type discipline |
+| Does this untrusted value satisfy this runtime schema now? | Decoder/validator result tied to schema/version | Truthfulness, authorization, confidentiality or all future uses |
+
+**[Inference]** These can complement one another. Calling all three “typed” hides the proof boundary central to the [product contract](../product-contract.md).
+
+## Dialyzer's success-typing boundary
+
+**[Verified]** The official analysis model says Dialyzer can miss bugs it cannot establish. When a source spec exists, it checks overlap with inferred argument/result types; overlap is not exact equality or full subset conformance. It can then trust their intersection, so an inaccurately restrictive spec can influence downstream diagnostics. [Pinned model/examples](https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/dialyzer/doc/guides/dialyzer_chapter.md#how-dialyzer-uses-function-specifications).
+
+**[Proposal]** Constructed boundary example:
+
+```text
+foreign function declared: decode_invoice(raw) -> Validated<Invoice>
+actual implementation:    returns raw map unchanged
+```
+
+Emitting a matching Erlang `-spec` does not make this implementation a decoder. A wrong overlapping spec can even narrow what another analysis sees. BEAML's boundary must perform the declared checks or explicitly mark the foreign function trusted/UNKNOWN; a clean Dialyzer report cannot certify the missing validator.
+
+## Gleam shows ordinary-term code generation
+
+**[Verified]** The inspected Gleam backend emits fieldless constructors as atoms and constructors with fields as tag-headed tuples, while generating type specifications separately. It has explicit phantom-variable handling in typespec generation. [Pinned constructor generator](https://github.com/gleam-lang/gleam/blob/69822bed994794f5c7d356eca53bf8e5bbaffdc8/compiler-core/src/erlang.rs#L367-L415).
+
+**[Verified]** Gleam's official externals documentation says annotations are required/trusted for foreign implementations; incorrect annotations can cause runtime failures. Its guide documents ordinary target representations, including UTF-8 binaries for Gleam strings rather than Erlang character lists. [Externs tour](https://tour.gleam.run/advanced-features/externals/); [Representation guide](https://gleam.run/documentation/externals/).
+
+**[Inference]** This is evidence that a typed language can use ordinary BEAM terms while checking more at compile time; it is not evidence those terms are unforgeable by arbitrary Erlang/Elixir. **[Proposal]** A proposed `InvoiceId` wrapper and `Validated<T>` tag must have a documented trust scope. If trusted foreign code can construct the same term, a tag alone is not proof of authorized creation. Runtime validators, module/process-controlled handles, version checks and explicit foreign trust serve different goals; choose the minimum mechanism consistent with the threat model.
+
+## Elixir's current gradual system is not just typespecs
+
+**[Verified]** Elixir v1.20's announcement describes inference and gradual checking without new user annotations, with types narrowed by use and further signature/recursive/parametric work still ahead. [Release explanation](https://elixir-lang.org/blog/2026/06/03/elixir-v1-20-0-released/). At v1.20.5, `Module.Types` documents static/dynamic/infer modes; `Module.Types.Descr` represents set operations and dynamic bounds using structures including BDDs. These are internal implementation precedents, not stable APIs. [Inference modes](https://github.com/elixir-lang/elixir/blob/4a28692668bef879029291b7ff329a84a1f933bb/lib/elixir/lib/module/types.ex#L1-L45); [Descriptor representation](https://github.com/elixir-lang/elixir/blob/4a28692668bef879029291b7ff329a84a1f933bb/lib/elixir/lib/module/types/descr.ex#L1-L140).
+
+**[Proposal]** Worked narrowing problem: an Elixir assign map may reveal `amount` is numeric after an operation, yet that does not show a browser value is a positive `Decimal`, belongs to the current tenant, or retains its confidentiality label. Reusing host metadata can improve diagnostics within a declared supported subset; it must not upgrade dynamic host facts into stronger BEAML refinement/authorization/IFC evidence.
+
+## Generic witnesses, typestate and effects need explicit lowering
+
+**[Requirement]** The spec calls for schema witnesses, nominal newtypes, refinements, effect sets and typestate; affine streams are later. [Type-system source](../../sources/engineering-spec-v0.5.md). **[Proposal]** Distinguish static erasure from runtime evidence in the ABI:
+
+```text
+Extract<T>(text)
+  compile-time: T must satisfy Schema + Validate
+  runtime:     a specialized decoder OR explicit descriptor/witness for T
+  boundary:    raw -> parsed -> validated -> checked refinement
+```
+
+A runtime generic function receiving only `text` cannot infer the intended schema from erased static intent. Decide specialization versus dictionary/witness arguments, stable schema identity, recursive schema support, cache invalidation and version compatibility. A phantom `Stream<Complete>` parameter can prevent certain source programs but cannot stop foreign code duplicating a handle or sending a late message. The runtime state/ownership protocol must match the static transitions; see [process lifecycle](processes-messages-and-otp.md).
+
+**[Proposal]** Lower explicit effect-handler dictionaries as explicit runtime arguments/state where chosen. Define whether each call can allocate, throw, exit, block, send, or disclose; a host function that looks pure syntactically may invoke hidden effects. Tests should include a forged witness, wrong schema version, duplicate stream use, unknown foreign call and secret-valued error, with exact status/diagnostic and no unauthorized effect.
+
+**[Unknown]** No reviewed BEAML soundness theorem, coherent trait algorithm, generic ABI or cross-language type-evidence format exists yet. These precedents identify mechanisms and failure cases; they do not settle those language decisions or endorse compatibility.

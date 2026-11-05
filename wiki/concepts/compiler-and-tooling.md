@@ -17,12 +17,14 @@ The source has grammar/version drift and mixed function/field spellings. Decide 
 | Discriminator | Established BAML documentation | Pinned BAML canary | BEAML decision |
 |---|---|---|---|
 | Function surface | `function Name(arg: Type) -> Type` plus client/prompt | General code bodies and synthesized LLM companions | Canonical `function` versus `fn`; whether prompt functions are one body form |
-| Field surface | `field Type` | Must inspect chosen canary grammar before claiming a full syntax match | Colon fields versus no-colon extension examples |
+| Field surface | `field Type` | Inspected fixtures use colon fields/config and backtick interpolation; full grammar still requires conformance scope | Colon fields versus no-colon extension examples |
 | Types/effects | Typed extraction schemas | Runtime nominal types, invariant mutable collections, typed throws | Domain/effect/refinement/security rules remain independent |
 | Union meaning | Parse order affects branch selection | Set-like algebra with a parsing-order exception | Preserve explicit parser preference separately from normalized semantic unions |
 | Execution | Generated host client + runtime | BexVM bytecode/async engine | Generate Elixir/Erlang and define OTP boundary semantics |
 
 Evidence: [BAML documentation](../sources/baml-documentation.md), [pinned compiler](../sources/baml-canary-compiler.md). “TypeScript-like” describes familiarity; it is insufficient to settle any row.
+
+See the [pinned BAML source walkthrough](compilers/baml.md) for Pratt/template parsing, actual hir_ty owner queries and shared-T stream defaults; [Rust walkthrough](compilers/rustc.md), [incrementality](compilers/incremental-compilation-and-source-identity.md) and [verification](testing/compiler-verification.md) deepen the mechanisms below.
 
 ## Small shared semantic core
 

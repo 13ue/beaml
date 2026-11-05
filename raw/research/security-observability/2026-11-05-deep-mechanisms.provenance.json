@@ -1,0 +1,20 @@
+{
+  "accessed": "2026-11-05",
+  "capture": "2026-11-05-deep-mechanisms.md",
+  "sha256": "ea5e1fb0f4b960043e06a08c3cde276509f46f7ba0f713c6fed5b0c7a767dadb",
+  "coverage": "Selected primary sections; original unexecuted candidate mechanisms in maintained pages",
+  "versions": {
+    "jif": "3.3.0",
+    "otel_general": "1.62.0 displayed",
+    "otlp": "1.11.1 displayed",
+    "semconv": "1.45.0 displayed",
+    "postgres": "18",
+    "w3c_trace_context": "2021-11-23 Recommendation"
+  },
+  "limits": [
+    "No deployment or protocol conformance test",
+    "No whole-paper proof audit",
+    "Mutable operational docs date-pinned only"
+  ],
+  "rights": "Selected paraphrases; original copyrights remain upstream"
+}

@@ -1,0 +1,313 @@
+{
+  "retrieved_on": "2026-11-05",
+  "coverage": "Selected source modules and guide chapters read; full inputs remained temporary, no build/test execution. Source-file hashes permit targeted refetch.",
+  "attribution": "Rust Project and BoundaryML own their upstream source; summaries/identifiers only retained here. Upstream license terms remain independent of BEAML.",
+  "files": [
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_ast_lowering/src/lib.rs",
+      "sha256": "9679752e076845e21f53fc33f9be83d6223027a85e7f99e028e40df534746da2",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_ast_lowering/src/lib.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_borrowck/src/lib.rs",
+      "sha256": "ef29dd22785be276b74ea394cb31f6de667007ba1285dd54251601467e4c40d2",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_borrowck/src/lib.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_codegen_ssa/src/base.rs",
+      "sha256": "37e5e27dfd9fea79909f4b16b8e73dfcb95bcc6e84fbfd0a848190dda1cafe18",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_codegen_ssa/src/base.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_const_eval/src/const_eval/eval_queries.rs",
+      "sha256": "68a1e60639538226a8b522508943248ba74e8564aec4d5b7562b94ac3e208873",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_const_eval/src/const_eval/eval_queries.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_expand/src/expand.rs",
+      "sha256": "533c5e783cd6463b645fb07e177da44ee7507eb70bf271247a6ac04d69c441a2",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_expand/src/expand.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_hir_typeck/src/lib.rs",
+      "sha256": "7b223e06e8998d5d0f2585237bfebc788a691604bcf4c0edd5022f1835559842",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_hir_typeck/src/lib.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_infer/src/infer/mod.rs",
+      "sha256": "1443458e14e3d7d838e85ad8e47b96c04f39d600426ff7f61170863183d1b346",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_infer/src/infer/mod.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_interface/src/passes.rs",
+      "sha256": "e8094f06284bb501a29ccbffb6c9273b7ed964252682fa9226b18aa92ce9109b",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_interface/src/passes.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_middle/src/dep_graph/graph.rs",
+      "sha256": "f66eda9a9dec72aece77c0660a0672b48b30fe45dc1bdc4bca18a666a07f5495",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_middle/src/dep_graph/graph.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_middle/src/mir/visit.rs",
+      "sha256": "b94af53fad01179960dd299669f9bbe4397c4b116af4d127e80ae92277221eb6",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_middle/src/mir/visit.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_middle/src/query/mod.rs",
+      "sha256": "53aa447ea55dd1edf24f2a9e6c0a36abb95c259114012f527334e685c1340abf",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_middle/src/query/mod.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_mir_build/src/lib.rs",
+      "sha256": "336ac40ab9540719ce6b2015bba21d728fd90c14b89a27780c0a159ce9d3ecc0",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_mir_build/src/lib.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_mir_transform/src/lib.rs",
+      "sha256": "485573f11548f1777ce49c246dc290dca6da1b37232bee7f511959215394a6ee",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_mir_transform/src/lib.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_mir_transform/src/validate.rs",
+      "sha256": "1f5a68272047312408cac2d07177478bec223f565b1cd9dcef16823d8cdde390",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_mir_transform/src/validate.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_monomorphize/src/collector.rs",
+      "sha256": "6d3f00c995c488743415179bcd60f19aae3784b6fb1e13b389c40f12cb6f66f5",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_monomorphize/src/collector.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_next_trait_solver/src/solve/mod.rs",
+      "sha256": "60b26d6d7b8ad8bb987aae8651f14437240af99a5edd66a3775a1b58ae2792cb",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_next_trait_solver/src/solve/mod.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_parse/src/parser/mod.rs",
+      "sha256": "f3443f1a4d06a2d4f8bb8525c85dd491834194243d5865393a63ae5561d30b45",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_parse/src/parser/mod.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_resolve/src/lib.rs",
+      "sha256": "db77630c1e74b2f097230fbd3a46305deb5863206e5bc465251baed9c6b2af54",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_resolve/src/lib.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_span/src/hygiene.rs",
+      "sha256": "cd60fc59e55267d9aa3613842a0698717bd0cea143c69685a557dade4f448006",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_span/src/hygiene.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_span/src/source_map.rs",
+      "sha256": "5dd75c97a632f4f79cebb9313f60ce83f715d7b394582b63ac5cbb1dd30f5b8e",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_span/src/source_map.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_trait_selection/src/traits/fulfill.rs",
+      "sha256": "7df2cd94eb821dc356229d424dac713c28f2c2dbd3a65a97281779720d8c8447",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_trait_selection/src/traits/fulfill.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "compiler/rustc_trait_selection/src/traits/select/mod.rs",
+      "sha256": "d33c1ca5be84fc558626ce5e2e1c5dfc84851b4282a6b9afbd92af4e679f9fda",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/compiler/rustc_trait_selection/src/traits/select/mod.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "tests/incremental/spans_in_type_debuginfo.rs",
+      "sha256": "528752549906c149a220b93057a0955441bdcb443d13d370353d567fbf6adb77",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/tests/incremental/spans_in_type_debuginfo.rs"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+      "path": "tests/mir-opt/README.md",
+      "sha256": "ad94940c8ebdc9ac6ee44e9a478a523611b7c60c8763691a0020ccc94d14d9b3",
+      "url": "https://github.com/rust-lang/rust/blob/58cf8f9c35b355199727627d07ae34a4e2846d67/tests/mir-opt/README.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/backend/monomorph.md",
+      "sha256": "2ef8f4ed5d5bb5f9748191274110622550ba354620983986b8a8fbc1308e2947",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/backend/monomorph.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/borrow-check.md",
+      "sha256": "16690494c63abb00c03f6f41366358599eac53f796af5f1a414f871f5d9227df",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/borrow-check.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/const-eval.md",
+      "sha256": "93d90f5602c6abb7282ad979e99b1246393aa5d8736761f5d10536160e2c378e",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/const-eval.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/diagnostics.md",
+      "sha256": "bc2214687e8f990ff4c3260dd84199c550aef1888bc85396963c9f1661f68548",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/diagnostics.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/macro-expansion.md",
+      "sha256": "312e963077ff06baa51d3aa7dafa0f1a0aa74a049e68314d8f5126fe6cf6e1c0",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/macro-expansion.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/mir/index.md",
+      "sha256": "216914e1b937482b09efcced9528f12e13069cbf3c027674404f4878279c6140",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/mir/index.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/name-resolution.md",
+      "sha256": "90c113d2413c54c0036f1432fee30fdf38a1b08f5182a6c5d1ab238f99832928",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/name-resolution.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/overview.md",
+      "sha256": "cd187200e7cb20e5906a0af0feb47e73213b9df93d79828b45b1241fd00dd7fe",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/overview.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/queries/incremental-compilation-in-detail.md",
+      "sha256": "8a975481bb5aff355a1d4b3d89c09c924143d508228bd5907a4d6cd8ffb385d3",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/queries/incremental-compilation-in-detail.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/queries/incremental-compilation.md",
+      "sha256": "9ac187328582e67dea40611c6437de899c9793e2f1ccf0286e4317a5bda3a7a8",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/queries/incremental-compilation.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/query.md",
+      "sha256": "6268d59be454472132aa7010f867cf74465693fc28a369ee76bde4288bb1ad89",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/query.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/solve/canonicalization.md",
+      "sha256": "3d5613a6fc7c3b8f3aba83ae66148160f02eace3b3ec23cf68b60be47c42dd20",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/solve/canonicalization.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/solve/invariants.md",
+      "sha256": "9b7f7504df4a93208f8d9e091824c7c1b4b174646392cebc514051cd2d74a780",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/solve/invariants.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/solve/the-solver.md",
+      "sha256": "79e1943ee030ced3d4e251797a00a92349807d3f263e0aed33fbd2479c45ea49",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/solve/the-solver.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/solve/trait-solving.md",
+      "sha256": "55084259338119f82df379d0e6060d88c352223f240c8d6bc2b646b1675461f3",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/solve/trait-solving.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/tests/compiletest.md",
+      "sha256": "072e9bfab2b48d2dbc3c3a50b1027ae419032b9721b59f82b68499e9c29ca449",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/tests/compiletest.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/tests/ui.md",
+      "sha256": "b452f6ac6f94e9ab85a3c2d6e477b723a3a9a732ef5fbb327a21044086c9d164",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/tests/ui.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/thir.md",
+      "sha256": "106597d48bf1ba26794c892d9815a6b1ec62a41fa101e48f96b702eb55bdd86f",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/thir.md"
+    },
+    {
+      "repository": "rust-lang/rustc-dev-guide",
+      "commit": "a29f8285990b8254783202aa0d86322eb21edf61",
+      "path": "src/type-inference.md",
+      "sha256": "25dcb6f032d1f506ffe7482067f0f8bc02b0ca66700e8d57dc04f1cbb1a57915",
+      "url": "https://github.com/rust-lang/rustc-dev-guide/blob/a29f8285990b8254783202aa0d86322eb21edf61/src/type-inference.md"
+    }
+  ],
+  "limits": [
+    "Inspection is not conformance, compiler correctness, memory-safety or performance evidence.",
+    "Rust source release and compiler-guide HEAD are different dated revisions.",
+    "BAML design prose and file comments can lag concrete call sites; discrepancies are preserved in research record."
+  ]
+}

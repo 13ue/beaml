@@ -1,0 +1,44 @@
+{
+  "accessed": "2026-11-05",
+  "repository": "ghc/ghc (official GitHub mirror)",
+  "commit": "383be28ffdddf65b57b7b111bfc89808b4229ebc",
+  "capture": "2026-11-05-solver-demand-followup.md",
+  "sha256": "69e01635d1fca9e7ba06b2f520aeb1f37c09482b762ec7e52f919b8f2b6e8a6b",
+  "method": "GitHub connector directory discovery then fetch_file at explicit commit; selected sections read",
+  "files": [
+    {
+      "path": "compiler/GHC/Tc/Solver.hs",
+      "git_blob_sha": "42afc8840674023abb975102db895cb2c1248edc"
+    },
+    {
+      "path": "compiler/GHC/Tc/Solver/Solve.hs",
+      "git_blob_sha": "299a72b52f69e3d2ce88dafeebde7527de893183"
+    },
+    {
+      "path": "compiler/GHC/Tc/Solver/Dict.hs",
+      "git_blob_sha": "78f32515ac6aaa3bec60b956e5e1ced6cffb0071"
+    },
+    {
+      "path": "compiler/GHC/Tc/Solver/Equality.hs",
+      "git_blob_sha": "c15d3ad1710ea90e27798d7f88ad853aad0802c6"
+    },
+    {
+      "path": "compiler/GHC/Core/Opt/DmdAnal.hs",
+      "git_blob_sha": "be525735793738bfc08c9d2e3df33ef89b21ae4a"
+    },
+    {
+      "path": "compiler/GHC/Core/Opt/WorkWrap.hs",
+      "git_blob_sha": "0b40eed5c30d2712e5eda844ed0d8249730ebb27"
+    },
+    {
+      "path": "compiler/GHC/Core/Opt/WorkWrap/Utils.hs",
+      "git_blob_sha": "1a47088c798d3d0aeff4b459bb393fa0fec1e591"
+    }
+  ],
+  "supersedes": "Prior access-failure caveats for these seven source files; original raw unchanged",
+  "limits": [
+    "Selected source paths only",
+    "No GHC execution or complete proof audit",
+    "No full source redistribution"
+  ]
+}

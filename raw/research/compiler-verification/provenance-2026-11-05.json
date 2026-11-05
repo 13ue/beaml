@@ -1,0 +1,120 @@
+{
+  "retrieved_on": "2026-11-05",
+  "coverage": "Selected Proptest implementation/tutorial inspection; Rust/BAML test examples linked to separate manifests. No upstream tests or BEAML experiments executed.",
+  "attribution": "Proptest developers (source carries MIT/Apache-2.0 options), Rust Project, BoundaryML, LLVM Project and NIST retain upstream attribution/terms. Only summaries, URLs and hashes retained.",
+  "source_files": [
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "book/src/proptest/failure-persistence.md",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/book/src/proptest/failure-persistence.md",
+      "sha256": "880a415ba9f6b3e0c8090d93ec1f7706aecaffbe30682264bcf7cde1d57d0adb"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "book/src/proptest/state-machine.md",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/book/src/proptest/state-machine.md",
+      "sha256": "35725fa6558698b2da77f80c059d7a2490541880fe2b8b60ef093358b29130d4"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "book/src/proptest/tutorial/filtering.md",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/book/src/proptest/tutorial/filtering.md",
+      "sha256": "fb0ae9f1a3924d73838fabb014387f2fda58dc69cace8ed2609ec4267498cbb6"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "book/src/proptest/tutorial/recursive.md",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/book/src/proptest/tutorial/recursive.md",
+      "sha256": "12914bfe5f16ea731336b3eb8b5f1abab984904281eae241a3ac0f32aa2bbdcd"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "book/src/proptest/tutorial/shrinking-basics.md",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/book/src/proptest/tutorial/shrinking-basics.md",
+      "sha256": "bb323f358312e9c87b0842d08ee7ad6278603b2ca9b9aeaf5b53b6ebe4f79d04"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "book/src/proptest/tutorial/strategy-basics.md",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/book/src/proptest/tutorial/strategy-basics.md",
+      "sha256": "494482079b76fdb4dc7ef57c9712fafb99a1a9a91e9722f9707cb71e3648a70b"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "proptest/src/strategy/filter.rs",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/proptest/src/strategy/filter.rs",
+      "sha256": "06b59ed9186d5d1459e9b3d73c1a8d873079af45c3faba1feacbd1c296108cec"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "proptest/src/test_runner/config.rs",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/proptest/src/test_runner/config.rs",
+      "sha256": "859370d645380d751c6c5ca2736b6fbd8d13735b5321cc26e52f5c01559ce100"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "proptest/src/test_runner/errors.rs",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/proptest/src/test_runner/errors.rs",
+      "sha256": "0351e4a74d1d85dd9b22edd1badb0b879bea67b2fdf91c7a65431a2284b8d9c5"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "proptest-state-machine/src/lib.rs",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/proptest-state-machine/src/lib.rs",
+      "sha256": "a0488a3fb912918d2dd9eec4cdaf7308c8c18d51260a67e8398c89a8a8bfdcd7"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "proptest-state-machine/src/strategy.rs",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/proptest-state-machine/src/strategy.rs",
+      "sha256": "337bf5abac70ffd26f43199517ed6b96774bd1dcc091e340925fb3417503b61b"
+    },
+    {
+      "repository": "proptest-rs/proptest",
+      "commit": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "path": "proptest-state-machine/src/test_runner.rs",
+      "url": "https://github.com/proptest-rs/proptest/blob/70cf37d46b7d83393b6ed94c611f8c52209f585d/proptest-state-machine/src/test_runner.rs",
+      "sha256": "42e6dc2fb11f2b1fff76d14f112570047d4f1a7f8165b652b577239c5b17350e"
+    }
+  ],
+  "documentation": [
+    {
+      "url": "https://llvm.org/docs/LibFuzzer.html",
+      "publisher": "LLVM Project",
+      "version": "mutable official documentation",
+      "coverage": "coverage/corpus/target determinism/timeouts/artifact replay; no build or fuzz run"
+    },
+    {
+      "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda352.htm",
+      "publisher": "NIST/SEMATECH e-Handbook",
+      "version": "mutable official handbook",
+      "coverage": "confidence limits for mean; assumptions and interpretation"
+    },
+    {
+      "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda334.htm",
+      "publisher": "NIST/SEMATECH e-Handbook",
+      "version": "mutable official handbook",
+      "coverage": "bootstrap uncertainty and tail-sensitive-statistic cautions"
+    }
+  ],
+  "related_provenance": [
+    "../rustc-internals/provenance-2026-11-05.json",
+    "../baml-internals/provenance-2026-11-05.json"
+  ],
+  "limits": [
+    "QuickCheck author manual access returned 403; no claims attributed to unread original paper.",
+    "Stateful support inspected is sequential, not a concurrent scheduler model.",
+    "Statistics proposals do not establish sufficient sample sizes or measurements for BEAML."
+  ]
+}

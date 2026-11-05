@@ -1,0 +1,62 @@
+{
+  "source_id": "typed-languages-on-beam",
+  "retrieved_on": "2026-11-05",
+  "status": "Selected primary-source reading; no compiler experiments or formal proof audit.",
+  "capture": "Researcher paraphrases and exact source locators; no upstream implementation copied.",
+  "sources": [
+    {
+      "publisher": "Erlang/OTP contributors",
+      "version": "OTP-29.1.2 / Dialyzer 6.0.4",
+      "commit": "d199a49a01a2079afb6f2c5c9ae047cd4555e68d",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/dialyzer/doc/guides/dialyzer_chapter.md",
+      "coverage": "Model of analysis, spec overlap/intersection and official examples",
+      "license": "Upstream Apache-2.0 notices retained upstream"
+    },
+    {
+      "publisher": "Gleam contributors",
+      "commit": "69822bed994794f5c7d356eca53bf8e5bbaffdc8",
+      "commit_time": "2026-11-05T18:19:35Z",
+      "url": "https://github.com/gleam-lang/gleam/blob/69822bed994794f5c7d356eca53bf8e5bbaffdc8/compiler-core/src/erlang.rs",
+      "coverage": "constructor_type, external type/type-spec generation, module generation entry points; not whole backend audit"
+    },
+    {
+      "publisher": "Gleam contributors",
+      "commit": "69822bed994794f5c7d356eca53bf8e5bbaffdc8",
+      "url": "https://github.com/gleam-lang/gleam/blob/69822bed994794f5c7d356eca53bf8e5bbaffdc8/compiler-core/src/type_.rs",
+      "coverage": "Selected Type constructors/variable/result representation methods"
+    },
+    {
+      "publisher": "Gleam contributors",
+      "url": "https://tour.gleam.run/advanced-features/externals/",
+      "version": "Mutable official tour, date-pinned only",
+      "coverage": "External functions require trusted declared types; incorrect types can cause runtime crashes"
+    },
+    {
+      "publisher": "Gleam contributors",
+      "url": "https://gleam.run/documentation/externals/",
+      "version": "Mutable official guide, date-pinned only",
+      "coverage": "Erlang/Elixir interop and ordinary term representations; not a BEAML compatibility assertion"
+    },
+    {
+      "publisher": "José Valim / Elixir project",
+      "url": "https://elixir-lang.org/blog/2026/06/03/elixir-v1-20-0-released/",
+      "published": "2026-06-03",
+      "coverage": "Release's inference/gradual set-theoretic type milestone and remaining annotation/recursive/parametric work"
+    },
+    {
+      "publisher": "Elixir contributors",
+      "tag": "v1.20.5",
+      "commit": "4a28692668bef879029291b7ff329a84a1f933bb",
+      "url": "https://github.com/elixir-lang/elixir/blob/4a28692668bef879029291b7ff329a84a1f933bb/lib/elixir/lib/module/types.ex",
+      "coverage": "Selected inference modes, signature behavior and inference entry point"
+    },
+    {
+      "publisher": "Elixir contributors",
+      "tag": "v1.20.5",
+      "commit": "4a28692668bef879029291b7ff329a84a1f933bb",
+      "url": "https://github.com/elixir-lang/elixir/blob/4a28692668bef879029291b7ff329a84a1f933bb/lib/elixir/lib/module/types/descr.ex",
+      "coverage": "Selected BDD/set operations, dynamic upper/lower bound representation; not algorithm complexity/proof audit"
+    }
+  ],
+  "limitations": "Official documentation may change; repository pins identify inspected source. Mechanism comparison does not establish identical soundness assumptions, runtime validation, confidentiality or BEAML implementation. Source code licenses must be checked before any reuse."
+}

@@ -1,0 +1,34 @@
+{
+  "retrieved_on": "2026-11-05",
+  "publisher": "BoundaryML",
+  "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+  "coverage": "Supplemental selected source inspection; prior captures unchanged. No parser/formatter tests run.",
+  "observations": [
+    "parse_expr_bp/min_bp and infix_binding_power: plus=(22,23), multiply=(24,25), assignment=(2,1).",
+    "Backtick parser requires adjacent ${; expression holes reuse parse_block_expr, with dedicated tag dispatch and parent text/trivia ranges.",
+    "format_salsa is syntax-only, parses/classifies trivia, rejects parse errors except opt-out, uses shared library for CLI/LSP; scenario test asserts idempotence and unique comment survival."
+  ],
+  "files": [
+    {
+      "path": "baml_language/crates/baml_compiler_parser/src/parser.rs",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler_parser/src/parser.rs",
+      "sha256": "13d83b34675fe6de1f8be25434944c3ca5218dd20d24364f1b7e2466b859d218"
+    },
+    {
+      "path": "baml_language/crates/baml_fmt/src/lib.rs",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_fmt/src/lib.rs",
+      "sha256": "9e5e991b5a1246833f59c9e0c1229ec37251611603538c64f41295cae6cf419b"
+    },
+    {
+      "path": "baml_language/crates/baml_fmt/src/ast/expressions.rs",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_fmt/src/ast/expressions.rs",
+      "sha256": "3fe44bfc6bfb4ab17b1d0efbdac1c2aaf7d32a8deab75cfd3e1820587b2ebb53"
+    },
+    {
+      "path": "baml_language/crates/baml_fmt/src/formatter_scenario_tests.rs",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_fmt/src/formatter_scenario_tests.rs",
+      "sha256": "1382b6a190d66c520efd65434c507aae5c5a283d23f6a952190e652a46e124d3"
+    }
+  ],
+  "attribution": "BoundaryML source copyright/license retained upstream; only identifiers and attributed summaries captured."
+}

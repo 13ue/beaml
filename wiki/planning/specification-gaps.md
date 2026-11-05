@@ -12,6 +12,8 @@ updated: 2026-11-05
 
 These are unresolved specification decisions and KB interpretations, not bugs in an implementation. Each row separates the source's explicit open question from analysis of what must be settled. Page numbers are physical PDF pages; [source inventory and full evidence](../sources/engineering-spec-v0.5.md). Research can inform decisions; it cannot silently authorize them.
 
+The [knowledge coverage audit](specification-knowledge-coverage.md) distinguishes missing reference knowledge from open BEAML decisions and unexecuted validation. Deep mechanism pages explain alternatives; they do not silently close the decisions listed here.
+
 ## Blocking language and ABI questions
 
 | Question | Evidence | Implication / next artifact (KB recommendation) |

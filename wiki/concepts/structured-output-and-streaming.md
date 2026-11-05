@@ -10,7 +10,7 @@ updated: 2026-11-05
 
 Status: BAML source synthesis plus explicitly labeled BEAML design questions. Retrieved 2026-11-05. Established documentation is unversioned; compiler source is pinned in [provenance](../../raw/research/baml/provenance.json).
 
-## BAML facts
+## Established BAML documentation facts
 
 **[Verified]** This section summarizes checked upstream sources, without a BEAML conformance run.
 
@@ -32,6 +32,12 @@ Streaming annotations govern partial representation; they do not change the func
 Hard assertions and non-raising checks differ. The docs say failed top-level assertions raise; failed asserted values inside containers may be removed. Checks preserve data and expose validation outcomes. BEAML must decide whether silent cardinality changes fit its contracts. [Checks/asserts](https://docs.boundaryml.com/guide/baml-advanced/checks-and-asserts)
 
 The established type page documents ordered union parsing (a numeric string can choose a different branch). Canary's type algebra is set-like while its type-system document explicitly preserves LLM parsing order as a boundary exception. Type normalization must preserve a separate parsing preference if compatibility is intended. [Types](https://docs.boundaryml.com/ref/baml/types), [pinned type system](https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/TYPE_SYSTEM.md#baml-subtyping-cases)
+
+## Pinned canary differs: shared type and parser defaults
+
+**[Verified]** The inspected canary uses `Stream<T>.next -> T | Done` and `final -> T`, not the established SDK documentation's separate generated partial type. Its parser has separate partial/missing-complete defaults: incomplete strings may default empty and nullable/containers null/empty; completed required-string omissions still error. The source fixture explicitly contrasts partial id-only text yielding a temporary empty name with completed id-only JSON failing. Canary declaration attributes include `@stream.must_exist` rather than assuming the older documented attribute set. These are inspected source assertions, not executed results. [Mechanism and exact source/fixture links](compilers/baml.md#6-shared-t-does-not-mean-a-complete-response)
+
+**[Inference]** Shared runtime T does not certify field readiness, explicit-null provenance, domain validation or permission to execute tools. BEAML's `Parsed`/`Validated`/`Complete` requirements remain independent. Updated syntax/type/runtime caveats are in the [deep source note](../sources/baml-internals.md); historical raw captures are unchanged.
 
 ## BEAML design hypotheses and unresolved contracts
 

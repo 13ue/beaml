@@ -1,0 +1,91 @@
+{
+  "source_id": "phoenix-heex-mechanisms",
+  "retrieved_on": "2026-11-05",
+  "publisher": "Phoenix contributors / Elixir contributors",
+  "status": "Selected tagged-source reading, no adapter execution",
+  "capture": "Researcher notes, no copied implementation",
+  "live_view": {
+    "tag": "v1.2.13",
+    "commit": "d8252e1e21238e150e9e6b3d7285d4c060d28e6e",
+    "files": [
+      {
+        "path": "lib/phoenix_component.ex",
+        "url": "https://github.com/phoenixframework/phoenix_live_view/blob/d8252e1e21238e150e9e6b3d7285d4c060d28e6e/lib/phoenix_component.ex",
+        "coverage": "sigil_H macro; assign helpers; to_form and used_input documentation"
+      },
+      {
+        "path": "lib/phoenix_component/declarative.ex",
+        "url": "https://github.com/phoenixframework/phoenix_live_view/blob/d8252e1e21238e150e9e6b3d7285d4c060d28e6e/lib/phoenix_component/declarative.ex",
+        "coverage": "declarative attr/slot metadata, __components__, __verify__, root/dynamic handling"
+      },
+      {
+        "path": "lib/phoenix_live_view/tag_engine.ex",
+        "url": "https://github.com/phoenixframework/phoenix_live_view/blob/d8252e1e21238e150e9e6b3d7285d4c060d28e6e/lib/phoenix_live_view/tag_engine.ex",
+        "coverage": "compile entry, parser/compiler composition"
+      },
+      {
+        "path": "lib/phoenix_live_view/tag_engine/parser.ex",
+        "url": "https://github.com/phoenixframework/phoenix_live_view/blob/d8252e1e21238e150e9e6b3d7285d4c060d28e6e/lib/phoenix_live_view/tag_engine/parser.ex",
+        "coverage": "tree node/metadata shape, tokenize/tree conversion, macro-component execution/skip path"
+      },
+      {
+        "path": "lib/phoenix_live_view/tag_engine/tokenizer.ex",
+        "url": "https://github.com/phoenixframework/phoenix_live_view/blob/d8252e1e21238e150e9e6b3d7285d4c060d28e6e/lib/phoenix_live_view/tag_engine/tokenizer.ex",
+        "coverage": "UTF-8 codepoint column increments, newline/indentation offsets and interpolation"
+      },
+      {
+        "path": "lib/phoenix_live_view/tag_engine/compiler.ex",
+        "url": "https://github.com/phoenixframework/phoenix_live_view/blob/d8252e1e21238e150e9e6b3d7285d4c060d28e6e/lib/phoenix_live_view/tag_engine/compiler.ex",
+        "coverage": "expression parsing, attr/slot compilation, :let patterns, source metadata"
+      },
+      {
+        "path": "lib/phoenix_live_view/engine.ex",
+        "url": "https://github.com/phoenixframework/phoenix_live_view/blob/d8252e1e21238e150e9e6b3d7285d4c060d28e6e/lib/phoenix_live_view/engine.ex",
+        "coverage": "assign-path analysis and change tracking; taint terminology not IFC"
+      },
+      {
+        "path": "lib/phoenix_live_view/channel.ex",
+        "url": "https://github.com/phoenixframework/phoenix_live_view/blob/d8252e1e21238e150e9e6b3d7285d4c060d28e6e/lib/phoenix_live_view/channel.ex",
+        "coverage": "selected form payload decoder/event dispatch"
+      },
+      {
+        "path": "lib/phoenix_live_view/utils.ex",
+        "url": "https://github.com/phoenixframework/phoenix_live_view/blob/d8252e1e21238e150e9e6b3d7285d4c060d28e6e/lib/phoenix_live_view/utils.ex",
+        "coverage": "selected assign change tracking helpers"
+      },
+      {
+        "path": "assets/js/phoenix_live_view/view.ts",
+        "url": "https://github.com/phoenixframework/phoenix_live_view/blob/d8252e1e21238e150e9e6b3d7285d4c060d28e6e/assets/js/phoenix_live_view/view.ts",
+        "coverage": "extractMeta and FormData/URLSearchParams serialization with unused-field metadata"
+      }
+    ]
+  },
+  "phoenix_html": {
+    "tag": "v4.3.0",
+    "commit": "8cfd3e37ff9ef0924812a78cf6c9d27cdbd4e726",
+    "files": [
+      {
+        "path": "lib/phoenix_html/form_data.ex",
+        "url": "https://github.com/phoenixframework/phoenix_html/blob/8cfd3e37ff9ef0924812a78cf6c9d27cdbd4e726/lib/phoenix_html/form_data.ex",
+        "coverage": "Selected form protocol/struct and Map implementation"
+      },
+      {
+        "path": "lib/phoenix_html/form.ex",
+        "url": "https://github.com/phoenixframework/phoenix_html/blob/8cfd3e37ff9ef0924812a78cf6c9d27cdbd4e726/lib/phoenix_html/form.ex",
+        "coverage": "Selected form protocol/struct and Map implementation"
+      }
+    ]
+  },
+  "elixir": {
+    "tag": "v1.20.5",
+    "commit": "4a28692668bef879029291b7ff329a84a1f933bb",
+    "evidence": "Prior Code/Macro observations: parser options/AST metadata; not a separately executed version tuple."
+  },
+  "licenses": "Upstream notices/licenses remain upstream; no implementation copied or project license inferred.",
+  "limits": [
+    "Internal parsing/declarative metadata APIs are not a supported compatibility promise.",
+    "Code contains macro expansion/execution and atom creation paths; read-only editor adapter needs a bounded non-executing subset.",
+    "Browser serialization cannot be generalized to arbitrary forged event payloads.",
+    "Illustrative normalization/descriptors/refactor algorithm are BEAML proposals, not adopted APIs or proven implementation."
+  ]
+}

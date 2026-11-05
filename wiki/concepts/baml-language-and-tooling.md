@@ -29,6 +29,8 @@ Status: research synthesis and BEAML design hypotheses. No semantics below are a
 
 Sources: [functions](https://docs.boundaryml.com/ref/baml/function), [tests](https://docs.boundaryml.com/ref/baml/test), [pinned architecture/type system](../sources/baml-canary-compiler.md).
 
+**[Verified]** The deeper [source walkthrough](compilers/baml.md) checks actual hir_ty queries, colon/backtick syntax, runtime Schema reflection and shared-T stream defaults. These source-level findings qualify conceptual names and nullable partial-type assumptions in older documentation. [Correction provenance](../../raw/research/baml-internals/record-2026-11-05.md)
+
 ## Smallest useful compatibility boundary
 
 **[Proposal]** This is a suggested scope, not an accepted compatibility promise.

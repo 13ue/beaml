@@ -1,0 +1,84 @@
+{
+  "retrieved_on": "2026-11-05",
+  "coverage": "Selected primary-source research for DDD, contracts, runtime consistency, schema evolution and graph checks. No implementation, migrations, DB, compatibility or framework tests executed.",
+  "sources": [
+    {
+      "publisher": "Eric Evans / Domain Language",
+      "version": "DDD Reference, March 2015",
+      "url": "https://www.domainlanguage.com/wp-content/uploads/2016/05/DDD_Reference_2015-03.pdf",
+      "coverage": "Physical pp.9/23/29 (printed 2/16/22): Bounded Context, Aggregates, Assertions; text extraction, no full copy retained"
+    },
+    {
+      "publisher": "Eiffel Software",
+      "version": "Mutable official tutorial, accessed 2026-11-05",
+      "url": "https://www.eiffel.org/doc/eiffel/ET-_Design_by_Contract_%28tm%29%2C_Assertions_and_Exceptions",
+      "coverage": "Precondition/postcondition/old/invariant and client/supplier boundary; selected text, no compiler execution"
+    },
+    {
+      "publisher": "Ecto contributors",
+      "version": "Docs display Ecto 3.14.3",
+      "url": "https://ecto.hexdocs.pm/Ecto.Changeset.html",
+      "coverage": "Validations/constraints, optimistic_lock and prepare_changes; no DB run"
+    },
+    {
+      "publisher": "PostgreSQL Global Development Group",
+      "version": "PostgreSQL 18 docs",
+      "url": "https://www.postgresql.org/docs/18/ddl-constraints.html",
+      "coverage": "Row CHECK/null/unique/FK scope; no deployment"
+    },
+    {
+      "publisher": "PostgreSQL Global Development Group",
+      "version": "PostgreSQL 18 docs",
+      "url": "https://www.postgresql.org/docs/18/transaction-iso.html",
+      "coverage": "Isolation and transaction retry scope"
+    },
+    {
+      "publisher": "PostgreSQL Global Development Group",
+      "version": "PostgreSQL 18 docs",
+      "url": "https://www.postgresql.org/docs/18/explicit-locking.html",
+      "coverage": "Row locks/deadlocks and transaction lifetime"
+    },
+    {
+      "publisher": "Akka / Lightbend",
+      "version": "Docs display 2.10.24; mutable current URL",
+      "url": "https://doc.akka.io/libraries/akka-core/current/typed/persistence.html",
+      "coverage": "Command vs event handler, persistence/recovery, side effects/single-writer; framework not selected, docs report BUSL-1.1"
+    },
+    {
+      "publisher": "Apache Software Foundation",
+      "version": "Avro 1.12.0 specification",
+      "url": "https://avro.apache.org/docs/1.12.0/specification/",
+      "coverage": "Writer/reader resolution, defaults/aliases/union order/canonical form; no codec tested"
+    },
+    {
+      "publisher": "Protocol Buffers project",
+      "version": "Mutable official docs",
+      "url": "https://protobuf.dev/programming-guides/dos-donts/",
+      "coverage": "Do not reuse field tags/reserve deleted numbers; mixed-version rollout"
+    },
+    {
+      "publisher": "Protocol Buffers project",
+      "version": "Mutable proto3 guide",
+      "url": "https://protobuf.dev/programming-guides/proto3/",
+      "coverage": "Updating wire formats/presence; no compatibility suite run"
+    },
+    {
+      "publisher": "ArchUnit project",
+      "version": "User guide displays 1.5.1",
+      "url": "https://www.archunit.org/userguide/html/000_Index.html",
+      "coverage": "Bytecode dependency/layer/slice/cycle rules; generic cycle API, empty-selection failure; no library adopted"
+    }
+  ],
+  "DDD_input_fingerprint": {
+    "bytes": 483985,
+    "sha256": "cf82dc7b4736bb24f4a1b69a3213c25cbd38aa98e37b99c2facfb94ff5cacb99",
+    "pages": 59,
+    "retention": "No full upstream PDF or text retained in repository; selected attributed notes only."
+  },
+  "access_notes": [
+    "Web fetch of Domain Language PDF returned 403; direct public HTTPS download succeeded and relevant complete pages were text-read.",
+    "Kurrent guessed documentation paths returned 404/unavailable; no facts attributed to unread Kurrent pages.",
+    "Full upstream docs/source not copied; upstream copyright/license terms remain independent of BEAML.",
+    "Mutable docs displayed versions are observations, not selected BEAML dependency pins."
+  ]
+}

@@ -21,3 +21,9 @@ updated: 2026-11-05
 **[Inference]** Ordinary type validity and confidentiality are different axes. BEAML's `Validated<T>` transition establishes schema conformity; its label/policy system governs where that value may flow. Neither implies factual correctness or authorization by itself. This follows from [Spec p.2 §3 and pp.12-13 §§34-37](engineering-spec-v0.5.md), with the distinctions illustrated by Jif's labeled ordinary types.
 
 **[Unknown]** A BEAML-specific noninterference theorem, termination policy, exception/retry/cancellation semantics, asynchronous pc propagation and trusted computing base have not been supplied. The upstream sources justify studying these questions, not claiming that BEAML inherits their guarantees. The [gap queue](../planning/specification-gaps.md) preserves open decisions.
+
+## Deeper policy/authority coverage
+
+**[Verified]** The additional [Jif 3.3.0 language reference](https://research.cs.cornell.edu/jif/doc/jif-3.3.0/language.html#authority-and-access-control) was inspected for flow order, authority and downgrading. It separates permission to release confidentiality from integrity endorsement; runtime label checks must account for information disclosed by their success/failure. [Second capture](../../raw/research/security-observability/2026-11-05-deep-mechanisms.md) records scope. The earlier pc/effects paper remains abstract-only; failed full-text access is not a proof review.
+
+**[Proposal]** A worked candidate product-lattice join, explicit TCB boundary, exception/pc trace, checked dynamic policy failure and release/UNKNOWN manifest design now appear in the [security concept](../concepts/information-flow-security.md#worked-policy-algebra-and-its-design-boundaries). These supply concrete questions and failure tests; they do not silently adopt Jif's Java semantics or claim complete noninterference for BEAM.

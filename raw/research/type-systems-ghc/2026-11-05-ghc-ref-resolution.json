@@ -1,0 +1,11 @@
+{
+  "accessed": "2026-11-05",
+  "tag": "ghc-9.12.2-release",
+  "resolved_commit": "383be28ffdddf65b57b7b111bfc89808b4229ebc",
+  "evidence": [
+    "https://github.com/ghc/ghc/releases/tag/ghc-9.12.2-release",
+    "https://github.com/ghc/ghc/commit/383be28ffdddf65b57b7b111bfc89808b4229ebc"
+  ],
+  "method": "Official GitHub mirror release page linked short SHA; followed commit link to full SHA. GitHub reports signed-tag verification; no local cryptographic verification performed.",
+  "supersedes_limitation": "Initial provenance says SHA unresolved; this later observation resolves the ref without changing immutable initial capture."
+}

@@ -2,6 +2,8 @@
 
 Status: **[Verified]** upstream facts and **[Proposal]** feasibility work; no integration has been executed. [Source inventory](../sources/beam-otp-phoenix.md).
 
+Detailed mechanism pages expand this overview: [HEEx syntax/semantic/source-edit analysis](ui/heex-analysis.md), [typed forms/events and normalization matrix](ui/typed-forms-and-events.md), with [pinned parser/client/form sources](../sources/phoenix-heex-mechanisms.md).
+
 ## Preserve the framework boundary
 
 **[Requirement]** Elixir owns LiveView callbacks, HEEx/components and routes; BEAML supplies optional contracts, descriptors and guarded domain APIs. [Product contract](product-contract.md). This research does not resolve the inconsistent language examples or generated exports identified in [specification gaps](../planning/specification-gaps.md).

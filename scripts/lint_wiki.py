@@ -120,6 +120,34 @@ def check_specification(root):
     return errors, "PDF hash, bytes, page count and per-page text rechecked"
 
 
+def check_provenance(root):
+    errors, checked = [], 0
+    for path in sorted((root / "raw").rglob("*.json")):
+        if not path.resolve().is_relative_to(root / "raw"):
+            errors.append(f"{path.relative_to(root)}: JSON record escapes raw evidence directory")
+            continue
+        try:
+            metadata = json.loads(path.read_text())
+        except (json.JSONDecodeError, UnicodeDecodeError) as error:
+            errors.append(f"{path.relative_to(root)}: invalid JSON ({error})")
+            continue
+        if not isinstance(metadata, dict):
+            continue
+        capture = metadata.get("capture_file") or metadata.get("capture")
+        if not isinstance(capture, str) or not metadata.get("sha256"):
+            continue
+        target = (path.parent / capture).resolve()
+        if Path(capture).is_absolute() or not target.is_relative_to(root / "raw"):
+            errors.append(f"{path.relative_to(root)}: capture escapes raw evidence directory")
+        elif not target.is_file():
+            errors.append(f"{path.relative_to(root)}: missing retained capture {capture}")
+        elif hashlib.sha256(target.read_bytes()).hexdigest() != metadata["sha256"]:
+            errors.append(f"{path.relative_to(root)}: retained capture SHA-256 mismatch")
+        else:
+            checked += 1
+    return errors, checked
+
+
 def self_test():
     assert anchors("# A & B\n# A & B\n## Über `code`\n") == {"a--b", "a--b-1", "über-code"}
     assert anchors("```md\n# Ignored\n```\n# Kept\n") == {"kept"}
@@ -152,8 +180,25 @@ def self_test():
             assert any("local link escapes" in e for e in check_markdown(root)[0])
         (root / "wiki/link.md").symlink_to(outside / "secret.md")
         assert any("maintained Markdown escapes" in e for e in check_markdown(root)[0])
+        manifest = root / "raw/provenance.json"
+        metadata = {"capture_file": "evidence.txt", "sha256": hashlib.sha256(b"evidence").hexdigest()}
+        manifest.write_text(json.dumps(metadata))
+        assert check_provenance(root) == ([], 1)
+        metadata["sha256"] = "wrong"
+        manifest.write_text(json.dumps(metadata))
+        assert any("SHA-256 mismatch" in e for e in check_provenance(root)[0])
+        metadata["capture_file"] = "missing.md"
+        manifest.write_text(json.dumps(metadata))
+        assert any("missing retained capture" in e for e in check_provenance(root)[0])
+        metadata["capture_file"] = f"../../{outside.name}/secret.md"
+        manifest.write_text(json.dumps(metadata))
+        assert any("capture escapes" in e for e in check_provenance(root)[0])
+        manifest.write_text("{invalid")
+        assert any("invalid JSON" in e for e in check_provenance(root)[0])
+        (root / "raw/escape.json").symlink_to(outside / "secret.md")
+        assert any("JSON record escapes" in e for e in check_provenance(root)[0])
     print("Self-test passed: headings, duplicate/Unicode anchors, fenced examples, broken links, "
-          "index/orphans, metadata, absolute/traversal/symlink escapes")
+          "index/orphans, metadata, absolute/traversal/symlink escapes, retained-capture hashes/JSON")
 
 
 def main():
@@ -167,9 +212,12 @@ def main():
     errors, count = check_markdown(root)
     pdf_errors, pdf_scope = check_specification(root)
     errors.extend(pdf_errors)
+    provenance_errors, captures = check_provenance(root)
+    errors.extend(provenance_errors)
     for error in errors:
         print("ERROR:", error)
     print(f"Checked {count} maintained Markdown files; {len(errors)} error(s). {pdf_scope}.")
+    print(f"Parsed raw JSON records; verified {captures} explicitly retained capture hashes.")
     print("Limits: inline Markdown links/headings only; original raw documents not linted; "
           "no external URL, semantic truth, security proof or runtime checks.")
     return bool(errors)

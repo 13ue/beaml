@@ -2,6 +2,8 @@
 
 Status: **[Verified]** upstream facts with **[Proposal]** design implications. [Source inventory and limits](../sources/beam-otp-phoenix.md).
 
+For mechanism-level detail, read [compilation/execution](beam/execution-and-compilation.md), [terms/GC](beam/terms-memory-and-gc.md), [schedulers/native code](beam/scheduling-and-native-boundaries.md), [processes/OTP](beam/processes-messages-and-otp.md), [storage/distribution/upgrades](beam/distribution-storage-and-upgrades.md), [inspection/performance](beam/inspection-and-performance.md), and [typed-language boundaries](beam/typed-language-boundaries.md). These extend the initial overview with pinned-source explanations and explicitly unexecuted worked examples.
+
 ## Generated code and build boundary
 
 **[Requirement]** The first BEAML backend emits Erlang/Elixir-compatible source, with Mix invoking the standalone Rust compiler. The generated public API, effect dictionaries, schema witnesses and cancellation representation remain unspecified. [Product contract](product-contract.md); [gaps](../planning/specification-gaps.md).

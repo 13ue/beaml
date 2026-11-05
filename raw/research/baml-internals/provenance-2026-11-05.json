@@ -1,0 +1,369 @@
+{
+  "retrieved_on": "2026-11-05",
+  "coverage": "Selected source modules and guide chapters read; full inputs remained temporary, no build/test execution. Source-file hashes permit targeted refetch.",
+  "attribution": "Rust Project and BoundaryML own their upstream source; summaries/identifiers only retained here. Upstream license terms remain independent of BEAML.",
+  "files": [
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_builtins2/baml_std/ai/ns_errors/errors.baml",
+      "sha256": "1ce5d5b8ba03e8779784cc2bfedfc1b5ecbb36cd4c27eb3e986c5b0b7872c34d",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_builtins2/baml_std/ai/ns_errors/errors.baml"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_builtins2/baml_std/ai/ns_internal/prompt.baml",
+      "sha256": "6c4276e7784684e84c6ff51fa6ecd9b9c48f280001762ca0689682e689913c09",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_builtins2/baml_std/ai/ns_internal/prompt.baml"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_builtins2/baml_std/ai/ns_stream/stream.baml",
+      "sha256": "6b86fc0607f7fd2e644d420ed14696cbe980529b4d0c3a5767e6593d9f051c3b",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_builtins2/baml_std/ai/ns_stream/stream.baml"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_builtins2/baml_std/ai/runner.baml",
+      "sha256": "a595467b3e3108e50dee0948c30c9d951ff2036d0be160d34e50b93a5b137e7a",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_builtins2/baml_std/ai/runner.baml"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_builtins2/baml_std/ai/spec.baml",
+      "sha256": "855cd6b00072b43420dd3b6bdfce6a7b8491e25fee544ef63bc1b733ba09cbf0",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_builtins2/baml_std/ai/spec.baml"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_builtins2/baml_std/baml/ns_sap/sap.baml",
+      "sha256": "529455020fde22cc825a0d8f9e28c537fba267dbd10254b6b3dc328a4f1ccce9",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_builtins2/baml_std/baml/ns_sap/sap.baml"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_ast/src/companions.rs",
+      "sha256": "baed2661ccafe91e6dadd0c37d3bc3be0ddb39ecec29b318a03fe3d8053c49c0",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_ast/src/companions.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_ast/src/lib.rs",
+      "sha256": "998d7615e678ae4a3898d8903e9ff8b534ed17e038d572433b3ec01da9a0b777",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_ast/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_emit/src/analysis.rs",
+      "sha256": "3bc531f8cfae632187060d5b96ae63220c6f14a17b18d963e1b622075f2a75c0",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_emit/src/analysis.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_emit/src/lib.rs",
+      "sha256": "c4de87e4f6462d3a81bfcd74f9a2724f3f9399204aabb575e38d8ee6d099f3dd",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_emit/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_emit/src/verifier.rs",
+      "sha256": "4a3de546c8010d806de7259654745a19b784390786f383794d7fe8d5b271100c",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_emit/src/verifier.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_hir/src/item_data/functions.rs",
+      "sha256": "dd27d6a14bbd5cb098b221a8e6c30419305940d53aff18793b0b908c43338572",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_hir/src/item_data/functions.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_hir/src/item_data.rs",
+      "sha256": "5ca2888d79810ef01ee4e5aaa458cf013f764030d95ea595a6ee8ff2b5a05445",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_hir/src/item_data.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_hir/src/lib.rs",
+      "sha256": "25a3456ac9962bc9b6a26718f7f9afc5561b9f9e753c4fa870dc2e192f1d968b",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_hir/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_hir_ty/README.md",
+      "sha256": "77386460bdd95ca18be10ac76897d930644603b4d5605c8e170fdd0e9e69b43b",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_hir_ty/README.md"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_hir_ty/src/infer.rs",
+      "sha256": "6cf48822139d495a8f72512dd7a20212015b8c7166f3050f5eedad2feb966354",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_hir_ty/src/infer.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_hir_ty/src/lib.rs",
+      "sha256": "f2f586626014f7affd2f178e554697d9a56b0ac7bb6d60e8e601b2b3bfc281d0",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_hir_ty/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_hir_ty/src/llm_output.rs",
+      "sha256": "5fbb75062cc83702817814b9e31ad3fba5863f553f2f2f50eb849636e863b1ee",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_hir_ty/src/llm_output.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_hir_ty/src/package_interface.rs",
+      "sha256": "3814749c1af7b402b36c94736fdbc7a630db1bdb25bec591d6323bb99324da94",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_hir_ty/src/package_interface.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_mir/src/lib.rs",
+      "sha256": "82711182c6b6484546aa562674907fbc0e868198d292389c28b07901de56c767",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_mir/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_mir/src/lower.rs",
+      "sha256": "7a312c318ec5a8f2aceee4d7e2acfa5c4a3041cfe37cbf88e9e521097ea5cbd2",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_mir/src/lower.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler2_mir/src/optimize.rs",
+      "sha256": "51adf3a8c0616189ce183034a7229b1bc9b4792f3f48381a66dad638558a5265",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler2_mir/src/optimize.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler_diagnostics/src/lib.rs",
+      "sha256": "b3fcb70deb9e10cb0ad49ffcb079b2927200f6e2fb909dc394b10354f772e3f8",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler_diagnostics/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler_lexer/src/lib.rs",
+      "sha256": "2822a9f6dda15ba819dd712fb6b12dff1d60be1e32b7afc9f0fa03d00ca6bd4b",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler_lexer/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler_parser/src/lib.rs",
+      "sha256": "952be7c470d8afbd7e3d0c695eb95b90fac0c1eff29918daeed02e6a0a064ec8",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler_parser/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_compiler_syntax/src/lib.rs",
+      "sha256": "6a5d18912cb1679404a527e86fc126ca4a255758c1704bbb47787f1e6f7ec3f7",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_compiler_syntax/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_db/src/check.rs",
+      "sha256": "bd3237f4f42b496f2cd357035bb21649e7f1c887a47c809248c9585b06120587",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_db/src/check.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_db/src/db.rs",
+      "sha256": "285901bc316821487290dcbfd8e4dc21f179cbb2904385196e694af236b906ff",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_db/src/db.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_db/src/lib.rs",
+      "sha256": "49714409c60cad5c457c9ac1bdfabe5cf771a05cbe9151b8f527565d8040d552",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_db/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_db/src/program.rs",
+      "sha256": "091b7e0c6f8cb50b9067603cc7f55dec2384ccd74dbd07a906a4c2a7ff028bc2",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_db/src/program.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_ide/src/lib.rs",
+      "sha256": "3c787c037d5731ffb82e82ca4c565cb40dc545b302ae347a5e560b2b9df8c24b",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_ide/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_tests/baml_src/ns_streaming_partial_parse/streaming_partial_parse.baml",
+      "sha256": "1c7dbb892271db12ec8435f6958f32a2a434c61c2fd51eb63736a813dfe2c784",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_tests/baml_src/ns_streaming_partial_parse/streaming_partial_parse.baml"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_tests/src/lib.rs",
+      "sha256": "e3a68c64c1c47866e0647ab23a359fefe1ef9bc1fbcabe4fa55dbca35081a880",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_tests/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_tests/src/type_spec/fixtures/invariant_generics_no_absorption.baml",
+      "sha256": "b9f86fa47650fee4ff45afd9920f1bed835859801108dadbecab81b073ad5e85",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_tests/src/type_spec/fixtures/invariant_generics_no_absorption.baml"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_tests/src/type_spec/fixtures/throws_mutual_recursion_fixpoint.baml",
+      "sha256": "fc6a3db5eeaf07d38cc1b6ae9edac430e0d0f1cded28c585e076e74f227d43ee",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_tests/src/type_spec/fixtures/throws_mutual_recursion_fixpoint.baml"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_tests/src/type_spec/harness.rs",
+      "sha256": "b1486048aba6d30ca3ec80b21ba990ea2777de78134be119dcf250d6e1fec63c",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_tests/src/type_spec/harness.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_type/src/lib.rs",
+      "sha256": "cdd7cb67935b302d844d9b78ded2562e383d90670709046fa4c1555ca4e47233",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_type/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/baml_type_runtime/src/lib.rs",
+      "sha256": "bc920d34a63c0a4b117a559d8758f1857abd1dac557b14c589eba1f774c9c8a6",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_type_runtime/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_engine/src/lib.rs",
+      "sha256": "2fc290f5e96b89bc104f568a00b402cb9c4e0fc826162c893088d27f828cc251",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_engine/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_project/src/lib.rs",
+      "sha256": "b876718850e3ec1f46851101f5d7b6d08f3a2378a24db93e55b1f727014c89c9",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_project/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_sap/src/deserializer/coercer/coerce_class.rs",
+      "sha256": "e21425daf214449ed052c430d891d1497377f74fdc705f764ae10b1029c9d420",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_sap/src/deserializer/coercer/coerce_class.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_sap/src/deserializer/coercer/coerce_primitive.rs",
+      "sha256": "cf4487b78a70168785fbad2eef244d5e536945102c2129b0012c9d0c4e9e6870",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_sap/src/deserializer/coercer/coerce_primitive.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_sap/src/deserializer/coercer/coerce_union.rs",
+      "sha256": "706b14cb4e6c3e02affb12e202187f2f90fa38a91a404e74d23c248f422d0004",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_sap/src/deserializer/coercer/coerce_union.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_sap/src/deserializer/mod.rs",
+      "sha256": "ddbce1d4d600b644eb27b7e475c9607d31cd3331c6347836f0a4c786b3d30494",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_sap/src/deserializer/mod.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_sap/src/lib.rs",
+      "sha256": "e234a6bf1dfeffff53b588f5562123783da4cd2e8ed93d05125dcc4fabbcfe1c",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_sap/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_sap/src/sap_model/mod.rs",
+      "sha256": "aabcd7015c51638a3c4e79b38bc5058372f1d8a85d4bab3acdd0809f4a9dca9c",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_sap/src/sap_model/mod.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_sap/src/tests/test_streaming.rs",
+      "sha256": "dd31d34885fcb597e4c3e9e0d3ac90c87b1969d469949e43bc38825554d05786",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_sap/src/tests/test_streaming.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_vm/src/lib.rs",
+      "sha256": "c4c4d0c659d54d09b354b44cc269d2d3f276554088d7558631c67ae5c0fa0ad6",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_vm/src/lib.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_vm/src/package_baml/future.rs",
+      "sha256": "e078b45952ec948383a9a998195a690b38e15f49fbd8c487c286c39a8b247579",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_vm/src/package_baml/future.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/bex_vm/src/package_baml/sap.rs",
+      "sha256": "7a6e5f96fb2e2d5885335651aa2ad358f511bfb7fc5e0cbef11c0a16ba6fda1c",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_vm/src/package_baml/sap.rs"
+    },
+    {
+      "repository": "BoundaryML/baml",
+      "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+      "path": "baml_language/crates/sys_ops/src/lib.rs",
+      "sha256": "5874e91d506274de04c390e1a5bab15ce5ad69470d42444afd5729566193d84d",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/sys_ops/src/lib.rs"
+    }
+  ],
+  "limits": [
+    "Inspection is not conformance, compiler correctness, memory-safety or performance evidence.",
+    "Rust source release and compiler-guide HEAD are different dated revisions.",
+    "BAML design prose and file comments can lag concrete call sites; discrepancies are preserved in research record."
+  ]
+}

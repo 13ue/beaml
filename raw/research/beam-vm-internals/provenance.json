@@ -1,0 +1,230 @@
+{
+  "source_id": "otp-vm-internals-29.1.2",
+  "publisher": "Ericsson AB / Erlang/OTP contributors",
+  "retrieved_on": "2026-11-05",
+  "repository": "https://github.com/erlang/otp",
+  "tag": "OTP-29.1.2",
+  "tag_object": "faae228dc28c60b848c775c079ec5700b90436bd",
+  "commit": "d199a49a01a2079afb6f2c5c9ae047cd4555e68d",
+  "components": {
+    "compiler": "10.0.7",
+    "erts": "17.1.1",
+    "stdlib": "8.1.1",
+    "dialyzer": "6.0.4"
+  },
+  "capture": "Selected source/documentation reading, researcher paraphrases; upstream implementations not copied locally.",
+  "license": "Inspected OTP source/doc files carry Apache-2.0 SPDX notices; original notices and licenses remain upstream. No project-wide license inference.",
+  "status": "Source-verified selected mechanisms; no local VM/compiler execution or exhaustive source audit.",
+  "files": [
+    {
+      "path": "lib/compiler/src/compile.erl",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/compiler/src/compile.erl",
+      "coverage": "standard_passes/0, abstr_passes/1, core_passes/1, kernel_passes/0, asm_passes/0, beam_asm/2"
+    },
+    {
+      "path": "lib/compiler/src/beam_core_to_ssa.erl",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/compiler/src/beam_core_to_ssa.erl",
+      "coverage": "module purpose and Core-to-SSA entry, selected structure"
+    },
+    {
+      "path": "lib/compiler/src/beam_ssa.hrl",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/compiler/src/beam_ssa.hrl",
+      "coverage": "b_function/b_blk/b_set, terminators and EXCEPTION_BLOCK"
+    },
+    {
+      "path": "lib/compiler/internal_doc/beam_ssa.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/compiler/internal_doc/beam_ssa.md",
+      "coverage": "exception-edge, landing-pad, succeeded-body and freshness invariants"
+    },
+    {
+      "path": "lib/compiler/src/beam_validator.erl",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/compiler/src/beam_validator.erl",
+      "coverage": "purpose, initialized/uninitialized/fragile registers and validation levels"
+    },
+    {
+      "path": "lib/compiler/src/genop.tab",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/compiler/src/genop.tab",
+      "coverage": "call/tail-call, allocate/test_heap/deallocate and receive instruction semantics"
+    },
+    {
+      "path": "erts/emulator/beam/emu/ops.tab",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/emu/ops.tab",
+      "coverage": "generic-to-specific transformations, internal instruction distinction"
+    },
+    {
+      "path": "erts/emulator/beam/beam_file.c",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/beam_file.c",
+      "coverage": "selected file-reader/chunk handling declarations"
+    },
+    {
+      "path": "erts/emulator/beam/beam_load.c",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/beam_load.c",
+      "coverage": "erts_prepare_loading, opcode version checks, load_code"
+    },
+    {
+      "path": "erts/emulator/internal_doc/CodeLoading.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/internal_doc/CodeLoading.md",
+      "coverage": "code index reuse, publication, consistent view"
+    },
+    {
+      "path": "erts/emulator/internal_doc/BeamAsm.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/internal_doc/BeamAsm.md",
+      "coverage": "loading, register/state model, C transitions, return reductions, tracing and perf"
+    },
+    {
+      "path": "erts/emulator/beam/jit/x86/instr_call.cpp",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/jit/x86/instr_call.cpp",
+      "coverage": "emit_return_do, call_only/call_last, deallocation and dispatch"
+    },
+    {
+      "path": "erts/emulator/beam/erl_term.h",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/erl_term.h",
+      "coverage": "primary/immediate/header tags and small integer macros"
+    },
+    {
+      "path": "erts/emulator/beam/erl_bits.h",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/erl_bits.h",
+      "coverage": "ErlHeapBits/ErlSubBits/BinRef and on-heap limit"
+    },
+    {
+      "path": "erts/emulator/beam/erl_binary.h",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/erl_binary.h",
+      "coverage": "selected binary allocation/reference declarations"
+    },
+    {
+      "path": "erts/emulator/beam/erl_fun.h",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/erl_fun.h",
+      "coverage": "ErlFunEntry and ErlFunThing environment/dispatch"
+    },
+    {
+      "path": "erts/emulator/beam/erl_map.h",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/erl_map.h",
+      "coverage": "flatmap layout, normal/debug small-map limits and HAMT declarations"
+    },
+    {
+      "path": "erts/emulator/beam/erl_process.h",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/erl_process.h",
+      "coverage": "process heap/stack/old-heap fields and reduction accounting declarations"
+    },
+    {
+      "path": "erts/emulator/beam/erl_gc.c",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/erl_gc.c",
+      "coverage": "selected GC roots/heap/collection entry declarations, not whole implementation audit"
+    },
+    {
+      "path": "erts/emulator/beam/erl_message.c",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/beam/erl_message.c",
+      "coverage": "selected message allocation/copy routines, not whole concurrency proof"
+    },
+    {
+      "path": "erts/emulator/internal_doc/GarbageCollection.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/internal_doc/GarbageCollection.md",
+      "coverage": "collector/generations/literals/binaries/messages; historical code links explicitly caveated"
+    },
+    {
+      "path": "erts/emulator/internal_doc/CheckIO.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/emulator/internal_doc/CheckIO.md",
+      "coverage": "poll/check_io layers, driver_select/enif_select and platforms"
+    },
+    {
+      "path": "erts/doc/references/erl_nif.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/doc/references/erl_nif.md",
+      "coverage": "long/dirty NIF jobs, process termination, resources and enif_select"
+    },
+    {
+      "path": "system/doc/reference_manual/ref_man_processes.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/reference_manual/ref_man_processes.md",
+      "coverage": "aliases, signals/order, priority messages, links, monitors, distribution blocking"
+    },
+    {
+      "path": "system/doc/reference_manual/ports.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/reference_manual/ports.md",
+      "coverage": "external ports versus linked-in drivers"
+    },
+    {
+      "path": "system/doc/reference_manual/distributed.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/reference_manual/distributed.md",
+      "coverage": "node connectivity, cookies and TLS warning"
+    },
+    {
+      "path": "system/doc/design_principles/sup_princ.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/design_principles/sup_princ.md",
+      "coverage": "strategies/start/stop/restart intensity/child lifecycle"
+    },
+    {
+      "path": "lib/stdlib/src/gen_server.erl",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/stdlib/src/gen_server.erl",
+      "coverage": "selected callback lifecycle, code_change and format_status documentation"
+    },
+    {
+      "path": "lib/stdlib/src/ets.erl",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/stdlib/src/ets.erl",
+      "coverage": "ownership/copy/access and table/atomicity/traversal documentation"
+    },
+    {
+      "path": "erts/preloaded/src/persistent_term.erl",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/preloaded/src/persistent_term.erl",
+      "coverage": "read/write/update/erasure cost and process retention"
+    },
+    {
+      "path": "lib/kernel/src/code.erl",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/kernel/src/code.erl",
+      "coverage": "selected current/old-code and purge/soft_purge documentation"
+    },
+    {
+      "path": "system/doc/reference_manual/code_loading.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/reference_manual/code_loading.md",
+      "coverage": "module replacement and on_load semantics"
+    },
+    {
+      "path": "system/doc/design_principles/release_handling.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/design_principles/release_handling.md",
+      "coverage": "appup/relup lifecycle, update compatibility and distributed constraints"
+    },
+    {
+      "path": "system/doc/efficiency_guide/eff_guide_processes.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/efficiency_guide/eff_guide_processes.md",
+      "coverage": "message copying/literals/selective receive and historical allocation example"
+    },
+    {
+      "path": "system/doc/efficiency_guide/memory.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/efficiency_guide/memory.md",
+      "coverage": "explicitly OTP19 illustrative sizes; not treated as current measurement"
+    },
+    {
+      "path": "system/doc/efficiency_guide/binaryhandling.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/efficiency_guide/binaryhandling.md",
+      "coverage": "retention/append/matching mechanisms and explicit pre-OTP27 representation caveat"
+    },
+    {
+      "path": "system/doc/efficiency_guide/maps.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/efficiency_guide/maps.md",
+      "coverage": "small/large maps, shared key tuple and representation choices"
+    },
+    {
+      "path": "system/doc/efficiency_guide/profiling.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/efficiency_guide/profiling.md",
+      "coverage": "profilers/overhead, process/ETS memory, allocator/OS discrepancy"
+    },
+    {
+      "path": "system/doc/efficiency_guide/benchmarking.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/system/doc/efficiency_guide/benchmarking.md",
+      "coverage": "wall/CPU, fresh-process benchmark and architecture caveats"
+    },
+    {
+      "path": "erts/doc/guides/crash_dump.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/erts/doc/guides/crash_dump.md",
+      "coverage": "dump contents, process/message/binary data sections"
+    },
+    {
+      "path": "lib/ssl/doc/guides/ssl_distribution.md",
+      "url": "https://github.com/erlang/otp/blob/d199a49a01a2079afb6f2c5c9ae047cd4555e68d/lib/ssl/doc/guides/ssl_distribution.md",
+      "coverage": "TLS distribution configuration and peer verification"
+    }
+  ],
+  "limitations": [
+    "Internal docs may contain historical code and stale comments even at current tag; current implementation declarations cross-checked where called out.",
+    "Unsuccessful guessed paths were replaced using actual directory listings; no conclusions from 404s.",
+    "No performance values, race-safety proofs, ABI commitments or tested version matrix inferred from source reading."
+  ]
+}

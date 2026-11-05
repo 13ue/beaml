@@ -2,7 +2,7 @@
 
 BEAML is a proposed BAML-inspired language and toolchain targeting the BEAM. This local knowledge base connects the supplied engineering specification to primary research, unresolved decisions and a first validation plan. It contains no working BEAML compiler or runtime, and no benchmark or security proof is claimed.
 
-Start with the [product contract](wiki/concepts/product-contract.md), [what to build first](wiki/queries/what-to-build-first.md), or the full [wiki index](wiki/index.md). The [specification source note](wiki/sources/engineering-spec-v0.5.md) preserves all section requirements, exact proposed acceptance targets and phase gates. The [source registry](wiki/sources/README.md) identifies versions, provenance and limits.
+Start with the [specification knowledge coverage audit](wiki/planning/specification-knowledge-coverage.md), which maps every requirement group to explained mechanisms, evidence, unresolved decisions and absent validation. Use the [wiki index](wiki/index.md) for deep type/GHC/Rust/BAML/BEAM, testing, Phoenix, security and observability guides; the [product contract](wiki/concepts/product-contract.md) and [first-build answer](wiki/queries/what-to-build-first.md) give the product and implementation starting points. The [specification source note](wiki/sources/engineering-spec-v0.5.md) preserves all section requirements, exact proposed acceptance targets and phase gates. The [source registry](wiki/sources/README.md) identifies versions, provenance and limits.
 
 ## Local use
 
@@ -10,7 +10,7 @@ Read Markdown in any editor or Obsidian. Search with `rg 'topic' wiki raw`; no s
 
 For a new source, preserve its evidence/provenance, write a source note, reconcile affected concepts and update the index/log. For a question, read the relevant concepts and evidence, answer with uncertainty and citations, and save reusable synthesis in `wiki/queries/`. See [AGENTS.md](AGENTS.md) for the ingest/query/lint conventions. Raw inputs remain historical evidence; refresh them with a new dated capture.
 
-Run `python3 scripts/lint_wiki.py --self-test` to check the validator, then `python3 scripts/lint_wiki.py` for local links, anchors, index coverage, source metadata and PDF provenance. It does not verify external URLs, semantic truth or implementation behavior.
+Run `python3 scripts/lint_wiki.py --self-test` to check the validator, then `python3 scripts/lint_wiki.py` for local links, anchors, index coverage, source metadata, PDF and retained-capture provenance. It does not verify external URLs, semantic truth or implementation behavior.
 
 ## Layout
 

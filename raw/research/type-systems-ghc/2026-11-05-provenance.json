@@ -1,0 +1,34 @@
+{
+  "accessed": "2026-11-05",
+  "source_tag": "ghc-9.12.2-release",
+  "commit_sha": "unresolved; release tag observed only",
+  "guide_version": "9.12.2",
+  "capture": "2026-11-05-research-record.md",
+  "sha256": "de4adfe8d2fda04078f89f95d6c06f0245ec3578dd7fa32d29405499be0ce249",
+  "coverage": "Selected sections and source symbols; original explanatory examples in wiki; no GHC execution/full-paper theorem audit",
+  "urls": [
+    "https://downloads.haskell.org/ghc/9.12.2/docs/users_guide/",
+    "https://github.com/ghc/ghc/blob/ghc-9.12.2-release/",
+    "https://goto.ucsd.edu/~rjhala/papers/liquid_types.html",
+    "https://homepages.inf.ed.ac.uk/wadler/topics/type-classes.html",
+    "https://research.ibm.com/publications/typestate-a-programming-language-concept-for-enhancing-software-reliability",
+    "https://simon.peytonjones.org/system-fc/",
+    "https://smt-lib.org/papers/smt-lib-reference-v2.7-r2025-07-07.pdf",
+    "https://softwarefoundations.cis.upenn.edu/plf-current/References.html",
+    "https://softwarefoundations.cis.upenn.edu/plf-current/Sub.html",
+    "https://softwarefoundations.cis.upenn.edu/plf-current/Types.html",
+    "https://ucsd-progsys.github.io/lh-workshop/02-refinements.html",
+    "https://www.microsoft.com/en-us/research/publication/implementing-lazy-functional-languages-on-stock-hardware-the-spineless-tagless-g-machine/",
+    "https://www.microsoft.com/en-us/research/publication/outsideinx-modular-type-inference-with-local-assumptions/",
+    "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/paper-20.pdf",
+    "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/putting.pdf",
+    "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/08/algeff-tr-2016-v3.pdf",
+    "https://www.pure.ed.ac.uk/ws/files/15143545/1_s2.0_0022000078900144_main.pdf"
+  ],
+  "rights": "Attribution/links/paraphrases only; upstream copyrights retained; no full papers/source bodies redistributed",
+  "failures": [
+    "GitLab commentary Anubis denied",
+    "Some raw source fetches unavailable",
+    "Network git ls-remote DNS failed"
+  ]
+}
