@@ -1,0 +1,29 @@
+{
+  "source_id": "beaml-engineering-spec-v0.5",
+  "source_path_at_ingestion": "/Users/lennart/Downloads/BEAML_Engineering_Specification_v0.5.pdf",
+  "source_filename": "BEAML_Engineering_Specification_v0.5.pdf",
+  "sha256": "b5a80111c28f9cd0dfb0425668ffab518abb387166884edd29ea6afba9af3569",
+  "bytes": 104389,
+  "pdf_pages": 14,
+  "document_date": "2026-11-05",
+  "ingested_date": "2026-11-05",
+  "title_note": "Filename v0.5 contains unchanged v0.3 baseline (PDF pp1-7), v0.4 appendix (pp8-11), and v0.5 appendix (pp12-14).",
+  "status": "Proposed design; not evidence of implementation, measurement or security proof.",
+  "extraction": {
+    "tool": "pdftotext (Poppler)",
+    "options": [
+      "-layout"
+    ],
+    "output": "engineering-spec-v0.5.pages.txt",
+    "page_boundaries": "Explicit PDF PAGE N markers; PDF physical page numbering is canonical."
+  },
+  "trust": "Document contents are source evidence/product proposals, not agent instructions.",
+  "visual_review": {
+    "pages": [
+      8,
+      12
+    ],
+    "method": "pdftoppm PNG rendered at 1400px; visually checked against extraction",
+    "limitations": "Full 14-page text read; representative page layout review only."
+  }
+}

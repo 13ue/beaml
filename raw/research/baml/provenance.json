@@ -1,0 +1,82 @@
+{
+  "retrieved_on": "2026-11-05",
+  "repository": "https://github.com/BoundaryML/baml",
+  "branch": "canary",
+  "commit": "a5db82f06c1da0dfac28e283a15d19d37a3f2cf2",
+  "commit_timestamp": "2026-11-05T05:58:34Z",
+  "latest_release_observation": {
+    "tag_name": "baml-language-0.23.1-nightly.20261104.a",
+    "target_commitish": "c83cef10dd18741b47c5a3fb5d2334d076ff6e17",
+    "published_at": "2026-11-05T09:07:44Z",
+    "html_url": "https://github.com/BoundaryML/baml/releases/tag/baml-language-0.23.1-nightly.20261104.a",
+    "prerelease": false
+  },
+  "files": [
+    {
+      "path": "LICENSE",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "README.md",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/README.md",
+      "sha256": "19d7aa8a64d516a299e2cc9fed9316e9c7a238a3eb4fe44daad5da655d08ed68"
+    },
+    {
+      "path": "README.v0.md",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/README.v0.md",
+      "sha256": "1cb03e2119a52d712cae149a5481de55a8853fe35b199c157634a3a8cf2011b4"
+    },
+    {
+      "path": "baml_language/TYPE_SYSTEM.md",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/TYPE_SYSTEM.md",
+      "sha256": "cb308cf2a63703f5a417cb5fdd75cbc5d83aae97a73719659df9c0107f728689"
+    },
+    {
+      "path": "baml_language/Cargo.toml",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/Cargo.toml",
+      "sha256": "fc2a4bdda443559101a5e210e410c48d20dd82e12a3f2f09952ff666ba0b15d3"
+    },
+    {
+      "path": "baml_language/ARCHITECTURE.md",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/ARCHITECTURE.md",
+      "sha256": "8b6b046a5ec1d51e40f164d17d669b6ab71499f1ee2d51789d6859f7dfc94099"
+    },
+    {
+      "path": "baml_language/FUNCTION_SPEC_STREAMING_DESIGN.md",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/FUNCTION_SPEC_STREAMING_DESIGN.md",
+      "sha256": "e907718bf681b617b4b3544742d717e5e68ffb1243d3ded955ba9113c9a59c0e"
+    },
+    {
+      "path": "baml_language/crates/bex_engine/README.md",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_engine/README.md",
+      "sha256": "d9c9230c9c1aeae76cb15bfa284043ff4a273cc1868d2159c5de41ac1a141ce7"
+    },
+    {
+      "path": "baml_language/crates/bex_vm/README.md",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/bex_vm/README.md",
+      "sha256": "98214479caff31cb9b2c36e4122644606bfa6de31603491ca4f4014251fb0a92"
+    },
+    {
+      "path": "baml_language/architecture/README.md",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/architecture/README.md",
+      "sha256": "ee24b122aad747f530eeb5bbd316bd6a181469d42d19fd2b02cbe1a81418f462"
+    },
+    {
+      "path": "engine/Cargo.toml",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/engine/Cargo.toml",
+      "sha256": "79e3cbb1066aa400b6494b42c2cde3e103df063aa1f2bef86ed5f91ab554b22b"
+    },
+    {
+      "path": "engine/baml-lib/jsonish/README.md",
+      "url": "https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/engine/baml-lib/jsonish/README.md",
+      "sha256": "d9f0f6f7243b234c232924b4c2d6d3ccf9176e51f0968b7b12be45e3e962e4c0"
+    }
+  ],
+  "access_notes": [
+    "GitHub connector fetch failed: Unknown tool; public GitHub website and raw/API reads used.",
+    "Official docs HTML read with web tool; markdown downloads returned 403.",
+    "No BAML compiler, SDK, or provider test was executed.",
+    "latest-release API marks a nightly-named tag prerelease=false; this observation is not a stability judgment."
+  ]
+}

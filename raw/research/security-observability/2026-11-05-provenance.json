@@ -1,0 +1,13 @@
+{
+  "accessed": "2026-11-05",
+  "capture_kind": "selected attributed researcher paraphrases; no full upstream capture",
+  "capture_file": "2026-11-05-selected-evidence.md",
+  "sha256": "09f2e315c4183353881e2e2ccaaa7dd1001fa87b0049c118c4b2dac3c54c2cd3",
+  "source_count": 14,
+  "copyright": "Third-party rights remain with authors/publishers; no upstream source license applies to BEAML repository.",
+  "limitations": [
+    "Mutable docs date-pinned, not commit-pinned",
+    "IFC papers only abstract/selected metadata inspected; no theorem audit",
+    "No implementation or infrastructure validation"
+  ]
+}

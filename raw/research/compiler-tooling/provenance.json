@@ -1,0 +1,84 @@
+{
+  "retrieved_on": "2026-11-05",
+  "repositories": [
+    {
+      "name": "lsp",
+      "repository": "https://github.com/microsoft/language-server-protocol",
+      "head_at_retrieval": "440d8b03d784cf0bd3769b1abb33aacc24b586a6",
+      "commit_timestamp": "2026-11-03T09:18:08Z",
+      "note": "Pin for re-fetching, not an installed or adopted dependency version."
+    },
+    {
+      "name": "rowan",
+      "repository": "https://github.com/rust-analyzer/rowan",
+      "head_at_retrieval": "d601b195d7bcb9f643c218b2ba113257880d2cdd",
+      "commit_timestamp": "2026-10-21T06:15:16Z",
+      "note": "Pin for re-fetching, not an installed or adopted dependency version."
+    },
+    {
+      "name": "salsa",
+      "repository": "https://github.com/salsa-rs/salsa",
+      "head_at_retrieval": "30c80938bcc32cdf19ed33dd5d58e6ddbccd34d2",
+      "commit_timestamp": "2026-11-02T11:31:41Z",
+      "note": "Pin for re-fetching, not an installed or adopted dependency version."
+    },
+    {
+      "name": "proptest",
+      "repository": "https://github.com/proptest-rs/proptest",
+      "head_at_retrieval": "70cf37d46b7d83393b6ed94c611f8c52209f585d",
+      "commit_timestamp": "2026-10-10T18:12:58Z",
+      "note": "Pin for re-fetching, not an installed or adopted dependency version."
+    },
+    {
+      "name": "rust-analyzer",
+      "repository": "https://github.com/rust-lang/rust-analyzer",
+      "head_at_retrieval": "fde5133f7d116dd81f33f71bd0d389c768c7bd58",
+      "commit_timestamp": "2026-11-05T15:39:54Z",
+      "note": "Pin for re-fetching, not an installed or adopted dependency version."
+    }
+  ],
+  "lsp_sections": [
+    {
+      "path": "_specifications/lsp/3.17/types/versionedTextDocumentIdentifier.md",
+      "url": "https://github.com/microsoft/language-server-protocol/blob/440d8b03d784cf0bd3769b1abb33aacc24b586a6/_specifications/lsp/3.17/types/versionedTextDocumentIdentifier.md",
+      "sha256": "f6c6e7ea4a687c939e6c22735ee9a1b452a084841f2fb4bc0e5aa6463ab95968"
+    },
+    {
+      "path": "_specifications/lsp/3.17/types/position.md",
+      "url": "https://github.com/microsoft/language-server-protocol/blob/440d8b03d784cf0bd3769b1abb33aacc24b586a6/_specifications/lsp/3.17/types/position.md",
+      "sha256": "7625373655d5cf69ab95d733fc70c3c7fca6b7aad2c07137214d01a0d68b6c72"
+    },
+    {
+      "path": "_specifications/lsp/3.17/types/textDocumentEdit.md",
+      "url": "https://github.com/microsoft/language-server-protocol/blob/440d8b03d784cf0bd3769b1abb33aacc24b586a6/_specifications/lsp/3.17/types/textDocumentEdit.md",
+      "sha256": "ea21822dd28e5b0745df563f99a4051890f7ce93b7dca83bf801dba7d2908104"
+    },
+    {
+      "path": "_specifications/lsp/3.17/language/publishDiagnostics.md",
+      "url": "https://github.com/microsoft/language-server-protocol/blob/440d8b03d784cf0bd3769b1abb33aacc24b586a6/_specifications/lsp/3.17/language/publishDiagnostics.md",
+      "sha256": "e2f5f5029bc5c0dac9a100ff6d2c34ba0c9f51f64dccbc019e7c63daf4eae0eb"
+    },
+    {
+      "path": "_specifications/lsp/3.17/language/rename.md",
+      "url": "https://github.com/microsoft/language-server-protocol/blob/440d8b03d784cf0bd3769b1abb33aacc24b586a6/_specifications/lsp/3.17/language/rename.md",
+      "sha256": "79eadffa1bea63d98911003cfc96533b77ac02d2e4ff232f9b4f1fba8d34f3e8"
+    },
+    {
+      "path": "_specifications/lsp/3.17/textDocument/didChange.md",
+      "url": "https://github.com/microsoft/language-server-protocol/blob/440d8b03d784cf0bd3769b1abb33aacc24b586a6/_specifications/lsp/3.17/textDocument/didChange.md",
+      "sha256": "0a185d5ec4743b3f1e8a81a0ae54d62913ad5d5b654f7fb56eb1862f81810700"
+    }
+  ],
+  "documentation_versions_observed": {
+    "rowan": "0.17.0",
+    "proptest": "1.12.0",
+    "Erlang/OTP": "29.1.2 (stdlib 8.1.1)",
+    "Elixir": "1.20.5",
+    "LSP": "3.17"
+  },
+  "limitations": [
+    "No packages installed; no performance measurements or compiler prototype.",
+    "Repository HEAD pins and docs.rs/browser documentation are separate observations, not proven identical revisions.",
+    "LSP website served navigation-only content; exact 3.17 raw specification sections were read at the recorded commit."
+  ]
+}
