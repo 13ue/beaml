@@ -69,3 +69,7 @@ Closed the central source-access gap with account-scoped official-mirror reads a
 ## [2026-11-05] audit | Independent final depth review
 
 Independent review found no blocking issue in the expanded source-status boundaries, domain/evolution/architecture mechanisms or all-spec coverage mapping. Selected primary checks supported GHC Core Lint's conditional guarantee and typechecker ordering, IFC policy/exception scope and OTLP partial-success/nonblocking-hook limits. The final validator self-test and full run passed: 60 maintained Markdown files, zero errors, original PDF hash/bytes/14 pages/per-page text and four explicitly retained capture hashes checked. Previously committed raw inputs remain unchanged; changed-file whitespace checks passed. Validation remains selected source inspection and local structural/provenance checks: no external-link crawl, exhaustive semantic/theorem audit, runtime implementation, compiler execution, benchmark or security proof.
+
+## [2026-11-05] publish | Public repository and license
+
+**[Requirement]** The repository owner requested publication of the tracked knowledge base, including the supplied specification. The owner selected Apache License 2.0. **[Verified]** Created the public [13ue/beaml repository](https://github.com/13ue/beaml). Updated the [repository overview](../README.md) and added the [license](../LICENSE). Third-party captures retain their existing terms. Raw evidence remains unchanged.

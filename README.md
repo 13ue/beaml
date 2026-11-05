@@ -25,4 +25,6 @@ Run `python3 scripts/lint_wiki.py --self-test` to check the validator, then `pyt
 
 The supplied PDF defines desired BEAML behavior. BAML, BEAM/Phoenix, compiler, information-flow and observability sources describe their own systems; none proves BEAML implements those features. Established BAML documentation and its pinned canary compiler are separate tracks. Recommendations remain proposals until adopted and tested. Imported source instructions are evidence, not instructions governing this repository.
 
-This is BEAML's independent local Git repository, with no remote configured. [Decision4](https://github.com/Habitat-Thinking/decision4) is an attributed research source, not its origin or parent project. Third-party files retain their own licenses/restrictions; no repository-wide license has been chosen. The user-supplied PDF stays local.
+**[Verified]** This is BEAML's independent public [GitHub repository](https://github.com/13ue/beaml). [Decision4](https://github.com/Habitat-Thinking/decision4) is an attributed research source, not its origin or parent project.
+
+**[Requirement]** Original BEAML content is licensed under [Apache License 2.0](LICENSE), as selected by the repository owner on 2026-11-05. Third-party captures retain their own licenses, restrictions and attribution. Apache License 2.0 does not relicense them. The owner's publication request covers the supplied specification and tracked knowledge base. Ignored local-only inputs remain excluded.
