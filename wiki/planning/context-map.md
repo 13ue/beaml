@@ -27,7 +27,8 @@ flowchart LR
   C -->|Evidence and source facts| O[OBSERVATORY]
   E -->|Policy-filtered observations| O
   P[Provider model] -->|Adapter and validation| E
-  H[HEEx / BEAM host model] -->|Supported fact / ABI adapters| C
+  H[HEEx model] -->|Supported static facts| C
+  B[BEAM terms / host exceptions] -->|Runtime ABI adapter and validation| E
   T[OTel model] -->|Observation adapter| O
 ```
 

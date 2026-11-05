@@ -26,12 +26,13 @@ Use CAPITALS when naming a glossary term. Use its qualified name when the scope 
 | CONTRACT | An explicit rule for permitted inputs, outcomes, state or effects at a named boundary. | LANGUAGE/COMPILATION | Vertrag |
 | OBLIGATION | A specific claim that a checker or runtime guard must assess within a declared scope. | LANGUAGE/COMPILATION | Prüfpflicht |
 | EVIDENCE STATUS | A scoped account of how an OBLIGATION was assessed, separate from release approval. | LANGUAGE/COMPILATION | Evidenzstatus |
-| GENERATED ABI | The versioned calling and value-representation agreement between generated code and its host runtime. | LANGUAGE/COMPILATION | Generierte Binärschnittstelle |
+| GENERATED ABI | The versioned calling and value-representation agreement between generated code and its host runtime. | LANGUAGE/COMPILATION | Generierte Aufrufschnittstelle |
 | SCHEMA WITNESS | Runtime evidence or a dictionary that supplies schema operations for a particular TYPE; it grants no effect or declassification authority. | LANGUAGE/COMPILATION | Schemanachweis |
 | VALIDATED VALUE | A value that passed the checks named by a particular validator and schema version. | EXECUTION | Validierter Wert |
 | WORKFLOW RUN | One logical execution of a workflow, which can include several PROVIDER ATTEMPTS. | EXECUTION | Ablaufdurchlauf |
 | PROVIDER ATTEMPT | One recorded attempt to invoke a provider within a WORKFLOW RUN. | EXECUTION | Anbieteraufrufversuch |
 | COMMAND | A request to perform a domain operation that may be rejected. | EXECUTION | Fachbefehl |
+| UI EVENT | An untrusted browser interaction that may decode into a COMMAND only after boundary checks. | EXECUTION / UI adapter | UI-Ereignis |
 | DOMAIN EVENT | A record of a domain fact produced by a transition; publication or durable commitment is a separate state. | EXECUTION | Fachereignis |
 | OBSERVATION EVENT | A record used to explain execution or diagnostics without establishing a domain commit. | OBSERVATORY | Beobachtungsereignis |
 | TRACE CONTEXT | Correlation identifiers and propagation state used to connect trace observations across operations. | OBSERVATORY | Trace-Kontext |
