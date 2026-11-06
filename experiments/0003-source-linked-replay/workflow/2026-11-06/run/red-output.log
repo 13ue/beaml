@@ -1,0 +1,36 @@
+$ python3 -B experiments/0003-source-linked-replay/tests/run_test.py   # from repo root, Python 3.9.6
+exit: 1
+expected: all three tests reach the runner and fail on its exit code (stub run.py exits 2 "not implemented").
+actual:
+FFF
+======================================================================
+FAIL: test_all_steps_pass (__main__.RunnerTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/run_test.py", line 70, in test_all_steps_pass
+    self.assertEqual(cp.returncode, 0, cp.stdout + cp.stderr)
+AssertionError: 2 != 0 : not implemented
+
+
+======================================================================
+FAIL: test_failed_independent_step_fails_run (__main__.RunnerTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/run_test.py", line 109, in test_failed_independent_step_fails_run
+    self.assertEqual(cp.returncode, 1, cp.stdout + cp.stderr)
+AssertionError: 2 != 1 : not implemented
+
+
+======================================================================
+FAIL: test_failed_lookup_skips_repair_and_runs_later_steps (__main__.RunnerTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/run_test.py", line 93, in test_failed_lookup_skips_repair_and_runs_later_steps
+    self.assertEqual(cp.returncode, 1, cp.stdout + cp.stderr)
+AssertionError: 2 != 1 : not implemented
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.053s
+
+FAILED (failures=3)
