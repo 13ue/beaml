@@ -1,0 +1,12 @@
+
+22:18:12.996 [warning] caught exception while detector {:"", []} was executing: class=:error exception=:undef stacktrace=[
+  {:"", :get_resource, [[]], []},
+  {:otel_resource_detector, :"-spawn_detector/2-fun-0-", 5,
+   [
+     file: ~c"/Users/lennart/Projects/beaml/experiments/0002-http-correlation/deps/opentelemetry/src/otel_resource_detector.erl",
+     line: 160
+   ]}
+]
+
+22:18:13.039 [notice] SIGTERM received - shutting down
+

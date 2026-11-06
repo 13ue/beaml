@@ -1,0 +1,86 @@
+EXPERIMENT 0002 independent final verification, 2026-11-05.
+Run from the repository root unless a command states otherwise.
+
+Selected tools: Elixir/Mix 1.18.1, Erlang/OTP 27.3.4, Python 3.9.6, Rust/Cargo 1.94.0.
+The passing build selected Hex 2.4.1 and Rebar from the Elixir toolchain,
+a temporary copy of the public registry cache and locked package tarballs,
+HEX_OFFLINE=1 and CARGO_NET_OFFLINE=true. Local TCP access allowed Mix
+locking and the loopback HTTP exchanges.
+
+$ python3 experiments/0002-http-correlation/run.py
+Attempts 20261105T220956756334Z and 20261105T221105578657Z exited 1 at
+dependency setup. Default Hex 2.6.0 reported the opentelemetry registry
+entry absent. Both attempts remain in results/.
+Attempt 20261105T221134010042Z exited 0 with the Elixir-scoped Hex 2.4.1.
+Both Mix releases rebuilt. Mix formatting and strict compilation passed.
+Eight Python discovery tests and three ExUnit tests passed. Per-command
+output and selected versions are retained in that run.
+H01 through H05 passed. H01 had 1 trace, 5 edges and 2 correlated logs.
+H02 had 2 traces, 10 edges and 4 correlated logs.
+H03 had 2 traces, 4 local edges, 2 logs and only the missing Payments ingress edge.
+H04 exited 1 in the derivative query. Four original observation hashes matched.
+H05 returned 400 and the independent Payments count stayed at 2.
+Six boundary checks passed. Six owned processes exited 0.
+
+$ python3 -m unittest discover -s tests -p test_query.py -v
+Working directory: experiments/0002-http-correlation.
+Six tests passed, including both reviewed assertions for the SDK remote parent
+marker and absent artifact metadata.
+
+$ python3 tests/http_repair_test.py -v
+Working directory: experiments/0002-http-correlation.
+Five tests passed against the rebuilt release or the scoped runner probe.
+Real HTTP 503 Retry-After: 0 returned the fixed 502 with one downstream POST.
+Real HTTP 307 returned the fixed 502 with one downstream POST and zero sink POSTs.
+The H03 wrong-edge control failed H03 as required. The optimized probe rejected
+execution before the run. The alternate-PATH probe resolved the expected tools.
+
+$ python3 -O experiments/0002-http-correlation/run.py
+Run without Python optimization (-O or PYTHONOPTIMIZE).
+Exit 1, as expected.
+
+$ python3 experiments/0002-http-correlation/run.py --fail-after-start
+Result 20261105T221309471389Z exited 1 with RuntimeError:injected_post_start_failure.
+Both owned processes exited 0. No acceptance case ran in this control.
+
+$ python3 experiments/0002-http-correlation/query.py --run experiments/0002-http-correlation/results/20261105T221134010042Z/normal --order-id order-1
+Exit 0. Complete, with 2 traces, 10 parent edges and 4 linked logs.
+The result matched the H02 snapshot exactly.
+
+Evidence cross-check: 21 build-input hashes matched, including the EXPERIMENT
+0001 compiler. 24 fixture, generated-source and release BEAM hash checks
+matched across the normal, context-drop, missing-log and boundary controls.
+The fresh acceptance run appended all 15 expected case start/step/pass actions.
+
+$ cargo test --offline --manifest-path experiments/0001-syntax-to-beam/Cargo.toml
+Nine compiler unit tests and one compiler CLI integration test passed.
+$ cargo fmt --manifest-path experiments/0001-syntax-to-beam/Cargo.toml --check
+Passed.
+$ cargo clippy --offline --manifest-path experiments/0001-syntax-to-beam/Cargo.toml --all-targets -- -D warnings
+Passed.
+Git status for EXPERIMENT 0001 was empty. The retained compiler input hash matched.
+
+$ python3 scripts/lint_wiki.py --self-test
+Passed.
+$ python3 scripts/lint_wiki.py
+77 maintained Markdown files, 0 errors, 6 retained capture hashes. The PDF
+hash, bytes, page count and per-page text were checked.
+Scoped experiment check examined 43 links in 9 Markdown files. The same
+historical relative target occurs twice in workflow/2026-11-05/spec.md.
+The preserved baseline was left as captured. All other scoped links passed.
+
+$ git diff --check
+Passed. A separate whitespace check covered 46 untracked authored files
+before the two verification records were added. Generated run output was
+outside the authored whitespace check. No tracked raw evidence changed.
+
+All six review findings about implementation, acceptance, reproduction and
+maintained docs were checked. The final run covers the fixed loopback HTTP
+contract and local evidence. It does not establish replay, production
+readiness, durability, performance or automatic instrumentation.
+
+Final verification passed. The coordinator confirmed that the owner
+adopted the test-first review checkpoint after initial solver GREEN.
+The historical initial RED and GREEN are retained. An initial owner
+review is unverified. The seven repair assertions were reviewed and
+approved under the policy before repair GREEN.

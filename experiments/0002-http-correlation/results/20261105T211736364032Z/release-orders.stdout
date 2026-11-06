@@ -1,0 +1,3 @@
+==> probe_support
+Mix requires the Hex package manager to fetch dependencies
+Shall I install Hex? (if running non-interactively, use "mix local.hex --force") [Yn] 

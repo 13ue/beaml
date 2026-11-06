@@ -1,0 +1,36 @@
+Selected executables:
+/Users/lennart/.asdf/installs/elixir/1.18.1-otp-27/bin/elixir
+/Users/lennart/.asdf/installs/elixir/1.18.1-otp-27/bin/mix
+/Users/lennart/.asdf/installs/erlang/27.3.4/bin/erl
+
+$ python3 run.py
+{"run": "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/results/20261105T220545655633Z", "status": "pass", "error": null}
+
+$ python3 -m unittest discover -s tests -p test_query.py -v
+test_complete_and_missing_log (test_query.QueryTest) ... ok
+test_corruptions (test_query.QueryTest) ... ok
+test_missing_artifact_metadata_is_a_gap (test_query.QueryTest) ... ok
+test_payments_ingress_requires_remote_parent (test_query.QueryTest) ... ok
+test_split_trace_reports_missing_edge (test_query.QueryTest) ... ok
+test_two_traces_stay_separate (test_query.QueryTest) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.031s
+
+OK
+
+$ python3 tests/http_repair_test.py -v
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 10.199s
+
+OK
+
+$ python3 -O run.py
+Run without Python optimization (-O or PYTHONOPTIMIZE).
+Exit status: 1 (expected 1)
+
+$ python3 run.py --fail-after-start
+{"run": "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/results/20261105T220612131147Z", "status": "fail", "error": "RuntimeError:injected_post_start_failure"}
+Exit status: 1 (expected 1)
+Forced cleanup: [{'pid': 43970, 'exit_code': 0}, {'pid': 44115, 'exit_code': 0}]

@@ -1,0 +1,9 @@
+==> probe_support
+Compiling 4 files (.ex)
+Generated probe_support app
+==> payments_api
+Compiling 3 files (.ex)
+Generated payments_api app
+==> orders_api
+Compiling 4 files (.ex)
+Generated orders_api app

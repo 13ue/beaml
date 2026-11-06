@@ -1,0 +1,256 @@
+{
+  "phase": "independent-test",
+  "status": "fail",
+  "runtime_status": "pass",
+  "recorded_at": "2026-11-05T21:41:09.193729+00:00",
+  "scope": "EXPERIMENT 0002 H01-H05; no replay; no implementation edits",
+  "acceptance": {
+    "status": "pass",
+    "command": [
+      "python3",
+      "experiments/0002-http-correlation/run.py"
+    ],
+    "exit_code": 0,
+    "result": "experiments/0002-http-correlation/results/20261105T213931184317Z/result.json",
+    "cases": {
+      "H01": "pass",
+      "H02": "pass",
+      "H03": "pass",
+      "H04": "pass",
+      "H05": "pass"
+    },
+    "boundaries": {
+      "invalid_shapes_rejected": true,
+      "malformed_json_rejected": true,
+      "payments_not_called": true,
+      "writer_failure_preserves_200": true,
+      "capture_loss_reported": true,
+      "transport_failure_returns_502": true
+    },
+    "cleanup": [
+      {
+        "pid": 2421,
+        "exit_code": 0
+      },
+      {
+        "pid": 2619,
+        "exit_code": 0
+      },
+      {
+        "pid": 2974,
+        "exit_code": 0
+      },
+      {
+        "pid": 3037,
+        "exit_code": 0
+      },
+      {
+        "pid": 3324,
+        "exit_code": 0
+      },
+      {
+        "pid": 3440,
+        "exit_code": 0
+      }
+    ]
+  },
+  "checks": {
+    "python-tests": {
+      "status": "pass",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "stdout": "experiments/0002-http-correlation/results/20261105T213931184317Z/python-tests.stdout",
+      "stderr": "experiments/0002-http-correlation/results/20261105T213931184317Z/python-tests.stderr",
+      "tests": 6
+    },
+    "fixture-tests-orders": {
+      "status": "pass",
+      "command": [
+        "elixir",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/_build/prod/lib/probe_support/ebin",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/_build/prod/lib/orders_api/ebin",
+        "tests/fixture_test.exs"
+      ],
+      "stdout": "experiments/0002-http-correlation/results/20261105T213931184317Z/fixture-tests-orders.stdout",
+      "stderr": "experiments/0002-http-correlation/results/20261105T213931184317Z/fixture-tests-orders.stderr",
+      "tests": 1
+    },
+    "fixture-tests-payments": {
+      "status": "pass",
+      "command": [
+        "elixir",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/_build/prod/lib/probe_support/ebin",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/_build/prod/lib/payments_api/ebin",
+        "tests/fixture_test.exs"
+      ],
+      "stdout": "experiments/0002-http-correlation/results/20261105T213931184317Z/fixture-tests-payments.stdout",
+      "stderr": "experiments/0002-http-correlation/results/20261105T213931184317Z/fixture-tests-payments.stderr",
+      "tests": 1
+    },
+    "capture-tests": {
+      "status": "pass",
+      "command": [
+        "elixir",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/_build/prod/lib/probe_support/ebin",
+        "tests/capture_test.exs"
+      ],
+      "stdout": "experiments/0002-http-correlation/results/20261105T213931184317Z/capture-tests.stdout",
+      "stderr": "experiments/0002-http-correlation/results/20261105T213931184317Z/capture-tests.stderr",
+      "tests": 1
+    },
+    "format": {
+      "status": "pass",
+      "command": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "stdout": "experiments/0002-http-correlation/results/20261105T213931184317Z/format.stdout",
+      "stderr": "experiments/0002-http-correlation/results/20261105T213931184317Z/format.stderr"
+    },
+    "compile-strict": {
+      "status": "pass",
+      "command": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "stdout": "experiments/0002-http-correlation/results/20261105T213931184317Z/compile-strict.stdout",
+      "stderr": "experiments/0002-http-correlation/results/20261105T213931184317Z/compile-strict.stderr"
+    },
+    "release-orders": {
+      "status": "pass",
+      "command": [
+        "mix",
+        "release",
+        "orders",
+        "--overwrite"
+      ],
+      "stdout": "experiments/0002-http-correlation/results/20261105T213931184317Z/release-orders.stdout",
+      "stderr": "experiments/0002-http-correlation/results/20261105T213931184317Z/release-orders.stderr"
+    },
+    "release-payments": {
+      "status": "pass",
+      "command": [
+        "mix",
+        "release",
+        "payments",
+        "--overwrite"
+      ],
+      "stdout": "experiments/0002-http-correlation/results/20261105T213931184317Z/release-payments.stdout",
+      "stderr": "experiments/0002-http-correlation/results/20261105T213931184317Z/release-payments.stderr"
+    }
+  },
+  "controls": {
+    "query": {
+      "exit_code": 0,
+      "complete": true,
+      "traces": 2,
+      "edges": 10,
+      "logs": 4,
+      "status": "pass",
+      "stdout": "experiments/0002-http-correlation/workflow/2026-11-05/test-query.stdout",
+      "stderr": "experiments/0002-http-correlation/workflow/2026-11-05/test-query.stderr"
+    },
+    "forced_post_start_failure": {
+      "exit_code": 1,
+      "status": "pass",
+      "cleanup": [
+        {
+          "pid": 7198,
+          "exit_code": 0
+        },
+        {
+          "pid": 7323,
+          "exit_code": 0
+        }
+      ],
+      "result": "experiments/0002-http-correlation/results/20261105T214018230392Z/result.json"
+    }
+  },
+  "action_events": {
+    "status": "pass",
+    "path": ".beaml/actions.jsonl",
+    "cases": {
+      "H01": [
+        "start",
+        "step",
+        "pass"
+      ],
+      "H02": [
+        "start",
+        "step",
+        "pass"
+      ],
+      "H03": [
+        "start",
+        "step",
+        "pass"
+      ],
+      "H04": [
+        "start",
+        "step",
+        "pass"
+      ],
+      "H05": [
+        "start",
+        "step",
+        "pass"
+      ]
+    },
+    "counts": {
+      "compiler_compile": 4,
+      "query_start": 2,
+      "query_finish": 2,
+      "runner_start": 2,
+      "runner_finish": 2
+    },
+    "unexpected_keys": []
+  },
+  "wiki_lint": {
+    "exit_code": 1,
+    "output": "experiments/0002-http-correlation/workflow/2026-11-05/test-wiki.log",
+    "status": "fail",
+    "issues": [
+      "wiki/sources/test-first-policy.md absent from wiki/index.md",
+      "wiki/sources/test-first-policy.md has no incoming local links"
+    ],
+    "scope": "Pre-existing policy documentation outside HTTP implementation; no other lint errors reported."
+  },
+  "tracked_diff_check": {
+    "status": "pass",
+    "exit_code": 0,
+    "scope": "Git tracked worktree diff only."
+  },
+  "compiler_source_worktree": {
+    "status": "pass",
+    "status_output": ""
+  },
+  "infrastructure_attempts": [
+    {
+      "status": "fail",
+      "result": "experiments/0002-http-correlation/results/20261105T213908782648Z/result.json",
+      "reason": "Sandbox denied local Mix lock socket (:eperm); socket-enabled retry passed."
+    }
+  ],
+  "test_first_recovery": {
+    "status": "retained-failing-assertion",
+    "test": "test_complete_and_missing_log",
+    "expected": "complete=True",
+    "actual": "complete=False",
+    "artifact": "experiments/0002-http-correlation/workflow/2026-11-05/solver-red.log",
+    "limits": "Synthetic checker input. User review or waiver not inferred from retained artifacts."
+  }
+}

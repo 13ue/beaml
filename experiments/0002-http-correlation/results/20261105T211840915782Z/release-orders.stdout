@@ -1,0 +1,26 @@
+==> probe_support
+Generated probe_support app
+==> payments_api
+Generated payments_api app
+==> orders_api
+Generated orders_api app
+* assembling orders-0.1.0 on MIX_ENV=prod
+* using config/runtime.exs to configure the release at runtime
+
+Release created at _build/prod/rel/orders
+
+    # To start your system
+    _build/prod/rel/orders/bin/orders start
+
+Once the release is running:
+
+    # To connect to it remotely
+    _build/prod/rel/orders/bin/orders remote
+
+    # To stop it gracefully (you may also send SIGINT/SIGTERM)
+    _build/prod/rel/orders/bin/orders stop
+
+To list all commands:
+
+    _build/prod/rel/orders/bin/orders
+

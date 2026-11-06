@@ -1,0 +1,202 @@
+$ python3 -m unittest discover -s tests -p test_query.py -v
+test_complete_and_missing_log (test_query.QueryTest) ... ok
+test_corruptions (test_query.QueryTest) ... ok
+test_missing_artifact_metadata_is_a_gap (test_query.QueryTest) ... FAIL
+test_payments_ingress_requires_remote_parent (test_query.QueryTest) ... FAIL
+test_split_trace_reports_missing_edge (test_query.QueryTest) ... ok
+test_two_traces_stay_separate (test_query.QueryTest) ... ok
+
+======================================================================
+FAIL: test_missing_artifact_metadata_is_a_gap (test_query.QueryTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/test_query.py", line 107, in test_missing_artifact_metadata_is_a_gap
+    self.assertEqual(result["complete"], False, result["gaps"])
+AssertionError: True != False : []
+
+======================================================================
+FAIL: test_payments_ingress_requires_remote_parent (test_query.QueryTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/test_query.py", line 94, in test_payments_ingress_requires_remote_parent
+    self.assertEqual(result["complete"], False, result["gaps"])
+AssertionError: True != False : []
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.043s
+
+FAILED (failures=2)
+Exit status: 1
+$ python3 tests/http_repair_test.py -v
+test_redirect_is_rejected_without_calling_sink (__main__.TransportTest) ... FAIL
+test_retry_after_zero_sends_exactly_one_post (__main__.TransportTest) ... FAIL
+
+======================================================================
+FAIL: test_redirect_is_rejected_without_calling_sink (__main__.TransportTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/http_repair_test.py", line 98, in test_redirect_is_rejected_without_calling_sink
+    self.assertEqual((result, requests, sink_requests), (FAILURE, ["/payments/authorize"], []))
+AssertionError: Tuples differ: ((200, {'order_id': 'order-1', 'status': 'a[55 chars]et']) != ((502, {'error': 'downstream_failure'}), ['[21 chars], [])
+
+First differing element 0:
+(200, {'order_id': 'order-1', 'status': 'authorized'})
+(502, {'error': 'downstream_failure'})
+
++ ((502, {'error': 'downstream_failure'}), ['/payments/authorize'], [])
+- ((200, {'order_id': 'order-1', 'status': 'authorized'}),
+-  ['/payments/authorize'],
+-  ['/redirect-target'])
+
+======================================================================
+FAIL: test_retry_after_zero_sends_exactly_one_post (__main__.TransportTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/http_repair_test.py", line 91, in test_retry_after_zero_sends_exactly_one_post
+    self.assertEqual((result, requests), (FAILURE, ["/payments/authorize"]))
+AssertionError: Tuples differ: ((200, {'order_id': 'order-1', 'status': 'a[56 chars]ze']) != ((502, {'error': 'downstream_failure'}), ['[17 chars]ze'])
+
+First differing element 0:
+(200, {'order_id': 'order-1', 'status': 'authorized'})
+(502, {'error': 'downstream_failure'})
+
++ ((502, {'error': 'downstream_failure'}), ['/payments/authorize'])
+- ((200, {'order_id': 'order-1', 'status': 'authorized'}),
+-  ['/payments/authorize', '/payments/authorize'])
+
+----------------------------------------------------------------------
+Ran 2 tests in 4.066s
+
+FAILED (failures=2)
+Exit status: 1
+$ python3 tests/http_repair_test.py -v AcceptanceTest
+test_h03_rejects_intact_payment_edge_with_detached_finish (__main__.AcceptanceTest) ... FAIL
+test_optimized_runner_keeps_acceptance_or_rejects_before_running (__main__.AcceptanceTest) ... FAIL
+
+======================================================================
+FAIL: test_h03_rejects_intact_payment_edge_with_detached_finish (__main__.AcceptanceTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/http_repair_test.py", line 183, in test_h03_rejects_intact_payment_edge_with_detached_finish
+    self.assertEqual(cases["H03"]["status"], "fail", cases["H03"].get("details", {}).get("gaps"))
+AssertionError: 'pass' != 'fail'
+- pass
++ fail
+ : [{'code': 'trace_shape', 'trace_id': 'e79dbd83ded118fb56bbb4692d7200e1'}, {'code': 'trace_shape', 'trace_id': 'ffffffffffffffffffffffffffffffff'}, {'code': 'missing_causal_edge', 'trace_id': 'ffffffffffffffffffffffffffffffff', 'span': 'orders.finish', 'parent': 'orders.request'}]
+
+======================================================================
+FAIL: test_optimized_runner_keeps_acceptance_or_rejects_before_running (__main__.AcceptanceTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/http_repair_test.py", line 193, in test_optimized_runner_keeps_acceptance_or_rejects_before_running
+    self.assertEqual(cases["H03"]["status"], "fail", cases["H03"].get("details", {}).get("gaps"))
+AssertionError: 'pass' != 'fail'
+- pass
++ fail
+ : [{'code': 'no_traces'}]
+
+----------------------------------------------------------------------
+Ran 2 tests in 18.027s
+
+FAILED (failures=2)
+Exit status: 1
+$ python3 tests/http_repair_test.py -v ToolchainTest
+test_build_uses_the_toolchain_selected_on_path (__main__.ToolchainTest) ... FAIL
+
+======================================================================
+FAIL: test_build_uses_the_toolchain_selected_on_path (__main__.ToolchainTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/http_repair_test.py", line 219, in test_build_uses_the_toolchain_selected_on_path
+    self.assertEqual(wrong_tool, [])
+AssertionError: Lists differ: ['release-orders', 'release-payments', 'compile-strict'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'release-orders'
+
+- ['release-orders', 'release-payments', 'compile-strict']
++ []
+
+----------------------------------------------------------------------
+Ran 1 test in 0.260s
+
+FAILED (failures=1)
+Exit status: 1
+$ python3 tests/http_repair_test.py -v
+FFFFF
+======================================================================
+FAIL: test_h03_rejects_intact_payment_edge_with_detached_finish (__main__.AcceptanceTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/http_repair_test.py", line 189, in test_h03_rejects_intact_payment_edge_with_detached_finish
+    self.assertEqual(cases["H03"]["status"], "fail", cases["H03"].get("details", {}).get("gaps"))
+AssertionError: 'pass' != 'fail'
+- pass
++ fail
+ : [{'code': 'trace_shape', 'trace_id': '841ba60a46e5b1fd88bb58b7c430eb57'}, {'code': 'trace_shape', 'trace_id': 'ffffffffffffffffffffffffffffffff'}, {'code': 'missing_causal_edge', 'trace_id': 'ffffffffffffffffffffffffffffffff', 'span': 'orders.finish', 'parent': 'orders.request'}]
+
+======================================================================
+FAIL: test_optimized_runner_keeps_acceptance_or_rejects_before_running (__main__.AcceptanceTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/http_repair_test.py", line 201, in test_optimized_runner_keeps_acceptance_or_rejects_before_running
+    self.assertEqual(cases["H03"]["status"], "fail", cases["H03"].get("details", {}).get("gaps"))
+AssertionError: 'pass' != 'fail'
+- pass
++ fail
+ : [{'code': 'no_traces'}]
+
+======================================================================
+FAIL: test_build_uses_the_toolchain_selected_on_path (__main__.ToolchainTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/http_repair_test.py", line 224, in test_build_uses_the_toolchain_selected_on_path
+    self.assertEqual(wrong_tool, [])
+AssertionError: Lists differ: ['release-orders', 'release-payments', 'compile-strict'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'release-orders'
+
+- ['release-orders', 'release-payments', 'compile-strict']
++ []
+
+======================================================================
+FAIL: test_redirect_is_rejected_without_calling_sink (__main__.TransportTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/http_repair_test.py", line 105, in test_redirect_is_rejected_without_calling_sink
+    self.assertEqual((result, requests, sink_requests), (FAILURE, ["/payments/authorize"], []))
+AssertionError: Tuples differ: ((200, {'order_id': 'order-1', 'status': 'a[55 chars]et']) != ((502, {'error': 'downstream_failure'}), ['[21 chars], [])
+
+First differing element 0:
+(200, {'order_id': 'order-1', 'status': 'authorized'})
+(502, {'error': 'downstream_failure'})
+
++ ((502, {'error': 'downstream_failure'}), ['/payments/authorize'], [])
+- ((200, {'order_id': 'order-1', 'status': 'authorized'}),
+-  ['/payments/authorize'],
+-  ['/redirect-target'])
+
+======================================================================
+FAIL: test_retry_after_zero_sends_exactly_one_post (__main__.TransportTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/tests/http_repair_test.py", line 97, in test_retry_after_zero_sends_exactly_one_post
+    self.assertEqual((result, requests), (FAILURE, ["/payments/authorize"]))
+AssertionError: Tuples differ: ((200, {'order_id': 'order-1', 'status': 'a[56 chars]ze']) != ((502, {'error': 'downstream_failure'}), ['[17 chars]ze'])
+
+First differing element 0:
+(200, {'order_id': 'order-1', 'status': 'authorized'})
+(502, {'error': 'downstream_failure'})
+
++ ((502, {'error': 'downstream_failure'}), ['/payments/authorize'])
+- ((200, {'order_id': 'order-1', 'status': 'authorized'}),
+-  ['/payments/authorize', '/payments/authorize'])
+
+----------------------------------------------------------------------
+Ran 5 tests in 22.239s
+
+FAILED (failures=5)
+Exit status: 1

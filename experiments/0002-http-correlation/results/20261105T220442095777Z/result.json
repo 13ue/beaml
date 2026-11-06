@@ -1,0 +1,447 @@
+{
+  "status": "pass",
+  "cases": {
+    "H01": {
+      "status": "pass",
+      "details": {
+        "complete": true,
+        "gaps": [],
+        "traces": [
+          "23340beece1c6bbb9b3e7c97d86c9a59"
+        ],
+        "edges": [
+          {
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "parent_span_id": "47a83b7c083b616f",
+            "span_id": "2d1d8da47ae24856"
+          },
+          {
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "parent_span_id": "47a83b7c083b616f",
+            "span_id": "1087aae9bea07f1c"
+          },
+          {
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "parent_span_id": "47a83b7c083b616f",
+            "span_id": "5cc3d2bc14cd273a"
+          },
+          {
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "parent_span_id": "106138100e7d3d1e",
+            "span_id": "49b4d8dea2175fb4"
+          },
+          {
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "parent_span_id": "1087aae9bea07f1c",
+            "span_id": "106138100e7d3d1e"
+          }
+        ],
+        "logs": [
+          {
+            "service": "orders",
+            "operation": "prepare",
+            "event": "payment_request_prepared",
+            "span_id": "2d1d8da47ae24856",
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "order_id": "order-1"
+          },
+          {
+            "service": "payments",
+            "operation": "authorize",
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "span_id": "49b4d8dea2175fb4",
+            "event": "payment_stub_returned",
+            "order_id": "order-1"
+          }
+        ],
+        "fixtures": {
+          "payments": {
+            "source": "apps/payments_api/priv/payments.beaml",
+            "source_hash": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50"
+          },
+          "orders": {
+            "source": "apps/orders_api/priv/orders.beaml",
+            "source_hash": "411a0acd0e09f1ce2dbedba827ff2ab0182eaeca8b99df0b411f9b24f71bcdf1"
+          }
+        }
+      }
+    },
+    "H02": {
+      "status": "pass",
+      "details": {
+        "complete": true,
+        "gaps": [],
+        "traces": [
+          "23340beece1c6bbb9b3e7c97d86c9a59",
+          "3c2c8891d150a0f82c5e9ddc7487c05f"
+        ],
+        "edges": [
+          {
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "parent_span_id": "47a83b7c083b616f",
+            "span_id": "2d1d8da47ae24856"
+          },
+          {
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "parent_span_id": "47a83b7c083b616f",
+            "span_id": "1087aae9bea07f1c"
+          },
+          {
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "parent_span_id": "47a83b7c083b616f",
+            "span_id": "5cc3d2bc14cd273a"
+          },
+          {
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "parent_span_id": "106138100e7d3d1e",
+            "span_id": "49b4d8dea2175fb4"
+          },
+          {
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "parent_span_id": "1087aae9bea07f1c",
+            "span_id": "106138100e7d3d1e"
+          },
+          {
+            "trace_id": "3c2c8891d150a0f82c5e9ddc7487c05f",
+            "parent_span_id": "fba2b3fdfe6a9f41",
+            "span_id": "6e6aa0383419abd2"
+          },
+          {
+            "trace_id": "3c2c8891d150a0f82c5e9ddc7487c05f",
+            "parent_span_id": "fba2b3fdfe6a9f41",
+            "span_id": "12876c9529428b27"
+          },
+          {
+            "trace_id": "3c2c8891d150a0f82c5e9ddc7487c05f",
+            "parent_span_id": "fba2b3fdfe6a9f41",
+            "span_id": "8dd44dc77b4f81ca"
+          },
+          {
+            "trace_id": "3c2c8891d150a0f82c5e9ddc7487c05f",
+            "parent_span_id": "1c1642a42d2cd055",
+            "span_id": "007781485c73e905"
+          },
+          {
+            "trace_id": "3c2c8891d150a0f82c5e9ddc7487c05f",
+            "parent_span_id": "12876c9529428b27",
+            "span_id": "1c1642a42d2cd055"
+          }
+        ],
+        "logs": [
+          {
+            "service": "orders",
+            "operation": "prepare",
+            "event": "payment_request_prepared",
+            "span_id": "2d1d8da47ae24856",
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "order_id": "order-1"
+          },
+          {
+            "service": "orders",
+            "operation": "prepare",
+            "event": "payment_request_prepared",
+            "span_id": "6e6aa0383419abd2",
+            "trace_id": "3c2c8891d150a0f82c5e9ddc7487c05f",
+            "order_id": "order-1"
+          },
+          {
+            "service": "payments",
+            "operation": "authorize",
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "span_id": "49b4d8dea2175fb4",
+            "event": "payment_stub_returned",
+            "order_id": "order-1"
+          },
+          {
+            "service": "payments",
+            "operation": "authorize",
+            "trace_id": "3c2c8891d150a0f82c5e9ddc7487c05f",
+            "span_id": "007781485c73e905",
+            "event": "payment_stub_returned",
+            "order_id": "order-1"
+          }
+        ],
+        "fixtures": {
+          "payments": {
+            "source": "apps/payments_api/priv/payments.beaml",
+            "source_hash": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50"
+          },
+          "orders": {
+            "source": "apps/orders_api/priv/orders.beaml",
+            "source_hash": "411a0acd0e09f1ce2dbedba827ff2ab0182eaeca8b99df0b411f9b24f71bcdf1"
+          }
+        }
+      }
+    },
+    "H05": {
+      "status": "pass",
+      "details": {
+        "status": 400,
+        "before": 2,
+        "after": 2
+      }
+    },
+    "H03": {
+      "status": "pass",
+      "details": {
+        "complete": false,
+        "gaps": [
+          {
+            "code": "missing_causal_edge",
+            "trace_id": "44bf51d2a2d219dc54a8c284c3ee9de2",
+            "span": "payments.request",
+            "parent": "orders.payment_http"
+          }
+        ],
+        "traces": [
+          "44bf51d2a2d219dc54a8c284c3ee9de2",
+          "d1e703e52182685cdb54c8ed0799099e"
+        ],
+        "edges": [
+          {
+            "trace_id": "44bf51d2a2d219dc54a8c284c3ee9de2",
+            "parent_span_id": "aa14af77d3b37353",
+            "span_id": "c370b04c016d76b3"
+          },
+          {
+            "trace_id": "d1e703e52182685cdb54c8ed0799099e",
+            "parent_span_id": "7d169988a6a9e406",
+            "span_id": "66f5572bc14f5ba4"
+          },
+          {
+            "trace_id": "d1e703e52182685cdb54c8ed0799099e",
+            "parent_span_id": "7d169988a6a9e406",
+            "span_id": "ce3e7ab85ed5ab4f"
+          },
+          {
+            "trace_id": "d1e703e52182685cdb54c8ed0799099e",
+            "parent_span_id": "7d169988a6a9e406",
+            "span_id": "19e568a965e7114f"
+          }
+        ],
+        "logs": [
+          {
+            "service": "orders",
+            "operation": "prepare",
+            "event": "payment_request_prepared",
+            "span_id": "66f5572bc14f5ba4",
+            "trace_id": "d1e703e52182685cdb54c8ed0799099e",
+            "order_id": "order-1"
+          },
+          {
+            "service": "payments",
+            "operation": "authorize",
+            "event": "payment_stub_returned",
+            "span_id": "c370b04c016d76b3",
+            "trace_id": "44bf51d2a2d219dc54a8c284c3ee9de2",
+            "order_id": "order-1"
+          }
+        ],
+        "fixtures": {
+          "payments": {
+            "source": "apps/payments_api/priv/payments.beaml",
+            "source_hash": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50"
+          },
+          "orders": {
+            "source": "apps/orders_api/priv/orders.beaml",
+            "source_hash": "411a0acd0e09f1ce2dbedba827ff2ab0182eaeca8b99df0b411f9b24f71bcdf1"
+          }
+        }
+      }
+    },
+    "H04": {
+      "status": "pass",
+      "details": {
+        "exit_code": 1,
+        "gaps": [
+          {
+            "code": "capture_count",
+            "service": "payments",
+            "kind": "logs"
+          },
+          {
+            "code": "missing_log",
+            "trace_id": "23340beece1c6bbb9b3e7c97d86c9a59",
+            "span_id": "49b4d8dea2175fb4",
+            "event": "payment_stub_returned"
+          }
+        ],
+        "original_unchanged": true
+      }
+    }
+  },
+  "commands": [
+    {
+      "name": "elixir-version",
+      "args": [
+        "elixir",
+        "--version"
+      ]
+    },
+    {
+      "name": "python-version",
+      "args": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "--version"
+      ]
+    },
+    {
+      "name": "cargo-version",
+      "args": [
+        "cargo",
+        "--version"
+      ]
+    },
+    {
+      "name": "rust-version",
+      "args": [
+        "rustc",
+        "--version"
+      ]
+    },
+    {
+      "name": "generate-orders",
+      "args": [
+        "cargo",
+        "run",
+        "--quiet",
+        "--manifest-path",
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/Cargo.toml",
+        "--",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml"
+      ]
+    },
+    {
+      "name": "generate-payments",
+      "args": [
+        "cargo",
+        "run",
+        "--quiet",
+        "--manifest-path",
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/Cargo.toml",
+        "--",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml"
+      ]
+    },
+    {
+      "name": "dependencies",
+      "args": [
+        "mix",
+        "deps.get",
+        "--offline"
+      ]
+    },
+    {
+      "name": "format-generated",
+      "args": [
+        "mix",
+        "format",
+        "apps/orders_api/lib/generated.ex",
+        "apps/payments_api/lib/generated.ex"
+      ]
+    },
+    {
+      "name": "format",
+      "args": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "name": "release-orders",
+      "args": [
+        "mix",
+        "release",
+        "orders",
+        "--overwrite"
+      ]
+    },
+    {
+      "name": "release-payments",
+      "args": [
+        "mix",
+        "release",
+        "payments",
+        "--overwrite"
+      ]
+    },
+    {
+      "name": "compile-strict",
+      "args": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ]
+    },
+    {
+      "name": "python-tests",
+      "args": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ]
+    },
+    {
+      "name": "fixture-tests-orders",
+      "args": [
+        "elixir",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/_build/prod/lib/probe_support/ebin",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/_build/prod/lib/orders_api/ebin",
+        "tests/fixture_test.exs"
+      ]
+    },
+    {
+      "name": "fixture-tests-payments",
+      "args": [
+        "elixir",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/_build/prod/lib/probe_support/ebin",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/_build/prod/lib/payments_api/ebin",
+        "tests/fixture_test.exs"
+      ]
+    },
+    {
+      "name": "capture-tests",
+      "args": [
+        "elixir",
+        "-pa",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/_build/prod/lib/probe_support/ebin",
+        "tests/capture_test.exs"
+      ]
+    }
+  ],
+  "cleanup": [
+    {
+      "pid": 34997,
+      "exit_code": 0
+    },
+    {
+      "pid": 35187,
+      "exit_code": 0
+    },
+    {
+      "pid": 35473,
+      "exit_code": 0
+    },
+    {
+      "pid": 35562,
+      "exit_code": 0
+    },
+    {
+      "pid": 35836,
+      "exit_code": 0
+    },
+    {
+      "pid": 35927,
+      "exit_code": 0
+    }
+  ]
+}

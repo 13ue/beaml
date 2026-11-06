@@ -1,0 +1,11 @@
+{exit,terminating,[{application_controller,call,2,[{file,"application_controller.erl"},{line,511}]},{application,enqueue_or_start,6,[{file,"application.erl"},{line,380}]},{application,ensure_all_started,3,[{file,"application.erl"},{line,359}]},{elixir,start_cli,0,[{file,"src/elixir.erl"},{line,195}]},{init,start_it,1,[]},{init,start_em,1,[]},{init,do_boot,3,[]}]}
+
+22:20:23.322 [notice] Application orders_api exited: exited in: OrdersApi.Application.start(:normal, [])
+    ** (EXIT) an exception was raised:
+        ** (MatchError) no match of right hand side value: {:otel_tracer_noop, []}
+            (probe_support 0.1.0) lib/probe_support.ex:7: ProbeSupport.setup/0
+            (orders_api 0.1.0) lib/orders_api/application.ex:5: OrdersApi.Application.start/2
+            (kernel 10.2.7) application_master.erl:295: :application_master.start_it_old/4
+Kernel pid terminated (application_controller) ("{application_start_failure,orders_api,{bad_return,{{'Elixir.OrdersApi.Application',start,[normal,[]]},{'EXIT',{{badmatch,{otel_tracer_noop,[]}},[{'Elixir.ProbeSupport',setup,0,[{file,\"lib/probe_support.ex\"},{line,7}]},{'Elixir.OrdersApi.Application',start,2,[{file,\"lib/orders_api/application.ex\"},{line,5}]},{application_master,start_it_old,4,[{file,\"application_master.erl\"},{line,295}]}]}}}}}")
+
+Crash dump is being written to: erl_crash.dump...done

@@ -1,0 +1,257 @@
+{
+  "phase": "independent-final-verification",
+  "status": "pass",
+  "runtime_status": "pass",
+  "recorded_at": "2026-11-05T22:15:02.284873+00:00",
+  "scope": {
+    "verified": [
+      "experiments/0002-http-correlation/apps",
+      "experiments/0002-http-correlation/config",
+      "experiments/0002-http-correlation/.formatter.exs",
+      "experiments/0002-http-correlation/mix.exs",
+      "experiments/0002-http-correlation/mix.lock",
+      "experiments/0002-http-correlation/run.py",
+      "experiments/0002-http-correlation/query.py",
+      "experiments/0002-http-correlation/tests",
+      "experiments/0002-http-correlation/results",
+      "experiments/0002-http-correlation/README.md",
+      "experiments/0002-http-correlation/workflow/2026-11-05",
+      ".gitignore",
+      "wiki/index.md",
+      "wiki/log.md",
+      "wiki/planning/research-and-development.md"
+    ],
+    "verifier_writes": [
+      "experiments/0002-http-correlation/workflow/2026-11-05/final-test-output.log",
+      "experiments/0002-http-correlation/workflow/2026-11-05/result.json",
+      "experiments/0002-http-correlation/results/20261105T221134010042Z",
+      "experiments/0002-http-correlation/results/20261105T221309471389Z",
+      "experiments/0002-http-correlation/results/20261105T220956756334Z",
+      "experiments/0002-http-correlation/results/20261105T221105578657Z"
+    ],
+    "compiler_0001_changes": [],
+    "excluded": [
+      "Zed integration",
+      "replay",
+      "commit and push",
+      "unrelated working tree changes"
+    ]
+  },
+  "checks": {
+    "acceptance": {
+      "status": "pass",
+      "command": [
+        "python3",
+        "experiments/0002-http-correlation/run.py"
+      ],
+      "exit_code": 0,
+      "result": "experiments/0002-http-correlation/results/20261105T221134010042Z/result.json",
+      "cases": {
+        "H01": "pass",
+        "H02": "pass",
+        "H05": "pass",
+        "H03": "pass",
+        "H04": "pass"
+      },
+      "boundary_result": "experiments/0002-http-correlation/results/20261105T221134010042Z/boundary-controls/checks.json",
+      "boundary_checks": 6,
+      "cleanup": [
+        {
+          "pid": 71788,
+          "exit_code": 0
+        },
+        {
+          "pid": 71985,
+          "exit_code": 0
+        },
+        {
+          "pid": 72294,
+          "exit_code": 0
+        },
+        {
+          "pid": 72363,
+          "exit_code": 0
+        },
+        {
+          "pid": 72612,
+          "exit_code": 0
+        },
+        {
+          "pid": 72704,
+          "exit_code": 0
+        }
+      ]
+    },
+    "rebuild": {
+      "status": "pass",
+      "toolchain": {
+        "python": "3.9.6",
+        "elixir_mix": "1.18.1",
+        "otp": "27.3.4",
+        "rust_cargo": "1.94.0",
+        "hex": "2.4.1"
+      },
+      "commands": "experiments/0002-http-correlation/results/20261105T221134010042Z/commands.json",
+      "passed": [
+        "offline dependency resolution",
+        "orders release",
+        "payments release",
+        "format",
+        "compile --force --warnings-as-errors"
+      ],
+      "network": "offline dependency resolution from a temporary copy of the public cache, with local TCP for Mix and loopback HTTP"
+    },
+    "focused_tests": {
+      "status": "pass",
+      "python_discovery": 8,
+      "python_repair_file": 5,
+      "exunit": 3,
+      "unique_total": 16
+    },
+    "reviewed_regressions": {
+      "status": "pass",
+      "tests": {
+        "test_retry_after_zero_sends_exactly_one_post": "Fixed 502; one downstream POST",
+        "test_redirect_is_rejected_without_calling_sink": "Fixed 502; one downstream POST; zero sink POSTs",
+        "test_h03_rejects_intact_payment_edge_with_detached_finish": "H03 fails on the wrong-edge mutation",
+        "test_payments_ingress_requires_remote_parent": "Incomplete with remote_parent gap",
+        "test_missing_artifact_metadata_is_a_gap": "Incomplete with missing_artifacts gap",
+        "test_optimized_runner_keeps_acceptance_or_rejects_before_running": "Optimized invocation exits 1 before execution",
+        "test_build_uses_the_toolchain_selected_on_path": "All seven intercepted version/build steps resolve the expected alternate toolchain"
+      },
+      "red": "experiments/0002-http-correlation/workflow/2026-11-05/repair-red.log",
+      "prior_green": "experiments/0002-http-correlation/workflow/2026-11-05/repair-green.log",
+      "owner_review": "experiments/0002-http-correlation/workflow/2026-11-05/notes.md#repair-authorization"
+    },
+    "query": {
+      "status": "pass",
+      "exit_code": 0,
+      "complete": true,
+      "traces": 2,
+      "edges": 10,
+      "logs": 4,
+      "matches_snapshot": "experiments/0002-http-correlation/results/20261105T221134010042Z/normal/query-H02.json"
+    },
+    "forced_failure": {
+      "status": "pass",
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "result": "experiments/0002-http-correlation/results/20261105T221309471389Z/result.json",
+      "cleanup": [
+        {
+          "pid": 80351,
+          "exit_code": 0
+        },
+        {
+          "pid": 80487,
+          "exit_code": 0
+        }
+      ]
+    },
+    "optimized_cli": {
+      "status": "pass",
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "rejected_before_execution": true
+    },
+    "hashes": {
+      "status": "pass",
+      "build_inputs": 21,
+      "fixture_generated_beam_comparisons": 24,
+      "original_h04_observation_files": 4
+    },
+    "action_events": {
+      "status": "pass",
+      "case_records": 15,
+      "path": ".beaml/actions.jsonl"
+    },
+    "wiki": {
+      "status": "pass",
+      "self_test": "pass",
+      "maintained_markdown": 77,
+      "errors": 0,
+      "retained_capture_hashes": 6,
+      "pdf_checks": "pass"
+    },
+    "experiment_links": {
+      "status": "pass_with_historical_exception",
+      "files": 9,
+      "links": 43,
+      "historical_broken_references": 2,
+      "historical_unique_target": "../../raw/requirements/2026-11-05-http-probe-plan.md",
+      "baseline": "experiments/0002-http-correlation/workflow/2026-11-05/spec.md"
+    },
+    "whitespace": {
+      "status": "pass",
+      "tracked_diff": "pass",
+      "untracked_authored_files_before_final_records": 46
+    },
+    "compiler_0001": {
+      "status": "pass",
+      "unchanged": true,
+      "hash_matched": true,
+      "rust_unit_tests": 9,
+      "cli_tests": 1,
+      "fmt": "pass",
+      "clippy_warnings_as_errors": "pass"
+    }
+  },
+  "review_findings": [
+    {
+      "id": 1,
+      "status": "resolved",
+      "evidence": "Rebuilt-release 503 and 307 POST-count regressions"
+    },
+    {
+      "id": 2,
+      "status": "resolved",
+      "evidence": "H03 wrong-edge regression and exact positive control"
+    },
+    {
+      "id": 3,
+      "status": "resolved",
+      "evidence": "Remote marker and missing artifacts regressions plus independent run hashes"
+    },
+    {
+      "id": 4,
+      "status": "resolved",
+      "evidence": "Optimized runner regression and direct CLI rejection"
+    },
+    {
+      "id": 5,
+      "status": "resolved",
+      "evidence": "Alternate-PATH tool selection regression and full offline rebuild with explicitly selected tools"
+    },
+    {
+      "id": 6,
+      "status": "resolved",
+      "evidence": "README, wiki index and register link runtime evidence, state scope, and pass maintained-page lint"
+    }
+  ],
+  "unresolved_defects": [],
+  "workflow_review": {
+    "status": "pass_with_historical_caveat",
+    "detail": "The coordinator confirmed from the owner conversation that the user review checkpoint was adopted after the initial solver GREEN. The historical initial RED and GREEN are retained. An initial owner review is unverified. The new checkpoint applied to the seven repair assertions, and their owner approval is documented.",
+    "initial_red": "experiments/0002-http-correlation/workflow/2026-11-05/solver-red.log",
+    "initial_green": "experiments/0002-http-correlation/workflow/2026-11-05/solver-green.log"
+  },
+  "infrastructure_attempts": [
+    {
+      "status": "fail",
+      "result": "experiments/0002-http-correlation/results/20261105T220956756334Z/result.json",
+      "reason": "Default Hex 2.6.0 did not find the cached opentelemetry registry entry. Elixir-scoped Hex 2.4.1 succeeded offline."
+    },
+    {
+      "status": "fail",
+      "result": "experiments/0002-http-correlation/results/20261105T221105578657Z/result.json",
+      "reason": "Default Hex 2.6.0 did not find the cached opentelemetry registry entry. Elixir-scoped Hex 2.4.1 succeeded offline."
+    }
+  ],
+  "limits": [
+    "Fixed loopback HTTP fixture and bounded local observations only. Replay, production deployment, performance and durability were outside scope.",
+    "The two broken references are in the preserved workflow baseline, outside maintained wiki lint. They point to the same historical relative target.",
+    "The dated wiki log preserves the status at the time of its entry. This result records the independent final check.",
+    "Standalone query checks recorded BEAM metadata. Independent verification also compared that metadata to the rebuilt release BEAM bytes."
+  ],
+  "output": "experiments/0002-http-correlation/workflow/2026-11-05/final-test-output.log"
+}

@@ -1,0 +1,24 @@
+Independent TEST phase, 2026-11-05T21:39:08.719754+00:00
+{"run": "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/results/20261105T213908782648Z", "status": "fail", "error": "RuntimeError:command_failed:dependencies"}
+
+Socket-enabled independent retry 2026-11-05T21:39:31.120173+00:00
+
+Wiki check exit 1
+ERROR: wiki/sources/test-first-policy.md: absent from wiki/index.md
+ERROR: wiki/sources/test-first-policy.md: no incoming local links
+Checked 77 maintained Markdown files; 2 error(s). PDF hash, bytes, page count and per-page text rechecked.
+Parsed raw JSON records; verified 6 explicitly retained capture hashes.
+Limits: inline Markdown links/headings only; original raw documents not linted; no external URL, semantic truth, security proof or runtime checks.
+{"run": "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/results/20261105T213931184317Z", "status": "pass", "error": null}
+
+Independent query against normal evidence
+Query exit 0, complete True, traces 2, edges 10, logs 4
+
+Independent forced failure after process startup (expected exit 1)
+{"run": "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/results/20261105T214018230392Z", "status": "fail", "error": "RuntimeError:injected_post_start_failure"}
+Forced failure exit 1, cleanup [{'pid': 7198, 'exit_code': 0}, {'pid': 7323, 'exit_code': 0}]
+
+Runtime: PASS, H01–H05 5/5; Python 6/6; ExUnit 3/3; two releases, formatter and strict compile passed.
+Action log: 5 case start/step/pass sequences; compile, runner and query events present. No unexpected keys.
+Git diff --check exit 0; compiler worktree status clean.
+Independent TEST overall: FAIL on two policy-page link/index errors only; HTTP runtime PASS.

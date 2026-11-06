@@ -1,0 +1,10 @@
+{
+  "kind": "remove_required_log",
+  "removed": 1,
+  "original_hashes": {
+    "payments.logs.jsonl": "863a9db1cb561c8dc8f3ae4eee08b739063b3b5d47d91d74bcb6e1f4f80555a7",
+    "orders.logs.jsonl": "8e789fe368933d84f78635aa4cc0bb19c398cdd9b3350c2b5d43497a0a8a86f3",
+    "orders.spans.jsonl": "44678b9676707a261bbd535f78020650cd93f7cd256babe128178fc7aa00a1bc",
+    "payments.spans.jsonl": "8a1cde7b8509c0005c5bb0c1eec43cbbf9bab347413c96fbc568f46c0a0c1404"
+  }
+}

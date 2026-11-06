@@ -1,0 +1,8 @@
+{
+  "invalid_shapes_rejected": true,
+  "malformed_json_rejected": true,
+  "payments_not_called": true,
+  "writer_failure_preserves_200": true,
+  "capture_loss_reported": true,
+  "transport_failure_returns_502": true
+}

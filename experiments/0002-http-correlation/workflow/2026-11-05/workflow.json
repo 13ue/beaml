@@ -1,0 +1,29 @@
+{
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "fork_turns": "none",
+  "scope": "EXPERIMENT 0002 H01-H05; no replay",
+  "status": "implementation",
+  "agents": [
+    {
+      "phase": "plan",
+      "task": "/root/http_planner"
+    },
+    {
+      "phase": "skill-review",
+      "task": "/root/workflow_check"
+    },
+    {
+      "phase": "ideate-ultra",
+      "task": "/root/http_ultra"
+    },
+    {
+      "phase": "ideate-lite",
+      "task": "/root/http_lite"
+    },
+    {
+      "phase": "solve",
+      "task": "/root/http_solver"
+    }
+  ]
+}

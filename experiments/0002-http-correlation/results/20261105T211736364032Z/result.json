@@ -1,0 +1,93 @@
+{
+  "status": "fail",
+  "cases": {},
+  "commands": [
+    {
+      "name": "elixir-version",
+      "args": [
+        "elixir",
+        "--version"
+      ]
+    },
+    {
+      "name": "python-version",
+      "args": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "--version"
+      ]
+    },
+    {
+      "name": "cargo-version",
+      "args": [
+        "cargo",
+        "--version"
+      ]
+    },
+    {
+      "name": "rust-version",
+      "args": [
+        "rustc",
+        "--version"
+      ]
+    },
+    {
+      "name": "generate-orders",
+      "args": [
+        "cargo",
+        "run",
+        "--quiet",
+        "--manifest-path",
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/Cargo.toml",
+        "--",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml"
+      ]
+    },
+    {
+      "name": "generate-payments",
+      "args": [
+        "cargo",
+        "run",
+        "--quiet",
+        "--manifest-path",
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/Cargo.toml",
+        "--",
+        "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml"
+      ]
+    },
+    {
+      "name": "dependencies",
+      "args": [
+        "mix",
+        "deps.get"
+      ]
+    },
+    {
+      "name": "format-generated",
+      "args": [
+        "mix",
+        "format",
+        "apps/orders_api/lib/generated.ex",
+        "apps/payments_api/lib/generated.ex"
+      ]
+    },
+    {
+      "name": "format",
+      "args": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ]
+    },
+    {
+      "name": "release-orders",
+      "args": [
+        "mix",
+        "release",
+        "orders",
+        "--overwrite"
+      ]
+    }
+  ],
+  "error": "RuntimeError:command_failed:release-orders",
+  "cleanup": []
+}
