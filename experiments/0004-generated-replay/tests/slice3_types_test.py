@@ -1,7 +1,7 @@
 """EXPERIMENT 0004 slice 3 (README revision 7.1): compile cases of `add` and `drop` in the MIGRATE CHAIN.
 
-Cases D2, D2b, D3, D5, D5b, D5c, D6, D7, D7b, D12, D13, D15, D15b, K1-K12 and the builds of D1, D4, D11
-and D14. The replay and live cases are in slice3_replay_test.py.
+Cases D2, D2b, D2c, D3, D5, D5b, D5c, D6, D7, D7b, D12, D13, D15, D15b, K1-K12 and the builds of D1, D4,
+D11, D11c and D14 (D14 also with records of version 1 and 3). The replay and live cases are in slice3_replay_test.py.
 Each case runs twice:
   Fixture   the case sources in slice3/ and drift/, the RECORD SNAPSHOTS in stored/ or written per test;
   Template  the same sources and snapshots built from a template with random TYPE names, field names and
@@ -59,13 +59,26 @@ FIXTURE_NAMES = Names("Payment", "order_id", "status", "reference", "channel", "
                       "pre-v2", "web", "migrated", "new", "x")
 
 
-def random_names():
+def random_names(order=None):
+    """`order`: field roles (of o, x, c, t) in the sort order of their random names, for example "xc" gives
+    x < c. Without `order`, the prefixes give o_ < t_ < x_ (and c_ first)."""
     rng = random.Random()
     word = lambda prefix: prefix + "".join(rng.choice(string.ascii_lowercase) for _ in range(6))  # noqa: E731
     # A quote, a backslash and a non-ASCII letter: a constant written into the compiler or a wrong escape fails.
     const = lambda prefix: word(prefix) + '"\\é' + word("")  # noqa: E731
-    return Names("Tq" + word(""), word("k_"), word("o_"), word("x_"), word("c_"), word("t_"),
+    fields = {"o": word("o_"), "x": word("x_"), "c": word("c_"), "t": word("t_")}
+    if order:
+        ordered = sorted({word("f_") for _ in range(4 * len(order))})[:len(order)]
+        assert len(ordered) == len(order)
+        fields.update(zip(order, ordered))
+    return Names("Tq" + word(""), word("k_"), fields["o"], fields["x"], fields["c"], fields["t"],
                  const("cx"), const("cw"), const("cm"), const("cz"), const("cd"))
+
+
+# Sort orders of the help line cases (README, Path errors and help lines). D2b: "xc" is declaration order,
+# "cx" is reverse declaration order. D2c: a sort over all changes, or adds before drops, fails.
+D2B_ORDERS = ("xc", "cx")
+D2C_ORDERS = ("cxo", "oxc", "xco")
 
 
 def literal(text):
@@ -91,6 +104,10 @@ def kinds(N):
         "M": ([N.k, N.t, N.o], [m_step1, ["drop %s: String" % N.c, add(N.o, N.cm)]]),
         "M-nodrop": ([N.k, N.t, N.o], [m_step1, [add(N.o, N.cm)]]),
         "Z": ([N.k, N.o], [["drop %s: String" % N.o], [add(N.o, N.cz)]]),
+        # D11c: `rename o -> t`, then `rename x -> o` (DL-048: a `rename` removes its old key).
+        "RR": ([N.k, N.t, N.o], [["rename %s -> %s" % (N.o, N.t)], ["rename %s -> %s" % (N.x, N.o)]]),
+        # D2c: stored {k, o, c}, newest {k, x}: two drops and one add, no chain.
+        "D2c": ([N.k, N.x], []),
         "D15": ([N.k, N.o], [[add(N.o, N.cd)]]),
         "D7": ([N.k], [["drop %s: %s" % (N.o, PE)]]),
         # K1-K12 (README, Consistency checks). A step given as one text is written as it is.
@@ -111,7 +128,7 @@ def kinds(N):
 
 
 FIXTURE_SOURCES = {kind: "slice3/%s/orders.beaml" % kind
-                   for kind in ("R-add", "R2", "D-drop", "D", "M", "M-nodrop", "Z", "D15", "D7")}
+                   for kind in ("R-add", "R2", "D-drop", "D", "M", "M-nodrop", "Z", "RR", "D15", "D7")}
 FIXTURE_SOURCES.update({"R": "drift/R/orders.beaml", "N": "drift/N/orders.beaml"})
 
 
@@ -134,7 +151,10 @@ def snapshot_types(N, label):
             "v1": [(1, [N.k, N.o])],
             "M-all": [(1, [N.k, N.o]), (2, [N.k, N.t, N.c]), (3, [N.k, N.t, N.o])],
             "M-v2-no-c": [(2, [N.k, N.t])],
-            "v1-typed": [(1, [N.k, (N.o, "PaymentError")])]}[label]
+            "v1-typed": [(1, [N.k, (N.o, "PaymentError")])],
+            "Z-all": [(1, [N.k, N.o]), (3, [N.k, N.o])],
+            "RR-v1": [(1, [N.k, N.o, N.x])],
+            "v1-koc": [(1, [N.k, N.o, N.c])]}[label]
 
 
 def snapshot_records(N, label):
@@ -188,9 +208,25 @@ class Slice3Types:
                          "decode must name these words: %s%s" % (body, self.names))
 
     def help_add(self, *fields):
+        return self.help_changes((), fields)
+
+    def help_changes(self, drops, adds):
+        """README help row: all `drop` MIGRATE CHANGES, then all `add` MIGRATE CHANGES, each group sorted."""
         N = self.names
-        return "migrate %s 1 -> 2 { %s }" % (N.T, ", ".join("add %s: String = %s" % (f, PLACEHOLDER)
-                                                                for f in sorted(fields)))
+        changes = (["drop %s: String" % f for f in sorted(drops)]
+                   + ["add %s: String = %s" % (f, PLACEHOLDER) for f in sorted(adds)])
+        return "migrate %s 1 -> 2 { %s }" % (N.T, ", ".join(changes))
+
+    def must_derive(self, version):
+        """README help row "a stored version older than the newest without a path"."""
+        return "the MIGRATE CHAIN of %s must derive version %d" % (self.names.T, version)
+
+    def for_each_order(self, orders, check):
+        """Run `check(names)` once per sort order of the random names (Template); once with the fixture names."""
+        for order, names in self.name_variants(orders):
+            with self.subTest(order=order):
+                self.names = names
+                check(names)
 
     # Path errors and help lines. D3, D6 and D15b are the controls: same source, empty RECORD SNAPSHOT.
     def test_D2_added_field_without_add_is_compile_error(self):
@@ -198,8 +234,12 @@ class Slice3Types:
         self.assert_rejected("R", "v1", [N.T, N.x, PATH, self.help_add(N.x)])
 
     def test_D2b_two_added_fields_help_line_sorted_by_name(self):
-        N = self.names
-        self.assert_rejected("R2", "v1", [N.T, N.x, N.c, PATH, self.help_add(N.x, N.c)])
+        self.for_each_order(D2B_ORDERS, lambda N: self.assert_rejected(
+            "R2", "v1", [N.T, N.x, N.c, PATH, self.help_add(N.x, N.c)]))
+
+    def test_D2c_two_removed_one_added_field_help_line_drops_then_adds(self):
+        self.for_each_order(D2C_ORDERS, lambda N: self.assert_rejected(
+            "D2c", "v1-koc", [N.T, N.o, N.c, N.x, PATH, self.help_changes((N.o, N.c), (N.x,))]))
 
     def test_D3_added_field_with_empty_snapshot_compiles(self):
         self.assert_compiles("R", "empty")
@@ -238,11 +278,11 @@ class Slice3Types:
 
     def test_D13_version_2_record_without_added_field_has_no_path(self):
         N = self.names
-        self.assert_rejected("M", "M-v2-no-c", [N.T, N.c, "derived TYPE VERSION 2", PATH])
+        self.assert_rejected("M", "M-v2-no-c", [N.T, N.c, "derived TYPE VERSION 2", PATH, self.must_derive(2)])
 
     def test_D15_add_of_field_that_old_records_hold_has_no_path(self):
         N = self.names
-        self.assert_rejected("D15", "v1", [N.T, N.o, "derived TYPE VERSION 1", PATH])
+        self.assert_rejected("D15", "v1", [N.T, N.o, "derived TYPE VERSION 1", PATH, self.must_derive(1)])
 
     def test_D15b_same_source_with_empty_snapshot_compiles(self):
         self.assert_compiles("D15", "empty")
@@ -260,6 +300,14 @@ class Slice3Types:
 
     def test_D14_build_drop_then_add_chain_with_v1(self):
         self.assert_decode_mentions(self.assert_compiles("Z", "v1"), [self.names.cz])
+
+    def test_D14_build_drop_then_add_chain_with_versions_1_and_3(self):
+        # Version 1 and version 3 share one fingerprint; both have a path.
+        self.assert_decode_mentions(self.assert_compiles("Z", "Z-all"), [self.names.cz])
+
+    def test_D11c_build_rename_chain_reusing_the_renamed_name(self):
+        N = self.names
+        self.assert_decode_mentions(self.assert_compiles("RR", "RR-v1"), [N.o, N.t, N.x])
 
     # K1-K12: source faults, empty RECORD SNAPSHOT (README, Consistency checks).
     def test_K01_add_of_field_not_in_next_version(self):
@@ -311,10 +359,14 @@ PATH = object()  # Token marker: the --stored path of the case.
 class Fixture(Slice3Types, unittest.TestCase):
     names = FIXTURE_NAMES
 
+    def name_variants(self, orders):
+        return [("fixture", FIXTURE_NAMES)]
+
     def source(self, kind):
         if kind in FIXTURE_SOURCES:
             return EXPERIMENT / FIXTURE_SOURCES[kind]
-        path = self.work / kind / "orders.beaml"
+        # One directory per kind and names: the sort-order cases change the names inside one test.
+        path = self.work / ("%s-%s" % (kind, hashlib.sha256(str(self.names).encode()).hexdigest()[:12])) / "orders.beaml"
         if not path.is_file():
             path.parent.mkdir()
             path.write_text(template_source(self.names, kind))
@@ -338,8 +390,12 @@ class Template(Slice3Types, unittest.TestCase):
         super().setUp()
         self.names = random_names()
 
+    def name_variants(self, orders):
+        return [(order, random_names(order)) for order in orders]
+
     def source(self, kind):
-        path = self.work / kind / "orders.beaml"
+        # One directory per kind and names: the sort-order cases change the names inside one test.
+        path = self.work / ("%s-%s" % (kind, hashlib.sha256(str(self.names).encode()).hexdigest()[:12])) / "orders.beaml"
         if not path.is_file():
             path.parent.mkdir()
             path.write_text(template_source(self.names, kind))

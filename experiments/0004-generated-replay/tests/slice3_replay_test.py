@@ -1,4 +1,4 @@
-"""EXPERIMENT 0004 slice 3 replay and live cases (README revision 7.1): D1, D4, D8, D9, D10, D11, D11b, D14.
+"""EXPERIMENT 0004 slice 3 replay and live cases (README revision 7.1): D1, D4, D8, D9, D10, D11, D11b, D11c, D14.
 
 Old RESPONSE RECORDS replay through the generated decode of a build with `add` and `drop` in the MIGRATE
 CHAIN. The trees reuse the arms harness (tests/arms_test.py) and the slice 2 helpers (mode `replay_plain`,
@@ -25,7 +25,8 @@ import stored_types_test as st  # noqa: E402
 EXPERIMENT = arm_tree.EXPERIMENT
 RANDOM_NAMES = s3.random_names()
 # Build: source kind and RECORD SNAPSHOT label of slice3_types_test.
-BUILDS = {"radd": ("R-add", "v1"), "ddrop": ("D-drop", "v1"), "m": ("M", "M-all"), "z": ("Z", "v1")}
+BUILDS = {"radd": ("R-add", "v1"), "ddrop": ("D-drop", "v1"), "m": ("M", "M-all"), "z": ("Z", "Z-all"),
+          "rr": ("RR", "RR-v1")}
 
 
 def variant(build, names, fixture):
@@ -69,6 +70,12 @@ EXPECTED = {
     "D11b": ("m", (1, V("k", "o")), {"k": "order-1", "t": "settled", "o": "authorized"},
              {"k": "order-1", "t": "settled", "o": "=cm"}, ["o"]),
     "D14": ("z", (1, V("k", "o")), {"k": "order-1", "o": "authorized"}, {"k": "order-1", "o": "=cz"}, []),
+    # Version 3 has the fingerprint of version 1: only the version number may pick the MIGRATE STEPS.
+    "D14-v3": ("z", (3, V("k", "o")), {"k": "order-1", "o": "done"}, {"k": "order-1", "o": "done"}, []),
+    # Chain {rename o -> t}, {rename x -> o}. Step 1 -> 2: the body holds t, so o is not read and leaves the
+    # working body (DL-048) into unknown_keys. Step 2 -> 3: x is read as o. A rename that keeps o gives o = "o-old".
+    "D11c": ("rr", (1, V("k", "o", "x")), {"k": "order-1", "o": "o-old", "t": "t-kept", "x": "x-new"},
+             {"k": "order-1", "t": "t-kept", "o": "x-new"}, ["o"]),
 }
 # Live calls: the unchanged stub body {k: "order-1", o: "authorized"}. Expected value or "decode", unknown_keys,
 # and the TYPE VERSION (number, field roles) of the new record.
@@ -171,6 +178,12 @@ class Slice3Replay:
 
     def test_D14_v1_record_gets_the_constant_not_the_stored_value(self):
         self.assert_replays("D14")
+
+    def test_D14_v3_record_with_the_v1_fingerprint_replays_by_its_version(self):
+        self.assert_replays("D14-v3")
+
+    def test_D11c_rename_removes_the_old_key_before_a_later_rename_to_it(self):
+        self.assert_replays("D11c")
 
     def test_D14_live_body_keeps_its_value(self):
         self.live("D14-live")

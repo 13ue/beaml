@@ -696,3 +696,46 @@ Fake checks (scratch only, not in the repository):
 | P6 | K fixtures come from the template with fixture names (no files); main cases have files in `slice3/` | Undo | Slice 2 pattern (`GENERATED_KINDS`) |
 | P7 | Replay tests import the slice 2 helpers (`counts`, `accepted`, `decode_rejected`) | Undo | No copy; slice 2 files unchanged |
 | P8 | R+add field order `order_id status reference` (README text aligned) | Undo | Same order as DRIFT R; R+add is R plus the chain |
+
+## Slice 3 RED repair
+
+Repairs four medium gaps of the fresh RED check. No compiler change. README unchanged.
+
+### Cases
+
+| Gap | Change | RED result |
+| --- | --- | --- |
+| M1 | Build `z` now uses RECORD SNAPSHOT `Z-all` (records of version 1 and 3, one fingerprint). New replay row D14-v3: body `{k, o: "done"}` → `o: "done"`, `unknown_keys == []`. New compile case: D14 build with `Z-all` | Fail: `unsupported migrate step` (Z build) |
+| M2 | New source RR (`slice3/RR/orders.beaml`): `{rename o -> t}`, `{rename x -> o}`; snapshot `RR-v1` `{k, o, x}`. Replay D11c: v1 body `{k, o: "o-old", t: "t-kept", x: "x-new"}` → `{k, t: "t-kept", o: "x-new"}`, `unknown_keys == [o]` (README rule: a key that a `rename` removes unread). New compile case: D11c build | Build passes (rename only, slice 2 compiler). Replay fails for the DL-048 reason: the current decode keeps `o`, gives `o: "o-old"` and `unknown_keys == [x]` |
+| M3 | D13 and D15 assert `the MIGRATE CHAIN of T must derive version 2` / `... version 1` | Fail: `unsupported migrate step` |
+| M4 | `random_names(order)` sorts random names into a given role order. D2b Template runs orders `xc` (declaration order) and `cx` (reverse). New D2c ("other counts" row): source `{k, x}` no chain, snapshot `{k, o, c}`; help `migrate T 1 -> 2 { drop c: String, drop o: String, add x: String = <constant> }` (groups sorted); Template orders `cxo`, `oxc`, `xco`. Each order is a subTest; names printed on failure | Fail: help line missing |
+
+### Verification (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `tests/slice3_types_test.py` | 1 | 65 run, 63 failures (incl. subtests), 0 Python errors. Pass: D3, D6, D11c build (fixture, template), fixture guard |
+| `tests/slice3_replay_test.py` | 1 | 27 run, 26 failures, 0 Python errors. Pass: control hashes. `results/20261106T165027202655Z` |
+| `cargo test --offline` (0001) | 0 | 9 + 14 passed |
+| `tests/stored_types_test.py` | 0 | OK |
+| `tests/slice2_replay_test.py` | 0 | OK; `results/20261106T165130356970Z` |
+
+### SHA-256
+
+| File | SHA-256 |
+| --- | --- |
+| `tests/slice3_types_test.py` | `c4266ffc25de392856254b8675d14325cde1ef29e710e1c3d41f2547e6445f1c` |
+| `tests/slice3_replay_test.py` | `a2080d9d88a34ebd8baf303dc4425064bfc49eb62f9cfbae26cf481c53c841a0` |
+| `slice3/RR/orders.beaml` | `e7f266a378b699406b82fdda84af194c9fe79276fcb35854cb2dd4f4b8a9c129` (new) |
+| other slice 3 fixtures, slice 2 tests, `0001/src/main.rs` | unchanged |
+
+### Decisions (Decision4)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| R1 | Build `z` replaces snapshot `v1` by `Z-all`; the D14 `v1` compile case stays | Undo | Both records need a path in the replay build |
+| R2 | D11c expects `unknown_keys == [o]`, read from the README `unknown_keys` rule | Undo | README rule gives the list; no deviation from the task |
+| R3 | D11c passes its build on the slice 2 compiler; the replay is the RED | Undo | Rename-only chain; the gap is in the decode |
+| R4 | New case IDs D2c, D11c, D14-v3 are not in the README case table | Repair | Chose test-only IDs. Over a README revision now. Because the rows test existing README rules. Commits the main agent to add them to the README case table |
+| R5 | D2c source comes from the template (no fixture file), as the K cases | Undo | Pattern P6 |
+| R6 | Template source directory keyed by kind and names hash | Undo | The sort-order subtests change the names inside one test |
