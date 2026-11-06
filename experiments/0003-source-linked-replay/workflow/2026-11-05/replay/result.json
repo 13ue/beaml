@@ -1,7 +1,7 @@
 {
   "experiment": "0003-source-linked-replay",
-  "phase": "replay-run-and-invalid-record-red-revision-3-status-and-request-checks",
-  "status": "red-confirmed",
+  "phase": "replay-run-and-invalid-record-green",
+  "status": "green-confirmed",
   "authorization": {
     "scope": "RED test, evidence and a runner entry stub without logic",
     "owner_red_review": "pending",
@@ -126,5 +126,11 @@
     "F5": "GREEN review checklist: live authorize/2 and runner call one shared decode function",
     "F6": "dropped (low)",
     "F7": "fixed in README"
+  },
+  "green": {
+    "result": "green-result.json",
+    "output": "green-output.log",
+    "run": "../../../results/20261106T080316413341Z/result.json",
+    "exit_code": 0
   }
 }

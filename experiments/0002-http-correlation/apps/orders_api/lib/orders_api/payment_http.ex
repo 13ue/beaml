@@ -37,11 +37,14 @@ defmodule OrdersApi.PaymentHttp do
       :ok = :inet.setopts(socket, packet: :raw)
       {:ok, bytes} = recv(socket, length, deadline)
       capture(request, 200, bytes)
-      :json.decode(bytes)
+      decode(bytes)
     after
       :gen_tcp.close(socket)
     end
   end
+
+  # Shared decode of the response bytes: live authorize/2 and OrdersApi.Replay.run/3 (review A2).
+  def decode(bytes), do: :json.decode(bytes)
 
   # Predecode response record. The capture store bounds it and reports loss.
   defp capture(request, status, bytes) do

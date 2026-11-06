@@ -1,0 +1,53 @@
+# GREEN, gate 4 REPLAY RUN (2026-11-06). Run serially from the repository root.
+
+$ shasum -a 256 (before GREEN)
+e38a88cf5a442d698f9e9d4b237ca1c78e8fee384b252d55eb624e0fd2801b94  experiments/0003-source-linked-replay/tests/replay_run_test.py
+b0f5bba3f4d7921f3d520dd9e92244bdb7fa76dd1949dbffc651770c19ca67f5  experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex
+0b3a531b63dbac848f2bf0e359e8b043d45de53dcb97ee4cee7b3b02d3192e32  experiments/0002-http-correlation/apps/orders_api/lib/orders_api/replay.ex
+67ce7dc826c6ce81b42f75f5b5502216702ecdb2e3ce37593af78ab10616918d  experiments/0002-http-correlation/apps/orders_api/lib/orders_api/router.ex
+
+$ (cd experiments/0002-http-correlation && mix format --check-formatted apps/orders_api/lib/orders_api/replay.ex apps/orders_api/lib/orders_api/payment_http.ex)
+exit: 0
+
+$ python3 -B experiments/0003-source-linked-replay/tests/replay_run_test.py
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T080316413341Z
+exit: 0
+a1_record_bytes_equal_sent_bytes: actual "eyAic3RhdHVzIiA6ICJhdXRob3JpemVkIiwKICAib3JkZXJfaWQiIDogIm9yZGVyLTEiIH0=" | equal to expected: True
+replay_first_call: actual {"result": {"ok": {"order_id": "order-1", "status": "authorized"}}, "transport": 0, "OrdersApi.Router.call/2": 0, "OrdersApi.PaymentHttp.authorize/2": 0, ":gen_tcp.connect/4": 0, "OrdersBeamlSpike.prepare/1": 1, ":json.decode/1": 1, "OrdersBeamlSpike.finish/1": 1, "ProbeSupport.valid_payment!/2": 1} | equal to expected: True
+replay_a1_noncanonical_body: actual {"result": {"ok": {"order_id": "order-1", "status": "authorized"}}, "transport": 0, "OrdersApi.Router.call/2": 0, "OrdersApi.PaymentHttp.authorize/2": 0, ":gen_tcp.connect/4": 0, "OrdersBeamlSpike.prepare/1": 1, ":json.decode/1": 1, "OrdersBeamlSpike.finish/1": 1, "ProbeSupport.valid_payment!/2": 1} | equal to expected: True
+replay_missing_response: actual {"result": {"error": "missing_response"}, "transport": 0, "OrdersApi.Router.call/2": 0, "OrdersApi.PaymentHttp.authorize/2": 0, ":gen_tcp.connect/4": 0, ":json.decode/1": 0, "OrdersBeamlSpike.finish/1": 0, "ProbeSupport.valid_payment!/2": 0} | equal to expected: True
+replay_operation_mismatch: actual {"result": {"error": "operation_mismatch"}, "transport": 0, "OrdersApi.Router.call/2": 0, "OrdersApi.PaymentHttp.authorize/2": 0, ":gen_tcp.connect/4": 0, ":json.decode/1": 0, "OrdersBeamlSpike.finish/1": 0, "ProbeSupport.valid_payment!/2": 0} | equal to expected: True
+replay_attempt_mismatch: actual {"result": {"error": "attempt_mismatch"}, "transport": 0, "OrdersApi.Router.call/2": 0, "OrdersApi.PaymentHttp.authorize/2": 0, ":gen_tcp.connect/4": 0, ":json.decode/1": 0, "OrdersBeamlSpike.finish/1": 0, "ProbeSupport.valid_payment!/2": 0} | equal to expected: True
+replay_body_digest_mismatch: actual {"result": {"error": "body_digest_mismatch"}, "transport": 0, "OrdersApi.Router.call/2": 0, "OrdersApi.PaymentHttp.authorize/2": 0, ":gen_tcp.connect/4": 0, ":json.decode/1": 0, "OrdersBeamlSpike.finish/1": 0, "ProbeSupport.valid_payment!/2": 0} | equal to expected: True
+replay_status_mismatch: actual {"result": {"error": "status_mismatch"}, "transport": 0, "OrdersApi.Router.call/2": 0, "OrdersApi.PaymentHttp.authorize/2": 0, ":gen_tcp.connect/4": 0, ":json.decode/1": 0, "OrdersBeamlSpike.finish/1": 0, "ProbeSupport.valid_payment!/2": 0} | equal to expected: True
+replay_request_mismatch: actual {"result": {"error": "request_mismatch"}, "transport": 0, "OrdersApi.Router.call/2": 0, "OrdersApi.PaymentHttp.authorize/2": 0, ":gen_tcp.connect/4": 0, ":json.decode/1": 0, "OrdersBeamlSpike.finish/1": 0, "ProbeSupport.valid_payment!/2": 0} | equal to expected: True
+
+$ python3 -B experiments/0003-source-linked-replay/tests/response_capture_test.py
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T080348008366Z
+exit: 0
+
+$ python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_test.py
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T080407345755Z
+exit: 0
+
+$ python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py --source-run experiments/0003-source-linked-replay/results/20261106T080407345755Z
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T080432148825Z
+unchanged: expected exit 0 and the unchanged original 2/2 summary with the first receipt trace; actual {'exit_code': 0, 'complete': True, 'gaps': [], 'coverage': [2, 2], 'first_trace_id': '89b6f64b6d1a510e2e4cc8a1b01e7b6c'}
+swapped-receipts: expected exit 1, incomplete, receipt_coverage, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'receipt_coverage'}], 'coverage': None, 'first_trace_id': None}
+missing-window: expected exit 1, incomplete, missing_window, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'missing_window'}], 'coverage': None, 'first_trace_id': None}
+outside-window: expected exit 1, incomplete, outside_window, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'outside_window'}], 'coverage': None, 'first_trace_id': None}
+exit: 0
+
+$ (cd experiments/0002-http-correlation && python3 -m unittest discover -s tests)
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.038s
+
+OK
+exit: 0
+
+$ shasum -a 256 (after GREEN)
+e38a88cf5a442d698f9e9d4b237ca1c78e8fee384b252d55eb624e0fd2801b94  experiments/0003-source-linked-replay/tests/replay_run_test.py
+3802517290858296ead60824d9cd83e3a00e0263c2c5017732b0278ea7ee7388  experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex
+fa8bef737e35c0e7acd2d97817b4cc594e08349683633a3a70c3a3c69cfb0112  experiments/0002-http-correlation/apps/orders_api/lib/orders_api/replay.ex
+67ce7dc826c6ce81b42f75f5b5502216702ecdb2e3ce37593af78ab10616918d  experiments/0002-http-correlation/apps/orders_api/lib/orders_api/router.ex

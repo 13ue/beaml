@@ -198,3 +198,82 @@ See the [output](red-output.log) (revision 3 appended), [run result](../../../re
 - **O3, low.** A self-contradicting sentence in this section. Fixed.
 
 GREEN review checklist for gate 4: `router.ex` SHA-256 unchanged (F4). Live `authorize/2` and the runner call one shared decode function (F5). Status rule is exactly 200 (O1). Request check uses `prepare/1` (O2).
+
+## GREEN
+
+**[Verified]** Fresh Claude Opus 5.5 worker, 2026-11-06. Minimum complete change in two production files. No change to `router.ex`, Payments, ProbeSupport, the query or any test. No commit.
+
+### Changes
+
+| File | Lines | Added / removed | Change |
+| --- | --- | --- | --- |
+| `apps/orders_api/lib/orders_api/payment_http.ex` | 40, 46–48 | +4 / −1 | Line 40 calls `decode(bytes)`. New public `decode/1` (line 47) holds the only `:json.decode/1` call. The CAPTURE record is unchanged. |
+| `apps/orders_api/lib/orders_api/replay.ex` | 1–49 | +46 / −3 | `run/3` replaces the stub. |
+
+**[Verified]** `run/3` does these steps in sequence:
+
+1. `ProbeSupport.valid_order!/1`, then `OrdersBeamlSpike.prepare/1`.
+2. Select exactly one record by `trace_id`. Zero or more than one gives `missing_response`.
+3. Check `operation` is `payments.authorize` (`operation_mismatch`) and `attempt` is 1 (`attempt_mismatch`).
+4. Check the record `request` equals the result of `prepare/1` (`request_mismatch`).
+5. Check `status` with a strict match on 200 (`status_mismatch`).
+6. Decode the Base64 text. Check `body_length` and `body_sha256` of the bytes (`body_digest_mismatch`). Bad Base64 also gives `body_digest_mismatch`.
+7. `PaymentHttp.decode/1`, then `OrdersBeamlSpike.finish/1` and `ProbeSupport.valid_payment!/2`, as in the router. Return `{:ok, payment}`.
+
+**[Verified]** The runner does not call the router, `authorize/2` or a transport function.
+
+### RED and GREEN
+
+| Assertion | RED revision 3 | GREEN |
+| --- | --- | --- |
+| `replay_first_call` | `{error: not_implemented}`, all counts 0 | `{ok: PAYMENT}`, prepare 1, decode 1, finish 1, `valid_payment!` 1, others 0 |
+| `replay_a1_noncanonical_body` | Same as `replay_first_call` | Same as `replay_first_call` |
+| `replay_missing_response` | `{error: not_implemented}`, all counts 0 | `{error: missing_response}`, all counts 0 |
+| `replay_operation_mismatch` | `{error: not_implemented}`, all counts 0 | `{error: operation_mismatch}`, all counts 0 |
+| `replay_attempt_mismatch` | `{error: not_implemented}`, all counts 0 | `{error: attempt_mismatch}`, all counts 0 |
+| `replay_body_digest_mismatch` | `{error: not_implemented}`, all counts 0 | `{error: body_digest_mismatch}`, all counts 0 |
+| `replay_status_mismatch` | `{error: not_implemented}`, all counts 0 | `{error: status_mismatch}`, all counts 0 |
+| `replay_request_mismatch` | `{error: not_implemented}`, all counts 0 | `{error: request_mismatch}`, all counts 0 |
+
+"All counts 0" in the invalid rows excludes prepare, which is not constrained. All GREEN values equal the expected values.
+
+### Commands
+
+Run serially from the repository root.
+
+| Command | Exit | Run directory |
+| --- | --- | --- |
+| `mix format --check-formatted` on `replay.ex` and `payment_http.ex` (in `experiments/0002-http-correlation`) | 0 | — |
+| `python3 -B experiments/0003-source-linked-replay/tests/replay_run_test.py` | 0 | [20261106T080316413341Z](../../../results/20261106T080316413341Z/result.json) |
+| `python3 -B experiments/0003-source-linked-replay/tests/response_capture_test.py` | 0 | [20261106T080348008366Z](../../../results/20261106T080348008366Z/result.json) |
+| `python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_test.py` | 0 | [20261106T080407345755Z](../../../results/20261106T080407345755Z/result.json) |
+| `python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py --source-run experiments/0003-source-linked-replay/results/20261106T080407345755Z` | 0 | [20261106T080432148825Z](../../../results/20261106T080432148825Z/result.json) |
+| `python3 -m unittest discover -s tests` (in `experiments/0002-http-correlation`, 8 tests) | 0 | — |
+
+**[Verified]** The replay run built both `MIX_ENV=prod` releases with exit 0. Its stdout and stderr files contain no warning. All 21 commands of that run with an exit code exited 0.
+
+**[Verified]** SHA-256 values:
+
+| File | Before | After |
+| --- | --- | --- |
+| `replay_run_test.py` | `e38a88cf…2801b94` | `e38a88cf…2801b94` (equal) |
+| `payment_http.ex` | `b0f5bba3…a67f5` | `38025172…ee7388` |
+| `replay.ex` | `0b3a531b…92e32` | `fa8bef73…cfb0112` |
+| `router.ex` | `67ce7dc8…6918d` | `67ce7dc8…6918d` (equal) |
+
+See the [output](green-output.log) and the [GREEN result](green-result.json).
+
+### GREEN review checklist
+
+- **F4. Pass.** `router.ex` SHA-256 stays `67ce7dc8…6918d`.
+- **F5. Pass.** One shared decode function: `OrdersApi.PaymentHttp.decode/1`. Live `authorize/2` (line 40) and `Replay.run/3` call it. No other `:json.decode` call is in the two files.
+- **O1. Pass.** The status rule is a strict match on 200. A record with 201 or 200.0 gives `status_mismatch`.
+- **O2. Pass.** The runner compares the record `request` with the result of `OrdersBeamlSpike.prepare/1`, not with the input order.
+
+### Limits
+
+- **[Unknown]** The test does not check O1 and O2. Generated `prepare/1` is identity, and the status case uses only 503. Only review checks them.
+- **[Unknown]** The order of checks among the six reasons is not tested.
+- **[Unknown]** Two records for one trace give `missing_response`. No test checks this.
+- **[Unknown]** An invalid order or a non-string `body_base64` raises. These are not typed reasons.
+- **[Unknown]** A3 / D002 stays open. Only the `OrdersBeamlSpike` hash is checked.

@@ -1,0 +1,102 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "gate": 4,
+  "phase": "replay-run-green",
+  "status": "green-confirmed",
+  "worker": "fresh Claude Opus 5.5 subagent",
+  "test": "test_separate_runner_replays_first_call_and_rejects_invalid_records",
+  "test_sha256": {
+    "before": "e38a88cf5a442d698f9e9d4b237ca1c78e8fee384b252d55eb624e0fd2801b94",
+    "after": "e38a88cf5a442d698f9e9d4b237ca1c78e8fee384b252d55eb624e0fd2801b94"
+  },
+  "production_sha256": {
+    "payment_http.ex": {
+      "before": "b0f5bba3f4d7921f3d520dd9e92244bdb7fa76dd1949dbffc651770c19ca67f5",
+      "after": "3802517290858296ead60824d9cd83e3a00e0263c2c5017732b0278ea7ee7388"
+    },
+    "replay.ex": {
+      "before": "0b3a531b63dbac848f2bf0e359e8b043d45de53dcb97ee4cee7b3b02d3192e32",
+      "after": "fa8bef737e35c0e7acd2d97817b4cc594e08349683633a3a70c3a3c69cfb0112"
+    },
+    "router.ex": {
+      "before": "67ce7dc826c6ce81b42f75f5b5502216702ecdb2e3ce37593af78ab10616918d",
+      "after": "67ce7dc826c6ce81b42f75f5b5502216702ecdb2e3ce37593af78ab10616918d"
+    }
+  },
+  "changed_files": [
+    {
+      "path": "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex",
+      "added": 4,
+      "removed": 1,
+      "lines": "40, 46-48"
+    },
+    {
+      "path": "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/replay.ex",
+      "added": 46,
+      "removed": 3,
+      "lines": "1-49"
+    }
+  ],
+  "checks": [
+    {
+      "name": "mix format --check-formatted (2 changed files)",
+      "exit_code": 0
+    },
+    {
+      "name": "replay_run_test.py",
+      "exit_code": 0,
+      "run": "../../../results/20261106T080316413341Z/result.json"
+    },
+    {
+      "name": "response_capture_test.py",
+      "exit_code": 0,
+      "run": "../../../results/20261106T080348008366Z/result.json"
+    },
+    {
+      "name": "trace_lookup_test.py",
+      "exit_code": 0,
+      "run": "../../../results/20261106T080407345755Z/result.json"
+    },
+    {
+      "name": "trace_lookup_repair_test.py --source-run 20261106T080407345755Z",
+      "exit_code": 0,
+      "run": "../../../results/20261106T080432148825Z/result.json"
+    },
+    {
+      "name": "0002 python3 -m unittest discover -s tests",
+      "exit_code": 0,
+      "tests": 8
+    },
+    {
+      "name": "MIX_ENV=prod mix release orders and payments (inside replay_run_test.py)",
+      "exit_code": 0,
+      "warnings": 0
+    }
+  ],
+  "assertions_passed": [
+    "a1_record_bytes_equal_sent_bytes",
+    "replay_first_call",
+    "replay_a1_noncanonical_body",
+    "replay_missing_response",
+    "replay_operation_mismatch",
+    "replay_attempt_mismatch",
+    "replay_body_digest_mismatch",
+    "replay_status_mismatch",
+    "replay_request_mismatch"
+  ],
+  "green_review_checklist": {
+    "F4_router_sha256_unchanged": true,
+    "F5_one_shared_decode_function": "OrdersApi.PaymentHttp.decode/1, called by authorize/2 (line 40) and Replay.run/3",
+    "O1_status_exactly_200": "strict match expect(record[\"status\"], 200, ...): 200.0 and 201 fail",
+    "O2_request_check_uses_prepare": "record request compared with OrdersBeamlSpike.prepare(order)"
+  },
+  "unknown": [
+    "A3 / D002 stays open",
+    "check order among six reasons not tested",
+    "duplicate records for one trace give missing_response, not tested",
+    "bad order or non-binary record fields raise, not typed",
+    "strict 200 and prepare/1 rules are checked by review only, not by the test"
+  ],
+  "output": "green-output.log",
+  "commit": "none"
+}
