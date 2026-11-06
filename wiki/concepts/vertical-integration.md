@@ -44,6 +44,8 @@ updated: 2026-11-06
 - Every fallback is marked in the source. The editor shows each fallback in its own color.
 - The check reports per environment how many records hit each fallback and which records they are. An agent runs this check and reads the records it names.
 - Privacy is the highest goal. A field of an `interface` can be declared as PII. The compiler then keeps that value out of logs, traces and reports across the stack. The fallback report therefore names records by identity and non-PII fields only. See [information-flow security](information-flow-security.md).
+- An accepted fallback covers only the records known at acceptance. A new record that hits the same fallback blocks again.
+- Data can change between the last build and the deploy. The deploy repeats the check and stops on a new hit.
 - By default the compiler checks only the stored TYPE VERSIONS. A run of the migrations over stored values is a separate step per environment, started on request.
 
 **[Verified]** The review found that a fully total chain cannot fail a build on bad data: the last fallback always returns a value. Without a count of fallback hits, the check passes when the data is worst.
@@ -55,4 +57,3 @@ updated: 2026-11-06
 - Lazy migration on read or eager rewrite. The owner expects both, chosen by the kind of data.
 - Large stores: migration runs in batches or as a stream of batches.
 - Rollback: a lossy step (`drop`) needs a declared rollback window, or a statement that rollback past that version is not possible.
-- How an accepted fallback is recorded, and when a new hit blocks again.
