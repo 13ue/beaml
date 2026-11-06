@@ -1,4 +1,5 @@
 """EXPERIMENT 0004 slice 2 replay cases (README revision 6): C2, C3, C9, C11, C12, C13, C14.
+Final review repair: C19 (name reuse) and C20 (rotation), each with fixture names and random names.
 
 Old RESPONSE RECORDS of TYPE VERSION `Payment 1 { order_id status }` (stored/v1.jsonl) replay through the
 generated decode of a build with a MIGRATE CHAIN. The trees reuse the arms harness (tests/arms_test.py)
@@ -8,15 +9,18 @@ Cross-build rule (README, artifact check for old records): the harness skips onl
 and asserts that the record `artifact_id` differs from the build artifact.
 Run serially, loopback only: python3 -B experiments/0004-generated-replay/tests/slice2_replay_test.py [-k NAME]
 """
+import atexit
 import json
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import arm_tree  # noqa: E402
 import arms_test as arms  # noqa: E402
 from stored_types_test import type_version  # noqa: E402
+import stored_types_test as st  # noqa: E402
 
 EXPERIMENT = arm_tree.EXPERIMENT
 V1 = EXPERIMENT / "stored" / "v1.jsonl"
@@ -26,6 +30,34 @@ arms.VARIANTS.update({
     "s2-nochain": ("gen", EXPERIMENT / "drift/N/orders.beaml", arms.EMPTY_SNAPSHOT),  # C9 (the C6 build)
     "s2-chain2": ("gen", EXPERIMENT / "slice2/N2-chain/orders.beaml", V1),  # C14
 })
+
+
+def chain_variant(kind, names, fixture):
+    """C19 and C20 tree: the chain source (fixture file or template with random names), snapshot v1..v4."""
+    holder = tempfile.TemporaryDirectory(prefix="beaml-0004-s2-%s-" % kind)
+    atexit.register(holder.cleanup)
+    root = Path(holder.name)
+    source = EXPERIMENT / st.FIXTURE_SOURCES[kind]
+    if not fixture:
+        source = root / "orders.beaml"
+        source.write_text(st.template_source(names, kind))
+    snapshot = root / "stored.jsonl"
+    snapshot.write_text("".join(json.dumps(r, separators=(",", ":")) + "\n"
+                                for r in st.chain_records(names, kind, [1, 2, 3, 4])))
+    return ("gen", source, snapshot)
+
+
+RANDOM_NAMES = st.random_names()
+arms.VARIANTS.update({
+    "s2-reuse": chain_variant("reuse", st.FIXTURE_NAMES, True),
+    "s2-reuse-random": chain_variant("reuse", RANDOM_NAMES, False),
+    "s2-rotation": chain_variant("rotation", st.FIXTURE_NAMES, True),
+    "s2-rotation-random": chain_variant("rotation", RANDOM_NAMES, False),
+})
+# Independent of the compiler: per TYPE VERSION 1..4, the field that holds value X (newest: first field)
+# and the field that holds value Y (newest: second field). Roles as in stored_types_test.chain_spec.
+CARRIERS = {"reuse": [("s", "c"), ("t", "c"), ("t", "s"), ("p", "s")],
+            "rotation": [("b", "a"), ("b", "r"), ("a", "r"), ("a", "b")]}
 KEYS = arms.GenTypeMismatch.REPLAY_KEYS
 NEW_BODY = b'{"order_id":"order-1","state":"authorized"}'
 
@@ -126,6 +158,65 @@ class SecondRenameReplay(arms.Case):
     def test_C14_v1_record_replays_with_order_ref_from_order_id(self):
         self.assertEqual(accepted({"order_ref": "order-1", "status": "authorized"}),
                          counts("s2-chain2", "C14", records(V1)[0]))
+
+
+class ChainByVersion:
+    """C19 and C20: the decode reads a record by its TYPE VERSION. A live body is the newest version."""
+    tree, kind, names = None, None, None
+
+    def body(self, version, tag):
+        x, y = (self.names.chain[role] for role in CARRIERS[self.kind][version - 1])
+        return json.dumps({x: "X-" + tag, y: "Y-" + tag}, separators=(",", ":")).encode()
+
+    def current(self, tag):
+        first, second = st.chain_spec(self.names, self.kind)[0]
+        return {first: "X-" + tag, second: "Y-" + tag}
+
+    def test_build_compiles_with_warnings_as_errors(self):
+        self.assertTrue(arms.build(self.tree)["strict"], "mix compile --force --warnings-as-errors failed")
+
+    def test_live_current_body_decodes_to_the_current_fields(self):
+        stub, sent = arms.payments_stub(200, self.body(4, "live"))
+        try:
+            report = arms.harness(self.tree, "live", {"mode": "place", "observe": True},
+                                  payments_port=stub.server_address[1])
+        finally:
+            stub.shutdown()
+            stub.server_close()
+        written = arms.rows(arms.RESULTS / self.tree / "eval" / "live" / "responses.jsonl")
+        newest = st.chain_spec(self.names, self.kind)[2][3]
+        self.assertEqual(
+            {"result": {"ok": self.current("live")}, "sent": 1, "records": 1,
+             "type": type_version(self.names.T, 4, newest), "unknown_keys": []},
+            {"result": report["result"], "sent": len(sent), "records": len(written),
+             "type": written[0].get("type") if len(written) == 1 else None,
+             "unknown_keys": written[0].get("unknown_keys") if len(written) == 1 else None},
+            "names: %s" % self.names.chain)
+
+    def test_each_stored_version_replays_to_the_current_fields(self):
+        expected, actual = {}, {}
+        for version in (1, 2, 3, 4):
+            tag = "v%d" % version
+            [record] = st.chain_records(self.names, self.kind, [version])
+            expected[tag] = accepted(self.current(tag))
+            actual[tag] = counts(self.tree, tag, arms.with_body(record, self.body(version, tag)))
+        self.assertEqual(expected, actual, "names: %s" % self.names.chain)
+
+
+class C19NameReuseFixture(ChainByVersion, arms.Case):
+    tree, kind, names = "s2-reuse", "reuse", st.FIXTURE_NAMES
+
+
+class C19NameReuseRandom(ChainByVersion, arms.Case):
+    tree, kind, names = "s2-reuse-random", "reuse", RANDOM_NAMES
+
+
+class C20RotationFixture(ChainByVersion, arms.Case):
+    tree, kind, names = "s2-rotation", "rotation", st.FIXTURE_NAMES
+
+
+class C20RotationRandom(ChainByVersion, arms.Case):
+    tree, kind, names = "s2-rotation-random", "rotation", RANDOM_NAMES
 
 
 class ZzControlUnchanged(arms.Case):

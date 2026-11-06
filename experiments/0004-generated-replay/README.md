@@ -327,7 +327,7 @@ migrate Payment 1 -> 2 { rename status -> state }
 
 **[Requirement] Rename step check (OWNER answer O3).** A `rename old -> new` step whose old field is in no stored TYPE VERSION and in no derived version is a compile error. **[Inference]** With the backwards derivation, the old field is always in the derived version before the step. In slice 2 the observable case is C4: a wrong old name (`statuz`) gives a derived version 1 that no stored record has, so the path check fails and names `statuz`.
 
-**[Proposal] Decode.** The generated decode reads the current field name. If it is missing and the old name of a `rename` step of the chain is present, it reads the old name. Live and REPLAY RUN use the same decode. The record body and its digest stay unchanged.
+**[Verified] Decode (revised after the final review).** The generated decode goes by TYPE VERSION. A REPLAY RUN of a record of version n applies the `rename` steps n → newest in order. A live body is the newest version and gets no rename. The record body and its digest stay unchanged. The first form (fall back to an old name when the current name is missing) decoded wrong when a chain reuses a field name; see notes.md, "Slice 2 final review repair".
 
 **[Proposal] Compile error text** (case C1). Exit ≠ 0, no stdout:
 
@@ -437,7 +437,7 @@ The tests assert these tokens, not the full text: `Payment`, the old field, the 
 | No `--stored` input for a source with an `effect` is a compile error | Repair | Over "treat as empty": an unknown store is not an empty store. Commits slice 1 CLI tests to pass an empty snapshot |
 | Build fails only when a stored TYPE VERSION has no path; R without a chain is a compile error | OWNER (answer 2, O4) | Answered 2026-11-06. `add` is out of scope for slice 2 |
 | `rename` with an old field in no stored and no derived version is a compile error | OWNER (O3) | Answered 2026-11-06, as planned |
-| Decode reads the old name of a `rename` step as a fallback, live and replay | Repair | Over a decode chosen by the record version: smaller, one decode for live and replay. Commits live traffic to accept the old name too |
+| ~~Decode reads the old name of a `rename` step as a fallback, live and replay~~ Superseded: decode by record version (final review, DL-043) | Repair | The fallback form swapped values when a chain reuses a field name |
 | Fingerprint = SHA-256 of the compact JSON of the field list sorted by name, TYPE name not included | Undo | Local to generated code and the compiler until GREEN writes records |
 | `--stored` after the source path | Undo | One CLI form in the tests |
 | C2 new call through the eval `place/1`, not the router | Repair | Over the slice 1 DRIFT N domain repair of `valid_payment!/2`: the host check is not the TYPE claim. Commits C2 to an eval VM run |

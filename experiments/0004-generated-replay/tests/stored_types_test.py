@@ -3,6 +3,7 @@
 Cases C1, C2 (build), C3 (build), C4, C5, C6, C7, C8, C10 (build with v1), C14 (build), C15.
 Repair cases: C1b (bad TYPE VERSION at line 2 after a good one), C17 (fields and fingerprint disagree),
 C18 (help line `2 -> 3`: newest version 2, stored version 2 without a path).
+Final review repair cases: C19 (name reuse in a chain of 3 steps), C20 (rotation in a chain of 3 steps).
 Each case runs twice:
   Fixture   the case sources in drift/ and slice2/, the RECORD SNAPSHOTS in stored/;
   Template  the same sources and snapshots built from a template with random TYPE and field names,
@@ -84,12 +85,16 @@ def decode_body(stdout, type_name):
 class Names:
     """TYPE name T; fields: k (kept), o (old), n (new), x (added in R), w (wrong old name), k2 (new name of k)."""
 
-    def __init__(self, T, k, o, n, x, w, k2):
+    def __init__(self, T, k, o, n, x, w, k2, chain=None):
         self.T, self.k, self.o, self.n, self.x, self.w, self.k2 = T, k, o, n, x, w, k2
+        # Field names of the chain kinds C19 (reuse: p, s, t, c) and C20 (rotation: a, b, r).
+        self.chain = chain or {}
 
 
-FIXTURE_NAMES = Names("Payment", "order_id", "status", "state", "reference", "statuz", "order_ref")
-FIXTURE_SOURCES = {"base": "arms/gen/orders.beaml", "N": "drift/N/orders.beaml", "R": "drift/R/orders.beaml",
+FIXTURE_NAMES = Names("Payment", "order_id", "status", "state", "reference", "statuz", "order_ref",
+                      chain={"p": "phase", "s": "status", "t": "state", "c": "code", "a": "a", "b": "b", "r": "c"})
+FIXTURE_SOURCES = {"reuse": "slice2/reuse/orders.beaml", "rotation": "slice2/rotation/orders.beaml",
+                   "base": "arms/gen/orders.beaml", "N": "drift/N/orders.beaml", "R": "drift/R/orders.beaml",
                    "N-chain": "slice2/N-chain/orders.beaml", "N-statuz": "slice2/N-statuz/orders.beaml",
                    "N2": "slice2/N2/orders.beaml", "N2-chain": "slice2/N2-chain/orders.beaml"}
 # Kinds with no fixture file: the Fixture class writes them from the template with the fixture names.
@@ -116,11 +121,41 @@ fn place order: Order -> %(T)s ! PaymentError =
 def random_names():
     rng = random.Random()
     word = lambda prefix: prefix + "".join(rng.choice(string.ascii_lowercase) for _ in range(6))  # noqa: E731
-    return Names("Tq" + word(""), word("k_"), word("o_"), word("n_"), word("x_"), word("w_"), word("m_"))
+    chain = {role: word(role + "_") for role in ("p", "s", "t", "c", "a", "b", "r")}
+    return Names("Tq" + word(""), word("k_"), word("o_"), word("n_"), word("x_"), word("w_"), word("m_"), chain=chain)
+
+
+CHAIN_KINDS = ("reuse", "rotation")
+
+
+def chain_spec(names, kind):
+    """C19 and C20: (newest fields, rename steps in chain order, fields of TYPE VERSION 1, 2, 3, 4).
+    reuse:    `T { p s }`, steps s -> t, c -> s, t -> p. The name s leaves in 1 -> 2 and comes back in 2 -> 3.
+    rotation: `T { a b }`, steps a -> r, b -> a, r -> b. Version 1 and version 4 have the same names."""
+    C = names.chain
+    if kind == "reuse":
+        p, s, t, c = C["p"], C["s"], C["t"], C["c"]
+        return [p, s], [(s, t), (c, s), (t, p)], [[c, s], [c, t], [t, s], [p, s]]
+    a, b, r = C["a"], C["b"], C["r"]
+    return [a, b], [(a, r), (b, a), (r, b)], [[a, b], [b, r], [a, r], [a, b]]
+
+
+def chain_records(names, kind, versions, base=None):
+    """RESPONSE RECORDS of the stored TYPE VERSIONS `versions` of a chain kind (body of `base` unchanged)."""
+    fields = chain_spec(names, kind)[2]
+    return [dict(base or v1_record(), type=type_version(names.T, v, fields[v - 1])) for v in versions]
 
 
 def template_source(names, kind):
     N = names
+    if kind in CHAIN_KINDS:
+        fields, steps, _ = chain_spec(names, kind)
+        chain = "".join("migrate %s %d -> %d { rename %s -> %s }\n" % (N.T, i + 1, i + 2, old, new)
+                        for i, (old, new) in enumerate(steps))
+        return TEMPLATE % {
+            "T": N.T, "declared": " ".join("%s: String" % f for f in fields), "chain": chain,
+            "pattern": ", ".join(fields),
+            "build": ", ".join(("%s: %s + \"\"" if i == 0 else "%s: %s") % (f, f) for i, f in enumerate(fields))}
     fields, chain = {"base": ([N.k, N.o], None), "N": ([N.k, N.n], None), "R": ([N.k, N.o, N.x], None),
                      "N-chain": ([N.k, N.n], (N.o, N.n)), "N-statuz": ([N.k, N.n], (N.w, N.n)),
                      "N2": ([N.k2, N.o], None), "N2-chain": ([N.k2, N.o], (N.k, N.k2)),
@@ -252,6 +287,15 @@ class StoredTypes:
         N, stored = self.names, self.snapshot("v1")
         self.assert_rejected("N2", stored, [N.T, N.k, N.k2, str(stored), self.help_line(N.k, N.k2)])
 
+    # Final review repair: name reuse and rotation are legal chains. The replay cases are in slice2_replay_test.py.
+    def test_C19_name_reuse_chain_compiles_with_v1_v4_and_all_versions(self):
+        self.assert_compiles("reuse", self.snapshot("reuse-v1-v4"))
+        self.assert_compiles("reuse", self.snapshot("reuse-all"))
+
+    def test_C20_rotation_chain_compiles_with_v1_v4_and_all_versions(self):
+        self.assert_compiles("rotation", self.snapshot("rotation-v1-v4"))
+        self.assert_compiles("rotation", self.snapshot("rotation-all"))
+
 
 class Fixture(StoredTypes, unittest.TestCase):
     names = FIXTURE_NAMES
@@ -269,7 +313,7 @@ class Fixture(StoredTypes, unittest.TestCase):
         if label == "v1-untyped":
             untyped = {k: v for k, v in v1_record().items() if k != "type"}
             return self.write_snapshot(label, [v1_record(), untyped])
-        if label in ("v1new-v1", "v1-fp-mismatch", "v2"):
+        if label in ("v1new-v1", "v1-fp-mismatch", "v2") or label.partition("-")[0] in CHAIN_KINDS:
             return self.write_snapshot(label, repair_records(self, label))
         return EXPERIMENT / "stored" / ("%s.jsonl" % label)
 
@@ -308,8 +352,11 @@ class Template(StoredTypes, unittest.TestCase):
 
 
 def repair_records(case, label):
-    """Snapshots of the repair cases C1b, C17, C18, for fixture and random names alike."""
+    """Snapshots of the repair cases C1b, C17, C18, C19, C20, for fixture and random names alike."""
     N = case.names
+    kind, _, which = label.partition("-")
+    if kind in CHAIN_KINDS:
+        return chain_records(N, kind, {"v1-v4": [1, 4], "all": [1, 2, 3, 4]}[which])
     return {"v1new-v1": [case.record(1, [N.k, N.n]), case.record(1, [N.k, N.o])],
             "v1-fp-mismatch": [case.record(1, [N.k, N.n], fingerprint_fields=[N.k, N.o])],
             "v2": [case.record(2, [N.k, N.n])]}[label]

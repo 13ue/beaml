@@ -191,6 +191,11 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: a stored record for an operation that has no `effect` in the source fails the build. Over: ignore it.
 → Because: no runner can read it, which is a missing path in a wider sense. Under review at the slice 2 final review.
 
+**DL-043 · Repair · Decode by TYPE VERSION** (supersedes the decode form of slice 2 GREEN)
+→ Chose: replay applies the `rename` steps from the record's version to the newest; a live body gets none. Over: read an old name when the current name is missing; or forbid name reuse in a chain.
+→ Because: the fallback form swapped values for a rotation (`a -> c`, `b -> a`, `c -> b`) and rejected live bodies after a reuse. Records carry their version, and name reuse is legal.
+→ Trigger: slice 2 final review (Devil's Advocate), BLOCK. Detail: 0004 notes.md, "Slice 2 final review repair".
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

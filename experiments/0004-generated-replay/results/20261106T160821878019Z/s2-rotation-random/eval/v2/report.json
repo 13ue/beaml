@@ -1,0 +1,20 @@
+{
+  "result": {
+    "ok": {
+      "a_lsyvzp": "X-v2",
+      "b_pznopx": "Y-v2"
+    }
+  },
+  "unwatched": [],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "1108b171bb74e7e2472bb80f7f8f0623e2fab6adcac00395d49753ba80f4e17d"
+}

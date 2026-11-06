@@ -568,3 +568,57 @@ New SHA-256 of `experiments/0004-generated-replay/tests/stored_types_test.py`: `
 | G9 | Added field only (C5): help names the `add` step and says only `rename` exists | Undo | O4 text; `add` is out of scope |
 | G10 | `--stored` given to a source without `effect`: snapshot is read and checked | Undo | No test path; payments output stays byte-identical without `--stored` |
 | G11 | Chain errors: gaps, empty step, `new` not in the next version, `old` still in it | Undo | Out of scope in README; an error is safer than a wrong derivation |
+
+## Slice 2 final review repair
+
+**[Observed] Defect (high).** The generated decode applied every `rename` step of the MIGRATE CHAIN by key presence and ignored the TYPE VERSION.
+- Name reuse (`Payment { phase status }`, steps `status -> state`, `code -> status`, `state -> phase`): a current v4 body gave `PaymentError{reason: "decode"}`, live and in a REPLAY RUN.
+- Rotation (`Payment { a b }`, steps `a -> c`, `b -> a`, `c -> b`): a current body decoded with `a` and `b` swapped (live wrong accept).
+
+**Repair.** The decode reads a body as the TYPE VERSION of its RESPONSE RECORD. A record of version n gets the steps n -> n+1 -> ... -> newest in chain order. A live body is the newest version and gets no rename. `Replay.run` passes `record["type"]` to the decode. A TYPE without a MIGRATE CHAIN keeps the slice 1 decode (payments output byte-identical, `cli.rs` check passes). The rule "stored record for an operation without an EFFECT fails the build" is unchanged.
+
+### New tests
+
+| File | Cases |
+| --- | --- |
+| `tests/stored_types_test.py` | C19 reuse, C20 rotation: compile with v1+v4 and v1..v4; Fixture and Template (random names). Fixture guard checks the two new sources |
+| `tests/slice2_replay_test.py` | C19/C20 x fixture/random names: strict compile; live current body decodes exactly to current fields, record `type` v4, no unknown keys; v1, v2, v3, v4 records replay to the current values |
+| `slice2/reuse/orders.beaml`, `slice2/rotation/orders.beaml` | New fixture sources |
+
+Expected values come from a carrier table in the test (field that holds X and Y per version), not from the compiler.
+
+**[Verified] RED** (`final-review-red.log`, `results/20261106T160628867615Z`): 8 of 12 fail, only for the defect. Reuse v4 and live: decode error. Rotation v4 and live: `a` and `b` swapped. v1 to v3 pass before the repair. Strict compile passes.
+
+### SHA-256
+
+| File | Before | After |
+| --- | --- | --- |
+| `tests/stored_types_test.py` | `a69b8886e8e8b032822e45b02a8caac84f19cbf4b81a3b9855d464845bd3257f` | `d22775b2e23e381280b4f12ae8a974d58377edc3a41f3db4433301fe757d33f4` |
+| `tests/slice2_replay_test.py` | `a77f32ed853765ade5351aafdb811051da7d44c45534b4a68b638d535c809dad` | `ca07a09bd6369a00fd95d4725ded943338aa8e01be7a616f48daebadd9db57f6` |
+| `0001/src/main.rs` | `8321971cd4a684ee8cf53eceb55adbd4693b6b5db46a24f9eef8bc4ac4ff8994` | `e90df458bd88bc437d5f72bad44ca4d345bceafc3c961fbaf0da43f38c403b01` |
+| `0001/tests/cli.rs`, `arms_test.py`, `arm_tree.py`, `drift_test.py`, `overlay_diff_test.py` | unchanged | unchanged |
+
+### TEST (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline` (0001) | 0 | 9 + 14 passed |
+| `tests/stored_types_test.py` | 0 | 33/33 |
+| `tests/slice2_replay_test.py` | 0 | 21/21; `results/20261106T160821878019Z` |
+| `tests/arms_test.py` | 0 | 16/16; `results/20261106T161015448243Z` |
+| `tests/overlay_diff_test.py` | 0 | 3/3 |
+| `tests/drift_test.py` | 0 | 3/3 |
+| `0003-source-linked-replay/run.py` | 0 | `pass`, `0003/results/20261106T161756863262Z` |
+| `0004-generated-replay/run.py` | 0 | `pass`, `results/20261106T161859486046Z` |
+
+### Decisions (Decision4, final review repair)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| F1 | Decode by record version, not by key presence | Repair (main agent) | Chose version. Over: key presence (README decision row "Decode reads the old name ... as a fallback"). Because: key presence decodes reuse and rotation wrong. Commits live traffic to the newest names only; the README row is now out of date |
+| F2 | Record without a `type` key: newest version | Repair | Chose newest. Over: decode error. Because: C7 rejects untyped records at compile time; slice 1 behaviour stays. Commits an untyped old body to a decode error, not a wrong accept |
+| F3 | Record `type` with another TYPE name or a version outside 1..newest: typed decode error | Undo | Same error as a body without a path |
+| F4 | In each step, `old` is read as `new` only without `new` (C12 kept) | Undo | Keeps the hint rule of C12 |
+| F5 | Version dispatch only for a TYPE with a MIGRATE CHAIN | Repair | Chose chain-only. Over: dispatch for every TYPE. Because: payments output must stay byte-identical. Commits two decode forms in the compiler |
+| F6 | Runtime random-name variants run in arm trees (template source in a temp dir) | Undo | Test-only; 4 more release builds |
+| F7 | New fixture sources under `slice2/`; snapshots written by the tests | Undo | Same pattern as `repair_records` |

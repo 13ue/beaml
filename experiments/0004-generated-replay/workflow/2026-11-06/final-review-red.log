@@ -1,0 +1,292 @@
+/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T160628867615Z
+test_build_compiles_with_warnings_as_errors (__main__.C19NameReuseFixture) ... ok
+test_each_stored_version_replays_to_the_current_fields (__main__.C19NameReuseFixture) ... FAIL
+test_live_current_body_decodes_to_the_current_fields (__main__.C19NameReuseFixture) ... FAIL
+test_build_compiles_with_warnings_as_errors (__main__.C19NameReuseRandom) ... ok
+test_each_stored_version_replays_to_the_current_fields (__main__.C19NameReuseRandom) ... FAIL
+test_live_current_body_decodes_to_the_current_fields (__main__.C19NameReuseRandom) ... FAIL
+test_build_compiles_with_warnings_as_errors (__main__.C20RotationFixture) ... ok
+test_each_stored_version_replays_to_the_current_fields (__main__.C20RotationFixture) ... FAIL
+test_live_current_body_decodes_to_the_current_fields (__main__.C20RotationFixture) ... FAIL
+test_build_compiles_with_warnings_as_errors (__main__.C20RotationRandom) ... ok
+test_each_stored_version_replays_to_the_current_fields (__main__.C20RotationRandom) ... FAIL
+test_live_current_body_decodes_to_the_current_fields (__main__.C20RotationRandom) ... FAIL
+
+======================================================================
+FAIL: test_each_stored_version_replays_to_the_current_fields (__main__.C19NameReuseFixture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice2_replay_test.py", line 203, in test_each_stored_version_replays_to_the_current_fields
+    self.assertEqual(expected, actual, "names: %s" % self.names.chain)
+AssertionError: {'v1'[874 chars]': {'ok': {'phase': 'X-v4', 'status': 'Y-v4'}}[222 chars]rue}} != {'v1'[874 chars]': {'error': '%OrdersBeamlSpike.PaymentError{r[240 chars]rue}}
+  {'v1': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'phase': 'X-v1', 'status': 'Y-v1'}},
+          'transport': 0},
+   'v2': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'phase': 'X-v2', 'status': 'Y-v2'}},
+          'transport': 0},
+   'v3': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'phase': 'X-v3', 'status': 'Y-v3'}},
+          'transport': 0},
+   'v4': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+-         'OrdersBeamlSpike.finish/1': 1,
+?                                      ^
+
++         'OrdersBeamlSpike.finish/1': 0,
+?                                      ^
+
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+-         'result': {'ok': {'phase': 'X-v4', 'status': 'Y-v4'}},
++         'result': {'error': '%OrdersBeamlSpike.PaymentError{reason: "decode"}'},
+          'transport': 0}} : names: {'p': 'phase', 's': 'status', 't': 'state', 'c': 'code', 'a': 'a', 'b': 'b', 'r': 'c'}
+
+======================================================================
+FAIL: test_live_current_body_decodes_to_the_current_fields (__main__.C19NameReuseFixture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice2_replay_test.py", line 188, in test_live_current_body_decodes_to_the_current_fields
+    self.assertEqual(
+AssertionError: {'result': {'ok': {'phase': 'X-live', 'status': 'Y-liv[226 chars]: []} != {'result': {'error': '%OrdersBeamlSpike.PaymentError{r[240 chars]: []}
+  {'records': 1,
+-  'result': {'ok': {'phase': 'X-live', 'status': 'Y-live'}},
++  'result': {'error': '%OrdersBeamlSpike.PaymentError{reason: "decode"}'},
+   'sent': 1,
+   'type': {'fields': [['phase', 'String'], ['status', 'String']],
+            'fingerprint': '3dcf5a005bd4aaf1f51732f7a39c4e765dfde6031bdf17429cfada0be0116247',
+            'name': 'Payment',
+            'version': 4},
+   'unknown_keys': []} : names: {'p': 'phase', 's': 'status', 't': 'state', 'c': 'code', 'a': 'a', 'b': 'b', 'r': 'c'}
+
+======================================================================
+FAIL: test_each_stored_version_replays_to_the_current_fields (__main__.C19NameReuseRandom)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice2_replay_test.py", line 203, in test_each_stored_version_replays_to_the_current_fields
+    self.assertEqual(expected, actual, "names: %s" % self.names.chain)
+AssertionError: {'v1'[889 chars]': {'ok': {'p_uesnrz': 'X-v4', 's_bbeahj': 'Y-[227 chars]rue}} != {'v1'[889 chars]': {'error': '%OrdersBeamlSpike.PaymentError{r[240 chars]rue}}
+  {'v1': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'p_uesnrz': 'X-v1', 's_bbeahj': 'Y-v1'}},
+          'transport': 0},
+   'v2': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'p_uesnrz': 'X-v2', 's_bbeahj': 'Y-v2'}},
+          'transport': 0},
+   'v3': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'p_uesnrz': 'X-v3', 's_bbeahj': 'Y-v3'}},
+          'transport': 0},
+   'v4': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+-         'OrdersBeamlSpike.finish/1': 1,
+?                                      ^
+
++         'OrdersBeamlSpike.finish/1': 0,
+?                                      ^
+
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+-         'result': {'ok': {'p_uesnrz': 'X-v4', 's_bbeahj': 'Y-v4'}},
++         'result': {'error': '%OrdersBeamlSpike.PaymentError{reason: "decode"}'},
+          'transport': 0}} : names: {'p': 'p_uesnrz', 's': 's_bbeahj', 't': 't_fszqvq', 'c': 'c_zyjxkq', 'a': 'a_qoqipr', 'b': 'b_syfqvw', 'r': 'r_zoeoup'}
+
+======================================================================
+FAIL: test_live_current_body_decodes_to_the_current_fields (__main__.C19NameReuseRandom)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice2_replay_test.py", line 188, in test_live_current_body_decodes_to_the_current_fields
+    self.assertEqual(
+AssertionError: {'result': {'ok': {'p_uesnrz': 'X-live', 's_bbeahj': '[237 chars]: []} != {'result': {'error': '%OrdersBeamlSpike.PaymentError{r[246 chars]: []}
+  {'records': 1,
+-  'result': {'ok': {'p_uesnrz': 'X-live', 's_bbeahj': 'Y-live'}},
++  'result': {'error': '%OrdersBeamlSpike.PaymentError{reason: "decode"}'},
+   'sent': 1,
+   'type': {'fields': [['p_uesnrz', 'String'], ['s_bbeahj', 'String']],
+            'fingerprint': 'ad7b2074c66175b8461e2eb7634674eb4ff8c5d9b87762f8c64633dece3a8d98',
+            'name': 'Tqczpsoh',
+            'version': 4},
+   'unknown_keys': []} : names: {'p': 'p_uesnrz', 's': 's_bbeahj', 't': 't_fszqvq', 'c': 'c_zyjxkq', 'a': 'a_qoqipr', 'b': 'b_syfqvw', 'r': 'r_zoeoup'}
+
+======================================================================
+FAIL: test_each_stored_version_replays_to_the_current_fields (__main__.C20RotationFixture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice2_replay_test.py", line 203, in test_each_stored_version_replays_to_the_current_fields
+    self.assertEqual(expected, actual, "names: %s" % self.names.chain)
+AssertionError: {'v1'[859 chars]a': 'X-v4', 'b': 'Y-v4'}}, 'transport': 0, 'Or[201 chars]rue}} != {'v1'[859 chars]a': 'Y-v4', 'b': 'X-v4'}}, 'transport': 0, 'Or[201 chars]rue}}
+  {'v1': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'a': 'X-v1', 'b': 'Y-v1'}},
+          'transport': 0},
+   'v2': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'a': 'X-v2', 'b': 'Y-v2'}},
+          'transport': 0},
+   'v3': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'a': 'X-v3', 'b': 'Y-v3'}},
+          'transport': 0},
+   'v4': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+-         'result': {'ok': {'a': 'X-v4', 'b': 'Y-v4'}},
+?                                 ^            ^
+
++         'result': {'ok': {'a': 'Y-v4', 'b': 'X-v4'}},
+?                                 ^            ^
+
+          'transport': 0}} : names: {'p': 'phase', 's': 'status', 't': 'state', 'c': 'code', 'a': 'a', 'b': 'b', 'r': 'c'}
+
+======================================================================
+FAIL: test_live_current_body_decodes_to_the_current_fields (__main__.C20RotationFixture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice2_replay_test.py", line 188, in test_live_current_body_decodes_to_the_current_fields
+    self.assertEqual(
+AssertionError: {'res[15 chars]a': 'X-live', 'b': 'Y-live'}}, 'sent': 1, 'rec[196 chars]: []} != {'res[15 chars]a': 'Y-live', 'b': 'X-live'}}, 'sent': 1, 'rec[196 chars]: []}
+  {'records': 1,
+-  'result': {'ok': {'a': 'X-live', 'b': 'Y-live'}},
+?                          ^              ^
+
++  'result': {'ok': {'a': 'Y-live', 'b': 'X-live'}},
+?                          ^              ^
+
+   'sent': 1,
+   'type': {'fields': [['a', 'String'], ['b', 'String']],
+            'fingerprint': 'ce887e8573d0b55497b9b5aa0a0e21ff623a31f662a7d72d0a1216c8655f090e',
+            'name': 'Payment',
+            'version': 4},
+   'unknown_keys': []} : names: {'p': 'phase', 's': 'status', 't': 'state', 'c': 'code', 'a': 'a', 'b': 'b', 'r': 'c'}
+
+======================================================================
+FAIL: test_each_stored_version_replays_to_the_current_fields (__main__.C20RotationRandom)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice2_replay_test.py", line 203, in test_each_stored_version_replays_to_the_current_fields
+    self.assertEqual(expected, actual, "names: %s" % self.names.chain)
+AssertionError: {'v1'[908 chars]r': 'X-v4', 'b_syfqvw': 'Y-v4'}}, 'transport':[208 chars]rue}} != {'v1'[908 chars]r': 'Y-v4', 'b_syfqvw': 'X-v4'}}, 'transport':[208 chars]rue}}
+  {'v1': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'a_qoqipr': 'X-v1', 'b_syfqvw': 'Y-v1'}},
+          'transport': 0},
+   'v2': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'a_qoqipr': 'X-v2', 'b_syfqvw': 'Y-v2'}},
+          'transport': 0},
+   'v3': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+          'result': {'ok': {'a_qoqipr': 'X-v3', 'b_syfqvw': 'Y-v3'}},
+          'transport': 0},
+   'v4': {':gen_tcp.connect/4': 0,
+          ':json.decode/1': 1,
+          'OrdersApi.Router.call/2': 0,
+          'OrdersBeamlSpike.finish/1': 1,
+          'OrdersBeamlSpike.payments_authorize/1': 0,
+          'ProbeSupport.valid_payment!/2': 0,
+          'cross_build': True,
+-         'result': {'ok': {'a_qoqipr': 'X-v4', 'b_syfqvw': 'Y-v4'}},
+?                                        ^                   ^
+
++         'result': {'ok': {'a_qoqipr': 'Y-v4', 'b_syfqvw': 'X-v4'}},
+?                                        ^                   ^
+
+          'transport': 0}} : names: {'p': 'p_uesnrz', 's': 's_bbeahj', 't': 't_fszqvq', 'c': 'c_zyjxkq', 'a': 'a_qoqipr', 'b': 'b_syfqvw', 'r': 'r_zoeoup'}
+
+======================================================================
+FAIL: test_live_current_body_decodes_to_the_current_fields (__main__.C20RotationRandom)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice2_replay_test.py", line 188, in test_live_current_body_decodes_to_the_current_fields
+    self.assertEqual(
+AssertionError: {'res[22 chars]r': 'X-live', 'b_syfqvw': 'Y-live'}}, 'sent': [218 chars]: []} != {'res[22 chars]r': 'Y-live', 'b_syfqvw': 'X-live'}}, 'sent': [218 chars]: []}
+  {'records': 1,
+-  'result': {'ok': {'a_qoqipr': 'X-live', 'b_syfqvw': 'Y-live'}},
+?                                 ^                     ^
+
++  'result': {'ok': {'a_qoqipr': 'Y-live', 'b_syfqvw': 'X-live'}},
+?                                 ^                     ^
+
+   'sent': 1,
+   'type': {'fields': [['a_qoqipr', 'String'], ['b_syfqvw', 'String']],
+            'fingerprint': '0ec0e5014c216f7d100ca0460e420974d80a4c6627da9f520a939e245be2ba92',
+            'name': 'Tqczpsoh',
+            'version': 4},
+   'unknown_keys': []} : names: {'p': 'p_uesnrz', 's': 's_bbeahj', 't': 't_fszqvq', 'c': 'c_zyjxkq', 'a': 'a_qoqipr', 'b': 'b_syfqvw', 'r': 'r_zoeoup'}
+
+----------------------------------------------------------------------
+Ran 12 tests in 64.813s
+
+FAILED (failures=8)

@@ -1,0 +1,55 @@
+{
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "experiments/0004-generated-replay/run.py"
+  ],
+  "started_at": "2026-11-06T16:00:54.047702+00:00",
+  "steps": [
+    {
+      "name": "compiler",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "overlay-diff",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/overlay_diff_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "lib-freeze",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/run.py",
+        "freeze"
+      ],
+      "exit_code": 0,
+      "status": "pass",
+      "summary": {
+        "status": "pass",
+        "action": "verified",
+        "sha256": {
+          "ReplayLib": "e5ad6e17b3a043496f160882866b8c31a2bdc8b8d2b3102d65db678adeb0bcbb",
+          "OrdersApi.ReplayDescriptor": "933566cd1565c9308847b3f95990905f21b6694d312364d8bf53ead2022e2c84"
+        },
+        "frozen": {
+          "ReplayLib": "e5ad6e17b3a043496f160882866b8c31a2bdc8b8d2b3102d65db678adeb0bcbb",
+          "OrdersApi.ReplayDescriptor": "933566cd1565c9308847b3f95990905f21b6694d312364d8bf53ead2022e2c84"
+        }
+      }
+    }
+  ],
+  "status": "fail"
+}

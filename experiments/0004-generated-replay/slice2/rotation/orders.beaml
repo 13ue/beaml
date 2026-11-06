@@ -1,0 +1,20 @@
+interface Order { order_id: String }
+interface Payment { a: String b: String }
+// Rotation: version 1 and version 4 have the same field names; the values of a and b change places.
+migrate Payment 1 -> 2 { rename a -> c }
+migrate Payment 2 -> 3 { rename b -> a }
+migrate Payment 3 -> 4 { rename c -> b }
+interface PaymentError { reason: String }
+
+// Leaves the module. Recorded live, substituted in a REPLAY RUN.
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+fn finish Payment { a, b } -> Payment = Payment { a: a + "", b: b }
+
+// The flow lives in BEAML. A failed step stops the pipe and passes PaymentError on.
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
+  |> finish

@@ -1293,14 +1293,16 @@ impl Checker<'_> {
             None => vec![self.record(name).cloned().unwrap_or_default()],
         }
     }
-    // The `rename` steps of the MIGRATE CHAIN of a TYPE, in chain order.
-    fn renames(&self, name: &str) -> Vec<(String, String)> {
-        self.program
+    // The steps of the MIGRATE CHAIN of a TYPE, in chain order (1 -> 2 first).
+    fn migrations(&self, name: &str) -> Vec<&Migration> {
+        let mut steps: Vec<&Migration> = self
+            .program
             .migrations
             .iter()
             .filter(|m| m.type_name == name)
-            .flat_map(|m| m.renames.clone())
-            .collect()
+            .collect();
+        steps.sort_by_key(|m| m.from);
+        steps
     }
     // The `type` key of a RESPONSE RECORD: the newest TYPE VERSION of the build.
     fn emit_type_version(&self, name: &str) -> String {
@@ -1393,8 +1395,14 @@ impl Checker<'_> {
                     ));
                     clauses.push(":ok <- expect(record[\"status\"], 200, :status_mismatch)".into());
                     clauses.push("{:ok, bytes} <- body(record)".into());
+                    // With a MIGRATE CHAIN, the decode reads the body as the TYPE VERSION of the record.
+                    let version = if self.migrations(&effect.output).is_empty() {
+                        ""
+                    } else {
+                        ", record[\"type\"]"
+                    };
                     clauses.push(format!(
-                        "{{:ok, {output}}} <- @parent.__beaml_attempt__(fn -> ProbeSupport.span({}, :internal, p0, nil, fn -> @parent.__beaml_result_{}(bytes) end) end)",
+                        "{{:ok, {output}}} <- @parent.__beaml_attempt__(fn -> ProbeSupport.span({}, :internal, p0, nil, fn -> @parent.__beaml_result_{}(bytes{version}) end) end)",
                         binary(&format!("{service}.{step}")),
                         effect.name.replace('.', "_")
                     ));
@@ -1484,26 +1492,60 @@ impl Checker<'_> {
             .iter()
             .map(|(field, _)| binary(field))
             .collect();
-        // MIGRATE CHAIN: for each `rename old -> new` step in chain order, an old record with `old` and
-        // without `new` reads `old` as `new`. The current name wins (C12); the old key is consumed.
-        let renames: String = self
-            .renames(&effect.output)
-            .iter()
-            .map(|(old, new)| {
+        // MIGRATE CHAIN: the decode reads a body as the TYPE VERSION of its RESPONSE RECORD (final review
+        // repair: decode by version, not by key presence). A body of version n gets the rename steps
+        // n -> n+1 -> ... -> newest in chain order; a live body is the newest version and gets none.
+        // In a step, `old` is read as `new` only without `new`: the current name wins (C12).
+        // A record `type` with another TYPE name or an unknown version is a typed decode error.
+        // No `type` key: the newest version. Without a chain the decode stays the slice 1 form.
+        let migrations = self.migrations(&effect.output);
+        let newest = self.type_versions(&effect.output).len();
+        let list = |last: usize| {
+            (1..=last)
+                .map(|v| v.to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
+        };
+        let (head, version, renames, known, arity) = if migrations.is_empty() {
+            (format!("  def {decode}(a0) do\n"), String::new(), String::new(), String::new(), "")
+        } else {
+            let renames: String = migrations
+                .iter()
+                .flat_map(|step| step.renames.iter().map(move |rename| (step.from, rename)))
+                .map(|(from, (old, new))| {
+                    format!(
+                        "    value =\n      if Enum.member?([{versions}], version) and is_map(value) and Map.has_key?(value, {new}) == false and Map.has_key?(value, {old}),\n        do: Map.delete(Map.put(value, {new}, Map.get(value, {old})), {old}),\n        else: value\n\n",
+                        versions = list(from as usize),
+                        old = binary(old),
+                        new = binary(new)
+                    )
+                })
+                .collect();
+            (
+                format!("  def {decode}(a0), do: {decode}(a0, nil)\n  def {decode}(a0, type_version) do\n"),
                 format!(
-                    "    value =\n      if is_map(value) and Map.has_key?(value, {new}) == false and Map.has_key?(value, {old}),\n        do: Map.delete(Map.put(value, {new}, Map.get(value, {old})), {old}),\n        else: value\n\n",
-                    old = binary(old),
-                    new = binary(new)
-                )
-            })
-            .collect();
+                    "    version =\n      case type_version do\n        nil -> {newest}\n        %{{{name_key} => {name}, {version_key} => v}} -> v\n        _ -> 0\n      end\n\n",
+                    name_key = binary("name"),
+                    name = binary(&effect.output),
+                    version_key = binary("version"),
+                ),
+                renames,
+                format!("Enum.member?([{}], version) and ", list(newest)),
+                ", type_version",
+            )
+        };
         out.push_str(&format!(
-            "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n{renames}    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
+            "{head}    declared = [{}]\n\n{version}    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n{renames}    shape = if {known}is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
             declared.join(", "),
             output = binary(&effect.output),
         ));
+        let result_head = if migrations.is_empty() {
+            format!("  def __beaml_result_{elixir}(a0) do\n")
+        } else {
+            format!("  def __beaml_result_{elixir}(a0), do: __beaml_result_{elixir}(a0, nil)\n  def __beaml_result_{elixir}(a0, type_version) do\n")
+        };
         out.push_str(&format!(
-            "  def __beaml_result_{elixir}(a0) do\n    case {decode}(a0) do\n      {{:ok, value, []}} ->\n        {{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
+            "{result_head}    case {decode}(a0{arity}) do\n      {{:ok, value, []}} ->\n        {{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
             decode_reason = binary("decode"),
         ));
         for failure in self.structs() {

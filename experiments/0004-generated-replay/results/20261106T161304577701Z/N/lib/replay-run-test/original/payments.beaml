@@ -1,0 +1,3 @@
+interface Order { order_id: String }
+interface Payment { order_id: String state: String }
+fn authorize Order { order_id } -> Payment = Payment { order_id: order_id + "", state: "authorized" }

@@ -1,0 +1,5 @@
+test_b_gen_module_compiles_with_warnings_as_errors (__main__.GenBuild) ... ok
+test_c_gen_0003_runner_passes_all_five_steps (__main__.GenRunner) ... ok
+test_d_gen_replay_matrix_eight_cases (__main__.GenRunner) ... ok
+test_c_gen_router_calls_only_place_and_host_replay_files_are_deleted (__main__.GenStructure) ... ok
+test_d2_L0_live_valid_body_baseline (__main__.GenTypeMismatch) ... 

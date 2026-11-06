@@ -1,0 +1,1 @@
+PROBE {"result":{"ok":{"order_id":"order-1","status":"authorized"}},"host_validation":"ok","transport":1}
