@@ -1,0 +1,82 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "phase": "response-capture-and-transport-observer-green",
+  "status": "pass",
+  "worker": "fresh Claude Opus 5.5 subagent; owner chose this instead of GPT-6.1 Sol",
+  "test": "test_live_orders_call_captures_predecode_response_and_one_transport_attempt",
+  "test_sha256_before": "da92ade2d614b83905f4f928988855bc5b92a585b17290c70964c61f801626fc",
+  "test_sha256_after": "da92ade2d614b83905f4f928988855bc5b92a585b17290c70964c61f801626fc",
+  "changed_files": [
+    {
+      "path": "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex",
+      "lines_added": 22,
+      "lines_removed": 0
+    }
+  ],
+  "runs": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/response_capture_test.py"
+      ],
+      "exit_code": 0,
+      "run": "../../../results/20261106T063611579325Z/result.json"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+      ],
+      "exit_code": 0,
+      "run": "../../../results/20261106T063640182581Z/result.json"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py",
+        "--source-run",
+        "experiments/0003-source-linked-replay/results/20261106T063640182581Z"
+      ],
+      "exit_code": 0,
+      "run": "../../../results/20261106T063703460086Z/result.json"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tests/test_query.py"
+      ],
+      "cwd": "experiments/0002-http-correlation",
+      "exit_code": 0,
+      "result": "6 tests OK"
+    },
+    {
+      "command": [
+        "mix",
+        "format",
+        "--check-formatted",
+        "apps/orders_api/lib/orders_api/payment_http.ex"
+      ],
+      "cwd": "experiments/0002-http-correlation",
+      "exit_code": 0
+    }
+  ],
+  "assertions_passed": [
+    "orders_transport_attempts_after_each_call",
+    "response_record_traces",
+    "first_response_record",
+    "first_response_body",
+    "observer_control_attempts_invalid_then_refused",
+    "observer_control_response_records"
+  ],
+  "output": "green-output.log",
+  "out_of_scope": [
+    "replay",
+    "invalid replay records",
+    "malformed service parser crash",
+    "README, register and log updates"
+  ]
+}

@@ -1,0 +1,30 @@
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261105T232448420501Z
+Exit: 0
+Independently verified 25 current build inputs and {'20261105T230852203515Z': 76, '20261105T232308384268Z': 75, '20261105T232448420501Z': 75} archived outputs.
+Two HTTP 200 receipts, two traces, ten parent edges, four linked logs and Payments count delta two.
+Both Payments remote parents link to the Orders client span. Both bindings match the original artifact and source.
+Original declaration range [91,193) resolved. Separate alternate build executed successfully.
+Missing original returned missing_source and exit 1 with no summary. Both release processes exited 0 and their PIDs are absent.
+
+$ (cd experiments/0002-http-correlation && python3 -B -m unittest discover -s tests -v)
+test_complete_and_missing_log (test_query.QueryTest) ... ok
+test_corruptions (test_query.QueryTest) ... ok
+test_missing_artifact_metadata_is_a_gap (test_query.QueryTest) ... ok
+test_payments_ingress_requires_remote_parent (test_query.QueryTest) ... ok
+test_split_trace_reports_missing_edge (test_query.QueryTest) ... ok
+test_two_traces_stay_separate (test_query.QueryTest) ... ok
+test_action_failure_does_not_raise (test_runner.RunnerTest) ... ok
+test_owned_child_stops (test_runner.RunnerTest) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.036s
+
+OK
+
+$ (cd experiments/0002-http-correlation && mix format --check-formatted)
+Exit: 0
+
+Retained 0002 H02 query: exit 0, two traces, ten edges, four logs, no lookup summary.
+
+$ git diff --check
+Exit: 0

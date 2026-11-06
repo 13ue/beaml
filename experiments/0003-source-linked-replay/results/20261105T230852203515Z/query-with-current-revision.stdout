@@ -1,0 +1,104 @@
+{
+  "complete": true,
+  "gaps": [],
+  "traces": [
+    "0db54a4ba9e7f4114ce0f1da7775d35b",
+    "2dd9187f54f04b1f46dd43ed3babe769"
+  ],
+  "edges": [
+    {
+      "trace_id": "0db54a4ba9e7f4114ce0f1da7775d35b",
+      "parent_span_id": "5a3e398acf3259be",
+      "span_id": "b40fc2e29d2a91ba"
+    },
+    {
+      "trace_id": "0db54a4ba9e7f4114ce0f1da7775d35b",
+      "parent_span_id": "5a3e398acf3259be",
+      "span_id": "67a8919e3578dc60"
+    },
+    {
+      "trace_id": "0db54a4ba9e7f4114ce0f1da7775d35b",
+      "parent_span_id": "5a3e398acf3259be",
+      "span_id": "dd6100b5e775f337"
+    },
+    {
+      "trace_id": "0db54a4ba9e7f4114ce0f1da7775d35b",
+      "parent_span_id": "da0f9cb69c70e02d",
+      "span_id": "5cee93138dd585a8"
+    },
+    {
+      "trace_id": "0db54a4ba9e7f4114ce0f1da7775d35b",
+      "parent_span_id": "67a8919e3578dc60",
+      "span_id": "da0f9cb69c70e02d"
+    },
+    {
+      "trace_id": "2dd9187f54f04b1f46dd43ed3babe769",
+      "parent_span_id": "e7bacf0fa3f952a4",
+      "span_id": "710511b2314a495c"
+    },
+    {
+      "trace_id": "2dd9187f54f04b1f46dd43ed3babe769",
+      "parent_span_id": "e7bacf0fa3f952a4",
+      "span_id": "eabf17f769bc3b9d"
+    },
+    {
+      "trace_id": "2dd9187f54f04b1f46dd43ed3babe769",
+      "parent_span_id": "e7bacf0fa3f952a4",
+      "span_id": "2550ac6e01ab5b3e"
+    },
+    {
+      "trace_id": "2dd9187f54f04b1f46dd43ed3babe769",
+      "parent_span_id": "5195b2e7f3235ede",
+      "span_id": "2f7cd7bbde479096"
+    },
+    {
+      "trace_id": "2dd9187f54f04b1f46dd43ed3babe769",
+      "parent_span_id": "eabf17f769bc3b9d",
+      "span_id": "5195b2e7f3235ede"
+    }
+  ],
+  "logs": [
+    {
+      "service": "orders",
+      "operation": "prepare",
+      "event": "payment_request_prepared",
+      "span_id": "b40fc2e29d2a91ba",
+      "trace_id": "0db54a4ba9e7f4114ce0f1da7775d35b",
+      "order_id": "order-1"
+    },
+    {
+      "service": "orders",
+      "operation": "prepare",
+      "event": "payment_request_prepared",
+      "span_id": "710511b2314a495c",
+      "trace_id": "2dd9187f54f04b1f46dd43ed3babe769",
+      "order_id": "order-1"
+    },
+    {
+      "service": "payments",
+      "operation": "authorize",
+      "event": "payment_stub_returned",
+      "span_id": "5cee93138dd585a8",
+      "trace_id": "0db54a4ba9e7f4114ce0f1da7775d35b",
+      "order_id": "order-1"
+    },
+    {
+      "service": "payments",
+      "operation": "authorize",
+      "event": "payment_stub_returned",
+      "span_id": "2f7cd7bbde479096",
+      "trace_id": "2dd9187f54f04b1f46dd43ed3babe769",
+      "order_id": "order-1"
+    }
+  ],
+  "fixtures": {
+    "payments": {
+      "source": "apps/payments_api/priv/payments.beaml",
+      "source_hash": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50"
+    },
+    "orders": {
+      "source": "apps/orders_api/priv/orders.beaml",
+      "source_hash": "411a0acd0e09f1ce2dbedba827ff2ab0182eaeca8b99df0b411f9b24f71bcdf1"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "phase": "live-trace-lookup-red",
+  "status": "red-confirmed",
+  "authorization": {
+    "owner_instruction": "nice go",
+    "scope": "lookup RED test and evidence",
+    "owner_red_review": "pending",
+    "production_changes_authorized": false
+  },
+  "test": "test_two_live_receipts_resolve_original_payments_declaration",
+  "command": [
+    "python3",
+    "-B",
+    "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+  ],
+  "exit_code": 1,
+  "run": "../../../results/20261105T230852203515Z/result.json",
+  "prior_run": "../../../results/20261105T230743107625Z/result.json",
+  "compiler_verification": "../result.json",
+  "positive_controls": [
+    "two_real_http_200_receipts",
+    "correlated_traces_and_remote_parent",
+    "payments_request_delta_two",
+    "runtime_beam_hashes_match_archive",
+    "compiled_revised_function_runs_in_isolation",
+    "both_releases_exit_zero"
+  ],
+  "lookup_assertion_failures": [
+    "expected artifact + SOURCE ID summary with 2/2 receipts and original declaration; actual function_summary=None",
+    "expected missing_source with alternate build present; actual gaps=[{'code': 'invalid_evidence'}]",
+    "expected both live spans bound to the selected artifact and source; actual artifact_ids=[None, None], source_hashes=['6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50', '6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50']"
+  ],
+  "evidence_checks": [
+    "input_and_output_hashes_match",
+    "exact_use_case_events_retained",
+    "original_and_alternate_artifacts_retained",
+    "derivative_only_removes_original_source"
+  ],
+  "scope": [
+    "test",
+    "retained evidence",
+    "lookup ledger"
+  ]
+}

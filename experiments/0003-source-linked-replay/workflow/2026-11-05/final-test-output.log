@@ -1,0 +1,33 @@
+Compiler reference: verified (EXPERIMENT 0003).
+The independent checks still apply. No repair or new compiler run.
+
+Same command from the repository root for RED, GREEN and the independent test.
+$ cargo test --manifest-path experiments/0001-syntax-to-beam/Cargo.toml --test cli payments_cli_emits_checked_authorize_reference -- --exact --nocapture
+
+                         RED                         GREEN
+Cargo                    FAILED (exit 101)           ok (exit 0)
+Original reference       expected ["91 193"]         expected ["91 193"]
+                         actual []                   actual ["91 193"]
+Comment control          assertion not reached       actual ["103 205"]
+
+Both RED inputs compiled and emitted authorize before the range assertion.
+The existing successful compiler output contains no checked declaration reference.
+Both GREEN ranges select the same declaration bytes.
+
+Test SHA-256 (all three runs)       bd697bb2d902164dd7e41169b804b9315444db05b2db02d75d355e0e704d2a78
+Payments fixture SHA-256           6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50
+Comment fixture SHA-256            10d0414879967f44f9e16f1478ea87148f080ac69821bc179dd226e70ddd4512
+RED compiler SHA-256 (HEAD)        957c8f95552559a9eed2c344902db21b5b17152c64b1dfbd0d000edc16982b74
+GREEN compiler SHA-256 (checkout)  175971e9268888772c418b1720ee6dccccc5922644763dee9990c55bca441e2c
+
+RED run 20261105T225505014890Z. Verified 22 output hashes.
+GREEN run 20261105T225807421990Z. Verified 28 output hashes.
+Independent TEST run 20261105T230012369535Z. Verified 29 output hashes.
+GREEN and independent TEST emitted byte-identical Elixir for each fixture.
+Remove the reference comment to obtain the exact RED Elixir bytes.
+The Elixir control returned authorized. Cargo passed 9 unit and 2 CLI tests.
+Rust formatting, invalid-source control, scoped links and git diff --check passed.
+Owner review is recorded in notes.md. Independent review in review.md required no repair.
+See result.json for command, source paths and retained output hashes.
+
+Pending gates. Live evidence and lookup, response capture and observer, isolated replay.

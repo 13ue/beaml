@@ -1,0 +1,108 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "phase": "live-trace-lookup-independent-test",
+  "status": "pass",
+  "test": "test_two_live_receipts_resolve_original_payments_declaration",
+  "same_test_sha256": "6a7036195cc3025c252caa2cbe6ac4c9f13f78996752272249f0b5a6168b9ebe",
+  "authorization": "Owner approved GREEN for the live lookup gate after review of the three RED assertions.",
+  "run": "../../../results/20261105T232448420501Z/result.json",
+  "red_run": "../../../results/20261105T230852203515Z/result.json",
+  "green_run": "../../../results/20261105T232308384268Z/result.json",
+  "checks": {
+    "exact_lookup": {
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+      ],
+      "exit_code": 0
+    },
+    "0002_python_discovery": {
+      "cwd": "experiments/0002-http-correlation",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "passed": 8
+    },
+    "0002_elixir_format": {
+      "cwd": "experiments/0002-http-correlation",
+      "command": [
+        "mix",
+        "format",
+        "--check-formatted"
+      ],
+      "exit_code": 0
+    },
+    "0002_retained_h02_query": {
+      "evidence": "experiments/0002-http-correlation/results/20261105T221134010042Z/normal",
+      "exit_code": 0,
+      "traces": 2,
+      "edges": 10,
+      "logs": 4,
+      "summary_present": false
+    },
+    "git_diff_check": {
+      "exit_code": 0
+    },
+    "archived_output_hashes_verified": {
+      "20261105T230852203515Z": 76,
+      "20261105T232308384268Z": 75,
+      "20261105T232448420501Z": 75
+    },
+    "independent_input_hashes_verified": 25,
+    "independent_remote_parent_edges": 2,
+    "recorded_release_pids_absent": true
+  },
+  "observations": {
+    "http_statuses": [
+      200,
+      200
+    ],
+    "trace_count": 2,
+    "matched_calls": 2,
+    "completed_calls": 2,
+    "successful_outcomes": 2,
+    "edges": 10,
+    "logs": 4,
+    "payments_request_delta": 2,
+    "declaration_byte_range": [
+      91,
+      193
+    ],
+    "release_exits": {
+      "payments": 0,
+      "orders": 0
+    },
+    "first_trace_id": "f915e229e2ce7e8f3b4ca30f9ab56a01",
+    "artifact_id": "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31",
+    "source_id": {
+      "qualified_name": "payments.authorize",
+      "source_sha256": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50"
+    },
+    "alternate_artifact_id": "f3ce7146a4a5edd70376073b6e76eba2b4da045fdaeb5bac9ce09e45905700bd",
+    "alternate_source_id": {
+      "qualified_name": "payments.authorize",
+      "source_sha256": "54f7a883808c33ac6ab6eb18219e8903849538d03611e789e00642d9830f3161"
+    },
+    "missing_source_query_exit": 1,
+    "missing_source_gaps": [
+      {
+        "code": "missing_source",
+        "service": "payments"
+      }
+    ]
+  },
+  "not_run": [
+    "Full 0002 runner and live repair suite",
+    "Response capture",
+    "Transport observation",
+    "Isolated replay"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "commands.json": "4ec655ecda92f703b08eb7c4808381ed6fba2b11b78964922fb9d0617fb8e9a0",
+  "input-hashes.json": "251cdd3266833f482ba1e6afb6ae1afaed2b34100be28faee9149ca8e59dbc46",
+  "missing-window.manifest.json": "10f462c2066f0af6555c01fbcc4fc54800c41b1d6b532590b0d60654b44b7794",
+  "missing-window.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "missing-window.stdout": "170ae05e2ce50d7db7ca4fe8620bbf447b16b9a562505e22a02fd44780d47e05",
+  "outside-window.manifest.json": "a6d0784368012580c4b3e5a7e4758c674e55004a433bf8cd7465f46c2d7b5920",
+  "outside-window.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "outside-window.stdout": "30ae9a240e293298a2e010476641c1c1b657d155fb8ac9c0c218775f67777e9b",
+  "result.json": "b4f03577cc43d15c8f05edf0b4b384f3510595a577781365b750ca01e5a84606",
+  "swapped-receipts.manifest.json": "862fb1221cb7e7f391124703adeed96d1b77503c9f8058b84eec2f8ca31d99a9",
+  "swapped-receipts.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "swapped-receipts.stdout": "05972334d24234578b4fdb157790b810174f34c2ee97e3b3518a59f509813d52",
+  "toolchain.json": "dddf6878937a822e91031284d5aa8207b5630659a145f52209e9fd57bc2bb3e9",
+  "unchanged.manifest.json": "f443a5ab1a5951624fe1eb5b08db362c6a24e9db810704720e03e371a785c70e",
+  "unchanged.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "unchanged.stdout": "7ecc211af0b77157839c29fcc7bbd6e24c57975dc693f8974b050ab36a3bc932"
+}

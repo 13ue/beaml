@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/response_capture_test.py", line 232, in <module>
+    test_live_orders_call_captures_predecode_response_and_one_transport_attempt(run, result)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/response_capture_test.py", line 220, in test_live_orders_call_captures_predecode_response_and_one_transport_attempt
+    raise AssertionError("\n".join(failures))
+AssertionError: orders_transport_attempts_after_each_call: expected [1, 2]; actual [0, 0]
+response_record_traces: expected ['e80915ed23a3d72cc398bdbce901eab3', '80191d3f7acdebad917042bb45fd712f']; actual []
+observer_control_attempts_invalid_then_refused: expected [0, 1]; actual [0, 0]

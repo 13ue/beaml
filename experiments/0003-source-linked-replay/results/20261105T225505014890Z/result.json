@@ -1,0 +1,26 @@
+{
+  "status": "fail",
+  "phase": "compiler-reference-red",
+  "test": "payments_cli_emits_checked_authorize_reference",
+  "compiler_baseline": {
+    "exit_code": 0,
+    "public_authorize": true,
+    "private_authorize": true
+  },
+  "elixir_baseline": {
+    "exit_code": 0,
+    "expected": "authorized",
+    "actual": "authorized"
+  },
+  "invalid_source_control": "pass",
+  "red": {
+    "established": true,
+    "exit_code": 101,
+    "expected": [
+      "# beaml-declaration-v1 authorize 91 193"
+    ],
+    "actual": [],
+    "cause": "The existing successful compiler output contains no checked declaration reference.",
+    "comment_control_expected": "# beaml-declaration-v1 authorize 103 205"
+  }
+}

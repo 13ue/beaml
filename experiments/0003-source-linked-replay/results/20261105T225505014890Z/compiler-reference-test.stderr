@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running tests/cli.rs (experiments/0001-syntax-to-beam/target/debug/deps/cli-6ba597b100ad03d9)
+
+thread 'payments_cli_emits_checked_authorize_reference' (84237491) panicked at tests/cli.rs:67:9:
+assertion `left == right` failed: checked authorize byte range
+  left: []
+ right: ["91 193"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `--test cli`

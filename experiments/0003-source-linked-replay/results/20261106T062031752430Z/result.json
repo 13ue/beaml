@@ -1,0 +1,191 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "phase": "live-trace-lookup-repair-independent-test",
+  "status": "pass",
+  "gate_rule": "repair_default_retained_archive is a known deviation and is reported as fail, not as pass; it does not decide the gate",
+  "runner": "fresh Claude Opus 5.5 subagent; owner chose this because GPT-6.1 Sol is unavailable in Claude Code",
+  "production_sha256": {
+    "experiments/0002-http-correlation/query.py": "894139d02f4db1f47331470a9be849b29bdfd3168a9ef9f067c74f2c2a08f57c",
+    "experiments/0002-http-correlation/apps/probe_support/lib/probe_support/exporter.ex": "6cdfa4220c4c14a43e7ed6b94365d73d01c388e94ae7c465a6b6511d848e6a8b"
+  },
+  "toolchain": {
+    "python3": "Python 3.13.12",
+    "elixir": "Elixir 1.18.1 (compiled with Erlang/OTP 27)",
+    "mix": "Mix 1.18.1 (compiled with Erlang/OTP 27)",
+    "git": "git version 2.50.1 (Apple Git-155)"
+  },
+  "checks": {
+    "test_sha256_unchanged": {
+      "expected": {
+        "trace_lookup_repair_test.py": "5f83aa891c974c01179921ba2c27fd1b6b0f77c54a4de63ccf6641029b134804",
+        "trace_lookup_test.py": "6a7036195cc3025c252caa2cbe6ac4c9f13f78996752272249f0b5a6168b9ebe"
+      },
+      "actual": {
+        "trace_lookup_repair_test.py": "5f83aa891c974c01179921ba2c27fd1b6b0f77c54a4de63ccf6641029b134804",
+        "trace_lookup_test.py": "6a7036195cc3025c252caa2cbe6ac4c9f13f78996752272249f0b5a6168b9ebe"
+      },
+      "pass": true
+    },
+    "live_lookup_fresh": {
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass",
+      "run": "../../../results/20261106T061910678622Z/result.json",
+      "pass": true
+    },
+    "repair_fresh_source_run": {
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py",
+        "--source-run",
+        "experiments/0003-source-linked-replay/results/20261106T061910678622Z"
+      ],
+      "exit_code": 0,
+      "cases": {
+        "unchanged": true,
+        "swapped-receipts": true,
+        "missing-window": true,
+        "outside-window": true
+      },
+      "cases_passed": "4/4",
+      "run": "../../../results/20261106T061936773705Z/result.json",
+      "pass": true
+    },
+    "repair_default_retained_archive": {
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py"
+      ],
+      "exit_code": 1,
+      "cases": {
+        "unchanged": {
+          "passed": false,
+          "gaps": [
+            "missing_clock"
+          ]
+        },
+        "swapped-receipts": {
+          "passed": true,
+          "gaps": [
+            "receipt_coverage"
+          ]
+        },
+        "missing-window": {
+          "passed": true,
+          "gaps": [
+            "missing_window"
+          ]
+        },
+        "outside-window": {
+          "passed": false,
+          "gaps": [
+            "missing_clock"
+          ]
+        }
+      },
+      "run": "../../../results/20261106T061940807027Z/result.json",
+      "pass": false,
+      "known_deviation": "retained archive has no wall-clock span times; unchanged and outside-window report missing_clock"
+    },
+    "0002_unit_tests": {
+      "cwd": "experiments/0002-http-correlation",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "ran": 8,
+      "pass": true
+    },
+    "elixir_format_changed_file": {
+      "cwd": "experiments/0002-http-correlation",
+      "command": [
+        "mix",
+        "format",
+        "--check-formatted",
+        "apps/probe_support/lib/probe_support/exporter.ex"
+      ],
+      "exit_code": 0,
+      "pass": true
+    },
+    "legacy_manifests_without_function_lookup": {
+      "cwd": "experiments/0002-http-correlation",
+      "command": [
+        "python3",
+        "-B",
+        "query.py",
+        "--run",
+        "results/<id>/normal"
+      ],
+      "runs": {
+        "20261105T213931184317Z": {
+          "function_lookup": false,
+          "exit_code": 0,
+          "complete": true,
+          "gaps": [],
+          "traces": 2
+        },
+        "20261105T220442095777Z": {
+          "function_lookup": false,
+          "exit_code": 0,
+          "complete": true,
+          "gaps": [],
+          "traces": 2
+        },
+        "20261105T220545655633Z": {
+          "function_lookup": false,
+          "exit_code": 0,
+          "complete": true,
+          "gaps": [],
+          "traces": 2
+        },
+        "20261105T221134010042Z": {
+          "function_lookup": false,
+          "exit_code": 0,
+          "complete": true,
+          "gaps": [],
+          "traces": 2
+        }
+      },
+      "pass": true
+    },
+    "git_diff_check_changed_files": {
+      "exit_code": 0,
+      "pass": true
+    },
+    "result_output_hashes_verified": {
+      "runs": {
+        "20261106T061910678622Z": 75,
+        "20261106T061936773705Z": 16,
+        "20261106T061940807027Z": 16
+      },
+      "mismatch": 0,
+      "pass": true
+    }
+  },
+  "observations": {
+    "fresh_window_margin_ms": {
+      "first_root_start_after_window_start": 0.704,
+      "second_root_end_before_window_end": 51.976
+    }
+  },
+  "out_of_scope": [
+    "malformed service parser",
+    "capture",
+    "transport",
+    "isolated replay"
+  ],
+  "result_dir": "../../../results/20261106T062031752430Z"
+}

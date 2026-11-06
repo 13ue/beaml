@@ -1,0 +1,9 @@
+{
+  "experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50",
+  "experiments/0001-syntax-to-beam/tests/cli.rs": "bd697bb2d902164dd7e41169b804b9315444db05b2db02d75d355e0e704d2a78",
+  "experiments/0001-syntax-to-beam/Cargo.toml": "49aae09d2d19953c72468011bbc9f29c676e80b7bbc9004ad6a30afdfc4dc1bf",
+  "experiments/0001-syntax-to-beam/Cargo.lock": "160043b8322dcba779ad9f873e01e48f000b0a8b60e2d3fb7ef4a87fb45e362b",
+  "experiments/0001-syntax-to-beam/src/main.rs": "175971e9268888772c418b1720ee6dccccc5922644763dee9990c55bca441e2c",
+  "experiments/0003-source-linked-replay/results/20261105T230012369535Z/payments.beaml": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50",
+  "experiments/0003-source-linked-replay/results/20261105T230012369535Z/payments-with-comments.beaml": "10d0414879967f44f9e16f1478ea87148f080ac69821bc179dd226e70ddd4512"
+}

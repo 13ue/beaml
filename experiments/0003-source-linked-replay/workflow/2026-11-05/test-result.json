@@ -1,0 +1,202 @@
+{
+  "status": "pass",
+  "phase": "compiler-reference-test",
+  "scope": "Compiler reference only. No live calls, lookup, capture or replay.",
+  "test": "payments_cli_emits_checked_authorize_reference",
+  "run": "20261105T230012369535Z",
+  "compared_runs": {
+    "red": "20261105T225505014890Z",
+    "green": "20261105T225807421990Z"
+  },
+  "comparison": {
+    "red": {
+      "exit_code": 101,
+      "expected": [
+        "# beaml-declaration-v1 authorize 91 193"
+      ],
+      "actual": [],
+      "comment_control": "range assertion not reached"
+    },
+    "green": {
+      "exit_code": 0,
+      "original": [
+        "# beaml-declaration-v1 authorize 91 193"
+      ],
+      "comment_control": [
+        "# beaml-declaration-v1 authorize 103 205"
+      ]
+    }
+  },
+  "commands": [
+    {
+      "name": "compiler-reference-test",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml",
+        "--test",
+        "cli",
+        "payments_cli_emits_checked_authorize_reference",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "name": "cargo-version",
+      "command": [
+        "cargo",
+        "--version"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "name": "rustc-version",
+      "command": [
+        "rustc",
+        "--version"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "name": "elixir-version",
+      "command": [
+        "elixir",
+        "--erl",
+        "+S 2:2",
+        "--version"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "name": "python3-version",
+      "command": [
+        "python3",
+        "--version"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "name": "compiler-payments",
+      "command": [
+        "cargo",
+        "run",
+        "--quiet",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml",
+        "--",
+        "experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "name": "compiler-comments",
+      "command": [
+        "cargo",
+        "run",
+        "--quiet",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml",
+        "--",
+        "experiments/0003-source-linked-replay/results/20261105T230012369535Z/payments-with-comments.beaml"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "name": "elixir-control",
+      "command": [
+        "elixir",
+        "--erl",
+        "+S 2:2",
+        "-r",
+        "experiments/0003-source-linked-replay/results/20261105T230012369535Z/compiler-payments.stdout",
+        "-e",
+        "unless BeamlSpike.authorize(%{\"order_id\" => \"order-1\"}) == %{\"order_id\" => \"order-1\", \"status\" => \"authorized\"}, do: System.halt(1); IO.puts(\"authorized\")"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "name": "invalid-source-control",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml",
+        "--test",
+        "cli",
+        "invalid_source_emits_no_code_and_actions_do_not_capture_source",
+        "--",
+        "--exact"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "name": "cargo-test",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "name": "cargo-format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "cwd": ".",
+      "exit_code": 0
+    }
+  ],
+  "checks": {
+    "same_exact_command": true,
+    "test_sha256": true,
+    "fixture_sha256": true,
+    "payments.beaml_sha256": true,
+    "payments-with-comments.beaml_sha256": true,
+    "green_compiler_sha256": true,
+    "red_recorded_output_hashes": true,
+    "green_recorded_output_hashes": true,
+    "red_expected_missing_reference": true,
+    "green_same_test_passes": true,
+    "original_reference": true,
+    "comment_reference": true,
+    "public_and_private_authorize": true,
+    "elixir_bytes_unchanged_except_metadata": true,
+    "elixir_result_unchanged": true,
+    "invalid_source_control": true
+  },
+  "input_hashes": {
+    "experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50",
+    "experiments/0001-syntax-to-beam/tests/cli.rs": "bd697bb2d902164dd7e41169b804b9315444db05b2db02d75d355e0e704d2a78",
+    "experiments/0001-syntax-to-beam/Cargo.toml": "49aae09d2d19953c72468011bbc9f29c676e80b7bbc9004ad6a30afdfc4dc1bf",
+    "experiments/0001-syntax-to-beam/Cargo.lock": "160043b8322dcba779ad9f873e01e48f000b0a8b60e2d3fb7ef4a87fb45e362b",
+    "experiments/0001-syntax-to-beam/src/main.rs": "175971e9268888772c418b1720ee6dccccc5922644763dee9990c55bca441e2c",
+    "experiments/0003-source-linked-replay/results/20261105T230012369535Z/payments.beaml": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50",
+    "experiments/0003-source-linked-replay/results/20261105T230012369535Z/payments-with-comments.beaml": "10d0414879967f44f9e16f1478ea87148f080ac69821bc179dd226e70ddd4512"
+  },
+  "toolchain": {
+    "cargo-version": "cargo 1.94.0 (85eff7c80 2026-01-15)",
+    "rustc-version": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+    "elixir-version": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [jit]\n\nElixir 1.18.1 (compiled with Erlang/OTP 27)",
+    "python3-version": "Python 3.9.6"
+  }
+}

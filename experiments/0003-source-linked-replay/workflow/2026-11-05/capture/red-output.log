@@ -1,0 +1,12 @@
+$ python3 -B experiments/0003-source-linked-replay/tests/response_capture_test.py
+experiments/0003-source-linked-replay/results/20261106T062703346937Z
+Traceback (most recent call last):
+  File "experiments/0003-source-linked-replay/tests/response_capture_test.py", line 235, in <module>
+    test_live_orders_call_captures_predecode_response_and_one_transport_attempt(run, result)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "experiments/0003-source-linked-replay/tests/response_capture_test.py", line 223, in test_live_orders_call_captures_predecode_response_and_one_transport_attempt
+    raise AssertionError("\n".join(failures))
+AssertionError: orders_transport_attempts_after_each_call: expected [1, 2]; actual [0, 0]
+response_record_traces: expected ['3c6504724531ce8d6c384555654deae3', '122e2891e9ec852d7269f56fdab223f6']; actual []
+observer_control_attempts_invalid_then_refused: expected [0, 1]; actual [0, 0]
+Exit code: 1

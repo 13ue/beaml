@@ -1,0 +1,4 @@
+// Prüfung
+interface Order { order_id: String }
+interface Payment { order_id: String status: String }
+fn authorize Order { order_id } -> Payment = Payment { order_id: order_id + "", status: "authorized" }  // after declaration

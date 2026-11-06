@@ -1,0 +1,11 @@
+{
+  "tests": {
+    "response_capture_test.py": "da92ade2d614b83905f4f928988855bc5b92a585b17290c70964c61f801626fc",
+    "trace_lookup_test.py": "6a7036195cc3025c252caa2cbe6ac4c9f13f78996752272249f0b5a6168b9ebe",
+    "trace_lookup_repair_test.py": "5f83aa891c974c01179921ba2c27fd1b6b0f77c54a4de63ccf6641029b134804"
+  },
+  "production": {
+    "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex": "b0f5bba3f4d7921f3d520dd9e92244bdb7fa76dd1949dbffc651770c19ca67f5"
+  },
+  "tester": "1024506610dca2d36723994ed1ffd38df5e9a796b3c309bcf8b7652d0152239c"
+}

@@ -1,0 +1,69 @@
+{
+  "test": "test_lookup_requires_receipt_order_and_recorded_window",
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-B",
+    "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py"
+  ],
+  "cwd": "/Users/lennart/Projects/beaml",
+  "source_run": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261105T232448420501Z",
+  "status": "fail",
+  "cases": {
+    "unchanged": {
+      "expected": "exit 0 and the unchanged original 2/2 summary with the first receipt trace",
+      "observed": {
+        "exit_code": 0,
+        "complete": true,
+        "gaps": [],
+        "coverage": [
+          2,
+          2
+        ],
+        "first_trace_id": "f915e229e2ce7e8f3b4ca30f9ab56a01"
+      },
+      "passed": true
+    },
+    "swapped-receipts": {
+      "expected": "exit 1, incomplete, receipt_coverage, and no function summary",
+      "observed": {
+        "exit_code": 0,
+        "complete": true,
+        "gaps": [],
+        "coverage": [
+          2,
+          2
+        ],
+        "first_trace_id": "929f8981c7893253b6ce9c4507f45c17"
+      },
+      "passed": false
+    },
+    "missing-window": {
+      "expected": "exit 1, incomplete, missing_window, and no function summary",
+      "observed": {
+        "exit_code": 0,
+        "complete": true,
+        "gaps": [],
+        "coverage": [
+          2,
+          2
+        ],
+        "first_trace_id": "f915e229e2ce7e8f3b4ca30f9ab56a01"
+      },
+      "passed": false
+    },
+    "outside-window": {
+      "expected": "exit 1, incomplete, outside_window, and no function summary",
+      "observed": {
+        "exit_code": 0,
+        "complete": true,
+        "gaps": [],
+        "coverage": [
+          2,
+          2
+        ],
+        "first_trace_id": "f915e229e2ce7e8f3b4ca30f9ab56a01"
+      },
+      "passed": false
+    }
+  }
+}

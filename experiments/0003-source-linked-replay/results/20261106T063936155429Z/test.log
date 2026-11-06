@@ -1,0 +1,28 @@
+# Independent TEST of CAPTURE and transport observer, 2026-11-06T06:39:36.155429+00:00
+CHECK test_sha256_unchanged: pass
+$ (cwd .) /opt/homebrew/Caskroom/miniconda/base/bin/python3 -B experiments/0003-source-linked-replay/tests/response_capture_test.py
+exit 0
+CHECK response_capture_test: pass
+$ (cwd .) /opt/homebrew/Caskroom/miniconda/base/bin/python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_test.py
+exit 0
+CHECK trace_lookup_test: pass
+$ (cwd .) /opt/homebrew/Caskroom/miniconda/base/bin/python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py --source-run experiments/0003-source-linked-replay/results/20261106T063955977442Z
+exit 0
+CHECK trace_lookup_repair_test_fresh_source: pass
+$ (cwd experiments/0002-http-correlation) /opt/homebrew/Caskroom/miniconda/base/bin/python3 -B -m unittest discover -s tests -v
+exit 0
+$ (cwd experiments/0002-http-correlation) /opt/homebrew/Caskroom/miniconda/base/bin/python3 -B tests/test_query.py
+exit 0
+CHECK 0002_unit_tests: pass
+$ (cwd experiments/0002-http-correlation) mix format --check-formatted apps/orders_api/lib/orders_api/payment_http.ex
+exit 0
+CHECK elixir_format_changed_file: pass
+CHECK release_builds_no_warnings: pass
+$ (cwd .) git diff --check -- experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex
+exit 0
+$ (cwd .) git diff --no-index --check /dev/null experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex
+exit 1
+CHECK git_diff_check_changed_file: pass
+CHECK response_records_per_receipt: pass
+CHECK result_output_hashes_verified: pass
+STATUS pass

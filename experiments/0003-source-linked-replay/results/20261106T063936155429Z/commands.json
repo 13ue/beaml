@@ -1,0 +1,79 @@
+{
+  "capture": {
+    "command": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "-B",
+      "experiments/0003-source-linked-replay/tests/response_capture_test.py"
+    ],
+    "cwd": "."
+  },
+  "lookup": {
+    "command": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "-B",
+      "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+    ],
+    "cwd": "."
+  },
+  "repair": {
+    "command": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "-B",
+      "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py",
+      "--source-run",
+      "experiments/0003-source-linked-replay/results/20261106T063955977442Z"
+    ],
+    "cwd": "."
+  },
+  "0002-unittest-discover": {
+    "command": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "cwd": "experiments/0002-http-correlation"
+  },
+  "0002-test-query-only": {
+    "command": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "-B",
+      "tests/test_query.py"
+    ],
+    "cwd": "experiments/0002-http-correlation"
+  },
+  "0002-format": {
+    "command": [
+      "mix",
+      "format",
+      "--check-formatted",
+      "apps/orders_api/lib/orders_api/payment_http.ex"
+    ],
+    "cwd": "experiments/0002-http-correlation"
+  },
+  "git-diff-check": {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex"
+    ],
+    "cwd": "."
+  },
+  "git-diff-check-no-index": {
+    "command": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/dev/null",
+      "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex"
+    ],
+    "cwd": "."
+  }
+}

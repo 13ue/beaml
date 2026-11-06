@@ -1,0 +1,101 @@
+[
+  {
+    "name": "cargo-version",
+    "command": [
+      "cargo",
+      "--version"
+    ],
+    "cwd": ".",
+    "exit_code": 0
+  },
+  {
+    "name": "rustc-version",
+    "command": [
+      "rustc",
+      "--version"
+    ],
+    "cwd": ".",
+    "exit_code": 0
+  },
+  {
+    "name": "elixir-version",
+    "command": [
+      "elixir",
+      "--erl",
+      "+S 2:2",
+      "--version"
+    ],
+    "cwd": ".",
+    "exit_code": 0
+  },
+  {
+    "name": "python3-version",
+    "command": [
+      "python3",
+      "--version"
+    ],
+    "cwd": ".",
+    "exit_code": 0
+  },
+  {
+    "name": "compiler-baseline",
+    "command": [
+      "cargo",
+      "run",
+      "--quiet",
+      "--manifest-path",
+      "experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml"
+    ],
+    "cwd": ".",
+    "exit_code": 0
+  },
+  {
+    "name": "elixir-baseline",
+    "command": [
+      "elixir",
+      "--erl",
+      "+S 2:2",
+      "-r",
+      "experiments/0003-source-linked-replay/results/20261105T225505014890Z/compiler-baseline.stdout",
+      "-e",
+      "unless BeamlSpike.authorize(%{\"order_id\" => \"order-1\"}) == %{\"order_id\" => \"order-1\", \"status\" => \"authorized\"}, do: System.halt(1); IO.puts(\"authorized\")"
+    ],
+    "cwd": ".",
+    "exit_code": 0
+  },
+  {
+    "name": "invalid-source-control",
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "experiments/0001-syntax-to-beam/Cargo.toml",
+      "--test",
+      "cli",
+      "invalid_source_emits_no_code_and_actions_do_not_capture_source",
+      "--",
+      "--exact"
+    ],
+    "cwd": ".",
+    "exit_code": 0
+  },
+  {
+    "name": "compiler-reference-test",
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "experiments/0001-syntax-to-beam/Cargo.toml",
+      "--test",
+      "cli",
+      "payments_cli_emits_checked_authorize_reference",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "cwd": ".",
+    "exit_code": 101
+  }
+]

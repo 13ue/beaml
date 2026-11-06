@@ -1,0 +1,221 @@
+[
+  {
+    "name": "elixir-version",
+    "argv": [
+      "elixir",
+      "--version"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "mix-version",
+    "argv": [
+      "mix",
+      "--version"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "rustc-version",
+    "argv": [
+      "rustc",
+      "--version"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "cargo-version",
+    "argv": [
+      "cargo",
+      "--version"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "python3-version",
+    "argv": [
+      "python3",
+      "--version"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "dependencies",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "deps.get",
+      "--offline"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-trace-lookup-3edunbfr",
+    "exit_code": 0
+  },
+  {
+    "name": "generate-payments",
+    "argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--quiet",
+      "--manifest-path",
+      "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T063955977442Z/original/payments.beaml"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "generate-orders",
+    "argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--quiet",
+      "--manifest-path",
+      "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T063955977442Z/original/orders.beaml"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "release-payments",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "release",
+      "payments",
+      "--overwrite"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-trace-lookup-3edunbfr",
+    "exit_code": 0
+  },
+  {
+    "name": "release-orders",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "release",
+      "orders",
+      "--overwrite"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-trace-lookup-3edunbfr",
+    "exit_code": 0
+  },
+  {
+    "name": "start-payments",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-trace-lookup-3edunbfr/_build/prod/rel/payments/bin/payments",
+      "start"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml"
+  },
+  {
+    "name": "start-orders",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-trace-lookup-3edunbfr/_build/prod/rel/orders/bin/orders",
+      "start"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml"
+  },
+  {
+    "name": "baseline-call-1",
+    "argv": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/query.py",
+      "--run",
+      "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T063955977442Z/original",
+      "--order-id",
+      "order-1"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "baseline-call-2",
+    "argv": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/query.py",
+      "--run",
+      "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T063955977442Z/original",
+      "--order-id",
+      "order-1"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "generate-revision",
+    "argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--quiet",
+      "--manifest-path",
+      "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T063955977442Z/current-revision/payments.beaml"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "compile-revision",
+    "argv": [
+      "elixirc",
+      "-o",
+      "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T063955977442Z/current-revision",
+      "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T063955977442Z/current-revision/payments.generated.ex"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "execute-revision",
+    "argv": [
+      "elixir",
+      "-pa",
+      "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T063955977442Z/current-revision",
+      "-e",
+      "true = PaymentsBeamlSpike.authorize(%{\"order_id\" => \"order-1\"}) == %{\"order_id\" => \"order-1\", \"status\" => \"revised\"}"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "query-with-current-revision",
+    "argv": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/query.py",
+      "--run",
+      "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T063955977442Z/original",
+      "--order-id",
+      "order-1"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 0
+  },
+  {
+    "name": "query-missing-original",
+    "argv": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "/Users/lennart/Projects/beaml/experiments/0002-http-correlation/query.py",
+      "--run",
+      "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T063955977442Z/missing-original",
+      "--order-id",
+      "order-1"
+    ],
+    "cwd": "/Users/lennart/Projects/beaml",
+    "exit_code": 1
+  }
+]

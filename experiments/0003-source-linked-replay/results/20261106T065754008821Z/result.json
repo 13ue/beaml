@@ -1,0 +1,223 @@
+{
+  "test": "test_isolated_replay_reproduces_first_call_and_rejects_invalid_records",
+  "command": [
+    "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+    "experiments/0003-source-linked-replay/tests/replay_run_test.py"
+  ],
+  "cwd": "/Users/lennart/Projects/beaml",
+  "status": "fail",
+  "steps": [
+    {
+      "ts": "2026-11-06T06:57:54.009479+00:00",
+      "action": "start",
+      "result": "running"
+    },
+    {
+      "ts": "2026-11-06T06:58:10.724203+00:00",
+      "action": "step",
+      "result": "fresh_releases_match_archived_beams"
+    },
+    {
+      "ts": "2026-11-06T06:58:10.780475+00:00",
+      "action": "step",
+      "result": "receipt_1_verified"
+    },
+    {
+      "ts": "2026-11-06T06:58:10.836139+00:00",
+      "action": "step",
+      "result": "receipt_2_verified"
+    },
+    {
+      "ts": "2026-11-06T06:58:12.941213+00:00",
+      "action": "step",
+      "result": "live_baseline_and_records_verified"
+    },
+    {
+      "ts": "2026-11-06T06:58:14.392974+00:00",
+      "action": "step",
+      "result": "a1_stub_record_retained"
+    },
+    {
+      "ts": "2026-11-06T06:58:14.698752+00:00",
+      "action": "step",
+      "result": "replay_vm_observer_control_counted_transport"
+    },
+    {
+      "ts": "2026-11-06T06:58:16.275246+00:00",
+      "action": "step",
+      "result": "replay_cases_ran"
+    },
+    {
+      "ts": "2026-11-06T06:58:16.541511+00:00",
+      "action": "fail",
+      "result": "replay_assertions_failed"
+    }
+  ],
+  "release_exits": {
+    "payments": 0,
+    "orders": 0
+  },
+  "baseline": {
+    "receipts": [
+      {
+        "call": 1,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "ace3c896c71f1ec3d665f9baa70e0ad9"
+      },
+      {
+        "call": 2,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "ed49db860602a0837846fdc8e05c0fad"
+      }
+    ],
+    "live_transport_attempts": [
+      1,
+      2
+    ],
+    "response_records": 2,
+    "responses_sha256": "83bbdb8fd458ac0ae435804941a77146ba5dbc80707b792efb091c3ab8d51f69"
+  },
+  "assertions": {
+    "a1_record_bytes_equal_sent_bytes": {
+      "expected": "eyAic3RhdHVzIiA6ICJhdXRob3JpemVkIiwKICAib3JkZXJfaWQiIDogIm9yZGVyLTEiIH0=",
+      "actual": "eyAic3RhdHVzIiA6ICJhdXRob3JpemVkIiwKICAib3JkZXJfaWQiIDogIm9yZGVyLTEiIH0="
+    },
+    "replay_first_call": {
+      "expected": {
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "transport": 0,
+        "OrdersBeamlSpike.finish/1": 1,
+        "ProbeSupport.valid_payment!/2": 1,
+        "OrdersApi.PaymentHttp.authorize/2": 0,
+        ":gen_tcp.connect/4": 0
+      },
+      "actual": {
+        "status": 502,
+        "body": {
+          "error": "downstream_failure"
+        },
+        "transport": 1,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0,
+        "OrdersApi.PaymentHttp.authorize/2": 1,
+        ":gen_tcp.connect/4": 1
+      }
+    },
+    "replay_a1_noncanonical_body": {
+      "expected": {
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "transport": 0,
+        "OrdersBeamlSpike.finish/1": 1,
+        "ProbeSupport.valid_payment!/2": 1,
+        "OrdersApi.PaymentHttp.authorize/2": 0,
+        ":gen_tcp.connect/4": 0
+      },
+      "actual": {
+        "status": 502,
+        "body": {
+          "error": "downstream_failure"
+        },
+        "transport": 1,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0,
+        "OrdersApi.PaymentHttp.authorize/2": 1,
+        ":gen_tcp.connect/4": 1
+      }
+    },
+    "replay_missing_response": {
+      "expected": {
+        "status": 502,
+        "body": {
+          "error": "missing_response"
+        },
+        "transport": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0,
+        "OrdersApi.PaymentHttp.authorize/2": 0,
+        ":gen_tcp.connect/4": 0
+      },
+      "actual": {
+        "status": 502,
+        "body": {
+          "error": "downstream_failure"
+        },
+        "transport": 1,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0,
+        "OrdersApi.PaymentHttp.authorize/2": 1,
+        ":gen_tcp.connect/4": 1
+      }
+    },
+    "replay_operation_mismatch": {
+      "expected": {
+        "status": 502,
+        "body": {
+          "error": "operation_mismatch"
+        },
+        "transport": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0,
+        "OrdersApi.PaymentHttp.authorize/2": 0,
+        ":gen_tcp.connect/4": 0
+      },
+      "actual": {
+        "status": 502,
+        "body": {
+          "error": "downstream_failure"
+        },
+        "transport": 1,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0,
+        "OrdersApi.PaymentHttp.authorize/2": 1,
+        ":gen_tcp.connect/4": 1
+      }
+    },
+    "replay_attempt_mismatch": {
+      "expected": {
+        "status": 502,
+        "body": {
+          "error": "attempt_mismatch"
+        },
+        "transport": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0,
+        "OrdersApi.PaymentHttp.authorize/2": 0,
+        ":gen_tcp.connect/4": 0
+      },
+      "actual": {
+        "status": 502,
+        "body": {
+          "error": "downstream_failure"
+        },
+        "transport": 1,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0,
+        "OrdersApi.PaymentHttp.authorize/2": 1,
+        ":gen_tcp.connect/4": 1
+      }
+    }
+  },
+  "assertion_failures": [
+    "replay_first_call: expected {'status': 200, 'body': {'order_id': 'order-1', 'status': 'authorized'}, 'transport': 0, 'OrdersBeamlSpike.finish/1': 1, 'ProbeSupport.valid_payment!/2': 1, 'OrdersApi.PaymentHttp.authorize/2': 0, ':gen_tcp.connect/4': 0}; actual {'status': 502, 'body': {'error': 'downstream_failure'}, 'transport': 1, 'OrdersBeamlSpike.finish/1': 0, 'ProbeSupport.valid_payment!/2': 0, 'OrdersApi.PaymentHttp.authorize/2': 1, ':gen_tcp.connect/4': 1}",
+    "replay_a1_noncanonical_body: expected {'status': 200, 'body': {'order_id': 'order-1', 'status': 'authorized'}, 'transport': 0, 'OrdersBeamlSpike.finish/1': 1, 'ProbeSupport.valid_payment!/2': 1, 'OrdersApi.PaymentHttp.authorize/2': 0, ':gen_tcp.connect/4': 0}; actual {'status': 502, 'body': {'error': 'downstream_failure'}, 'transport': 1, 'OrdersBeamlSpike.finish/1': 0, 'ProbeSupport.valid_payment!/2': 0, 'OrdersApi.PaymentHttp.authorize/2': 1, ':gen_tcp.connect/4': 1}",
+    "replay_missing_response: expected {'status': 502, 'body': {'error': 'missing_response'}, 'transport': 0, 'OrdersBeamlSpike.finish/1': 0, 'ProbeSupport.valid_payment!/2': 0, 'OrdersApi.PaymentHttp.authorize/2': 0, ':gen_tcp.connect/4': 0}; actual {'status': 502, 'body': {'error': 'downstream_failure'}, 'transport': 1, 'OrdersBeamlSpike.finish/1': 0, 'ProbeSupport.valid_payment!/2': 0, 'OrdersApi.PaymentHttp.authorize/2': 1, ':gen_tcp.connect/4': 1}",
+    "replay_operation_mismatch: expected {'status': 502, 'body': {'error': 'operation_mismatch'}, 'transport': 0, 'OrdersBeamlSpike.finish/1': 0, 'ProbeSupport.valid_payment!/2': 0, 'OrdersApi.PaymentHttp.authorize/2': 0, ':gen_tcp.connect/4': 0}; actual {'status': 502, 'body': {'error': 'downstream_failure'}, 'transport': 1, 'OrdersBeamlSpike.finish/1': 0, 'ProbeSupport.valid_payment!/2': 0, 'OrdersApi.PaymentHttp.authorize/2': 1, ':gen_tcp.connect/4': 1}",
+    "replay_attempt_mismatch: expected {'status': 502, 'body': {'error': 'attempt_mismatch'}, 'transport': 0, 'OrdersBeamlSpike.finish/1': 0, 'ProbeSupport.valid_payment!/2': 0, 'OrdersApi.PaymentHttp.authorize/2': 0, ':gen_tcp.connect/4': 0}; actual {'status': 502, 'body': {'error': 'downstream_failure'}, 'transport': 1, 'OrdersBeamlSpike.finish/1': 0, 'ProbeSupport.valid_payment!/2': 0, 'OrdersApi.PaymentHttp.authorize/2': 1, ':gen_tcp.connect/4': 1}"
+  ]
+}

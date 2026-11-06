@@ -1,0 +1,6 @@
+{
+  "cargo-version": "cargo 1.94.0 (85eff7c80 2026-01-15)",
+  "rustc-version": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+  "elixir-version": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [jit]\n\nElixir 1.18.1 (compiled with Erlang/OTP 27)",
+  "python3-version": "Python 3.9.6"
+}

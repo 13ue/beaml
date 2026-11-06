@@ -1,0 +1,66 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "date": "2026-11-05",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "medium",
+  "fork_turns": "none",
+  "status": "in-progress",
+  "authorization": "Bounded EXPERIMENT 0003 implementation authorized. The owner reviewed the compiler RED. Each later gate requires separate RED review.",
+  "checkpoint": {
+    "phase": "compiler-reference",
+    "test": "payments_cli_emits_checked_authorize_reference",
+    "red": "red-output.log",
+    "result": "../../results/20261105T225505014890Z/result.json",
+    "owner_review": "Ja, passt. Dann 0003 auf GREEN, let's go. Und zeig mir danach bitte denselben Test nochmal mit RED und GREEN nebeneinander.",
+    "green": "../../results/20261105T225807421990Z/result.json",
+    "status": "verified",
+    "verification": "result.json",
+    "independent_test": "test-result.json",
+    "review": "review.md"
+  },
+  "agents": [
+    {
+      "phase": "plan",
+      "task": "/root/source_linked_replay_delivery/replay_plan"
+    },
+    {
+      "phase": "solve-red",
+      "task": "/root/source_linked_replay_delivery/replay_solve_red"
+    },
+    {
+      "phase": "green",
+      "task": "/root/source_linked_replay_delivery/replay_green_compiler"
+    },
+    {
+      "phase": "verify",
+      "task": "/root/source_linked_replay_delivery/replay_verify_compiler"
+    }
+  ],
+  "pending_gates": [
+    "Isolated replay and invalid-record controls"
+  ],
+  "completed_gates": [
+    {
+      "gate": "Live evidence and exact source lookup",
+      "green": "lookup/green-result.json",
+      "independent_test": "lookup/test-result.json",
+      "review": "lookup/review.md",
+      "repair": "lookup/repair-red-status.json",
+      "repair_independent_test": "lookup/repair-test-result.json",
+      "repair_review": "lookup/repair-review.md",
+      "repair_command_decision": "Owner option B (2026-11-06): run trace_lookup_repair_test.py with --source-run <fresh live result dir>. Test file and default stay unchanged.",
+      "status": "verified"
+    },
+    {
+      "gate": "Predecode response capture and transport observer",
+      "red": "capture/result.json",
+      "owner_red_review": "Ja, beide speichern. Let's go. (one response record per live receipt)",
+      "green": "capture/green-result.json",
+      "independent_test": "capture/test-result.json",
+      "review": "capture/review.md",
+      "review_advisories": "A1-A4, non-blocking; A1 and A3 wait for an owner decision",
+      "workers": "fresh Claude Opus 5.5 workers by owner choice instead of GPT-6.1 Sol",
+      "status": "verified"
+    }
+  ]
+}

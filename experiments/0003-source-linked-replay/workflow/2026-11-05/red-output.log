@@ -1,0 +1,25 @@
+Compiler reference RED. Run 20261105T225505014890Z.
+
+Baseline command
+  cargo run --quiet --manifest-path experiments/0001-syntax-to-beam/Cargo.toml -- experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml
+Actual exit 0. Stdout contained def authorize and defp __beaml_authorize.
+Elixir loaded that stdout. BeamlSpike.authorize returned the expected authorized payment. Exit 0.
+
+Invalid-input control command
+  cargo test --manifest-path experiments/0001-syntax-to-beam/Cargo.toml --test cli invalid_source_emits_no_code_and_actions_do_not_capture_source -- --exact
+Actual exit 0. One passed.
+
+RED command
+  cargo test --manifest-path experiments/0001-syntax-to-beam/Cargo.toml --test cli payments_cli_emits_checked_authorize_reference -- --exact --nocapture
+Expected one compiler comment for authorize at UTF-8 byte range [91, 193).
+The test checked successful exit and generated authorize code for the real fixture and comment control.
+Actual exit 101. One failed.
+
+test payments_cli_emits_checked_authorize_reference ... FAILED
+assertion `left == right` failed: checked authorize byte range
+  left: []
+ right: ["91 193"]
+
+Cause. The existing successful compiler output contains no checked declaration reference.
+The comment control expects [103, 205) after the first range assertion passes.
+See ../../results/20261105T225505014890Z/ for raw outputs and hashes.

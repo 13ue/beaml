@@ -1,0 +1,98 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "phase": "replay-run-and-invalid-record-red-revision-2-separate-runner",
+  "status": "red-confirmed",
+  "authorization": {
+    "scope": "RED test, evidence and a runner entry stub without logic",
+    "owner_red_review": "pending",
+    "production_changes_authorized": "entry stub only (OrdersApi.Replay.run/3 returns {:error, :not_implemented})"
+  },
+  "worker": "fresh Claude Opus 5.5 subagent; owner chose this instead of GPT-6.1 Sol",
+  "command": [
+    "python3",
+    "-B",
+    "experiments/0003-source-linked-replay/tests/replay_run_test.py"
+  ],
+  "exit_code": 1,
+  "output": "red-output.log",
+  "out_of_scope": [
+    "A3 artifact identity scope",
+    "trace sampling",
+    "malformed service parser crash",
+    "run.py"
+  ],
+  "revision": 2,
+  "revision_1": {
+    "test": "test_isolated_replay_reproduces_first_call_and_rejects_invalid_records",
+    "test_sha256": "d316a542b6e3ef9ac2f66c6a5ea8f0a8cdd6c71d7fe9523e02051903c888f250",
+    "run": "../../../results/20261106T065754008821Z/result.json",
+    "assertion_failures": [
+      "replay_first_call: expected 200 PAYMENT, transport 0, finish 1, authorize 0, connect 0; actual 502 downstream_failure, transport 1, finish 0, authorize 1, connect 1",
+      "replay_a1_noncanonical_body: expected 200 PAYMENT, transport 0, finish 1, authorize 0, connect 0; actual 502 downstream_failure, transport 1, finish 0, authorize 1, connect 1",
+      "replay_missing_response: expected 502 missing_response, all counts 0; actual 502 downstream_failure, transport 1, authorize 1, connect 1",
+      "replay_operation_mismatch: expected 502 operation_mismatch, all counts 0; actual 502 downstream_failure, transport 1, authorize 1, connect 1",
+      "replay_attempt_mismatch: expected 502 attempt_mismatch, all counts 0; actual 502 downstream_failure, transport 1, authorize 1, connect 1"
+    ],
+    "positive_controls": [
+      "fresh_releases_match_archived_beams",
+      "two_real_http_200_authorized_receipts_with_correlated_traces",
+      "live_transport_attempts_1_2",
+      "two_response_records_match_receipt_traces",
+      "both_live_releases_exit_zero",
+      "a1_stub_call_200_one_transport_entry",
+      "a1_record_bytes_equal_sent_bytes",
+      "orders_artifact_matches_run_record_before_replay",
+      "replay_vm_runs_no_application",
+      "replay_vm_control_without_replay_data_reaches_transport_502_count_1",
+      "original_responses_hash_unchanged"
+    ],
+    "production_sha256_unchanged": {
+      "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex": "b0f5bba3f4d7921f3d520dd9e92244bdb7fa76dd1949dbffc651770c19ca67f5",
+      "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/router.ex": "67ce7dc826c6ce81b42f75f5b5502216702ecdb2e3ce37593af78ab10616918d"
+    },
+    "superseded_by_owner_decisions": "2026-11-06: no replay branch in the live router, no HTTP status for replay errors"
+  },
+  "owner_decisions_2026_11_06": [
+    "no replay branch in the live router",
+    "no HTTP status for replay errors; typed {:ok, payment} | {:error, reason}",
+    "add body digest check: body_digest_mismatch before decode, zero transport",
+    "option A: separate runner module in the Orders app; live authorize and runner share one decode and validation function (A2)",
+    "keep A1",
+    "A3 stays open as D002",
+    "fresh Claude Opus 5.5 workers instead of GPT-6.1 Sol"
+  ],
+  "test": "test_separate_runner_replays_first_call_and_rejects_invalid_records",
+  "test_sha256": "a07034f90f3c3026f5499af3b05508f6e9a26429223e6c7cd07f5d23d2a510f9",
+  "run": "../../../results/20261106T074837838124Z/result.json",
+  "scaffolding": {
+    "file": "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/replay.ex",
+    "sha256": "0b3a531b63dbac848f2bf0e359e8b043d45de53dcb97ee4cee7b3b02d3192e32",
+    "content": "OrdersApi.Replay.run/3 returns {:error, :not_implemented}; no logic"
+  },
+  "production_sha256_unchanged": {
+    "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex": "b0f5bba3f4d7921f3d520dd9e92244bdb7fa76dd1949dbffc651770c19ca67f5",
+    "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/router.ex": "67ce7dc826c6ce81b42f75f5b5502216702ecdb2e3ce37593af78ab10616918d"
+  },
+  "positive_controls": [
+    "fresh_releases_match_archived_beams",
+    "two_real_http_200_authorized_receipts_with_correlated_traces",
+    "live_transport_attempts_1_2",
+    "two_response_records_match_receipt_traces",
+    "both_live_releases_exit_zero",
+    "a1_stub_call_200_one_transport_entry",
+    "a1_record_bytes_equal_sent_bytes",
+    "orders_artifact_matches_run_record_before_replay",
+    "replay_vm_runs_no_application",
+    "replay_vm_observer_control_authorize_counted_transport_1_connect_1",
+    "tampered_body_same_length_valid_payment_other_sha256",
+    "original_responses_hash_unchanged"
+  ],
+  "assertion_failures": [
+    "replay_first_call: expected {ok: PAYMENT}, prepare 1, decode 1, finish 1, valid_payment! 1, transport/router/authorize/connect 0; actual {error: not_implemented}, all counts 0",
+    "replay_a1_noncanonical_body: same expected and actual as replay_first_call",
+    "replay_missing_response: expected {error: missing_response}, all counts 0; actual {error: not_implemented}, all counts 0",
+    "replay_operation_mismatch: expected {error: operation_mismatch}; actual {error: not_implemented}",
+    "replay_attempt_mismatch: expected {error: attempt_mismatch}; actual {error: not_implemented}",
+    "replay_body_digest_mismatch: expected {error: body_digest_mismatch}; actual {error: not_implemented}"
+  ]
+}

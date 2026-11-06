@@ -1,0 +1,100 @@
+{
+  "test": "test_two_live_receipts_resolve_original_payments_declaration",
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+  ],
+  "cwd": "/Users/lennart/Projects/beaml",
+  "status": "fail",
+  "steps": [
+    {
+      "ts": "2026-11-05T23:07:43.107886+00:00",
+      "action": "start",
+      "result": "running"
+    },
+    {
+      "ts": "2026-11-05T23:07:59.821629+00:00",
+      "action": "step",
+      "result": "fresh_releases_match_archived_beams"
+    },
+    {
+      "ts": "2026-11-05T23:07:59.905956+00:00",
+      "action": "step",
+      "result": "first_receipt_verified"
+    },
+    {
+      "ts": "2026-11-05T23:07:59.953343+00:00",
+      "action": "step",
+      "result": "second_receipt_verified"
+    },
+    {
+      "ts": "2026-11-05T23:08:03.696562+00:00",
+      "action": "step",
+      "result": "same_name_distinct_compiled_revision_and_missing_source_control_ready"
+    },
+    {
+      "ts": "2026-11-05T23:08:03.778989+00:00",
+      "action": "fail",
+      "result": "exact_source_lookup_assertions_failed"
+    }
+  ],
+  "baseline": {
+    "receipts": [
+      {
+        "call": 1,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "bcabf6d92651d7c4a2e1bf16875f16da"
+      },
+      {
+        "call": 2,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "ef020fa60bc2d449e768acecc1410810"
+      }
+    ],
+    "edges": 10,
+    "logs": 4,
+    "payments_count_delta": 2
+  },
+  "release_exits": {
+    "payments": 0,
+    "orders": 0
+  },
+  "lookup": {
+    "expected": {
+      "artifact_id": "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31",
+      "source_id": {
+        "qualified_name": "payments.authorize",
+        "source_sha256": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50"
+      },
+      "matched_calls": 2,
+      "completed_calls": 2,
+      "successful_outcomes": 2,
+      "first_trace_id": "bcabf6d92651d7c4a2e1bf16875f16da",
+      "declaration": "fn authorize Order { order_id } -> Payment = Payment { order_id: order_id + \"\", status: \"authorized\" }"
+    },
+    "actual": null,
+    "query_gaps": []
+  },
+  "missing_original": {
+    "expected_gap": "missing_source",
+    "exit_code": 1,
+    "actual_gaps": [
+      {
+        "code": "invalid_evidence"
+      }
+    ],
+    "summary": null
+  },
+  "assertion_failures": [
+    "expected artifact + SOURCE ID summary with 2/2 receipts and original declaration; actual function_summary=None",
+    "expected missing_source with alternate build present; actual gaps=[{'code': 'invalid_evidence'}]"
+  ]
+}

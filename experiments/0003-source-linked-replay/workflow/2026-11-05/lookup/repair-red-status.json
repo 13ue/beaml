@@ -1,0 +1,89 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "phase": "live-trace-lookup-repair-red",
+  "status": "verified",
+  "authorization": "Main agent authorized repair tests and evidence for the first two lookup review findings. Owner reviewed the repair RED and replied: 'Okay, lass uns weitermachen.' This approves GREEN for this repair gate only.",
+  "repair": {
+    "test": "test_lookup_requires_receipt_order_and_recorded_window",
+    "command": [
+      "python3",
+      "-B",
+      "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py"
+    ],
+    "exit_code": 1,
+    "result": "../../../results/20261105T232809336690Z/result.json",
+    "output": "repair-red-output.log",
+    "sha256": "5f83aa891c974c01179921ba2c27fd1b6b0f77c54a4de63ccf6641029b134804",
+    "positive_control": "pass",
+    "reached_failures": [
+      "receipt_coverage",
+      "missing_window",
+      "outside_window"
+    ]
+  },
+  "unchanged_live_lookup": {
+    "command": [
+      "python3",
+      "-B",
+      "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+    ],
+    "exit_code": 0,
+    "result": "../../../results/20261105T232707610628Z/result.json",
+    "sha256": "6a7036195cc3025c252caa2cbe6ac4c9f13f78996752272249f0b5a6168b9ebe"
+  },
+  "out_of_scope": [
+    "malformed service parser",
+    "capture",
+    "transport",
+    "isolated replay"
+  ],
+  "green": {
+    "runner": "fresh Claude Opus 5.5 subagent; owner chose this because GPT-6.1 Sol is unavailable in Claude Code",
+    "output": "green-repair-output.log",
+    "retained_archive_run": {
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py"
+      ],
+      "exit_code": 1,
+      "result": "../../../results/20261106T061716341141Z/result.json",
+      "reason": "retained archive spans have no wall-clock conversion; unchanged and outside-window report missing_clock"
+    },
+    "fresh_live_run": {
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+      ],
+      "exit_code": 0,
+      "result": "../../../results/20261106T061721787131Z/result.json"
+    },
+    "fresh_repair_run": {
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py",
+        "--source-run",
+        "experiments/0003-source-linked-replay/results/20261106T061721787131Z"
+      ],
+      "exit_code": 0,
+      "result": "../../../results/20261106T061748414219Z/result.json"
+    },
+    "0002_python_discovery": "8 passed",
+    "changed_elixir_format": "pass",
+    "test_sha256_unchanged": true
+  },
+  "independent_test": {
+    "record": "repair-test-result.json",
+    "status": "pass",
+    "review": "repair-review.md",
+    "review_verdict": "pass"
+  },
+  "owner_decision": {
+    "date": "2026-11-06",
+    "option": "B",
+    "quote": "Ja, dann lass uns doch mal hier den Weg B gehen für die Experimente.",
+    "meaning": "Always run the repair test with --source-run <fresh live result dir>. Keep the test file and its default unchanged. The retained archive stays as missing_clock evidence."
+  }
+}

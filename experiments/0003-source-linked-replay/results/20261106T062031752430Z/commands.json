@@ -1,0 +1,42 @@
+{
+  "live_lookup_fresh": [
+    "python3",
+    "-B",
+    "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+  ],
+  "repair_fresh_source_run": [
+    "python3",
+    "-B",
+    "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py",
+    "--source-run",
+    "experiments/0003-source-linked-replay/results/20261106T061910678622Z"
+  ],
+  "repair_default_retained_archive": [
+    "python3",
+    "-B",
+    "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py"
+  ],
+  "0002_unit_tests": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-v"
+  ],
+  "elixir_format_changed_file": [
+    "mix",
+    "format",
+    "--check-formatted",
+    "apps/probe_support/lib/probe_support/exporter.ex"
+  ],
+  "legacy_manifests_without_function_lookup": [
+    "python3",
+    "-B",
+    "query.py",
+    "--run",
+    "results/<id>/normal"
+  ]
+}

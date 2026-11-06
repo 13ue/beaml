@@ -1,0 +1,12 @@
+{
+  "complete": false,
+  "gaps": [
+    {
+      "code": "invalid_evidence"
+    }
+  ],
+  "traces": [],
+  "edges": [],
+  "logs": [],
+  "fixtures": []
+}

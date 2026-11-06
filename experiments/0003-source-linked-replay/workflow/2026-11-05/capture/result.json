@@ -1,0 +1,48 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "phase": "response-capture-and-transport-observer-red",
+  "status": "green-confirmed",
+  "authorization": {
+    "scope": "capture RED test, evidence and GREEN implementation in OrdersApi.PaymentHttp",
+    "owner_red_review": "approved: one response record per live receipt (both calls)",
+    "production_changes_authorized": true
+  },
+  "worker": "fresh Claude Opus 5.5 subagent; owner chose this instead of GPT-6.1 Sol",
+  "test": "test_live_orders_call_captures_predecode_response_and_one_transport_attempt",
+  "test_sha256": "da92ade2d614b83905f4f928988855bc5b92a585b17290c70964c61f801626fc",
+  "command": [
+    "python3",
+    "-B",
+    "experiments/0003-source-linked-replay/tests/response_capture_test.py"
+  ],
+  "exit_code": 1,
+  "run": "../../../results/20261106T062703346937Z/result.json",
+  "prior_run": "../../../results/20261106T062629075343Z/result.json",
+  "output": "red-output.log",
+  "positive_controls": [
+    "fresh_releases_match_archived_beams",
+    "two_real_http_200_authorized_receipts",
+    "one_new_correlated_trace_per_receipt",
+    "payments_request_delta_two",
+    "no_capture_loss",
+    "both_live_releases_exit_zero",
+    "observer_control_invalid_order_400",
+    "observer_control_refused_connect_502_with_orders_payment_http_error_span",
+    "observer_control_release_exit_zero"
+  ],
+  "assertion_failures": [
+    "orders_transport_attempts_after_each_call: expected [1, 2]; actual [0, 0]",
+    "response_record_traces: expected [receipt 1 trace, receipt 2 trace]; actual []",
+    "observer_control_attempts_invalid_then_refused: expected [0, 1]; actual [0, 0]"
+  ],
+  "not_reached": [
+    "first_response_record",
+    "first_response_body"
+  ],
+  "out_of_scope": [
+    "replay",
+    "invalid replay records",
+    "Orders module-set archive"
+  ],
+  "green": "green-result.json"
+}

@@ -1,0 +1,35 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "phase": "live-trace-lookup-green",
+  "status": "pass",
+  "authorization": {
+    "owner_instruction": "ok go! let's get it green",
+    "scope": "live trace lookup GREEN after all three reached RED assertions"
+  },
+  "test": "test_two_live_receipts_resolve_original_payments_declaration",
+  "command": ["python3", "-B", "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"],
+  "exit_code": 0,
+  "same_test_sha256": "6a7036195cc3025c252caa2cbe6ac4c9f13f78996752272249f0b5a6168b9ebe",
+  "red": "result.json",
+  "run": "../../../results/20261105T232308384268Z/result.json",
+  "prior_green": "../../../results/20261105T232238778158Z/result.json",
+  "observations": {
+    "matched_calls": 2,
+    "completed_calls": 2,
+    "successful_outcomes": 2,
+    "correlation_edges": 10,
+    "linked_logs": 4,
+    "payments_request_delta": 2,
+    "declaration_byte_range": [91, 193],
+    "both_live_span_bindings_match": true,
+    "missing_original_gap": "missing_source",
+    "missing_original_query_exit": 1,
+    "alternate_revision_executed_outside_live_window": true,
+    "release_exits": {"payments": 0, "orders": 0}
+  },
+  "checks": {
+    "lookup": "pass",
+    "0002_python_discovery": "8 passed",
+    "changed_elixir_format": "pass"
+  }
+}

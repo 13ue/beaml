@@ -1,0 +1,56 @@
+{
+  "status": "pass",
+  "phase": "compiler-reference-green",
+  "test": "payments_cli_emits_checked_authorize_reference",
+  "red_result": "../20261105T225505014890Z/result.json",
+  "exit_codes": {
+    "compiler-reference-test": 0,
+    "cargo-version": 0,
+    "rustc-version": 0,
+    "elixir-version": 0,
+    "python3-version": 0,
+    "compiler-payments": 0,
+    "compiler-comments": 0,
+    "elixir-control": 0,
+    "invalid-source-control": 0,
+    "cargo-test": 0,
+    "cargo-format": 0
+  },
+  "checks": {
+    "unchanged_test_sha256": true,
+    "descriptor_ranges": true,
+    "elixir_matches_red_baseline_after_removing_reference": true,
+    "elixir_returns_authorized": true
+  },
+  "descriptors": {
+    "compiler-payments": {
+      "expected_byte_range": [
+        91,
+        193
+      ],
+      "actual_byte_ranges": [
+        [
+          91,
+          193
+        ]
+      ],
+      "contains_public_authorize": true,
+      "contains_private_authorize": true
+    },
+    "compiler-comments": {
+      "expected_byte_range": [
+        103,
+        205
+      ],
+      "actual_byte_ranges": [
+        [
+          103,
+          205
+        ]
+      ],
+      "contains_public_authorize": true,
+      "contains_private_authorize": true
+    }
+  },
+  "elixir_output": "authorized"
+}

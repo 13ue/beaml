@@ -1,0 +1,34 @@
+{
+  "kind": "planning-ledger",
+  "status": "ready-for-proposals",
+  "experiment": "0003-source-linked-replay",
+  "date": "2026-11-05",
+  "specification": "spec.md",
+  "plan": "plan.md",
+  "test_first": {
+    "applies": true,
+    "waiver": false,
+    "checkpoint": "User reviews genuine RED before each dependent production step.",
+    "first_test": {
+      "name": "payments_cli_emits_checked_authorize_reference",
+      "baseline": "Existing compiler CLI accepts the Payments fixture and emits working Elixir with authorize.",
+      "assertion": "Successful output exposes a checked compiler declaration reference whose UTF-8 byte range identifies fn authorize in that input.",
+      "expected_baseline_failure": "Compiler output contains the implementation but has no declaration reference."
+    }
+  },
+  "scope": {
+    "compiler": "Checked single declaration reference emitted alongside code. Preserve existing callers.",
+    "runtime": "Two real synthetic calls. Stage and verify separate loopback releases and retain same-run artifacts.",
+    "query": "Qualified function, SOURCE ID and artifact match. Require two complete outcomes, remote parent and exact source. Verify wrong-build and missing-original controls.",
+    "replay": "Use the original Orders modules and first captured raw HTTP response. Verify isolated shared decode and decision path, transport observer positive control, zero attempts and explicit derivative evidence failures."
+  },
+  "checks": [
+    "Compiler tests and formatting",
+    "Focused probe and evidence checks",
+    "Strict staged Mix compile and format",
+    "Complete 0003 run with captured evidence",
+    "0002 regression when shared behavior changes",
+    "Wiki links after the evidence update"
+  ],
+  "planner_limits": "Task records only. No tests, builds, wiki edits or production changes."
+}

@@ -1,0 +1,6 @@
+{"ts": "2026-11-05T23:08:52.204001+00:00", "source": "cli", "action": "start", "target": "test_two_live_receipts_resolve_original_payments_declaration", "result": "running"}
+{"ts": "2026-11-05T23:09:07.754761+00:00", "source": "cli", "action": "step", "target": "test_two_live_receipts_resolve_original_payments_declaration", "result": "fresh_releases_match_archived_beams"}
+{"ts": "2026-11-05T23:09:07.845951+00:00", "source": "cli", "action": "step", "target": "test_two_live_receipts_resolve_original_payments_declaration", "result": "first_receipt_verified"}
+{"ts": "2026-11-05T23:09:07.892975+00:00", "source": "cli", "action": "step", "target": "test_two_live_receipts_resolve_original_payments_declaration", "result": "second_receipt_verified"}
+{"ts": "2026-11-05T23:09:11.680265+00:00", "source": "cli", "action": "step", "target": "test_two_live_receipts_resolve_original_payments_declaration", "result": "same_name_distinct_compiled_revision_and_missing_source_control_ready"}
+{"ts": "2026-11-05T23:09:11.762327+00:00", "source": "cli", "action": "fail", "target": "test_two_live_receipts_resolve_original_payments_declaration", "result": "exact_source_lookup_assertions_failed"}

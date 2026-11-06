@@ -1,0 +1,15 @@
+$ python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_test.py
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261105T232308384268Z
+Exit code: 0
+
+$ python3 -B -m unittest discover -s experiments/0002-http-correlation/tests -p 'test_*.py'
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.039s
+
+OK
+Exit code: 0
+
+$ cd experiments/0002-http-correlation
+$ mix format --check-formatted apps/payments_api/lib/payments_api/router.ex apps/probe_support/lib/probe_support.ex
+Exit code: 0

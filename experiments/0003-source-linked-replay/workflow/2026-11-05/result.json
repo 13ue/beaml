@@ -1,0 +1,168 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "experiment_status": "in-progress",
+  "phase": "compiler-reference-verify",
+  "status": "pass",
+  "verification_mode": "Confirmed unchanged retained evidence after independent review. No repair or new compiler run.",
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "experiments/0001-syntax-to-beam/Cargo.toml",
+    "--test",
+    "cli",
+    "payments_cli_emits_checked_authorize_reference",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "cwd": ".",
+  "test": "payments_cli_emits_checked_authorize_reference",
+  "test_sha256": "bd697bb2d902164dd7e41169b804b9315444db05b2db02d75d355e0e704d2a78",
+  "input_sha256": {
+    "experiments/0001-syntax-to-beam/tests/cli.rs": "bd697bb2d902164dd7e41169b804b9315444db05b2db02d75d355e0e704d2a78",
+    "experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50",
+    "experiments/0001-syntax-to-beam/Cargo.toml": "49aae09d2d19953c72468011bbc9f29c676e80b7bbc9004ad6a30afdfc4dc1bf",
+    "experiments/0001-syntax-to-beam/Cargo.lock": "160043b8322dcba779ad9f873e01e48f000b0a8b60e2d3fb7ef4a87fb45e362b"
+  },
+  "source_sha256": {
+    "red_compiler": "957c8f95552559a9eed2c344902db21b5b17152c64b1dfbd0d000edc16982b74",
+    "green_compiler": "175971e9268888772c418b1720ee6dccccc5922644763dee9990c55bca441e2c",
+    "original_fixture": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50",
+    "comment_control": "10d0414879967f44f9e16f1478ea87148f080ac69821bc179dd226e70ddd4512"
+  },
+  "comparison": {
+    "red": {
+      "exit_code": 101,
+      "expected_byte_ranges": [
+        [
+          91,
+          193
+        ]
+      ],
+      "actual_byte_ranges": [],
+      "comment_control_expected_byte_ranges": [
+        [
+          103,
+          205
+        ]
+      ],
+      "comment_control_assertion_reached": false,
+      "cause": "The existing successful compiler output contains no checked declaration reference."
+    },
+    "green": {
+      "exit_code": 0,
+      "expected_byte_ranges": [
+        [
+          91,
+          193
+        ]
+      ],
+      "actual_byte_ranges": [
+        [
+          91,
+          193
+        ]
+      ],
+      "comment_control_expected_byte_ranges": [
+        [
+          103,
+          205
+        ]
+      ],
+      "comment_control_actual_byte_ranges": [
+        [
+          103,
+          205
+        ]
+      ]
+    }
+  },
+  "evidence": {
+    "red": {
+      "result": "../../results/20261105T225505014890Z/result.json",
+      "commands": "../../results/20261105T225505014890Z/commands.json",
+      "input_hashes": "../../results/20261105T225505014890Z/input-hashes.json",
+      "output_hashes": "../../results/20261105T225505014890Z/output-hashes.json",
+      "verified_output_count": 22,
+      "selected_output_sha256": {
+        "compiler-reference-test.stdout": "2afe069cb944c995de3db387b31f058623f1512ca530d26cc6a8a96c4aa9659e",
+        "compiler-reference-test.stderr": "9902e4bc71a318395e0fe394f476576d551a39037cd4da4cbdec638ca06b1566",
+        "compiler-baseline.stdout": "4558db1f25f9bfc655577735abd5a2e314068725290370bdabcba2cf436d3049",
+        "elixir-baseline.stdout": "c623893669a86932316e54c3e140104ba90cdb99ceee1ac3349c7372832aac1b"
+      }
+    },
+    "green": {
+      "result": "../../results/20261105T225807421990Z/result.json",
+      "commands": "../../results/20261105T225807421990Z/commands.json",
+      "input_hashes": "../../results/20261105T225807421990Z/input-hashes.json",
+      "output_hashes": "../../results/20261105T225807421990Z/output-hashes.json",
+      "verified_output_count": 28,
+      "selected_output_sha256": {
+        "compiler-reference-test.stdout": "7de28fa4f124925223cbfb16de45bb910657a0ddd3ff1f10027416da8039fa8a",
+        "compiler-reference-test.stderr": "bc2f73a1b892584bce13168b1618b456606af0d6d1a5bbe8a4ec2d91a4f4d769",
+        "compiler-payments.stdout": "69bbf771460420f55a9ebf5e6ef7db6229ef81658b1784e2c32793398ea8233e",
+        "compiler-comments.stdout": "203755273702314862f210eb9383a4268eb00514f95eb3b76f38545f8d414218",
+        "cargo-test.stdout": "a3b8749384d80f6a705e35c20ce7f7bbb48e99ecb8a25f391f6b6a28f58a5ac4",
+        "cargo-format.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elixir-control.stdout": "c623893669a86932316e54c3e140104ba90cdb99ceee1ac3349c7372832aac1b",
+        "invalid-source-control.stdout": "7d3061f3f7d2cb64b43974ce01d0ecb5483e6b40d7db6fe9818eb3f03c5d5019"
+      }
+    },
+    "independent_test": {
+      "result": "../../results/20261105T230012369535Z/result.json",
+      "commands": "../../results/20261105T230012369535Z/commands.json",
+      "input_hashes": "../../results/20261105T230012369535Z/input-hashes.json",
+      "output_hashes": "../../results/20261105T230012369535Z/output-hashes.json",
+      "verified_output_count": 29,
+      "selected_output_sha256": {
+        "compiler-reference-test.stdout": "6a31b203c75e9caf224ce0406a6518fae2790cb47d14859dd06a2f87591058fc",
+        "compiler-reference-test.stderr": "cdb43be869a87a94e72fa2135b2ceee179e6ed79757da2d484a5829447c1c3f5",
+        "compiler-payments.stdout": "69bbf771460420f55a9ebf5e6ef7db6229ef81658b1784e2c32793398ea8233e",
+        "compiler-comments.stdout": "203755273702314862f210eb9383a4268eb00514f95eb3b76f38545f8d414218",
+        "cargo-test.stdout": "c35dcb48d15aa6600032a99798852b38621f9e2f89c42064de7b8c2a53afd2ce",
+        "cargo-format.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "elixir-control.stdout": "c623893669a86932316e54c3e140104ba90cdb99ceee1ac3349c7372832aac1b",
+        "invalid-source-control.stdout": "f8b6349054bdf5116216699c5cdbc45986ae49612adfab3585fd447fde04e7f8"
+      }
+    }
+  },
+  "owner_red_review": {
+    "approval": "Ja, passt. Dann 0003 auf GREEN, let's go. Und zeig mir danach bitte denselben Test nochmal mit RED und GREEN nebeneinander.",
+    "source": "notes.md",
+    "scope": "compiler-reference"
+  },
+  "review": "review.md",
+  "independent_test": "test-result.json",
+  "verification_log": "final-test-output.log",
+  "checks": {
+    "same_focused_command_test_and_fixtures": true,
+    "red_compiler_matches_HEAD_and_green_compiler_matches_checkout": true,
+    "retained_output_manifests_match_files": true,
+    "green_and_independent_compiler_outputs_match": true,
+    "exact_UTF8_ranges_and_existing_Elixir_behavior": true,
+    "retained_full_cargo_suite_and_format": true,
+    "retained_invalid_source_control": true,
+    "owner_RED_review_recorded": true,
+    "final_diff_and_untracked_evidence_inspected": true,
+    "compiler_gate_links_checked": true,
+    "git_diff_check": true
+  },
+  "changed_file_scope": {
+    "compiler_gate_source_and_test": [
+      "experiments/0001-syntax-to-beam/src/main.rs",
+      "experiments/0001-syntax-to-beam/tests/cli.rs"
+    ],
+    "compiler_gate_records": [
+      "workflow.json",
+      "final-test-output.log",
+      "result.json"
+    ]
+  },
+  "unresolved_defects": [],
+  "pending_gates": [
+    "Live evidence and exact source lookup",
+    "Predecode response capture and transport observer",
+    "Isolated replay and invalid-record controls"
+  ]
+}

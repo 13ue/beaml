@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/trace_lookup_test.py", line 251, in <module>
+    test_two_live_receipts_resolve_original_payments_declaration(run, result)
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/trace_lookup_test.py", line 239, in test_two_live_receipts_resolve_original_payments_declaration
+    raise AssertionError("\n".join(failures))
+AssertionError: expected artifact + SOURCE ID summary with 2/2 receipts and original declaration; actual function_summary=None
+expected missing_source with alternate build present; actual gaps=[{'code': 'invalid_evidence'}]

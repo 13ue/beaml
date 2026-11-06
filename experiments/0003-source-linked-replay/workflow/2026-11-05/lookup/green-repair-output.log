@@ -1,0 +1,41 @@
+# 1. Repair test, retained archive 20261105T232448420501Z (exit 1, no wall-clock span evidence)
+$ python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T061716341141Z
+unchanged: expected exit 0 and the unchanged original 2/2 summary with the first receipt trace; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'missing_clock'}], 'coverage': None, 'first_trace_id': None}
+swapped-receipts: expected exit 1, incomplete, receipt_coverage, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'receipt_coverage'}], 'coverage': None, 'first_trace_id': None}
+missing-window: expected exit 1, incomplete, missing_window, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'missing_window'}], 'coverage': None, 'first_trace_id': None}
+outside-window: expected exit 1, incomplete, outside_window, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'missing_clock'}], 'coverage': None, 'first_trace_id': None}
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py", line 115, in <module>
+    test_lookup_requires_receipt_order_and_recorded_window(source_run, run, result)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py", line 99, in test_lookup_requires_receipt_order_and_recorded_window
+    assert not failures, "\n" + "\n".join(failures)
+           ^^^^^^^^^^^^
+AssertionError: 
+unchanged: expected exit 0 and the unchanged original 2/2 summary with the first receipt trace; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'missing_clock'}], 'coverage': None, 'first_trace_id': None}
+outside-window: expected exit 1, incomplete, outside_window, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'missing_clock'}], 'coverage': None, 'first_trace_id': None}
+
+# 2. Unchanged live lookup test, fresh releases (exit 0)
+$ python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_test.py
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T061721787131Z
+
+# 3. Repair test, fresh archive (exit 0)
+$ python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py --source-run experiments/0003-source-linked-replay/results/20261106T061721787131Z
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T061748414219Z
+unchanged: expected exit 0 and the unchanged original 2/2 summary with the first receipt trace; actual {'exit_code': 0, 'complete': True, 'gaps': [], 'coverage': [2, 2], 'first_trace_id': 'bd6f1779691e12d4a6298fd3f8709144'}
+swapped-receipts: expected exit 1, incomplete, receipt_coverage, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'receipt_coverage'}], 'coverage': None, 'first_trace_id': None}
+missing-window: expected exit 1, incomplete, missing_window, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'missing_window'}], 'coverage': None, 'first_trace_id': None}
+outside-window: expected exit 1, incomplete, outside_window, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'outside_window'}], 'coverage': None, 'first_trace_id': None}
+
+# 4. 0002 unit tests (exit 0)
+$ (cd experiments/0002-http-correlation && python3 -B -m unittest discover -s tests -p 'test_*.py')
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.041s
+
+OK
+
+# 5. Test SHA-256 after GREEN
+5f83aa891c974c01179921ba2c27fd1b6b0f77c54a4de63ccf6641029b134804  experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py
+6a7036195cc3025c252caa2cbe6ac4c9f13f78996752272249f0b5a6168b9ebe  experiments/0003-source-linked-replay/tests/trace_lookup_test.py

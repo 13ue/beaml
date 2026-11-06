@@ -1,0 +1,14 @@
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261105T232809336690Z
+unchanged: expected exit 0 and the unchanged original 2/2 summary with the first receipt trace; actual {'exit_code': 0, 'complete': True, 'gaps': [], 'coverage': [2, 2], 'first_trace_id': 'f915e229e2ce7e8f3b4ca30f9ab56a01'}
+swapped-receipts: expected exit 1, incomplete, receipt_coverage, and no function summary; actual {'exit_code': 0, 'complete': True, 'gaps': [], 'coverage': [2, 2], 'first_trace_id': '929f8981c7893253b6ce9c4507f45c17'}
+missing-window: expected exit 1, incomplete, missing_window, and no function summary; actual {'exit_code': 0, 'complete': True, 'gaps': [], 'coverage': [2, 2], 'first_trace_id': 'f915e229e2ce7e8f3b4ca30f9ab56a01'}
+outside-window: expected exit 1, incomplete, outside_window, and no function summary; actual {'exit_code': 0, 'complete': True, 'gaps': [], 'coverage': [2, 2], 'first_trace_id': 'f915e229e2ce7e8f3b4ca30f9ab56a01'}
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py", line 115, in <module>
+    test_lookup_requires_receipt_order_and_recorded_window(source_run, run, result)
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py", line 99, in test_lookup_requires_receipt_order_and_recorded_window
+    assert not failures, "\n" + "\n".join(failures)
+AssertionError: 
+swapped-receipts: expected exit 1, incomplete, receipt_coverage, and no function summary; actual {'exit_code': 0, 'complete': True, 'gaps': [], 'coverage': [2, 2], 'first_trace_id': '929f8981c7893253b6ce9c4507f45c17'}
+missing-window: expected exit 1, incomplete, missing_window, and no function summary; actual {'exit_code': 0, 'complete': True, 'gaps': [], 'coverage': [2, 2], 'first_trace_id': 'f915e229e2ce7e8f3b4ca30f9ab56a01'}
+outside-window: expected exit 1, incomplete, outside_window, and no function summary; actual {'exit_code': 0, 'complete': True, 'gaps': [], 'coverage': [2, 2], 'first_trace_id': 'f915e229e2ce7e8f3b4ca30f9ab56a01'}

@@ -1,0 +1,13 @@
+test_complete_and_missing_log (test_query.QueryTest.test_complete_and_missing_log) ... ok
+test_corruptions (test_query.QueryTest.test_corruptions) ... ok
+test_missing_artifact_metadata_is_a_gap (test_query.QueryTest.test_missing_artifact_metadata_is_a_gap) ... ok
+test_payments_ingress_requires_remote_parent (test_query.QueryTest.test_payments_ingress_requires_remote_parent) ... ok
+test_split_trace_reports_missing_edge (test_query.QueryTest.test_split_trace_reports_missing_edge) ... ok
+test_two_traces_stay_separate (test_query.QueryTest.test_two_traces_stay_separate) ... ok
+test_action_failure_does_not_raise (test_runner.RunnerTest.test_action_failure_does_not_raise) ... ok
+test_owned_child_stops (test_runner.RunnerTest.test_owned_child_stops) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.033s
+
+OK

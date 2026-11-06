@@ -1,0 +1,21 @@
+
+running 9 tests
+test tests::rejects_wrong_return_type ... ok
+test tests::checks_exact_construction_and_pattern_fields ... ok
+test tests::rejects_unsupported_or_recursive_types ... ok
+test tests::checks_calls_and_bindings ... ok
+test tests::interfaces_are_structural_and_exact ... ok
+test tests::coverage_handles_multiple_arguments_and_empty_shapes ... ok
+test tests::checks_coverage_and_clause_order ... ok
+test tests::coverage_agrees_with_a_four_value_truth_table ... ok
+test tests::accepts_nested_partial_patterns ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test payments_cli_emits_checked_authorize_reference ... ok
+test invalid_source_emits_no_code_and_actions_do_not_capture_source ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
