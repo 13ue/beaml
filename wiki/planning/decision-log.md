@@ -337,6 +337,10 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: while the MIGRATE CHAIN is complete, the newest version follows from the chain and the type line has no mark. `--remove-dead` writes `vN` onto the type line when it removes steps. If both a mark and a chain exist, they must agree. Over: the mark required from version 2 on.
 → Because: OWNER choice; less to write while the history is in the source.
 
+**DL-072 · Migrate · `v` on every version number**
+→ Chose: `migrate Payment v3 -> v4 { … }` and `type Payment v3 { … }`. Over: plain numbers in `migrate` lines.
+→ Because: one spelling for a version everywhere; a search for `v3` finds every use. Fixtures and tests of slices 2–4 change mechanically.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
