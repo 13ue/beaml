@@ -130,11 +130,15 @@ fn mentions(stdout: &str, text: &str) -> bool {
 
 /// Argument count of the first `def NAME(` line, or None when the function is absent.
 fn arity(stdout: &str, name: &str) -> Option<usize> {
-    let head = format!("def {name}(");
+    head_arity(stdout, &format!("def {name}("))
+}
+
+/// Argument count of the first line that starts with `head` (for example `defp NAME(`).
+fn head_arity(stdout: &str, head: &str) -> Option<usize> {
     let line = stdout
         .lines()
-        .find(|line| line.trim_start().starts_with(&head))?;
-    let start = line.find(&head).unwrap() + head.len();
+        .find(|line| line.trim_start().starts_with(head))?;
+    let start = line.find(head).unwrap() + head.len();
     let mut depth = 1;
     let mut count = 1;
     let mut empty = true;
@@ -241,6 +245,13 @@ fn orders_cli_emits_flow_effect_decode_and_replay() {
             missing.push(format!("def {name}/{expected}"));
         }
     }
+    // The typed decode has a fixed name and takes one argument (review objection 1).
+    if decode_heads()
+        .iter()
+        .all(|head| head_arity(&stdout, head) != Some(1))
+    {
+        missing.push(format!("def(p) {DECODE}/1"));
+    }
     for text in [
         "defmodule PaymentError do",
         "defstruct",
@@ -300,19 +311,77 @@ fn orders_cli_emits_flow_effect_decode_and_replay() {
     );
 }
 
+/// The generated typed decode of the TYPE `Payment` has this fixed name (RED repair, review objection 1).
+const DECODE: &str = "__beaml_decode_payment";
+
+fn decode_heads() -> [String; 2] {
+    [format!("def {DECODE}("), format!("defp {DECODE}(")]
+}
+
+/// Source of the generated decode only: from its first head line to its last clause `end`.
+/// The slice stops at the first other line with the same or a smaller indentation.
+fn decode_body(stdout: &str) -> Option<String> {
+    let heads = decode_heads();
+    let is_head = |text: &str| heads.iter().any(|head| text.starts_with(head.as_str()));
+    let indent = |line: &str| line.len() - line.trim_start().len();
+    let lines: Vec<&str> = stdout.lines().collect();
+    let start = lines.iter().position(|line| is_head(line.trim_start()))?;
+    let level = indent(lines[start]);
+    let mut body = vec![lines[start]];
+    for line in &lines[start + 1..] {
+        let text = line.trim_start();
+        if !text.is_empty() {
+            if indent(line) < level {
+                break;
+            }
+            if indent(line) == level && text != "end" && !is_head(text) {
+                break;
+            }
+        }
+        body.push(line);
+    }
+    Some(body.join("\n"))
+}
+
+fn assert_decode_names(label: &str, stdout: &str, present: &[&str], absent: &[&str]) {
+    let body = decode_body(stdout)
+        .unwrap_or_else(|| panic!("{label}: no generated decode `def(p) {DECODE}(`"));
+    for name in present {
+        assert!(
+            mentions(&body, name),
+            "{label}: decode body must name {name}: {body}"
+        );
+    }
+    for name in absent {
+        assert!(
+            !mentions(&body, name),
+            "{label}: decode body must not name {name}: {body}"
+        );
+    }
+}
+
 #[test]
 fn orders_cli_template_control_drift_r_decode_names_reference() {
     // A template emitter does not see the new Payment field. A derived decode does.
+    // The names are checked inside the decode only: `finish/1` and `__beaml_valid__`
+    // name every field anyway (review objection 1).
     let base = assert_compiles(&slice_one("arms/gen/orders.beaml"));
     let drift = assert_compiles(&slice_one("drift/R/orders.beaml"));
     assert!(
         !mentions(&base, "reference"),
         "base output must not name reference"
     );
-    assert!(
-        mentions(&drift, "reference"),
-        "DRIFT-R output must name reference"
-    );
+    assert_decode_names("base", &base, &["order_id", "status"], &["reference"]);
+    assert_decode_names("DRIFT-R", &drift, &["order_id", "status", "reference"], &[]);
+}
+
+#[test]
+fn orders_cli_template_control_drift_n_decode_follows_field_rename() {
+    // DRIFT-N renames the Payment field `status` to `state`. The decode must follow the TYPE.
+    let base = assert_compiles(&slice_one("arms/gen/orders.beaml"));
+    let drift = assert_compiles(&slice_one("drift/N/orders.beaml"));
+    assert_decode_names("base", &base, &["order_id", "status"], &["state"]);
+    assert_decode_names("DRIFT-N", &drift, &["order_id", "state"], &["status"]);
 }
 
 #[test]

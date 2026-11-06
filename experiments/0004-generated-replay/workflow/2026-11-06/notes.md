@@ -1,7 +1,7 @@
 ---
 id: experiment-0004-slice-1-notes
 kind: ledger
-status: red-recorded
+status: red-repaired
 updated: 2026-11-06
 ---
 
@@ -117,13 +117,13 @@ Command: `python3 -B experiments/0004-generated-replay/tests/drift_test.py`. Res
 | D13 | `payments.beaml` byte-identical guard | Undo | Snapshot of the HEAD compiler output in `tests/payments.generated.snapshot` |
 | D14 | Negative tests and the old parser | Undo | A negative test also fails when the message is the old parser message `expected interface, enum, or fn` |
 
-## Test files (SHA-256 at RED)
+## Test files (SHA-256 after RED repair)
 
 | File | Tests | SHA-256 |
 | --- | --- | --- |
-| `experiments/0001-syntax-to-beam/tests/cli.rs` | 11 (8 new RED, 1 new guard, 2 existing) | `78c4212f80713aa73ed983afc8dfdf5854055499900d847c8b5b6fe283512fdc` |
+| `experiments/0001-syntax-to-beam/tests/cli.rs` | 12 (9 new RED, 1 new guard, 2 existing) | `bf2b82fd1ff015ae86181b2b392018d1853aa8cb624f2507b09d582dd227210b` (RED: `78c4212f…`) |
 | `experiments/0004-generated-replay/tests/overlay_diff_test.py` | 3 (2 RED, 1 guard) | `6fe091cdb018f9479fd15be6400cbfc1870bddc10ba0f52452d29ba68b5d76f7` |
-| `experiments/0004-generated-replay/tests/arms_test.py` | 15 (14 RED, 1 guard) | `83c0f832f9485731de7bbc2b9baacc06b784abd0a7a9c195945abe195be15479` |
+| `experiments/0004-generated-replay/tests/arms_test.py` | 16 (15 RED, 1 guard) | `c0f35e8f64dd6d1b48747d04ace68153c0f048238596a8b33bcfb7effcfa2d4f` (RED: `83c0f832…`) |
 | `experiments/0004-generated-replay/tests/drift_test.py` | 3 (2 RED, 1 guard) | `556e8ecd7aead19ffa7bf89d2e79c789c0482d1c2861aa35e9f4cff0100c2f73` |
 | `experiments/0004-generated-replay/tests/arm_tree.py` | support | `ff23d780e43c16afcf58fa20fcab7ded44c4e6e14f3af5af657a77b7f0ae6b1d` |
 | `experiments/0004-generated-replay/tests/payments.generated.snapshot` | data | `69bbf771460420f55a9ebf5e6ef7db6229ef81658b1784e2c32793398ea8233e` |
@@ -144,3 +144,56 @@ Bad and DRIFT fixture hashes are in [red-output.log](red-output.log).
 **[Proposal]** D6 accepted as Undo: the hint field name `unknown_keys` came from the main agent. The record version stays 1.
 **[Inference]** (b) and the (d2) cases share one root cause today (the compiler). GREEN runs in two steps: GREEN-1 compiler (cases a, b); then a fresh RED check that each (d2) case fails for its own reason; then GREEN-2.
 **[Verified]** The main agent's commit 49aedb9 included this worker's cli.rs tests while the worker still ran. No content was lost. This broke the rule "never commit while a worker writes files".
+
+## RED repair (2026-11-06)
+
+**[Requirement]** Input: [red-review.md](red-review.md), verdict BLOCK, objections 1–3 (high). The main agent ordered the repair. Tests only; no compiler, Elixir app or `run.py` change. No commit.
+
+**Objection 1, template control (`cli.rs`).**
+- The generated decode of `Payment` has the fixed name `__beaml_decode_payment/1` (`def` or `defp`). `orders_cli_emits_flow_effect_decode_and_replay` requires it.
+- New helper `decode_body` slices the emitted source from the first decode head to its last clause `end`. Field names are checked inside that slice only.
+- `orders_cli_template_control_drift_r_decode_names_reference`: base decode names `order_id`, `status`, not `reference`; DRIFT-R decode names all three. The whole base output still must not name `reference`.
+- New `orders_cli_template_control_drift_n_decode_follows_field_rename`: base decode names `status`, not `state`; DRIFT-N decode names `order_id` and `state`, not `status`.
+- **[Verified]** Scratch self-check of `decode_body` (not in the repository): a multi-line decode and a two-clause one-line decode slice correctly; `finish/1` and `__beaml_valid__` outside the slice do not count.
+
+**Objection 2, case (d2) (`arms_test.py`).**
+- New live case `test_d2_L3_live_missing_key_is_typed_decode_error`: stub 200 with `MISSING_KEY_BODY`. Expect HTTP 502 `downstream_failure`, span `orders.payments.authorize` with `outcome: "error"` and `reason: "decode"`, one RESPONSE RECORD (status 200, bytes byte-exact), 0 `orders.finish`, transport 1.
+- `HARNESS`: the 3-tuple branches are removed. A 3-tuple now reports `unexpected`. With input `observe: true` the eval VM starts only `:opentelemetry` and `ProbeSupport.Capture`, then flushes; the harness adds `out/spans.jsonl` to the replay report (`report.json`, key `spans`).
+- R2 expects `{"ok": PAYMENT}` and reads `unknown_keys == ["fraud_score"]` from the replay `orders.payments.authorize` span in the replay report.
+- **[Verified]** Probe, not a test: an eval VM of the 0002 Orders release started `:opentelemetry` and `ProbeSupport.Capture` and wrote one span with `unknown_keys` to `spans.jsonl`. So the README [Unknown] "eval VM writes no span" does not block R2. No 0003 copy changes; no table change.
+
+**Objection 3, LIB strength (`arms_test.py`).**
+- Before the freeze, `test_e_lib_type_mismatch_outcomes_recorded_then_frozen` asserts LIB R1 is `{"error": "%ReplayLib.Error{...}"}` with `step: "decode"` or `step: "finish"` and a `reason`. A raise, an untyped tuple or a missing record fails. L1, L2 and R2 stay recorded, not asserted.
+- The `"rescue" in lib` check stays as a guard only.
+
+**Runs.** Serial, each changed command once. Raw output: [red-output.log](red-output.log), section "RED repair". Retained result: `results/20261106T115740198926Z`.
+
+| Group | Command | Result | Reason |
+| --- | --- | --- | --- |
+| 1 | `cargo test --offline --manifest-path experiments/0001-syntax-to-beam/Cargo.toml --test cli` | 9 failed, 3 passed (exit 101) | Lexer stop `unsupported token at byte 215` on the base source; both template controls stop at `assert_compiles` |
+| 3 | `python3 -B experiments/0004-generated-replay/tests/arms_test.py` | 15 failed, 1 passed, 0 errors (exit 1) | GEN: `compiler exit 1` (b, d2 incl. L3), missing copies and router (c, d); LIB: no `ReplayLib`, no copies |
+| 2, 4 | not changed | not run again | — |
+
+**[Inference]** All new failures are missing behavior. L3 and the R2 hint share the compiler root cause today. After GREEN-1 they need the fresh per-case RED check (RED check, main agent).
+
+**[Requirement]** Review condition (red-review.md, "Two-step GREEN"): GREEN-1 stops at the shape that case (b) checks. Case (b) now also checks `__beaml_decode_payment/1` and its field names. GREEN-1 may derive the field names into the decode, but it must not write the decode behavior that (d2) asserts. After GREEN-1, record per (d2) case the failure reason (for example R1 `ok` instead of `decode`).
+
+**[Unknown]** README case (d2) does not list L3 yet; README line 80 and the decision rows still need the D7 repair text. A plan worker must update them.
+
+### Decisions (Decision4, RED repair)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| D15 | Decode function name `__beaml_decode_payment/1` (`def` or `defp`) | Undo | Reviewer proposal; follows the 0001 `__beaml_` prefix. The name is internal; no stored data depends on it |
+| D16 | Decode slice rule | Undo | From the first head to the first other line at the same or a smaller indentation; other clauses of the same name and the `end` stay in |
+| D17 | Second asserted drift test uses DRIFT-N (rename) | Undo | Existing fixture; a rename shows both an added and a removed name in the decode |
+| D18 | EFFECT span attribute `reason` for a failed EFFECT (L3) | Migrate | Span consumers and `query.py` filters may depend on the name. Same value set as `PaymentError.reason` |
+| D19 | L3 reply body `{"error": "downstream_failure"}` | Undo | Same router error path as L2 |
+| D20 | Replay hint source: eval VM with `observe` starts only `:opentelemetry` and `ProbeSupport.Capture` | Undo | Router and Orders application stay stopped; R2 only. Other replay cases keep the 0003 eval VM without applications |
+| D21 | LIB R1 typed check by pattern `%ReplayLib.Error{` with `step` `decode`/`finish` and `reason` | Undo | README fixes the shape; the `reason` value is not asserted ("any typed shape counts" for its content) |
+
+
+## RED repair check (main agent, 2026-11-06)
+
+**[Proposal]** D18 class lowered from Migrate to Repair by the main agent. Reason: the span attribute name `reason` on a failed EFFECT is contained in this experiment and changes with one emit edit. Decision4 rule: every de-escalation is recorded.
+**[Verified]** README updated: case L3, the LIB R1 assertion before the freeze, LIB runs L3, and the D7 return shape of `Replay.run/3`.

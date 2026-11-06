@@ -323,3 +323,101 @@ e106eeaa5313c967d4219540e0eb15ba198e431a4d45d37d95e3f29bc10f85c3  drift/Q/orders
 054355f4acd3754a91b1278af6ed62e4959c6fa5a419030e4c81979bf9119b0f  drift/Q/payments.beaml
 cf1d49582169dfe37a871c3cfcf823bc19af405f64f6172a8ad205d44d5d0fc8  drift/R/orders.beaml
 0ff434924f6607ea296d4015f1606c894d6a81739ea7d1bb46a0b4ac88f74d08  drift/R/payments.beaml
+
+# RED repair after the RED review (2026-11-06)
+
+## GROUP 1 (repair): cargo test --offline --manifest-path experiments/0001-syntax-to-beam/Cargo.toml --test cli
+running 12 tests
+test payments_cli_output_stays_byte_identical ... ok
+test orders_cli_rejects_pipe_type_mismatch ... FAILED
+test orders_cli_template_control_drift_r_decode_names_reference ... FAILED
+test orders_cli_template_control_drift_n_decode_follows_field_rename ... FAILED
+test orders_cli_accepts_effect_pipe_place ... FAILED
+test orders_cli_rejects_undeclared_pipe_failure ... FAILED
+test orders_cli_emits_flow_effect_decode_and_replay ... FAILED
+test orders_cli_rejects_unsupported_effect_kind ... FAILED
+test payments_cli_emits_checked_authorize_reference ... ok
+test orders_cli_rejects_field_not_in_type ... FAILED
+test orders_cli_rejects_unknown_pipe_step ... FAILED
+test invalid_source_emits_no_code_and_actions_do_not_capture_source ... ok
+thread 'orders_cli_rejects_pipe_type_mismatch' (90142254) panicked at tests/cli.rs:184:9:
+thread 'orders_cli_template_control_drift_r_decode_names_reference' (90142259) panicked at tests/cli.rs:164:5:
+expected exit 0 for /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/../../experiments/0004-generated-replay/arms/gen/orders.beaml; stderr: unsupported token at byte 215
+thread 'orders_cli_template_control_drift_n_decode_follows_field_rename' (90142258) panicked at tests/cli.rs:164:5:
+expected exit 0 for /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/../../experiments/0004-generated-replay/arms/gen/orders.beaml; stderr: unsupported token at byte 215
+thread 'orders_cli_accepts_effect_pipe_place' (90142251) panicked at tests/cli.rs:164:5:
+expected exit 0 for /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/../../experiments/0004-generated-replay/arms/gen/orders.beaml; stderr: unsupported token at byte 215
+thread 'orders_cli_rejects_undeclared_pipe_failure' (90142255) panicked at tests/cli.rs:184:9:
+thread 'orders_cli_emits_flow_effect_decode_and_replay' (90142252) panicked at tests/cli.rs:164:5:
+expected exit 0 for /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/../../experiments/0004-generated-replay/arms/gen/orders.beaml; stderr: unsupported token at byte 215
+thread 'orders_cli_rejects_unsupported_effect_kind' (90142257) panicked at tests/cli.rs:184:9:
+thread 'orders_cli_rejects_field_not_in_type' (90142253) panicked at tests/cli.rs:184:9:
+thread 'orders_cli_rejects_unknown_pipe_step' (90142256) panicked at tests/cli.rs:184:9:
+test result: FAILED. 3 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+exit 101
+
+## GROUP 3 (repair): python3 -B experiments/0004-generated-replay/tests/arms_test.py
+/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T115740198926Z
+test_b_gen_module_compiles_with_warnings_as_errors (__main__.GenBuild) ... FAIL
+test_c_gen_0003_runner_passes_all_five_steps (__main__.GenRunner) ... FAIL
+test_d_gen_replay_matrix_eight_cases (__main__.GenRunner) ... FAIL
+test_c_gen_router_calls_only_place_and_host_replay_files_are_deleted (__main__.GenStructure) ... FAIL
+test_d2_L0_live_valid_body_baseline (__main__.GenTypeMismatch) ... FAIL
+test_d2_L1_live_unknown_key_accepted_with_hint (__main__.GenTypeMismatch) ... FAIL
+test_d2_L2_live_status_503_rejected (__main__.GenTypeMismatch) ... FAIL
+test_d2_L3_live_missing_key_is_typed_decode_error (__main__.GenTypeMismatch) ... FAIL
+test_d2_P1_pipe_stops_after_failed_effect (__main__.GenTypeMismatch) ... FAIL
+test_d2_R1_replay_missing_key_is_decode_error (__main__.GenTypeMismatch) ... FAIL
+test_d2_R2_replay_of_L1_record_gives_same_success_and_hint (__main__.GenTypeMismatch) ... FAIL
+test_d2_R3_replay_wrongly_typed_field_is_decode_error (__main__.GenTypeMismatch) ... FAIL
+test_e_lib_arm_replays_matrix (__main__.LibArm) ... FAIL
+test_e_lib_form_is_the_fixed_strongest_library (__main__.LibArm) ... FAIL
+test_e_lib_type_mismatch_outcomes_recorded_then_frozen (__main__.LibArm) ... FAIL
+test_control_originals_unchanged_by_arm_runs (__main__.ZzControlUnchanged) ... ok
+FAIL: test_b_gen_module_compiles_with_warnings_as_errors (__main__.GenBuild)
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+FAIL: test_c_gen_0003_runner_passes_all_five_steps (__main__.GenRunner)
+AssertionError: 'OrdersBeamlSpike.Replay.run(' not found in '"""Check the separate REPLAY RUN runner on the first Orders call and the invalid replay records (gate 4, RED revision 3)."""\nimport base64\nimport datetime\ni
+FAIL: test_d_gen_replay_matrix_eight_cases (__main__.GenRunner)
+AssertionError: 'OrdersBeamlSpike.Replay.run(' not found in '"""Check the separate REPLAY RUN runner on the first Orders call and the invalid replay records (gate 4, RED revision 3)."""\nimport base64\nimport datetime\ni
+FAIL: test_c_gen_router_calls_only_place_and_host_replay_files_are_deleted (__main__.GenStructure)
+AssertionError: Lists differ: [] != ["router calls OrdersBeamlSpike ['finish',[179 chars]y']"]
+FAIL: test_d2_L0_live_valid_body_baseline (__main__.GenTypeMismatch)
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+FAIL: test_d2_L1_live_unknown_key_accepted_with_hint (__main__.GenTypeMismatch)
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+FAIL: test_d2_L2_live_status_503_rejected (__main__.GenTypeMismatch)
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+FAIL: test_d2_L3_live_missing_key_is_typed_decode_error (__main__.GenTypeMismatch)
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+FAIL: test_d2_P1_pipe_stops_after_failed_effect (__main__.GenTypeMismatch)
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+FAIL: test_d2_R1_replay_missing_key_is_decode_error (__main__.GenTypeMismatch)
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+FAIL: test_d2_R2_replay_of_L1_record_gives_same_success_and_hint (__main__.GenTypeMismatch)
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+FAIL: test_d2_R3_replay_wrongly_typed_field_is_decode_error (__main__.GenTypeMismatch)
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+FAIL: test_e_lib_arm_replays_matrix (__main__.LibArm)
+AssertionError: 'ReplayLib.run(' not found in '"""Check the separate REPLAY RUN runner on the first Orders call and the invalid replay records (gate 4, RED revision 3)."""\nimport base64\nimport datetime\nimport hashlib\
+FAIL: test_e_lib_form_is_the_fixed_strongest_library (__main__.LibArm)
+AssertionError: Lists differ: [] != ['no ReplayLib module', 'no OrdersApi.Repl[113 chars]all']
+FAIL: test_e_lib_type_mismatch_outcomes_recorded_then_frozen (__main__.LibArm)
+AssertionError: 'ReplayLib' not found in {'ProbeSupport': (PosixPath('/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-vmhkdpx3/experiments/0002-http-correlation/apps/probe_support/lib/probe_support.ex'), 
+Ran 16 tests in 2.783s
+FAILED (failures=15)
+exit 1
+
+## Summary (repair)
+GROUP 1 compiler: 9 RED, 3 pass (2 existing, 1 guard). GROUP 3 arms: 15 RED, 1 guard pass, 0 errors. GROUP 2 and GROUP 4 not changed, not run again.
+Probe (not a test): an eval VM of the 0002 Orders release started :opentelemetry and ProbeSupport.Capture and wrote one span with unknown_keys to spans.jsonl (scratch output, not retained).
+
+## SHA-256 after RED repair
+bf2b82fd1ff015ae86181b2b392018d1853aa8cb624f2507b09d582dd227210b  ../0001-syntax-to-beam/tests/cli.rs
+ff23d780e43c16afcf58fa20fcab7ded44c4e6e14f3af5af657a77b7f0ae6b1d  tests/arm_tree.py
+c0f35e8f64dd6d1b48747d04ace68153c0f048238596a8b33bcfb7effcfa2d4f  tests/arms_test.py
+556e8ecd7aead19ffa7bf89d2e79c789c0482d1c2861aa35e9f4cff0100c2f73  tests/drift_test.py
+6fe091cdb018f9479fd15be6400cbfc1870bddc10ba0f52452d29ba68b5d76f7  tests/overlay_diff_test.py
+69bbf771460420f55a9ebf5e6ef7db6229ef81658b1784e2c32793398ea8233e  tests/payments.generated.snapshot
+f50c4b2d190bfe479d0d7696133101503d4702984d1423818bae23bd054393f1  run.py
+8a4f7b2043b28668e42bbb5778387e383c5a59ffba2da12a550eee96199c5c09  arms/gen/orders.beaml

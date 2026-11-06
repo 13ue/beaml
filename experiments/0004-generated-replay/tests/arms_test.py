@@ -3,7 +3,9 @@
 Each arm runs in a temporary tree with the repository layout (tests/arm_tree.py). The originals stay the control.
 Case (d2) follows the owner decision of 2026-11-06 (tolerant decode with a hint, notes.md):
 an unknown key is accepted and named in the RESPONSE RECORD (`unknown_keys`) and on the EFFECT span.
-A missing or wrongly typed declared field gives `PaymentError{reason: "decode"}`.
+A missing or wrongly typed declared field gives `PaymentError{reason: "decode"}`, live (L3) and in a REPLAY RUN.
+`Replay.run/3` returns only `{:ok, payment}` or `{:error, reason}` (D7 repair). A REPLAY RUN reports the
+hint on its EFFECT span; the harness adds the spans of the eval VM to the replay report.
 Run serially, loopback only: python3 -B experiments/0004-generated-replay/tests/arms_test.py [-k NAME]
 """
 import atexit
@@ -63,10 +65,16 @@ REPLAY_CALL = {
            "input[\"trace_id\"], input[\"responses\"])",
 }
 PLACE_CALL = {"gen": "OrdersBeamlSpike.place(order)", "lib": "raise ArgumentError, \"no place in LIB\""}
-# The 0003 eval harness with the arm runner. The replay success may carry a hint (notes.md, RED decision D7).
+# The 0003 eval harness with the arm runner. One return shape (D7 repair): `{:ok, payment}` or `{:error, reason}`.
+# With "observe", the eval VM starts only OpenTelemetry and the capture writer, so the replay EFFECT span
+# reaches PROBE_OUTPUT/spans.jsonl. The router and the Orders application do not start.
 HARNESS = r'''
 input = :json.decode(File.read!(System.fetch_env!("REPLAY_INPUT")))
 :persistent_term.put(:probe_count, :atomics.new(1, []))
+if input["observe"] == true do
+  {:ok, _} = Application.ensure_all_started(:opentelemetry)
+  {:ok, _} = ProbeSupport.Capture.start_link(nil)
+end
 watched = [%(watched)s]
 unwatched = for {m, _, _} = mfa <- watched, Code.ensure_loaded?(m) == false or :erlang.trace_pattern(mfa, true, [:call_count]) != 1, do: inspect(mfa)
 order = input["order"]
@@ -77,17 +85,15 @@ result =
       "replay" ->
         case %(replay)s do
           {:ok, p} -> {:ok, ProbeSupport.valid_payment!(p, order)}
-          {:ok, p, hint} -> {:ok, ProbeSupport.valid_payment!(p, order), hint}
           other -> other
         end
     end
   rescue
     error -> {:raised, inspect(error.__struct__)}
   end
-plain = fn value -> try do :json.decode(IO.iodata_to_binary(:json.encode(value))) rescue _ -> inspect(value) end end
+if input["observe"] == true, do: :otel_tracer_provider.force_flush()
 report = case result do
   {:ok, payment} -> %%{ok: payment}
-  {:ok, payment, hint} -> %%{ok: payment, hint: plain.(hint)}
   {:error, reason} when is_atom(reason) -> %%{error: Atom.to_string(reason)}
   {:error, reason} -> %%{error: inspect(reason)}
   {:raised, name} -> %%{raised: name}
@@ -248,6 +254,9 @@ def harness(arm, name, replay_input, payments_port=None):
     lines = [line[7:] for line in text.splitlines() if line.startswith("REPLAY ")]
     assert code == 0 and len(lines) == 1, ("eval_report", name, code, stderr_head("%s-eval-%s" % (arm, name)))
     report = json.loads(lines[0])
+    if replay_input.get("observe"):
+        # The replay report carries the spans of the eval VM (D7 repair: the hint is not in the return value).
+        report["spans"] = rows(out / "spans.jsonl")
     save(out / "report.json", report)
     return report
 
@@ -361,7 +370,8 @@ class GenTypeMismatch(Case):
 
     @classmethod
     def observed(cls, name):
-        bodies = {"L0": (200, VALID_BODY), "L1": (200, UNKNOWN_KEY_BODY), "L2": (503, VALID_BODY)}
+        bodies = {"L0": (200, VALID_BODY), "L1": (200, UNKNOWN_KEY_BODY), "L2": (503, VALID_BODY),
+                  "L3": (200, MISSING_KEY_BODY)}
         if name not in cls._live:
             cls._live[name] = live("gen", name, *bodies[name])
         return cls._live[name]
@@ -401,9 +411,29 @@ class GenTypeMismatch(Case):
              "client": [s["attributes"].get("outcome") for s in self.spans(seen, "orders.payments.authorize")],
              "finish": len(self.spans(seen, "orders.finish"))})
 
-    def replay_record(self, name, record):
-        report = harness("gen", name, {"mode": "replay", "trace_id": record["trace_id"], "responses": [record]})
-        return replay_counts(report, self.REPLAY_KEYS)
+    def test_d2_L3_live_missing_key_is_typed_decode_error(self):
+        # Owner decision: a response that does not match the TYPE gives a typed error, live too (review objection 2).
+        seen = self.observed("L3")
+        record = seen["records"][0] if len(seen["records"]) == 1 else {}
+        self.assertEqual(
+            {"reply": [502, {"error": "downstream_failure"}], "transport": 1, "records": 1, "status": 200,
+             "bytes": base64.b64encode(MISSING_KEY_BODY).decode(), "client": [("error", "decode")], "finish": 0},
+            {"reply": seen["reply"], "transport": seen["transport"], "records": len(seen["records"]),
+             "status": record.get("status"), "bytes": record.get("body_base64"),
+             "client": [(s["attributes"].get("outcome"), s["attributes"].get("reason"))
+                        for s in self.spans(seen, "orders.payments.authorize")],
+             "finish": len(self.spans(seen, "orders.finish"))})
+
+    def replay_record(self, name, record, observe=False):
+        replay_input = {"mode": "replay", "trace_id": record["trace_id"], "responses": [record]}
+        if observe:
+            replay_input["observe"] = True
+        report = harness("gen", name, replay_input)
+        counts = replay_counts(report, self.REPLAY_KEYS)
+        if observe:
+            counts["replay_hint"] = [s["attributes"].get("unknown_keys") for s in report.get("spans", [])
+                                     if s["name"] == "orders.payments.authorize"]
+        return counts
 
     def base_record(self, name):
         records = self.observed(name)["records"]
@@ -420,11 +450,12 @@ class GenTypeMismatch(Case):
         self.assertEqual(self.decode_error(), self.replay_record("R1", record))
 
     def test_d2_R2_replay_of_L1_record_gives_same_success_and_hint(self):
-        expected = {"result": {"ok": PAYMENT, "hint": {"unknown_keys": ["fraud_score"]}}, "transport": 0,
+        # D7 repair: one return shape; the hint is read from the replay EFFECT span in the replay report.
+        expected = {"result": {"ok": PAYMENT}, "transport": 0,
                     "OrdersApi.Router.call/2": 0, "OrdersBeamlSpike.payments_authorize/1": 0,
                     ":gen_tcp.connect/4": 0, ":json.decode/1": 1, "OrdersBeamlSpike.finish/1": 1,
-                    "ProbeSupport.valid_payment!/2": 1}
-        self.assertEqual(expected, self.replay_record("R2", self.base_record("L1")))
+                    "ProbeSupport.valid_payment!/2": 1, "replay_hint": [["fraud_score"]]}
+        self.assertEqual(expected, self.replay_record("R2", self.base_record("L1"), observe=True))
 
     def test_d2_R3_replay_wrongly_typed_field_is_decode_error(self):
         record = with_body(self.base_record("L0"), WRONG_TYPE_BODY)
@@ -451,6 +482,7 @@ class LibArm(Case):
             if len(lib[1].splitlines()) > 60:
                 problems.append("ReplayLib exceeds 60 lines")
             if "rescue" not in lib[1]:
+                # Guard only. The typed result is asserted on LIB R1 before the freeze (review objection 3).
                 problems.append("ReplayLib has no rescue")
         if descriptor is None:
             problems.append("no OrdersApi.ReplayDescriptor module")
@@ -493,6 +525,11 @@ class LibArm(Case):
             outcomes[name] = record and harness("lib", name, {"mode": "replay", "trace_id": record["trace_id"],
                                                                "responses": [record]})["result"]
         save(RESULTS / "lib" / "type-mismatch-outcomes.json", outcomes)
+        # Fixed LIB form, not an outcome class (review objection 3): ReplayLib.run returns
+        # {:error, %ReplayLib.Error{step: "decode" | "finish", reason: ...}}, never a raise, never an untyped tuple.
+        typed = (outcomes["R1"] or {}).get("error", "")
+        self.assertRegex(typed, r'^%ReplayLib\.Error\{(?=.*\bstep: "(decode|finish)")(?=.*\breason: )',
+                         "LIB R1 is not a typed ReplayLib.Error: %r" % (outcomes["R1"],))
         freeze = EXPERIMENT / "arms/lib/freeze.json"
         self.assertTrue(freeze.is_file(), "no LIB freeze record")
         frozen = json.loads(freeze.read_text())
