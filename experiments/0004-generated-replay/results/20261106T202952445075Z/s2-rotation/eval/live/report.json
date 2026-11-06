@@ -1,0 +1,82 @@
+{
+  "result": {
+    "ok": {
+      "a": "X-live",
+      "b": "Y-live"
+    }
+  },
+  "unwatched": [],
+  "calls": {
+    ":gen_tcp.connect/4": 1,
+    ":json.decode/1": 2,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": 1,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 1,
+  "artifact": "227ecbeebe7acf9f88718c502f00730ad4a1d773c7d1cdb94bcb6df90d42bccb",
+  "spans": [
+    {
+      "attributes": {
+        "function": "prepare",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "61b351a7eeb4921f7d27d570312310950f33d88563ba0dbe878d5bb398bc7f61",
+        "outcome": "ok"
+      },
+      "name": "orders.prepare",
+      "service": "orders",
+      "kind": "internal",
+      "trace_id": "79b4e5bd8c79bada285fcc5792a50d5e",
+      "span_id": "d02c93cf3ed5fb8e",
+      "end_time": -576460751841598958,
+      "end_time_unix_nano": 1793997042700201042,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time": -576460751843552667,
+      "start_time_unix_nano": 1793997042698247333
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "kind": "client",
+      "trace_id": "d82940fbd86b18576b031833bf2fe313",
+      "span_id": "0b3b55721430a6c3",
+      "end_time": -576460751836295917,
+      "end_time_unix_nano": 1793997042705504083,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time": -576460751839198667,
+      "start_time_unix_nano": 1793997042702601333
+    },
+    {
+      "attributes": {
+        "function": "finish",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "61b351a7eeb4921f7d27d570312310950f33d88563ba0dbe878d5bb398bc7f61",
+        "outcome": "ok"
+      },
+      "name": "orders.finish",
+      "service": "orders",
+      "kind": "internal",
+      "trace_id": "489eab2b6124515a3d9252ee79c336fc",
+      "span_id": "dae9bfe7a2f64bd3",
+      "end_time": -576460751836055458,
+      "end_time_unix_nano": 1793997042705744542,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time": -576460751836074042,
+      "start_time_unix_nano": 1793997042705725958
+    }
+  ]
+}

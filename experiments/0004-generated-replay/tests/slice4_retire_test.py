@@ -1,7 +1,8 @@
-"""EXPERIMENT 0004 slice 4 (README revision 8.1): RETIRE LINE, DEAD LINE warnings and the removal command.
+"""EXPERIMENT 0004 slice 4 (README revision 8.2): RETIRE LINE, DEAD LINE warnings and the removal command.
 
 Build and command cases E1, E1b, E1c, E1d, E2 (build), E5, E5b, E5c, E5d, E6, E6b, E8 (T2-T7), E9, E9b, E9c,
-E10b, E10c, E11, E11b, E11c, E11d, E12, E12b, E12c, E13, E14, E15, E15c, E15d, E16, E17, E18, E19, E19b, E19c.
+E10b, E10c, E11, E11b, E11c, E11d, E12, E12b, E12c, E13, E14, E15, E15c, E15d, E16, E17, E18, E19, E19b, E19c,
+and the revision 8.2 hardening cases E21, E21b, E21c, E21d, E21e, E22, E22b (DL-069). U1 is a Rust unit test.
 The replay and live cases (E2 metadata, E3, E3b, E4, E7, E10, E15b, E17b) are in slice4_replay_test.py.
 Each case runs twice:
   Fixture   the case sources in slice4/ (byte-equal to the template with the fixture names, see the guard),
@@ -38,6 +39,8 @@ STILL_DECLARES = "still declares effect"
 NO_PATH = "no path from the stored TYPE VERSION"
 REMOVE_DEAD = "--remove-dead"
 DEAD = "warning: DEAD LINE: "
+REFUSED = "error: removal refused: "
+ASSUME = "--assume-complete"
 
 
 class Names:
@@ -190,6 +193,7 @@ def snapshot_spec(label):
         "q-v4": [("old", q(4))], "q-v3v1": [("old", q(3)), ("old", q(1))],
         "q-v3v2": [("old", q(3)), ("old", q(2))],
         "qg-v3+old1": [("new", q(3)), ("old", q(1))], "qg-v3": [("new", q(3))],
+        "qg-old1": [("old", q(1))],
         "c2-v2": [("old", ("T", 2, "kt"))],
     }[label]
 
@@ -334,14 +338,14 @@ class Slice4Retire:
                 "stored RESPONSE RECORDS of operation %s: %d" % (N.old, count)]
 
     # Removal command.
-    def remove(self, kind, label, argv=None, relative=None):
+    def remove(self, kind, label, argv=None, relative=None, extra=()):
         """Run the removal command on a copy of `kind` (or on `relative`). Return a dict of what it did."""
         if relative is None:
             relative, _ = self.copy_source(kind)
         path = self.work / relative
         stored = self.snapshot(label) if label is not None else None
         before, stat, listing = path.read_bytes(), os.stat(path), sorted(os.listdir(path.parent))
-        argv = argv or [relative, "--stored", stored, REMOVE_DEAD]
+        argv = argv or [relative, "--stored", stored, REMOVE_DEAD] + list(extra)
         argv = [stored if a is PATH else a for a in argv]
         code, stdout, stderr = self.run_compiler(argv, self.work)
         after = os.stat(path)
@@ -350,9 +354,9 @@ class Slice4Retire:
                 "same_mtime": after.st_mtime_ns == stat.st_mtime_ns,
                 "listing_same": sorted(os.listdir(path.parent)) == listing}
 
-    def assert_removed(self, kind, label, tags, relative=None):
+    def assert_removed(self, kind, label, tags, relative=None, extra=()):
         N = self.names
-        run = self.remove(kind, label, relative=relative)
+        run = self.remove(kind, label, relative=relative, extra=extra)
         old_text = run["before"].decode()
         new_text = source_text(N, kind, without=tags)
         rel = run["relative"]
@@ -523,7 +527,8 @@ class Slice4Retire:
 
     # E18-E19c.
     def test_E18_removed_retire_line_blocks_again_with_records(self):
-        run = self.assert_removed("G+r", "empty", ("retire",))
+        # Revision 8.2: an empty snapshot needs --assume-complete (E21c is the refusal).
+        run = self.assert_removed("G+r", "empty", ("retire",), extra=(ASSUME,))
         self.assertEqual(source_text(self.names, "G").encode(), run["after"])
         stored = self.snapshot("v1")
         code, stdout, stderr = self.run_compiler([run["relative"], "--stored", stored], self.work)
@@ -545,6 +550,77 @@ class Slice4Retire:
         for argv in ([relative, REMOVE_DEAD], [relative, REMOVE_DEAD, "--stored", PATH]):
             with self.subTest(argv=" ".join("SNAPSHOT" if a is PATH else a for a in argv[1:])):
                 self.assert_untouched(self.remove("Q4", "q-v3", argv=argv, relative=relative), ["usage", REMOVE_DEAD])
+
+    # E21-E22b: hardening of the removal command (README revision 8.2, DL-069).
+    def refused_tokens(self, kind, tags, stored):
+        N = self.names
+        tokens = []
+        for tag in tags:
+            if tag == "retire":
+                tokens += [REFUSED + retire_form(N.old, N.n), "operation %s" % N.old]
+            else:
+                a = int(tag[1])
+                tokens += [REFUSED + "migrate %s %d -> %d" % (N.T, a, a + 1), "TYPE %s" % N.T]
+        return tokens + [str(stored), ASSUME]
+
+    def assert_refused(self, kind, label, tags):
+        run = self.remove(kind, label)
+        self.assert_untouched(run, self.refused_tokens(kind, tags, run["stored"]))
+        heads = [line[len(REFUSED):] for line in run["stderr"].splitlines() if line.startswith(REFUSED)]
+        N = self.names
+        forms = [retire_form(N.old, N.n) if t == "retire" else "migrate %s %s -> %d" % (N.T, t[1], int(t[1]) + 1)
+                 for t in tags]
+        self.assertEqual((forms, False, True), (heads, "warning:" in run["stderr"], run["stderr"].startswith("error:")),
+                         self.ctx(kind, label, "one refusal per DEAD LINE in source order; stderr:", run["stderr"]))
+
+    def test_E21_empty_snapshot_refuses_dead_migrate_steps(self):
+        self.assert_refused("Q4", "empty", ("s12", "s23"))
+
+    def test_E21b_retired_records_only_refuse_dead_migrate_steps(self):
+        # The snapshot is not empty, but it holds no record of TYPE T from its effect.
+        self.assert_refused("Q4g+r", "qg-old1", ("s12", "s23"))
+
+    def test_E21c_empty_snapshot_refuses_a_dead_retire_line(self):
+        self.assert_refused("G+r", "empty", ("retire",))
+
+    def test_E21d_assume_complete_removes_with_an_empty_snapshot(self):
+        run = self.assert_removed("Q4", "empty", ("s12", "s23"), extra=(ASSUME,))
+        self.assertEqual(source_text(self.names, "Q4s").encode(), run["after"])
+
+    def test_E21e_assume_complete_without_or_before_remove_dead_is_a_usage_error(self):
+        relative, _ = self.copy_source("Q4")
+        for argv in ([relative, "--stored", PATH, ASSUME], [relative, "--stored", PATH, ASSUME, REMOVE_DEAD]):
+            with self.subTest(argv=" ".join("SNAPSHOT" if a is PATH else a for a in argv[1:])):
+                self.assert_untouched(self.remove("Q4", "q-v3", argv=argv, relative=relative), ["usage", ASSUME])
+
+    def test_E22_removal_through_a_symlink_edits_the_target_and_keeps_the_link(self):
+        tag = random.randrange(10 ** 8)
+        real = self.work / ("real-%s" % tag) / "orders.beaml"
+        real.parent.mkdir()
+        real.write_bytes(self.source_bytes("Q4"))
+        link_relative = "link-%s/orders.beaml" % tag
+        link = self.work / link_relative
+        link.parent.mkdir()
+        target = os.path.join("..", "real-%s" % tag, "orders.beaml")
+        os.symlink(target, link)
+        real_inode, real_listing = os.stat(real).st_ino, sorted(os.listdir(real.parent))
+        self.assert_removed("Q4", "q-v3", ("s12", "s23"), relative=link_relative)
+        self.assertEqual(
+            {"link": True, "target": target, "real": source_text(self.names, "Q4s").encode(), "new_inode": True,
+             "real_listing": real_listing},
+            {"link": os.path.islink(link), "target": os.readlink(link) if os.path.islink(link) else None,
+             "real": real.read_bytes(), "new_inode": os.stat(real).st_ino != real_inode,
+             "real_listing": sorted(os.listdir(real.parent))},
+            self.ctx("the link stays, the real file is rewritten"))
+
+    def test_E22b_read_only_source_is_refused(self):
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            self.skipTest("root ignores the mode")
+        relative, path = self.copy_source("Q4")
+        os.chmod(path, 0o444)
+        run = self.remove("Q4", "q-v3", relative=relative)
+        self.assert_untouched(run, ["not writable", relative])
+        self.assertEqual(0o444, os.stat(path).st_mode & 0o777, self.ctx("the mode stays 0444"))
 
 
 class Fixture(Slice4Retire, unittest.TestCase):

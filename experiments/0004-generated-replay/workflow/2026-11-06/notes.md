@@ -1052,3 +1052,42 @@ STATE: GREEN with one open fault. Every done criterion exits 0, except `tests/sl
 - E4 with random names failed in the harness, not in the compiler: the live operation had a random namespace, and the harness configures only `payments_port`.
 - The main agent changed `random_names()` in `tests/slice4_retire_test.py`: the live operation keeps the namespace `payments`; the operation part stays random. Repair, chose the harness over a new port rule (a new port rule is a language decision).
 - New SHA-256 prefix of `slice4_retire_test.py`: `2ec80179628fdb56`. Both slice 4 test files pass.
+
+## Slice 4 hardening, RED
+
+- Source: DL-069 (Repair), slice 4 final review findings 1 to 3. README revision 8.2 holds the rules (contract steps 2a, 4 and 5; cases E21 to E22b, U1; E18 changed).
+- Base commit: `67d655d8`.
+- Rule 1 (step 2a): without `--assume-complete`, refuse a dead MIGRATE STEP of T when no record of an operation whose `effect` outputs T exists; refuse a dead RETIRE LINE when the snapshot holds no record. One refusal stops the command. Exit 1, file unchanged.
+- Rule 2 (step 5): resolve SOURCE to the real file; temp file and rename in its directory; the link stays. Refuse a SOURCE that the process cannot open for writing.
+- Rule 3: Rust unit test U1 `removal_writes_nothing_when_the_recheck_fails`. It needs a seam: `remove_dead_with(path, label, stem, stored, assume_complete, recheck)`. GREEN adds it.
+
+### RED results (observed)
+
+| Run | Result |
+| --- | --- |
+| `slice4_retire_test.py` | 87 tests, 18 failures: E18, E21, E21b, E21c, E21d, E21e (2 subtests), E22, E22b, in Fixture and Template. Every other case passes |
+| E21, E21b, E21c | exit 0, the dead lines removed, no `removal refused` (finding 1 reproduced) |
+| E18, E21d | usage error: `--assume-complete` unknown |
+| E21e | usage error, but the usage text does not name `--assume-complete` |
+| E22 | the link became a regular file; the real file kept its inode and its DEAD LINES (finding 2) |
+| E22b | 0444 file rewritten, exit 0, no `not writable` (finding 2) |
+| `cargo test` | before U1: 9 + 14 pass. With U1: compile error E0425 `remove_dead_with` not found (the seam), no other error |
+| `slice2_replay_test.py`, `slice3_replay_test.py`, `slice3_types_test.py`, `slice4_replay_test.py` | 21, 31, 69, 27 tests, all OK |
+
+### SHA-256 prefixes (RED)
+
+| File | SHA-256 prefix |
+| --- | --- |
+| `tests/slice4_retire_test.py` | `51e99bfdde84abdc` |
+| `0001/src/main.rs` (U1 test only) | `ee87c66725db1be5` |
+| `README.md` (revision 8.2) | `26ed52c5b57df769` |
+
+### Decisions (Decision4, hardening RED)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| H-1 | Evidence per DEAD LINE: TYPE records via its `effect` for a step, any record for a RETIRE LINE | Repair | Over "refuse any non-empty partial snapshot": not detectable. Same counting as W2 |
+| H-2 | One refusal stops the whole command | Undo | Same as the other step errors |
+| H-3 | E18 now passes `--assume-complete` | Undo | E21c is the refusal of the old E18 setup |
+| H-4 | U1 through a recheck parameter, not a FIFO race | Repair | Over a FIFO that changes the snapshot between reads: flaky. Commits GREEN to a seam |
+| H-5 | Writable test by an open for writing, not mode bits | Repair | Covers files of other owners |

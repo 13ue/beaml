@@ -3154,4 +3154,71 @@ mod tests {
             assert_eq!(compile(&source).is_ok(), subset == 15, "subset {subset}");
         }
     }
+    // U1 (EXPERIMENT 0004 README revision 8.2, contract step 4): a failed recheck writes nothing. The recheck
+    // is unreachable by the prefix rule, so the test forces it through the recheck parameter (the seam).
+    #[test]
+    fn removal_writes_nothing_when_the_recheck_fails() {
+        const RETIRED: &str = "interface Order { order_id: String }\ninterface Payment { order_id: String status: String }\ninterface PaymentError { reason: String }\n\neffect payments.charge Order -> Payment ! PaymentError = http.post(\"payments/authorize\")\nretire payments.authorize keep 30 days\n\nfn prepare Order { order_id } -> Order = Order { order_id: order_id + \"\" }\nfn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + \"\", status: status }\n\nfn place order: Order -> Payment ! PaymentError =\n  order\n  |> prepare\n  |> payments.charge\n  |> finish\n";
+        use std::os::unix::fs::MetadataExt;
+        let directory = std::env::temp_dir().join(format!(
+            "beaml-u1-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&directory).unwrap();
+        let source = directory.join("orders.beaml");
+        let stored = directory.join("empty.jsonl");
+        std::fs::write(&source, RETIRED).unwrap();
+        std::fs::write(&stored, "").unwrap();
+        let listing = |dir: &std::path::Path| {
+            let mut names: Vec<_> = std::fs::read_dir(dir)
+                .unwrap()
+                .map(|e| e.unwrap().file_name())
+                .collect();
+            names.sort();
+            names
+        };
+        // The forced failures: a build error, and a new text that still has a DEAD LINE.
+        let failed = |_: &str| -> Checked<Build> { Err("error: forced recheck failure".into()) };
+        let still_dead = |_: &str| -> Checked<Build> {
+            Ok(Build {
+                code: String::new(),
+                dead: vec![Dead {
+                    range: 0..1,
+                    form: "retire forced.line keep 1 days".into(),
+                    reason: "forced".into(),
+                }],
+            })
+        };
+        let cases: [(&dyn Fn(&str) -> Checked<Build>, &str); 2] = [
+            (&failed, "error: forced recheck failure"),
+            (&still_dead, "still has 1 DEAD LINES"),
+        ];
+        for (recheck, expected) in cases {
+            let (before, stat, names) = (
+                std::fs::read(&source).unwrap(),
+                std::fs::metadata(&source).unwrap(),
+                listing(&directory),
+            );
+            let error = remove_dead_with(&source, "orders.beaml", Some("orders"), &stored, true, recheck)
+                .unwrap_err();
+            let after = std::fs::metadata(&source).unwrap();
+            assert!(error.starts_with("error: removal check failed"), "{error}");
+            assert!(error.contains(expected), "{error}");
+            assert_eq!(before, std::fs::read(&source).unwrap(), "same bytes");
+            assert_eq!((stat.ino(), stat.mtime(), stat.mtime_nsec()), (after.ino(), after.mtime(), after.mtime_nsec()), "same inode and modification time");
+            assert_eq!(names, listing(&directory), "no temporary file");
+        }
+        // Control: the normal recheck removes the RETIRE LINE (the setup has a DEAD LINE and passes step 2a).
+        let normal = |new: &str| build(new, Some("orders"), Some(&stored));
+        assert_eq!(
+            Ok(1),
+            remove_dead_with(&source, "orders.beaml", Some("orders"), &stored, true, &normal)
+        );
+        assert!(!std::fs::read_to_string(&source).unwrap().contains("retire"));
+        let _ = std::fs::remove_dir_all(&directory);
+    }
 }

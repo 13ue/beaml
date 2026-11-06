@@ -19,3 +19,6 @@ raw/private/
 /experiments/0002-http-correlation/apps/*/lib/generated.ex
 
 /experiments/0002-http-correlation/erl_crash.dump
+
+# Action logs written by compiler and test runs
+.beaml/
