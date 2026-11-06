@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BEAML Experiment 0004</title>
+<style>
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --fg:#18202b; --muted:#5a6573; --line:#d4d9e0;
+  --accent:#2f4f9e; --accent-soft:#e6ecf8;
+  --ok:#2c7a4b; --ok-soft:#e3f2e8; --wait:#a8690f; --wait-soft:#fbf0dc; --open:#6b7480; --open-soft:#eceef1; --bad:#b0362f; --bad-soft:#f8e4e2;
+  --host:#6a4c93; --host-soft:#efe8f7;
+  --code-bg:#f7f8fa;
+  --hl-k:#8a3fa0; --hl-t:#1f6f7a; --hl-f:#2f4f9e; --hl-p:#7a4a1c; --hl-s:#2c7a4b; --hl-c:#b4560f; --hl-o:#5a6573; --hl-m:#7b8592;
+  --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161c; --surface:#1a2029; --fg:#e4e8ee; --muted:#9aa4b2; --line:#2e3744;
+  --accent:#8fa8ec; --accent-soft:#1f2a44;
+  --ok:#6cc58f; --ok-soft:#173225; --wait:#e5b05a; --wait-soft:#3a2c14; --open:#a3abb6; --open-soft:#242b35; --bad:#ef8a83; --bad-soft:#3a1d1b;
+  --host:#c3a6ea; --host-soft:#2c2240; --code-bg:#151a22;
+  --hl-k:#d19af0; --hl-t:#6fd0d8; --hl-f:#8fb4f5; --hl-p:#e6b98a; --hl-s:#8fd6a5; --hl-c:#f2a66a; --hl-o:#a3abb6; --hl-m:#7d8796;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161c; --surface:#1a2029; --fg:#e4e8ee; --muted:#9aa4b2; --line:#2e3744;
+  --accent:#8fa8ec; --accent-soft:#1f2a44;
+  --ok:#6cc58f; --ok-soft:#173225; --wait:#e5b05a; --wait-soft:#3a2c14; --open:#a3abb6; --open-soft:#242b35; --bad:#ef8a83; --bad-soft:#3a1d1b;
+  --host:#c3a6ea; --host-soft:#2c2240; --code-bg:#151a22;
+  --hl-k:#d19af0; --hl-t:#6fd0d8; --hl-f:#8fb4f5; --hl-p:#e6b98a; --hl-s:#8fd6a5; --hl-c:#f2a66a; --hl-o:#a3abb6; --hl-m:#7d8796;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.55;overflow-x:hidden}
+a{color:var(--accent)}
+.wrap{max-width:900px;margin:0 auto;padding:32px 16px 64px;display:grid;gap:40px;min-width:0}
+.wrap>*{min-width:0}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:30px;font-weight:700}
+h2{font-size:20px;font-weight:600;margin-bottom:14px}
+h3{font-size:15px;font-weight:600}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lead{color:var(--muted);font-size:16px;margin-top:8px}
+code,.mono,pre,.term{font-variant-ligatures:none}
+code,.mono{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+section{display:grid;gap:12px;min-width:0}
+.note{color:var(--muted);font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap;justify-self:start}
+.chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.wait{background:var(--wait-soft);color:var(--wait)}
+.chip.open{background:var(--open-soft);color:var(--open)} .chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.beaml{background:var(--accent-soft);color:var(--accent)} .chip.host{background:var(--host-soft);color:var(--host)}
+.diagram{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+.flow{display:flex;align-items:center;gap:10px;min-width:max-content}
+.box{border:1.5px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--bg);display:grid;gap:4px;min-width:120px}
+.box b{font-size:14px}
+.box small{color:var(--muted);font-size:12px}
+.box.ok{border-color:var(--ok)} .box.wait{border-color:var(--wait);border-style:dashed} .box.bad{border-color:var(--bad)}
+.arrow{color:var(--muted);font-family:var(--mono);font-size:18px;flex:none}
+.gates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.gate{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:6px;align-content:start;min-width:0}
+.gate .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.gate.now{border-color:var(--wait);box-shadow:0 0 0 2px var(--wait-soft)}
+.gate .chip{white-space:normal}
+@media (max-width:720px){.gates{grid-template-columns:1fr 1fr}}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+tr:last-child td{border-bottom:0}
+tr.grp td{background:var(--bg);font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.red{color:var(--bad)} .green{color:var(--ok)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:8px;align-content:start;min-width:0}
+.card ul,.list{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.card li,.list li{padding-left:18px;position:relative}
+.card li::before,.list li::before{content:"→";position:absolute;left:0;color:var(--muted)}
+.card dl{margin:0;display:grid;gap:6px}
+.card dt{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.card dd{margin:0}
+.slice{display:grid;gap:10px}
+.slice .head{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.decisions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){.decisions{grid-template-columns:1fr}}
+.legend{display:flex;flex-wrap:wrap;gap:8px}
+/* BEAML code fragments from integrations/zed-beaml/preview.py --chat */
+figure.code{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:10px;min-width:0;overflow:hidden}
+figure.code figcaption{padding:10px 14px 0;font-size:13px;color:var(--muted)}
+figure.code .h{padding:8px 14px;font-family:var(--mono);font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
+figure.code pre{margin:0;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--fg)}
+figure.code pre i{font-style:normal}
+.code i.k{color:var(--hl-k);font-weight:600} .code i.t{color:var(--hl-t)} .code i.f{color:var(--hl-f)}
+.code i.p{color:var(--hl-p)} .code i.s{color:var(--hl-s)} .code i.c{color:var(--hl-c);font-weight:600}
+.code i.o,.code i.b{color:var(--hl-o)} .code i.m{color:var(--hl-m);font-style:italic}
+.term{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}
+.term .cmd{color:var(--muted)} .term .err{color:var(--bad);font-weight:600} .term .warn{color:var(--wait);font-weight:600} .term .help{color:var(--ok)}
+.term .del{color:var(--bad)} .term .add{color:var(--ok)}
+.pair{display:grid;gap:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">BEAML · EXPERIMENT 0004 · slice 5 GREEN · State 2026-11-06 · HEAD bdc79ecc</div>
+  <h1>Generated REPLAY RUN</h1>
+  <p class="lead">One BEAML source generates the flow, the HTTP EFFECT, the decode, the CAPTURE and the REPLAY RUN. Since slice 2 the compiler also knows the TYPE VERSION of every stored record.</p>
+</header>
+
+<section>
+  <h2>The goal: vertical integration</h2>
+  <p>OWNER statement (DL-020): BEAML owns the whole path from source to production, so that agents make fewer errors. One language and one compiler know every stage.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>What the compiler must own</h3>
+      <ul>
+        <li>Rust-level diagnostics, fast builds</li>
+        <li>Types at runtime; no <code>any</code>, no casts</li>
+        <li>Typed errors, analysed failures</li>
+        <li>Built-in tests and evals</li>
+        <li>Typed traces, alerts, flags</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Applied to stored data</h3>
+      <ul>
+        <li>Compiler knows stored TYPE VERSIONS (DL-021)</li>
+        <li>History as a <code>migrate</code> chain (DL-022)</li>
+        <li>No guessing fallback (DL-028)</li>
+        <li>Deploy blocks only without a path (DL-031)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="diagram">
+    <div class="flow">
+      <div class="box"><b>BEAML source</b><small><code>type</code>, <code>migrate</code>, <code>effect</code>, <code>retire</code></small></div>
+      <div class="arrow">──►</div>
+      <div class="box"><b>RECORD SNAPSHOT</b><small><code>--stored</code>: stored TYPE VERSIONS</small></div>
+      <div class="arrow">──►</div>
+      <div class="box ok"><b>Compiler check</b><small>path for every stored version?</small></div>
+      <div class="arrow">──►</div>
+      <div class="box ok"><b>Generated Elixir</b><small>flow, EFFECT, decode by version, replay</small></div>
+    </div>
+  </div>
+  <p class="note">Source: <span class="mono">wiki/concepts/vertical-integration.md</span>.</p>
+</section>
+
+<section>
+  <h2>Slice status</h2>
+  <div class="gates">
+    <div class="gate"><span class="n">Slice 1</span><h3>Generated replay</h3><span class="chip bad">claim rejected</span></div>
+    <div class="gate"><span class="n">Slice 2</span><h3><code>rename</code> + stored versions</h3><span class="chip ok">BLOCK → repaired</span></div>
+    <div class="gate"><span class="n">Slice 3</span><h3><code>add</code> + <code>drop</code></h3><span class="chip ok">BLOCK → repaired</span></div>
+    <div class="gate"><span class="n">Slice 4</span><h3><code>retire</code> + dead lines</h3><span class="chip ok">PASS WITH NOTES → hardened</span></div>
+    <div class="gate now"><span class="n">Slice 5</span><h3><code>type</code> + <code>v</code> marks</h3><span class="chip wait">GREEN; review not recorded</span></div>
+  </div>
+  <p class="note">Each slice: plan → fresh check → RED → GREEN → final review (Devil's Advocate, DL-007) → repair. Verdicts from the decision log triggers and <span class="mono">workflow/2026-11-06/notes.md</span>.</p>
+</section>
+
+<section>
+  <h2>Slice 1 verdict</h2>
+  <div class="cards">
+    <div class="card">
+      <span class="chip bad">Claim REJECTED under its own rule</span>
+      <h3>What the rule measured</h3>
+      <ul>
+        <li>Manual change sites: GEN 0, LIB 0</li>
+        <li>Rule needed GEN &lt; LIB</li>
+        <li>Build passed in all 6 DRIFT rows</li>
+        <li>Only difference (DRIFT Q, live): GEN typed reject, LIB untyped crash</li>
+        <li>Cause: old 0002 transport in LIB, not the TYPE</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="chip beaml">Why the rule is superseded</span>
+      <h3>It measured the wrong thing</h3>
+      <ul>
+        <li>A LIB with no TYPE facts needs no edit after a field change</li>
+        <li>So a site count cannot favor GEN</li>
+        <li>No arm knew stored TYPES, so no build could fail</li>
+        <li>Slice 2+: absolute rule against stored TYPE VERSIONS; LIB stays a control</li>
+      </ul>
+    </div>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>DRIFT</th><th>Arm</th><th>new_live</th><th>pre_change replay</th><th>replay sites</th></tr></thead>
+      <tbody>
+        <tr><td>R</td><td>GEN / LIB</td><td>false_reject (host <code>valid_payment!</code>)</td><td class="green">typed_reject</td><td>0 / 0</td></tr>
+        <tr><td>N</td><td>GEN / LIB</td><td>false_reject (host <code>valid_payment!</code>)</td><td class="green">typed_reject</td><td>0 / 0</td></tr>
+        <tr><td>Q</td><td>GEN</td><td class="green">typed_reject (<code>PaymentError status</code>)</td><td class="green"><code>request_mismatch</code></td><td>0</td></tr>
+        <tr><td>Q</td><td>LIB</td><td class="red">untyped_crash (<code>MatchError</code>)</td><td class="green"><code>request_mismatch</code></td><td>0</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Counted run <span class="mono">results/20261106T124451474390Z</span>. DL-019; README "Slice 1 verdict"; commits <span class="mono">78fd7a43</span> (GREEN-2), <span class="mono">c376880c</span> (verdict).</p>
+</section>
+
+<section>
+  <h2>Slices 1–5</h2>
+  <div class="slice">
+
+    <div class="card">
+      <div class="head"><span class="chip bad">Slice 1</span><h3>Can one BEAML source generate the whole replay path?</h3></div>
+      <dl>
+        <dt>Built</dt><dd><code>effect</code> with <code>http.post</code>, <code>!</code> failure TYPE, <code>|&gt;</code> pipe, generated decode (tolerant with <code>unknown_keys</code>, DL-017), CAPTURE <code>Replay.record/3</code>, runner <code>Replay.run/3</code>. Router calls only generated code. LIB arm frozen as control.</dd>
+        <dt>Final review</dt><dd>Implementation passes with notes; claim rejected (above).</dd>
+        <dt>Tests</dt><dd>cargo unit 9 + cli 12; <code>arms_test</code> 16/16; <code>overlay_diff</code> 3/3; <code>drift</code> 3/3; <code>run.py</code> pass.</dd>
+        <dt>Commits</dt><dd class="mono">4dc9cdde RED · 624a34f3 GREEN-1 · 78fd7a43 GREEN-2 · c376880c verdict</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <div class="head"><span class="chip ok">Slice 2</span><h3>Can the compiler refuse a field rename without a <code>rename</code> step, because stored records hold the old TYPE VERSION?</h3></div>
+      <dl>
+        <dt>Built</dt><dd><code>--stored SNAPSHOT.jsonl</code>; record key <code>type</code> (name, version, fields, SHA-256 fingerprint); <code>migrate T a -&gt; b { rename old -&gt; new }</code>; old versions derived backwards; build fails when a stored version has no path.</dd>
+        <dt>Final review</dt><dd><b>BLOCK</b>. The decode applied <code>rename</code> by key presence: name reuse gave a decode error, a rotation swapped <code>a</code> and <code>b</code> live (wrong accept). Fix: decode by the record's TYPE VERSION (DL-043).</dd>
+        <dt>Tests</dt><dd><code>stored_types</code> 33/33; <code>slice2_replay</code> 21/21; arms 16/16; cargo 9 + 14.</dd>
+        <dt>Commits</dt><dd class="mono">a36c8df8 RED · 402d5953 GREEN · dafd2225 review repair</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <div class="head"><span class="chip ok">Slice 3</span><h3>Can it refuse an added or removed field without <code>add</code> / <code>drop</code>, and replay old records correctly?</h3></div>
+      <dl>
+        <dt>Built</dt><dd><code>add f: T = &lt;constant&gt;</code> and <code>drop f: String</code> in a MIGRATE STEP, comma separated; help lines name the missing MIGRATE CHANGE; the <code>add</code> constant always wins in a replay (DL-048).</dd>
+        <dt>Final review</dt><dd><b>BLOCK</b>. Steps ran on the raw body, so a stray key could win over a typed old field without a trace. Fix: type the stored body by its own version before any step (DL-054).</dd>
+        <dt>Tests</dt><dd><code>slice3_types</code> 69/69; <code>slice3_replay</code> 31/31; <code>slice2_replay</code> 21/21.</dd>
+        <dt>Commits</dt><dd class="mono">cfcc553d RED · 6d7cac98 GREEN · 29ea5c28 DL-054 · 9474e4be RED · 1225967d GREEN</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <div class="head"><span class="chip ok">Slice 4</span><h3>Can it refuse a deleted EFFECT with stored records, accept it with a RETIRE LINE, and remove DEAD LINES safely?</h3></div>
+      <dl>
+        <dt>Built</dt><dd><code>retire &lt;op&gt; keep &lt;n&gt; days</code>; retired records replay as a typed reject; DEAD LINE warnings; <code>--remove-dead</code> with a difflib-equal diff (DL-067), recheck and atomic write.</dd>
+        <dt>Final review</dt><dd><b>PASS WITH NOTES</b>. An empty snapshot removed needed steps with exit 0; a symlink was replaced; a read-only file was rewritten. Fix: <code>--assume-complete</code> evidence rule, symlink resolve, writable check, unit test U1 (DL-069).</dd>
+        <dt>Tests</dt><dd><code>slice4_retire</code> 87; <code>slice4_replay</code> 27; cargo 10 + 14.</dd>
+        <dt>Commits</dt><dd class="mono">a1dc7677 RED · 079c34e5 GREEN · 67d655d8 DL-069 · c5bb9387 RED · f29e3f12 GREEN</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <div class="head"><span class="chip wait">Slice 5</span><h3>After a SQUASH, can the type line keep the newest version, so every DEAD LINE can go and the number never falls back?</h3></div>
+      <dl>
+        <dt>Built</dt><dd><code>type</code> replaces <code>interface</code> (DL-061); <code>v</code> on every version (DL-072); VERSION MARK <code>type Payment v4</code>; <code>--remove-dead</code> writes the mark (DL-070, DL-071); 55 files rewritten, audited (A1) and checked for equal behaviour (A2).</dd>
+        <dt>Final review</dt><dd>Not recorded in the repo at HEAD. GREEN found two RED test faults, fixed by the main agent (DL-078).</dd>
+        <dt>Tests</dt><dd><code>slice5_syntax</code> 54 (8 skipped, PENDING O7); <code>slice5_squash</code> 24; <code>slice5_replay</code> 12; <code>slice5_rewrite</code> 5; cargo 11 + 14; grammar 13 parses, 69 highlight assertions.</dd>
+        <dt>Commits</dt><dd class="mono">6727353d plan · 721e7eea RED · eefaf483 RED repair · bdc79ecc GREEN</dd>
+      </dl>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2>Feature status</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Feature</th><th>State</th><th>DL</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td colspan="3">Built</td></tr>
+        <tr><td><code>effect</code>, <code>!</code>, <code>|&gt;</code>, generated decode and replay</td><td><span class="chip ok">slice 1</span></td><td>DL-013, DL-014, DL-015, DL-017</td></tr>
+        <tr><td>Stored TYPE VERSIONS, <code>rename</code>, decode by version</td><td><span class="chip ok">slice 2</span></td><td>DL-021, DL-022, DL-031, DL-043</td></tr>
+        <tr><td><code>add</code> with a constant, <code>drop</code> with a TYPE</td><td><span class="chip ok">slice 3</span></td><td>DL-023, DL-048, DL-049, DL-054</td></tr>
+        <tr><td><code>retire … keep … days</code>, DEAD LINES, <code>--remove-dead</code></td><td><span class="chip ok">slice 4</span></td><td>DL-055, DL-056, DL-069</td></tr>
+        <tr><td><code>type</code>, <code>v</code> numbers, VERSION MARK, SQUASH</td><td><span class="chip ok">slice 5</span></td><td>DL-061, DL-070, DL-071, DL-072</td></tr>
+        <tr class="grp"><td colspan="3">In progress</td></tr>
+        <tr><td>VERSION MARK strictness</td><td><span class="chip wait">provisional (a), O7</span></td><td>DL-077</td></tr>
+        <tr><td>Production source of stored versions</td><td><span class="chip wait">snapshot only, O5</span></td><td>DL-034, DL-063</td></tr>
+        <tr><td>Slice 5 final review</td><td><span class="chip wait">not recorded</span></td><td>DL-007</td></tr>
+        <tr class="grp"><td colspan="3">Decided, syntax open or not built</td></tr>
+        <tr><td><code>Unknown(String)</code> as a declared <code>enum</code> variant; last clause keeps the value</td><td><span class="chip open">decided, not built</span></td><td>DL-028, DL-062, DL-065</td></tr>
+        <tr><td><code>redacted</code> PII field: <code>card_holder: redacted String</code></td><td><span class="chip open">syntax decided, not built</span></td><td>DL-029, DL-059</td></tr>
+        <tr><td>Division: <code>DivByZero</code> failure or non-zero integer TYPE</td><td><span class="chip open">rule decided, syntax open</span></td><td>DL-030</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>BEAML sources</h2>
+  <p class="note">Highlighted with the project grammar: <span class="mono">integrations/zed-beaml/preview.py --chat</span> on real repo sources.</p>
+  <figure class="code"><figcaption>Slice 1 base: the flow, the EFFECT and its failure TYPE in BEAML (<span class="mono">arms/gen/orders.beaml</span>)</figcaption><div class=h>orders.beaml · 16 lines</div><pre><i class=k>type</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=p>status</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>PaymentError</i> <i class=b>{</i> <i class=p>reason</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+
+<i class=m>// Leaves the module. Recorded live, substituted in a REPLAY RUN.</i>
+<i class=k>effect</i> <i class=f>payments.authorize</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i> <i class=f>http.post</i><i class=b>(</i><i class=s>&quot;payments/authorize&quot;</i><i class=b>)</i>
+
+<i class=k>fn</i> <i class=f>prepare</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Order</i> <i class=o>=</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id <i class=o>+</i> <i class=s>&quot;&quot;</i> <i class=b>}</i>
+<i class=k>fn</i> <i class=f>finish</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=b>,</i> <i class=p>status</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>=</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id <i class=o>+</i> <i class=s>&quot;&quot;</i><i class=b>,</i> <i class=p>status</i><i class=o>:</i> status <i class=b>}</i>
+
+<i class=m>// The flow lives in BEAML. A failed step stops the pipe and passes PaymentError on.</i>
+<i class=k>fn</i> <i class=f>place</i> order<i class=o>:</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i>
+  order
+  <i class=o>|&gt;</i> <i class=f>prepare</i>
+  <i class=o>|&gt;</i> <i class=f>payments.authorize</i>
+  <i class=o>|&gt;</i> <i class=f>finish</i></pre></figure>
+  <figure class="code"><figcaption>Slice 3: <code>drop</code>, then <code>add</code> with a constant, then <code>rename</code> of the same field, case D17 (<span class="mono">slice3/SAR/orders.beaml</span>)</figcaption><div class=h>orders.beaml · 18 lines</div><pre><i class=m>// Case D17 (DL-054): `drop channel`, then `add channel` with a constant, then `rename channel -&gt; reference`.</i>
+<i class=k>type</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=p>reference</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>migrate</i> <i class=t>Payment</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i> <i class=k>drop</i> <i class=p>channel</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>migrate</i> <i class=t>Payment</i> <i class=c>v2</i> <i class=o>-&gt;</i> <i class=c>v3</i> <i class=b>{</i> <i class=k>add</i> <i class=p>channel</i><i class=o>:</i> <i class=t>String</i> <i class=o>=</i> <i class=s>&quot;pre-v2&quot;</i> <i class=b>}</i>
+<i class=k>migrate</i> <i class=t>Payment</i> <i class=c>v3</i> <i class=o>-&gt;</i> <i class=c>v4</i> <i class=b>{</i> <i class=k>rename</i> <i class=p>channel</i> <i class=o>-&gt;</i> <i class=p>reference</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>PaymentError</i> <i class=b>{</i> <i class=p>reason</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+
+<i class=k>effect</i> <i class=f>payments.authorize</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i> <i class=f>http.post</i><i class=b>(</i><i class=s>&quot;payments/authorize&quot;</i><i class=b>)</i>
+
+<i class=k>fn</i> <i class=f>prepare</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Order</i> <i class=o>=</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id <i class=o>+</i> <i class=s>&quot;&quot;</i> <i class=b>}</i>
+<i class=k>fn</i> <i class=f>finish</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=b>,</i> <i class=p>reference</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>=</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id <i class=o>+</i> <i class=s>&quot;&quot;</i><i class=b>,</i> <i class=p>reference</i><i class=o>:</i> reference <i class=b>}</i>
+
+<i class=k>fn</i> <i class=f>place</i> order<i class=o>:</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i>
+  order
+  <i class=o>|&gt;</i> <i class=f>prepare</i>
+  <i class=o>|&gt;</i> <i class=f>payments.authorize</i>
+  <i class=o>|&gt;</i> <i class=f>finish</i></pre></figure>
+  <figure class="code"><figcaption>Slice 4: <code>payments.authorize</code> is deleted, its stored records are kept 30 days (<span class="mono">slice4/G+r/orders.beaml</span>)</figcaption><div class=h>orders.beaml · 16 lines</div><pre><i class=m>// EXPERIMENT 0004 slice 4: one EFFECT, a retired operation (sources B, G, P, C2 and their +r forms).</i>
+<i class=k>type</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=p>status</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>PaymentError</i> <i class=b>{</i> <i class=p>reason</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+
+<i class=k>effect</i> <i class=f>payments.charge</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i> <i class=f>http.post</i><i class=b>(</i><i class=s>&quot;payments/authorize&quot;</i><i class=b>)</i>
+<i class=k>retire</i> <i class=f>payments.authorize</i> <i class=k>keep</i> <i class=c>30</i> <i class=k>days</i>
+
+<i class=k>fn</i> <i class=f>prepare</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Order</i> <i class=o>=</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id <i class=o>+</i> <i class=s>&quot;&quot;</i> <i class=b>}</i>
+<i class=k>fn</i> <i class=f>finish</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=b>,</i> <i class=p>status</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>=</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id <i class=o>+</i> <i class=s>&quot;&quot;</i><i class=b>,</i> <i class=p>status</i><i class=o>:</i> status <i class=b>}</i>
+
+<i class=k>fn</i> <i class=f>place</i> order<i class=o>:</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i>
+  order
+  <i class=o>|&gt;</i> <i class=f>prepare</i>
+  <i class=o>|&gt;</i> <i class=f>payments.charge</i>
+  <i class=o>|&gt;</i> <i class=f>finish</i></pre></figure>
+  <figure class="code"><figcaption>Slice 5: after a SQUASH, the VERSION MARK <code>v4</code> sits on the type line (<span class="mono">slice5/Q4s/orders.beaml</span>)</figcaption><div class=h>orders.beaml · 19 lines</div><pre><i class=m>// EXPERIMENT 0004 slice 5: a MIGRATE CHAIN of four TYPE VERSIONS (sources Q4, Q4s, Q4z).</i>
+<i class=k>type</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>Payment</i> <i class=c>v4</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=p>state</i><i class=o>:</i> <i class=t>String</i> <i class=p>reference</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=m>// The first two MIGRATE STEPS are DEAD LINES when no record has v2 or older.</i>
+
+<i class=m>// The last MIGRATE STEP is a DEAD LINE when only its target version is stored.</i>
+<i class=k>migrate</i> <i class=t>Payment</i> <i class=c>v3</i> <i class=o>-&gt;</i> <i class=c>v4</i> <i class=b>{</i> <i class=k>drop</i> <i class=p>channel</i><i class=o>:</i> <i class=t>String</i><i class=b>,</i> <i class=k>add</i> <i class=p>reference</i><i class=o>:</i> <i class=t>String</i> <i class=o>=</i> <i class=s>&quot;pre-v4&quot;</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>PaymentError</i> <i class=b>{</i> <i class=p>reason</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+
+<i class=k>effect</i> <i class=f>payments.authorize</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i> <i class=f>http.post</i><i class=b>(</i><i class=s>&quot;payments/authorize&quot;</i><i class=b>)</i>
+
+<i class=k>fn</i> <i class=f>prepare</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Order</i> <i class=o>=</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id <i class=o>+</i> <i class=s>&quot;&quot;</i> <i class=b>}</i>
+<i class=k>fn</i> <i class=f>finish</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=b>,</i> <i class=p>state</i><i class=b>,</i> <i class=p>reference</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>=</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id <i class=o>+</i> <i class=s>&quot;&quot;</i><i class=b>,</i> <i class=p>state</i><i class=o>:</i> state<i class=b>,</i> <i class=p>reference</i><i class=o>:</i> reference <i class=b>}</i>
+
+<i class=k>fn</i> <i class=f>place</i> order<i class=o>:</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i>
+  order
+  <i class=o>|&gt;</i> <i class=f>prepare</i>
+  <i class=o>|&gt;</i> <i class=f>payments.authorize</i>
+  <i class=o>|&gt;</i> <i class=f>finish</i></pre></figure>
+</section>
+
+<section>
+  <h2>Real compiler output</h2>
+  <p class="note">Binary <span class="mono">experiments/0001-syntax-to-beam/target/debug/beaml-spike</span> at HEAD, run on scratch copies of the fixtures. Paths shortened to <span class="mono">orders.beaml</span>.</p>
+  <div class="pair">
+    <h3>Missing MIGRATE STEP: <code>status</code> renamed to <code>state</code>, v1 records stored</h3>
+    <pre class="term"><span class="cmd">$ beaml-spike orders.beaml --stored v1.jsonl</span>
+<span class="err">error: TYPE Payment cannot read 1 stored RESPONSE RECORD of operation payments.authorize</span>
+  stored TYPE VERSION: Payment v1 { order_id: String status: String } (fingerprint 35a7a9d23ad4)
+  newest TYPE VERSION: Payment v1 { order_id: String state: String }
+  record source: v1.jsonl (first at line 1)
+  no path from the stored TYPE VERSION to the newest TYPE VERSION
+  field status: String is in the stored TYPE VERSION, not in the newest TYPE VERSION
+  field state: String is in the newest TYPE VERSION, not in the stored TYPE VERSION
+<span class="help">  help: if state is status renamed, declare: migrate Payment v1 -&gt; v2 { rename status -&gt; state }</span>
+<span class="help">  help: if status is removed and state is new, declare: migrate Payment v1 -&gt; v2 { drop status: String, add state: String = &lt;constant&gt; }</span>
+exit 1</pre>
+    <h3>Old keyword: <code>interface</code> after slice 5</h3>
+    <pre class="term"><span class="cmd">$ beaml-spike orders.beaml --stored v1.jsonl</span>
+<span class="err">error: interface does not declare a record; records use type</span>
+  at byte 0
+<span class="help">  help: declare: type Order { ... }</span>
+  note: the word interface is kept for behaviour contracts
+exit 1</pre>
+    <h3>Deleted EFFECT with stored records (source G); with the RETIRE LINE (G+r) it compiles, exit 0</h3>
+    <pre class="term"><span class="cmd">$ beaml-spike orders.beaml --stored v1.jsonl</span>
+<span class="err">error: stored RESPONSE RECORD of operation payments.authorize has no effect in the source</span>
+  record source: v1.jsonl:1 (line 1)
+  stored RESPONSE RECORDS of operation payments.authorize: 1
+<span class="help">  help: if the effect is deleted on purpose, declare: retire payments.authorize keep &lt;n&gt; days</span>
+exit 1</pre>
+    <h3>DEAD LINES: only v4 records stored (slice 5 source Q4)</h3>
+    <pre class="term"><span class="cmd">$ beaml-spike orders.beaml --stored v4.jsonl</span>
+<span class="warn">warning: DEAD LINE: migrate Payment v1 -&gt; v2</span>
+  at orders.beaml:5
+  record source: v4.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+<span class="help">  help: remove DEAD LINES with: beaml-spike orders.beaml --stored v4.jsonl --remove-dead</span>
+<span class="warn">warning: DEAD LINE: migrate Payment v2 -&gt; v3</span>
+  at orders.beaml:7
+  record source: v4.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+<span class="help">  help: remove DEAD LINES with: beaml-spike orders.beaml --stored v4.jsonl --remove-dead</span>
+<span class="warn">warning: DEAD LINE: migrate Payment v3 -&gt; v4</span>
+  at orders.beaml:11
+  record source: v4.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+<span class="help">  help: remove DEAD LINES with: beaml-spike orders.beaml --stored v4.jsonl --remove-dead</span>
+exit 0</pre>
+    <h3>SQUASH on the scratch copy, then an old v1 record appears again</h3>
+    <pre class="term"><span class="cmd">$ beaml-spike orders.beaml --stored v4.jsonl --remove-dead --assume-complete</span>
+--- orders.beaml
++++ orders.beaml
+@@ -3 +3 @@
+<span class="del">-type Payment { order_id: String state: String reference: String }</span>
+<span class="add">+type Payment v4 { order_id: String state: String reference: String }</span>
+@@ -5 +4,0 @@
+<span class="del">-migrate Payment v1 -&gt; v2 { rename status -&gt; state }</span>
+@@ -7,3 +5,0 @@
+<span class="del">-migrate Payment v2 -&gt; v3 {</span>
+<span class="del">-  add channel: String = &quot;web&quot;</span>
+<span class="del">-}</span>
+@@ -11 +6,0 @@
+<span class="del">-migrate Payment v3 -&gt; v4 { drop channel: String, add reference: String = &quot;pre-v4&quot; }</span>
+removed 3 DEAD LINES from orders.beaml
+wrote VERSION MARK v4 on type Payment in orders.beaml
+
+<span class="cmd">$ beaml-spike orders.beaml --stored v1.jsonl</span>
+<span class="err">error: TYPE Payment cannot read 1 stored RESPONSE RECORD of operation payments.authorize</span>
+  stored TYPE VERSION: Payment v1 { order_id: String status: String } (fingerprint 35a7a9d23ad4)
+  newest TYPE VERSION: Payment v4 { order_id: String state: String reference: String }
+  record source: v1.jsonl (first at line 1)
+  no path from the stored TYPE VERSION to the newest TYPE VERSION
+  field status: String is in the stored TYPE VERSION, not in the newest TYPE VERSION
+  field state: String is in the newest TYPE VERSION, not in the stored TYPE VERSION
+  field reference: String is in the newest TYPE VERSION, not in the stored TYPE VERSION
+<span class="help">  help: the MIGRATE CHAIN of Payment starts at v4; the stored TYPE VERSION v1 is older. Restore from version control: migrate Payment v1 -&gt; v2, migrate Payment v2 -&gt; v3, migrate Payment v3 -&gt; v4</span>
+exit 1</pre>
+  </div>
+</section>
+
+<section>
+  <h2>Open OWNER questions</h2>
+  <div class="decisions">
+    <div class="card">
+      <span class="chip wait">O5 · Migrate · open since slice 2</span>
+      <h3>Where do stored TYPE VERSIONS come from in production?</h3>
+      <ul>
+        <li>RECORD SNAPSHOT, lock file, or live query of deployed nodes</li>
+        <li>Today: the build trusts <code>--stored</code></li>
+        <li>A partial snapshot with one record of the TYPE still passes the removal check</li>
+        <li>A hand-edited lower mark with an empty snapshot compiles</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="chip wait">O7 · Migrate · slice 5</span>
+      <h3>How strict is the VERSION MARK?</h3>
+      <ul>
+        <li>(a) permissive: any agreeing mark is legal (provisional, DL-077)</li>
+        <li>(b) mark only after a SQUASH: F6, F13 are errors</li>
+        <li>(c) as (b), and a shortened chain must show its mark (F14 error)</li>
+        <li>8 tests skipped as PENDING O7</li>
+      </ul>
+    </div>
+  </div>
+  <p>Decision log: <a href="../../wiki/planning/decision-log.md"><span class="mono">wiki/planning/decision-log.md</span></a>, 78 entries (DL-001 to DL-078), all dated 2026-11-06.</p>
+</section>
+
+<section>
+  <h2>Run it</h2>
+  <p class="note">All steps: <span class="mono">python3 experiments/0004-generated-replay/run.py</span> (last pass: <span class="mono">results/20261106T223327577833Z</span>). Notes: <span class="mono">workflow/2026-11-06/notes.md</span>. Plan: <span class="mono">README.md</span> revision 9.2.</p>
+</section>
+
+</div>
+</body>
+</html>
