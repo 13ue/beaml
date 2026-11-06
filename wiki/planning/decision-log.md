@@ -169,6 +169,37 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: in slice 2, adding a field without `migrate ... { add ... }` is a compile error.
 → Because: it follows from DL-031; stored records would have no path.
 
+**DL-036 · Repair · A misspelled rename is a path error**
+→ Chose: a `rename` whose old field is in no derived version fails through the path check, and the message names both fields. Over: a rule "old field in no stored version".
+→ Because: with an empty RECORD SNAPSHOT that rule would reject every chain.
+→ Detail: 0004 notes.md, "Slice 2 RED", S4.
+
+**DL-037 · Repair · The fingerprint decides**
+→ Chose: when the `fields` of a stored record and its fingerprint disagree, the fingerprint decides; `fields` serve only the message. Over: trust `fields`.
+→ Because: the plan compares fingerprints; a compiler that never computes them must not pass.
+→ Trigger: fresh RED check of slice 2. Detail: notes.md, "Slice 2 RED repair", S12.
+
+**DL-038 · Repair · Overlay change table gains three rows**
+→ Chose: add three rows to the change table of `overlay_diff_test.py` for the `--stored` argument in three GEN copies of 0003 tests. Over: leave the copies unchanged.
+→ Because: the copies gain only a harness argument, and the table must list every changed line. Check logic unchanged.
+
+**DL-039 · Repair · No compiler dependencies**
+→ Chose: the compiler has its own SHA-256 and JSON reader. Over: `sha2` and `serde_json`.
+→ Because: the compiler builds offline with no dependencies. Tests recompute fingerprints with a standard library.
+
+**DL-040 · Repair · A stored record without a reader fails the build**
+→ Chose: a stored record for an operation that has no `effect` in the source fails the build. Over: ignore it.
+→ Because: no runner can read it, which is a missing path in a wider sense. Under review at the slice 2 final review.
+
+### Process
+
+**DL-041 · Repair · Continue without a pause**
+→ Chose: after a slice, start the next slice whose content is already decided, and stop only at Migrate. Every decision goes into this log, with details in the step ledger, README or wiki.
+
+**DL-042 · Repair · Slice 3 content**
+→ Chose: slice 3 implements `add` with a constant and `drop` with a TYPE in the MIGRATE CHAIN. Over: `Unknown`, PII or division.
+→ Because: only these forms have syntax and rules decided (DL-022, DL-023, DL-028). `Unknown` needs `enum` and `case`; PII needs a syntax.
+
 ### Open research (not decided)
 
 → Lazy migration on read or eager rewrite; batches or a stream of batches; rollback windows for lossy steps.
