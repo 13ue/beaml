@@ -98,3 +98,228 @@ fn invalid_source_emits_no_code_and_actions_do_not_capture_source() {
     assert!(!log.contains("wrong") && !log.contains("input.beaml"));
     fs::remove_dir_all(folder).unwrap();
 }
+
+// EXPERIMENT 0004 slice 1, cases (a) and (b). Fixtures live in experiments/0004-generated-replay.
+// RED written 2026-11-06 before any compiler change (implement-step, Solve / RED).
+
+fn repository() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
+}
+
+fn slice_one(relative: &str) -> PathBuf {
+    repository()
+        .join("experiments/0004-generated-replay")
+        .join(relative)
+}
+
+fn compile_file(path: &Path) -> std::process::Output {
+    Command::new(env!("CARGO_BIN_EXE_beaml-spike"))
+        .arg(path)
+        .current_dir(repository())
+        .output()
+        .unwrap()
+}
+
+/// The emitter writes BEAML strings as byte lists. Accept the plain text or that form.
+fn mentions(stdout: &str, text: &str) -> bool {
+    let bytes = text.bytes().map(|b| b.to_string()).collect::<Vec<_>>();
+    stdout.contains(text)
+        || stdout.contains(&format!("<<{}>>", bytes.join(",")))
+        || stdout.contains(&format!("<<{}>>", bytes.join(", ")))
+}
+
+/// Argument count of the first `def NAME(` line, or None when the function is absent.
+fn arity(stdout: &str, name: &str) -> Option<usize> {
+    let head = format!("def {name}(");
+    let line = stdout
+        .lines()
+        .find(|line| line.trim_start().starts_with(&head))?;
+    let start = line.find(&head).unwrap() + head.len();
+    let mut depth = 1;
+    let mut count = 1;
+    let mut empty = true;
+    for ch in line[start..].chars() {
+        match ch {
+            '(' | '{' | '[' => depth += 1,
+            ')' | '}' | ']' => {
+                depth -= 1;
+                if depth == 0 {
+                    break;
+                }
+            }
+            ',' if depth == 1 => count += 1,
+            c if !c.is_whitespace() => empty = false,
+            _ => {}
+        }
+    }
+    Some(if empty { 0 } else { count })
+}
+
+fn assert_compiles(path: &Path) -> String {
+    let result = compile_file(path);
+    assert!(
+        result.status.success(),
+        "expected exit 0 for {}; stderr: {}",
+        path.display(),
+        String::from_utf8_lossy(&result.stderr)
+    );
+    String::from_utf8(result.stdout).unwrap()
+}
+
+fn assert_rejected(fixture: &str, names: &[&str]) {
+    let result = compile_file(&slice_one(fixture));
+    let stderr = String::from_utf8_lossy(&result.stderr).to_string();
+    assert!(!result.status.success(), "{fixture}: expected exit != 0");
+    assert!(result.stdout.is_empty(), "{fixture}: expected no stdout");
+    // The new syntax must parse. The reject must come from the check, not from the old parser.
+    assert!(
+        !stderr.contains("expected interface, enum, or fn"),
+        "{fixture}: rejected by the old parser, not by the check: {stderr}"
+    );
+    for name in names {
+        assert!(
+            stderr.contains(name),
+            "{fixture}: message must name {name}; actual: {stderr}"
+        );
+    }
+}
+
+#[test]
+fn orders_cli_accepts_effect_pipe_place() {
+    let stdout = assert_compiles(&slice_one("arms/gen/orders.beaml"));
+    assert!(stdout.contains("  def place("), "expected def place(");
+}
+
+#[test]
+fn orders_cli_rejects_unknown_pipe_step() {
+    assert_rejected("bad/unknown_pipe_step.beaml", &["charge"]);
+}
+
+#[test]
+fn orders_cli_rejects_pipe_type_mismatch() {
+    assert_rejected(
+        "bad/pipe_type_mismatch.beaml",
+        &["finish", "Order", "Payment"],
+    );
+}
+
+#[test]
+fn orders_cli_rejects_undeclared_pipe_failure() {
+    assert_rejected(
+        "bad/undeclared_failure.beaml",
+        &["payments.authorize", "PaymentError"],
+    );
+}
+
+#[test]
+fn orders_cli_rejects_field_not_in_type() {
+    assert_rejected("bad/field_not_in_type.beaml", &["amount", "Payment"]);
+}
+
+#[test]
+fn orders_cli_rejects_unsupported_effect_kind() {
+    assert_rejected("bad/unsupported_effect_kind.beaml", &["db.get"]);
+}
+
+#[test]
+fn orders_cli_emits_flow_effect_decode_and_replay() {
+    let fixture = slice_one("arms/gen/orders.beaml");
+    let source = fs::read_to_string(&fixture).unwrap();
+    let stdout = assert_compiles(&fixture);
+    let mut missing = Vec::new();
+    // One module: 0002 run.py and the 0003 tests rename exactly one `defmodule BeamlSpike do`.
+    if stdout.matches("defmodule BeamlSpike do").count() != 1 {
+        missing.push("one defmodule BeamlSpike".to_string());
+    }
+    for (name, expected) in [
+        ("place", 1),
+        ("payments_authorize", 1),
+        ("record", 3),
+        ("run", 3),
+    ] {
+        if arity(&stdout, name) != Some(expected) {
+            missing.push(format!("def {name}/{expected}"));
+        }
+    }
+    for text in [
+        "defmodule PaymentError do",
+        "defstruct",
+        "defmodule Replay do",
+        ":json.decode(",
+    ] {
+        if !stdout.contains(text) {
+            missing.push(text.to_string());
+        }
+    }
+    // Spans `<service>.<step>` and the kept Orders log under orders.prepare.
+    for text in [
+        "orders.prepare",
+        "orders.payments.authorize",
+        "orders.finish",
+        "payment_request_prepared",
+        "payments/authorize",
+    ] {
+        if !mentions(&stdout, text) {
+            missing.push(format!("mentions {text}"));
+        }
+    }
+    // One beaml-declaration-v1 comment per callable declaration, with its exact source range.
+    let mut references: Vec<(String, String)> = stdout
+        .lines()
+        .filter_map(|line| line.trim().strip_prefix("# beaml-declaration-v1 "))
+        .map(|rest| {
+            let parts: Vec<_> = rest.split(' ').collect();
+            let (start, end): (usize, usize) =
+                (parts[1].parse().unwrap(), parts[2].parse().unwrap());
+            let head = source
+                .get(start..end)
+                .unwrap_or("")
+                .split_whitespace()
+                .take(2)
+                .collect::<Vec<_>>()
+                .join(" ");
+            (parts[0].to_string(), head)
+        })
+        .collect();
+    references.sort();
+    let expected: Vec<(String, String)> = [
+        ("finish", "fn finish"),
+        ("payments.authorize", "effect payments.authorize"),
+        ("place", "fn place"),
+        ("prepare", "fn prepare"),
+    ]
+    .iter()
+    .map(|(a, b)| (a.to_string(), b.to_string()))
+    .collect();
+    if references != expected {
+        missing.push(format!("declaration references {references:?}"));
+    }
+    assert!(
+        missing.is_empty(),
+        "missing in generated module: {missing:?}"
+    );
+}
+
+#[test]
+fn orders_cli_template_control_drift_r_decode_names_reference() {
+    // A template emitter does not see the new Payment field. A derived decode does.
+    let base = assert_compiles(&slice_one("arms/gen/orders.beaml"));
+    let drift = assert_compiles(&slice_one("drift/R/orders.beaml"));
+    assert!(
+        !mentions(&base, "reference"),
+        "base output must not name reference"
+    );
+    assert!(
+        mentions(&drift, "reference"),
+        "DRIFT-R output must name reference"
+    );
+}
+
+#[test]
+fn payments_cli_output_stays_byte_identical() {
+    // Guard, not RED: the slice 1 compiler change must not change the payments.beaml output.
+    let fixture = repository()
+        .join("experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml");
+    let expected = fs::read_to_string(slice_one("tests/payments.generated.snapshot")).unwrap();
+    assert_eq!(assert_compiles(&fixture), expected);
+}
