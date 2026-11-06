@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Step"
+  short_description: "Two Ponytail proposals, one verified implementation"
+  default_prompt: "Use $implement-step to implement this bounded task with fresh GPT-6.1 Sol Medium agents."

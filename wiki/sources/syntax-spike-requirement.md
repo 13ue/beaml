@@ -24,5 +24,7 @@ Direct BEAM assembly or bytecode emission is not an adopted later goal. Future b
 It limits TYPE support to String, finite acyclic interfaces and concrete enums. Generics are deferred, not rejected for the language.
 Interfaces with methods, broader inference, block syntax and production assurance remain unknown.
 
+**[Requirement]** The owner later asked whether `type` should replace `enum` and requested that the choice stay open. [Selected capture](../../raw/requirements/2026-11-05-enum-or-type.md), [D001](../planning/decisions-to-be-made.md#d001--enum-or-type-declarations)
+
 See the [R&D register](../planning/research-and-development.md), [context map](../planning/context-map.md) and [historical specification](engineering-spec-v0.5.md).
 This request adopts a small experimental syntax. It does not complete the historical M0 or M3 gates.

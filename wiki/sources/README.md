@@ -23,6 +23,13 @@ This registry indexes evidence, not implementation dependencies. All research wa
 
 ## Mechanism-level additions
 
+The [distributed order requirement](distributed-order-requirement.md) records REST-separated applications, correlated search and replay as a concrete product target.
+The [HTTP correlation EXPERIMENT](../../experiments/0002-http-correlation/README.md) records separate runtime evidence for two local releases.
+The [test-first policy](test-first-policy.md) records the adopted RED, user review and GREEN checkpoints.
+
+The [roasting-round source](roasting-rounds.md) retains two selected conversation reviews and their coverage limits.
+The objections and proposed tests are not executed evidence or adopted decisions.
+
 | Source page | Origin / scope | Transfer and limits |
 |---|---|---|
 | [Local strategy wiki](agentic-strategy-wiki.md) | User-directed local source; selected sections inspected 2026-11-05 with file hashes | Glossary/context/translation patterns only. Secondary draft notes, no full source copy, external citation refresh or adopted BEAML policy. |
@@ -65,3 +72,5 @@ Raw captures are immutable historical records. Read the maintained source/mechan
 **[Proposal]** Before implementing an adapter/dependency, pin the package/version tuple and any internal API source commit; add a new dated raw capture rather than replacing historical evidence. Read the relevant source note's coverage first. Add measured results separately from document claims. Follow [ingest/query/lint instructions](../../AGENTS.md); navigate via the [index](../index.md) and record changes in the [log](../log.md).
 
 Registry provenance example: [supplied specification capture manifest](../../raw/specification/provenance.json). Each source row links its own full capture record.
+
+- [Main-agent orchestration](main-agent-orchestration.md): adopted owner rule, selected capture and official instruction-discovery evidence.

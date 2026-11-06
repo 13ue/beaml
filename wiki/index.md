@@ -7,6 +7,17 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 ## Specification, planning and retained answers
 
 - [R&D register](planning/research-and-development.md): experiment process, candidate domain ownership and retained evidence.
+- [Offene Fragen / Decisions to be made](planning/decisions-to-be-made.md): open R&D choices, evidence and decision triggers.
+- [Main-agent orchestration](sources/main-agent-orchestration.md): adopted global coordination rule, worker scope and discovery limits.
+- [Test-first policy](sources/test-first-policy.md): adopted RED, user review and GREEN checkpoints and their scope.
+- [Implementation workflow](../skills/implement-step/SKILL.md): fresh GPT-6.1 Sol Medium agents, two Ponytail proposals and independent verification.
+- [HTTP correlation EXPERIMENT](../experiments/0002-http-correlation/README.md): two loopback releases, passed H01–H05 and repeatable run and query commands.
+- [Source-linked replay EXPERIMENT](../experiments/0003-source-linked-replay/README.md): proposed function summary, exact source lookup and isolated Orders replay.
+- [Roasting rounds](planning/roasting-rounds.md): scope challenge, proposed boundary invariant and pending decisions.
+- [Product-benefit probe](planning/product-benefit-probe.md): proposed comparison of small functions, typed failures and automatic observations.
+- [Distributed order probe](planning/distributed-order-probe.md): proposed REST-separated umbrella example, correlated search and bounded replay.
+- [Distributed order requirement](sources/distributed-order-requirement.md): owner target and selected propagation/deployment evidence.
+- [Roasting sources](sources/roasting-rounds.md): selected conversation capture and review-method provenance.
 - [Syntax spike requirement](sources/syntax-spike-requirement.md): accepted experimental syntax, R&D request and adopted initial Elixir backend.
 - [Working glossary](../GLOSSARY.md): scoped terms, proposed owners and German aliases; no universal runtime model.
 - [Candidate context map](planning/context-map.md): language/compilation, execution and Observatory models with explicit translation boundaries.

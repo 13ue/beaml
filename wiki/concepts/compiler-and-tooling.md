@@ -14,6 +14,8 @@ updated: 2026-11-05
 
 The source has grammar/version drift and mixed function/field spellings. Decide one canonical BEAML syntax before treating examples as a conformance corpus. Keep unsupported examples with explicit expected diagnostics until resolved. [Specification gaps](../planning/specification-gaps.md)
 
+**[Unknown]** The canonical keyword for variant declarations remains open. [D001](../planning/decisions-to-be-made.md#d001--enum-or-type-declarations)
+
 | Discriminator | Established BAML documentation | Pinned BAML canary | BEAML decision |
 |---|---|---|---|
 | Function surface | `function Name(arg: Type) -> Type` plus client/prompt | General code bodies and synthesized LLM companions | Canonical `function` versus `fn`; whether prompt functions are one body form |

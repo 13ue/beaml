@@ -3,7 +3,7 @@ id: concept-observability-and-replay
 title: Observatory, telemetry and replay boundaries
 kind: synthesis
 status: research-backed-proposal
-updated: 2026-11-05
+updated: 2026-11-06
 ---
 
 # Observatory, telemetry and replay
@@ -40,7 +40,29 @@ updated: 2026-11-05
 
 ## Current typed replay target
 
+**[Requirement]** The [distributed order request](../sources/distributed-order-requirement.md) adds a concrete HTTP-separated umbrella scenario.
+Search must correlate traces, logs, events and orders across application boundaries.
+The [proposed probe](../planning/distributed-order-probe.md) distinguishes order identity, causal history and isolated replay from a single trace lookup.
+
+**[Verified]** [EXPERIMENT 0002](../../experiments/0002-http-correlation/README.md) found two complete traces for the same synthetic order.
+Dropping TRACE CONTEXT preserved four local edges and exposed the missing cross-service edge.
+The [repaired run](../../experiments/0002-http-correlation/results/20261105T220545655633Z/result.json) covers OBSERVATION EVENTS for the two loopback releases.
+
 **[Requirement]** The [later user request R01](../sources/typed-replay-requirement.md) expands the historical PDF scope to fully typed surrounding execution replay on error. The [typed error/replay design](typed-errors-and-replay.md) separates original evidence, complete authorized REPLAY HISTORY, isolated REPLAY RUNS and COUNTERFACTUAL RUNS. Ordinary sampled OBSERVATION EVENTS cannot supply that guarantee. Mandatory capture has a separate admission/failure policy; telemetry remains bounded and nonblocking. Full capture does not authorize secret collection. The [event-flow map](event-flows-and-backpressure.md) separates these channels and connector acknowledgment limits.
+
+## BAML recorded-call debugging compared with EXPERIMENT 0003
+
+Upstream capabilities are not BEAML capabilities. BAML rows are documentation or code read on 2026-11-06, not run. [BAML docs](../sources/baml-documentation.md#debugging-and-replay-of-a-recorded-call-2026-11-06), [BAML code](../sources/baml-internals.md#recorded-calls-and-offline-parse-2026-11-06)
+
+| Step | BAML | BEAML EXPERIMENT 0003 |
+|---|---|---|
+| Record the call | **[Verified]** v0 Collector keeps raw HTTP request/response and reply text. v1 recordings keep inputs, output, error, type arguments, network events and a source CAS id | **[Verified]** Host keeps the predecode response, one record per live receipt ([gate 3](../../experiments/0003-source-linked-replay/README.md#gate-status)) |
+| Find the source that ran | **[Verified]** v1 `processes.baml_source_code_content_id` | **[Verified]** Trace → SOURCE ID → archived declaration; other build rejected (gates 1–3) |
+| Re-run decode offline | **[Verified]** `b.parse` (v0) or `F@parse` (v1) on reply text, written by hand into a test | **[Proposal]** Same host decode on recorded bytes (gate 4, not started) |
+| Re-run the downstream decision | **[Unknown]** No built-in path. User code can implement `ai.Runner` or a fake `ai.Client` | **[Proposal]** Orders finish logic with substituted response (gate 4) |
+| Isolation and evidence checks | **[Unknown]** No live-call count, artifact check or invalid-record error found. Playground HTTP pinning is an open pull request | **[Proposal]** Zero live attempts, artifact check, missing/mismatched record errors (gates 4–5) |
+
+**[Inference]** BAML supports introspection plus offline re-parse. It does not offer a REPLAY RUN as the GLOSSARY defines it. Re-parse alone is reachable with a shared decode function and a test, in BAML or plain Elixir. A REPLAY RUN adds value only through the decision path, isolation and evidence errors. Even then a hand-written runner can meet it ([round 3, objection 4](../planning/roasting-rounds.md#4-fixture-replay-can-leave-the-language-claim-untested)).
 
 ## Replay is a separately consented artifact
 

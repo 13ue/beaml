@@ -12,3 +12,10 @@ raw/private/
 /.beaml/
 **/target/
 *.beam
+
+# EXPERIMENT 0002 build outputs.
+/experiments/0002-http-correlation/_build/
+/experiments/0002-http-correlation/deps/
+/experiments/0002-http-correlation/apps/*/lib/generated.ex
+
+/experiments/0002-http-correlation/erl_crash.dump

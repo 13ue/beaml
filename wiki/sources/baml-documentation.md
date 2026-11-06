@@ -3,7 +3,7 @@ id: source-baml-documentation
 title: "BAML: established documentation track"
 kind: source
 status: researched
-updated: 2026-11-05
+updated: 2026-11-06
 ---
 
 # BAML: established documentation track
@@ -29,6 +29,30 @@ Tests are language declarations containing function targets, argument fixtures a
 The official Elixir integration page explicitly calls its support unstable and community provided. It does not establish a supported BEAM compiler backend. [Elixir](https://docs.boundaryml.com/guide/installation-language/elixir)
 
 ## BEAML relevance
+
+### Product-benefit follow-up
+
+**[Verified]** On 2026-11-05, the official [Collector reference](https://docs.boundaryml.com/guide/baml-advanced/collector-track-tokens) documents call identity, timing, usage and constituent model attempts.
+The newer [error chapter](https://developer.boundaryml.com/baml/book/errors) documents inferred error propagation and exhaustive handlers.
+These are separate documentation tracks, not a tested combined package version.
+The [selected follow-up capture](../../raw/requirements/2026-11-05-product-benefit-followup.md) records coverage and limits.
+No full deterministic replay or flawless execution guarantee was established.
+
+### Debugging and replay of a recorded call (2026-11-06)
+
+**[Verified]** Accessed 2026-11-06. Each page below now says it documents BAML v0, the legacy DSL; BAML v1 is a separate language. [Capture](../../raw/research/baml/debugging-replay-2026-11-06.md)
+
+- **[Verified]** The [Collector reference](https://docs.boundaryml.com/guide/baml-advanced/collector-track-tokens) records per function log `id`, `function_name`, `timing`, `usage`, `calls`, `raw_llm_response` and `tags`. Each call keeps its raw `http_request` and `http_response`; the response is null for streaming.
+- **[Verified]** The [modular API](https://docs.boundaryml.com/guide/baml-advanced/modular-api) parses a reply string with `b.parse.<Fn>` and `b.parse_stream.<Fn>`. The caller extracts the message text from the provider envelope first. The batch example parses saved output.
+- **[Verified]** [Boundary Studio](https://docs.boundaryml.com/guide/boundary-cloud/observability/tracking-usage) shows traced inputs, outputs and tags. The page documents no re-run, replay or "open in playground".
+- **[Verified]** [Test blocks](https://docs.boundaryml.com/ref/baml/test) and [`baml-cli test`](https://docs.boundaryml.com/ref/baml-cli/test) document no mocked or recorded model response. The CLI examples set provider API keys.
+- **[Unknown]** Whether a test block calls the live provider is not stated on these pages. **[Inference]** The API-key examples suggest live calls.
+
+**[Verified]** The v1 code track adds `baml query` and `F@parse`. See [BAML internals](baml-internals.md#recorded-calls-and-offline-parse-2026-11-06).
+
+**[Inference]** These mechanisms support a product hypothesis: keep application functions small while shared tools retain structured failure evidence.
+Whether this is BoundaryML's largest benefit is a product judgment, not established by these references.
+The [comparison proposal](../planning/product-benefit-probe.md) tests a narrow BEAML version of that hypothesis.
 
 **[Inference]** The following implications are research conclusions, not adopted semantics.
 

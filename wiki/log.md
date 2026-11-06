@@ -105,3 +105,163 @@ Updated README, index, compiler guidance, build readiness, gap notes, coverage a
 ## [2026-11-05] decision | Initial Elixir backend
 
 **[Requirement]** The owner adopted BEAML → generated Elixir source → Elixir/OTP compiler → BEAM execution as the initial route. A [new capture](../raw/requirements/2026-11-05-elixir-backend-decision.md) preserves the decision. Updated the [source note](sources/syntax-spike-requirement.md), [compiler guidance](concepts/compiler-and-tooling.md), [build plan](planning/build-readiness.md), [R&D register](planning/research-and-development.md) and index. Direct BEAM assembly or bytecode emission is not an adopted later goal. **[Unknown]** Permanent backend selection and comparative performance remain open. No compiler code changed or new runtime test was required.
+
+## [2026-11-05] record | BEAML roasting rounds
+
+**[Requirement]** The owner requested repository records of both roasting rounds.
+Added a [selected conversation capture](../raw/requirements/2026-11-05-roasting-rounds.md), [source note](sources/roasting-rounds.md) and [review record](planning/roasting-rounds.md).
+Round 1 uses the retained summary; its full wording and severity list remain unavailable.
+Round 2 records the proposed boundary invariant, evidence gap and simulated-effect test.
+Updated the index, source registry and R&D register. Human dispositions remain pending.
+No new EXPERIMENT, compiler change or runtime test is claimed.
+
+## [2026-11-05] rule | Retain every roasting round
+
+**[Requirement]** The owner requires every BEAML roasting or Devil's Advocate round to be documented in the repository.
+Added the rule to [AGENTS.md](../AGENTS.md#roasting-and-devils-advocate-rounds).
+Each round needs a dated review entry, a separate capture, source-note maintenance and a log entry.
+Keep evidence, proposals and actual owner decisions separate. Pending objections do not become accepted decisions.
+The rule does not require automatic implementation, commits or pushes.
+
+## [2026-11-05] clarify | Product benefit after roasting round 2
+
+Recorded the correction: boundary validation alone cannot justify a separate language.
+Preserved a [new conversation and research capture](../raw/requirements/2026-11-05-product-benefit-followup.md).
+Checked official BAML Collector and error documentation; kept their version tracks and execution limits separate.
+Updated the [BAML source](sources/baml-documentation.md), [review source](sources/roasting-rounds.md) and [round 2 follow-up](planning/roasting-rounds.md).
+Added an unadopted [product-benefit probe](planning/product-benefit-probe.md), with a fair Elixir comparison and change test.
+Updated the index and R&D register. No new compiler feature, EXPERIMENT RUN or performance claim exists.
+
+## [2026-11-05] record | Distributed order product target
+
+**[Requirement]** The owner requests REST-separated Elixir applications with correlated traces, logs, events, orders, analysis and replay.
+Added a [selected capture](../raw/requirements/2026-11-05-distributed-order-observability.md) and [source note](sources/distributed-order-requirement.md).
+Added a [three-application proposal](planning/distributed-order-probe.md), with order-level search, timeout uncertainty and scoped isolated replay.
+Kept umbrella layout, network deployment, observed traces and committed facts distinct.
+Updated the local product-benefit proposal, R&D register, Observatory concept, source registry and index.
+The exact probe is unadopted and unexecuted. No new compiler, distributed runtime or replay result is claimed.
+
+## [2026-11-05] plan | Two-application HTTP correlation
+
+**[Requirement]** The owner requested an exact plan and discussion before implementation.
+Preserved the [planning request](../raw/requirements/2026-11-05-http-probe-plan.md).
+Added [EXPERIMENT 0002's proposed plan](../experiments/0002-http-correlation/README.md), with two independent processes, compiled BEAML fixtures, real OTel spans and correlated structured logs.
+Defined HTTP shapes, six spans, five acceptance cases, file evidence, query behavior, implementation sequence and limits.
+Added a plan-only registry entry and index link. Updated the broader distributed proposal and its source note.
+No dependencies were installed, no compiler code changed and no runtime test was executed. Replay remains a separate later proposal.
+
+## [2026-11-05] adopt | Fresh-context implementation workflow
+
+**[Requirement]** The owner requested the Claude workflow adaptation and its use for EXPERIMENT 0002.
+All phase agents use GPT-6.1 Sol Medium with fresh contexts. [Adoption capture](../raw/requirements/2026-11-05-implementation-workflow.md).
+Added the [versioned skill](../skills/implement-step/SKILL.md), installed its global copy and passed skill validation.
+The workflow retains planning, competing Ponytail proposals, implementation decisions, tests, review and final verification.
+Updated AGENTS.md, source note, index and the experiment's authorization state. Implementation results follow separately.
+
+## [2026-11-05] adopt | Global main-agent coordination
+
+**[Requirement]** The owner requires the user-facing main agent to coordinate fresh workers for every task.
+Workers perform all substantive work, including reads, records, documentation, configuration, tests and final diff inspection.
+Preserved existing global rules and appended the coordination policy to the default global `AGENTS.md`.
+Updated the [project rule](../AGENTS.md#main-agent-coordination) and both repository/installed [workflow skill](../skills/implement-step/SKILL.md) copies.
+Removed task-specific authorization from project rules; its [existing capture](../raw/requirements/2026-11-05-implementation-workflow.md) remains unchanged.
+Retained a [new adoption capture](../raw/requirements/2026-11-05-global-main-agent-orchestration.md) and indexed its [source note](sources/main-agent-orchestration.md).
+**[Verified]** Official instruction-discovery documentation confirms default global override precedence and loading at run start.
+No global or repository-root override file exists. Both skill copies and their UI metadata agree.
+Both bundled skill validations passed. Wiki checks passed: 76 maintained Markdown files, zero errors, six retained capture hashes.
+Limits: these files guide future runs; no live reload, enforced compliance or EXPERIMENT result is claimed.
+No review round, automatic commit or push was performed.
+
+## [2026-11-05] clarify | Event-driven main-agent coordination
+
+**[Requirement]** The owner rejects repeated short waits and polling by the user-facing main agent.
+Preserved the [clarification](../raw/requirements/2026-11-05-global-main-agent-orchestration-v2.md) in a new immutable capture.
+Updated global and project rules, both implementation skill copies and the [source note](sources/main-agent-orchestration.md).
+Workers send milestone, blocker and completion notifications. The main agent yields when nothing is actionable.
+The main agent must not sleep, poll, read status repeatedly or block on tool waits.
+Workers may use bounded subprocess lifecycle checks for assigned work.
+**[Verified]** Both skill validations passed again. Skill/UI copies agree; default global/project override checks passed.
+Limits: no future compliance proof, live reload, EXPERIMENT result, commit or push is claimed.
+
+## [2026-11-05] adopt | Test-first policy
+
+**[Requirement]** The owner adopted meaningful RED, user review and GREEN for behavior changes.
+The [adoption capture](../raw/requirements/2026-11-05-test-first-policy.md) records the checkpoint, exceptions and scope.
+Indexed the [test-first policy source](sources/test-first-policy.md) and added it to the [source registry](sources/README.md).
+The adoption defines an instruction. Runtime enforcement remains outside its scope.
+
+## [2026-11-05] record | HTTP correlation run
+
+**[Verified]** The [repaired EXPERIMENT RUN](../experiments/0002-http-correlation/results/20261105T220545655633Z/result.json) passed H01–H05.
+H03 preserved two traces, four local edges and two logs. It reported only the missing cross-service parent edge.
+The [repair log](../experiments/0002-http-correlation/workflow/2026-11-05/repair-green.log) records the focused checks.
+The [forced failure run](../experiments/0002-http-correlation/results/20261105T220612131147Z/result.json) records clean exits after a deliberate failure.
+Updated the [experiment guide](../experiments/0002-http-correlation/README.md), [R&D register](planning/research-and-development.md), index and distributed order and Observatory notes.
+Independent final verification remains pending. The result covers fixed loopback correlation. REPLAY RUNS and production readiness remain outside scope.
+
+## [2026-11-05] verify | HTTP correlation EXPERIMENT
+
+**[Verified]** [Independent final verification](../experiments/0002-http-correlation/workflow/2026-11-05/result.json) passed all seven repair assertions.
+The [final EXPERIMENT RUN](../experiments/0002-http-correlation/results/20261105T221134010042Z/result.json) passed H01–H05.
+The owner adopted the review checkpoint after the initial GREEN. Owner review of the initial RED remains unverified. The owner approved the seven repair assertions before implementation.
+Updated the [experiment guide](../experiments/0002-http-correlation/README.md) and [R&D register](planning/research-and-development.md).
+The result covers fixed loopback correlation and bounded local observations. REPLAY RUNS and production readiness remain outside scope.
+
+## [2026-11-05] adopt | Visual communication
+
+**[Requirement]** The owner requested visuals by default for substantive explanations and reports in Codex and BEAML.
+The [BEAML rule](../AGENTS.md#visual-communication) covers ownership, tested flow, results, limits and the next test.
+
+## [2026-11-05] review | BEAML competitive claim
+
+**[Inference]** [Round 3](planning/roasting-rounds.md#round-3--test-the-competitive-claim-2026-11-05) questions the 3–8× measure, the BAML comparison and the value of fixture replay.
+The [new capture](../raw/requirements/2026-11-05-roasting-round-3.md) and [source note](sources/roasting-rounds.md#round-3--competitive-claim) record evidence and limits.
+The proposed comparison remains pending. No new runtime results or owner decisions were recorded.
+
+## [2026-11-05] record | Open R&D decisions
+
+**[Requirement]** The owner requested a durable register for open R&D decisions.
+[D001](planning/decisions-to-be-made.md#d001--enum-or-type-declarations) records the `enum` or `type` question as OPEN.
+The [selected capture](../raw/requirements/2026-11-05-enum-or-type.md) records the request.
+Linked the register from the index, R&D guidance and [EXPERIMENT 0001](../experiments/0001-syntax-to-beam/README.md).
+The declaration examples and next grammar check are proposals. The owner has yet to choose a form.
+
+## [2026-11-05] plan | Source-linked Orders replay
+
+**[Proposal]** Added the [EXPERIMENT 0003 plan](../experiments/0003-source-linked-replay/README.md) to the [R&D register](planning/research-and-development.md) and index.
+It extends the two-release loopback case with one function summary, a same-name revision control and one isolated REPLAY RUN.
+The plan is pending review and has no runtime results.
+
+## [2026-11-05] record | Ecto and LiveView candidate
+
+**[Requirement]** The owner requested a later Ecto and LiveView integration slice and prioritized HTTP trace, source lookup and replay in EXPERIMENT 0003.
+**[Proposal]** The [R&D candidate](planning/research-and-development.md#later-candidate--ecto-and-liveview) records the explicit mapping, host boundaries and tests for rejection, outer commit and missing evidence.
+The follow-up order is open. The candidate has no runtime results.
+
+## [2026-11-06] verify | EXPERIMENT 0003 lookup gate
+
+**[Verified]** The independent TEST and review of the lookup repair passed. The fresh live run and the repair run with `--source-run` exited 0. The review found no defect. [TEST record](../experiments/0003-source-linked-replay/workflow/2026-11-05/lookup/repair-test-result.json), [review](../experiments/0003-source-linked-replay/workflow/2026-11-05/lookup/repair-review.md)
+**[Requirement]** The owner chose option B. Always run the repair test with `--source-run <fresh live result dir>`. The test default and the retained `missing_clock` archive stay unchanged. Fresh Claude Opus 5.5 workers ran this gate by owner choice.
+Updated the [lookup notes](../experiments/0003-source-linked-replay/workflow/2026-11-05/lookup/notes.md#lookup-repair-test-review-and-owner-decision), the workflow record, the [EXPERIMENT 0003 page](../experiments/0003-source-linked-replay/README.md#gate-status) and the [R&D register](planning/research-and-development.md#experiment-register).
+**[Unknown]** CAPTURE, transport observation and REPLAY RUN have no run. `run.py` does not exist yet. Partial windows were checked only in scratch derivatives.
+
+## [2026-11-06] verify | EXPERIMENT 0003 CAPTURE gate
+
+**[Verified]** The CAPTURE and transport observer gate passed. The owner reviewed the RED and chose one response record per live receipt. GREEN added 22 lines to `OrdersApi.PaymentHttp`. The independent TEST passed 10 of 10 checks. The review passed with four non-blocking advisories. [Notes](../experiments/0003-source-linked-replay/workflow/2026-11-05/capture/notes.md), [TEST record](../experiments/0003-source-linked-replay/workflow/2026-11-05/capture/test-result.json), [review](../experiments/0003-source-linked-replay/workflow/2026-11-05/capture/review.md)
+**[Verified]** No test is lost. GREEN ran `test_query.py` with 6 tests. `unittest discover` runs 8 tests: `test_query.py` 6 and `test_runner.py` 2. Fresh Claude Opus 5.5 workers ran this gate by owner choice.
+Updated the workflow record, the [EXPERIMENT 0003 page](../experiments/0003-source-linked-replay/README.md#gate-status) and the [R&D register](planning/research-and-development.md#experiment-register).
+**[Unknown]** The test cannot show raw bytes with a compact body (A1). The Orders artifact ID does not cover the host decode and validation (A3). The owner decides A1 and A3. REPLAY RUN and invalid replay records have no run. `run.py` does not exist yet.
+
+## [2026-11-06] decide | EXPERIMENT 0003 review advisories
+
+**[Requirement]** The owner decided the CAPTURE review advisories. A1 goes into the gate 4 RED with a non-canonical body. A3 stays open as [D002](planning/decisions-to-be-made.md#d002--scope-of-the-replay-artifact-identity). The response record gets no timestamp for data economy. The time comes from the trace span.
+**[Inference]** Trace sampling can remove that time. [D003](planning/decisions-to-be-made.md#d003--trace-sampling-and-retained-response-records) records this as OPEN.
+Updated the [EXPERIMENT 0003 page](../experiments/0003-source-linked-replay/README.md#evidence-and-limits) and the [CAPTURE notes](../experiments/0003-source-linked-replay/workflow/2026-11-05/capture/notes.md#owner-decisions-after-review).
+
+## [2026-11-06] ingest | BAML debugging and replay
+
+**[Verified]** Read BAML v0 docs (Collector, modular API, Boundary Studio, test blocks, `baml-cli test`) and v1 code at `canary` `6a3eb3dfb2908bac750ad0e4cd9d6a086a72f211`. The read files match the pin `a5db82f06c1da0dfac28e283a15d19d37a3f2cf2`. [Capture](../raw/research/baml/debugging-replay-2026-11-06.md)
+**[Verified]** BAML records raw HTTP responses and re-parses reply text offline (`b.parse`, `F@parse`). No built-in replay runner was found. Playground HTTP replay is open pull request #3336, not merged.
+**[Inference]** BAML offers introspection and offline re-parse, not a REPLAY RUN with isolation and evidence checks.
+Updated [BAML docs](sources/baml-documentation.md#debugging-and-replay-of-a-recorded-call-2026-11-06), [BAML internals](sources/baml-internals.md#recorded-calls-and-offline-parse-2026-11-06) and the [Observatory comparison](concepts/observability-and-replay.md#baml-recorded-call-debugging-compared-with-experiment-0003).
+**[Unknown]** Nothing was run. Body-recording defaults, byte fidelity and code-search completeness are not established. The EXPERIMENT 0003 page is unchanged; its replay decision is open elsewhere.

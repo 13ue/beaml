@@ -2,7 +2,7 @@
 
 BEAML is a proposed BAML-inspired language and toolchain targeting the BEAM. This R&D repository combines a source-backed knowledge base with small executable experiments. [EXPERIMENT 0001](experiments/0001-syntax-to-beam/README.md) implements a limited syntax-to-Elixir compiler. It is not a production compiler/runtime, benchmark or security proof.
 
-Read the [R&D register](wiki/planning/research-and-development.md) for hypotheses, context ownership, evidence and limits. Run the first EXPERIMENT from this repository root:
+Read the [R&D register](wiki/planning/research-and-development.md) for hypotheses, context ownership, evidence and limits. See [Decisions to be made](wiki/planning/decisions-to-be-made.md) for open R&D choices. Run the first EXPERIMENT from this repository root:
 
 ```sh
 python3 experiments/0001-syntax-to-beam/run.py
