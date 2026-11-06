@@ -3,7 +3,7 @@ id: experiment-0004-generated-replay-plan
 kind: experiment
 status: proposed
 updated: 2026-11-06
-revision: 8.2 (slice 4 hardening)
+revision: 9 (slice 5 plan)
 ---
 
 # EXPERIMENT 0004 — Generated REPLAY RUN
@@ -29,7 +29,8 @@ revision: 8.2 (slice 4 hardening)
 - **Revision 7.2.** Slice 3 final review repair (DL-054): a REPLAY RUN types the stored body by its own TYPE VERSION before any MIGRATE STEP. Every other key goes to `unknown_keys`. This supersedes the slice 2 rule "the current name wins" (C12) and changes D11b and D11c. New cases D17 and D18. Superseded text stays, struck through.
 - **Revision 8.** Adds the [slice 4 plan](#slice-4): the RETIRE LINE for a deleted EFFECT with stored records (DL-055), DEAD LINE warnings and the removal command (DL-056), a chain start above version 1, and OWNER question O6. The slice 1 to slice 3 text stays unchanged.
 - **Revision 8.1.** Repairs the slice 4 plan after its fresh check: new cases E1d, E3b, E9c, E11c, E11d, E12c, E15c, E15d and a harness check; a Q4 layout that tests byte preservation (comments, blank line, multi-line block, no final newline, CRLF); the claim holds only with a RECORD SNAPSHOT; the T5 lexer message; the diff and count rules of the removal command. Only the slice 4 section changes.
-- **Revision 8.2 (this page).** Hardens the removal command after the slice 4 final review (DL-069, Repair): the completeness rule with the flag `--assume-complete` (contract step 2a), a symlinked or read-only SOURCE (contract step 5), and a unit test for the recheck guard (step 4). New cases E21 to E22b and U1; E18 now passes `--assume-complete`. Only the slice 4 section changes.
+- **Revision 8.2.** Hardens the removal command after the slice 4 final review (DL-069, Repair): the completeness rule with the flag `--assume-complete` (contract step 2a), a symlinked or read-only SOURCE (contract step 5), and a unit test for the recheck guard (step 4). New cases E21 to E22b and U1; E18 now passes `--assume-complete`. Only the slice 4 section changes.
+- **Revision 9 (this page).** Adds the [slice 5 plan](#slice-5): `type` replaces `interface` (DL-061), `v` on every version number (DL-072), the VERSION MARK on the type line and the SQUASH by `--remove-dead` (DL-070, DL-071; DL-058 superseded). Mechanical rewrite of the slice 1 to slice 4 sources and tests with an audit. OWNER question O7 is open. The slice 1 to slice 4 text stays unchanged.
 
 ## Slice 1 scope
 
@@ -1044,3 +1045,314 @@ Sources:
 
 - **O6 (Migrate), new syntax.** When only the newest TYPE VERSION is stored, the last MIGRATE STEP is dead in its changes but carries the newest version number. Options: (a) keep the W2 exception: a chain never shrinks below one MIGRATE STEP (slice 4 default, no new syntax); (b) a version anchor line, for example `migrate Payment 3` without changes, that the removal command writes in place of the last dead step; (c) a version number on the `interface` line, for example `interface Payment 4 { ... }`, which changes every existing source. (b) and (c) change the grammar and the removal contract ("never touch other lines"). Which form?
 - **O5 (Migrate), open.** Production source of truth for stored TYPE VERSIONS. Slice 4 W1 and W2 trust the RECORD SNAPSHOT: an incomplete snapshot makes needed lines look dead. E17 is the guard after a removal; revision 8.2 adds the completeness rule before a removal (step 2a). A partial snapshot that holds at least one record of the TYPE still passes step 2a.
+
+## Slice 5
+
+**[Requirement]** DL-061, DL-070, DL-071 and DL-072 fix the content: `type` declares a record and replaces `interface`; every version number has a `v`; the newest version can sit on the type line as a VERSION MARK; `--remove-dead` writes that mark when it removes MIGRATE STEPS. DL-070 supersedes DL-058: the last MIGRATE STEP can now be a DEAD LINE. The slice 1 to slice 4 text above stays unchanged. Their pass and reject rules do not apply to slice 5. The slice 1 to slice 4 tests stay green after the mechanical rewrite below.
+
+### Question and claim (slice 5)
+
+**[Requirement]** After a SQUASH, can the source keep the newest TYPE VERSION number on the type line, so that every DEAD LINE of a MIGRATE CHAIN can go, the number never falls back, and a stored record older than the squash still blocks the build with a `help` line that names the missing MIGRATE STEPS? Can the language change from `interface` to `type` and from `1 -> 2` to `v1 -> v2` without a change of any generated behaviour?
+
+**[Requirement]** OWNER decisions for slice 5 (fixed):
+
+- DL-061. `type Name { field: Type ... }` declares a record and replaces `interface`. `enum` stays for variants. `interface` stays free for behaviour contracts later.
+- DL-072. Every version number is written with `v`: `migrate Payment v1 -> v2 { ... }`, `type Payment v3 { ... }`.
+- DL-070 and DL-071. The newest version may sit on the type line as `type Payment v3 { ... }`. The mark appears only after a SQUASH. While the MIGRATE CHAIN is complete, the newest number follows from the chain. If a mark and a chain exist, they must agree. `--remove-dead` writes `vN` onto the type line when it removes MIGRATE STEPS. The last MIGRATE STEP may be dead.
+- Version numbers only grow. They never reset.
+
+**[Verified]** Facts at HEAD `f29e3f12` ([`main.rs`](../0001-syntax-to-beam/src/main.rs)):
+
+- The lexer reads `v3` as one `Word` token (a letter, then letters or digits). A plain `3` is a `Number` token (`u32`). So `type Payment v3 {` and `migrate Payment v1 -> v2` need no lexer change.
+- The parser accepts `interface`, `enum`, `fn`, `effect`, `migrate`, `retire`. Its fallback error says `expected interface, enum, or fn`. `cli.rs` line 208 asserts only that a stderr does not contain this text.
+- `newest_version` is the `to` of the last MIGRATE STEP, else 1. `chain_start` is the `from` of the first step, else 1. `dead_lines` skips the last step (DL-058).
+- The generated Elixir holds `# beaml-declaration-v1 <name> <start> <end>`: byte offsets into the source. `tests/payments.generated.snapshot` holds `authorize 91 193`. The two `interface` lines of `payments.beaml` are 37 and 54 bytes. With `type` they are 32 and 49 bytes, so the offsets become `81 183`.
+- Tracked `.beaml` files outside `results/`: 51 hold `interface`, 23 hold a `migrate` line with plain numbers. Test code with inline sources or version tokens: `0001/src/main.rs` (unit tests), `0001/tests/cli.rs`, `run.py`, `tests/drift_test.py`, `tests/stored_types_test.py`, `tests/slice2_replay_test.py`, `tests/slice3_types_test.py`, `tests/slice4_retire_test.py`, and the grammar tests in `integrations/zed-beaml/test/`.
+
+### Syntax (slice 5)
+
+**[Requirement]** Example after a SQUASH of the slice 4 source Q4 with records of v3 only:
+
+```beaml
+type Order { order_id: String }
+type Payment v4 { order_id: String state: String reference: String }
+migrate Payment v3 -> v4 { drop channel: String, add reference: String = "pre-v4" }
+type PaymentError { reason: String }
+```
+
+**[Proposal]** Grammar changes:
+
+```text
+record   = "type" TYPE [ VERSION ] "{" field* "}"
+migrate  = "migrate" TYPE VERSION "->" VERSION "{" change ( "," change )* "}"
+VERSION  = a Word token "v" DIGITS, DIGITS = "0" | [1-9][0-9]*, value 1 to 4294967295
+```
+
+- **[Proposal]** The VERSION MARK comes directly after the TYPE name, before `{`. A comment or white space between them is allowed, as elsewhere.
+- **[Proposal]** A VERSION has no leading zero (`v03` is an error with `write v3`). `v0` is an error (`versions start at v1`). `V3`, `v`, `v3x` are errors that name the form `v<number>`. `v4294967296` is `version number too large`. `v-1` stops in the lexer (`unsupported token`, unchanged).
+- **[Proposal]** A field name may look like a version (`v1: String`). Inside `{ }` and in a MIGRATE CHANGE a word is a field name, as before. Only the two VERSION positions above read `v<number>`.
+- **[Proposal]** The RESPONSE RECORD keeps `type.version` as a JSON integer (`"version": 3`). The `v` is source spelling only. Record format version 1 and every `stored/*.jsonl` fixture stay byte-identical.
+- **[Proposal]** Compiler messages write every version with `v`: `Payment v1 { ... }`, `migrate Payment v1 -> v2`, `v1 or older`, `starts at v3`, `TYPE VERSION v1`, `not in Payment v2`. Messages say `type` where they said `interface` (for example `migrate X: unknown type: X`). The fallback error says `expected type, enum, effect, migrate, retire or fn`.
+
+### `interface` and plain numbers (slice 5)
+
+**[Proposal] `interface` is a hard error with a `help` line (Undo, see the decisions table).**
+
+```text
+error: interface does not declare a record; records use type
+  at byte <n>
+  help: declare: type Payment { ... }
+  note: the word interface is kept for behaviour contracts
+```
+
+Asserted tokens: `interface`, `type <Name> {`, `help:`, `behaviour contracts`; exit 1, no stdout. **[Inference]** Why not an alias: with an alias, sources with `interface Name { field: T }` would exist when behaviour contracts arrive. The contract form would then have to tell a record body from a contract body, or break those sources. A hard error now keeps the word without a meaning, so a later contract form breaks nothing. Every source in the repository moves to `type` in the same commit, so no transition period has a user.
+
+**[Proposal] A plain number in a `migrate` line is a hard error with a `help` line.** DL-072 rejected plain numbers, so an alias would change an OWNER decision.
+
+```text
+error: migrate Payment 1: a version number needs v
+  at byte <n>
+  help: write: migrate Payment v1 -> v2
+```
+
+Asserted tokens: `migrate <T> <n>`, `needs v`, `help: write: migrate <T> v<a> -> v<b>` (the parser reads both numbers when it can; a mixed `v1 -> 2` names `v2`). A plain number on the type line (`type Payment 3 {`) gives `expected '{' or a VERSION MARK v<number>` with `help: write: type Payment v3`.
+
+### Version rules (slice 5)
+
+**[Proposal]** Newest version of a TYPE T:
+
+| Source | Newest version | Derived TYPE VERSIONS |
+| --- | --- | --- |
+| No mark, no chain | v1 | v1 = the `type` fields |
+| No mark, chain `vk -> ... -> vn` | vn (unchanged) | vk to vn, derived backwards |
+| Mark `vm`, no chain | vm | vm only |
+| Mark `vm`, chain `vk -> ... -> vn` | vm, and m must equal n (error M1 otherwise) | vk to vm |
+
+**[Proposal] Error M1, mark and chain disagree** (source check, before `--stored`, also with an empty RECORD SNAPSHOT):
+
+```text
+error: type Payment v3 disagrees with its MIGRATE CHAIN: the last MIGRATE STEP is migrate Payment v3 -> v4
+  help: the VERSION MARK and the MIGRATE CHAIN must agree; write: type Payment v4
+```
+
+When the mark is higher than the chain end (`type Payment v5`, chain ends at v4), the help line is `help: the VERSION MARK and the MIGRATE CHAIN must agree; add migrate Payment v4 -> v5 { ... }, or write type Payment v4 if no record of v5 exists`. Asserted tokens: `type <T> v<m>`, `migrate <T> v<n-1> -> v<n>`, `must agree`, and the `help` form of the direction.
+
+**[Proposal] Help line for a stored version below the chain start** (replaces the slice 4 row; also for a mark without a chain):
+
+```text
+  help: the MIGRATE CHAIN of Payment starts at v3; the stored TYPE VERSION v1 is older. Restore from version control: migrate Payment v1 -> v2, migrate Payment v2 -> v3
+```
+
+Asserted tokens: the TYPE name, `starts at v<k>`, `TYPE VERSION v<s>`, `version control`, and each missing step `migrate <T> v<i> -> v<i+1>` for i = s to k-1. With a mark and no chain, k is the mark.
+
+**[Proposal] New error N1, stored version newer than the newest version** (the guard of "numbers only grow"):
+
+```text
+error: TYPE Payment cannot read 1 stored RESPONSE RECORD of operation payments.authorize
+  stored TYPE VERSION: Payment v5 { order_id: String status: String } (fingerprint <first 12 hex>)
+  newest TYPE VERSION: Payment v3 { order_id: String status: String }
+  record source: <the --stored path> (first at line <line>)
+  the stored TYPE VERSION v5 is newer than the newest TYPE VERSION v3; version numbers only grow
+  help: the source must declare v5 or newer; restore the type line and the MIGRATE STEPS from version control
+```
+
+Asserted tokens: `TYPE VERSION v<s>`, `newer than`, `v<n>`, `only grow`. **[Verified]** Today such a record gets the generic no-path text with no `help` line, or a rename `help` with `migrate T <s> -> <n+1>`, which counts backwards.
+
+**[Proposal] Largest version.** When the newest version is v4294967295, a `help` line that needs `v<n+1>` says `no newer version: v4294967295 is the largest version number`. **[Inference]** At HEAD `newest + 1` is a `u32` addition: a debug build panics, a release build wraps to 0. Case F15 asserts exit 1, not a panic.
+
+**[Requirement] O7 is open (see OWNER questions).** Rows that depend on it: a mark with a chain that starts at v1 (F6), a mark `v1` without a chain (F13), and a chain that starts above v1 without a mark (F14). Every other rule above does not depend on O7.
+
+### Removal command and SQUASH (slice 5)
+
+**[Requirement] DL-070 supersedes DL-058.** The W2 rule loses its exception: a MIGRATE STEP `T va -> vb` is dead when no stored record of an operation whose `effect` outputs T has a version ≤ a. The last step is dead when every stored record is the newest version, or when the RECORD SNAPSHOT holds none (then step 2a refuses the removal without `--assume-complete`). **[Inference]** Dead steps stay a prefix of the chain, so the removal still leaves a chain without gaps, now possibly empty.
+
+**[Proposal] Contract changes** (slice 4 removal contract; other steps unchanged):
+
+- **Step 3, removal and mark.** The command removes exactly the DEAD LINES. For each TYPE T that loses at least one MIGRATE STEP and has no VERSION MARK, it inserts the four or more bytes ` v<n>` (one space, `v`, the newest version) directly after the last byte of the TYPE name in the `type` declaration of T. It changes no other byte: not the line end (CRLF stays), not a comment, not the white space before `{`. A TYPE that already has a mark keeps its line unchanged (the build already checked M1).
+- **Step 4, recheck.** The new text must build against the same RECORD SNAPSHOT with zero warnings, as before. New: the newest version of every TYPE must be the same before and after. Otherwise: `error: removal check failed` and `newest version of <T> changed from v<a> to v<b>`. **[Inference]** By the insertion rule this is unreachable; it guards a reset. Unit test U2 forces it through the recheck seam of U1.
+- **Step 6, output.** stdout stays the difflib zero-context unified diff of the old and the new text, so the type line shows as one `-` and one `+` line in its own hunk. stderr: `removed <count> DEAD LINES from <SOURCE>`, then one line per inserted mark, in source order: `wrote VERSION MARK v<n> on type <T> in <SOURCE>`. `<count>` still counts DEAD LINE declarations; a mark is not a DEAD LINE.
+- **Step 8, event.** The action event adds `marked: <count>`. No path, no TYPE name.
+
+Example (case F20, Q4 with records of v3 only; line 3 is the type line):
+
+```text
+--- slice5/Q4/orders.beaml
++++ slice5/Q4/orders.beaml
+@@ -3 +3 @@
+-type Payment { order_id: String state: String reference: String }
++type Payment v4 { order_id: String state: String reference: String }
+@@ -5 +4,0 @@
+-migrate Payment v1 -> v2 { rename status -> state }
+@@ -7,3 +5,0 @@
+-migrate Payment v2 -> v3 {
+-  add channel: String = "web"
+-}
+```
+
+### Generated code (slice 5)
+
+**[Proposal]** No change of generated behaviour. The `type` key of a new RESPONSE RECORD writes the newest version of the table above, as a JSON integer. The generated decode knows the derived versions of the table (a mark without a chain knows one version). For a source without a mark, the generated Elixir is the HEAD output with only the `beaml-declaration-v1` offsets shifted (rewrite equivalence below).
+
+### Rewrite of existing sources and tests (slice 5)
+
+**[Proposal] Scope.** Rewrite every tracked `.beaml` file outside `results/` that the tests, `run.py` or the grammar tests read, and every inline source and expected token in the test code listed in the facts above. Do not rewrite: `results/` directories of 0001 to 0004 (retained evidence; they no longer compile with the new compiler, which is a stated limit), `syntax-options.beaml` (closed history, never compiled), `examples/order-flow.beaml` (OWNER discussion example, not compiled; the grammar tests do not parse it).
+
+**[Proposal] Rewrite rules.**
+
+| Rule | Old | New |
+| --- | --- | --- |
+| W1 | `interface <Name>` at a declaration start | `type <Name>` |
+| W2 | `migrate <T> <a> -> <b>` (also `%d -> %d` and `{a} -> {b}` in format strings) | `migrate <T> v<a> -> v<b>` |
+| W3 | a version number in an expected message token (`<T> <n> {`, `version <a> or older`, `starts at version <k>`, `TYPE VERSION <n>`, `not in <T> <b>`, `still in <T> <b>`) | the same token with `v<n>` and the message forms above |
+| W4 | code that matches the keyword (`run.py` line 389 regex `^interface Payment`, line 454 `startswith("interface ")`, `drift_test.py` line 53) | the same match on `type` (with an optional mark in the `run.py` regex) |
+
+**[Proposal] Rewrite audit `tests/slice5_rewrite_test.py`.** For every rewritten file, it reads the HEAD version (`git show f29e3f12:<path>`), pairs the changed lines (difflib), and requires for each pair: the new line equals W1 to W4 applied to the old line, or the pair is a row of `slice5/rewrite-allowed.json` with a reason. The allowed rows are only the expectation changes of the next table, the comment of the Q4 template, and the snapshot line. No other line changes. A fresh reviewer checks every allowed row at the RED review.
+
+**[Proposal] Slice 4 expectations that change, by DL-070 and DL-071 (allowed rows):**
+
+| Case | Old expectation | New expectation |
+| --- | --- | --- |
+| E12b (Q4, empty) | two W2 warnings | three: `v1 -> v2`, `v2 -> v3`, `v3 -> v4` |
+| E12c (Q4, v4 only) | two W2 warnings | three, as E12b |
+| E13 (C2, v2 only) | no warning | one W2 warning for `migrate Payment v1 -> v2` |
+| E15, E15c, E15d, E21d, E22 | the expected file Q4s without the two dead steps | Q4s with ` v4` after `Payment` on the type line; the diff adds the type line hunk; stderr adds the `wrote VERSION MARK` line |
+| E21 (Q4, empty, no flag) | two refusals | three refusals, file unchanged, no mark written |
+| E21d (Q4, empty, `--assume-complete`) | file equals Q4s | all three steps removed; the file equals Q4z (below) |
+| Q4 template comment | `It is never a DEAD LINE.` | `It is a DEAD LINE when only its target version is stored.` |
+
+**[Proposal] `payments.beaml` output.** The byte identity against `tests/payments.generated.snapshot` cannot hold: the offsets in the `beaml-declaration-v1` line move by −10 bytes. The new snapshot differs from the old one in exactly that line: `authorize 91 193` becomes `authorize 81 183`. Check P1 asserts this one-line difference and the shift of exactly 2 × (9 − 4) bytes. `payments_cli_output_stays_byte_identical` then runs against the new snapshot.
+
+**[Proposal] Rewrite equivalence R-EQ.** Build the HEAD compiler from `git archive f29e3f12 experiments/0001-syntax-to-beam` in a scratch directory (no checkout). For every rewritten source that compiles at HEAD, with the same `--stored` input: the HEAD output of the old source and the new output of the new source are equal after the shift of each `beaml-declaration-v1` offset by the byte difference of the rewrite before it. stderr is equal after rule W3. Sources that fail at HEAD must fail with the same error class.
+
+**[Proposal] Grammar.** `integrations/zed-beaml/grammar.js` removes `interface_declaration` and the plain number in `version` (`/v[0-9]+/`). The corpus and highlight tests move to `type` and `v`. The grammar check: zero ERROR nodes in every rewritten source, and an ERROR node for `interface Order { ... }` and for `migrate Payment 1 -> 2 { ... }`. This is DL-073 tooling, not a claim.
+
+### Cases (slice 5)
+
+**[Proposal]** Fixture names follow slice 4: TYPE `Payment`, fields `order_id`, `status`, `state`, `channel`, `reference`, operation `payments.authorize`. Sources are in `slice5/<case>/orders.beaml`, built from segment templates (slice 4 template rule). Every compile and removal case also runs from a template with random names: random TYPE and field names (some draws use field names of the form `v<digits>`), a random chain start k in 1 to 10^9, and random constants (slice 3 rule). Removal layouts are random in F23 (LF and CRLF). Replay cases use the harness mode `replay_plain` and the eval VM of slices 2 to 4. The live operation keeps the namespace `payments` (DL-068).
+
+New sources:
+
+- **B5.** The slice 1 source with `type`.
+- **M3.** `type Payment v3 { order_id: String state: String }`, no chain.
+- **Q4.** The slice 4 Q4 source after W1 and W2. **Q4s.** Q4 after F20: ` v4` on the type line, only `migrate Payment v3 -> v4`. **Q4z.** Q4 with ` v4` on the type line and no `migrate` line.
+- **T23.** Type line layouts: a multi-line block (`type Payment {` on its own line), a comment between name and `{`, `type Payment{` with no space, a tab before `{`, the type line as the last line without a final newline, the type declared below the chain, two `type` declarations on one line, CRLF.
+
+| ID | Source | RECORD SNAPSHOT | Build or command | Expected |
+| --- | --- | --- | --- | --- |
+| F1 | B5 | empty | build | exit 0; R-EQ against the HEAD output of the slice 1 source |
+| F2 | B5 with one `interface` line (each declaration position in turn) | empty | build | exit 1, no stdout, the `interface` tokens at the byte of that line. Control: F1 |
+| F3 | B5 plus `migrate Payment 1 -> 2 { rename status -> state }` (field `state`) | empty | build | exit 1, `needs v`, `help: write: migrate Payment v1 -> v2`. Control F3c: the same with `v1 -> v2` gives exit 0 |
+| F3b | mixed `migrate Payment v1 -> 2`, and `type Payment 3 {` | empty | build | exit 1, `help` names `v2`; for the type line `help: write: type Payment v3` |
+| F4 | VERSION faults in both positions: `v0`, `v03`, `V3`, `v`, `v3x`, `v4294967296`, `v-1` | empty | build | exit 1, no stdout, the tokens of the syntax list (`v-1`: `unsupported token`) |
+| F5 | fields `v1: String v2: String` and `migrate T v1 -> v2 { rename v3 -> v1 }` | empty | build | exit 0: a field that looks like a version stays a field |
+| F7 | Q4s | v3 records | build | exit 0, no warning; the new live record has `version: 4` |
+| F8 | Q4s with `type Payment v3` | empty | build | exit 1, M1 tokens, `help: ... write: type Payment v4` |
+| F8b | Q4s with `type Payment v5` | empty | build | exit 1, M1 tokens, `add migrate Payment v4 -> v5` and `type Payment v4` |
+| F8c | Q4 with a gap (`v1 -> v2`, `v3 -> v4`) | empty | build | exit 1, `must count without gaps`, `v`-forms |
+| F9 | M3 | empty | build, live call | exit 0; the live record has `type.version == 3` (integer) and the fingerprint of `{order_id state}` |
+| F10 | M3 | v1 records | build | exit 1; `Payment`, `starts at v3`, `TYPE VERSION v1`, `version control`, `migrate Payment v1 -> v2`, `migrate Payment v2 -> v3`, the `--stored` path. Controls F9 (empty) and F11 |
+| F11 | M3 | v3 records with the M3 fingerprint | build, REPLAY RUN | exit 0, no warning; `correct_accept`, decode 1, `finish/1` 1, transport 0 |
+| F11b | M3 | a v3 record with another fingerprint (`{order_id status}`) | build | exit 1, no-path error, `help` with `migrate Payment v3 -> v4 { rename status -> state }` |
+| F11c | M3 build | empty | REPLAY RUN of a hand-built v1 record (stale snapshot, as C9) | `typed_reject` `decode`, `finish/1` 0, no crash |
+| F12 | M3 | a v5 record with the M3 fingerprint | build | exit 1, N1 tokens. Control: the same record against `type Payment v5` gives exit 0 |
+| F12b | Q4z with the mark edited to `v1` (a reset) | v4 records | build | exit 1, N1 tokens (`v4`, `newer than`, `v1`) |
+| F12c | B5 (no mark, no chain) | a v2 record with the B5 fingerprint | build | exit 1, N1 tokens; no `help` with `migrate Payment v2 -> v2` |
+| F15 | `type Payment v4294967295 { order_id: String state: String }` | a v4294967295 record of `{order_id status}` | build | exit 1 (not a panic), `no newer version`, `v4294967295` |
+| F20 | Q4 | v3 records | `--remove-dead` | exit 0; stdout equals the difflib diff (example above); stderr `removed 2 DEAD LINES` and `wrote VERSION MARK v4 on type Payment`; the file equals Q4s byte for byte |
+| F21 | Q4 | v4 records | `--remove-dead` | exit 0; `removed 3 DEAD LINES`; the file equals Q4z. Then build Q4z with the same records: exit 0, no warning |
+| F21b | C2 after W2 | v2 records | build, then `--remove-dead` | build: one W2 warning for `v1 -> v2`; removal: `type Payment v2`, no `migrate` line |
+| F22 | Q4-crlf | v4 records | `--remove-dead` | as F21; the type line keeps CRLF; the diff lines keep CRLF |
+| F23 | each T23 layout, with fixture and random names | v4 records | `--remove-dead` | exit 0; the new file equals the template join without the dead segments and with ` v4` after the TYPE name; diff equals difflib |
+| F24 | Q4s | v4 records | `--remove-dead` | exit 0; only `v3 -> v4` removed; the type line unchanged; no `wrote VERSION MARK` line; the file equals Q4z |
+| F25 | Q4z after F21 | v4 records | `--remove-dead` again | `no DEAD LINE`, stdout empty, file byte-identical (idempotence) |
+| F26 | Q4 plus an unused record `type Note { text: String channel: String }` with `migrate Note v1 -> v2 { add channel: String = "x" }` (**[Verified]** at HEAD such a second chain compiles) | v4 records of Payment | `--remove-dead --assume-complete` | exit 0; both type lines marked in one run (`Payment v4`, `Note v2`), in source order; without the flag the `Note` step is refused (step 2a) and nothing is written |
+| F27 | Q4 | empty | `--remove-dead` | exit 1, three refusals, file unchanged, no mark written |
+| F28 | Q4s (after F20) | v3 records plus one v1 record | build | exit 1, `starts at v3`, `migrate Payment v1 -> v2`, `migrate Payment v2 -> v3`. And Q4z with a v3 record: `starts at v4`, `migrate Payment v3 -> v4` |
+| F29 | Q4 build and Q4z build | v4 records | REPLAY RUN of each v4 record, and one live call each | the same `correct_accept` value and `unknown_keys` on both builds; both live records have the same `type` key (version 4, same fingerprint) |
+| U2 | Rust unit test, recheck seam of U1 | empty, `--assume-complete` | a recheck that returns a lower newest version | `error: removal check failed`, `newest version of Payment changed`; file byte-identical, same inode and modification time; no temporary file |
+| P1 | `payments.beaml` after W1 | none | build | output equals the new snapshot; the new snapshot differs from the HEAD snapshot in one line, `91 193` to `81 183` |
+| A1 | every rewritten file | — | rewrite audit | every changed line is W1 to W4 or an allowed row |
+| A2 | every rewritten source that compiles at HEAD | as its tests | R-EQ | equal modulo the declaration offsets |
+| A3 | `stored/*.jsonl` | — | SHA-256 | unchanged |
+| E20 | every slice 1 to slice 4 test after the rewrite, `0003/run.py`, `0004/run.py`, `cargo test`, H1 | as before | as before | pass, with the expectation changes of the table above only |
+
+**[Inference]** What each control kills:
+
+- F2 against F1, F3 against F3c: an alias that keeps `interface` or plain numbers, or a check that fails every source.
+- F4 and F5: a lexer change that turns every `v<digits>` word into a number, or a parser that accepts `v03` or `v0`.
+- F8 and F8b: a mark that is read but not compared with the chain, or compared in one direction only.
+- F10 against F9 and F11: a mark-only rule that blocks from the source and not from the records; F10 also kills a `help` line without the missing steps. F11b: a mark that switches off the fingerprint check.
+- F12, F12b, F12c: a compiler that accepts a record newer than the source, which is a version reset. F15: an overflow of `newest + 1`.
+- F20 against F24: a removal that writes a second mark, or none. F21 and F21b: the old DL-058 exception. F22 and F23: a mark insertion that changes the line end, a comment, white space, or the wrong line. F26: a mark only for the EFFECT output TYPE, or a mark without the refusal of step 2a. F27: a mark written before the refusal. F28: a squash that hides a version that a record needs again. F29: a squash that changes the replay result or the `type` key of new records. U2: a recheck that does not compare the newest versions.
+- A1 and A2: a rewrite that changes behaviour in passing. P1: a re-snapshot that hides another change.
+
+**[Proposal] Test files.** `tests/slice5_syntax_test.py` (F1 to F15 builds, P1, A2, A3), `tests/slice5_squash_test.py` (F20 to F28), `tests/slice5_replay_test.py` (F9 live call, F11, F11c, F29), `tests/slice5_rewrite_test.py` (A1), U2 in `0001/src/main.rs`, grammar checks in `integrations/zed-beaml/test/`.
+
+**[Proposal] Compiler change sites.** The parser reads `type` with an optional VERSION, rejects `interface` and plain numbers with their `help` lines, and reads `v<n>` in `migrate`. The `Program` holds per record its VERSION MARK and the byte end of its name. `newest_version` and `chain_start` read the mark (version table). A source check adds M1. `no_path` adds N1, the missing step list and the largest version rule; every message uses `v`. `dead_lines` drops the DL-058 exception. The removal adds the mark insertion, the newest version recheck and the `wrote VERSION MARK` line. The action event adds `marked`.
+
+### Pass and reject rule (slice 5)
+
+**[Proposal] Pass.** The claim holds for slice 5 only if all are true, with fixture names and with random names:
+
+1. F2, F3, F3b, F4, F8, F8b, F8c, F10, F11b, F12, F12b, F12c and F15 fail at compile time with exit 1, no stdout and their tokens. F1, F3c, F5, F7, F9, F11 compile without a warning.
+2. F20, F21, F21b, F22, F23, F24 and F26 meet the removal contract byte for byte, with exactly one ` v<n>` per TYPE that lost steps and no mark. F25 and F27 leave the file byte-identical. U2 passes.
+3. F28 blocks again and names every missing MIGRATE STEP. F29 gives equal values and equal `type` keys on both builds. F11 gives `correct_accept`; F11c gives the typed `decode` reject.
+4. P1, A1, A2, A3 and E20 pass. GEN gives no `wrong_accept` and no untyped crash in any case.
+
+**[Proposal] Reject.** Any unmet clause rejects the claim for slice 5, except a failed E20, A1 or A2 (below). Record the reject in the register. Examples:
+
+- F2 or F3 compiles: the old forms still work.
+- F10 compiles: a SQUASH hides stored records of older versions.
+- F12b compiles: a version reset is not seen.
+- F20 changes a byte outside the dead lines and the inserted ` v4`, or F21 leaves a source whose newest version is not v4.
+- F29 differs: the SQUASH changes behaviour.
+
+**No verdict.** If E20, A1 or A2 fails, slice 5 fails as an implementation (the rewrite changed behaviour) and gives no verdict on the claim. If O7 is not answered, F6, F13 and F14 are not run, and the verdict is limited to the other rows.
+
+### Out of scope (slice 5)
+
+- A form for behaviour contracts under `interface`, and reserved words in name positions (a field may still be called `type`).
+- `redacted` (DL-059), `Unknown` (DL-062) and `type` for variants (DL-060 is superseded).
+- A reset or renumbering command. Version numbers only grow; the compiler sees a reset only through stored records (F12b). **[Inference]** With an empty RECORD SNAPSHOT a hand-edited lower mark compiles. The deploy check (DL-031) and O5 close that gap later.
+- A rewrite of `results/` evidence, `syntax-options.beaml` and `examples/order-flow.beaml`.
+- An automatic rewrite command for old sources. The slice 5 rewrite is a one-time repository change.
+- The LIB arm (as slices 3 and 4).
+
+### Decisions (Decision4, slice 5 plan)
+
+| Decision | Class | Choice and reason |
+| --- | --- | --- |
+| `type` replaces `interface`; `enum` stays | OWNER (DL-061) | Given |
+| `v` on every version number | OWNER (DL-072) | Given |
+| VERSION MARK on the type line, only after a SQUASH; mark and chain agree; `--remove-dead` writes it; the last step may be dead | OWNER (DL-070, DL-071) | Given; supersedes DL-058 |
+| `interface` is a hard error with a `help` line, no alias | Undo | Chose the error. Over an alias period: an alias creates record sources under the word that DL-061 keeps free for contracts. Because every source moves in one commit, no user needs a transition. A revert restores the old parser branch |
+| A plain number in `migrate` is a hard error with a `help` line | Undo | Implements DL-072; an alias would change the OWNER decision. Message text only |
+| `v<n>` without a leading zero; `v0` an error; range of `u32` | Undo | One spelling per version (DL-072). Local parser check |
+| RESPONSE RECORD `type.version` stays a JSON integer | Undo | No change: the `v` is source spelling. Keeps record format version 1 and every stored fixture |
+| Every version in compiler messages with `v`; messages say `type` | Undo | Message text only; one spelling for search (DL-072) |
+| Error M1 with a `help` line per direction | Undo | Message text; the rule itself is DL-071 |
+| Error N1 for a stored version newer than the newest | Undo | Message and a branch of `no_path`; the build already failed for such records, now with a reason. Guards DL-070 "never reset" |
+| Missing steps named in the below-start `help` line | Undo | Message text; DL-071 asks for a block with a named fix |
+| Largest version: a `help` text instead of `newest + 1` | Undo | Removes a panic; message only |
+| Mark inserted as ` v<n>` directly after the TYPE name; other bytes unchanged; a marked TYPE stays unchanged | Undo | The smallest edit that DL-071 asks for. Local to the removal command |
+| Recheck compares the newest version per TYPE; unit test U2 | Undo | Guard only; same seam as U1 |
+| stderr line `wrote VERSION MARK ...`; event field `marked` | Undo | Output text and an additive event field |
+| Rewrite rules W1 to W4, audit A1 with an allowed list, equivalence A2 against a HEAD build from `git archive` | Undo | Test harness only. Over trusting the rewrite: a rewrite can change behaviour in passing. No checkout needed |
+| Re-snapshot `payments.generated.snapshot` with the one-line offset change, checked by P1 | Undo | The offsets are source byte positions; the source shrinks by 10 bytes before `fn authorize`. A revert restores both files |
+| Slice 4 expectations E12b, E12c, E13, E15 family, E21, E21d change | Undo | Direct consequences of DL-070 and DL-071; listed rows only |
+| `results/`, `syntax-options.beaml`, `examples/order-flow.beaml` stay unchanged | Undo | Retained evidence and history; nothing compiles them |
+| Grammar drops `interface` and plain numbers | Undo | DL-073 tooling; the grammar follows the compiler |
+| New GLOSSARY terms VERSION MARK and SQUASH; MIGRATE CHAIN and MIGRATE STEP updated to `type` and `v` | Undo | One name each; added before use |
+| Which mark forms are legal beside a complete chain or without a chain | OWNER (O7) | Not chosen; see below |
+
+**[Verified]** No decision is Answer: slice 5 publishes nothing.
+
+### OWNER questions (slice 5)
+
+- **O7 (Migrate), strictness of the VERSION MARK.** DL-071 says the mark "appears only after a SQUASH" and that a mark and a chain "must agree". Three sources are not settled by that text:
+  - F6: `type Payment v4` with a complete chain `v1 -> ... -> v4`;
+  - F13: `type Payment v1` with no chain;
+  - F14: a chain that starts above v1 (`migrate Payment v3 -> v4`) with no mark, for example after a hand edit.
+
+  Options: (a) **permissive**: every mark that agrees is legal (F6 and F13 compile), and a chain gives the number without a mark (F14 compiles); (b) **mark only after a SQUASH**: F6 and F13 are errors (`help: remove the VERSION MARK while the MIGRATE CHAIN starts at v1`), F14 compiles; (c) **mark exactly after a SQUASH**: as (b), and F14 is an error with `help: write: type Payment v4`, so every shortened chain shows its number on the type line. (a) is the smallest compiler change. (c) makes the source state "squashed" always visible. Which form?
+- **O5 (Migrate), open.** Unchanged. A hand-edited lower mark with an empty RECORD SNAPSHOT compiles (out of scope above).

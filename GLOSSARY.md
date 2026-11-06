@@ -55,12 +55,14 @@ Use CAPITALS when naming a glossary term. Use its qualified name when the scope 
 | TYPE VERSION | The name, version number, field list and fingerprint of a TYPE as it was when a stored record was written. | LANGUAGE/COMPILATION | Typversion |
 | RECORD SNAPSHOT | A read-only copy of stored RESPONSE RECORDS that the compiler reads to learn the stored TYPE VERSIONS. | LANGUAGE/COMPILATION | Datensatzabzug |
 | RENAME ALIAS | A `rename old -> new` step of a MIGRATE CHAIN: a field of the newer TYPE VERSION has the old name in the older TYPE VERSION. | LANGUAGE/COMPILATION | Umbenennungsalias |
-| MIGRATE CHAIN | The `migrate` steps of one TYPE in the source. The `interface` is the newest TYPE VERSION; the compiler derives each older TYPE VERSION backwards from the steps. | LANGUAGE/COMPILATION | Migrationskette |
-| MIGRATE STEP | One `migrate T a -> b { ... }` line of a MIGRATE CHAIN. It changes TYPE VERSION a into TYPE VERSION b with one or more MIGRATE CHANGES, separated by commas. | LANGUAGE/COMPILATION | Migrationsschritt |
+| MIGRATE CHAIN | The `migrate` steps of one TYPE in the source. The `type` declaration (before DL-061: `interface`) is the newest TYPE VERSION; the compiler derives each older TYPE VERSION backwards from the steps. | LANGUAGE/COMPILATION | Migrationskette |
+| MIGRATE STEP | One `migrate T va -> vb { ... }` line of a MIGRATE CHAIN (before DL-072: `a -> b`). It changes TYPE VERSION a into TYPE VERSION b with one or more MIGRATE CHANGES, separated by commas. | LANGUAGE/COMPILATION | Migrationsschritt |
 | MIGRATE CHANGE | One `rename`, `add` or `drop` entry in a MIGRATE STEP. `add` gives a constant for older records; `drop` names the TYPE of the removed field. | LANGUAGE/COMPILATION | Migrationsänderung |
 | RETIRE LINE | One `retire <operation> keep <n> days` line in the source. It states that the EFFECT of the operation is deleted on purpose and that its stored RESPONSE RECORDS are kept for n days. | LANGUAGE/COMPILATION | Stilllegungszeile |
 | RETIRED RECORD | A stored RESPONSE RECORD of an operation with a RETIRE LINE. It stays stored, the build does not check its TYPE VERSION, and a REPLAY RUN rejects it with a typed reason. | EXECUTION | Stillgelegter Datensatz |
 | DEAD LINE | A RETIRE LINE or a MIGRATE STEP that no stored RESPONSE RECORD needs. The compiler warns about it and can remove it on request. | LANGUAGE/COMPILATION | Toter Quelltext |
+| SQUASH | The removal of the MIGRATE STEPS that are DEAD LINES, from the start of a MIGRATE CHAIN. The newest version number stays; it moves to the VERSION MARK. | LANGUAGE/COMPILATION | Zusammenfassen |
+| VERSION MARK | The `v<n>` after the TYPE name on a `type` line, for example `type Payment v3 { ... }`. It states the newest TYPE VERSION number after a SQUASH and must agree with the MIGRATE CHAIN. | LANGUAGE/COMPILATION | Versionsmarke |
 | EFFECT | An operation category tracked by language rules to constrain behavior beyond pure computation. | LANGUAGE/COMPILATION | Wirkung |
 | SECURITY LABEL | A restriction attached to data or control flow and interpreted by a versioned security policy. | LANGUAGE/COMPILATION | Sicherheitskennzeichnung |
 | CAPABILITY | Explicit authority to perform a named operation under a stated contract. | LANGUAGE/COMPILATION | Berechtigungsnachweis |

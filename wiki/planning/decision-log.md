@@ -347,6 +347,19 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: the Tree-sitter grammar parses and highlights `effect`, `|>`, `!` lists, `type Name [vN]`, `interface` (kept until slice 5), `enum`, `redacted`, `migrate` (plain and `v` numbers), `retire … keep … days`. The grammar is more tolerant than the compiler (optional commas in `migrate`; `with` clause shapes are a guess because no source uses them yet). Version numbers use the constructor colour.
 → Evidence: 0 ERROR nodes in 28 real sources; corpus and highlight tests pass.
 
+### EXPERIMENT 0004 slice 5 plan (OWNER away; Undo-class only)
+
+**DL-074 · Undo · `interface` and plain numbers become errors with help lines**
+→ Chose: `interface` is a hard error with a help line naming `type`; a plain number in `migrate` is an error with a help line naming `v`. Over: a transition alias.
+→ Because: DL-061 keeps `interface` free for behaviour contracts; an alias would occupy it. DL-072 fixes the `v` spelling.
+
+**DL-075 · Undo · Version spelling and the squash rewrite**
+→ Chose: a version is `v` plus digits (no leading zero, no `v0`, fits in u32). Stored `type.version` stays a JSON integer. `--remove-dead` inserts ` v<n>` right after the TYPE name and changes no other byte; a recheck guards against a version reset. Compiler messages write `v` and `type`.
+
+**DL-076 · Undo · Re-snapshot one line of the `payments.beaml` output**
+→ Chose: accept one changed line (declaration offsets move by 10 bytes because `interface` becomes `type`); a check proves no other line changes. Over: keep `interface` in that source.
+→ Because: DL-061 replaces `interface` everywhere.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

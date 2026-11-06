@@ -316,3 +316,8 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 ## 2026-11-06: TYPE version prior art
 
 **[Verified]** Added the research capture [TYPE version numbers in schema systems](../raw/research/type-versioning-prior-art-2026-11-06.md) for OWNER question O6: no observed system restarts a version counter; squashes keep the newest number. Nothing was run.
+
+## 2026-11-06: EXPERIMENT 0004 slice 5 plan
+
+**[Proposal]** Added the [slice 5 plan](../experiments/0004-generated-replay/README.md#slice-5) (README revision 9): `type` replaces `interface` as a hard error with a `help` line (DL-061), `v` on every version number (DL-072), the VERSION MARK on the type line and the SQUASH by `--remove-dead`, with the last MIGRATE STEP now removable (DL-070, DL-071; DL-058 superseded). Cases F1–F29, U2, P1, A1–A3 and a pass and reject rule. Added a register row in [research and development](planning/research-and-development.md).
+**[Proposal]** The slice 1 to slice 4 sources and tests change by four rewrite rules, checked by an audit and a rewrite equivalence against a HEAD build. The `payments.beaml` output changes in one line only: the declaration offsets move by −10 bytes. Added the glossary terms VERSION MARK and SQUASH. New OWNER question O7. Nothing was run.
