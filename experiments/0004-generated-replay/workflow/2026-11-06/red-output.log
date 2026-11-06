@@ -1,0 +1,325 @@
+# RED output, EXPERIMENT 0004 slice 1, 2026-11-06T11:48:13Z
+# HEAD 49aedb9; compiler main.rs sha256 175971e9268888772c418b1720ee6dccccc5922644763dee9990c55bca441e2c
+
+## GROUP 1: compiler, cases (a) and (b)
+$ cargo test --offline --manifest-path experiments/0001-syntax-to-beam/Cargo.toml --test cli
+
+running 11 tests
+test orders_cli_rejects_undeclared_pipe_failure ... FAILED
+test orders_cli_accepts_effect_pipe_place ... FAILED
+test orders_cli_rejects_unsupported_effect_kind ... FAILED
+test orders_cli_rejects_pipe_type_mismatch ... FAILED
+test payments_cli_output_stays_byte_identical ... ok
+test orders_cli_template_control_drift_r_decode_names_reference ... FAILED
+test orders_cli_rejects_field_not_in_type ... FAILED
+test orders_cli_rejects_unknown_pipe_step ... FAILED
+test orders_cli_emits_flow_effect_decode_and_replay ... FAILED
+test payments_cli_emits_checked_authorize_reference ... ok
+test invalid_source_emits_no_code_and_actions_do_not_capture_source ... ok
+
+failures:
+
+---- orders_cli_rejects_undeclared_pipe_failure stdout ----
+
+thread 'orders_cli_rejects_undeclared_pipe_failure' (90037252) panicked at tests/cli.rs:180:9:
+bad/undeclared_failure.beaml: message must name payments.authorize; actual: unsupported token at byte 215
+
+
+---- orders_cli_accepts_effect_pipe_place stdout ----
+
+thread 'orders_cli_accepts_effect_pipe_place' (90037248) panicked at tests/cli.rs:160:5:
+expected exit 0 for /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/../../experiments/0004-generated-replay/arms/gen/orders.beaml; stderr: unsupported token at byte 215
+
+
+---- orders_cli_rejects_unsupported_effect_kind stdout ----
+
+thread 'orders_cli_rejects_unsupported_effect_kind' (90037254) panicked at tests/cli.rs:180:9:
+bad/unsupported_effect_kind.beaml: message must name db.get; actual: unsupported token at byte 215
+
+
+---- orders_cli_rejects_pipe_type_mismatch stdout ----
+
+thread 'orders_cli_rejects_pipe_type_mismatch' (90037251) panicked at tests/cli.rs:180:9:
+bad/pipe_type_mismatch.beaml: message must name finish; actual: unsupported token at byte 215
+
+
+---- orders_cli_template_control_drift_r_decode_names_reference stdout ----
+
+thread 'orders_cli_template_control_drift_r_decode_names_reference' (90037255) panicked at tests/cli.rs:160:5:
+expected exit 0 for /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/../../experiments/0004-generated-replay/arms/gen/orders.beaml; stderr: unsupported token at byte 215
+
+
+---- orders_cli_rejects_field_not_in_type stdout ----
+
+thread 'orders_cli_rejects_field_not_in_type' (90037250) panicked at tests/cli.rs:180:9:
+bad/field_not_in_type.beaml: message must name amount; actual: unsupported token at byte 215
+
+
+---- orders_cli_rejects_unknown_pipe_step stdout ----
+
+thread 'orders_cli_rejects_unknown_pipe_step' (90037253) panicked at tests/cli.rs:180:9:
+bad/unknown_pipe_step.beaml: message must name charge; actual: unsupported token at byte 215
+
+
+---- orders_cli_emits_flow_effect_decode_and_replay stdout ----
+
+thread 'orders_cli_emits_flow_effect_decode_and_replay' (90037249) panicked at tests/cli.rs:160:5:
+expected exit 0 for /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/../../experiments/0004-generated-replay/arms/gen/orders.beaml; stderr: unsupported token at byte 215
+
+
+
+failures:
+    orders_cli_accepts_effect_pipe_place
+    orders_cli_emits_flow_effect_decode_and_replay
+    orders_cli_rejects_field_not_in_type
+    orders_cli_rejects_pipe_type_mismatch
+    orders_cli_rejects_undeclared_pipe_failure
+    orders_cli_rejects_unknown_pipe_step
+    orders_cli_rejects_unsupported_effect_kind
+    orders_cli_template_control_drift_r_decode_names_reference
+
+test result: FAILED. 3 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+error: test failed, to rerun pass `--test cli`
+exit 101
+
+## GROUP 2: overlay diff, case (c) first check
+$ python3 -B experiments/0004-generated-replay/tests/overlay_diff_test.py
+test_table_rows_name_original_lines (__main__.ChangeTableMatchesOriginals) ... ok
+test_overlay_copies_equal_change_table_gen (__main__.OverlayCopiesEqualChangeTable) ... FAIL
+test_overlay_copies_equal_change_table_lib (__main__.OverlayCopiesEqualChangeTable) ... FAIL
+
+======================================================================
+FAIL: test_overlay_copies_equal_change_table_gen (__main__.OverlayCopiesEqualChangeTable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/overlay_diff_test.py", line 101, in test_overlay_copies_equal_change_table_gen
+    self.check_arm("gen")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/overlay_diff_test.py", line 98, in check_arm
+    self.assertEqual([], problems)
+AssertionError: Lists differ: [] != ['missing experiments/0004-generated-repla[800 chars].py']
+
+Second list contains 7 additional elements.
+First extra element 0:
+'missing experiments/0004-generated-replay/arms/gen/assertion-changes.json'
+
+- []
++ ['missing experiments/0004-generated-replay/arms/gen/assertion-changes.json',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/gen/overlay/experiments/0002-http-correlation/query.py',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/gen/overlay/experiments/0003-source-linked-replay/tests/replay_run_test.py',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/gen/overlay/experiments/0003-source-linked-replay/tests/response_capture_test.py',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/gen/overlay/experiments/0003-source-linked-replay/tests/run_test.py',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/gen/overlay/experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/gen/overlay/experiments/0003-source-linked-replay/tests/trace_lookup_test.py']
+
+======================================================================
+FAIL: test_overlay_copies_equal_change_table_lib (__main__.OverlayCopiesEqualChangeTable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/overlay_diff_test.py", line 104, in test_overlay_copies_equal_change_table_lib
+    self.check_arm("lib")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/overlay_diff_test.py", line 98, in check_arm
+    self.assertEqual([], problems)
+AssertionError: Lists differ: [] != ['missing experiments/0004-generated-repla[800 chars].py']
+
+Second list contains 7 additional elements.
+First extra element 0:
+'missing experiments/0004-generated-replay/arms/lib/assertion-changes.json'
+
+- []
++ ['missing experiments/0004-generated-replay/arms/lib/assertion-changes.json',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/lib/overlay/experiments/0002-http-correlation/query.py',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/lib/overlay/experiments/0003-source-linked-replay/tests/replay_run_test.py',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/lib/overlay/experiments/0003-source-linked-replay/tests/response_capture_test.py',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/lib/overlay/experiments/0003-source-linked-replay/tests/run_test.py',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/lib/overlay/experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py',
++  'missing copy '
++  'experiments/0004-generated-replay/arms/lib/overlay/experiments/0003-source-linked-replay/tests/trace_lookup_test.py']
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.006s
+
+FAILED (failures=2)
+exit 1
+
+## GROUP 3: arms harness, cases (b) strict compile, (c), (d), (d2), (e)
+$ python3 -B experiments/0004-generated-replay/tests/arms_test.py
+Run 1 (results/20261106T114845593236Z): SETUP ERROR, not counted. TypeError in the test harness (Path % tuple precedence in build()). 8 ERROR, 6 FAIL, 1 ok. Fixed the harness; run 2 below is the counted run.
+$ python3 -B experiments/0004-generated-replay/tests/arms_test.py   (run 2)
+/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T114911001663Z
+test_b_gen_module_compiles_with_warnings_as_errors (__main__.GenBuild) ... FAIL
+test_c_gen_0003_runner_passes_all_five_steps (__main__.GenRunner) ... FAIL
+test_d_gen_replay_matrix_eight_cases (__main__.GenRunner) ... FAIL
+test_c_gen_router_calls_only_place_and_host_replay_files_are_deleted (__main__.GenStructure) ... FAIL
+test_d2_L0_live_valid_body_baseline (__main__.GenTypeMismatch) ... FAIL
+test_d2_L1_live_unknown_key_accepted_with_hint (__main__.GenTypeMismatch) ... FAIL
+test_d2_L2_live_status_503_rejected (__main__.GenTypeMismatch) ... FAIL
+test_d2_P1_pipe_stops_after_failed_effect (__main__.GenTypeMismatch) ... FAIL
+test_d2_R1_replay_missing_key_is_decode_error (__main__.GenTypeMismatch) ... FAIL
+test_d2_R2_replay_of_L1_record_gives_same_success_and_hint (__main__.GenTypeMismatch) ... FAIL
+test_d2_R3_replay_wrongly_typed_field_is_decode_error (__main__.GenTypeMismatch) ... FAIL
+test_e_lib_arm_replays_matrix (__main__.LibArm) ... FAIL
+test_e_lib_form_is_the_fixed_strongest_library (__main__.LibArm) ... FAIL
+test_e_lib_type_mismatch_outcomes_recorded_then_frozen (__main__.LibArm) ... FAIL
+test_control_originals_unchanged_by_arm_runs (__main__.ZzControlUnchanged) ... ok
+
+======================================================================
+FAIL: test_b_gen_module_compiles_with_warnings_as_errors (__main__.GenBuild)
+----------------------------------------------------------------------
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+
+======================================================================
+FAIL: test_c_gen_0003_runner_passes_all_five_steps (__main__.GenRunner)
+----------------------------------------------------------------------
+AssertionError: 'OrdersBeamlSpike.Replay.run(' not found in '"""Check the separate REPLAY RUN runner on the first Orders call and the invalid replay records (gate 4, RED revision 3)."""\nimport base64\nimport datetime\nimport hashlib\nimport http.server\nimport json\nfrom pathlib import Path\nimport shutil\nimport socket\nimport subprocess\nimport sys\nimport tempfile\nimport threading\nimport tim [... truncated in this log; full text in the results dir]
+
+======================================================================
+FAIL: test_d_gen_replay_matrix_eight_cases (__main__.GenRunner)
+----------------------------------------------------------------------
+AssertionError: 'OrdersBeamlSpike.Replay.run(' not found in '"""Check the separate REPLAY RUN runner on the first Orders call and the invalid replay records (gate 4, RED revision 3)."""\nimport base64\nimport datetime\nimport hashlib\nimport http.server\nimport json\nfrom pathlib import Path\nimport shutil\nimport socket\nimport subprocess\nimport sys\nimport tempfile\nimport threading\nimport tim [... truncated in this log; full text in the results dir]
+
+======================================================================
+FAIL: test_c_gen_router_calls_only_place_and_host_replay_files_are_deleted (__main__.GenStructure)
+----------------------------------------------------------------------
+AssertionError: Lists differ: [] != ["router calls OrdersBeamlSpike ['finish',[179 chars]y']"]
+
+Second list contains 4 additional elements.
+First extra element 0:
+"router calls OrdersBeamlSpike ['finish', 'prepare'], expected only place"
+
+- []
++ ["router calls OrdersBeamlSpike ['finish', 'prepare'], expected only place",
++  'payment_http.ex is not deleted',
++  'replay.ex is not deleted',
++  "host transport or replay modules left: ['OrdersApi.PaymentHttp', "
++  "'OrdersApi.Replay']"]
+
+======================================================================
+FAIL: test_d2_L0_live_valid_body_baseline (__main__.GenTypeMismatch)
+----------------------------------------------------------------------
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+
+======================================================================
+FAIL: test_d2_L1_live_unknown_key_accepted_with_hint (__main__.GenTypeMismatch)
+----------------------------------------------------------------------
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+
+======================================================================
+FAIL: test_d2_L2_live_status_503_rejected (__main__.GenTypeMismatch)
+----------------------------------------------------------------------
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+
+======================================================================
+FAIL: test_d2_P1_pipe_stops_after_failed_effect (__main__.GenTypeMismatch)
+----------------------------------------------------------------------
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+
+======================================================================
+FAIL: test_d2_R1_replay_missing_key_is_decode_error (__main__.GenTypeMismatch)
+----------------------------------------------------------------------
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+
+======================================================================
+FAIL: test_d2_R2_replay_of_L1_record_gives_same_success_and_hint (__main__.GenTypeMismatch)
+----------------------------------------------------------------------
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+
+======================================================================
+FAIL: test_d2_R3_replay_wrongly_typed_field_is_decode_error (__main__.GenTypeMismatch)
+----------------------------------------------------------------------
+AssertionError: gen-generate-orders: compiler exit 1: unsupported token at byte 215
+
+======================================================================
+FAIL: test_e_lib_arm_replays_matrix (__main__.LibArm)
+----------------------------------------------------------------------
+AssertionError: 'ReplayLib.run(' not found in '"""Check the separate REPLAY RUN runner on the first Orders call and the invalid replay records (gate 4, RED revision 3)."""\nimport base64\nimport datetime\nimport hashlib\nimport http.server\nimport json\nfrom pathlib import Path\nimport shutil\nimport socket\nimport subprocess\nimport sys\nimport tempfile\nimport threading\nimport time\nimport trac [... truncated in this log; full text in the results dir]
+
+======================================================================
+FAIL: test_e_lib_form_is_the_fixed_strongest_library (__main__.LibArm)
+----------------------------------------------------------------------
+AssertionError: Lists differ: [] != ['no ReplayLib module', 'no OrdersApi.Repl[113 chars]all']
+
+Second list contains 4 additional elements.
+First extra element 0:
+'no ReplayLib module'
+
+- []
++ ['no ReplayLib module',
++  'no OrdersApi.ReplayDescriptor module',
++  'replay.ex is not deleted',
++  'payment_http.ex does not record through one ReplayLib.record call']
+
+======================================================================
+FAIL: test_e_lib_type_mismatch_outcomes_recorded_then_frozen (__main__.LibArm)
+----------------------------------------------------------------------
+AssertionError: 'ReplayLib' not found in {'ProbeSupport': (PosixPath('/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-_sgmd0up/experiments/0002-http-correlation/apps/probe_support/lib/probe_support.ex'), 'defmodule ProbeSupport do\n  require Logger\n  def config(key), do: Application.fetch_env!(:probe_support, key)\n  def json(value), do: value |> :json.encode() |> IO.iodata_to_bin [... truncated in this log; full text in the results dir]
+
+----------------------------------------------------------------------
+Ran 15 tests in 3.546s
+
+FAILED (failures=14)
+exit 1
+
+## GROUP 4: DRIFT, case (f)
+$ python3 -B experiments/0004-generated-replay/tests/drift_test.py
+test_f_drift_fixtures_change_only_beaml_declarations (__main__.DriftFixtures) ... ok
+test_f_drift_outcomes_recorded_per_arm_and_derivative (__main__.DriftRun) ... FAIL
+test_f_lib_is_frozen_before_drift (__main__.DriftRun) ... FAIL
+
+======================================================================
+FAIL: test_f_drift_outcomes_recorded_per_arm_and_derivative (__main__.DriftRun)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/drift_test.py", line 65, in test_f_drift_outcomes_recorded_per_arm_and_derivative
+    self.assertEqual(0, done.returncode, done.stdout.strip()[-400:])
+AssertionError: 0 != 2 : {"status": "not_implemented", "arguments": ["drift"]}
+
+======================================================================
+FAIL: test_f_lib_is_frozen_before_drift (__main__.DriftRun)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/drift_test.py", line 57, in test_f_lib_is_frozen_before_drift
+    self.assertTrue(freeze.is_file(), "no LIB freeze record")
+AssertionError: False is not true : no LIB freeze record
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.026s
+
+FAILED (failures=2)
+exit 1
+
+## Summary
+GROUP 1 compiler: 8 RED, 3 pass (2 existing, 1 guard). GROUP 2 overlay: 2 RED, 1 guard pass. GROUP 3 arms (run 2): 14 RED, 1 guard pass. GROUP 4 DRIFT: 2 RED, 1 guard pass.
+Per-test expected -> actual and reason: notes.md, section RED.
+
+## SHA-256 at RED
+78c4212f80713aa73ed983afc8dfdf5854055499900d847c8b5b6fe283512fdc  ../0001-syntax-to-beam/tests/cli.rs
+ff23d780e43c16afcf58fa20fcab7ded44c4e6e14f3af5af657a77b7f0ae6b1d  tests/arm_tree.py
+83c0f832f9485731de7bbc2b9baacc06b784abd0a7a9c195945abe195be15479  tests/arms_test.py
+556e8ecd7aead19ffa7bf89d2e79c789c0482d1c2861aa35e9f4cff0100c2f73  tests/drift_test.py
+6fe091cdb018f9479fd15be6400cbfc1870bddc10ba0f52452d29ba68b5d76f7  tests/overlay_diff_test.py
+69bbf771460420f55a9ebf5e6ef7db6229ef81658b1784e2c32793398ea8233e  tests/payments.generated.snapshot
+f50c4b2d190bfe479d0d7696133101503d4702984d1423818bae23bd054393f1  run.py
+8a4f7b2043b28668e42bbb5778387e383c5a59ffba2da12a550eee96199c5c09  arms/gen/orders.beaml
+388aab4af0ef24e6ce6c60ebadc2c363b2e1f92dea50fd4d8d88de238b5b5ed2  bad/field_not_in_type.beaml
+cb626147134f51905f1baae80f51bc956d6c296948477dd0607975f3424c69e4  bad/pipe_type_mismatch.beaml
+fad36301ae374b6cba41be64607772268bb96511d0e2ca36943d86c3de24bc4c  bad/undeclared_failure.beaml
+a47f59bf2bca254e31edce260110250f0d3cf8a8825c5230063031303e31095c  bad/unknown_pipe_step.beaml
+d9d3d124ef4e1e3d7d4cf934fe175ec9a1209555184bf781e45e976c45861270  bad/unsupported_effect_kind.beaml
+3d050b688d89c7ae405516f4ffaf4aeae579e205ae815c6ac23321ea9be188b9  drift/N/orders.beaml
+7723e6c6ee3d3b296fa2e6b5f2acd7a1f46d8c14daaf6e4cb4f0c5d2c44bdbd6  drift/N/payments.beaml
+e106eeaa5313c967d4219540e0eb15ba198e431a4d45d37d95e3f29bc10f85c3  drift/Q/orders.beaml
+054355f4acd3754a91b1278af6ed62e4959c6fa5a419030e4c81979bf9119b0f  drift/Q/payments.beaml
+cf1d49582169dfe37a871c3cfcf823bc19af405f64f6172a8ad205d44d5d0fc8  drift/R/orders.beaml
+0ff434924f6607ea296d4015f1606c894d6a81739ea7d1bb46a0b4ac88f74d08  drift/R/payments.beaml
