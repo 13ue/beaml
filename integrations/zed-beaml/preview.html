@@ -1,0 +1,146 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BEAML source</title><style>
+:root{--bg:#f6f7f9;--surface:#fff;--fg:#1b2230;--muted:#6a7383;--line:#d9dde3;
+--keyword:#7a3fc4;--type:#0f6e56;--function:#185fa5;--property:#a3412d;--string:#3b6d11;
+--operator:#5f5e5a;--punct:#888780;--constructor:#854f0b;--comment:#8a8a8a;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#12161c;--surface:#1a2029;--fg:#e4e8ee;--muted:#9aa4b2;--line:#2e3744;
+--keyword:#c3a6ea;--type:#5dcaa5;--function:#85b7eb;--property:#f0997b;--string:#97c459;
+--operator:#b4b2a9;--punct:#888780;--constructor:#ef9f27;--comment:#8a8a8a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:32px 16px 64px;display:grid;gap:28px}
+h1{font-size:26px;margin:0} h2{font-size:15px;margin:0 0 8px;font-family:ui-monospace,Menlo,monospace;color:var(--muted);font-weight:500}
+.code{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow-x:auto;padding:12px 0}
+table{border-collapse:collapse;font:13.5px/1.6 ui-monospace,"SF Mono",Menlo,monospace}
+.line-number{user-select:none;text-align:right;color:var(--muted);padding:0 14px;opacity:.6}
+.line{white-space:pre;padding-right:16px}
+.keyword{color:var(--keyword);font-weight:600}.type{color:var(--type)}.function{color:var(--function)}
+.property{color:var(--property)}.string,.string.escape{color:var(--string)}.operator{color:var(--operator)}
+.punctuation{color:var(--punct)}.constructor{color:var(--constructor)}.comment{color:var(--comment);font-style:italic}
+.note{color:var(--muted);font-size:13px}
+</style></head><body><div class="wrap"><h1>BEAML source</h1><p class="note">Highlighted with the project Tree-sitter grammar (integrations/zed-beaml).</p><section><h2>experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml · 4 lines</h2><div class="code"><table>
+<tr><td class=line-number>1</td><td class=line><span class='keyword'>interface</span> <span class='type'>Order</span> <span class='punctuation bracket'>{</span> <span class='property'>order_id</span><span class='operator'>:</span> <span class='type'>String</span> <span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>2</td><td class=line><span class='keyword'>interface</span> <span class='type'>Payment</span> <span class='punctuation bracket'>{</span> <span class='property'>order_id</span><span class='operator'>:</span> <span class='type'>String</span> <span class='property'>status</span><span class='operator'>:</span> <span class='type'>String</span> <span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>3</td><td class=line><span class='keyword'>fn</span> <span class='function'>prepare</span> <span class='type'>Order</span> <span class='punctuation bracket'>{</span> <span class='property'>order_id</span> <span class='punctuation bracket'>}</span> <span class='operator'>-&gt;</span> <span class='type'>Order</span> <span class='operator'>=</span> <span class='type'>Order</span> <span class='punctuation bracket'>{</span> <span class='property'>order_id</span><span class='operator'>:</span> order_id <span class='operator'>+</span> <span class='string'>&quot;&quot;</span> <span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>4</td><td class=line><span class='keyword'>fn</span> <span class='function'>finish</span> <span class='type'>Payment</span> <span class='punctuation bracket'>{</span> <span class='property'>order_id</span><span class='punctuation delimiter'>,</span> <span class='property'>status</span> <span class='punctuation bracket'>}</span> <span class='operator'>-&gt;</span> <span class='type'>Payment</span> <span class='operator'>=</span> <span class='type'>Payment</span> <span class='punctuation bracket'>{</span> <span class='property'>order_id</span><span class='operator'>:</span> order_id <span class='operator'>+</span> <span class='string'>&quot;&quot;</span><span class='punctuation delimiter'>,</span> <span class='property'>status</span><span class='operator'>:</span> status <span class='punctuation bracket'>}</span>
+</td></tr>
+</table></div></section><section><h2>experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml · 3 lines</h2><div class="code"><table>
+<tr><td class=line-number>1</td><td class=line><span class='keyword'>interface</span> <span class='type'>Order</span> <span class='punctuation bracket'>{</span> <span class='property'>order_id</span><span class='operator'>:</span> <span class='type'>String</span> <span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>2</td><td class=line><span class='keyword'>interface</span> <span class='type'>Payment</span> <span class='punctuation bracket'>{</span> <span class='property'>order_id</span><span class='operator'>:</span> <span class='type'>String</span> <span class='property'>status</span><span class='operator'>:</span> <span class='type'>String</span> <span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>3</td><td class=line><span class='keyword'>fn</span> <span class='function'>authorize</span> <span class='type'>Order</span> <span class='punctuation bracket'>{</span> <span class='property'>order_id</span> <span class='punctuation bracket'>}</span> <span class='operator'>-&gt;</span> <span class='type'>Payment</span> <span class='operator'>=</span> <span class='type'>Payment</span> <span class='punctuation bracket'>{</span> <span class='property'>order_id</span><span class='operator'>:</span> order_id <span class='operator'>+</span> <span class='string'>&quot;&quot;</span><span class='punctuation delimiter'>,</span> <span class='property'>status</span><span class='operator'>:</span> <span class='string'>&quot;authorized&quot;</span> <span class='punctuation bracket'>}</span>
+</td></tr>
+</table></div></section><section><h2>experiments/0001-syntax-to-beam/example.beaml · 54 lines</h2><div class="code"><table>
+<tr><td class=line-number>1</td><td class=line><span class='keyword'>interface</span> <span class='type'>Address</span> <span class='punctuation bracket'>{</span>
+</td></tr>
+<tr><td class=line-number>2</td><td class=line>  <span class='property'>city</span><span class='operator'>:</span> <span class='type'>String</span>
+</td></tr>
+<tr><td class=line-number>3</td><td class=line>  <span class='property'>country</span><span class='operator'>:</span> <span class='type'>String</span>
+</td></tr>
+<tr><td class=line-number>4</td><td class=line><span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>5</td><td class=line>
+</td></tr>
+<tr><td class=line-number>6</td><td class=line><span class='keyword'>interface</span> <span class='type'>Customer</span> <span class='punctuation bracket'>{</span>
+</td></tr>
+<tr><td class=line-number>7</td><td class=line>  <span class='property'>name</span><span class='operator'>:</span> <span class='type'>String</span>
+</td></tr>
+<tr><td class=line-number>8</td><td class=line>  <span class='property'>address</span><span class='operator'>:</span> <span class='type'>Address</span>
+</td></tr>
+<tr><td class=line-number>9</td><td class=line><span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>10</td><td class=line>
+</td></tr>
+<tr><td class=line-number>11</td><td class=line><span class='keyword'>interface</span> <span class='type'>Order</span> <span class='punctuation bracket'>{</span>
+</td></tr>
+<tr><td class=line-number>12</td><td class=line>  <span class='property'>id</span><span class='operator'>:</span> <span class='type'>String</span>
+</td></tr>
+<tr><td class=line-number>13</td><td class=line>  <span class='property'>customer</span><span class='operator'>:</span> <span class='type'>Customer</span>
+</td></tr>
+<tr><td class=line-number>14</td><td class=line><span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>15</td><td class=line>
+</td></tr>
+<tr><td class=line-number>16</td><td class=line><span class='keyword'>enum</span> <span class='type'>OrderError</span> <span class='punctuation bracket'>{</span>
+</td></tr>
+<tr><td class=line-number>17</td><td class=line>  <span class='constructor'>NotFound</span><span class='punctuation bracket'>(</span><span class='type'>String</span><span class='punctuation bracket'>)</span>
+</td></tr>
+<tr><td class=line-number>18</td><td class=line>  <span class='constructor'>Rejected</span><span class='punctuation bracket'>(</span><span class='type'>String</span><span class='punctuation bracket'>)</span>
+</td></tr>
+<tr><td class=line-number>19</td><td class=line><span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>20</td><td class=line>
+</td></tr>
+<tr><td class=line-number>21</td><td class=line><span class='comment'>// This experiment uses a concrete result type. Generics are a later experiment.</span>
+</td></tr>
+<tr><td class=line-number>22</td><td class=line><span class='keyword'>enum</span> <span class='type'>OrderResult</span> <span class='punctuation bracket'>{</span>
+</td></tr>
+<tr><td class=line-number>23</td><td class=line>  <span class='constructor'>Ok</span><span class='punctuation bracket'>(</span><span class='type'>Order</span><span class='punctuation bracket'>)</span>
+</td></tr>
+<tr><td class=line-number>24</td><td class=line>  <span class='constructor'>Error</span><span class='punctuation bracket'>(</span><span class='type'>OrderError</span><span class='punctuation bracket'>)</span>
+</td></tr>
+<tr><td class=line-number>25</td><td class=line><span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>26</td><td class=line>
+</td></tr>
+<tr><td class=line-number>27</td><td class=line><span class='keyword'>fn</span> <span class='function'>describe</span> <span class='constructor'>Ok</span><span class='punctuation bracket'>(</span><span class='type'>Order</span> <span class='punctuation bracket'>{</span>
+</td></tr>
+<tr><td class=line-number>28</td><td class=line>  <span class='property'>customer</span><span class='operator'>:</span> <span class='type'>Customer</span> <span class='punctuation bracket'>{</span>
+</td></tr>
+<tr><td class=line-number>29</td><td class=line>    <span class='property'>name</span><span class='punctuation delimiter'>,</span>
+</td></tr>
+<tr><td class=line-number>30</td><td class=line>    <span class='property'>address</span><span class='operator'>:</span> <span class='type'>Address</span> <span class='punctuation bracket'>{</span> <span class='property'>country</span><span class='operator'>:</span> <span class='string'>&quot;DE&quot;</span><span class='punctuation delimiter'>,</span> <span class='property'>city</span> <span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>31</td><td class=line>  <span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>32</td><td class=line><span class='punctuation bracket'>}</span><span class='punctuation bracket'>)</span> <span class='operator'>-&gt;</span> <span class='type'>String</span> <span class='operator'>=</span> name <span class='operator'>+</span> <span class='string'>&quot; bestellt aus &quot;</span> <span class='operator'>+</span> city <span class='operator'>+</span> <span class='string'>&quot;, Deutschland&quot;</span>
+</td></tr>
+<tr><td class=line-number>33</td><td class=line>
+</td></tr>
+<tr><td class=line-number>34</td><td class=line><span class='keyword'>fn</span> <span class='function'>describe</span> <span class='constructor'>Ok</span><span class='punctuation bracket'>(</span><span class='type'>Order</span> <span class='punctuation bracket'>{</span> <span class='property'>id</span><span class='punctuation delimiter'>,</span> <span class='property'>customer</span><span class='operator'>:</span> <span class='type'>Customer</span> <span class='punctuation bracket'>{</span> <span class='property'>name</span> <span class='punctuation bracket'>}</span> <span class='punctuation bracket'>}</span><span class='punctuation bracket'>)</span> <span class='operator'>-&gt;</span> <span class='type'>String</span> <span class='operator'>=</span>
+</td></tr>
+<tr><td class=line-number>35</td><td class=line>  <span class='string'>&quot;Bestellung &quot;</span> <span class='operator'>+</span> id <span class='operator'>+</span> <span class='string'>&quot; von &quot;</span> <span class='operator'>+</span> name
+</td></tr>
+<tr><td class=line-number>36</td><td class=line>
+</td></tr>
+<tr><td class=line-number>37</td><td class=line><span class='keyword'>fn</span> <span class='function'>describe</span> <span class='constructor'>Error</span><span class='punctuation bracket'>(</span><span class='constructor'>NotFound</span><span class='punctuation bracket'>(</span>id<span class='punctuation bracket'>)</span><span class='punctuation bracket'>)</span> <span class='operator'>-&gt;</span> <span class='type'>String</span> <span class='operator'>=</span>
+</td></tr>
+<tr><td class=line-number>38</td><td class=line>  <span class='string'>&quot;Bestellung &quot;</span> <span class='operator'>+</span> id <span class='operator'>+</span> <span class='string'>&quot; wurde nicht gefunden&quot;</span>
+</td></tr>
+<tr><td class=line-number>39</td><td class=line>
+</td></tr>
+<tr><td class=line-number>40</td><td class=line><span class='keyword'>fn</span> <span class='function'>describe</span> <span class='constructor'>Error</span><span class='punctuation bracket'>(</span><span class='constructor'>Rejected</span><span class='punctuation bracket'>(</span>reason<span class='punctuation bracket'>)</span><span class='punctuation bracket'>)</span> <span class='operator'>-&gt;</span> <span class='type'>String</span> <span class='operator'>=</span>
+</td></tr>
+<tr><td class=line-number>41</td><td class=line>  <span class='string'>&quot;Bestellung abgelehnt: &quot;</span> <span class='operator'>+</span> reason
+</td></tr>
+<tr><td class=line-number>42</td><td class=line>
+</td></tr>
+<tr><td class=line-number>43</td><td class=line><span class='keyword'>fn</span> <span class='function'>send</span> target<span class='operator'>:</span> <span class='type'>String</span><span class='punctuation delimiter'>,</span> message<span class='operator'>:</span> <span class='type'>String</span> <span class='operator'>-&gt;</span> <span class='type'>String</span> <span class='operator'>=</span> target <span class='operator'>+</span> <span class='string'>&quot;: &quot;</span> <span class='operator'>+</span> message
+</td></tr>
+<tr><td class=line-number>44</td><td class=line>
+</td></tr>
+<tr><td class=line-number>45</td><td class=line><span class='keyword'>fn</span> <span class='function'>sample</span> <span class='operator'>-&gt;</span> <span class='type'>String</span> <span class='operator'>=</span> <span class='function'>describe</span><span class='punctuation bracket'>(</span><span class='constructor'>Ok</span><span class='punctuation bracket'>(</span><span class='type'>Order</span> <span class='punctuation bracket'>{</span>
+</td></tr>
+<tr><td class=line-number>46</td><td class=line>  <span class='property'>id</span><span class='operator'>:</span> <span class='string'>&quot;order-1&quot;</span><span class='punctuation delimiter'>,</span>
+</td></tr>
+<tr><td class=line-number>47</td><td class=line>  <span class='property'>customer</span><span class='operator'>:</span> <span class='type'>Customer</span> <span class='punctuation bracket'>{</span>
+</td></tr>
+<tr><td class=line-number>48</td><td class=line>    <span class='property'>name</span><span class='operator'>:</span> <span class='string'>&quot;Kunde&quot;</span><span class='punctuation delimiter'>,</span>
+</td></tr>
+<tr><td class=line-number>49</td><td class=line>    <span class='property'>address</span><span class='operator'>:</span> <span class='type'>Address</span> <span class='punctuation bracket'>{</span> <span class='property'>city</span><span class='operator'>:</span> <span class='string'>&quot;Berlin&quot;</span><span class='punctuation delimiter'>,</span> <span class='property'>country</span><span class='operator'>:</span> <span class='string'>&quot;DE&quot;</span> <span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>50</td><td class=line>  <span class='punctuation bracket'>}</span>
+</td></tr>
+<tr><td class=line-number>51</td><td class=line><span class='punctuation bracket'>}</span><span class='punctuation bracket'>)</span><span class='punctuation bracket'>)</span>
+</td></tr>
+<tr><td class=line-number>52</td><td class=line>
+</td></tr>
+<tr><td class=line-number>53</td><td class=line><span class='keyword'>fn</span> <span class='function'>literal</span> <span class='operator'>-&gt;</span> <span class='type'>String</span> <span class='operator'>=</span> <span class='string'>&quot;#{raise(<span class='string'>\&quot;</span>must stay data<span class='string'>\&quot;</span>)}: Grüße<span class='string'>\n</span>&quot;</span>
+</td></tr>
+<tr><td class=line-number>54</td><td class=line><span class='keyword'>fn</span> <span class='function'>ignore</span> value<span class='operator'>:</span> <span class='type'>String</span> <span class='operator'>-&gt;</span> <span class='type'>String</span> <span class='operator'>=</span> <span class='string'>&quot;ignored&quot;</span>
+</td></tr>
+</table></div></section></div></body></html>
