@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BEAML Experiment 0003</title>
+<style>
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --fg:#18202b; --muted:#5a6573; --line:#d4d9e0;
+  --accent:#2f4f9e; --accent-soft:#e6ecf8;
+  --ok:#2c7a4b; --ok-soft:#e3f2e8; --wait:#a8690f; --wait-soft:#fbf0dc; --open:#6b7480; --open-soft:#eceef1; --bad:#b0362f; --bad-soft:#f8e4e2;
+  --host:#6a4c93; --host-soft:#efe8f7;
+  --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161c; --surface:#1a2029; --fg:#e4e8ee; --muted:#9aa4b2; --line:#2e3744;
+  --accent:#8fa8ec; --accent-soft:#1f2a44;
+  --ok:#6cc58f; --ok-soft:#173225; --wait:#e5b05a; --wait-soft:#3a2c14; --open:#a3abb6; --open-soft:#242b35; --bad:#ef8a83; --bad-soft:#3a1d1b;
+  --host:#c3a6ea; --host-soft:#2c2240; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161c; --surface:#1a2029; --fg:#e4e8ee; --muted:#9aa4b2; --line:#2e3744;
+  --accent:#8fa8ec; --accent-soft:#1f2a44;
+  --ok:#6cc58f; --ok-soft:#173225; --wait:#e5b05a; --wait-soft:#3a2c14; --open:#a3abb6; --open-soft:#242b35; --bad:#ef8a83; --bad-soft:#3a1d1b;
+  --host:#c3a6ea; --host-soft:#2c2240; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto;padding:32px 16px 64px;display:grid;gap:40px}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:30px;font-weight:700}
+h2{font-size:20px;font-weight:600;margin-bottom:14px}
+h3{font-size:15px;font-weight:600}
+p{margin:0;max-width:65ch}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lead{color:var(--muted);font-size:16px;margin-top:8px}
+code,.mono{font-family:var(--mono);font-size:13px}
+section{display:grid;gap:12px;min-width:0}
+.note{color:var(--muted);font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.wait{background:var(--wait-soft);color:var(--wait)}
+.chip.open{background:var(--open-soft);color:var(--open)} .chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.beaml{background:var(--accent-soft);color:var(--accent)} .chip.host{background:var(--host-soft);color:var(--host)}
+.diagram{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+.flow{display:flex;align-items:center;gap:10px;min-width:max-content}
+.box{border:1.5px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--bg);display:grid;gap:4px;min-width:120px}
+.box b{font-size:14px}
+.box small{color:var(--muted);font-size:12px}
+.box.beaml{border-color:var(--accent)} .box.host{border-color:var(--host)}
+.box.ok{border-color:var(--ok)} .box.wait{border-color:var(--wait);border-style:dashed} .box.open{border-style:dashed}
+.arrow{color:var(--muted);font-family:var(--mono);font-size:18px;flex:none}
+.arrow small{display:block;font-size:11px;text-align:center}
+.split{display:flex;flex-direction:column;gap:10px}
+.gates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.gate{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:6px;align-content:start}
+.gate .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.gate.now{border-color:var(--wait);box-shadow:0 0 0 2px var(--wait-soft)}
+@media (max-width:640px){.gates{grid-template-columns:1fr 1fr}}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+tr:last-child td{border-bottom:0}
+.red{color:var(--bad)} .green{color:var(--ok)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:8px;align-content:start;min-width:0}
+.card ul,.list{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.card li,.list li{padding-left:18px;position:relative}
+.card li::before,.list li::before{content:"→";position:absolute;left:0;color:var(--muted)}
+.decisions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){.decisions{grid-template-columns:1fr}}
+.legend{display:flex;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">BEAML · EXPERIMENT 0003 · State 2026-11-06</div>
+  <h1>Source-linked replay</h1>
+  <p class="lead">Go from a real call to the exact source that ran. Then replay the call without the network.</p>
+</header>
+
+<section>
+  <h2>What this experiment tests</h2>
+  <div class="legend"><span class="chip beaml">BEAML does this</span><span class="chip host">Host does this (Elixir apps)</span></div>
+  <div class="diagram">
+    <div class="flow">
+      <div class="box host"><b>Orders</b><small>order request</small></div>
+      <div class="arrow">──►<small>HTTP</small></div>
+      <div class="box host"><b>Payments</b><small>calls <code>authorize</code></small></div>
+      <div class="arrow">──►</div>
+      <div class="box beaml"><b>Observation</b><small>trace + source reference</small></div>
+      <div class="arrow">──►</div>
+      <div class="split">
+        <div class="box ok"><b>① Which code ran?</b><small>bytes 91–193 of the original</small></div>
+        <div class="box wait"><b>② Replay</b><small>no network, gate 4</small></div>
+      </div>
+    </div>
+  </div>
+  <p class="note">The BEAML compiler writes a reference to the source into the generated code. Orders and Payments are plain Elixir apps from EXPERIMENT 0002.</p>
+</section>
+
+<section>
+  <h2>Gate status</h2>
+  <div class="gates">
+    <div class="gate"><span class="n">Gate 1</span><h3>Compiler reference</h3><span class="chip ok">✓ verified</span></div>
+    <div class="gate"><span class="n">Gate 2</span><h3>Source lookup</h3><span class="chip ok">✓ verified</span></div>
+    <div class="gate"><span class="n">Gate 2b</span><h3>Lookup repair</h3><span class="chip ok">✓ verified</span></div>
+    <div class="gate"><span class="n">Gate 3</span><h3>Response CAPTURE</h3><span class="chip ok">✓ verified</span></div>
+    <div class="gate now"><span class="n">Gate 4</span><h3>REPLAY RUN</h3><span class="chip wait">◷ RED rev. 2, in review</span></div>
+  </div>
+  <p class="note">Each gate has the same steps: RED test → agent RED review → GREEN → independent TEST → review → docs.</p>
+</section>
+
+<section>
+  <h2>What each gate showed</h2>
+  <div class="cards">
+    <div class="card">
+      <span class="chip ok" style="justify-self:start">Gate 1</span>
+      <h3>The compiler records the source range</h3>
+      <ul><li>Before: no reference</li><li>Now: <code>authorize 91 193</code></li><li>Other generated code unchanged</li></ul>
+    </div>
+    <div class="card">
+      <span class="chip ok" style="justify-self:start">Gates 2 + 2b</span>
+      <h3>A call leads to the original source</h3>
+      <ul><li>2 of 2 calls found</li><li>A newer revision does not match</li><li>Swapped receipt order → error</li><li>Missing or wrong window → error</li></ul>
+    </div>
+    <div class="card">
+      <span class="chip ok" style="justify-self:start">Gate 3</span>
+      <h3>Raw response is retained</h3>
+      <ul><li>1 transport attempt counted per call</li><li>2 responses retained, before decode</li><li>Hash and length match</li></ul>
+    </div>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Check (gates 2b + 3)</th><th>Before</th><th>Now</th></tr></thead>
+      <tbody>
+        <tr><td>Trace IDs swapped</td><td class="red">"ok"</td><td class="green"><code>receipt_coverage</code></td></tr>
+        <tr><td>Window missing</td><td class="red">"ok"</td><td class="green"><code>missing_window</code></td></tr>
+        <tr><td>Window in the year 2000</td><td class="red">"ok"</td><td class="green"><code>outside_window</code></td></tr>
+        <tr><td>Transport attempts after call 1, 2</td><td class="red">0, 0</td><td class="green">1, 2</td></tr>
+        <tr><td>Retained responses</td><td class="red">none</td><td class="green">2</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Gate 4: what is in progress</h2>
+  <p>A separate debug runner replays the retained response. The live router does not change.</p>
+  <div class="diagram" style="display:grid;gap:18px">
+    <div class="flow">
+      <span class="chip host" style="min-width:64px">LIVE</span>
+      <div class="box host"><b>Router</b></div><div class="arrow">──►</div>
+      <div class="box host"><b>authorize</b></div><div class="arrow">──►</div>
+      <div class="box host"><b>Network</b><small>Payments</small></div><div class="arrow">──►</div>
+      <div class="box ok"><b>decode + validate</b><small>shared function</small></div>
+    </div>
+    <div class="flow">
+      <span class="chip wait" style="min-width:64px">REPLAY</span>
+      <div class="box wait"><b>Replay runner</b><small>separate module</small></div><div class="arrow">──►</div>
+      <div class="box wait"><b>Response record</b><small>check digest, operation, attempt</small></div><div class="arrow">──►</div>
+      <div class="box ok"><b>decode + validate</b><small>same function</small></div><div class="arrow">──►</div>
+      <div class="box"><b>{:ok, …} / {:error, …}</b><small>no HTTP status</small></div>
+    </div>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>RED case</th><th>Expected</th></tr></thead>
+      <tbody>
+        <tr><td>Replay call 1</td><td>same decision "authorized", 0 transport attempts</td></tr>
+        <tr><td>Body with extra whitespace (A1)</td><td>bytes retained exactly, same decision</td></tr>
+        <tr><td>Record missing</td><td><code>missing_response</code></td></tr>
+        <tr><td>Wrong operation</td><td><code>operation_mismatch</code></td></tr>
+        <tr><td>Wrong attempt</td><td><code>attempt_mismatch</code></td></tr>
+        <tr><td>Body changed</td><td><code>body_digest_mismatch</code> (new)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">All error cases: 0 transport attempts, and the decision step does not run.</p>
+</section>
+
+<section>
+  <h2>Owner decisions</h2>
+  <div class="decisions">
+    <div class="card">
+      <h3>Decided</h3>
+      <ul class="list">
+        <li>Run the repair test with <code>--source-run</code> (option B)</li>
+        <li>Retain both responses, not only the first</li>
+        <li>No timestamp in the record; time comes from the trace</li>
+        <li>Non-canonical body test (A1) in gate 4</li>
+        <li>No replay branch in the router</li>
+        <li>No HTTP 502; typed errors</li>
+        <li>Check the response digest</li>
+        <li>Replay as a separate runner (option A)</li>
+        <li>Claude reviews RED, a fresh agent double-checks</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Open</h3>
+      <ul class="list">
+        <li><b>D002:</b> Which code belongs to the artifact hash? Today only the BEAML part, not decode</li>
+        <li><b>D003:</b> With trace sampling, a record can lose its time reference</li>
+        <li><b>Roast objection 4:</b> Is a host runner enough, or does replay belong in the language?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Comparison with BAML</h2>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Capability</th><th>BAML (checked)</th><th>BEAML gate 4 (target)</th></tr></thead>
+      <tbody>
+        <tr><td>Record calls</td><td class="green">yes (Collector, spans)</td><td class="green">yes (gate 3)</td></tr>
+        <tr><td>Parse a retained response again</td><td class="green">yes (<code>b.parse</code>, <code>F@parse</code>)</td><td>planned</td></tr>
+        <tr><td>Replay the downstream decision</td><td class="red">no, user code</td><td>planned</td></tr>
+        <tr><td>Prove 0 transport attempts</td><td>not built in</td><td>planned</td></tr>
+        <tr><td>Wrong record → clear error</td><td>not built in</td><td>planned</td></tr>
+        <tr><td>Built-in replay</td><td class="red">no (only open PR #3336)</td><td>host runner</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">BAML column checked on 2026-11-06 against docs and repo. That these checks are a real advantage is an assumption, not evidence yet.</p>
+</section>
+
+<section>
+  <h2>Next steps</h2>
+  <div class="diagram">
+    <div class="flow">
+      <div class="box ok"><b>RED rev. 2</b><small>6/6 cases fail as expected</small></div><div class="arrow">──►</div>
+      <div class="box wait"><b>RED review</b><small>Claude + fresh agent</small></div><div class="arrow">──►</div>
+      <div class="box open"><b>GREEN</b><small>runner + shared decode</small></div><div class="arrow">──►</div>
+      <div class="box open"><b>TEST + review</b></div><div class="arrow">──►</div>
+      <div class="box open"><b><code>run.py</code></b><small>one command for all</small></div>
+    </div>
+  </div>
+  <p class="note">Committed on branch <span class="mono">exp-0003-replay</span>. Evidence: <span class="mono">results/</span>. Notes: <span class="mono">workflow/2026-11-05/</span>.</p>
+</section>
+
+</div>
+</body>
+</html>

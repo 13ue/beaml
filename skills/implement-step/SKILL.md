@@ -42,7 +42,7 @@ Use test-first development for meaningful code or behavior changes.
 Observe genuine RED before production changes, then show the evidence to the user before GREEN.
 The main agent presents worker evidence and waits for the user's review and instruction to continue.
 General task authorization does not waive this checkpoint. An explicit waiver or preauthorization does; retain it in the ledger.
-For each new meaningful behavior step, repeat RED, user review and GREEN.
+For each new meaningful behavior step, repeat RED, agent RED review and GREEN.
 
 No-behavior changes to prose, docstrings, comments, formatting or literal wording do not need a new test.
 A string that changes logic, parsing, protocols or security changes behavior and is not exempt.
@@ -67,21 +67,23 @@ Do not mirror implementation text or snapshot trivial wording. Record exceptions
    Missing imports, broken setup or unrelated failures do not establish behavior RED. Correct those failures first.
    Stop after genuine RED. Change no production behavior in this phase.
    For an applicable exception, record its reason and alternative checks instead of manufacturing RED.
-4. **User RED review.** The main agent presents the worker's concise RED evidence and waits for the user's instruction to continue.
-   Do not dispatch dependent production implementation before review, unless an explicit user waiver or preauthorization is recorded.
+4. **Agent RED review.** The main agent reviews the RED evidence itself. The user does not review RED (owner rule, 2026-11-06).
+   Challenge the RED: is the failure genuine, is the test right, what could give a false pass?
+   Then a fresh-context reviewer checks the RED independently and writes `red-review.md`. Never reuse a worker's context.
+   Ask the user only for open design decisions. Do not dispatch GREEN before both reviews pass.
    An applicable no-test exception does not require this checkpoint.
-5. **GREEN.** A fresh implementer reads the selected proposal, RED evidence and recorded user review or waiver.
+5. **GREEN.** A fresh implementer reads the selected proposal, RED evidence and the recorded RED reviews.
    For an applicable exception, read its recorded reason and perform its alternative checks instead.
    Implement the minimum complete change and run the tests to establish GREEN. Retain actual commands and results.
-   For another meaningful behavior step, return to Solve / RED and user review with fresh workers before its implementation.
+   For another meaningful behavior step, return to Solve / RED and agent RED review with fresh workers before its implementation.
 6. **Test.** A fresh tester runs the applicable acceptance, formatting, compilation and repository checks. Change no code.
    Write `test-output.log` and a machine-readable pass/fail summary. Missing checks are not passes.
 7. **Review.** A fresh reviewer reads the task, connected implementation, untracked files and test results.
    Write `review.md`: concrete defects, evidence and minimum repair instructions. Do not invent speculative blockers.
    Check that the entire task is met, existing validation remains, and added machinery serves the task.
-   Check genuine RED, the user review or explicit waiver, GREEN and any recorded exception.
+   Check genuine RED, both RED reviews, GREEN and any recorded exception.
 8. **Repair if needed.** Allow one fresh repair phase for concrete review defects or failed checks.
-   Apply RED and user review before a behavior repair, unless its failing evidence was already reviewed or explicitly waived.
+   Apply RED and agent RED review before a behavior repair, unless its failing evidence was already reviewed.
    Use separate fresh workers for RED and GREEN when a new checkpoint is needed.
    Change only necessary files and append the result to `notes.md`.
 9. **Verify.** A fresh verifier runs the required checks after repair, or confirms unchanged passing evidence when no repair occurred.
@@ -96,7 +98,7 @@ The main agent reviews worker reports and reports changes, evidence, exclusions 
 The main agent never reads the diff or ledger itself and never writes implementation, configuration or documentation.
 Do not run an automatic second repair cycle or claim success on unresolved failures. Report the blocking evidence.
 Commit, push, merge, publish or contact others only when separately authorized by the user's task.
-The RED review checkpoint implements the user's explicit test-first instruction. It grants no extra scope or external-action permission.
+The agent RED review implements the user's explicit test-first instruction. It grants no extra scope or external-action permission.
 
 ## Origin
 
