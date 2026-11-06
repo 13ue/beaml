@@ -2,7 +2,7 @@
 id: planning-research-and-development
 kind: research-process
 status: active-experiments
-updated: 2026-11-05
+updated: 2026-11-06
 ---
 
 # BEAML research and development
@@ -38,6 +38,7 @@ Tests are evidence about fixtures. Requirements and choices remain visible apart
 | [0001: syntax to BEAM](../../experiments/0001-syntax-to-beam/README.md) | Can the selected interface and nested-pattern subset compile and execute with exact boundary checks? | LANGUAGE/COMPILATION; EXECUTION | **[Verified]** [Passed run](../../experiments/0001-syntax-to-beam/results/20261105T202319485083Z/result.json). Scoped probe; see exclusions. |
 | [0002: HTTP correlation](../../experiments/0002-http-correlation/README.md) | Can one order locate causally connected spans and logs across two independent HTTP services? | LANGUAGE/COMPILATION; EXECUTION; OBSERVATORY | **[Verified]** [Independent final verification](../../experiments/0002-http-correlation/workflow/2026-11-05/result.json) passed all seven repair assertions. The [final EXPERIMENT RUN](../../experiments/0002-http-correlation/results/20261105T221134010042Z/result.json) passed H01–H05. Scope is local HTTP correlation. |
 | [0003: source-linked replay](../../experiments/0003-source-linked-replay/README.md) | Can one function summary link an observed call to the source that ran and to an isolated Orders REPLAY RUN? | LANGUAGE/COMPILATION, EXECUTION, OBSERVATORY | **[Verified]** Complete. All four behavior gates passed independent TEST and review: the [compiler reference gate](../../experiments/0003-source-linked-replay/workflow/2026-11-05/result.json), the [live lookup gate with repair](../../experiments/0003-source-linked-replay/workflow/2026-11-05/lookup/repair-test-result.json), the [CAPTURE and transport observer gate](../../experiments/0003-source-linked-replay/workflow/2026-11-05/capture/test-result.json) and the [REPLAY RUN and invalid replay record gate](../../experiments/0003-source-linked-replay/workflow/2026-11-05/replay/test-result.json). The repeatable command `python3 experiments/0003-source-linked-replay/run.py` runs all gates in series; the [latest runner run](../../experiments/0003-source-linked-replay/results/20261106T082750423575Z/result.json) passed 5/5 steps. **[Unknown]** The runner directory has no own output hashes and stores absolute step paths. |
+| [0004: generated replay](../../experiments/0004-generated-replay/README.md) | Can the compiler generate the flow, the HTTP EFFECT, the decode, the CAPTURE and the REPLAY RUN runner from one BEAML source, and does a TYPE change fail where it must? | LANGUAGE/COMPILATION, EXECUTION | **[Verified]** Slice 1: implementation passes with notes; the claim is REJECTED under its rule (manual change sites GEN 0 = LIB 0; the build passed in all 6 DRIFT rows; the only arm difference comes from the old 0002 transport in LIB, not from the TYPE). [Verdict](../../experiments/0004-generated-replay/README.md#slice-1-verdict-2026-11-06). **[Requirement]** The OWNER supersedes the slice 1 rule for slice 2: it counted hand edits, but the goal is [vertical integration](../concepts/vertical-integration.md). **[Proposal]** [Slice 2](../../experiments/0004-generated-replay/README.md#slice-2): a rename without a RENAME ALIAS fails at compile time against stored TYPE VERSIONS. Not run. |
 
 ## Domain boundaries
 

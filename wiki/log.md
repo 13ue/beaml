@@ -296,3 +296,9 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 
 **[Verified]** Captured the [BAML homepage claim](../raw/research/baml/homepage-vertical-2026-11-06.md): one toolchain from build to feature flags.
 **[Requirement]** Recorded the owner goal in [vertical integration](concepts/vertical-integration.md).
+
+## 2026-11-06: EXPERIMENT 0004 slice 1 verdict and slice 2 plan
+
+**[Verified]** Recorded the slice 1 final review in the [0004 README](../experiments/0004-generated-replay/README.md#slice-1-verdict-2026-11-06): implementation passes with notes; the claim is REJECTED (manual change sites GEN 0 = LIB 0; no compile error caught a DRIFT).
+**[Requirement]** The OWNER supersedes the slice 1 rule for slice 2. Added the [slice 2 plan](../experiments/0004-generated-replay/README.md#slice-2) and the register row in [research and development](planning/research-and-development.md).
+**[Proposal]** Added the glossary terms RESPONSE RECORD, DRIFT, TYPE VERSION, RECORD SNAPSHOT and RENAME ALIAS. Nothing was run.

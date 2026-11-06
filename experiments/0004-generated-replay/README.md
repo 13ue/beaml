@@ -3,7 +3,7 @@ id: experiment-0004-generated-replay-plan
 kind: experiment
 status: proposed
 updated: 2026-11-06
-revision: 4 (slice 1 after the plan review of revision 3)
+revision: 5 (slice 1 verdict and slice 2 plan)
 ---
 
 # EXPERIMENT 0004 — Generated REPLAY RUN
@@ -21,7 +21,8 @@ revision: 4 (slice 1 after the plan review of revision 3)
 - **Revision 1.** Generated runner next to a host flow. Plan review: BLOCK (1 critical, 2 high). [plan-review.md](workflow/2026-11-06/plan-review.md)
 - **Revision 2.** LIB arm first as a kill switch, typed record fields, DRIFT R/N/Q, pass and reject rule, three syntax options (A, B, C) with owner questions Q1–Q5.
 - **Revision 3.** The owner chose option B with `effect`, `!` and `|>`, a generated decode, no kill switch and LIB in parallel. Q1, Q2 and Q5 are answered. Syntax options A and C are closed; [syntax-options.beaml](syntax-options.beaml) stays as history. Use git history for the full revision 2 text. Plan review: BLOCK (1 critical, 2 high).
-- **Revision 4 (this page).** Repairs the three objections of the revision 3 review: one strongest LIB form, frozen before any GEN result is judged; a complete 0003 change table, checked by a diff test on test copies; asserted TYPE mismatch cases, live and in a REPLAY RUN. [Disposition](workflow/2026-11-06/plan-review.md#disposition-main-agent-2026-11-06-1).
+- **Revision 4.** Repairs the three objections of the revision 3 review: one strongest LIB form, frozen before any GEN result is judged; a complete 0003 change table, checked by a diff test on test copies; asserted TYPE mismatch cases, live and in a REPLAY RUN. [Disposition](workflow/2026-11-06/plan-review.md#disposition-main-agent-2026-11-06-1).
+- **Revision 5 (this page).** Adds the [slice 1 verdict](#slice-1-verdict-2026-11-06) and the [slice 2 plan](#slice-2). Slice 1 text above stays unchanged. The slice 1 pass and reject rule does not apply to slice 2.
 
 ## Slice 1 scope
 
@@ -252,3 +253,172 @@ All counts in the 8-case matrix stay as in 0003. The revision 2 SHA-256 check of
 - **[Requirement]** For each BEAML function that can fail, the Elixir output has two functions: `name/n` returns `{:ok, value}` or `{:error, error}`; `name!/n` returns the value or raises an exception generated from the failure type.
 - **[Requirement]** Generated Elixir errors are typed structs with named fields, for example `%Orders.LoadError.NotFound{id: "order-1"}`. Not plain tuples.
 - **[Requirement]** Generated decode is tolerant with a hint, as in BAML v1 (`ExtraKey` flag in `coerce_class.rs` at pin `989676dd`). An unknown key is accepted when every declared field is present with its TYPE. Each unknown key name is recorded in the response record and on the EFFECT span. A missing or wrong declared field stays a typed error. This replaces the earlier strict default (same day). A strict `exact interface` form may come later.
+
+## Slice 1 verdict (2026-11-06)
+
+**[Verified]** Final review of slice 1: the implementation passes with notes. The claim is REJECTED under the [slice 1 pass and reject rule](#pass-and-reject-rule). Evidence: the GREEN-2 DRIFT table in [notes.md](workflow/2026-11-06/notes.md#green-2).
+
+- Manual change sites: GEN 0, LIB 0. The rule needs GEN < LIB.
+- The build passed in all 6 DRIFT rows (R, N, Q per arm). No compile error caught a DRIFT.
+- The only arm difference is DRIFT-Q `new_live`: GEN gives a typed reject, LIB an untyped crash. The cause is the old 0002 transport that LIB keeps (`payment_http.ex:31` matches status 200). The cause is not the TYPE.
+- Note 1: the host check raise is labelled typed in rows R and N (`run.py:410-411`).
+- Note 2: the LIB freeze was committed only after the runs. The timestamps show a consistent order.
+
+**[Requirement]** OWNER statement: the slice 1 rule measured the wrong thing. The goal is [vertical integration](../../wiki/concepts/vertical-integration.md): the compiler knows the TYPE of stored records, so a breaking TYPE change fails at compile time.
+
+**[Inference]** Why the slice 1 rule is superseded for slice 2. A LIB with no TYPE facts needs no edit after a field change, so a count of manual change sites cannot favor GEN. The count also cannot show a failed build, because no arm had TYPE facts about stored records. Slice 2 therefore uses an absolute rule against stored TYPE VERSIONS. LIB stays as a control.
+
+## Slice 2
+
+### Question and claim
+
+**[Requirement]** Can the compiler refuse a rename of a response field (DRIFT N, `status` → `state`) without a RENAME ALIAS, because stored RESPONSE RECORDS hold the old TYPE VERSION? With a declared RENAME ALIAS, the source compiles and the old RESPONSE RECORDS replay as `correct_accept` through the generated decode.
+
+### How the compiler learns the stored TYPE VERSIONS
+
+**[Verified]** Slice 1 facts in the [0001 compiler](../0001-syntax-to-beam/src/main.rs): the generated `Replay.record/3` writes RESPONSE RECORD format version 1 to `ProbeSupport.Capture.write("responses", …)`, which appends to `<output>/responses.jsonl`. The record holds `artifact_id` (the BEAM hash of the build), not a TYPE fact. The compiler CLI takes exactly one argument, the source path.
+
+**[Verified]** The 0003 test `response_capture_test.py` compares a fixed subset of record keys. Slice 1 added `unknown_keys` and kept format version 1.
+
+**Common part of both options [Proposal].** The generated `record/3` writes one more key, `type`: `{"name": "Payment", "fields": [["order_id", "String"], ["status", "String"]], "fingerprint": "<sha256 of the canonical field list, sorted by name>"}`. This is the TYPE VERSION of the EFFECT output TYPE at the time of the write. The format version stays 1, as with `unknown_keys`. The record names the full field list, so the compiler can name the old field in its message.
+
+**Option A, RECORD SNAPSHOT input [Proposal].** The compiler takes a second input, `--stored PATH`, a RECORD SNAPSHOT (a copy of `responses.jsonl`). It reads the distinct `type` values per `operation`. It reads no body bytes.
+
+- For: the compiler checks against observed stored data. The case "no stored records" is an empty file.
+- For: one source of truth. Nothing can claim a TYPE VERSION that no record holds.
+- Against: the build reads environment data. A build is reproducible only with the same RECORD SNAPSHOT (`run.py` records its SHA-256).
+- Against: a large store needs an index or an export later.
+
+**Option B, TYPE lock file [Proposal].** A file `orders.types.lock` next to the source lists the known TYPE VERSIONS per TYPE. A separate step writes it from the store. The compiler reads only the lock file.
+
+- For: a reviewable file in git. The build reads no environment data.
+- Against: a second source that can go stale or lie. The lock can list a TYPE VERSION that no record holds, or miss one that a record holds.
+- Against: the case "no stored records" needs a count per TYPE VERSION in the lock.
+
+**[Proposal] Recommendation for slice 2: Option A.** The claim is "the compiler knows the stored records". Option A reads them directly; Option B adds a claim between the store and the compiler. Rejected alternative: infer the stored TYPE from body keys. That mixes a Payments change (an extra key) with a TYPE VERSION of Orders.
+
+**[Proposal]** A source with an `effect` and no `--stored` input fails with `stored TYPE VERSIONS unknown`. An unknown store is not an empty store. A source without an `effect` (`payments.beaml`) needs no input; its output stays byte-identical.
+
+**Migrate [OWNER].** The production source of truth for stored TYPE VERSIONS (RECORD SNAPSHOT, lock file, or a live query of the deployed nodes). It fixes the record format and the deploy workflow of every later environment. Slice 2 uses a fixture file and does not decide it.
+
+### RENAME ALIAS syntax options
+
+**[Proposal]** These are OWNER decisions. The plan does not choose. Each snippet shows the DRIFT N source of `orders.beaml`. `payments.beaml` stores no records and needs no RENAME ALIAS.
+
+**S1. Field suffix.** The alias stays on the field.
+
+```beaml
+interface Order { order_id: String }
+interface Payment { order_id: String state: String renamed status }
+interface PaymentError { reason: String }
+```
+
+**S2. Separate declaration.** The TYPE stays clean; the rename is one line below it.
+
+```beaml
+interface Payment { order_id: String state: String }
+rename Payment.status -> Payment.state
+```
+
+**S3. Versioned TYPE.** Follows the sketch in [vertical integration](../../wiki/concepts/vertical-integration.md#type-changes-against-deployed-data). The record then needs a version number in addition to the fingerprint.
+
+```beaml
+interface Payment@1 { order_id: String status: String }
+interface Payment@2 { order_id: String state: String } from Payment@1 { status -> state }
+```
+
+### Check rule and generated decode
+
+**[Proposal] Rename check.** For each `operation` in the RECORD SNAPSHOT, take its EFFECT output TYPE. For each stored TYPE VERSION of that TYPE: a stored field that is not in the current TYPE and a current field that is not in the stored TYPE VERSION, with the same field TYPE, are a rename candidate. A rename candidate without a RENAME ALIAS is a compile error. A RENAME ALIAS whose old field is in no stored TYPE VERSION is a compile error.
+
+**[Proposal] Decode.** The generated decode reads the current field name. If it is missing and the RENAME ALIAS old name is present, it reads the old name. Live and REPLAY RUN use the same decode. The record body and its digest stay unchanged.
+
+**[Proposal] Compile error text** (case C1; the `help` line follows the chosen syntax, here S1). Exit ≠ 0, no stdout:
+
+```text
+error: TYPE Payment cannot read 1 stored RESPONSE RECORD of operation payments.authorize
+  stored TYPE VERSION: Payment { order_id: String status: String } (fingerprint <first 12 hex>)
+  record source: <the --stored path>
+  field status: String is in the stored TYPE VERSION, not in the current TYPE
+  field state: String is in the current TYPE, not in the stored TYPE VERSION
+  help: if state is status renamed, declare: state: String renamed status
+```
+
+The tests assert these tokens, not the full text: `Payment`, `status`, `state`, the `--stored` path, and the `help` alias form of the chosen syntax. Compiler action events do not record the path (AGENTS rule).
+
+### Cases with expected outcomes
+
+**[Proposal]** `run.py` builds the slice 2 GEN tree with the `type` key, runs one live call per order, and retains the result as the RECORD SNAPSHOT fixture `v1` (TYPE VERSION `Payment { order_id status }`). DRIFT edits follow slice 1 (both BEAML files). The domain edit of `valid_payment!/2` counts apart, as in slice 1.
+
+| ID | Source | RECORD SNAPSHOT | Build | Old record (REPLAY RUN) | New live call |
+| --- | --- | --- | --- | --- | --- |
+| C1 | N, no RENAME ALIAS | `v1` | compile error, text above | not run | not run |
+| C2 | N, RENAME ALIAS `status` → `state` | `v1` | exit 0 | `correct_accept`: `{:ok, %{order_id, state: <stored status value>}}`, decode 1, `finish/1` 1, transport 0 | `correct_accept`, HTTP 200; the new record holds the new TYPE VERSION |
+| C3 | N, RENAME ALIAS | `v1` plus the C2 new records (two TYPE VERSIONS) | exit 0 | both versions `correct_accept` | not run |
+| C4 | N, RENAME ALIAS names `statuz` | `v1` | compile error that names `Payment`, `statuz` and the `--stored` path | not run | not run |
+| C5 | R (add `reference`), no RENAME ALIAS | `v1` | exit 0 (no rename candidate) | `typed_reject`: `PaymentError{reason: "decode"}`, `finish/1` 0, as in slice 1 | `correct_accept` |
+| C6 | N, no RENAME ALIAS | empty file | exit 0 | none stored | `correct_accept` |
+| C7 | N, no RENAME ALIAS | `v1` with the `type` key removed from one record (slice 1 format) | compile error `stored RESPONSE RECORD has no TYPE VERSION`, names the `--stored` path and the line number | not run | not run |
+| C8 | slice 1 source | no `--stored` input | compile error `stored TYPE VERSIONS unknown` | not run | not run |
+| C9 | C6 build (empty snapshot, no RENAME ALIAS) | `v1` record replayed against it (stale snapshot) | exit 0 | `typed_reject`: `PaymentError{reason: "decode"}`, `finish/1` 0, no crash | not run |
+| C10 | slice 1 source | `v1` | exit 0 | slice 1 (a)–(d2) pass again; `payments.beaml` output byte-identical; 0003 record key subset passes | as slice 1 |
+
+**[Inference]** C5 has a gap. The build passes, but the old record no longer decodes. This follows from the rename-only scope of slice 2. It conflicts with the OWNER rule "a change of shape needs a migration function". See the open OWNER questions.
+
+**[Inference]** C6 against C1 is the key control. The source is the same; only the stored records differ. The compile error must come from the stored TYPE VERSION, not from the source.
+
+### LIB comparison and pass and reject rule
+
+**[Inference] What a fair LIB can do.** LIB holds no TYPE facts (revision 4 form: no key list, no field name). It cannot fail a build on a TYPE change. It can give a typed reject of the old record in a REPLAY RUN (slice 1: `ReplayLib.Error finish`). A host test that replays all stored records after each build can find the break, but only after the build, as a test failure, with no TYPE name and no alias proposal. A hand-written key fallback in the LIB decode can accept the old record; that is a manual change site.
+
+**[Proposal] LIB run.** Run the frozen LIB of slice 1 on DRIFT N with the `v1` RECORD SNAPSHOT copied into its tree. Expected: build exit 0, old record `typed_reject`. Record the result as a control. LIB is not part of the pass clause.
+
+**[Proposal] Pass.** The claim holds for slice 2 only if all are true:
+
+1. C1 fails at compile time with exit ≠ 0, no stdout, and all asserted tokens.
+2. C6 compiles. So the C1 error comes from the stored records.
+3. C2 and C3 give `correct_accept` for every old record, and C2 gives `correct_accept` live.
+4. C4, C7 and C8 fail at compile time. C5 compiles. C9 gives a typed reject.
+5. C10 passes. GEN gives no `wrong_accept` and no untyped crash in any case.
+
+**[Proposal] Reject.** Reject the claim for slice 2 if any of these occurs. Record the reject in the register.
+
+- C1 compiles (exit 0) with old TYPE VERSIONS in the RECORD SNAPSHOT.
+- C6 also fails. Then the error comes from the source, not from the stored records.
+- C2 or C3 gives anything other than `correct_accept` for an old record.
+- Any case gives a `wrong_accept`, for example C2 with `state` empty or taken from the wrong field.
+- C5 fails at compile time. Then the check blocks more than renames.
+
+**No verdict.** If C10 fails, slice 2 fails as an implementation and gives no verdict on the claim.
+
+### Out of scope
+
+- Shape-changing migrations (a `migrate` form, a changed field TYPE, an added required field with old records).
+- Per-environment levels (an environment with lower priority that does not block).
+- More than one environment, mixed-version live traffic and a live query of deployed nodes.
+- The lifetime of a RENAME ALIAS after no stored record needs it.
+- Everything in slice 1 "Later", except the old-record policy (Q4), which slice 2 answers for renames only.
+
+### Decisions (Decision4, slice 2 plan)
+
+| Decision | Class | Choice and reason |
+| --- | --- | --- |
+| Slice 1 rule superseded for slice 2 by an absolute rule; LIB is a control | Repair | OWNER statement. Commits slice 2 to the cases above, not to a count |
+| `type` key (name, fields, fingerprint) in the RESPONSE RECORD, format version 1 kept | Repair | Over a new format version: `unknown_keys` set the precedent, the 0003 key subset still passes. Commits every later record to the key |
+| Recommend Option A (RECORD SNAPSHOT via `--stored`) | Repair | Over Option B: one source of truth, no stale lock. Slice 2 only; production choice is Migrate |
+| Production source of truth for stored TYPE VERSIONS | Migrate | OWNER chooses between snapshot, lock file and live query |
+| RENAME ALIAS syntax S1, S2 or S3 | Migrate | Source files depend on it. OWNER chooses |
+| No `--stored` input for a source with an `effect` is a compile error | Repair | Over "treat as empty": an unknown store is not an empty store. Commits slice 1 CLI tests to pass an empty snapshot |
+| Rename check only; R compiles | Repair | OWNER fixed R as a negative control. Leaves the C5 gap, raised as an OWNER question |
+| Alias with an old field in no stored TYPE VERSION is a compile error | Undo | V1: any failure blocks. One check to drop later |
+| Decode reads the old name as a fallback, live and replay | Repair | Over a decode chosen by the record fingerprint: smaller, one decode for live and replay. Commits live traffic to accept the old name too |
+| Fingerprint = SHA-256 of the field list sorted by name | Undo | Local to generated code and the compiler |
+| C6 against C1 as the main control | Undo | Same source, different store; shows the error comes from records |
+
+### Open OWNER questions (slice 2)
+
+- **O1.** RENAME ALIAS syntax: S1, S2 or S3?
+- **O2.** A source with an `effect` and no RECORD SNAPSHOT: compile error (plan) or treat as empty?
+- **O3.** A RENAME ALIAS whose old field is in no stored TYPE VERSION: compile error (plan) or a hint?
+- **O4.** DRIFT R with old records: compile (rename-only scope, plan) or compile error "needs a migration"?
+- **O5 (Migrate).** Production source of truth for stored TYPE VERSIONS: RECORD SNAPSHOT, lock file or live query of the deployed nodes?
