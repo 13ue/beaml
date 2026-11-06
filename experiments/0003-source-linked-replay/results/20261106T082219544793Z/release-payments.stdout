@@ -1,0 +1,58 @@
+==> mime
+Compiling 1 file (.ex)
+Generated mime app
+===> Analyzing applications...
+===> Compiling telemetry
+==> plug_crypto
+Compiling 5 files (.ex)
+Generated plug_crypto app
+===> Analyzing applications...
+===> Compiling ranch
+==> plug
+Compiling 1 file (.erl)
+Compiling 42 files (.ex)
+Generated plug app
+===> Analyzing applications...
+===> Compiling cowlib
+===> Analyzing applications...
+===> Compiling cowboy
+===> Analyzing applications...
+===> Compiling cowboy_telemetry
+==> plug_cowboy
+Compiling 5 files (.ex)
+Generated plug_cowboy app
+==> opentelemetry_api
+Compiling 19 files (.erl)
+Compiling 5 files (.ex)
+Generated opentelemetry_api app
+===> Analyzing applications...
+===> Compiling opentelemetry
+==> probe_support
+Compiling 4 files (.ex)
+Generated probe_support app
+==> payments_api
+Compiling 3 files (.ex)
+Generated payments_api app
+==> orders_api
+Compiling 5 files (.ex)
+Generated orders_api app
+* assembling payments-0.1.0 on MIX_ENV=prod
+* using config/runtime.exs to configure the release at runtime
+
+Release created at _build/prod/rel/payments
+
+    # To start your system
+    _build/prod/rel/payments/bin/payments start
+
+Once the release is running:
+
+    # To connect to it remotely
+    _build/prod/rel/payments/bin/payments remote
+
+    # To stop it gracefully (you may also send SIGINT/SIGTERM)
+    _build/prod/rel/payments/bin/payments stop
+
+To list all commands:
+
+    _build/prod/rel/payments/bin/payments
+

@@ -1,0 +1,123 @@
+# TEST phase run.py EXPERIMENT 0003, 2026-11-06T08:21:53Z, HEAD f303eb0
+## check 1 sha256
+f477226bc24b3acdd6a4e5f6dc1f11fd73d8f00f07a8add04a3e9f312a874f57  experiments/0003-source-linked-replay/tests/run_test.py
+231aa3a2991c83ce3137188d27823a1fa9ef79daa7360eac2912d24f6d6827ef  experiments/0003-source-linked-replay/run.py
+git HEAD blobs:
+f477226bc24b3acdd6a4e5f6dc1f11fd73d8f00f07a8add04a3e9f312a874f57  -
+231aa3a2991c83ce3137188d27823a1fa9ef79daa7360eac2912d24f6d6827ef  -
+ledger test sha: "test_sha256_after": "f477226bc24b3acdd6a4e5f6dc1f11fd73d8f00f07a8add04a3e9f312a874f57"
+(end other sha lines)
+## check 2 run_test.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.457s
+
+OK
+exit=0
+## check 3 real run
+actions.jsonl lines before:     1142
+{"run": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082159872161Z", "status": "pass"}
+exit=0 duration_s=61
+runner dir: experiments/0003-source-linked-replay/results/20261106T082159872161Z
+new result dirs:
+20261106T082159872161Z
+20261106T082200707060Z
+20261106T082219311320Z
+20261106T082219544793Z
+20261106T082238289666Z
+result.json analysis (event content not logged):
+{
+ "run_dir": "experiments/0003-source-linked-replay/results/20261106T082159872161Z",
+ "result_keys": [
+  "command",
+  "finished_at",
+  "started_at",
+  "status",
+  "steps",
+  "toolchain"
+ ],
+ "status": "pass",
+ "n_steps": 5,
+ "steps": [
+  {
+   "name": "compiler-reference",
+   "status": "pass",
+   "exit_code": 0,
+   "result_dir": null
+  },
+  {
+   "name": "trace-lookup",
+   "status": "pass",
+   "exit_code": 0,
+   "result_dir": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082200707060Z"
+  },
+  {
+   "name": "trace-lookup-repair",
+   "status": "pass",
+   "exit_code": 0,
+   "result_dir": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082219311320Z"
+  },
+  {
+   "name": "response-capture",
+   "status": "pass",
+   "exit_code": 0,
+   "result_dir": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082219544793Z"
+  },
+  {
+   "name": "replay-run",
+   "status": "pass",
+   "exit_code": 0,
+   "result_dir": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082238289666Z"
+  }
+ ],
+ "all_exit0": true,
+ "repair_argv_keys": [
+  "command"
+ ],
+ "repair_argv_source_run": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082200707060Z",
+ "argv_eq_lookup_dir": true,
+ "repair_result_source_run": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082200707060Z",
+ "repair_result_eq_lookup_dir": true,
+ "runner_files": [
+  "compiler-reference.stderr",
+  "compiler-reference.stdout",
+  "replay-run.stderr",
+  "replay-run.stdout",
+  "response-capture.stderr",
+  "response-capture.stdout",
+  "result.json",
+  "trace-lookup-repair.stderr",
+  "trace-lookup-repair.stdout",
+  "trace-lookup.stderr",
+  "trace-lookup.stdout"
+ ],
+ "per_step_logs": true,
+ "new_lines": 68,
+ "new_event_keys": [
+  "action",
+  "result",
+  "source",
+  "target",
+  "ts"
+ ],
+ "events_with_path": 0
+}
+runner events (target experiment-0003 start/finish + 5 step events by step name): start=1 step=5 finish=1; first new line=start, last new line=finish; total new lines 68 (61 from gate tests); lines with a path string: 0
+## check 4 --list-steps
+exit=0
+valid JSON; steps: 5
+  compiler-reference ['cargo', 'test', '--manifest-path', 'experiments/0001-syntax-to-beam/Cargo.toml', '--test', 'cli', 'payments_cli_emits_checked_authorize_reference', '--', '--exact', '--nocapture']
+  trace-lookup ['python3', '-B', 'experiments/0003-source-linked-replay/tests/trace_lookup_test.py']
+  trace-lookup-repair ['python3', '-B', 'experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py', '--source-run', '{result_dir:trace-lookup}']
+  response-capture ['python3', '-B', 'experiments/0003-source-linked-replay/tests/response_capture_test.py']
+  replay-run ['python3', '-B', 'experiments/0003-source-linked-replay/tests/replay_run_test.py']
+## check 5 git diff --check
+exit=0
+## worktree after
+?? experiments/0003-source-linked-replay/results/20261106T082159872161Z/
+?? experiments/0003-source-linked-replay/results/20261106T082200707060Z/
+?? experiments/0003-source-linked-replay/results/20261106T082219311320Z/
+?? experiments/0003-source-linked-replay/results/20261106T082219544793Z/
+?? experiments/0003-source-linked-replay/results/20261106T082238289666Z/
+?? experiments/0003-source-linked-replay/workflow/2026-11-06/run/review.md
+?? experiments/0003-source-linked-replay/workflow/2026-11-06/run/test-output.log

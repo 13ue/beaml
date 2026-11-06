@@ -1,0 +1,32 @@
+{
+  "phase": "TEST",
+  "date": "2026-11-06",
+  "head": "f303eb0",
+  "log": "test-output.log",
+  "checks": [
+    {"id": 1, "check": "SHA-256 of tests/run_test.py and run.py vs ledger", "status": "pass",
+     "run_test_py": "f477226bc24b3acdd6a4e5f6dc1f11fd73d8f00f07a8add04a3e9f312a874f57",
+     "run_py": "231aa3a2991c83ce3137188d27823a1fa9ef79daa7360eac2912d24f6d6827ef",
+     "note": "run_test.py equals ledger test_sha256_after. Ledger records no run.py hash; run.py equals the committed HEAD blob."},
+    {"id": 2, "check": "python3 -B tests/run_test.py", "status": "pass", "exit_code": 0, "tests": 4, "failures": 0, "errors": 0},
+    {"id": 3, "check": "real run python3 run.py", "status": "pass", "exit_code": 0, "duration_s": 61,
+     "run_dir": "experiments/0003-source-linked-replay/results/20261106T082159872161Z",
+     "steps_5_all_exit_0": true,
+     "repair_argv_source_run_equals_lookup_result_dir": true,
+     "repair_result_json_source_run_equals_lookup_result_dir": true,
+     "stdout_stderr_per_step_in_runner_dir": true,
+     "runner_events": {"start": 1, "step": 5, "finish": 1, "first_new_line_is_start": true, "last_new_line_is_finish": true},
+     "new_action_lines_total": 68,
+     "new_lines_with_path_string": 0,
+     "step_result_dirs": {
+       "compiler-reference": null,
+       "trace-lookup": "experiments/0003-source-linked-replay/results/20261106T082200707060Z",
+       "trace-lookup-repair": "experiments/0003-source-linked-replay/results/20261106T082219311320Z",
+       "response-capture": "experiments/0003-source-linked-replay/results/20261106T082219544793Z",
+       "replay-run": "experiments/0003-source-linked-replay/results/20261106T082238289666Z"}},
+    {"id": 4, "check": "run.py --list-steps valid JSON with 5 steps", "status": "pass", "exit_code": 0, "steps": 5},
+    {"id": 5, "check": "git diff --check HEAD~1 HEAD excluding results", "status": "pass", "exit_code": 0}
+  ],
+  "missing_checks": [],
+  "status": "pass"
+}
