@@ -214,6 +214,11 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: if an old record already holds the added field, its value wins over the constant. Same rule as C12 (current name wins).
 → Detail: 0004 README, "Slice 3".
 
+**DL-048 · Repair · The `add` constant always wins in a replay** (supersedes DL-047; DL-047 was wrongly classed Undo)
+→ Chose: in a REPLAY RUN, `add` always puts the constant; a body key with the same name goes into `unknown_keys`. A `rename` removes the old key from the working body. Over: DL-047 (a body value wins).
+→ Because: DL-047 read a stray key as typed data, which is decode by key presence (rejected in DL-043), and it overrode the constant, which DL-028 makes a statement about all old records.
+→ Trigger: fresh check of the slice 3 plan.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
