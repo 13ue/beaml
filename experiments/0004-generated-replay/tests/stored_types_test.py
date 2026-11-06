@@ -101,9 +101,9 @@ FIXTURE_SOURCES = {"reuse": "slice2/reuse/orders.beaml", "rotation": "slice2/rot
 # N2-over-chain: interface [k2, n] with the chain `1 -> 2 { rename o -> n }` (newest version 2).
 GENERATED_KINDS = ("N2-over-chain",)
 
-TEMPLATE = """interface Order { order_id: String }
-interface %(T)s { %(declared)s }
-%(chain)sinterface PaymentError { reason: String }
+TEMPLATE = """type Order { order_id: String }
+type %(T)s { %(declared)s }
+%(chain)stype PaymentError { reason: String }
 
 effect payments.authorize Order -> %(T)s ! PaymentError = http.post("payments/authorize")
 
@@ -150,7 +150,7 @@ def template_source(names, kind):
     N = names
     if kind in CHAIN_KINDS:
         fields, steps, _ = chain_spec(names, kind)
-        chain = "".join("migrate %s %d -> %d { rename %s -> %s }\n" % (N.T, i + 1, i + 2, old, new)
+        chain = "".join("migrate %s v%d -> v%d { rename %s -> %s }\n" % (N.T, i + 1, i + 2, old, new)
                         for i, (old, new) in enumerate(steps))
         return TEMPLATE % {
             "T": N.T, "declared": " ".join("%s: String" % f for f in fields), "chain": chain,
@@ -162,7 +162,7 @@ def template_source(names, kind):
                      "N2-over-chain": ([N.k2, N.n], (N.o, N.n))}[kind]
     return TEMPLATE % {
         "T": N.T, "declared": " ".join("%s: String" % f for f in fields),
-        "chain": "migrate %s 1 -> 2 { rename %s -> %s }\n" % ((N.T,) + chain) if chain else "",
+        "chain": "migrate %s v1 -> v2 { rename %s -> %s }\n" % ((N.T,) + chain) if chain else "",
         "pattern": ", ".join(fields),
         "build": ", ".join(("%s: %s + \"\"" if i == 0 else "%s: %s") % (f, f) for i, f in enumerate(fields))}
 
@@ -223,7 +223,7 @@ class StoredTypes:
 
     def help_line(self, old, new, stored=1, newest=1):
         """README: `migrate T <stored> -> <next> { rename <old> -> <new> }`, <next> = newest version + 1."""
-        return "migrate %s %d -> %d { rename %s -> %s }" % (self.names.T, stored, newest + 1, old, new)
+        return "migrate %s v%d -> v%d { rename %s -> %s }" % (self.names.T, stored, newest + 1, old, new)
 
     # C1 and C6: the same source; only the stored records differ.
     def test_C1_rename_without_chain_is_compile_error(self):

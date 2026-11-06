@@ -1,7 +1,7 @@
 // EXPERIMENT 0004 slice 4: one EFFECT, a retired operation (sources B, G, P, C2 and their +r forms).
-interface Order { order_id: String }
-interface Payment { order_id: String status: String }
-interface PaymentError { reason: String }
+type Order { order_id: String }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
 
 effect payments.charge Order -> Payment ! PaymentError = http.post("payments/authorize")
 

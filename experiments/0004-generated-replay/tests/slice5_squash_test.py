@@ -152,6 +152,8 @@ class Squash(s5.Slice5):
             if not self.fixture_based and layout != "Q4-crlf" and random.random() < .5:
                 kind = layout + "+crlf"
             with self.subTest(layout=kind):
+                # Each layout counts its own remove-dead event; the layouts share one work directory.
+                (self.work / ".beaml" / "actions.jsonl").unlink(missing_ok=True)
                 self.assert_removed(kind, self.v4(), ("s12", "s23", "s34"), self.q4_marks())
 
     # F24, F25: a marked TYPE keeps its line; a second removal changes nothing.

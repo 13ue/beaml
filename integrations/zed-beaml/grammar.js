@@ -11,7 +11,6 @@ module.exports = grammar({
     source_file: ($) =>
       repeat(
         choice(
-          $.interface_declaration,
           $.type_declaration,
           $.enum_declaration,
           $.effect_declaration,
@@ -21,10 +20,7 @@ module.exports = grammar({
         ),
       ),
 
-    // `interface` is the old record keyword; `type` replaces it (DL-061). Both parse for now.
-    interface_declaration: ($) => seq("interface", field("name", $.type), $._field_block),
-
-    // `type Payment v3 { ... }` (DL-070, DL-071, DL-072).
+    // `type Payment v3 { ... }` (DL-061, DL-070, DL-071, DL-072). `interface` is no record keyword (DL-074).
     type_declaration: ($) => seq("type", field("name", $.type), optional(field("version", $.version)), $._field_block),
 
     _field_block: ($) => seq("{", repeat(seq($.field_declaration, optional(","))), "}"),
@@ -54,7 +50,7 @@ module.exports = grammar({
         field("body", $._expression),
       ),
 
-    // MIGRATE CHAIN step: `migrate Payment 1 -> 2 { ... }` or `migrate Payment v1 -> v2 { ... }` (DL-022, DL-072).
+    // MIGRATE CHAIN step: `migrate Payment v1 -> v2 { ... }` (DL-022, DL-072). A plain number is no VERSION (DL-074).
     migrate_declaration: ($) =>
       seq(
         "migrate",
@@ -138,7 +134,7 @@ module.exports = grammar({
     comment: () => token(seq("//", /[^\n]*/)),
 
     // A TYPE VERSION: `v3` (DL-072) or a plain number (slice 2-4 fixtures).
-    version: () => /v?[0-9]+/,
+    version: () => /v[0-9]+/,
     integer: () => /[0-9]+/,
 
     identifier: () => /[A-Za-z_][A-Za-z0-9_]*/,

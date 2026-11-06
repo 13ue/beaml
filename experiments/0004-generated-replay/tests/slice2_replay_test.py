@@ -99,7 +99,7 @@ def decode_rejected():
 
 
 class ChainReplay(arms.Case):
-    """Build: DRIFT N with `migrate Payment 1 -> 2 { rename status -> state }`, RECORD SNAPSHOT v1."""
+    """Build: DRIFT N with `migrate Payment v1 -> v2 { rename status -> state }`, RECORD SNAPSHOT v1."""
 
     def test_C2_old_v1_record_replays_with_state_from_status(self):
         old = records(V1)[0]
@@ -155,7 +155,7 @@ class StaleSnapshotReplay(arms.Case):
 
 
 class SecondRenameReplay(arms.Case):
-    """C14: `Payment { order_ref status }` with `migrate Payment 1 -> 2 { rename order_id -> order_ref }`."""
+    """C14: `Payment { order_ref status }` with `migrate Payment v1 -> v2 { rename order_id -> order_ref }`."""
 
     def test_C14_v1_record_replays_with_order_ref_from_order_id(self):
         self.assertEqual(accepted({"order_ref": "order-1", "status": "authorized"}),

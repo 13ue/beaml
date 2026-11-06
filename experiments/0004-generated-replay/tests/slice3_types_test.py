@@ -141,7 +141,7 @@ def template_source(N, kind):
     fields, steps = kinds(N)[kind]
     typed = [f if isinstance(f, tuple) else (f, "String") for f in fields]
     names = [f for f, _ in typed]
-    chain = "".join("migrate %s %d -> %d %s\n" % (N.T, i + 1, i + 2,
+    chain = "".join("migrate %s v%d -> v%d %s\n" % (N.T, i + 1, i + 2,
                                                    step if isinstance(step, str) else "{ %s }" % ", ".join(step))
                     for i, step in enumerate(steps))
     return st.TEMPLATE % {
@@ -222,11 +222,11 @@ class Slice3Types:
         N = self.names
         changes = (["drop %s: String" % f for f in sorted(drops)]
                    + ["add %s: String = %s" % (f, PLACEHOLDER) for f in sorted(adds)])
-        return "migrate %s 1 -> 2 { %s }" % (N.T, ", ".join(changes))
+        return "migrate %s v1 -> v2 { %s }" % (N.T, ", ".join(changes))
 
     def must_derive(self, version):
         """README help row "a stored version older than the newest without a path"."""
-        return "the MIGRATE CHAIN of %s must derive version %d" % (self.names.T, version)
+        return "the MIGRATE CHAIN of %s must derive v%d" % (self.names.T, version)
 
     def for_each_order(self, orders, check):
         """Run `check(names)` once per sort order of the random names (Template); once with the fixture names."""
@@ -254,13 +254,13 @@ class Slice3Types:
     def test_D5_removed_field_without_drop_is_compile_error(self):
         N = self.names
         self.assert_rejected("D", "v1", [N.T, N.o, "String", PATH,
-                                         "migrate %s 1 -> 2 { drop %s: String }" % (N.T, N.o)])
+                                         "migrate %s v1 -> v2 { drop %s: String }" % (N.T, N.o)])
 
     def test_D5b_one_removed_one_added_field_gives_rename_and_drop_add_help(self):
         N = self.names
         self.assert_rejected("N", "v1", [
-            N.T, PATH, "migrate %s 1 -> 2 { rename %s -> %s }" % (N.T, N.o, N.t),
-            "migrate %s 1 -> 2 { drop %s: String, add %s: String = %s }" % (N.T, N.o, N.t, PLACEHOLDER)])
+            N.T, PATH, "migrate %s v1 -> v2 { rename %s -> %s }" % (N.T, N.o, N.t),
+            "migrate %s v1 -> v2 { drop %s: String, add %s: String = %s }" % (N.T, N.o, N.t, PLACEHOLDER)])
 
     def test_D5c_removed_field_of_other_type_has_no_drop_form(self):
         N = self.names
@@ -280,16 +280,16 @@ class Slice3Types:
 
     def test_D12_add_of_field_not_in_next_version_is_K1(self):
         N = self.names
-        self.assert_rejected("M-nodrop", "empty", ["migrate %s 1 -> 2" % N.T, "add %s" % N.c,
-                                                   "%s %s 2" % (NOT_IN, N.T)])
+        self.assert_rejected("M-nodrop", "empty", ["migrate %s v1 -> v2" % N.T, "add %s" % N.c,
+                                                   "%s %s v2" % (NOT_IN, N.T)])
 
     def test_D13_version_2_record_without_added_field_has_no_path(self):
         N = self.names
-        self.assert_rejected("M", "M-v2-no-c", [N.T, N.c, "derived TYPE VERSION 2", PATH, self.must_derive(2)])
+        self.assert_rejected("M", "M-v2-no-c", [N.T, N.c, "derived TYPE VERSION v2", PATH, self.must_derive(2)])
 
     def test_D15_add_of_field_that_old_records_hold_has_no_path(self):
         N = self.names
-        self.assert_rejected("D15", "v1", [N.T, N.o, "derived TYPE VERSION 1", PATH, self.must_derive(1)])
+        self.assert_rejected("D15", "v1", [N.T, N.o, "derived TYPE VERSION v1", PATH, self.must_derive(1)])
 
     def test_D15b_same_source_with_empty_snapshot_compiles(self):
         self.assert_compiles("D15", "empty")
@@ -327,7 +327,7 @@ class Slice3Types:
     # K1-K12: source faults, empty RECORD SNAPSHOT (README, Consistency checks).
     def test_K01_add_of_field_not_in_next_version(self):
         N = self.names
-        self.assert_rejected("K1", "empty", ["migrate %s 1 -> 2" % N.T, "add %s" % N.c, "%s %s 2" % (NOT_IN, N.T)])
+        self.assert_rejected("K1", "empty", ["migrate %s v1 -> v2" % N.T, "add %s" % N.c, "%s %s v2" % (NOT_IN, N.T)])
 
     def test_K02_add_with_other_type_than_the_field(self):
         self.assert_rejected("K2", "empty", ["add %s" % self.names.x, "PaymentError", "String"])
@@ -341,7 +341,7 @@ class Slice3Types:
 
     def test_K05_drop_of_field_still_in_next_version(self):
         N = self.names
-        self.assert_rejected("K5", "empty", ["drop %s" % N.o, "%s %s 2" % (STILL_IN, N.T)])
+        self.assert_rejected("K5", "empty", ["drop %s" % N.o, "%s %s v2" % (STILL_IN, N.T)])
 
     def test_K06_drop_of_type_other_than_string(self):
         self.assert_rejected("K6", "empty", ["drop %s" % self.names.o, "Int", STRING_ONLY])
@@ -350,10 +350,10 @@ class Slice3Types:
         N = self.names
         for kind in ("K7a", "K7b"):
             with self.subTest(kind=kind):
-                self.assert_rejected(kind, "empty", ["migrate %s 1 -> 2" % N.T, N.o, TWO_TIMES])
+                self.assert_rejected(kind, "empty", ["migrate %s v1 -> v2" % N.T, N.o, TWO_TIMES])
 
     def test_K08_empty_step(self):
-        self.assert_rejected("K8", "empty", ["migrate %s 1 -> 2" % self.names.T, EMPTY_STEP])
+        self.assert_rejected("K8", "empty", ["migrate %s v1 -> v2" % self.names.T, EMPTY_STEP])
 
     def test_K09_missing_comma(self):
         self.assert_rejected("K9", "empty", ["expected ','"])

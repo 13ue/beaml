@@ -1,11 +1,11 @@
 // EXPERIMENT 0004 slice 4: a MIGRATE CHAIN of four TYPE VERSIONS (sources Q4, Q4s, Q4g+r).
-interface Order { order_id: String }
-interface Payment { order_id: String state: String reference: String }
+type Order { order_id: String }
+type Payment { order_id: String state: String reference: String }
 // The first two MIGRATE STEPS are DEAD LINES when no record has version 2 or older.
-migrate Payment 1 -> 2 { rename status -> state }
+migrate Payment v1 -> v2 { rename status -> state }
 
-migrate Payment 2 -> 3 { add channel: String = "web" } migrate Payment 3 -> 4 { drop channel: String, add reference: String = "pre-v4" }
-interface PaymentError { reason: String }
+migrate Payment v2 -> v3 { add channel: String = "web" } migrate Payment v3 -> v4 { drop channel: String, add reference: String = "pre-v4" }
+type PaymentError { reason: String }
 
 effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
 

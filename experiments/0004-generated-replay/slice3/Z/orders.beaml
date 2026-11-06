@@ -1,9 +1,9 @@
 // Case D14: `drop` then `add` of the same name; version 1 and version 3 have one fingerprint.
-interface Order { order_id: String }
-interface Payment { order_id: String status: String }
-migrate Payment 1 -> 2 { drop status: String }
-migrate Payment 2 -> 3 { add status: String = "new" }
-interface PaymentError { reason: String }
+type Order { order_id: String }
+type Payment { order_id: String status: String }
+migrate Payment v1 -> v2 { drop status: String }
+migrate Payment v2 -> v3 { add status: String = "new" }
+type PaymentError { reason: String }
 
 effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
 

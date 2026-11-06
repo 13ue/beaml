@@ -1,10 +1,10 @@
 // Case D17 (DL-054): `drop channel`, then `add channel` with a constant, then `rename channel -> reference`.
-interface Order { order_id: String }
-interface Payment { order_id: String reference: String }
-migrate Payment 1 -> 2 { drop channel: String }
-migrate Payment 2 -> 3 { add channel: String = "pre-v2" }
-migrate Payment 3 -> 4 { rename channel -> reference }
-interface PaymentError { reason: String }
+type Order { order_id: String }
+type Payment { order_id: String reference: String }
+migrate Payment v1 -> v2 { drop channel: String }
+migrate Payment v2 -> v3 { add channel: String = "pre-v2" }
+migrate Payment v3 -> v4 { rename channel -> reference }
+type PaymentError { reason: String }
 
 effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
 

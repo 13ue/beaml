@@ -77,8 +77,8 @@ fn invalid_source_emits_no_code_and_actions_do_not_capture_source() {
     let folder = temporary_folder();
     let source = folder.join("input.beaml");
     for text in [
-        "interface Box { text: String } fn bad -> Box = Box {}",
-        "interface Inner { text: String } interface Outer { inner: Inner } fn bad -> Outer = Outer { inner: \"wrong\" }",
+        "type Box { text: String } fn bad -> Box = Box {}",
+        "type Inner { text: String } type Outer { inner: Inner } fn bad -> Outer = Outer { inner: \"wrong\" }",
         "enum R { Ok(String) Error(String) } fn f Ok(x) -> String = x",
         "fn f x: String -> String = x fn f \"late\" -> String = \"late\"",
         "fn f a: String, b: String -> String = a fn sample -> String = f(\"one\")",
@@ -205,7 +205,7 @@ fn assert_rejected(fixture: &str, names: &[&str]) {
     assert!(result.stdout.is_empty(), "{fixture}: expected no stdout");
     // The new syntax must parse. The reject must come from the check, not from the old parser.
     assert!(
-        !stderr.contains("expected interface, enum, or fn"),
+        !stderr.contains("expected type, enum, effect, migrate, retire or fn"),
         "{fixture}: rejected by the old parser, not by the check: {stderr}"
     );
     for name in names {

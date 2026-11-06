@@ -1,9 +1,9 @@
 // Case D12: M without `drop channel: String` in step 2 -> 3 (K1).
-interface Order { order_id: String }
-interface Payment { order_id: String state: String status: String }
-migrate Payment 1 -> 2 { rename status -> state, add channel: String = "web" }
-migrate Payment 2 -> 3 { add status: String = "migrated" }
-interface PaymentError { reason: String }
+type Order { order_id: String }
+type Payment { order_id: String state: String status: String }
+migrate Payment v1 -> v2 { rename status -> state, add channel: String = "web" }
+migrate Payment v2 -> v3 { add status: String = "migrated" }
+type PaymentError { reason: String }
 
 effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
 

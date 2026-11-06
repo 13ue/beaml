@@ -1,5 +1,5 @@
 [
-  "interface" "type" "enum" "fn" "effect"
+  "type" "enum" "fn" "effect"
   "migrate" "rename" "add" "drop"
   "retire" "keep" "days"
   "with" "do" "else" "end"

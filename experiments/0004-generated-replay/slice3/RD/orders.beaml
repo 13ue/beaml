@@ -1,9 +1,9 @@
 // Case D18 (DL-054): `rename status -> state`, then `drop state`; the version 1 field `status` is type-checked.
-interface Order { order_id: String }
-interface Payment { order_id: String }
-migrate Payment 1 -> 2 { rename status -> state }
-migrate Payment 2 -> 3 { drop state: String }
-interface PaymentError { reason: String }
+type Order { order_id: String }
+type Payment { order_id: String }
+migrate Payment v1 -> v2 { rename status -> state }
+migrate Payment v2 -> v3 { drop state: String }
+type PaymentError { reason: String }
 
 effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
 

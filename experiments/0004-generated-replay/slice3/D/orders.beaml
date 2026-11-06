@@ -1,7 +1,7 @@
 // Case D5, D5c, D6: a removed field without a MIGRATE CHAIN.
-interface Order { order_id: String }
-interface Payment { order_id: String }
-interface PaymentError { reason: String }
+type Order { order_id: String }
+type Payment { order_id: String }
+type PaymentError { reason: String }
 
 effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
 

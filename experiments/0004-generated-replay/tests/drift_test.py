@@ -50,7 +50,7 @@ class DriftFixtures(unittest.TestCase):
                 new = (EXPERIMENT / "drift" / derivative / name).read_text().splitlines()
                 self.assertNotEqual(old, new, (derivative, name))
                 changed = [line for line in new if line not in old]
-                self.assertTrue(all(line.startswith(("interface ", "effect ", "fn ")) for line in changed),
+                self.assertTrue(all(line.startswith(("type ", "effect ", "fn ")) for line in changed),
                                 (derivative, name, changed))
                 self.assertFalse(any(line.startswith("fn place") for line in changed), (derivative, name))
                 flow = [line for line in old if line.startswith("  ")]

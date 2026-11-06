@@ -81,9 +81,9 @@ def retire_form(op, n):
 
 
 # Sources (README, Cases (slice 4)). A source is a list of segments (text, tag). A tag marks a line that
-# can be a DEAD LINE: "retire", "s12" (`migrate T 1 -> 2`), "s23" (`migrate T 2 -> 3`). The text of a source
+# can be a DEAD LINE: "retire", "s12" (`migrate T v1 -> v2`), "s23" (`migrate T v2 -> v3`). The text of a source
 # is the join of its segments; the expected text after a removal is the join without the removed tags.
-# Slice 5 (DL-070, DL-071; README "Slice 4 expectations that change"): "s34" (`migrate T 3 -> 4`) can be a
+# Slice 5 (DL-070, DL-071; README "Slice 4 expectations that change"): "s34" (`migrate T v3 -> v4`) can be a
 # DEAD LINE too, and the TYPE line has the tag "type", so `source_text(..., mark=n)` can insert the VERSION MARK.
 G_FAMILY = ("B", "G", "B+r", "G+r", "G+r0", "P", "P+r", "C2")
 Q_FAMILY = ("Q4", "Q4s", "Q4-crlf", "Q4s-crlf", "Q4g+r", "Q4-oneline")
@@ -112,15 +112,15 @@ def segments(N, kind):
     fields = (k, t) if kind == "C2" else (k, o)
     op = N.old if kind in ("B", "B+r", "C2") else N.new
     retire = [(line + "\n", "retire") for line in retire_lines(N, kind)]
-    head = [(header, None), ("interface Order { order_id: String }\n", None),
-            ("interface %s { %s: String %s: String }\n" % (T, fields[0], fields[1]), "type")]
+    head = [(header, None), ("type Order { order_id: String }\n", None),
+            ("type %s { %s: String %s: String }\n" % (T, fields[0], fields[1]), "type")]
     finish = ("fn finish %s { %s, %s } -> %s = %s { %s: %s + \"\", %s: %s }\n"
               % (T, fields[0], fields[1], T, T, fields[0], fields[0], fields[1], fields[1]), None)
     if kind in ("P", "P+r"):
         return head + retire + [("\n", None), finish]
-    chain = [("migrate %s 1 -> 2 { rename %s -> %s }\n" % (T, o, t), "s12")] if kind == "C2" else []
+    chain = [("migrate %s v1 -> v2 { rename %s -> %s }\n" % (T, o, t), "s12")] if kind == "C2" else []
     return head + chain + [
-        ("interface PaymentError { reason: String }\n", None), ("\n", None),
+        ("type PaymentError { reason: String }\n", None), ("\n", None),
         ("effect %s Order -> %s ! PaymentError = http.post(\"payments/authorize\")\n" % (op, T), None)] + retire + [
         ("\n", None), ("fn prepare Order { order_id } -> Order = Order { order_id: order_id + \"\" }\n", None),
         finish, ("\n", None),
@@ -132,23 +132,23 @@ def q_segments(N, kind):
     between them, a multi-line `migrate { }` block, and no final newline. CRLF forms change only the line ends."""
     T, k, o, t, c, x = N.T, N.k, N.o, N.t, N.c, N.x
     op = N.new if kind == "Q4g+r" else N.old
-    s34 = "migrate %s 3 -> 4 { drop %s: String, add %s: String = %s }" % (T, c, x, literal(N.cx))
+    s34 = "migrate %s v3 -> v4 { drop %s: String, add %s: String = %s }" % (T, c, x, literal(N.cx))
     if kind == "Q4-oneline":
-        s23 = [("migrate %s 2 -> 3 { add %s: String = %s } %s\n" % (T, c, literal(N.cw), s34), "s23+s34")]
+        s23 = [("migrate %s v2 -> v3 { add %s: String = %s } %s\n" % (T, c, literal(N.cw), s34), "s23+s34")]
         last = []
     else:
-        s23 = [("migrate %s 2 -> 3 {\n  add %s: String = %s\n}\n" % (T, c, literal(N.cw)), "s23")]
+        s23 = [("migrate %s v2 -> v3 {\n  add %s: String = %s\n}\n" % (T, c, literal(N.cw)), "s23")]
         last = [("// The last MIGRATE STEP carries the newest TYPE VERSION. It is a DEAD LINE when only its target version is stored.\n", None),
                 (s34 + "\n", "s34")]
     chain = [("// The first two MIGRATE STEPS are DEAD LINES when no record has version 2 or older.\n", None),
-             ("migrate %s 1 -> 2 { rename %s -> %s }\n" % (T, o, t), "s12"), ("\n", None)] + s23 + last
+             ("migrate %s v1 -> v2 { rename %s -> %s }\n" % (T, o, t), "s12"), ("\n", None)] + s23 + last
     if kind in ("Q4s", "Q4s-crlf"):
         chain = [seg for seg in chain if seg[1] not in ("s12", "s23")]
     retire = [(retire_form(N.old, N.n) + "\n", "retire")] if kind == "Q4g+r" else []
     segs = [("// EXPERIMENT 0004 slice 4: a MIGRATE CHAIN of four TYPE VERSIONS (sources Q4, Q4s, Q4g+r).\n", None),
-            ("interface Order { order_id: String }\n", None),
-            ("interface %s { %s: String %s: String %s: String }\n" % (T, k, t, x), "type")] + chain + [
-        ("interface PaymentError { reason: String }\n", None), ("\n", None),
+            ("type Order { order_id: String }\n", None),
+            ("type %s { %s: String %s: String %s: String }\n" % (T, k, t, x), "type")] + chain + [
+        ("type PaymentError { reason: String }\n", None), ("\n", None),
         ("effect %s Order -> %s ! PaymentError = http.post(\"payments/authorize\")\n" % (op, T), None)] + retire + [
         ("\n", None), ("fn prepare Order { order_id } -> Order = Order { order_id: order_id + \"\" }\n", None),
         ("fn finish %s { %s, %s, %s } -> %s = %s { %s: %s + \"\", %s: %s, %s: %s }\n"
@@ -313,7 +313,7 @@ class Slice4Retire:
                 form, why = retire_form(N.old, N.n), "no stored RESPONSE RECORD of operation %s" % N.old
             else:
                 a = int(tag[1])
-                form, why = "migrate %s %d -> %d" % (N.T, a, a + 1), "version %d or older" % a
+                form, why = "migrate %s v%d -> v%d" % (N.T, a, a + 1), "v%d or older" % a
             tokens = [DEAD + form, "at %s:%d" % (source, line), stored, why, REMOVE_DEAD]
             expected.append(tokens)
             block = ""
@@ -525,7 +525,7 @@ class Slice4Retire:
     # E17: a removed step that a record needs blocks again.
     def test_E17_removed_step_needed_again_blocks_the_build(self):
         N = self.names
-        self.assert_rejected("Q4s", "q-v3v1", [N.T, "starts at version 3", "TYPE VERSION 1", "version control", PATH])
+        self.assert_rejected("Q4s", "q-v3v1", [N.T, "starts at v3", "TYPE VERSION v1", "version control", PATH])
 
     def test_E17_control_shortened_chain_with_version_3_records_compiles(self):
         self.assert_clean("Q4s", "q-v3")
@@ -565,7 +565,7 @@ class Slice4Retire:
                 tokens += [REFUSED + retire_form(N.old, N.n), "operation %s" % N.old]
             else:
                 a = int(tag[1])
-                tokens += [REFUSED + "migrate %s %d -> %d" % (N.T, a, a + 1), "TYPE %s" % N.T]
+                tokens += [REFUSED + "migrate %s v%d -> v%d" % (N.T, a, a + 1), "TYPE %s" % N.T]
         return tokens + [str(stored), ASSUME]
 
     def assert_refused(self, kind, label, tags):
@@ -573,7 +573,7 @@ class Slice4Retire:
         self.assert_untouched(run, self.refused_tokens(kind, tags, run["stored"]))
         heads = [line[len(REFUSED):] for line in run["stderr"].splitlines() if line.startswith(REFUSED)]
         N = self.names
-        forms = [retire_form(N.old, N.n) if t == "retire" else "migrate %s %s -> %d" % (N.T, t[1], int(t[1]) + 1)
+        forms = [retire_form(N.old, N.n) if t == "retire" else "migrate %s v%s -> v%d" % (N.T, t[1], int(t[1]) + 1)
                  for t in tags]
         self.assertEqual((forms, False, True), (heads, "warning:" in run["stderr"], run["stderr"].startswith("error:")),
                          self.ctx(kind, label, "one refusal per DEAD LINE in source order; stderr:", run["stderr"]))

@@ -6,10 +6,10 @@ The grammar also covers the forms of the decision log (`wiki/planning/decision-l
 
 - `effect` with a dotted name, the pipe `|>` and `!` failure TYPES (DL-013 to DL-015).
 - `with ... do ... else ... end` (DL-014). Only the keywords are decided; the clause shapes parse tolerantly.
-- `type Name { ... }` and `type Name v3 { ... }` next to `interface` (DL-061, DL-070 to DL-072).
+- `type Name { ... }` and `type Name v3 { ... }` (DL-061, DL-070 to DL-072). `interface` is no record keyword (DL-074): it parses as an ERROR node.
 - `enum` variants with and without a payload, for example `Unknown(String)` (DL-062).
 - `redacted` before a field TYPE (DL-059).
-- MIGRATE CHAIN steps `migrate T 1 -> 2 { ... }` and `migrate T v1 -> v2 { ... }` with `rename`, `add` and `drop` (DL-022, DL-023, DL-072).
+- MIGRATE CHAIN steps `migrate T v1 -> v2 { ... }` with `rename`, `add` and `drop` (DL-022, DL-023, DL-072). A plain number gives an ERROR node (DL-074).
 - `retire op.name keep 30 days` (DL-055, DL-057).
 
 Version numbers use the capture `@number`. `preview.py` shows it in the constructor colour (class `c`).

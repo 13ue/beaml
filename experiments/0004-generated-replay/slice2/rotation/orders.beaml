@@ -1,10 +1,10 @@
-interface Order { order_id: String }
-interface Payment { a: String b: String }
+type Order { order_id: String }
+type Payment { a: String b: String }
 // Rotation: version 1 and version 4 have the same field names; the values of a and b change places.
-migrate Payment 1 -> 2 { rename a -> c }
-migrate Payment 2 -> 3 { rename b -> a }
-migrate Payment 3 -> 4 { rename c -> b }
-interface PaymentError { reason: String }
+migrate Payment v1 -> v2 { rename a -> c }
+migrate Payment v2 -> v3 { rename b -> a }
+migrate Payment v3 -> v4 { rename c -> b }
+type PaymentError { reason: String }
 
 // Leaves the module. Recorded live, substituted in a REPLAY RUN.
 effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")

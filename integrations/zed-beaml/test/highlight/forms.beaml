@@ -5,7 +5,7 @@ type Payment v3 { order_id: String, card_holder: redacted String }
 //                ^ property
 //                                               ^ keyword
 //                                                        ^ type
-interface Order { order_id: String }
+type Order { order_id: String }
 // <- keyword
 enum Status { Paid Unknown(String) }
 // <- keyword
@@ -21,7 +21,7 @@ migrate Payment v1 -> v2 { rename status -> state, add channel: String = "web" }
 //                                ^ property
 //                                                 ^ keyword
 //                                                                       ^ string
-migrate Payment 2 -> 3 {
+migrate Payment v2 -> v3 {
 //              ^ number
   // keep the old field as a typed value
 //   ^ comment

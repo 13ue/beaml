@@ -1,9 +1,9 @@
 // Case D11c: `rename status -> state`, then `rename reference -> status`; a `rename` removes its old key (DL-048).
-interface Order { order_id: String }
-interface Payment { order_id: String state: String status: String }
-migrate Payment 1 -> 2 { rename status -> state }
-migrate Payment 2 -> 3 { rename reference -> status }
-interface PaymentError { reason: String }
+type Order { order_id: String }
+type Payment { order_id: String state: String status: String }
+migrate Payment v1 -> v2 { rename status -> state }
+migrate Payment v2 -> v3 { rename reference -> status }
+type PaymentError { reason: String }
 
 effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
 

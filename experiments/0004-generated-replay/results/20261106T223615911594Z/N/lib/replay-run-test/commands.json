@@ -1,0 +1,255 @@
+[
+  {
+    "name": "elixir-version",
+    "argv": [
+      "elixir",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "mix-version",
+    "argv": [
+      "mix",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "rustc-version",
+    "argv": [
+      "rustc",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "cargo-version",
+    "argv": [
+      "cargo",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "python3-version",
+    "argv": [
+      "python3",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "dependencies",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "deps.get",
+      "--offline"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8",
+    "exit_code": 0
+  },
+  {
+    "name": "generate-payments",
+    "argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--quiet",
+      "--manifest-path",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib/experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib/experiments/0003-source-linked-replay/results/20261106T223920657560Z/original/payments.beaml"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "generate-orders",
+    "argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--quiet",
+      "--manifest-path",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib/experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib/experiments/0003-source-linked-replay/results/20261106T223920657560Z/original/orders.beaml"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "release-payments",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "release",
+      "payments",
+      "--overwrite"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8",
+    "exit_code": 0
+  },
+  {
+    "name": "release-orders",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "release",
+      "orders",
+      "--overwrite"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8",
+    "exit_code": 0
+  },
+  {
+    "name": "start-payments-payments",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/payments/bin/payments",
+      "start"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib"
+  },
+  {
+    "name": "start-orders-orders",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "start"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib"
+  },
+  {
+    "name": "baseline-call-1",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib/experiments/0002-http-correlation/query.py",
+      "--run",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib/experiments/0003-source-linked-replay/results/20261106T223920657560Z/original",
+      "--order-id",
+      "order-1"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "baseline-call-2",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib/experiments/0002-http-correlation/query.py",
+      "--run",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib/experiments/0003-source-linked-replay/results/20261106T223920657560Z/original",
+      "--order-id",
+      "order-1"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "start-orders-stub",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "start"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib"
+  },
+  {
+    "name": "replay-control-transport-observer",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "eval",
+      "\ninput = :json.decode(File.read!(System.fetch_env!(\"REPLAY_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\nwatched = [{OrdersApi.Router, :call, 2}, {OrdersApi.PaymentHttp, :authorize, 2}, {:gen_tcp, :connect, 4},\n           {OrdersBeamlSpike, :prepare, 1}, {:json, :decode, 1}, {OrdersBeamlSpike, :finish, 1},\n           {ProbeSupport, :valid_payment!, 2}]\nfor {m, _, _} = mfa <- watched, do: (Code.ensure_loaded!(m); 1 = :erlang.trace_pattern(mfa, true, [:call_count]))\nresult =\n  try do\n    case input[\"mode\"] do\n      # Observer control: the real transport in this VM is counted (refused port).\n      \"control\" -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(input[\"order\"]), [])\n      \"replay\" -> with {:ok, p} <- ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  end\nreport = case result do\n  {:ok, payment} -> %{ok: payment}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  # Review F1: a non-atom reason is a reported mismatch, not a harness crash.\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\ncalls = Map.new(watched, fn {m, f, a} = mfa ->\n  {\"#{inspect(m)}.#{f}/#{a}\", elem(:erlang.trace_info(mfa, :call_count), 1)} end)\nIO.puts(\"REPLAY \" <> IO.iodata_to_binary(:json.encode(%{\n  result: report, transport: ProbeSupport.count(), calls: calls,\n  artifact_id: ProbeSupport.beam_hash(OrdersBeamlSpike),\n  started: Enum.map(Application.started_applications(), fn {app, _, _} -> Atom.to_string(app) end)})))\n"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "replay-first-call",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "eval",
+      "\ninput = :json.decode(File.read!(System.fetch_env!(\"REPLAY_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\nwatched = [{OrdersApi.Router, :call, 2}, {OrdersApi.PaymentHttp, :authorize, 2}, {:gen_tcp, :connect, 4},\n           {OrdersBeamlSpike, :prepare, 1}, {:json, :decode, 1}, {OrdersBeamlSpike, :finish, 1},\n           {ProbeSupport, :valid_payment!, 2}]\nfor {m, _, _} = mfa <- watched, do: (Code.ensure_loaded!(m); 1 = :erlang.trace_pattern(mfa, true, [:call_count]))\nresult =\n  try do\n    case input[\"mode\"] do\n      # Observer control: the real transport in this VM is counted (refused port).\n      \"control\" -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(input[\"order\"]), [])\n      \"replay\" -> with {:ok, p} <- ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  end\nreport = case result do\n  {:ok, payment} -> %{ok: payment}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  # Review F1: a non-atom reason is a reported mismatch, not a harness crash.\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\ncalls = Map.new(watched, fn {m, f, a} = mfa ->\n  {\"#{inspect(m)}.#{f}/#{a}\", elem(:erlang.trace_info(mfa, :call_count), 1)} end)\nIO.puts(\"REPLAY \" <> IO.iodata_to_binary(:json.encode(%{\n  result: report, transport: ProbeSupport.count(), calls: calls,\n  artifact_id: ProbeSupport.beam_hash(OrdersBeamlSpike),\n  started: Enum.map(Application.started_applications(), fn {app, _, _} -> Atom.to_string(app) end)})))\n"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "replay-a1-noncanonical",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "eval",
+      "\ninput = :json.decode(File.read!(System.fetch_env!(\"REPLAY_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\nwatched = [{OrdersApi.Router, :call, 2}, {OrdersApi.PaymentHttp, :authorize, 2}, {:gen_tcp, :connect, 4},\n           {OrdersBeamlSpike, :prepare, 1}, {:json, :decode, 1}, {OrdersBeamlSpike, :finish, 1},\n           {ProbeSupport, :valid_payment!, 2}]\nfor {m, _, _} = mfa <- watched, do: (Code.ensure_loaded!(m); 1 = :erlang.trace_pattern(mfa, true, [:call_count]))\nresult =\n  try do\n    case input[\"mode\"] do\n      # Observer control: the real transport in this VM is counted (refused port).\n      \"control\" -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(input[\"order\"]), [])\n      \"replay\" -> with {:ok, p} <- ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  end\nreport = case result do\n  {:ok, payment} -> %{ok: payment}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  # Review F1: a non-atom reason is a reported mismatch, not a harness crash.\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\ncalls = Map.new(watched, fn {m, f, a} = mfa ->\n  {\"#{inspect(m)}.#{f}/#{a}\", elem(:erlang.trace_info(mfa, :call_count), 1)} end)\nIO.puts(\"REPLAY \" <> IO.iodata_to_binary(:json.encode(%{\n  result: report, transport: ProbeSupport.count(), calls: calls,\n  artifact_id: ProbeSupport.beam_hash(OrdersBeamlSpike),\n  started: Enum.map(Application.started_applications(), fn {app, _, _} -> Atom.to_string(app) end)})))\n"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "replay-missing-response",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "eval",
+      "\ninput = :json.decode(File.read!(System.fetch_env!(\"REPLAY_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\nwatched = [{OrdersApi.Router, :call, 2}, {OrdersApi.PaymentHttp, :authorize, 2}, {:gen_tcp, :connect, 4},\n           {OrdersBeamlSpike, :prepare, 1}, {:json, :decode, 1}, {OrdersBeamlSpike, :finish, 1},\n           {ProbeSupport, :valid_payment!, 2}]\nfor {m, _, _} = mfa <- watched, do: (Code.ensure_loaded!(m); 1 = :erlang.trace_pattern(mfa, true, [:call_count]))\nresult =\n  try do\n    case input[\"mode\"] do\n      # Observer control: the real transport in this VM is counted (refused port).\n      \"control\" -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(input[\"order\"]), [])\n      \"replay\" -> with {:ok, p} <- ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  end\nreport = case result do\n  {:ok, payment} -> %{ok: payment}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  # Review F1: a non-atom reason is a reported mismatch, not a harness crash.\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\ncalls = Map.new(watched, fn {m, f, a} = mfa ->\n  {\"#{inspect(m)}.#{f}/#{a}\", elem(:erlang.trace_info(mfa, :call_count), 1)} end)\nIO.puts(\"REPLAY \" <> IO.iodata_to_binary(:json.encode(%{\n  result: report, transport: ProbeSupport.count(), calls: calls,\n  artifact_id: ProbeSupport.beam_hash(OrdersBeamlSpike),\n  started: Enum.map(Application.started_applications(), fn {app, _, _} -> Atom.to_string(app) end)})))\n"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "replay-operation-mismatch",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "eval",
+      "\ninput = :json.decode(File.read!(System.fetch_env!(\"REPLAY_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\nwatched = [{OrdersApi.Router, :call, 2}, {OrdersApi.PaymentHttp, :authorize, 2}, {:gen_tcp, :connect, 4},\n           {OrdersBeamlSpike, :prepare, 1}, {:json, :decode, 1}, {OrdersBeamlSpike, :finish, 1},\n           {ProbeSupport, :valid_payment!, 2}]\nfor {m, _, _} = mfa <- watched, do: (Code.ensure_loaded!(m); 1 = :erlang.trace_pattern(mfa, true, [:call_count]))\nresult =\n  try do\n    case input[\"mode\"] do\n      # Observer control: the real transport in this VM is counted (refused port).\n      \"control\" -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(input[\"order\"]), [])\n      \"replay\" -> with {:ok, p} <- ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  end\nreport = case result do\n  {:ok, payment} -> %{ok: payment}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  # Review F1: a non-atom reason is a reported mismatch, not a harness crash.\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\ncalls = Map.new(watched, fn {m, f, a} = mfa ->\n  {\"#{inspect(m)}.#{f}/#{a}\", elem(:erlang.trace_info(mfa, :call_count), 1)} end)\nIO.puts(\"REPLAY \" <> IO.iodata_to_binary(:json.encode(%{\n  result: report, transport: ProbeSupport.count(), calls: calls,\n  artifact_id: ProbeSupport.beam_hash(OrdersBeamlSpike),\n  started: Enum.map(Application.started_applications(), fn {app, _, _} -> Atom.to_string(app) end)})))\n"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "replay-attempt-mismatch",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "eval",
+      "\ninput = :json.decode(File.read!(System.fetch_env!(\"REPLAY_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\nwatched = [{OrdersApi.Router, :call, 2}, {OrdersApi.PaymentHttp, :authorize, 2}, {:gen_tcp, :connect, 4},\n           {OrdersBeamlSpike, :prepare, 1}, {:json, :decode, 1}, {OrdersBeamlSpike, :finish, 1},\n           {ProbeSupport, :valid_payment!, 2}]\nfor {m, _, _} = mfa <- watched, do: (Code.ensure_loaded!(m); 1 = :erlang.trace_pattern(mfa, true, [:call_count]))\nresult =\n  try do\n    case input[\"mode\"] do\n      # Observer control: the real transport in this VM is counted (refused port).\n      \"control\" -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(input[\"order\"]), [])\n      \"replay\" -> with {:ok, p} <- ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  end\nreport = case result do\n  {:ok, payment} -> %{ok: payment}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  # Review F1: a non-atom reason is a reported mismatch, not a harness crash.\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\ncalls = Map.new(watched, fn {m, f, a} = mfa ->\n  {\"#{inspect(m)}.#{f}/#{a}\", elem(:erlang.trace_info(mfa, :call_count), 1)} end)\nIO.puts(\"REPLAY \" <> IO.iodata_to_binary(:json.encode(%{\n  result: report, transport: ProbeSupport.count(), calls: calls,\n  artifact_id: ProbeSupport.beam_hash(OrdersBeamlSpike),\n  started: Enum.map(Application.started_applications(), fn {app, _, _} -> Atom.to_string(app) end)})))\n"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "replay-body-digest-mismatch",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "eval",
+      "\ninput = :json.decode(File.read!(System.fetch_env!(\"REPLAY_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\nwatched = [{OrdersApi.Router, :call, 2}, {OrdersApi.PaymentHttp, :authorize, 2}, {:gen_tcp, :connect, 4},\n           {OrdersBeamlSpike, :prepare, 1}, {:json, :decode, 1}, {OrdersBeamlSpike, :finish, 1},\n           {ProbeSupport, :valid_payment!, 2}]\nfor {m, _, _} = mfa <- watched, do: (Code.ensure_loaded!(m); 1 = :erlang.trace_pattern(mfa, true, [:call_count]))\nresult =\n  try do\n    case input[\"mode\"] do\n      # Observer control: the real transport in this VM is counted (refused port).\n      \"control\" -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(input[\"order\"]), [])\n      \"replay\" -> with {:ok, p} <- ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  end\nreport = case result do\n  {:ok, payment} -> %{ok: payment}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  # Review F1: a non-atom reason is a reported mismatch, not a harness crash.\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\ncalls = Map.new(watched, fn {m, f, a} = mfa ->\n  {\"#{inspect(m)}.#{f}/#{a}\", elem(:erlang.trace_info(mfa, :call_count), 1)} end)\nIO.puts(\"REPLAY \" <> IO.iodata_to_binary(:json.encode(%{\n  result: report, transport: ProbeSupport.count(), calls: calls,\n  artifact_id: ProbeSupport.beam_hash(OrdersBeamlSpike),\n  started: Enum.map(Application.started_applications(), fn {app, _, _} -> Atom.to_string(app) end)})))\n"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "replay-status-mismatch",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "eval",
+      "\ninput = :json.decode(File.read!(System.fetch_env!(\"REPLAY_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\nwatched = [{OrdersApi.Router, :call, 2}, {OrdersApi.PaymentHttp, :authorize, 2}, {:gen_tcp, :connect, 4},\n           {OrdersBeamlSpike, :prepare, 1}, {:json, :decode, 1}, {OrdersBeamlSpike, :finish, 1},\n           {ProbeSupport, :valid_payment!, 2}]\nfor {m, _, _} = mfa <- watched, do: (Code.ensure_loaded!(m); 1 = :erlang.trace_pattern(mfa, true, [:call_count]))\nresult =\n  try do\n    case input[\"mode\"] do\n      # Observer control: the real transport in this VM is counted (refused port).\n      \"control\" -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(input[\"order\"]), [])\n      \"replay\" -> with {:ok, p} <- ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  end\nreport = case result do\n  {:ok, payment} -> %{ok: payment}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  # Review F1: a non-atom reason is a reported mismatch, not a harness crash.\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\ncalls = Map.new(watched, fn {m, f, a} = mfa ->\n  {\"#{inspect(m)}.#{f}/#{a}\", elem(:erlang.trace_info(mfa, :call_count), 1)} end)\nIO.puts(\"REPLAY \" <> IO.iodata_to_binary(:json.encode(%{\n  result: report, transport: ProbeSupport.count(), calls: calls,\n  artifact_id: ProbeSupport.beam_hash(OrdersBeamlSpike),\n  started: Enum.map(Application.started_applications(), fn {app, _, _} -> Atom.to_string(app) end)})))\n"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  },
+  {
+    "name": "replay-request-mismatch",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-kwqlhwa8/_build/prod/rel/orders/bin/orders",
+      "eval",
+      "\ninput = :json.decode(File.read!(System.fetch_env!(\"REPLAY_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\nwatched = [{OrdersApi.Router, :call, 2}, {OrdersApi.PaymentHttp, :authorize, 2}, {:gen_tcp, :connect, 4},\n           {OrdersBeamlSpike, :prepare, 1}, {:json, :decode, 1}, {OrdersBeamlSpike, :finish, 1},\n           {ProbeSupport, :valid_payment!, 2}]\nfor {m, _, _} = mfa <- watched, do: (Code.ensure_loaded!(m); 1 = :erlang.trace_pattern(mfa, true, [:call_count]))\nresult =\n  try do\n    case input[\"mode\"] do\n      # Observer control: the real transport in this VM is counted (refused port).\n      \"control\" -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(input[\"order\"]), [])\n      \"replay\" -> with {:ok, p} <- ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  end\nreport = case result do\n  {:ok, payment} -> %{ok: payment}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  # Review F1: a non-atom reason is a reported mismatch, not a harness crash.\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\ncalls = Map.new(watched, fn {m, f, a} = mfa ->\n  {\"#{inspect(m)}.#{f}/#{a}\", elem(:erlang.trace_info(mfa, :call_count), 1)} end)\nIO.puts(\"REPLAY \" <> IO.iodata_to_binary(:json.encode(%{\n  result: report, transport: ProbeSupport.count(), calls: calls,\n  artifact_id: ProbeSupport.beam_hash(OrdersBeamlSpike),\n  started: Enum.map(Application.started_applications(), fn {app, _, _} -> Atom.to_string(app) end)})))\n"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-7i4f39he/N/lib",
+    "exit_code": 0
+  }
+]

@@ -2,18 +2,18 @@
 Declarations
 ==================
 
-interface Order { id: String, customer: Customer }
-interface Customer { name: String }
+type Order { id: String, customer: Customer }
+type Customer { name: String }
 enum Result { Ok(Order) Error(String, String), Empty() }
 
 ---
 
 (source_file
-  (interface_declaration
+  (type_declaration
     (type (identifier))
     (field_declaration (property (identifier)) (type (identifier)))
     (field_declaration (property (identifier)) (type (identifier))))
-  (interface_declaration
+  (type_declaration
     (type (identifier))
     (field_declaration (property (identifier)) (type (identifier))))
   (enum_declaration

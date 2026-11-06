@@ -1,0 +1,227 @@
+[
+  {
+    "name": "elixir-version",
+    "argv": [
+      "elixir",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "mix-version",
+    "argv": [
+      "mix",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "rustc-version",
+    "argv": [
+      "rustc",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "cargo-version",
+    "argv": [
+      "cargo",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "python3-version",
+    "argv": [
+      "python3",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "dependencies",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "deps.get",
+      "--offline"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-trace-lookup-mz8o134w",
+    "exit_code": 0
+  },
+  {
+    "name": "generate-payments",
+    "argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--quiet",
+      "--manifest-path",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/results/20261106T222946300739Z/original/payments.beaml",
+      "--stored",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/tests/stored-empty.jsonl"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "generate-orders",
+    "argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--quiet",
+      "--manifest-path",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/results/20261106T222946300739Z/original/orders.beaml",
+      "--stored",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/tests/stored-empty.jsonl"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "release-payments",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "release",
+      "payments",
+      "--overwrite"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-trace-lookup-mz8o134w",
+    "exit_code": 0
+  },
+  {
+    "name": "release-orders",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "release",
+      "orders",
+      "--overwrite"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-trace-lookup-mz8o134w",
+    "exit_code": 0
+  },
+  {
+    "name": "start-payments",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-trace-lookup-mz8o134w/_build/prod/rel/payments/bin/payments",
+      "start"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4"
+  },
+  {
+    "name": "start-orders",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-trace-lookup-mz8o134w/_build/prod/rel/orders/bin/orders",
+      "start"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4"
+  },
+  {
+    "name": "baseline-call-1",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0002-http-correlation/query.py",
+      "--run",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/results/20261106T222946300739Z/original",
+      "--order-id",
+      "order-1"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "baseline-call-2",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0002-http-correlation/query.py",
+      "--run",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/results/20261106T222946300739Z/original",
+      "--order-id",
+      "order-1"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "generate-revision",
+    "argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--quiet",
+      "--manifest-path",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/results/20261106T222946300739Z/current-revision/payments.beaml",
+      "--stored",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/tests/stored-empty.jsonl"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "compile-revision",
+    "argv": [
+      "elixirc",
+      "-o",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/results/20261106T222946300739Z/current-revision",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/results/20261106T222946300739Z/current-revision/payments.generated.ex"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "execute-revision",
+    "argv": [
+      "elixir",
+      "-pa",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/results/20261106T222946300739Z/current-revision",
+      "-e",
+      "true = PaymentsBeamlSpike.authorize(%{\"order_id\" => \"order-1\"}) == %{\"order_id\" => \"order-1\", \"status\" => \"revised\"}"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "query-with-current-revision",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0002-http-correlation/query.py",
+      "--run",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/results/20261106T222946300739Z/original",
+      "--order-id",
+      "order-1"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 0
+  },
+  {
+    "name": "query-missing-original",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0002-http-correlation/query.py",
+      "--run",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4/experiments/0003-source-linked-replay/results/20261106T222946300739Z/missing-original",
+      "--order-id",
+      "order-1"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-n89tryo4",
+    "exit_code": 1
+  }
+]

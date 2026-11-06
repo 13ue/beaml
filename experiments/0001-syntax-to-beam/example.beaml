@@ -1,14 +1,14 @@
-interface Address {
+type Address {
   city: String
   country: String
 }
 
-interface Customer {
+type Customer {
   name: String
   address: Address
 }
 
-interface Order {
+type Order {
   id: String
   customer: Customer
 }

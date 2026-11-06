@@ -4,7 +4,7 @@ Record type with version mark and redacted field
 
 type Payment v3 { order_id: String  card_holder: redacted String }
 type Order { id: String, }
-interface Legacy { id: String }
+type Legacy { id: String }
 
 ---
 
@@ -32,7 +32,7 @@ interface Legacy { id: String }
         (identifier))
       (type
         (identifier))))
-  (interface_declaration
+  (type_declaration
     (type
       (identifier))
     (field_declaration
@@ -130,11 +130,11 @@ fn place order: Order -> Payment ! PaymentError =
       (identifier))))
 
 ==================
-MIGRATE CHAIN with plain numbers
+MIGRATE CHAIN, several steps on one line
 ==================
 
-migrate Payment 1 -> 2 { rename status -> state, add channel: String = "web" }
-migrate Payment 2 -> 3 { drop channel: String } migrate Payment 3 -> 4 { }
+migrate Payment v1 -> v2 { rename status -> state, add channel: String = "web" }
+migrate Payment v2 -> v3 { drop channel: String } migrate Payment v3 -> v4 { }
 
 ---
 

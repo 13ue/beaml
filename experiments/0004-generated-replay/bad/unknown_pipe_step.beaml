@@ -1,6 +1,6 @@
-interface Order { order_id: String }
-interface Payment { order_id: String status: String }
-interface PaymentError { reason: String }
+type Order { order_id: String }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
 
 // Leaves the module. Recorded live, substituted in a REPLAY RUN.
 effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")

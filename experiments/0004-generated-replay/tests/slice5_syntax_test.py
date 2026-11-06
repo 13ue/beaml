@@ -574,7 +574,7 @@ class Fixture(Slice5Syntax, unittest.TestCase):
         for kind in FIXTURE_KINDS:
             with self.subTest(kind=kind):
                 self.assertEqual(source_text(N, kind).encode(), fixture_path(kind).read_bytes())
-        self.assertEqual((EXPERIMENT / "arms/gen/orders.beaml").read_text(), base_form(source_text(N, "B5")),
+        self.assertEqual((EXPERIMENT / "arms/gen/orders.beaml").read_text(), source_text(N, "B5"),
                          "B5 is the slice 1 source with type")
         self.assertEqual(source_text(N, "Q4", without=("s12", "s23"), marks={"type": (N.T, 4)}),
                          source_text(N, "Q4s"), "Q4s is Q4 after F20")

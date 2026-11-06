@@ -155,8 +155,8 @@ struct Effect {
     path: String,
     source_range: Range<usize>,
 }
-// `migrate T a -> b { change, change }`: one MIGRATE STEP of the MIGRATE CHAIN of the TYPE T.
-// The `interface` is the newest TYPE VERSION; older versions are derived backwards.
+// `migrate T va -> vb { change, change }`: one MIGRATE STEP of the MIGRATE CHAIN of the TYPE T.
+// The `type` is the newest TYPE VERSION; older versions are derived backwards.
 #[derive(Clone, Debug)]
 struct Migration {
     type_name: String,
@@ -190,6 +190,30 @@ struct Program {
     effects: Vec<Effect>,
     migrations: Vec<Migration>,
     retires: Vec<Retire>,
+    // Slice 5: the VERSION MARK `type T vN { ... }` per record TYPE that has one (DL-070, DL-071).
+    marks: BTreeMap<String, u32>,
+    // Slice 5: the byte end of the TYPE name in each `type` declaration (where `--remove-dead` writes a mark).
+    name_ends: BTreeMap<String, usize>,
+}
+
+// Slice 5 (DL-072, DL-075): a VERSION is a Word `v` DIGITS, no leading zero, from v1 to v4294967295.
+fn version_word(word: &str) -> Result<u32, String> {
+    let digits = word.strip_prefix('v').unwrap_or("");
+    if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
+        return Err(format!(
+            "{word} is not a VERSION; write a version as v<number>, for example v3"
+        ));
+    }
+    let trimmed = digits.trim_start_matches('0');
+    if trimmed.is_empty() {
+        return Err(format!("{word}: versions start at v1"));
+    }
+    if trimmed.len() != digits.len() {
+        return Err(format!("{word}: a VERSION has no leading zero; write v{trimmed}"));
+    }
+    digits.parse::<u32>().map_err(|_| {
+        format!("{word}: version number too large; the largest is v{}", u32::MAX)
+    })
 }
 
 struct Parser {
@@ -236,13 +260,20 @@ impl Parser {
             Err(self.error("expected name"))
         }
     }
-    fn number(&mut self) -> Checked<u32> {
+    // One VERSION of a `migrate` line (slice 5): `Ok(n)` for `v<n>`, `Err(n)` for a plain number (an error
+    // with a `help` line, reported by the caller once both numbers are read).
+    fn version(&mut self, context: &str) -> Checked<Result<u32, u32>> {
         match self.peek().clone() {
+            Token::Word(word) => {
+                let version = version_word(&word).map_err(|e| self.error(&format!("{context} {e}")))?;
+                self.at += 1;
+                Ok(Ok(version))
+            }
             Token::Number(number) => {
                 self.at += 1;
-                Ok(number)
+                Ok(Err(number))
             }
-            _ => Err(self.error("expected version number")),
+            _ => Err(self.error(&format!("{context}: expected a VERSION v<number>"))),
         }
     }
     fn arrow(&mut self) -> Checked<()> {
@@ -369,8 +400,45 @@ impl Parser {
         while self.peek() != &Token::End {
             let start = self.tokens[self.at].1.start;
             match self.word()?.as_str() {
+                // DL-061, DL-074: `interface` stays free for behaviour contracts; a record is a `type`.
                 "interface" => {
+                    let name = match self.peek() {
+                        Token::Word(word) if upper(word) => word.clone(),
+                        _ => "<Name>".into(),
+                    };
+                    return Err(format!(
+                        "error: interface does not declare a record; records use type\n  at byte {start}\n  help: declare: type {name} {{ ... }}\n  note: the word interface is kept for behaviour contracts"
+                    ));
+                }
+                "type" => {
                     let name = self.word()?;
+                    let name_end = self.tokens[self.at - 1].1.end;
+                    // The optional VERSION MARK `type T vN {` (slice 5).
+                    match self.peek().clone() {
+                        Token::Symbol('{') => {}
+                        Token::Word(word) => {
+                            let mark = version_word(&word)
+                                .map_err(|e| self.error(&format!("type {name} {e}")))?;
+                            self.at += 1;
+                            program.marks.insert(name.clone(), mark);
+                        }
+                        Token::Number(number) => {
+                            return Err(format!(
+                                "{}\n  help: write: type {name} v{number}",
+                                self.error(&format!(
+                                    "type {name} {number}: expected '{{' or a VERSION MARK v<number>"
+                                ))
+                            ));
+                        }
+                        _ => {
+                            return Err(self.error(&format!(
+                                "type {name}: expected '{{' or a VERSION MARK v<number>"
+                            )));
+                        }
+                    }
+                    if program.name_ends.insert(name.clone(), name_end).is_some() {
+                        return Err(self.error("duplicate type"));
+                    }
                     self.expect('{')?;
                     let mut fields = Vec::new();
                     while !self.eat('}') {
@@ -486,9 +554,38 @@ impl Parser {
                 }
                 "migrate" => {
                     let type_name = self.word()?;
-                    let from = self.number()?;
+                    // DL-072, DL-074: every version number has a `v`; a plain number is an error with help.
+                    let context = format!("migrate {type_name}");
+                    let first = self.at;
+                    let from = self.version(&context)?;
+                    let plain = |v: Result<u32, u32>| v.unwrap_or_else(|n| n);
+                    if let Err(number) = from {
+                        let to = (self.peek() == &Token::Arrow)
+                            .then(|| self.tokens.get(self.at + 1).map(|t| t.0.clone()))
+                            .flatten()
+                            .and_then(|t| match t {
+                                Token::Number(n) => Some(n.to_string()),
+                                Token::Word(w) => version_word(&w).ok().map(|v| v.to_string()),
+                                _ => None,
+                            })
+                            .unwrap_or_else(|| "<number>".into());
+                        return Err(format!(
+                            "error: migrate {type_name} {number}: a version number needs v\n  at byte {}\n  help: write: migrate {type_name} v{number} -> v{to}",
+                            self.tokens[first].1.start
+                        ));
+                    }
                     self.arrow()?;
-                    let to = self.number()?;
+                    let second = self.at;
+                    let to = self.version(&format!("{context} v{} ->", plain(from)))?;
+                    if let Err(number) = to {
+                        return Err(format!(
+                            "error: migrate {type_name} v{} -> {number}: a version number needs v\n  at byte {}\n  help: write: migrate {type_name} v{} -> v{number}",
+                            plain(from),
+                            self.tokens[second].1.start,
+                            plain(from)
+                        ));
+                    }
+                    let (from, to) = (plain(from), plain(to));
                     self.expect('{')?;
                     // MIGRATE CHANGES separated by commas; no trailing comma (K9, K10).
                     let mut changes = Vec::new();
@@ -566,7 +663,7 @@ impl Parser {
                         source_range: start..self.tokens[self.at - 1].1.end,
                     });
                 }
-                _ => return Err(self.error("expected interface, enum, or fn")),
+                _ => return Err(self.error("expected type, enum, effect, migrate, retire or fn")),
             }
         }
         Ok(program)
@@ -596,7 +693,7 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
     let mut versions = BTreeMap::new();
     for (name, steps) in chains {
         let Some(Definition::Record(newest)) = program.types.get(name) else {
-            return Err(format!("migrate {name}: unknown interface: {name}"));
+            return Err(format!("migrate {name}: unknown type: {name}"));
         };
         // Slice 4: a MIGRATE CHAIN starts at any version k >= 1 (its first MIGRATE STEP `k -> k+1`).
         let start = u64::from(steps[0].from);
@@ -604,24 +701,30 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
             let from = start + index as u64;
             if from == 0 {
                 return Err(format!(
-                    "migrate {name} 0 -> {}: a MIGRATE CHAIN starts at version 1 or higher",
+                    "migrate {name} v0 -> v{}: a MIGRATE CHAIN starts at v1 or higher",
                     step.to
                 ));
             }
             if u64::from(step.from) != from || u64::from(step.to) != from + 1 {
                 return Err(format!(
-                    "migrate {name} {} -> {}: the MIGRATE CHAIN of {name} must count without gaps from its first MIGRATE STEP, expected {from} -> {}",
+                    "migrate {name} v{} -> v{}: the MIGRATE CHAIN of {name} must count without gaps from its first MIGRATE STEP, expected v{from} -> v{}",
                     step.from,
                     step.to,
                     from + 1
                 ));
             }
         }
+        let end = steps.last().unwrap().to;
+        let mark = program.marks.get(name).copied();
+        mark_form_allowed(name, mark, Some((steps[0].from, end)))?;
+        if let Some(mark) = mark {
+            mark_agrees(name, mark, end)?;
+        }
         let mut chain = vec![newest.clone()];
         for step in steps.iter().rev() {
             let current = chain.last().unwrap();
             let (a, b) = (step.from, step.to);
-            let label = format!("migrate {name} {a} -> {b}");
+            let label = format!("migrate {name} v{a} -> v{b}");
             // K8: an empty MIGRATE STEP.
             if step.changes.is_empty() {
                 return Err(format!(
@@ -660,12 +763,12 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
                         }
                         if type_of(new).is_none() {
                             return Err(format!(
-                                "{label}: rename {old} -> {new}: field {new} is not in {name} {b}"
+                                "{label}: rename {old} -> {new}: field {new} is not in {name} v{b}"
                             ));
                         }
                         if type_of(old).is_some() {
                             return Err(format!(
-                                "{label}: rename {old} -> {new}: field {old} is still in {name} {b}"
+                                "{label}: rename {old} -> {new}: field {old} is still in {name} v{b}"
                             ));
                         }
                         for field in previous.iter_mut() {
@@ -678,12 +781,12 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
                         // K1, K2, K4, K3.
                         let Some(actual) = type_of(field) else {
                             return Err(format!(
-                                "{label}: add {field}: field {field} is not in {name} {b}"
+                                "{label}: add {field}: field {field} is not in {name} v{b}"
                             ));
                         };
                         if &actual != ty {
                             return Err(format!(
-                                "{label}: add {field}: {ty}: field {field} has the TYPE {actual} in {name} {b}"
+                                "{label}: add {field}: {ty}: field {field} has the TYPE {actual} in {name} v{b}"
                             ));
                         }
                         if ty != "String" {
@@ -712,7 +815,7 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
                         }
                         if type_of(field).is_some() {
                             return Err(format!(
-                                "{label}: drop {field}: field {field} is still in {name} {b}"
+                                "{label}: drop {field}: field {field} is still in {name} v{b}"
                             ));
                         }
                         previous.push((field.clone(), ty.clone()));
@@ -724,7 +827,45 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
         chain.reverse();
         versions.insert(name.to_string(), chain);
     }
+    for (name, &mark) in &program.marks {
+        if !versions.contains_key(name) {
+            mark_form_allowed(name, Some(mark), None)?;
+        }
+    }
     Ok(versions)
+}
+
+// PENDING OWNER O7 (EXPERIMENT 0004 README slice 5, "OWNER questions"): which VERSION MARK forms are legal.
+// `chain` is (first `from`, last `to`) of the MIGRATE CHAIN of `name`, if it has one. PROVISIONAL default, option
+// (a) permissive: every mark that agrees with the chain is legal (the agreement is error M1, `mark_agrees`), a mark
+// without a chain is legal, and a chain without a mark is legal, also when it starts above v1. Option (b) would
+// reject a mark beside a chain from v1 and a mark v1 without a chain; option (c) also a chain above v1 without a
+// mark. This one function changes when the OWNER answers O7.
+fn mark_form_allowed(_name: &str, _mark: Option<u32>, _chain: Option<(u32, u32)>) -> Checked<()> {
+    Ok(())
+}
+
+// Error M1 (slice 5, DL-071): a VERSION MARK and a MIGRATE CHAIN must agree. A source check, before `--stored`.
+fn mark_agrees(name: &str, mark: u32, end: u32) -> Checked<()> {
+    if mark == end {
+        return Ok(());
+    }
+    let help = if mark < end {
+        format!("write: type {name} v{end}")
+    } else if u64::from(mark) == u64::from(end) + 1 {
+        format!(
+            "add migrate {name} v{end} -> v{mark} {{ ... }}, or write type {name} v{end} if no record of v{mark} exists"
+        )
+    } else {
+        format!(
+            "add migrate {name} v{end} -> v{} {{ ... }} and the next MIGRATE STEPS to v{mark}, or write type {name} v{end} if no record newer than v{end} exists",
+            end + 1
+        )
+    };
+    Err(format!(
+        "error: type {name} v{mark} disagrees with its MIGRATE CHAIN: the last MIGRATE STEP is migrate {name} v{} -> v{end}\n  help: the VERSION MARK and the MIGRATE CHAIN must agree; {help}",
+        end - 1
+    ))
 }
 
 // An EFFECT name or a RETIRE LINE operation: `namespace.operation`, two segments that start lowercase.
@@ -1008,7 +1149,7 @@ impl<'a> Checker<'a> {
     fn record(&self, name: &str) -> Checked<&Vec<(String, String)>> {
         match self.program.types.get(name) {
             Some(Definition::Record(fields)) => Ok(fields),
-            _ => Err(format!("unknown interface: {name}")),
+            _ => Err(format!("unknown type: {name}")),
         }
     }
     fn same_type(&self, left: &str, right: &str) -> bool {
@@ -1519,20 +1660,36 @@ fn decode_name(output: &str) -> String {
 }
 
 impl Checker<'_> {
-    // TYPE VERSIONS of a TYPE, oldest first; the last one is the `interface`.
+    // TYPE VERSIONS of a TYPE, oldest first; the last one is the `type`.
     fn type_versions(&self, name: &str) -> Vec<Vec<(String, String)>> {
         match self.versions.get(name) {
             Some(chain) => chain.clone(),
             None => vec![self.record(name).cloned().unwrap_or_default()],
         }
     }
-    // The version number of index 0 of `type_versions`: the `from` of the first MIGRATE STEP, else 1.
+    // The version number of index 0 of `type_versions`: the `from` of the first MIGRATE STEP, else the VERSION
+    // MARK, else 1 (slice 5 version table).
     fn chain_start(&self, name: &str) -> u32 {
-        self.migrations(name).first().map_or(1, |m| m.from)
+        self.migrations(name)
+            .first()
+            .map(|m| m.from)
+            .or_else(|| self.mark(name))
+            .unwrap_or(1)
     }
-    // The newest version number of a TYPE: the `to` of its last MIGRATE STEP, else 1.
+    // The newest version number of a TYPE: the VERSION MARK, else the `to` of its last MIGRATE STEP, else 1. M1
+    // has checked that a mark and a chain agree.
     fn newest_version(&self, name: &str) -> u32 {
-        self.migrations(name).last().map_or(1, |m| m.to)
+        self.mark(name)
+            .or_else(|| self.migrations(name).last().map(|m| m.to))
+            .unwrap_or(1)
+    }
+    fn mark(&self, name: &str) -> Option<u32> {
+        self.program.marks.get(name).copied()
+    }
+    // The decode reads the TYPE VERSION of a RESPONSE RECORD when the TYPE has a MIGRATE CHAIN or a VERSION
+    // MARK (a mark without a chain knows one version). Otherwise the decode stays the slice 1 form.
+    fn versioned(&self, name: &str) -> bool {
+        !self.migrations(name).is_empty() || self.mark(name).is_some()
     }
     // The steps of the MIGRATE CHAIN of a TYPE, in chain order (the chain start first).
     fn migrations(&self, name: &str) -> Vec<&Migration> {
@@ -1641,7 +1798,7 @@ impl Checker<'_> {
                     clauses.push(":ok <- expect(record[\"status\"], 200, :status_mismatch)".into());
                     clauses.push("{:ok, bytes} <- body(record)".into());
                     // With a MIGRATE CHAIN, the decode reads the body as the TYPE VERSION of the record.
-                    let version = if self.migrations(&effect.output).is_empty() {
+                    let version = if !self.versioned(&effect.output) {
                         ""
                     } else {
                         ", record[\"type\"]"
@@ -1756,7 +1913,7 @@ impl Checker<'_> {
                 .collect::<Vec<_>>()
                 .join(", ")
         };
-        if migrations.is_empty() {
+        if !self.versioned(&effect.output) {
             out.push_str(&format!(
                 "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
                 declared.join(", "),
@@ -1823,7 +1980,7 @@ impl Checker<'_> {
                 output = binary(&effect.output),
             ));
         }
-        let (result_head, arity) = if migrations.is_empty() {
+        let (result_head, arity) = if !self.versioned(&effect.output) {
             (format!("  def __beaml_result_{elixir}(a0) do\n"), "")
         } else {
             (
@@ -2449,7 +2606,8 @@ impl Checker<'_> {
     }
     // DEAD LINES (slice 4, DL-056), in source order. W1: a RETIRE LINE whose operation has no record in the
     // RECORD SNAPSHOT. W2: a MIGRATE STEP `T a -> b` when no record of an operation whose `effect` outputs T
-    // has a version <= a; RETIRED RECORDS do not count. The last MIGRATE STEP of a TYPE is never dead (DL-058).
+    // has a version <= a; RETIRED RECORDS do not count. DL-070 supersedes DL-058: the last MIGRATE STEP can be dead
+    // too, because `--remove-dead` keeps the newest version as a VERSION MARK on the type line.
     fn dead_lines(&self, snapshot: &Snapshot) -> Vec<Dead> {
         let mut dead = Vec::new();
         for retire in &self.program.retires {
@@ -2464,14 +2622,13 @@ impl Checker<'_> {
         }
         for step in &self.program.migrations {
             let name = &step.type_name;
-            let last = self.newest_version(name);
             let needed = snapshot.oldest.get(name).is_some_and(|v| *v <= step.from);
-            if step.to != last && !needed {
+            if !needed {
                 dead.push(Dead {
                     range: step.source_range.clone(),
-                    form: format!("migrate {name} {} -> {}", step.from, step.to),
+                    form: format!("migrate {name} v{} -> v{}", step.from, step.to),
                     reason: format!(
-                        "no stored RESPONSE RECORD of TYPE {name} has version {} or older",
+                        "no stored RESPONSE RECORD of TYPE {name} has v{} or older",
                         step.from
                     ),
                 });
@@ -2550,22 +2707,36 @@ impl Checker<'_> {
                 stored.operation
             ),
             format!(
-                "  stored TYPE VERSION: {} {} {} (fingerprint {})",
+                "  stored TYPE VERSION: {} v{} {} (fingerprint {})",
                 stored.name,
                 stored.version,
                 show_fields(&stored.fields),
                 &stored.fingerprint[..12]
             ),
             format!(
-                "  newest TYPE VERSION: {type_name} {newest} {}",
+                "  newest TYPE VERSION: {type_name} v{newest} {}",
                 show_fields(newest_fields)
             ),
         ];
+        // N1 (slice 5, DL-070): version numbers only grow. A stored version newer than the newest version of the
+        // source means a reset (a lowered mark, removed MIGRATE STEPS); no MIGRATE STEP can count backwards.
+        if &stored.name == type_name && stored.version > newest {
+            m.push(format!("  record source: {source} (first at line {line})"));
+            m.push(format!(
+                "  the stored TYPE VERSION v{} is newer than the newest TYPE VERSION v{newest}; version numbers only grow",
+                stored.version
+            ));
+            m.push(format!(
+                "  help: the source must declare v{} or newer; restore the type line and the MIGRATE STEPS from version control",
+                stored.version
+            ));
+            return Some(m.join("\n"));
+        }
         // A stored version older than the newest one is compared with its derived version.
         let target = derived.filter(|_| stored.version < newest);
         if let Some(d) = target {
             m.push(format!(
-                "  derived TYPE VERSION: {type_name} {} {} (fingerprint {}), from the MIGRATE CHAIN",
+                "  derived TYPE VERSION: {type_name} v{} {} (fingerprint {}), from the MIGRATE CHAIN",
                 stored.version,
                 show_fields(d),
                 &fingerprint(d)[..12]
@@ -2588,7 +2759,7 @@ impl Checker<'_> {
         m.push(format!("  record source: {source} (first at line {line})"));
         m.push("  no path from the stored TYPE VERSION to the newest TYPE VERSION".into());
         let (compare, label) = match target {
-            Some(d) => (d, format!("derived TYPE VERSION {}", stored.version)),
+            Some(d) => (d, format!("derived TYPE VERSION v{}", stored.version)),
             None => (newest_fields, "newest TYPE VERSION".to_string()),
         };
         let gone: Vec<&(String, String)> = stored
@@ -2613,22 +2784,50 @@ impl Checker<'_> {
         // Help lines (README slice 3, "Path errors and help lines"). `<constant>` stays a placeholder.
         if target.is_some() {
             m.push(format!(
-                "  help: the MIGRATE CHAIN of {type_name} must derive version {} with the fields of the stored TYPE VERSION; check its rename, add and drop steps",
+                "  help: the MIGRATE CHAIN of {type_name} must derive v{} with the fields of the stored TYPE VERSION; check its rename, add and drop steps",
                 stored.version
             ));
         } else if below_start {
+            // Slice 5: name every missing MIGRATE STEP (with a mark and no chain, the start is the mark).
+            let step = |i: u32| format!("migrate {type_name} v{i} -> v{}", i + 1);
+            let missing: Vec<String> = if start - stored.version <= 10 {
+                (stored.version..start).map(step).collect()
+            } else {
+                vec![
+                    step(stored.version),
+                    step(stored.version + 1),
+                    format!("... ({} MIGRATE STEPS in all)", start - stored.version),
+                    step(start - 1),
+                ]
+            };
             m.push(format!(
-                "  help: the MIGRATE CHAIN of {type_name} starts at version {start}; the stored TYPE VERSION {} is older. Restore the removed MIGRATE STEPS from version control",
-                stored.version
+                "  help: the MIGRATE CHAIN of {type_name} starts at v{start}; the stored TYPE VERSION v{} is older. Restore from version control: {}",
+                stored.version,
+                missing.join(", ")
             ));
         } else if !gone.iter().any(|(f, _)| added.iter().any(|(g, _)| f == g)) {
             // A changed field TYPE under the same name gets no help line (out of scope).
-            let migrate = format!("migrate {type_name} {} -> {}", stored.version, newest + 1);
-            if let ([(old, old_type)], [(new, new_type)]) = (gone.as_slice(), added.as_slice())
+            let next = newest.checked_add(1);
+            let migrate = format!(
+                "migrate {type_name} v{} -> v{}",
+                stored.version,
+                next.unwrap_or(newest)
+            );
+            // Slice 5 (revision 9.1): a new step of a TYPE with a VERSION MARK also needs the new mark (M1).
+            let mark = match (self.mark(type_name), next) {
+                (Some(_), Some(next)) => format!("; write: type {type_name} v{next}"),
+                _ => String::new(),
+            };
+            if next.is_none() {
+                m.push(format!(
+                    "  help: no newer version: v{newest} is the largest version number"
+                ));
+            } else if let ([(old, old_type)], [(new, new_type)]) =
+                (gone.as_slice(), added.as_slice())
                 && old_type == new_type
             {
                 m.push(format!(
-                    "  help: if {new} is {old} renamed, declare: {migrate} {{ rename {old} -> {new} }}"
+                    "  help: if {new} is {old} renamed, declare: {migrate} {{ rename {old} -> {new} }}{mark}"
                 ));
             }
             let other: Vec<String> = gone
@@ -2637,7 +2836,9 @@ impl Checker<'_> {
                 .filter(|(_, t)| t != "String")
                 .map(|(f, t)| format!("{f}: {t}"))
                 .collect();
-            if !other.is_empty() {
+            if next.is_none() {
+                // The largest version: only the help line above.
+            } else if !other.is_empty() {
                 m.push(format!(
                     "  help: no MIGRATE CHANGE for {}: drop supports String fields only, add supports String fields only",
                     other.join(", ")
@@ -2669,7 +2870,7 @@ impl Checker<'_> {
                     ),
                 };
                 m.push(format!(
-                    "  help: {reason}, declare: {migrate} {{ {} }}",
+                    "  help: {reason}, declare: {migrate} {{ {} }}{mark}",
                     changes.join(", ")
                 ));
             }
@@ -2703,7 +2904,22 @@ struct Build {
 }
 
 fn build(source: &str, service: Option<&str>, stored: Option<&std::path::Path>) -> Checked<Build> {
-    build_with_refusals(source, service, stored).map(|(built, _)| built)
+    build_with_refusals(source, service, stored).map(|(built, _, _)| built)
+}
+
+// What the removal command reads about the record TYPES of a build (slice 5): the newest version per TYPE, the
+// TYPES with a VERSION MARK, and the byte end of each TYPE name in its `type` declaration.
+#[derive(Clone, Debug, Default, PartialEq)]
+struct Types {
+    newest: BTreeMap<String, u32>,
+    marked: BTreeSet<String>,
+    name_ends: BTreeMap<String, usize>,
+}
+
+thread_local! {
+    // The `Types` of the last successful build on this thread. The removal recheck (contract step 4) reads it
+    // after its recheck: `Build` keeps its two fields, because the recheck seam of unit test U1 builds one.
+    static LAST_TYPES: std::cell::RefCell<Option<Types>> = const { std::cell::RefCell::new(None) };
 }
 
 // The build and, per DEAD LINE (by its start byte), the refusal of the completeness rule (README slice 4,
@@ -2712,7 +2928,7 @@ fn build_with_refusals(
     source: &str,
     service: Option<&str>,
     stored: Option<&std::path::Path>,
-) -> Checked<(Build, BTreeMap<usize, String>)> {
+) -> Checked<(Build, BTreeMap<usize, String>, Types)> {
     let program = Parser {
         tokens: lex(source)?,
         at: 0,
@@ -2755,12 +2971,24 @@ fn build_with_refusals(
         }
         None => (Vec::new(), BTreeMap::new()),
     };
+    let types = Types {
+        newest: program
+            .types
+            .iter()
+            .filter(|(_, def)| matches!(def, Definition::Record(_)))
+            .map(|(name, _)| (name.clone(), checker.newest_version(name)))
+            .collect(),
+        marked: program.marks.keys().cloned().collect(),
+        name_ends: program.name_ends.clone(),
+    };
+    LAST_TYPES.with(|last| *last.borrow_mut() = Some(types.clone()));
     Ok((
         Build {
             code: checker.emit(service),
             dead,
         },
         refusals,
+        types,
     ))
 }
 
@@ -2913,6 +3141,34 @@ fn line_number(text: &str, at: usize) -> usize {
     text[..at].bytes().filter(|b| *b == b'\n').count() + 1
 }
 
+// The text without the DEAD LINES and with ` v<n>` inserted at each mark position (slice 5, contract step 3).
+// `marks` is sorted by position; no position is inside a removed line (a DEAD LINE line holds only the DEAD LINE).
+fn without_dead_marked(text: &str, dead: &[Dead], marks: &[(usize, &str, u32)]) -> Checked<String> {
+    let mut marked = String::with_capacity(text.len() + 16 * marks.len());
+    let mut kept = 0;
+    for (at, _, version) in marks {
+        marked.push_str(&text[kept..*at]);
+        marked.push_str(&format!(" v{version}"));
+        kept = *at;
+    }
+    marked.push_str(&text[kept..]);
+    let shift = |at: usize| -> usize {
+        at + marks
+            .iter()
+            .filter(|(m, _, _)| *m <= at)
+            .map(|(_, _, v)| format!(" v{v}").len())
+            .sum::<usize>()
+    };
+    let moved: Vec<Dead> = dead
+        .iter()
+        .map(|d| Dead {
+            range: shift(d.range.start)..shift(d.range.end),
+            ..d.clone()
+        })
+        .collect();
+    without_dead(&marked, &moved)
+}
+
 // The text without the whole lines of each DEAD LINE (README slice 4, removal contract 2 and 3). A line of a
 // DEAD LINE that holds other text than the DEAD LINE and white space stops the removal.
 fn without_dead(text: &str, dead: &[Dead]) -> Checked<String> {
@@ -2989,19 +3245,20 @@ fn write_atomic(source: &std::path::Path, text: &str) -> Checked<()> {
 }
 
 // The removal command (README slice 4): build, find the DEAD LINES, remove them, rebuild, write atomically.
-// Return the number of removed DEAD LINE declarations.
+// Return the number of removed DEAD LINE declarations and the number of written VERSION MARKS (slice 5).
 fn remove_dead(
     path: &std::path::Path,
     label: &str,
     stem: Option<&str>,
     stored: &std::path::Path,
     assume_complete: bool,
-) -> Checked<usize> {
+) -> Checked<(usize, usize)> {
     let recheck = |new: &str| build(new, stem, Some(stored));
-    remove_dead_with(path, label, stem, stored, assume_complete, &recheck)
+    remove_dead_marked(path, label, stem, stored, assume_complete, &recheck)
 }
 
-// The removal command with its recheck (contract step 4) as a parameter: the seam of unit test U1.
+// The removal command with its recheck (contract step 4) as a parameter: the seam of unit tests U1 and U2.
+#[cfg_attr(not(test), allow(dead_code))]
 fn remove_dead_with(
     path: &std::path::Path,
     label: &str,
@@ -3010,18 +3267,43 @@ fn remove_dead_with(
     assume_complete: bool,
     recheck: &dyn Fn(&str) -> Checked<Build>,
 ) -> Checked<usize> {
+    remove_dead_marked(path, label, stem, stored, assume_complete, recheck).map(|(n, _)| n)
+}
+
+fn remove_dead_marked(
+    path: &std::path::Path,
+    label: &str,
+    stem: Option<&str>,
+    stored: &std::path::Path,
+    assume_complete: bool,
+    recheck: &dyn Fn(&str) -> Checked<Build>,
+) -> Checked<(usize, usize)> {
     let old =
         std::fs::read_to_string(path).map_err(|e| format!("cannot read source: {}", e.kind()))?;
-    let (built, refusals) = build_with_refusals(&old, stem, Some(stored))?;
+    let (built, refusals, types) = build_with_refusals(&old, stem, Some(stored))?;
     let dead = built.dead;
     if dead.is_empty() {
         eprintln!("no DEAD LINE in {label}");
-        return Ok(0);
+        return Ok((0, 0));
     }
     if !assume_complete && !refusals.is_empty() {
         return Err(refusals.into_values().collect::<Vec<_>>().join("\n"));
     }
-    let new = without_dead(&old, &dead)?;
+    // Slice 5, contract step 3 (DL-070, DL-071): each TYPE that loses a MIGRATE STEP and has no VERSION MARK gets
+    // ` v<newest>` directly after its name. A TYPE with a mark keeps its line (M1 holds).
+    let lost: BTreeSet<&str> = dead
+        .iter()
+        .filter_map(|d| d.form.strip_prefix("migrate "))
+        .filter_map(|rest| rest.split(' ').next())
+        .collect();
+    let mut marks: Vec<(usize, &str, u32)> = lost
+        .iter()
+        .filter(|name| !types.marked.contains(**name))
+        .map(|name| (types.name_ends[*name], *name, types.newest[*name]))
+        .collect();
+    marks.sort();
+    let new = without_dead_marked(&old, &dead, &marks)?;
+    LAST_TYPES.with(|last| *last.borrow_mut() = None);
     match recheck(&new) {
         Ok(rebuilt) if rebuilt.dead.is_empty() => (),
         Ok(rebuilt) => {
@@ -3032,6 +3314,21 @@ fn remove_dead_with(
         }
         Err(error) => return Err(format!("error: removal check failed\n{error}")),
     }
+    // Contract step 4 (slice 5): the newest version of every TYPE stays the same (a guard against a reset; U2).
+    // A recheck that does not build (a forced test recheck) leaves no `Types` to compare.
+    if let Some(after) = LAST_TYPES.with(|last| last.borrow_mut().take()) {
+        for (name, before) in &types.newest {
+            match after.newest.get(name) {
+                Some(now) if now == before => (),
+                now => {
+                    return Err(format!(
+                        "error: removal check failed\n  newest version of {name} changed from v{before} to {}",
+                        now.map_or("no TYPE".to_string(), |n| format!("v{n}"))
+                    ));
+                }
+            }
+        }
+    }
     let diff = unified_diff(&old, &new, label);
     write_atomic(path, &new)?;
     std::io::stdout()
@@ -3039,7 +3336,10 @@ fn remove_dead_with(
         .map_err(|e| format!("cannot write output: {}", e.kind()))?;
     let plural = if dead.len() == 1 { "" } else { "S" };
     eprintln!("removed {} DEAD LINE{plural} from {label}", dead.len());
-    Ok(dead.len())
+    for (_, name, version) in &marks {
+        eprintln!("wrote VERSION MARK v{version} on type {name} in {label}");
+    }
+    Ok((dead.len(), marks.len()))
 }
 
 // The warning of one DEAD LINE (README slice 4, "Warning texts").
@@ -3052,7 +3352,7 @@ fn warning(source: &str, label: &str, stored: &str, dead: &Dead) -> String {
     )
 }
 
-fn action(action: &str, result: &str, count: Option<(&str, usize)>) {
+fn action(action: &str, result: &str, counts: &[(&str, usize)]) {
     // Logging must never prevent compilation. Source text, line text and file paths are not recorded.
     let _ = (|| -> std::io::Result<()> {
         std::fs::create_dir_all(".beaml")?;
@@ -3064,7 +3364,10 @@ fn action(action: &str, result: &str, count: Option<(&str, usize)>) {
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()
             .as_secs_f64();
-        let count = count.map_or(String::new(), |(key, n)| format!(",\"{key}\":{n}"));
+        let count: String = counts
+            .iter()
+            .map(|(key, n)| format!(",\"{key}\":{n}"))
+            .collect();
         writeln!(
             file,
             "{{\"ts\":{ts},\"source\":\"cli\",\"action\":\"{action}\",\"target\":\"experiment-0001\",\"result\":\"{result}\"{count}}}"
@@ -3076,7 +3379,7 @@ fn main() {
     let remove = matches!(args.as_slice(), [_, flag, _, last, ..] if flag == "--stored" && last == "--remove-dead");
     let assume_complete =
         matches!(args.as_slice(), [_, _, _, _, last] if last == "--assume-complete");
-    let result = (|| -> Checked<Option<(&str, usize)>> {
+    let result = (|| -> Checked<Vec<(&str, usize)>> {
         let stored = match args.as_slice() {
             [_] => None,
             [_, flag, path] if flag == "--stored" => Some(std::path::Path::new(path)),
@@ -3098,14 +3401,14 @@ fn main() {
         let label = args[0].to_string_lossy();
         let stem = path.file_stem().and_then(|stem| stem.to_str());
         if remove {
-            let removed = remove_dead(
+            let (removed, marked) = remove_dead(
                 path,
                 &label,
                 stem,
                 stored.expect("checked arguments"),
                 assume_complete,
             )?;
-            return Ok(Some(("removed", removed)));
+            return Ok(vec![("removed", removed), ("marked", marked)]);
         }
         let source = std::fs::read_to_string(path)
             .map_err(|e| format!("cannot read source: {}", e.kind()))?;
@@ -3119,13 +3422,13 @@ fn main() {
                 eprintln!("{}", warning(&source, &label, &stored, dead));
             }
         }
-        Ok(Some(("warnings", built.dead.len())))
+        Ok(vec![("warnings", built.dead.len())])
     })();
     let name = if remove { "remove-dead" } else { "compile" };
     match &result {
-        Ok(count) => action(name, "ok", *count),
-        Err(_) if remove => action(name, "error", Some(("removed", 0))),
-        Err(_) => action(name, "error", None),
+        Ok(counts) => action(name, "ok", counts),
+        Err(_) if remove => action(name, "error", &[("removed", 0), ("marked", 0)]),
+        Err(_) => action(name, "error", &[]),
     }
     if let Err(error) = result {
         eprintln!("{error}");
@@ -3144,7 +3447,7 @@ mod tests {
     #[test]
     fn rejects_wrong_return_type() {
         assert!(
-            compile("interface Box { text: String } fn bad text: String -> Box = text")
+            compile("type Box { text: String } fn bad text: String -> Box = text")
                 .unwrap_err()
                 .contains("type mismatch")
         );
@@ -3153,19 +3456,19 @@ mod tests {
     fn checks_exact_construction_and_pattern_fields() {
         for (source, error) in [
             (
-                "interface Box { text: String } fn bad -> Box = Box {}",
+                "type Box { text: String } fn bad -> Box = Box {}",
                 "missing required field",
             ),
             (
-                "interface Box { text: String } fn bad -> Box = Box { text: \"x\", extra: \"x\" }",
+                "type Box { text: String } fn bad -> Box = Box { text: \"x\", extra: \"x\" }",
                 "unknown field",
             ),
             (
-                "interface Box { text: String } fn bad Box { extra } -> String = extra",
+                "type Box { text: String } fn bad Box { extra } -> String = extra",
                 "unknown field",
             ),
             (
-                "interface Box { text: String } fn bad -> Box = Box { text: \"x\", text: \"y\" }",
+                "type Box { text: String } fn bad -> Box = Box { text: \"x\", text: \"y\" }",
                 "duplicate name",
             ),
         ] {
@@ -3174,7 +3477,7 @@ mod tests {
     }
     #[test]
     fn checks_coverage_and_clause_order() {
-        let prefix = "interface Box { text: String } enum R { Ok(Box) Error(String) } ";
+        let prefix = "type Box { text: String } enum R { Ok(Box) Error(String) } ";
         assert!(
             compile(&format!(
                 "{prefix} fn show Ok(Box {{ text }}) -> String = text"
@@ -3215,7 +3518,7 @@ mod tests {
     #[test]
     fn rejects_unsupported_or_recursive_types() {
         for source in [
-            "interface A { a: A } fn test -> String = \"x\"",
+            "type A { a: A } fn test -> String = \"x\"",
             "enum R<T> { Ok(T) } fn test -> String = \"x\"",
             "fn test text: Missing -> String = \"x\"",
             "fn test -> String = 42",
@@ -3227,10 +3530,10 @@ mod tests {
     #[test]
     fn interfaces_are_structural_and_exact() {
         assert!(
-            compile("interface A { text: String } interface B { text: String } fn f a: A -> B = a")
+            compile("type A { text: String } type B { text: String } fn f a: A -> B = a")
                 .is_ok()
         );
-        assert!(compile("interface A { text: String } interface B { text: String, extra: String } fn f a: A -> B = a").is_err());
+        assert!(compile("type A { text: String } type B { text: String, extra: String } fn f a: A -> B = a").is_err());
     }
     #[test]
     fn coverage_handles_multiple_arguments_and_empty_shapes() {
@@ -3240,8 +3543,8 @@ mod tests {
             )
             .is_ok()
         );
-        assert!(compile("interface Empty {} enum State { Waiting() Done(Empty) } fn f Waiting() -> String = \"wait\" fn f Done(Empty {}) -> String = \"done\"").is_ok());
-        assert!(compile("interface Box { text: String } fn f Box {} -> String = \"all\" fn f Box { text: \"a\" } -> String = \"late\"").unwrap_err().contains("unreachable"));
+        assert!(compile("type Empty {} enum State { Waiting() Done(Empty) } fn f Waiting() -> String = \"wait\" fn f Done(Empty {}) -> String = \"done\"").is_ok());
+        assert!(compile("type Box { text: String } fn f Box {} -> String = \"all\" fn f Box { text: \"a\" } -> String = \"late\"").unwrap_err().contains("unreachable"));
     }
     #[test]
     fn coverage_agrees_with_a_four_value_truth_table() {
@@ -3262,7 +3565,7 @@ mod tests {
     // is unreachable by the prefix rule, so the test forces it through the recheck parameter (the seam).
     #[test]
     fn removal_writes_nothing_when_the_recheck_fails() {
-        const RETIRED: &str = "interface Order { order_id: String }\ninterface Payment { order_id: String status: String }\ninterface PaymentError { reason: String }\n\neffect payments.charge Order -> Payment ! PaymentError = http.post(\"payments/authorize\")\nretire payments.authorize keep 30 days\n\nfn prepare Order { order_id } -> Order = Order { order_id: order_id + \"\" }\nfn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + \"\", status: status }\n\nfn place order: Order -> Payment ! PaymentError =\n  order\n  |> prepare\n  |> payments.charge\n  |> finish\n";
+        const RETIRED: &str = "type Order { order_id: String }\ntype Payment { order_id: String status: String }\ntype PaymentError { reason: String }\n\neffect payments.charge Order -> Payment ! PaymentError = http.post(\"payments/authorize\")\nretire payments.authorize keep 30 days\n\nfn prepare Order { order_id } -> Order = Order { order_id: order_id + \"\" }\nfn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + \"\", status: status }\n\nfn place order: Order -> Payment ! PaymentError =\n  order\n  |> prepare\n  |> payments.charge\n  |> finish\n";
         use std::os::unix::fs::MetadataExt;
         let directory = std::env::temp_dir().join(format!(
             "beaml-u1-{}-{}",

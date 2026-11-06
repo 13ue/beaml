@@ -386,7 +386,7 @@ def live_call(tree, arm, out, commands):
 
 def payment_fields(orders_beaml):
     """Declared fields of the TYPE `Payment` in an orders BEAML file (the drifted TYPE)."""
-    match = re.search(r"^interface Payment \{([^}]*)\}", Path(orders_beaml).read_text(), re.M)
+    match = re.search(r"^type Payment(?: v[1-9][0-9]*)? \{([^}]*)\}", Path(orders_beaml).read_text(), re.M)
     return re.findall(r"(\w+)\s*:\s*String", match.group(1)) if match else []
 
 
@@ -451,7 +451,7 @@ def lib_beaml(drifted):
     gen = (EXPERIMENT / "arms/gen/orders.beaml").read_text().splitlines()
     lib_keys, gen_keys = {key(l) for l in lib}, {key(l) for l in gen}
     kept = [line for line in Path(drifted).read_text().splitlines()
-            if key(line) in lib_keys or (line.startswith("interface ") and key(line) not in gen_keys)]
+            if key(line) in lib_keys or (line.startswith("type ") and key(line) not in gen_keys)]
     return "\n".join(kept) + "\n"
 
 

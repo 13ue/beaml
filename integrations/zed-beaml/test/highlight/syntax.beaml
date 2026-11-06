@@ -1,9 +1,9 @@
-interface Order { id: String, customer: Customer }
+type Order { id: String, customer: Customer }
 // <- keyword
-//        ^ type
-//                ^ property
-//                    ^ type
-interface Customer { name: String }
+//   ^ type
+//           ^ property
+//               ^ type
+type Customer { name: String }
 enum OrderResult { Ok(Order), Error(String, String) }
 // <- keyword
 fn describe Ok(Order { id, customer: Customer { name } }), suffix: String -> String =

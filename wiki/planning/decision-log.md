@@ -360,6 +360,16 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: accept one changed line (declaration offsets move by 10 bytes because `interface` becomes `type`); a check proves no other line changes. Over: keep `interface` in that source.
 → Because: DL-061 replaces `interface` everywhere.
 
+### EXPERIMENT 0004 slice 5 GREEN (OWNER away; Undo-class only)
+
+**DL-077 · Undo · O7 provisional default: any agreeing mark is legal**
+→ Chose: until the OWNER answers O7, one function (`mark_form_allowed`, marked PENDING OWNER O7) allows any VERSION MARK that agrees with the chain and a chain without a mark (option a). The tests for option (b) stay skipped.
+→ Because: the most permissive form forbids nothing the OWNER may want; one function changes the rule.
+
+**DL-078 · Undo · Two slice 5 RED test faults fixed by the main agent**
+→ Chose: the B5 fixture guard compares with the new syntax; F23 clears the action log per layout. Over: leave the tests red.
+→ Detail: 0004 notes.md, "Slice 5 GREEN follow-up (test faults)".
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

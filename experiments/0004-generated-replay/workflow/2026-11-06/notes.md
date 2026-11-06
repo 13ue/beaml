@@ -1280,3 +1280,68 @@ STATE README: revision 9.2 (slice 5 section, front matter, one plan history line
 | S5R-4 | E16 also changes (its first removal now writes the mark) | Undo | Direct consequence of the `assert_removed` change; listed in README |
 | S5R-5 | W1 extended (after placeholder, after `\n`); A1 reads bytes | Undo | Without them GREEN could not pass A1 by W1 to W4 alone |
 | S5R-6 | F2 exact help line `help: declare: type <Name> { ... }` (the README block form) | Undo | Message text; the README block is the exact form |
+
+## Slice 5 GREEN
+
+STATE GREEN: not committed (the main agent commits). Base: HEAD `eefaf483`. Two RED tests fail by a test fault (below); the main agent decides.
+
+### Changes
+
+- `0001/src/main.rs`: `type T [vN] { ... }` with the VERSION MARK and the byte end of the name in `Program`; `interface` is an error with `help: declare: type <Name> { ... }`; `migrate T vA -> vB`, a plain number gives `needs v` and `help: write: migrate T vA -> vB`; `version_word` (no leading zero, `v0`, u32 range, `v<number>` form); fallback `expected type, enum, effect, migrate, retire or fn`.
+- Version table: `newest_version` = mark, else chain end, else 1; `chain_start` = chain start, else mark, else 1. M1 (`mark_agrees`). O7 in one function `mark_form_allowed`, PROVISIONAL option (a), commented `PENDING OWNER O7`.
+- `no_path`: N1 (stored version above the newest), missing steps named in the below-start help, `v` in every version, `; write: type T v<n+1>` for a marked TYPE, `no newer version` at v4294967295 (no `newest + 1` overflow).
+- `dead_lines`: DL-058 exception removed (DL-070). `--remove-dead` writes ` v<n>` after the TYPE name, prints `wrote VERSION MARK ...`, event field `marked`; the recheck compares the newest version per TYPE (U2).
+- Decode: a TYPE with a mark and no chain uses the versioned decode (one known version).
+- W1 to W4 rewrite of 55 files with the `rewrite()` of `slice5_rewrite_test.py`; the 3 allowed rows; P1 snapshot line. Deliberate old forms unchanged.
+- Grammar: `interface_declaration` removed, `version` is `/v[0-9]+/`, corpus and highlight tests on `type` and `v`, `grammars/beaml.wasm` rebuilt, README bullets.
+
+### GREEN results (observed, serial)
+
+| Run | Result |
+| --- | --- |
+| `cargo test --offline --no-fail-fast` | unit 11 pass (U1, U2), `cli.rs` 14 pass |
+| `slice5_syntax_test.py` | 54 run, 8 skipped (PENDING O7), 1 FAIL: fixture guard (test fault 1). F1 to F15, P1, A2, A3 pass |
+| `slice5_squash_test.py` | 24 run, 18 FAIL: F23 subtests 2 to 10, Fixture and Template (test fault 2). All other cases pass |
+| `slice5_replay_test.py` | 12 OK, `results/20261106T221240306882Z` |
+| `slice5_rewrite_test.py` (A1) | 5 OK |
+| `slice4_retire_test.py`, `slice3_types_test.py`, `stored_types_test.py` | 87, 69, 33 OK |
+| `drift_test.py`, `overlay_diff_test.py` | 3, 3 OK |
+| `slice4_replay_test.py`, `slice3_replay_test.py`, `slice2_replay_test.py`, `arms_test.py` | 27, 31, 21, 16 OK |
+| `0003/run.py`, `0004/run.py` | `pass`, `0003/results/20261106T223226674211Z`, `results/20261106T223327577833Z` |
+| grammar: `tree-sitter test`, `test --wasm` | 13 parses, 69 highlight assertions pass |
+| grammar check | 0 ERROR nodes in 54 sources (rewrite scope and `slice5/`); ERROR for `interface Order {...}` and `migrate Payment 1 -> 2 {...}` |
+| `preview.py --chat` on 5 real sources | exit 0, no ERROR node |
+
+### Test faults (observed, not changed)
+
+1. `slice5_syntax_test.py` line 577: the guard expects `arms/gen/orders.beaml` == `base_form(B5)` (with `interface`). A2 and A1 completeness require that file without `interface`. Both cannot pass. Fix: compare with `source_text(N, "B5")`.
+2. `slice5_squash_test.py` F23: all layouts run as subtests in one test method with one `self.work`, so `.beaml/actions.jsonl` keeps the events of the earlier layouts; layout n sees n events, the check wants 1. File, diff, stderr and mark checks pass for every layout before this check. Fix: count only the new events per `assert_removed`, or use a new work directory per layout.
+
+### SHA-256 prefixes (GREEN)
+
+| File | SHA-256 prefix |
+| --- | --- |
+| `0001/src/main.rs` | `4f441df906117a43` |
+| `integrations/zed-beaml/grammar.js` | `5a080757ecc4ef5e` |
+| `integrations/zed-beaml/grammars/beaml.wasm` | `3c53b58ae693d372` |
+
+### Decisions (Decision4, slice 5 GREEN)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| S5G-1 | O7 option (a) as a provisional default in `mark_form_allowed` | Undo | One function to change when the OWNER answers; PENDING O7 tests stay skipped |
+| S5G-2 | The U2 recheck reads the newest versions from a thread-local `LAST_TYPES` set by every build | Undo | U1 builds `Build { code, dead }` literally; a new field would break U1 and A1 forbids that edit |
+| S5G-3 | `remove_dead_with` keeps `Checked<usize>`; `remove_dead_marked` also returns the mark count | Undo | U1 and U2 assert `Ok(1)` |
+| S5G-4 | A marked TYPE without a chain gets the versioned decode (one known version) | Undo | README "a mark without a chain knows one version"; sources without a mark are unchanged (A2) |
+| S5G-5 | Below-start help lists at most 10 missing steps, else first two, a count and the last | Undo | Random bases up to 10^9; message text only |
+| S5G-6 | `unknown interface: X` becomes `unknown type: X` | Undo | README "messages say type"; A2 passes |
+| S5G-7 | M1 help for a mark more than one above the chain end names the next step and "the next MIGRATE STEPS" | Undo | README gives only the one-above form; message text only |
+| S5G-8 | Grammar corpus title "MIGRATE CHAIN with plain numbers" renamed | Undo | The test now uses `v` numbers |
+| S5G-9 | `preview.html` (old generated preview with `interface`) not regenerated | Undo | Not a test input; regenerate with `preview.py` if wanted |
+
+## Slice 5 GREEN follow-up (test faults)
+
+- Fault 1, `tests/slice5_syntax_test.py`: the fixture guard compared `arms/gen/orders.beaml` with the base form (`interface`), which A1 and A2 forbid. The main agent changed it to compare with `source_text(N, "B5")`.
+- Fault 2, `tests/slice5_squash_test.py` F23: all layouts share one work directory, so the action log grew per layout. The main agent removes the log before each layout.
+- New SHA-256 prefixes: `slice5_syntax_test.py` `eb1286b916a69827`, `slice5_squash_test.py` `75e439e3e0e89359`. Both files pass (8 PENDING O7 skips); `slice5_rewrite_test.py` passes.
+- Undo-class: a revert restores the old tests.
