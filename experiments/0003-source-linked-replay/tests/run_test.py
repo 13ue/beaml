@@ -15,9 +15,13 @@ STEPS = ["compiler-reference", "trace-lookup", "trace-lookup-repair", "response-
 # The runner replaces this token with the result dir of the trace-lookup step of the same run.
 LOOKUP_DIR_TOKEN = "{result_dir:trace-lookup}"
 
+# cargo test summary lines for the compiler-reference stub.
+ONE_PASSED = "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.25s"
+ZERO_PASSED = "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s"
+
 # Stub step: record argv, create a result dir like the real tests, print it first, exit with the given code.
 STUB = r'''
-import json, sys, time
+import json, os, sys, time
 from pathlib import Path
 name, code, root, make_dir = sys.argv[1], int(sys.argv[2]), Path(sys.argv[3]), sys.argv[4] == "1"
 with (root / "calls.jsonl").open("a") as out:
@@ -28,12 +32,14 @@ if make_dir:
     (run / "toolchain.json").write_text(json.dumps({"python": "stub"}))
     print(run, flush=True)
 print("stub output " + name, flush=True)
+if name == "compiler-reference":
+    print(os.environ["STUB_REFERENCE_OUTPUT"], flush=True)
 raise SystemExit(code)
 '''
 
 
 class RunnerTest(unittest.TestCase):
-    def execute(self, failing=()):
+    def execute(self, failing=(), reference_output=ONE_PASSED):
         holder = tempfile.TemporaryDirectory()
         self.addCleanup(holder.cleanup)
         tmp = Path(holder.name)
@@ -45,7 +51,8 @@ class RunnerTest(unittest.TestCase):
                            "1" if name in failing else "0", str(tmp), make_dir]
         config = {"steps": steps, "results": str(tmp / "results"), "actions": str(tmp / "actions.jsonl")}
         (tmp / "config.json").write_text(json.dumps(config))
-        env = dict(os.environ, BEAML_0003_RUN_CONFIG=str(tmp / "config.json"))
+        env = dict(os.environ, BEAML_0003_RUN_CONFIG=str(tmp / "config.json"),
+                   STUB_REFERENCE_OUTPUT=reference_output)
         cp = subprocess.run([sys.executable, "-B", str(RUNNER)], cwd=REPO, env=env,
                             capture_output=True, text=True, timeout=60)
         calls_file = tmp / "calls.jsonl"
@@ -129,6 +136,21 @@ class RunnerTest(unittest.TestCase):
         for path in (manifest, tests + "trace_lookup_test.py", tests + "trace_lookup_repair_test.py",
                      tests + "response_capture_test.py", tests + "replay_run_test.py"):
             self.assertTrue((REPO / path).is_file(), path)
+
+    def test_compiler_reference_with_zero_tests_fails(self):
+        # O1 (review.md): cargo exits 0 with "0 passed" when the filter matches no test.
+        tmp, cp, calls, runs, result, events = self.execute(reference_output=ZERO_PASSED)
+        self.assertEqual(cp.returncode, 1, cp.stdout + cp.stderr)
+        self.assertEqual([c["name"] for c in calls], STEPS)
+        self.assertEqual(result["status"], "fail")
+        by_name = {s["name"]: s for s in result["steps"]}
+        reference = by_name["compiler-reference"]
+        self.assertEqual(reference["exit_code"], 0)
+        self.assertEqual(reference["status"], "fail")
+        self.assertEqual(reference["reason"], "expected exactly 1 passed test")
+        for name in STEPS[1:]:
+            self.assertEqual(by_name[name]["status"], "pass", name)
+        self.check_events(tmp, events, [("compiler-reference", "fail")] + [(n, "pass") for n in STEPS[1:]], "fail")
 
     def test_failed_independent_step_fails_run(self):
         tmp, cp, calls, runs, result, events = self.execute(failing=("response-capture",))

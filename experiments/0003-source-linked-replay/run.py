@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import subprocess
 import sys
 
@@ -13,6 +14,8 @@ TESTS = "experiments/0003-source-linked-replay/tests/"
 TARGET = "experiment-0003"
 LOOKUP, REPAIR = "trace-lookup", "trace-lookup-repair"
 TOKEN = "{result_dir:trace-lookup}"
+REFERENCE = "compiler-reference"
+ONE_TEST = re.compile(r"^test result: ok\. 1 passed; 0 failed; 0 ignored;", re.M)
 DEFAULT_STEPS = [
     ("compiler-reference", ["cargo", "test", "--manifest-path", "experiments/0001-syntax-to-beam/Cargo.toml",
                             "--test", "cli", "payments_cli_emits_checked_authorize_reference",
@@ -68,6 +71,15 @@ def first_dir(stdout_path):
     return None
 
 
+def one_test_passed(stdout_path):
+    """cargo exits 0 also when the filter matches no test. Require exactly one passed test."""
+    try:
+        text = stdout_path.read_text(errors="replace")
+    except OSError:
+        return False
+    return len(ONE_TEST.findall(text)) == 1 and not re.search(r"^test result: (?!ok\. 1 passed;)", text, re.M)
+
+
 def resolve(name, template, steps_by_name):
     """Give the repair step the result dir of the lookup step of this run.
 
@@ -110,6 +122,8 @@ def execute():
                         err.write("runner: %s: %s\n" % (type(error).__name__, error))
                 step["result_dir"] = first_dir(stdout_path)
                 step["status"] = "pass" if step["exit_code"] == 0 else "fail"
+                if name == REFERENCE and step["status"] == "pass" and not one_test_passed(stdout_path):
+                    step["status"], step["reason"] = "fail", "expected exactly 1 passed test"
                 toolchain = Path(step["result_dir"] or "") / "toolchain.json"
                 if step["result_dir"] and toolchain.is_file():
                     try:

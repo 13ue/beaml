@@ -1,0 +1,15 @@
+.F...
+======================================================================
+FAIL: test_compiler_reference_with_zero_tests_fails (__main__.RunnerTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/tests/run_test.py", line 143, in test_compiler_reference_with_zero_tests_fails
+    self.assertEqual(cp.returncode, 1, cp.stdout + cp.stderr)
+AssertionError: 0 != 1 : {"run": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/tmp3e3_2e1f/results/20261106T082414237516Z", "status": "pass"}
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.596s
+
+FAILED (failures=1)
+exit 1

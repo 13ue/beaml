@@ -39,3 +39,7 @@
 
 disposition: pending
 disposition_rationale: null
+
+## Disposition (main agent, 2026-11-06)
+- **O1 (high): repaired.** compiler-reference passes only on exit 0 and exactly one `1 passed; 0 failed; 0 ignored` summary. Else `fail` with `reason: "expected exactly 1 passed test"`. RED test `test_compiler_reference_with_zero_tests_fails`. Evidence: notes.md "Repair: zero-test gate", runner dir `results/20261106T082425551626Z`.
+- **O2 (medium): recorded as a limit, not fixed.** The runner dir has no `output-hashes.json`. Step dirs are linked by absolute paths.

@@ -60,3 +60,32 @@
 - O3 missing program: yes.
 - Python 3.9 compatible: yes (local Python 3.9.6).
 - Evidence: [green-output.log](green-output.log), [green-result.json](green-result.json).
+
+## Repair: zero-test gate (2026-11-06)
+- Source: [review.md](review.md) O1 (high). The compiler-reference step passed on exit 0 also with "0 passed".
+
+**RED**
+- New test `test_compiler_reference_with_zero_tests_fails` in `tests/run_test.py`.
+- The stub prints a cargo summary from `STUB_REFERENCE_OUTPUT`. Default: `test result: ok. 1 passed; ...`. New case: `test result: ok. 0 passed; 0 failed; 0 ignored; ...`, exit 0.
+- New case expects run exit 1, step `fail`, `reason: "expected exactly 1 passed test"`. Later steps still run and pass.
+- All-pass test: stub output now has `1 passed`. Other assertions unchanged.
+- `python3 -B experiments/0003-source-linked-replay/tests/run_test.py`: 5 tests, 1 failure (only the new case: `0 != 1`, run status pass), exit 1. See [repair-red-output.log](repair-red-output.log).
+
+**Change (`run.py` only)**
+- `one_test_passed()`: stdout has exactly one `test result: ok. 1 passed; 0 failed; 0 ignored;` line and no other `test result:` line.
+- compiler-reference with exit 0 and no such line: `status: fail`, `reason: "expected exactly 1 passed test"`.
+
+**Commands (repo root, serial)**
+- `python3 -B experiments/0003-source-linked-replay/tests/run_test.py`: 5 tests, OK, exit 0.
+- `python3 experiments/0003-source-linked-replay/run.py`: exit 0, status pass. compiler-reference stdout: `test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out`.
+
+**Run dirs**
+- Runner: `results/20261106T082425551626Z`.
+- trace-lookup: `results/20261106T082426272765Z`.
+- trace-lookup-repair: `results/20261106T082445397560Z`.
+- response-capture: `results/20261106T082445640471Z`.
+- replay-run: `results/20261106T082505482413Z`.
+
+**SHA-256**
+- `run.py`: `1685fb844919abd68b025dcb294bb4a26bb6fddfdd118c1caf322db3d9023d52` (before: `231aa3a2991c83ce3137188d27823a1fa9ef79daa7360eac2912d24f6d6827ef`).
+- `tests/run_test.py`: `cb9e7eee8eb14bd0a154f931390b2eb5534dbed10fea7a90dcfdda605d2812c0` (before: `f477226bc24b3acdd6a4e5f6dc1f11fd73d8f00f07a8add04a3e9f312a874f57`).
