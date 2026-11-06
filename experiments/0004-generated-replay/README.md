@@ -361,7 +361,27 @@ The tests assert these tokens, not the full text: `Payment`, `status`, `state`, 
 | C7 | N, no RENAME ALIAS | `v1` with the `type` key removed from one record (slice 1 format) | compile error `stored RESPONSE RECORD has no TYPE VERSION`, names the `--stored` path and the line number | not run | not run |
 | C8 | slice 1 source | no `--stored` input | compile error `stored TYPE VERSIONS unknown` | not run | not run |
 | C9 | C6 build (empty snapshot, no RENAME ALIAS) | `v1` record replayed against it (stale snapshot) | exit 0 | `typed_reject`: `PaymentError{reason: "decode"}`, `finish/1` 0, no crash | not run |
-| C10 | slice 1 source | `v1` | exit 0 | slice 1 (a)–(d2) pass again; `payments.beaml` output byte-identical; 0003 record key subset passes | as slice 1 |
+| C10 | slice 1 source | `v1` for the build; empty file for the slice 1 tests (list below) | exit 0 | slice 1 (a)–(d2) pass again; `payments.beaml` output byte-identical; 0003 record key subset passes | as slice 1 |
+| C11 | C2 build | `v1` | exit 0 | hand-built old record, body `{"order_id":"order-1","status":"<status value>","fraud_score":"0.9"}`, `type` key of `v1`, digest recomputed: `correct_accept` with `state: <status value>`, not `"0.9"`; `unknown_keys == ["fraud_score"]` | not run |
+| C12 | C2 build | `v1` | exit 0 | hand-built old record with both names, `"state":"settled"` and `"status":"authorized"`: `correct_accept` with `state: "settled"` (the current name wins); `unknown_keys == ["status"]` | not run |
+| C13 | C2 build | `v1` | exit 0 | hand-built old record with neither `state` nor `status`, plus `"fraud_score":"0.9"`: `typed_reject`, `PaymentError{reason: "decode"}`, `finish/1` 0 | not run |
+| C14 | N2: `Payment` field `order_id` renamed `order_ref`, RENAME ALIAS `order_id` → `order_ref`, `status` unchanged | `v1` | exit 0 | `correct_accept`: `{:ok, %{order_ref: <stored order_id value>, status}}`, `finish/1` 1 | not run |
+| C15 | N2, no RENAME ALIAS | `v1` | compile error with the C1 tokens for `order_id` and `order_ref` | not run | not run |
+| C16 | `bad/unknown_pipe_step.beaml` | no `--stored` input | compile error that names `charge`, not `stored TYPE VERSIONS unknown` | not run | not run |
+
+**[Proposal]** The cases use the S1 alias syntax as a placeholder. The syntax is pending OWNER question O1.
+
+**[Inference]** C11 and C13 kill a decode that falls back to any unknown String key: `fraud_score` sorts before `status`, and C13 must not accept `fraud_score` as `state`. C12 kills a decode that prefers the old name. C14 and C15 kill a check or decode with the names `status` and `state` written into the compiler: the field names must come from the RECORD SNAPSHOT and the RENAME ALIAS.
+
+**[Proposal] Artifact check for old records.** An old record comes from another build, so its `artifact_id` (BEAM hash) differs from the replay build. The generated runner has no artifact check (slice 1 uses Q3 (ii)). For the cross-build cases C2, C3, C5, C9, C11–C14, the harness skips only the caller artifact check. It asserts that the record `artifact_id` differs from the build `artifact_id` and writes both to the result. The other caller checks stay. C10 and the 0003 8-case matrix keep the artifact check. Q3 and D002 decide artifact identity across builds later.
+
+**[Proposal] Order of the `--stored` check.** The compiler reports parse and TYPE errors first. It reports `stored TYPE VERSIONS unknown` only for a source without such errors (C16).
+
+**[Proposal] Slice 1 tests that change (C10).** Each one passes `--stored` with an empty snapshot file, so the slice 1 outcomes stay:
+
+- `0001-syntax-to-beam/tests/cli.rs`: `orders_cli_accepts_effect_pipe_place`, `orders_cli_emits_flow_effect_decode_and_replay`, `orders_cli_template_control_drift_r_decode_names_reference`, `orders_cli_template_control_drift_n_decode_follows_field_rename`.
+- `tests/arms_test.py` (the GEN `generate-orders` build) and `run.py` (the GEN `generate-orders` step, also used by the (f) DRIFT rows of `tests/drift_test.py`).
+- Unchanged: the five `bad/*` tests in `cli.rs` (parse and TYPE errors come first), all `payments_cli_*` tests, and the LIB `generate-orders` step (the LIB `orders.beaml` has no `effect`).
 
 **[Inference]** C5 has a gap. The build passes, but the old record no longer decodes. This follows from the rename-only scope of slice 2. It conflicts with the OWNER rule "a change of shape needs a migration function". See the open OWNER questions.
 
@@ -377,11 +397,11 @@ The tests assert these tokens, not the full text: `Payment`, `status`, `state`, 
 
 1. C1 fails at compile time with exit ≠ 0, no stdout, and all asserted tokens.
 2. C6 compiles. So the C1 error comes from the stored records.
-3. C2 and C3 give `correct_accept` for every old record, and C2 gives `correct_accept` live.
-4. C4, C7 and C8 fail at compile time. C5 compiles. C9 gives a typed reject.
+3. C2, C3, C11, C12 and C14 give `correct_accept` for every old record with the expected values, and C2 gives `correct_accept` live.
+4. C4, C7, C8, C15 and C16 fail at compile time with the expected message. C5 compiles. C9 and C13 give a typed reject.
 5. C10 passes. GEN gives no `wrong_accept` and no untyped crash in any case.
 
-**[Proposal] Reject.** Reject the claim for slice 2 if any of these occurs. Record the reject in the register.
+**[Proposal] Reject.** Any unmet pass clause rejects the claim for slice 2. The one exception is a failed C10: it gives no verdict (below). Record the reject in the register. Examples of a reject:
 
 - C1 compiles (exit 0) with old TYPE VERSIONS in the RECORD SNAPSHOT.
 - C6 also fails. Then the error comes from the source, not from the stored records.
@@ -414,6 +434,9 @@ The tests assert these tokens, not the full text: `Payment`, `status`, `state`, 
 | Decode reads the old name as a fallback, live and replay | Repair | Over a decode chosen by the record fingerprint: smaller, one decode for live and replay. Commits live traffic to accept the old name too |
 | Fingerprint = SHA-256 of the field list sorted by name | Undo | Local to generated code and the compiler |
 | C6 against C1 as the main control | Undo | Same source, different store; shows the error comes from records |
+| Harness skips only the caller artifact check for cross-build old records; asserts the `artifact_id` differs | Repair | Over re-recording `v1` per build: an old record must come from an old build. Commits slice 2 to no artifact identity across builds; Q3 and D002 decide later |
+| `--stored` check after parse and TYPE errors | Undo | Keeps the five slice 1 `bad/*` tests unchanged. One check order to change later |
+| With a RENAME ALIAS, the current name wins; an old name next to it is an unknown key (C12) | Undo | Local to the generated decode. Keeps one hint rule for every unread key |
 
 ### Open OWNER questions (slice 2)
 
