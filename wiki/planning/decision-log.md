@@ -321,6 +321,11 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: fix the test harness. Over: a new port-key rule in the compiler.
 → Because: the generated EFFECT reads `<namespace>_port`, and the harness sets only `payments_port`; a new port rule would be a language decision.
 
+**DL-069 · Repair · Harden `--remove-dead` after the slice 4 final review**
+→ Chose: (1) `--remove-dead` refuses to remove a step or retire line when the snapshot holds no record of that TYPE or operation, unless the flag `--assume-complete` is given; (2) resolve symlinks before the atomic rename and refuse a source that is not writable; (3) a unit test forces the recheck failure and asserts that nothing is written. Over: note the risks only.
+→ Because: an agent with an empty or partial snapshot could cut a chain that production still needs; the review saw a symlink replaced and a read-only file rewritten.
+→ Trigger: slice 4 final review (Devil's Advocate), PASS WITH NOTES.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
