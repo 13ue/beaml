@@ -52,9 +52,10 @@ Use CAPITALS when naming a glossary term. Use its qualified name when the scope 
 | REPLAY FIXTURE | A permitted recorded input or provider response used in a scoped reproduction test. | EXECUTION | Wiederholungsfixture |
 | RESPONSE RECORD | One stored line that holds the request, the status and the body bytes of one EFFECT call, for a later REPLAY RUN. | EXECUTION | Antwortdatensatz |
 | DRIFT | A change of a TYPE or a signature in BEAML source after records of the old form exist. | LANGUAGE/COMPILATION | Typabweichung |
-| TYPE VERSION | The name, field list and fingerprint of a TYPE as it was when a stored record was written. | LANGUAGE/COMPILATION | Typversion |
+| TYPE VERSION | The name, version number, field list and fingerprint of a TYPE as it was when a stored record was written. | LANGUAGE/COMPILATION | Typversion |
 | RECORD SNAPSHOT | A read-only copy of stored RESPONSE RECORDS that the compiler reads to learn the stored TYPE VERSIONS. | LANGUAGE/COMPILATION | Datensatzabzug |
-| RENAME ALIAS | A source declaration that a field of the current TYPE has the old name of a field of a stored TYPE VERSION. | LANGUAGE/COMPILATION | Umbenennungsalias |
+| RENAME ALIAS | A `rename old -> new` step of a MIGRATE CHAIN: a field of the newer TYPE VERSION has the old name in the older TYPE VERSION. | LANGUAGE/COMPILATION | Umbenennungsalias |
+| MIGRATE CHAIN | The `migrate` steps of one TYPE in the source. The `interface` is the newest TYPE VERSION; the compiler derives each older TYPE VERSION backwards from the steps. | LANGUAGE/COMPILATION | Migrationskette |
 | EFFECT | An operation category tracked by language rules to constrain behavior beyond pure computation. | LANGUAGE/COMPILATION | Wirkung |
 | SECURITY LABEL | A restriction attached to data or control flow and interpreted by a versioned security policy. | LANGUAGE/COMPILATION | Sicherheitskennzeichnung |
 | CAPABILITY | Explicit authority to perform a named operation under a stated contract. | LANGUAGE/COMPILATION | Berechtigungsnachweis |

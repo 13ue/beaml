@@ -390,3 +390,96 @@ Sum of manual change sites: GEN 0, LIB 0. Replay lines: GEN router 0; LIB 59 + 1
 - **[Verified]** Second DRIFT run: the LIB flow probe called the transport outside a span; `ReplayLib.record` then raised `FunctionClauseError` on `:undefined` span context, so LIB R/N showed `untyped_crash` while the live router failed in host validation. The probe now wraps the transport in `orders.payment_http` as the router does. Retained, not counted.
 - **[Verified]** One `run.py` all-steps run was stopped by me after this finding: `results/20261106T124408155023Z` and `results/20261106T124410526023Z` are partial, not counted.
 - **[Verified]** The LIB worker wrote no file outside `arms/lib/` and `results/`.
+
+## Slice 2 RED
+
+**Scope.** README revision 6, tests and fixtures only. No compiler, router, app, LIB or `run.py` change. No commit. Input: OWNER answers O1–O4 of 2026-11-06 (main agent), README slice 2 (commits `c376880`, `419cfd7`).
+
+### README revision 6 changes (Slice 2 section only)
+
+- MIGRATE CHAIN replaces the RENAME ALIAS options S1, S2, S3: `migrate Payment 1 -> 2 { rename status -> state }`. The `interface` is the newest version. Old versions are derived backwards.
+- RESPONSE RECORD key `type` gets `version`. Fingerprint = lower-case hex SHA-256 of the compact JSON of `fields`, sorted by field name; TYPE name not included.
+- Path check: the build fails only when a stored TYPE VERSION has no path to the newest version. The `help` line is `migrate <TYPE> <stored> -> <next> { rename <old> -> <new> }`.
+- C5 (DRIFT R, no chain) is now a compile error. `add`, `drop` and changed field TYPES are out of scope. C7 uses the slice 1 source, so that the missing `type` key is the only fault.
+- C2 new call runs `place/1` in an eval VM, not through the router (host `valid_payment!/2` checks `status`).
+- O1–O4 answered in the OWNER questions list; O5 open.
+- Gap recorded: three GEN 0003 copies call the compiler without `--stored` (see below).
+- GLOSSARY: TYPE VERSION gets the version number; RENAME ALIAS is a `rename` step; new term MIGRATE CHAIN.
+
+### Fixtures
+
+- `stored/v1.jsonl`: the slice 1 L0 RESPONSE RECORD (`results/20261106T125806715083Z`) plus `type` of `Payment 1 { order_id status }`. Its `artifact_id` comes from the slice 1 build.
+- `stored/v1-v2.jsonl`: the `v1` record and a hand-built `Payment 2 { order_id state }` record (body `state: "settled"`, `artifact_id` = SHA-256 of a fixed text, no build).
+- `stored/empty.jsonl`: empty file.
+- `slice2/{N-chain,N-statuz,N2,N2-chain}/orders.beaml`. The file stem stays `orders` (G2 service name). A guard test checks that the template with the fixture names gives these sources.
+
+### Runs (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline --manifest-path experiments/0001-syntax-to-beam/Cargo.toml` | 101 | unit 9/9; `cli` 9 passed, 5 failed |
+| `python3 -B experiments/0004-generated-replay/tests/stored_types_test.py` | 1 | 22 failed, 1 passed (guard) |
+| `python3 -B experiments/0004-generated-replay/tests/slice2_replay_test.py` | 1 | 8 failed, 1 passed (guard); `results/20261106T150916971663Z` |
+| `python3 -B experiments/0004-generated-replay/tests/arms_test.py` | 1 | 9 failed, 7 passed; `results/20261106T151045829318Z` |
+| `python3 -B experiments/0004-generated-replay/tests/overlay_diff_test.py` | 0 | 3/3 |
+| `python3 -B experiments/0004-generated-replay/tests/drift_test.py` | 0 | 3/3; `results/20261106T151333319036Z` |
+| `python3 -B experiments/0003-source-linked-replay/run.py` | 0 | `pass`, `0003/results/20261106T151828796490Z` |
+
+### New and changed tests, fail reason
+
+| Test | Case | Status | Reason |
+| --- | --- | --- | --- |
+| `cli.rs` `orders_cli_effect_source_without_stored_is_rejected` | C8 | fail | Exit 0: no `stored TYPE VERSIONS unknown` check |
+| `cli.rs` `orders_cli_parse_and_type_errors_come_before_stored_check` | C16 | pass | Guard: the pipe check already names `charge` |
+| `cli.rs` `orders_cli_accepts_effect_pipe_place`, `..._emits_flow_effect_decode_and_replay`, both template controls | C10 | fail | `usage:`: the CLI takes no `--stored` input. Expected, they now pass the empty snapshot |
+| `stored_types_test.py` C1, C4, C5, C15 (Fixture, Template) | C1, C4, C5, C15 | fail | Exit 1 with `usage:`; no TYPE, field, path or `help` token |
+| `stored_types_test.py` C7 | C7 | fail | `usage:`; no `stored RESPONSE RECORD has no TYPE VERSION` |
+| `stored_types_test.py` C8 | C8 | fail | Exit 0 without `--stored` |
+| `stored_types_test.py` C2, C3, C6, C10, C14 | build cases | fail | Exit 1 `usage:` instead of exit 0 |
+| `stored_types_test.py` `test_fixtures_match_the_template_rule` | — | pass | Guard: fixture fingerprints and sources follow the template rule |
+| `slice2_replay_test.py` C2 (old record, new call), C3, C11, C12, C13, C14, C9 | replay cases | fail | Build stops at `<tree>-generate-orders: compiler exit 1: usage:` |
+| `slice2_replay_test.py` `test_control_originals_unchanged_by_slice_2_runs` | — | pass | Guard |
+| `arms_test.py` (b), (d2) L0–L3, P1, R1–R3 | C10 | fail | `gen-generate-orders: compiler exit 1: usage:`. Expected, the GEN build now passes `--stored stored/empty.jsonl` |
+
+**[Verified] Own reason, scratch self-checks (not in the repository).**
+- `stored_types_test.py` with `BEAML_SPIKE` = the slice 1 compiler that drops `--stored`: C6 and C10 pass (Fixture and Template). C1, C5, C15, C7, C8 fail on exit 0. C2, C3, C14 fail on `unsupported token` (`migrate`). C4 fails on missing tokens. So each case fails on missing compiler behaviour, not on the harness.
+- `slice2_replay_test.py` with a compiler call that drops `--stored` (`results/20261106T150934590159Z`, not counted): C9 passes end to end (typed decode error, `finish/1` 0, `artifact_id` differs). The chain cases fail on `unsupported token`.
+- Accept path on the slice 1 source with the same drop (`results/20261106T151006992836Z`, not counted): `replay_plain` gives `{ok: {order_id, status}}`, `:json.decode/1` 1, `finish/1` 1, hint `[["fraud_score"]]`; the `place` new call writes one record (no `type` key yet). `cross_build` was false there, because the slice 1 source rebuilds the exact slice 1 BEAM. The slice 2 case sources differ, so their builds differ.
+
+**[Verified] Old tests.** Only the C10 tests above fail, and only because they pass `--stored` (expected). Unchanged and passing: unit 9/9, five `bad/*` tests, both `payments_cli_*` tests, `invalid_source_...`, arms (c), (d), (e) and the control guard, overlay diff 3/3, drift 3/3. 0003 `run.py` exits 0: its `compiler-reference` step runs only `payments_cli_emits_checked_authorize_reference`, and its tests compile the 0002 `orders.beaml` (no `effect`).
+
+**[Verified] Gap for GREEN.** drift_test and the arms tests (c), (d) pass today only because the current compiler ignores the missing `--stored`. After GREEN (O2) they fail: `run.py` (GEN `generate-orders`) and three GEN 0003 copies (`replay_run_test.py:140`, `response_capture_test.py:91`, `trace_lookup_test.py:50`) compile the GEN `orders.beaml` without `--stored`. The copies are part of the slice 1 change table and the overlay diff test, so GREEN must change the table too.
+
+### SHA-256 of changed files
+
+| File | SHA-256 |
+| --- | --- |
+| `experiments/0001-syntax-to-beam/tests/cli.rs` | `2354c81a1bd0b29f04dcda855870c3d8c3e45fcde5e0e27e38d7e04eb28b8d8b` |
+| `experiments/0004-generated-replay/tests/arms_test.py` | `0298a9d9be2a050bf016434a4fe2f64acc46b6bd88026aae0547faf898b9bdf2` |
+| `experiments/0004-generated-replay/tests/stored_types_test.py` | `627b67fc9cd70d216144e4fed3099fbee31239fede8318287f9580ce061ed538` |
+| `experiments/0004-generated-replay/tests/slice2_replay_test.py` | `a77f32ed853765ade5351aafdb811051da7d44c45534b4a68b638d535c809dad` |
+| `experiments/0004-generated-replay/stored/v1.jsonl` | `e438abc24d23ef3ea62f5d748f2168151f3252a2700ccd4f1448255c40e574a4` |
+| `experiments/0004-generated-replay/stored/v1-v2.jsonl` | `14dac3d471df969ffc43ab42cc26a72e14ace06080843164bac43da044da4585` |
+| `experiments/0004-generated-replay/stored/empty.jsonl` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `experiments/0004-generated-replay/slice2/N-chain/orders.beaml` | `b93307fff885ee1192c8715e73e07c950b246e1952655524e5b92c95f34e4c3a` |
+| `experiments/0004-generated-replay/slice2/N-statuz/orders.beaml` | `e1ea15fc8e23e6c52c3fd24cad7f5a537d5b4658588b0849be2ccef4259a2bee` |
+| `experiments/0004-generated-replay/slice2/N2/orders.beaml` | `d4c6ca512447bd3d2c11bb340f84a2bbad89efb8f7ed6b98b585f05eddac7819` |
+| `experiments/0004-generated-replay/slice2/N2-chain/orders.beaml` | `841a3a488f924543686dae4ad7b820fef3ce997471becca81cb2adff0168ac79` |
+
+### Decisions (Decision4, slice 2 RED)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| S1 | Fingerprint text: compact JSON of the sorted `[name, TYPE]` list, TYPE name not included | Undo | No record with `type` exists yet; one constant in tests and compiler |
+| S2 | CLI form `SOURCE --stored PATH` | Undo | One form in all tests |
+| S3 | `migrate` line directly after its `interface` | Undo | Fixture position only; the grammar may accept others |
+| S4 | O3 reading: with backwards derivation the old field is always in the derived version; C4 is caught by the path check and must name `statuz` and `status` | Repair | Chose this over "old field in no stored version" (plan text), because that reading rejects every chain with an empty snapshot. Over: a separate O3 error text. Because: answer 2 says the build fails only for a missing path. Commits C4 to the path check message |
+| S5 | C2 new call through the eval `place/1` against the stub, not the router | Repair | Chose eval over the slice 1 DRIFT N domain repair of `valid_payment!/2`. Because: the host check is not the TYPE claim. Commits C2 to an eval VM run that writes the record |
+| S6 | Template run of every compile case with random TYPE and field names | Repair | Chose a template over more fixtures. Because: a compiler with fixture names in it cannot pass. Commits the compiler to `__beaml_decode_<lower TYPE>` for any TYPE name |
+| S7 | Harness mode `replay_plain` (no `valid_payment!/2`) and report key `artifact` in `arms_test.py` | Repair | Chose a harness mode over a host repair. Because: `valid_payment!/2` knows only `status`. Commits the shared HARNESS to two more lines |
+| S8 | C3 replays both records on the C2 build (v1 snapshot); the C3 build with `v1-v2` is checked at compile level only | Undo | Saves one release build; the generated code must not depend on the snapshot |
+| S9 | C7 source = slice 1 source, untyped record at line 2 | Undo | Isolates the missing `type` key from the path check |
+| S10 | Hand-built `v1` and `v2` fixtures before GREEN | Repair | Chose hand-built over the planned `run.py` capture, because the compiler writes no `type` key yet. Commits GREEN to compare a real `v1` capture with this fixture |
+| S11 | `:json.decode/1` count 1 in replay cases | Undo | Same as slice 1 R1; the fallback must not decode twice |
+
+**[Unknown]** No Migrate question came up. The GEN 0003 copy gap needs a change to the slice 1 change table; the main agent decides who writes it.

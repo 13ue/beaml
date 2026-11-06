@@ -51,6 +51,11 @@ STAMP = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"
 RESULTS = EXPERIMENT / "results" / STAMP
 CONTROL_BEFORE = arm_tree.control_hashes()
 MIX = ["env", "MIX_ENV=prod", "mix"]
+# Slice 2 (README revision 6, C10): an Orders source with an `effect` needs a RECORD SNAPSHOT (`--stored`).
+# Tree name -> (arm, Orders BEAML source or None for the arm default, RECORD SNAPSHOT or None).
+# LIB has no `effect` and gets no snapshot. tests/slice2_replay_test.py adds its case trees here.
+EMPTY_SNAPSHOT = EXPERIMENT / "stored" / "empty.jsonl"
+VARIANTS = {"gen": ("gen", None, EMPTY_SNAPSHOT), "lib": ("lib", None, None)}
 
 WATCHED = {
     "gen": ["{OrdersApi.Router, :call, 2}", "{OrdersBeamlSpike, :payments_authorize, 1}", "{:gen_tcp, :connect, 4}",
@@ -88,6 +93,8 @@ result =
           {:ok, p} -> {:ok, ProbeSupport.valid_payment!(p, order)}
           other -> other
         end
+      # Slice 2: the decoded value as it is. The host check `valid_payment!/2` knows only `status`.
+      "replay_plain" -> %(replay)s
     end
   rescue
     error -> {:raised, inspect(error.__struct__)}
@@ -104,7 +111,8 @@ calls = Map.new(watched, fn {m, f, a} = mfa ->
   count = case :erlang.trace_info(mfa, :call_count) do {:call_count, n} when is_integer(n) -> n; _ -> nil end
   {"#{inspect(m)}.#{f}/#{a}", count} end)
 IO.puts("REPLAY " <> IO.iodata_to_binary(:json.encode(%%{
-  result: report, transport: ProbeSupport.count(), calls: calls, unwatched: unwatched})))
+  result: report, transport: ProbeSupport.count(), calls: calls, unwatched: unwatched,
+  artifact: ProbeSupport.beam_hash(OrdersBeamlSpike)})))
 '''
 
 
@@ -147,7 +155,8 @@ def tree(arm):
         holder = tempfile.TemporaryDirectory(prefix="beaml-0004-%s-" % arm)
         atexit.register(holder.cleanup)
         root = Path(holder.name)
-        applied = arm_tree.build(arm, root)
+        base, source, _ = VARIANTS[arm]
+        applied = arm_tree.build(base, root, orders_beaml=source)
         save(RESULTS / arm / "tree-applied.json", applied)
         _TREES[arm] = root
     return _TREES[arm]
@@ -166,9 +175,11 @@ def build(arm):
         assert code == 0, ("deps.get", code)
         for service in ("orders", "payments"):
             name = "%s-generate-%s" % (arm, service)
+            stored = VARIANTS[arm][2]
+            extra = ["--stored", stored] if service == "orders" and stored is not None else []
             code, generated = command(name, ["cargo", "run", "--offline", "--quiet", "--manifest-path",
                                              root / COMPILER_PATH / "Cargo.toml", "--",
-                                             http / ("apps/%s_api/priv/%s.beaml" % (service, service))], root)
+                                             http / ("apps/%s_api/priv/%s.beaml" % (service, service))] + extra, root)
             assert code == 0, "%s: compiler exit %d: %s" % (name, code, stderr_head(name))
             assert generated.count("defmodule BeamlSpike do") == 1, name
             target = http / ("apps/%s_api/lib/generated.ex" % service)
@@ -255,7 +266,8 @@ def harness(arm, name, replay_input, payments_port=None):
     out = RESULTS / arm / "eval" / name
     out.mkdir(parents=True)
     save(out / "input.json", dict(order=ORDER, **replay_input))
-    script = HARNESS % {"watched": ", ".join(WATCHED[arm]), "replay": REPLAY_CALL[arm], "place": PLACE_CALL[arm]}
+    base = VARIANTS[arm][0]
+    script = HARNESS % {"watched": ", ".join(WATCHED[base]), "replay": REPLAY_CALL[base], "place": PLACE_CALL[base]}
     env = dict(orders_env(out, payments_port or refused_port()), REPLAY_INPUT=str(out / "input.json"))
     code, text = command("%s-eval-%s" % (arm, name), [built["bin"], "eval", script], REPO, env=env, timeout=120)
     lines = [line[7:] for line in text.splitlines() if line.startswith("REPLAY ")]

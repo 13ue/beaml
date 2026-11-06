@@ -1,0 +1,16 @@
+{
+  "status": 200,
+  "version": 1,
+  "request": {
+    "order_id": "order-1"
+  },
+  "operation": "payments.authorize",
+  "trace_id": "356715104457e0d90863086d3297b8a7",
+  "body_length": 44,
+  "unknown_keys": [],
+  "artifact_id": "d89b3d8cf9659a02bb9df915e70375d3748ae5fd754c726e0919bc64437ca0bc",
+  "attempt": 1,
+  "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0dXMiOiJhdXRob3JpemVkIn0=",
+  "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba",
+  "client_span_id": "6e5a60893d416073"
+}

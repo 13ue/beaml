@@ -159,6 +159,34 @@ fn head_arity(stdout: &str, head: &str) -> Option<usize> {
     Some(if empty { 0 } else { count })
 }
 
+/// EXPERIMENT 0004 slice 2, case C10: a source with an `effect` needs a RECORD SNAPSHOT.
+/// The slice 1 tests pass the empty snapshot, so their slice 1 outcomes stay.
+fn empty_snapshot() -> PathBuf {
+    slice_one("stored/empty.jsonl")
+}
+
+fn compile_stored(path: &Path, stored: &Path) -> std::process::Output {
+    Command::new(env!("CARGO_BIN_EXE_beaml-spike"))
+        .arg(path)
+        .arg("--stored")
+        .arg(stored)
+        .current_dir(repository())
+        .output()
+        .unwrap()
+}
+
+fn assert_compiles_stored(path: &Path) -> String {
+    let result = compile_stored(path, &empty_snapshot());
+    assert!(
+        result.status.success(),
+        "expected exit 0 for {} with --stored {}; stderr: {}",
+        path.display(),
+        empty_snapshot().display(),
+        String::from_utf8_lossy(&result.stderr)
+    );
+    String::from_utf8(result.stdout).unwrap()
+}
+
 fn assert_compiles(path: &Path) -> String {
     let result = compile_file(path);
     assert!(
@@ -190,7 +218,7 @@ fn assert_rejected(fixture: &str, names: &[&str]) {
 
 #[test]
 fn orders_cli_accepts_effect_pipe_place() {
-    let stdout = assert_compiles(&slice_one("arms/gen/orders.beaml"));
+    let stdout = assert_compiles_stored(&slice_one("arms/gen/orders.beaml"));
     assert!(stdout.contains("  def place("), "expected def place(");
 }
 
@@ -229,7 +257,7 @@ fn orders_cli_rejects_unsupported_effect_kind() {
 fn orders_cli_emits_flow_effect_decode_and_replay() {
     let fixture = slice_one("arms/gen/orders.beaml");
     let source = fs::read_to_string(&fixture).unwrap();
-    let stdout = assert_compiles(&fixture);
+    let stdout = assert_compiles_stored(&fixture);
     let mut missing = Vec::new();
     // One module: 0002 run.py and the 0003 tests rename exactly one `defmodule BeamlSpike do`.
     if stdout.matches("defmodule BeamlSpike do").count() != 1 {
@@ -365,8 +393,8 @@ fn orders_cli_template_control_drift_r_decode_names_reference() {
     // A template emitter does not see the new Payment field. A derived decode does.
     // The names are checked inside the decode only: `finish/1` and `__beaml_valid__`
     // name every field anyway (review objection 1).
-    let base = assert_compiles(&slice_one("arms/gen/orders.beaml"));
-    let drift = assert_compiles(&slice_one("drift/R/orders.beaml"));
+    let base = assert_compiles_stored(&slice_one("arms/gen/orders.beaml"));
+    let drift = assert_compiles_stored(&slice_one("drift/R/orders.beaml"));
     assert!(
         !mentions(&base, "reference"),
         "base output must not name reference"
@@ -378,8 +406,8 @@ fn orders_cli_template_control_drift_r_decode_names_reference() {
 #[test]
 fn orders_cli_template_control_drift_n_decode_follows_field_rename() {
     // DRIFT-N renames the Payment field `status` to `state`. The decode must follow the TYPE.
-    let base = assert_compiles(&slice_one("arms/gen/orders.beaml"));
-    let drift = assert_compiles(&slice_one("drift/N/orders.beaml"));
+    let base = assert_compiles_stored(&slice_one("arms/gen/orders.beaml"));
+    let drift = assert_compiles_stored(&slice_one("drift/N/orders.beaml"));
     assert_decode_names("base", &base, &["order_id", "status"], &["state"]);
     assert_decode_names("DRIFT-N", &drift, &["order_id", "state"], &["status"]);
 }
@@ -391,4 +419,36 @@ fn payments_cli_output_stays_byte_identical() {
         .join("experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml");
     let expected = fs::read_to_string(slice_one("tests/payments.generated.snapshot")).unwrap();
     assert_eq!(assert_compiles(&fixture), expected);
+}
+
+// EXPERIMENT 0004 slice 2 (README revision 6). The snapshot-dependent cases are in
+// experiments/0004-generated-replay/tests/stored_types_test.py.
+
+#[test]
+fn orders_cli_effect_source_without_stored_is_rejected() {
+    // C8: an unknown store is not an empty store (OWNER answer O2).
+    let result = compile_file(&slice_one("arms/gen/orders.beaml"));
+    let stderr = String::from_utf8_lossy(&result.stderr).to_string();
+    assert!(!result.status.success(), "C8: expected exit != 0");
+    assert!(result.stdout.is_empty(), "C8: expected no stdout");
+    assert!(
+        stderr.contains("stored TYPE VERSIONS unknown"),
+        "C8: message must say stored TYPE VERSIONS unknown; actual: {stderr}"
+    );
+}
+
+#[test]
+fn orders_cli_parse_and_type_errors_come_before_stored_check() {
+    // C16: guard. The pipe check names `charge`; the missing `--stored` input is not reported.
+    let result = compile_file(&slice_one("bad/unknown_pipe_step.beaml"));
+    let stderr = String::from_utf8_lossy(&result.stderr).to_string();
+    assert!(!result.status.success(), "C16: expected exit != 0");
+    assert!(
+        stderr.contains("charge"),
+        "C16: message must name charge: {stderr}"
+    );
+    assert!(
+        !stderr.contains("stored TYPE VERSIONS unknown"),
+        "C16: the stored check must come after the pipe check: {stderr}"
+    );
 }
