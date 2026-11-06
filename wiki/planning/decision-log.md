@@ -333,6 +333,10 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: one visible source of truth in the code, reproducible and reviewable. Prior art (Protobuf, Confluent, Lamdera, Django, Flyway, Kubernetes) never resets a counter; see `raw/research/type-versioning-prior-art-2026-11-06.md`.
 → Open detail: when the `vN` mark is required, and whether `migrate` lines use `v1 -> v2`.
 
+**DL-071 · Migrate · The `vN` mark appears only after a squash**
+→ Chose: while the MIGRATE CHAIN is complete, the newest version follows from the chain and the type line has no mark. `--remove-dead` writes `vN` onto the type line when it removes steps. If both a mark and a chain exist, they must agree. Over: the mark required from version 2 on.
+→ Because: OWNER choice; less to write while the history is in the source.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
