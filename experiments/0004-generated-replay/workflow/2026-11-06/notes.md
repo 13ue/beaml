@@ -886,3 +886,93 @@ Base: HEAD `9474e4b` (RED). Change in `0001/src/main.rs` only, in the decode wit
 | --- | --- | --- | --- |
 | GR-1 | Version field table as `{:ok, list}` and a `case` match | Undo | Over new `is_list` and `!=` imports: the Kernel import line stays, so the payments output stays byte-identical |
 | GR-2 | `drop` no longer checks the value itself | Undo | The TYPE VERSION check already typed the field; a second check is dead code |
+
+## Slice 4 plan repair and RED
+
+STATE README: revision 8.1 (slice 4 section, front matter and one plan history line only). Base: HEAD `a374658`.
+
+### Plan changes (README revision 8.1)
+
+| # | Fault (fresh check) | Change | Class |
+| --- | --- | --- | --- |
+| 1 | HIGH: no case kills "every record is Retired when `retired/0` is not empty" | New E3b: G+r build, REPLAY RUN of a `payments.charge` record of `Payment 1` gives `correct_accept`; pass clause 3 | Undo |
+| 2 | HIGH: W2 cases cannot tell the oldest version from the first or the newest record | New E11c (`[v3, v1]`, no W2), E11d (`[v3, v2]`, one W2 for `1 -> 2`), E12c (v4 only, two W2); pass clause 5 | Undo |
+| 3 | HIGH: no case kills "W1 only when the snapshot is empty" | New E9c: G+r with only `payments.charge` records gives exactly one W1; pass clause 5 | Undo |
+| 4 | MEDIUM: byte preservation only claimed | Q4 layout: `//` comments directly above and below the dead steps, a blank line, a multi-line `2 -> 3` block, no final newline. New Q4-crlf / Q4s-crlf (E15d), Q4-oneline (E19b), E15c (W1 and W2 in one removal, `removed 3 DEAD LINES`). Example diff rewritten (two hunks) | Undo |
+| 5 | MEDIUM: E17b and E10c outside the pass rule; R1 count untested | E17b in clause 3, E10c in clause 2. New E1d (two records, count `2`, one message); E1 asserts count `1` and the DL-040 first line | Undo |
+| 6 | MEDIUM: E10c gap not stated in the claim | Claim limited to "when the build gets a RECORD SNAPSHOT". New harness check H1: every GEN tree has a snapshot; every Orders build of the run passed `--stored` | Repair |
+| 7 | Found in RED (observed): T5 `-1` and `1.5` stop in the lexer with `unsupported token at byte N`, without `keep`; T6 stops in the lexer with `number too large` | T5 row asserts `unsupported token` for `-1` and `1.5` | Undo |
+| 8 | Found in RED: removal diff and count undefined for CRLF and multi-line blocks | Diff = `difflib` over `splitlines(keepends=True)`, stdout read as bytes; removed lines keep CRLF; `<count>` counts declarations; event field `removed: <count>`; usage text names `--remove-dead`; atomic write proxy (new inode, no other new file; unchanged inode and mtime when nothing is written) | Repair |
+| 9 | Found in RED: the `warnings: <count>` event was stated only for warnings | Every successful build records `warnings: <count>`, also `0` | Undo |
+
+### RED tests
+
+| File | Cases | RED result |
+| --- | --- | --- |
+| `tests/slice4_retire_test.py` | E1, E1b, E1c, E1d, E2 (build), E5, E5b, E5c, E5d, E6, E6b, E8 (T2–T7, 10 subtests), E9, E9b, E9c, E10b, E10c, E11, E11b, E11c, E11d, E12, E12b, E12c, E13, E14, E15, E15c, E15d, E16, E17 (+ control), E18, E19, E19b, E19c (2 subtests); fixture guard. Fixture and Template classes | 73 run, 84 failures (incl. subtests), 0 Python errors. Pass: E10c (control, slice 2 rule), fixture guard, E8 T5b, T5c, T6 (lexer, see change 7) |
+| `tests/slice4_replay_test.py` | E2 and E7 `retired/0`, E3, E3b, E4, E7, E10 (Retired, `operation_mismatch`, `missing_response`), E15b, E17b, strict build of G+r; H1; control hashes. Fixture and random names | 27 run, 24 failures, 0 Python errors. Pass: H1 (2), control hashes. `results/20261106T192123564347Z` |
+
+Fail reasons (current compiler):
+
+- `retire` is not parsed: `expected interface, enum, or fn at byte N` (every G+r, G+r0, B+r, P+r, Q4g+r source; T2–T5a, T7; every replay tree with a RETIRE LINE).
+- No chain start above 1: `must count 1 -> 2 -> 3 without gaps` (Q4s: E17, E17 control, E15b and E17b trees).
+- No `--remove-dead`: the slice 2 usage error (E15–E16, E18, E19–E19c).
+- R1 has no count and no `help` line (E1, E1b, E1d); no warnings (E9, E11b–E12c, E14); no `warnings` field in the action event (E1c, E11, E11c, E13: the build passes, the event check fails).
+- E10b: the parse error comes before `stored TYPE VERSIONS unknown`.
+
+Fake checks (scratch only, not in the repository):
+
+- A Python fake of the README 8.1 rules around the real compiler (`BEAML_SPIKE`) passes all 73 retire tests, fixture and random names: the test logic (line numbers, warning blocks, difflib diff, CRLF bytes, inode and mtime checks, events) runs without Python errors.
+- HIGH 3, mutant "W1 only with an empty snapshot": fails E9c and E15c (fixture and random). HIGH 2, mutants "W2 from the newest stored version" and "W2 from the first record": both fail E11c and E11d. Observed, scratch runs.
+- HIGH 1 (inferred, not run): a `run/3` that returns `Retired` for every record when `retired/0` is not empty gives `{"retired": ...}` for the `payments.charge` record of E3b, where the table expects `{"ok": {order_id, status}}` with decode 1 and `finish/1` 1. E3 alone cannot see it.
+- Observed with the current compiler: the Q4 tree builds, and its v3 REPLAY RUN gives the E15b table value `{order_id, state, reference: "pre-v4"}` with fixture and random constants.
+
+### SHA-256 (new files; changed: README only)
+
+| File | SHA-256 |
+| --- | --- |
+| `tests/slice4_retire_test.py` | `e27351ae70348ee3fa066cfa98c18688a0f52c8432a7ec2204f8d2e033c4a994` |
+| `tests/slice4_replay_test.py` | `03e12a7294581e699b95679602e8577df5d4d3391d48aa4422a5855399b2428b` |
+| `slice4/B/orders.beaml` | `ec3e93e9feafd1d56e90986a2f7193f69e051583e7d40954c247bb44f5e8c1a5` |
+| `slice4/B+r/orders.beaml` | `df77d701f2f84fbba6b3c8faa62644705540276f47812ce39f2c5c9137534fbc` |
+| `slice4/G/orders.beaml` | `a0bcb398b54b6488ed34127a783f0e03f04770c8fd1a1ebc81dc7445f46fb24e` |
+| `slice4/G+r/orders.beaml` | `7e28fb52fc5f4e38e660dcd6ee697108822f9c3ff5e18953c59aa06a8052bbf5` |
+| `slice4/G+r0/orders.beaml` | `4cc3dee532129148cb782323b0de4029572e5d37d5bc3401756b7fcaebb7b784` |
+| `slice4/P/orders.beaml` | `6ce7d0a045dd34008cd92189a2058217c273bd8465667e8944aed9a9ba09e500` |
+| `slice4/P+r/orders.beaml` | `aad03164cd74148140732b5fddd7f81880e9144ab066220d93f0a55e11425b22` |
+| `slice4/C2/orders.beaml` | `ed06fa1eec1067e4190c071fc6d647914f336fa1534ca128fb74a757afb0da90` |
+| `slice4/Q4/orders.beaml` | `355f40cbaece42c91ea0d6b959b8b40fb2ec6bf6d30a073d80d0d298ea48083a` |
+| `slice4/Q4s/orders.beaml` | `d977f50ee906177dc59c7c7d8f981da2e95a46c8c7180671db5e3627cf33cf1a` |
+| `slice4/Q4-crlf/orders.beaml` | `ac3faa19335cf1171cb9a2744690edeabc09a7867554e0397c7fa83f8dee26d5` |
+| `slice4/Q4s-crlf/orders.beaml` | `6774cf9e878daf1727a4b89530325c273befd46aae835d9a110096f2565c1461` |
+| `slice4/Q4g+r/orders.beaml` | `7e8f0aee4248fb561b4fedc225de474e95c59cd38e17d4e2600180fed1202cf2` |
+| `slice4/Q4-oneline/orders.beaml` | `096d8ec813eb1481244d3cdb21a12b04c952f8ebf1f705b1132f9f07cf97d655` |
+| slice 1 to slice 3 test files, `stored/`, `0001/src/main.rs`, `run.py` | unchanged |
+
+### Verification (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline` (0001) | 0 | 9 + 14 passed |
+| `tests/slice4_retire_test.py` | 1 | RED as above |
+| `tests/slice4_replay_test.py` | 1 | RED as above; `results/20261106T192123564347Z` |
+| `tests/stored_types_test.py` | 0 | OK |
+| `tests/slice3_types_test.py` | 0 | OK |
+| `tests/slice2_replay_test.py` | 0 | 21/21; `results/20261106T192248312628Z` |
+| `tests/slice3_replay_test.py` | 0 | 31/31; `results/20261106T192522219400Z` |
+
+Risk (inferred, not run): the P+r tree builds a release whose router calls `OrdersBeamlSpike.place/1`, which P+r does not define. `mix release` warns but should build; strict compile is asserted for G+r only.
+
+### Decisions (Decision4, slice 4 plan repair and RED)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| S4-1 | New cases E1d, E3b, E9c, E11c, E11d, E12c, E15c, E15d, E17 control, H1; E10c and E17b in the pass rule | Undo | Test cases only; each kills one named shortcut |
+| S4-2 | Q4 layout (comments, blank line, multi-line block, no final newline), CRLF and one-line variants | Undo | Fixtures only |
+| S4-3 | Claim holds only with a RECORD SNAPSHOT; H1 harness check | Repair | Chose to narrow the claim. Over `--stored` for every source: `payments.beaml` must stay byte-identical. Commits the deploy check (DL-031) to close the gap |
+| S4-4 | Removal diff over `splitlines(keepends=True)`, stdout as bytes, CRLF kept; `<count>` counts declarations; event `removed`; usage names `--remove-dead`; atomic-write proxy by inode and mtime | Repair | Chose the Python reference form. Over an LF-normalised diff: the file keeps CRLF. Commits GREEN to write original line ends to stdout |
+| S4-5 | T5 `-1` / `1.5` assert the lexer text `unsupported token` | Undo | Observed lexer order; no lexer change |
+| S4-6 | Every successful build records `warnings: <count>`, also `0` | Undo | One event shape; local to `action` |
+| S4-7 | `retired/0` value checked in the eval VM (replay file), not in stdout text | Undo | The emitter writes strings as byte lists; text match is brittle |
+| S4-8 | `Retired` read from its `inspect` text, fields in any order | Undo | Struct field order of `inspect` is not part of the contract |
+| S4-9 | The replay test adds the EFFECT functions of the slice 4 operations to `arms.WATCHED` in its own process | Undo | `arms_test.py` stays unchanged |

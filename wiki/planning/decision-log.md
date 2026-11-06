@@ -294,6 +294,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: U1. No literals inside an `enum`; the mapping from a String to a variant is written as function clauses. The compiler checks that the last clause over an open TYPE keeps the original value. Over: U2.
 → Because: OWNER rejected the `from String` form and literals in an `enum`; `<String>` would read as a generic argument once generics arrive.
 
+**DL-063 · Repair · Slice 4 claim needs a RECORD SNAPSHOT**
+→ Chose: the slice 4 claim holds only with `--stored`; harness check H1 tests that every GEN build passes it. Over: require `--stored` for every source.
+→ Because: `payments.beaml` (no effect) must stay byte-identical, and the compiler cannot tell a source without effects from one whose last effect was deleted. The deploy check (DL-031) is the final guard.
+
+**DL-064 · Repair · `--remove-dead` output contract**
+→ Chose: the diff keeps CRLF line ends, the count is the number of removed declarations, the event field is `removed`, and the usage text names `--remove-dead`.
+→ Detail: 0004 notes.md, "Slice 4 plan repair and RED", S4-4.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

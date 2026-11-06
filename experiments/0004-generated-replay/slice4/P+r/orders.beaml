@@ -1,0 +1,6 @@
+// EXPERIMENT 0004 slice 4: one EFFECT, a retired operation (sources B, G, P, C2 and their +r forms).
+interface Order { order_id: String }
+interface Payment { order_id: String status: String }
+retire payments.authorize keep 30 days
+
+fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + "", status: status }
