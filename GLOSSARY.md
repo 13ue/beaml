@@ -58,6 +58,9 @@ Use CAPITALS when naming a glossary term. Use its qualified name when the scope 
 | MIGRATE CHAIN | The `migrate` steps of one TYPE in the source. The `interface` is the newest TYPE VERSION; the compiler derives each older TYPE VERSION backwards from the steps. | LANGUAGE/COMPILATION | Migrationskette |
 | MIGRATE STEP | One `migrate T a -> b { ... }` line of a MIGRATE CHAIN. It changes TYPE VERSION a into TYPE VERSION b with one or more MIGRATE CHANGES, separated by commas. | LANGUAGE/COMPILATION | Migrationsschritt |
 | MIGRATE CHANGE | One `rename`, `add` or `drop` entry in a MIGRATE STEP. `add` gives a constant for older records; `drop` names the TYPE of the removed field. | LANGUAGE/COMPILATION | Migrationsänderung |
+| RETIRE LINE | One `retire <operation> keep <n> days` line in the source. It states that the EFFECT of the operation is deleted on purpose and that its stored RESPONSE RECORDS are kept for n days. | LANGUAGE/COMPILATION | Stilllegungszeile |
+| RETIRED RECORD | A stored RESPONSE RECORD of an operation with a RETIRE LINE. It stays stored, the build does not check its TYPE VERSION, and a REPLAY RUN rejects it with a typed reason. | EXECUTION | Stillgelegter Datensatz |
+| DEAD LINE | A RETIRE LINE or a MIGRATE STEP that no stored RESPONSE RECORD needs. The compiler warns about it and can remove it on request. | LANGUAGE/COMPILATION | Toter Quelltext |
 | EFFECT | An operation category tracked by language rules to constrain behavior beyond pure computation. | LANGUAGE/COMPILATION | Wirkung |
 | SECURITY LABEL | A restriction attached to data or control flow and interpreted by a versioned security policy. | LANGUAGE/COMPILATION | Sicherheitskennzeichnung |
 | CAPABILITY | Explicit authority to perform a named operation under a stated contract. | LANGUAGE/COMPILATION | Berechtigungsnachweis |

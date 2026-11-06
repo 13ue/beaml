@@ -260,6 +260,16 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: the compiler warns when a `retire` line or a `migrate` step is no longer needed, because no environment stores records of that effect or version. A command removes such lines on request. A record that appears again later (for example from a backup) blocks the build again.
 → Because: the chain must not grow forever, and the removal must stay safe.
 
+### EXPERIMENT 0004 slice 4 plan
+
+**DL-057 · Repair · Slice 4 forms**
+→ Chose: `retire <operation> keep <n> days` (`n` an unsigned integer, unit `days` only). `--remove-dead` runs after `--stored`, prints a diff, rechecks and writes atomically. Dead-line warnings go to stderr with exit 0. RETIRED RECORDS skip the path check and keep no step alive. Over: more units, a separate cleanup tool, warnings as errors.
+→ Because: the smallest form that tests DL-055 and DL-056. Detail: 0004 README, "Slice 4".
+
+**DL-058 · Repair · The last `migrate` step is never dead** (until O6 is decided)
+→ Chose: never warn on the last step. Over: let the version fall back to 1.
+→ Because: the last step carries the newest version number; removing it would renumber stored records.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

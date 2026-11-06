@@ -3,7 +3,7 @@ id: experiment-0004-generated-replay-plan
 kind: experiment
 status: proposed
 updated: 2026-11-06
-revision: 7.1 (slice 3 plan repair)
+revision: 8 (slice 4 plan)
 ---
 
 # EXPERIMENT 0004 — Generated REPLAY RUN
@@ -26,7 +26,8 @@ revision: 7.1 (slice 3 plan repair)
 - **Revision 6.** Applies the OWNER answers O1–O4 to [slice 2](#slice-2): a MIGRATE CHAIN replaces the RENAME ALIAS options S1, S2 and S3; the record carries the TYPE version number; the build fails only when a stored TYPE VERSION has no path through the chain; C5 (DRIFT R without a chain) is now a compile error. Only the slice 2 section changes.
 - **Revision 7.** Adds the [slice 3 plan](#slice-3): `add` with a constant and `drop` with a TYPE in the MIGRATE CHAIN (DL-042). The slice 1 and slice 2 text stays unchanged.
 - **Revision 7.1.** Repairs the slice 3 plan after its fresh check: the `add` constant always wins in a REPLAY RUN (DL-048, D8, new D11b); K checks run before the EFFECT output check, so K2 and K4 are reachable; `drop` takes `String` only (K6, D7, D5c); new help cases D2b and D5b; `unknown_keys == []` stated for D11 and D14. Only the slice 3 section changes.
-- **Revision 7.2 (this page).** Slice 3 final review repair (DL-054): a REPLAY RUN types the stored body by its own TYPE VERSION before any MIGRATE STEP. Every other key goes to `unknown_keys`. This supersedes the slice 2 rule "the current name wins" (C12) and changes D11b and D11c. New cases D17 and D18. Superseded text stays, struck through.
+- **Revision 7.2.** Slice 3 final review repair (DL-054): a REPLAY RUN types the stored body by its own TYPE VERSION before any MIGRATE STEP. Every other key goes to `unknown_keys`. This supersedes the slice 2 rule "the current name wins" (C12) and changes D11b and D11c. New cases D17 and D18. Superseded text stays, struck through.
+- **Revision 8 (this page).** Adds the [slice 4 plan](#slice-4): the RETIRE LINE for a deleted EFFECT with stored records (DL-055), DEAD LINE warnings and the removal command (DL-056), a chain start above version 1, and OWNER question O6. The slice 1 to slice 3 text stays unchanged.
 
 ## Slice 1 scope
 
@@ -704,3 +705,289 @@ Sources:
 ### OWNER questions (slice 3)
 
 **[Inference]** No new Migrate question. Every syntax that slice 3 uses is decided (DL-022, DL-023, DL-028). O5 stays open from slice 2.
+
+## Slice 4
+
+**[Requirement]** DL-055 and DL-056 fix the content: a RETIRE LINE for a deleted EFFECT with stored records, and warnings for DEAD LINES with a removal command. The slice 1 to slice 3 text above stays unchanged. Their pass and reject rules do not apply to slice 4. The slice 1 to slice 3 tests must stay green.
+
+### Question and claim (slice 4)
+
+**[Requirement]** Can the compiler refuse a deleted EFFECT while the RECORD SNAPSHOT holds RESPONSE RECORDS of its operation, and accept it with an explicit RETIRE LINE, so that no stored record becomes unreadable without a statement in the source? Can it name each DEAD LINE as a warning, and remove exactly those lines on request, so that the MIGRATE CHAIN does not grow forever and a removed line that a record needs again blocks the build again?
+
+**[Requirement]** OWNER decisions for slice 4:
+
+- DL-055. An `effect` absent from the source while the RECORD SNAPSHOT holds records of its operation blocks the build. The error has a `help` line with `retire <operation> keep <n> days`. With the RETIRE LINE, the build passes. RETIRED RECORDS are not replayable: a REPLAY RUN of one gives a typed reject that names the retirement. `keep 0 days` is allowed.
+- DL-056. Warnings, not errors, for DEAD LINES: a RETIRE LINE whose operation has no records in the RECORD SNAPSHOT, and a MIGRATE STEP that no stored version needs. A command removes exactly those lines on request. A removed line that a later record needs blocks the build again (path rule of slice 2).
+- A RETIRE LINE for an operation that still has an `effect` in the source is a compile error.
+- Deletion after the retention window needs a managed store (O5 open). Slice 4 parses and checks `keep <n> days`, writes it into the generated metadata, and deletes nothing.
+
+**[Verified]** Current rule (DL-040, `check_stored` in [`main.rs`](../0001-syntax-to-beam/src/main.rs)): a stored record of an operation with no `effect` in the source fails with `error: stored RESPONSE RECORD of operation <op> has no effect in the source` and the record line. There is no way out. No test asserts this message today. The compiler accepts one `effect` per source (`slice 1 supports one effect`). A MIGRATE CHAIN must count `1 -> 2 -> 3` without gaps (`derive_versions`). The compiler writes no warnings today; a successful build writes only the Elixir source to stdout. No slice 1 to slice 3 test asserts an empty stderr on success.
+
+### Syntax (slice 4)
+
+**[Requirement]** Example. The source replaced the EFFECT `payments.authorize` with `payments.charge`:
+
+```beaml
+effect payments.charge Order -> Payment ! PaymentError = http.post("payments/authorize")
+retire payments.authorize keep 30 days
+```
+
+**[Proposal]** Grammar of a RETIRE LINE (Repair: slice 4 only, see the decisions table):
+
+```text
+retire    = "retire" OPERATION "keep" NUMBER "days"
+OPERATION = the form of an EFFECT name: two lowercase segments, namespace.operation
+NUMBER    = the NUMBER token of the MIGRATE STEP: digits only, 0 to 4294967295
+```
+
+- **[Proposal]** `n` is a non-negative integer literal. `keep 0 days` is allowed. A sign, a decimal point, a missing number or a number above the `u32` range is an error.
+- **[Proposal]** The unit is `days` only in slice 4. Any other word (`weeks`, `day`, `hours`) is an error that names `days`.
+- **[Proposal]** A RETIRE LINE is a top-level declaration, as `migrate`. Its position in the file has no meaning.
+- **[Proposal]** The RETIRE LINE names the operation (the `operation` key of the RESPONSE RECORD), not a TYPE. The TYPE of a retired operation may also leave the source.
+
+### Check rules (slice 4)
+
+**[Proposal] Source checks.** They run with the other source checks, before the `--stored` check (as C16 and the K checks). They fail also with an empty RECORD SNAPSHOT.
+
+| ID | Source fault | Error, asserted tokens |
+| --- | --- | --- |
+| T1 | RETIRE LINE for an operation that has an `effect` in the source | `retire <op>`, `still declares effect <op>` |
+| T2 | Two RETIRE LINES for the same operation | `retire <op>`, `two times` |
+| T3 | Invalid operation name, for example `retire Payments.Authorize keep 1 days` or `retire authorize keep 1 days` | `invalid operation name`, `namespace.operation` |
+| T4 | Missing `keep`: `retire payments.authorize 30 days` | `expected keep` |
+| T5 | Missing or invalid number: `keep days`, `keep -1 days`, `keep 1.5 days` | `expected number of days` (or the existing lexer error for `-` and `.`; the test asserts exit 1, no stdout, and `keep`) |
+| T6 | Number above the `u32` range: `keep 4294967296 days` | `number too large` |
+| T7 | Other unit: `keep 3 weeks`, `keep 1 day` | `keep supports days only` |
+
+**[Proposal] `--stored` input.** A source with an `effect` or a RETIRE LINE needs `--stored`. Without it the error stays `stored TYPE VERSIONS unknown`. A source with neither keeps the slice 2 rule: no input needed, output byte-identical (`payments.beaml`).
+
+**[Requirement] Record check (DL-055, supersedes the DL-040 rule).** For each line of the RECORD SNAPSHOT:
+
+1. The line must parse with its `type` key, as in slice 2 (C7). This holds also for RETIRED RECORDS.
+2. The operation has an `effect`: the slice 2 and slice 3 path check runs, unchanged.
+3. The operation has a RETIRE LINE: the record is a RETIRED RECORD. The path check does not run for it. Its TYPE may be absent from the source.
+4. Neither: compile error (R1 below). All records of the operation are counted in one message.
+
+**[Proposal] Error text R1** (case E1). Exit 1, no stdout. The first line keeps the DL-040 text:
+
+```text
+error: stored RESPONSE RECORD of operation payments.authorize has no effect in the source
+  record source: <the --stored path>:<line> (line <line>)
+  stored RESPONSE RECORDS of operation payments.authorize: 1
+  help: if the effect is deleted on purpose, declare: retire payments.authorize keep <n> days
+```
+
+Asserted tokens: the operation name, `has no effect in the source`, the `--stored` path, `help:`, and the form `retire <op> keep <n> days` with the literal placeholder `<n>`. The compiler does not guess a retention window (as `<constant>`, DL-028).
+
+**[Requirement] DEAD LINE rules (DL-056).**
+
+- **W1, dead RETIRE LINE.** A RETIRE LINE whose operation has no record in the RECORD SNAPSHOT.
+- **W2, dead MIGRATE STEP.** A MIGRATE STEP `T a -> b` is dead when no stored record of an operation whose `effect` outputs T has a version ≤ a. RETIRED RECORDS do not count: no REPLAY RUN reads them through a chain.
+
+**[Proposal] W2 exception: the last MIGRATE STEP of a TYPE is never dead.** It carries the newest version number of the TYPE (slice 2 rule: the target of the last step). Without it the newest number would fall back to 1, and the next live record would write version 1 with the fingerprint of another version. The source has no other place for that number. This is OWNER question O6 below. Without O6, a chain shrinks to at least one MIGRATE STEP, which is bounded.
+
+**[Inference]** Dead MIGRATE STEPS are always a prefix of the chain: if no record has a version ≤ a, then no record has a version ≤ a' for every earlier step a' < a. So the removal leaves a chain without gaps.
+
+**[Proposal] Chain start (changes the slice 2 rule).** A MIGRATE CHAIN may start at any version k ≥ 1: its first MIGRATE STEP is `k -> k+1`, and the steps then count without gaps. The derived versions are k to the newest. A stored version below k has no derived version, so the slice 2 path check fails for it (case E17). The error for a chain with a gap in the middle stays. Its text changes from `must count 1 -> 2 -> 3 without gaps` to `must count without gaps from its first MIGRATE STEP`. No test asserts the old text (verified by search).
+
+**[Proposal] Help line for a version below the chain start** (new row of the slice 3 help table):
+
+```text
+  help: the MIGRATE CHAIN of Payment starts at version 3; the stored TYPE VERSION 1 is older. Restore the removed MIGRATE STEPS from version control
+```
+
+Asserted tokens: the TYPE name, `starts at version <k>`, `TYPE VERSION <stored>`, `version control`.
+
+### Warning texts (slice 4)
+
+**[Proposal]** A warning goes to stderr. It never changes the exit code and never empties stdout. One warning per DEAD LINE, in source line order, after the build succeeds. An error build writes no warnings.
+
+W1 (case E9):
+
+```text
+warning: DEAD LINE: retire payments.authorize keep 30 days
+  at <SOURCE>:<line>
+  record source: <the --stored path>: no stored RESPONSE RECORD of operation payments.authorize
+  help: remove DEAD LINES with: beaml-spike <SOURCE> --stored <the --stored path> --remove-dead
+```
+
+W2 (case E12):
+
+```text
+warning: DEAD LINE: migrate Payment 1 -> 2
+  at <SOURCE>:<line>
+  record source: <the --stored path>: no stored RESPONSE RECORD of TYPE Payment has version 1 or older
+  help: remove DEAD LINES with: beaml-spike <SOURCE> --stored <the --stored path> --remove-dead
+```
+
+Asserted tokens, W1: `warning: DEAD LINE`, `retire <op> keep <n> days`, `<SOURCE>:<line>`, the `--stored` path, `no stored RESPONSE RECORD of operation <op>`, `--remove-dead`. W2: `warning: DEAD LINE`, `migrate <T> <a> -> <b>`, `<SOURCE>:<line>`, the `--stored` path, `version <a> or older`, `--remove-dead`. The test also asserts the number of `warning:` lines.
+
+**[Proposal] Warning against error.** A warning: exit 0, stdout holds the Elixir source, stderr starts with `warning:`. An error: exit 1, empty stdout, stderr starts with `error:`. There is no flag that turns warnings into errors in slice 4. The compiler action event records `warnings: <count>`, not the source path or the text (AGENTS rule).
+
+### Removal command (slice 4)
+
+**[Proposal] CLI form.** `beaml-spike SOURCE.beaml --stored SNAPSHOT.jsonl --remove-dead`. `--remove-dead` comes after the `--stored` input. Any other order or a `--remove-dead` without `--stored` is a usage error.
+
+**[Proposal] Contract.**
+
+1. The command first runs the full build check (parse, TYPE, source checks, `--stored`). On any error it writes nothing, prints the error to stderr, prints nothing to stdout, and exits 1. The source file stays byte-identical.
+2. It finds the DEAD LINES (W1, W2). A DEAD LINE is the range from its keyword to its end (`days` or the closing `}`), with its line ends. Each line in that range must hold only the DEAD LINE and white space. Otherwise it writes nothing and exits 1 with `error: cannot remove <line form>: line <n> holds other text`.
+3. It removes exactly those lines. Every other byte of the file stays unchanged, including comments, blank lines and the line end style.
+4. It builds the new text against the same RECORD SNAPSHOT. The build must pass with zero warnings. Otherwise it writes nothing and exits 1 with `error: removal check failed` and the build error. **[Inference]** By the prefix rule this is unreachable; the check guards the rewrite.
+5. It writes the new text through a temporary file in the same directory and a rename.
+6. stdout: exactly the zero-context unified diff of the old and the new text, both labelled with SOURCE as given on the command line. The test compares it to Python `difflib.unified_diff(old, new, SOURCE, SOURCE, n=0)`. stderr: `removed <count> DEAD LINES from <SOURCE>` (`DEAD LINE` for one). Exit 0.
+7. Idempotence: when the build has no DEAD LINE, the command writes nothing, stdout is empty, stderr is `no DEAD LINE in <SOURCE>`, exit 0. A second run after a removal is this case.
+8. The command writes no Elixir source. The action event records `action: "remove-dead"`, `result`, and the count of removed lines. It does not record the path or the line text.
+
+Example (case E15). Source lines 4 and 5 are the dead steps:
+
+```text
+--- slice4/Q4/orders.beaml
++++ slice4/Q4/orders.beaml
+@@ -4,2 +3,0 @@
+-migrate Payment 1 -> 2 { rename status -> state }
+-migrate Payment 2 -> 3 { add channel: String = "web" }
+```
+
+### Generated code (slice 4)
+
+**[Proposal]** With at least one RETIRE LINE, the generated `Replay` module gains:
+
+- `retired/0`: the list `[%{operation: "<op>", keep_days: <n>}]`, sorted by operation. This is the generated metadata for a later deploy step. Nothing reads it in slice 4 except the tests.
+- `Retired`: a typed struct with the fields `operation` and `keep_days`.
+- In `run/3`, directly after `select(records, trace_id)` and before the operation check: a record of a retired operation gives `{:error, %<Module>.Replay.Retired{operation: "<op>", keep_days: <n>}}`. No body digest check, no decode, no transport, no `finish/1`.
+
+**[Proposal]** A source with a RETIRE LINE and no `effect` gets a `Replay` module with `retired/0`, `Retired` and `run(_a0, trace_id, records)`. That `run/3` gives the `Retired` reject for a RETIRED RECORD, `{:error, :missing_response}` for no record, and `{:error, :operation_mismatch}` otherwise. A source without a RETIRE LINE keeps its output byte-identical.
+
+**[Proposal]** `keep_days` is metadata only. No generated code deletes or filters stored records.
+
+### Cases (slice 4)
+
+**[Proposal]** Fixture names follow slices 2 and 3: TYPE `Payment`, fields `order_id`, `status`, `state`, `channel`, `reference`; the retired operation `payments.authorize`, the new operation `payments.charge`, `keep 30 days`. Sources are in `slice4/<case>/orders.beaml`. `stored/v1.jsonl` (operation `payments.authorize`) is reused; other snapshots are written per test. Every case also runs from a template with random names: random operation names (two lowercase segments), a random `n` (including 0 and 4294967295), random TYPE and field names and random constants (slice 3 rule: a quote, a backslash and a non-ASCII letter). Replay cases use the harness mode `replay_plain` and the eval VM of slices 2 and 3. The harness passes the record unchanged to `Replay.run/3`.
+
+Sources:
+
+- **B.** The slice 1 source (`effect payments.authorize`, no chain).
+- **G.** B with the EFFECT renamed to `payments.charge` (the HTTP path stays `payments/authorize`, so the stub still answers).
+- **G+r.** G plus `retire payments.authorize keep 30 days`. **G+r0.** The same with `keep 0 days`.
+- **B+r.** B plus `retire payments.authorize keep 30 days`.
+- **P.** No `effect`, no flow: the interfaces `Order`, `Payment` and `fn finish` only. **P+r.** P plus `retire payments.authorize keep 30 days`.
+- **Q4.** `interface Payment { order_id: String state: String reference: String }`, `migrate Payment 1 -> 2 { rename status -> state }`, `migrate Payment 2 -> 3 { add channel: String = "web" }`, `migrate Payment 3 -> 4 { drop channel: String, add reference: String = "pre-v4" }`. Versions: v1 `{order_id status}`, v2 `{order_id state}`, v3 `{order_id state channel}`, v4 `{order_id state reference}`.
+- **Q4g+r.** Q4 with the EFFECT renamed to `payments.charge` (as G) plus `retire payments.authorize keep 30 days`.
+- **Q4s.** Q4 without the two lines `1 -> 2` and `2 -> 3` (the expected file after E15). Chain start 3.
+- **C2.** The slice 2 source with `migrate Payment 1 -> 2 { rename status -> state }`.
+
+| ID | Source | RECORD SNAPSHOT | Build or command | Expected |
+| --- | --- | --- | --- | --- |
+| E1 | G | `v1` | build | exit 1, no stdout, R1 tokens with `payments.authorize` and `retire payments.authorize keep <n> days` |
+| E1b | P | `v1` | build | the same R1 error: no `effect` at all |
+| E1c | G | empty | build | exit 0, no warning: the error of E1 comes from the records (control, as C6) |
+| E2 | G+r | `v1` | build | exit 0, stderr has no `warning:`; `Replay.retired/0 == [%{operation: "payments.authorize", keep_days: 30}]` |
+| E3 | G+r build | `v1` | REPLAY RUN of the `v1` record | `typed_reject` `Retired{operation: "payments.authorize", keep_days: 30}`; decode 0, transport 0, `finish/1` 0, no crash |
+| E4 | G+r build | `v1` | live call through the eval `place/1` | `correct_accept`; the new record has `operation: "payments.charge"` and `Payment 1` |
+| E5 | G+r | `v1` plus a `payments.charge` record of `Payment 1` | build | exit 0, no warning |
+| E5b | G+r | `v1` plus a `payments.charge` record of `Payment 1 { order_id state }` (another fingerprint) | build | exit 1, slice 2 no-path error for `payments.charge`: the path check still runs beside a RETIRE LINE |
+| E5c | G+r | `v1` plus a `payments.authorize` record whose TYPE `Ghost` is in no source | build | exit 0: a RETIRED RECORD is not path-checked |
+| E5d | G+r | `v1` plus one `payments.authorize` line without the `type` key | build | exit 1, `stored RESPONSE RECORD has no TYPE VERSION`, line number: the C7 rule holds for RETIRED RECORDS |
+| E6 | B+r | `v1` | build | exit 1, T1 tokens |
+| E6b | B+r | empty | build | the same T1 error: a source error, independent of the records |
+| E7 | G+r0 | `v1` | build, then REPLAY RUN | exit 0; `retired/0` has `keep_days: 0`; replay gives `Retired{keep_days: 0}`; nothing deleted, the snapshot file byte-identical |
+| E8 | T2–T7 sources on G+r | empty | build | exit 1, no stdout, the T tokens |
+| E9 | G+r | empty | build | exit 0, stdout non-empty, exactly one W1 warning with its tokens |
+| E9b | G+r | `v1` | build | exit 0, no warning (negative control for E9) |
+| E10 | P+r | `v1` | build, then REPLAY RUN | exit 0, no warning; replay gives `Retired`; a record of another operation gives `operation_mismatch` |
+| E10b | P+r | no `--stored` | build | exit 1, `stored TYPE VERSIONS unknown` |
+| E10c | P | no `--stored` | build | exit 0; the output has no `Replay` module and no `retired/0` (control: no RETIRE LINE, no new rule) |
+| E11 | Q4 | records of v1 only | build | exit 0, no warning (every step needed) |
+| E11b | Q4 | records of v2 only | build | exit 0, exactly one W2 warning, for `migrate Payment 1 -> 2` |
+| E12 | Q4 | records of v3 only | build | exit 0, exactly two W2 warnings, for `1 -> 2` and `2 -> 3`, in source order; no warning for `3 -> 4` (chain shortening) |
+| E12b | Q4 | empty | build | exit 0, exactly two W2 warnings (`1 -> 2`, `2 -> 3`); `3 -> 4` is the last step |
+| E13 | C2 | records of v2 only | build | exit 0, no warning: `1 -> 2` is the last step (W2 exception) |
+| E14 | Q4g+r | `payments.charge` records of v3 plus one `payments.authorize` record of v1 | build | the E12 warnings: RETIRED RECORDS do not keep a step alive |
+| E15 | Q4 | records of v3 only | `--remove-dead` | exit 0; stdout equals the difflib diff (example above); stderr `removed 2 DEAD LINES`; the file equals Q4s byte for byte |
+| E15b | Q4s | records of v3 only | build, then REPLAY RUN of each v3 record on the Q4 build and on the Q4s build | exit 0, no warning; both builds give the same `correct_accept` value `{order_id, state, reference: "pre-v4"}` and the same `unknown_keys` |
+| E16 | Q4s (after E15) | records of v3 only | `--remove-dead` again | exit 0, stdout empty, stderr `no DEAD LINE`, file byte-identical (idempotence) |
+| E17 | Q4s | records of v3 plus one v1 record (for example from a backup) | build | exit 1, no-path error with `Payment`, `starts at version 3`, `TYPE VERSION 1`, `version control`, the `--stored` path: the removed line blocks again |
+| E17b | Q4s build | records of v3 | REPLAY RUN of a hand-built v1 record (stale snapshot, as C9) | `typed_reject` `decode`, `finish/1` 0, no crash |
+| E18 | G+r (E9 setup) | empty | `--remove-dead`, then build the result with `v1` | removal: exit 0, the RETIRE LINE removed, the file equals G byte for byte. Build with `v1`: the E1 error again |
+| E19 | G | `v1` | `--remove-dead` | exit 1, the R1 error, no stdout, file byte-identical |
+| E19b | Q4 with a dead step and a needed step on one line | records of v3 | `--remove-dead` | exit 1, `cannot remove`, `holds other text`, file byte-identical |
+| E19c | Q4 | none | `--remove-dead` without `--stored`, and `--remove-dead` before `--stored` | exit 1, usage text names `--remove-dead`; file byte-identical |
+| E20 | all slice 1 to slice 3 tests | as before | as before | as before (regression) |
+
+**[Inference]** What each control kills:
+
+- E1c against E1, and E9b against E9: the error and the warning must come from the records, not from the source.
+- E6b: a T1 check that runs only with records.
+- E5b: a RETIRE LINE that switches off the path check for the whole snapshot. E5c: a path check that still runs for RETIRED RECORDS. E5d: a RETIRE LINE that skips the record format check.
+- E3 and E10: a RETIRED RECORD that reaches the decode or the transport, or that gives `operation_mismatch` instead of the typed `Retired` reject.
+- E12 and E14 against E11 and E11b: a W2 rule that counts the wrong versions, or that counts RETIRED RECORDS. E12b and E13: a W2 rule without the last-step exception.
+- E15 and E16: a removal that touches other bytes, or that is not idempotent. E15b: a removal that changes the replay result of a needed record. E17: a removal that hides a version that a record needs again.
+- E19 to E19c: a removal that writes on an error or on an unknown store.
+- The template runs: a compiler with the fixture operation names, `30`, or the fixture TYPE names in it.
+
+**[Proposal] Test files.** `tests/slice4_retire_test.py` holds the build and command cases E1–E2, E5–E9b, E10b, E10c, E11–E16, E17, E18–E19c. `tests/slice4_replay_test.py` holds the replay and live cases E3, E4, E7, E10, E15b and E17b. New files keep the SHA-256 of every slice 1 to slice 3 test file unchanged; E20 runs them unchanged.
+
+**[Proposal] Compiler change sites.** The parser reads `retire`. The `Program` holds RETIRE LINES with their source ranges; `Migration` gains its source range. `derive_versions` accepts a chain start k ≥ 1. `check_stored` splits records by `effect`, RETIRE LINE or neither, and counts versions per TYPE for W1 and W2. `no_path` gains the chain start help row. `main` reads `--remove-dead`. The emitter writes `retired/0`, `Retired` and the retired clause in `run/3`.
+
+### Pass and reject rule (slice 4)
+
+**[Proposal] Pass.** The claim holds for slice 4 only if all are true, with fixture names and with random names:
+
+1. E1 and E1b fail at compile time with exit 1, no stdout and all R1 tokens. E1c compiles.
+2. E2, E5, E5c, E7, E9b, E10 and E13 compile without a warning.
+3. E3, E7 and E10 give the typed `Retired` reject with the right operation and `keep_days`, with decode, transport and `finish/1` at 0. E4 gives `correct_accept`.
+4. E6, E6b, E8, E5b, E5d, E10b and E17 fail at compile time with their tokens.
+5. E9, E11b, E12, E12b and E14 give exactly the expected warnings with exit 0 and a non-empty stdout. E11 gives none.
+6. E15, E16 and E18 meet the removal contract byte for byte. E15b gives the same value on both builds. E19 to E19c leave the file byte-identical.
+7. E20 passes. GEN gives no `wrong_accept` and no untyped crash in any case.
+
+**[Proposal] Reject.** Any unmet pass clause rejects the claim for slice 4, except a failed E20 (below). Record the reject in the register. Examples:
+
+- E1 compiles: a deleted EFFECT with stored records does not block.
+- E1c fails: the block comes from the source, not from the records.
+- E3 accepts the RETIRED RECORD, or rejects it with `operation_mismatch` or a crash.
+- E12 has no warning for `2 -> 3`, or warns about `3 -> 4`.
+- E15 changes a byte outside the two dead lines, or E16 changes the file.
+- E17 compiles: a removed MIGRATE STEP that a record needs again does not block.
+
+**No verdict.** If E20 fails, slice 4 fails as an implementation and gives no verdict on the claim.
+
+### Out of scope (slice 4)
+
+- Deletion of RETIRED RECORDS after the retention window, and the deploy report for `keep 0 days` (needs a managed store, O5 open).
+- Units other than `days`, and a retention window per environment.
+- A flag that turns warnings into errors.
+- A RETIRE LINE for a single TYPE VERSION (only whole operations retire).
+- More than one `effect` per source (slice 1 limit). A retired and a live operation together are tested with one `effect` and one RETIRE LINE.
+- A removal command that restores removed lines. Version control does that.
+- The LIB arm (as slice 3).
+
+**[Inference] Limit.** A source with no `effect` and no RETIRE LINE needs no `--stored` input (slice 2 rule). A build that deletes the last EFFECT and also omits `--stored` therefore compiles (E10c). Only the harness and a later deploy check (DL-031: the deploy repeats the check) close this. Slice 4 does not change it, because `payments.beaml` must stay byte-identical without the input.
+
+### Decisions (Decision4, slice 4 plan)
+
+| Decision | Class | Choice and reason |
+| --- | --- | --- |
+| Block a deleted EFFECT with stored records until a RETIRE LINE; RETIRED RECORDS give a typed reject; `keep 0 days` allowed; deletion out of scope | OWNER (DL-055) | Given for slice 4 |
+| DEAD LINE warnings and a removal command; a needed removed line blocks again | OWNER (DL-056) | Given for slice 4 |
+| A RETIRE LINE for an operation with an `effect` is an error | OWNER | Given for slice 4 |
+| Grammar `retire <operation> keep <n> days`, `n` a `u32` NUMBER token, unit `days` only | Repair | Chose the NUMBER token of the MIGRATE STEP and one unit. Over more units now: deletion is out of scope, so a unit has no tested meaning yet. Commits every slice 4 source to `days`; a later unit adds a form, no source breaks |
+| RETIRE LINE names the operation, not the EFFECT signature or a TYPE | Repair | Chose the record key `operation`. Over a TYPE name: records are grouped by operation, and the TYPE may leave the source. Commits RETIRED RECORDS to their operation name |
+| R1 keeps the DL-040 first line and adds a `help` line with `<n>` | Undo | Message text only. The compiler does not guess a retention window |
+| RETIRED RECORDS must still parse with a `type` key (E5d) | Undo | Over skipping the line: one record format rule. Local to `check_stored` |
+| RETIRED RECORDS are not path-checked and do not keep a MIGRATE STEP alive | Repair | Chose "not replayable means not read". Over counting them for W2: no REPLAY RUN reads them through a chain. Commits a later un-retire to restore steps from version control |
+| The last MIGRATE STEP of a TYPE is never dead (W2 exception) | Repair | Chose a bounded chain of at least one step. Over removing it: the newest version number would fall back to 1, and a live record would write a wrong version. Commits slice 4 to O6 below |
+| A MIGRATE CHAIN may start at any version k ≥ 1 | Repair | Chose a chain start rule. Over a new anchor line: no new syntax, and dead steps are always a prefix. Relaxes the slice 2 source check; the path check still blocks every version below k (E17). Commits the version index in the compiler to an offset |
+| Removal CLI `--remove-dead` after `--stored`; stdout is the zero-context unified diff; stderr the count; exit 0 or 1; file unchanged on any error; atomic rename; recheck before write | Repair | Over a separate tool or a dry-run flag: one binary, the plain build already lists the warnings. Commits tests to the difflib format |
+| A DEAD LINE that shares a line with other text is not removed (exit 1) | Undo | Over editing inside a line: "never touch other lines". Local to the command |
+| Warnings to stderr, exit 0, no warnings-as-errors flag | Repair | Over an error: DL-056 says warning. Commits CI to read stderr if it wants to fail on DEAD LINES |
+| Generated `retired/0`, `Retired` struct, retired clause first in `run/3`; a no-EFFECT source with a RETIRE LINE gets a small `Replay` module | Repair | Over `operation_mismatch`: DL-055 needs a reject that names the retirement. Commits the generated `Replay` API to `retired/0` |
+| `--stored` needed for a source with an `effect` or a RETIRE LINE; a source with neither keeps the slice 2 rule (limit stated) | Repair | Over requiring `--stored` for every source: `payments.beaml` must stay byte-identical without the input |
+| New GLOSSARY terms RETIRE LINE, RETIRED RECORD, DEAD LINE | Undo | One name each; added before use |
+| New test files for slice 4; slice 1 to slice 3 tests unchanged | Undo | Keeps their SHA-256 as regression evidence |
+
+### OWNER questions (slice 4)
+
+- **O6 (Migrate), new syntax.** When only the newest TYPE VERSION is stored, the last MIGRATE STEP is dead in its changes but carries the newest version number. Options: (a) keep the W2 exception: a chain never shrinks below one MIGRATE STEP (slice 4 default, no new syntax); (b) a version anchor line, for example `migrate Payment 3` without changes, that the removal command writes in place of the last dead step; (c) a version number on the `interface` line, for example `interface Payment 4 { ... }`, which changes every existing source. (b) and (c) change the grammar and the removal contract ("never touch other lines"). Which form?
+- **O5 (Migrate), open.** Production source of truth for stored TYPE VERSIONS. Slice 4 W1 and W2 trust the RECORD SNAPSHOT: an incomplete snapshot makes needed lines look dead. E17 is the only guard.
