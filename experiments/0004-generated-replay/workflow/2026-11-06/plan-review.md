@@ -80,3 +80,66 @@ Category: alternatives and implementation. Severity: **high**. Disposition: pend
 - **Objection 3 (high): accepted.** Changes: recorded fields are typed in BEAML and checked against the TYPES of `prepare` and `finish`. Case (a) has five negative declarations and a template control. Slice 1 is case (a), case (b) and DRIFT on one function; the second EFFECT (old case d) moves to slice 2. See [README, Slice 1](../../README.md#slice-1-acceptance-cases-in-order), [Syntax options](../../README.md#syntax-options) and [plan.md](plan.md).
 
 **[Unknown]** The revised plan has no new review round. A new round needs new evidence (skill rule "One round").
+
+## Review of revision 3
+
+**Target.** [README](../../README.md) revision 3 (slice 1), [plan](plan.md). Mode: spec. Owner decisions (2026-11-06) not reopened.
+**Context read.** 0001 `main.rs` (structure, emit), 0002 `router.ex`, `payment_http.ex`, `replay.ex`, `probe_support.ex` (`valid_payment!/2`), `query.py`, `run.py` (H03, H04), 0003 `run.py`, `replay_run_test.py`, `response_capture_test.py`, `trace_lookup_test.py`.
+
+### Verdict
+
+**BLOCK.** One critical, two high. Revision 3 answers objections 2 and 3 of round 1 (generated `record`, typed fields, negative checks). The remaining gap: the pass rule depends on how weak the LIB worker makes LIB.
+
+### 1. The pass rule can be met by a LIB form that the README itself prescribes
+
+Category: specification quality and premise. Severity: **critical**. Disposition: pending. Disposition rationale: null.
+
+- **[Verified]** The LIB descriptor holds "recorded request and response keys" (README, Comparison arm LIB). A response key list duplicates the `Payment` TYPE. DRIFT-R and DRIFT-N then need descriptor edits in LIB and none in GEN. Pass clause (1) holds by construction.
+- **[Verified]** The generic `rescue` around `finish` is "permitted", not required. Without it, an old record after DRIFT-R or DRIFT-N crashes in the exact generated `finish` pattern. GEN gives `PaymentError{reason: "decode"}`. Pass clause (2) holds by construction.
+- **[Inference]** The README's own [Inference] says a whole-value LIB with a generic `rescue` has no stale descriptor and detects DRIFT-R and DRIFT-N. DRIFT-Q is a `request_mismatch` in both arms: LIB encodes the whole request (`ProbeSupport.json(request)`) and compares it with the generated `prepare/1`. So against the strongest LIB, the reject rule probably applies. Against a weak LIB, the claim passes. The verdict depends on a free choice of the LIB worker.
+
+**Consequence.** Slice 1 can report "language claim holds" while a 60-line library with no key list and one `rescue` is equal or better.
+
+**Smallest resolving test.** Fix the LIB form before GEN results exist: no TYPE-derived key list in the descriptor, a mandatory generic `rescue` that returns a typed reason. Or run DRIFT against both LIB forms and apply the pass rule against the stronger one only.
+
+### 2. The 0003 assertion table is incomplete, and the GEN live evidence is weaker than the control
+
+Category: specification quality and risk. Severity: **high**. Disposition: pending. Disposition rationale: null.
+
+- **[Verified]** `trace_lookup_test.py` line 175 asserts `len(checked["logs"]) == 2 * call`; line 184 records `"logs": 4`. `0003/run.py` runs this test. Removal of `payment_request_prepared` breaks both lines. The README table does not list them, and case (c) says "No other assertion changes".
+- **[Verified]** After the removal, Orders writes no log. The 0002 H04 `missing_log` control deletes a Payments log line only. So no test checks Orders log correlation in GEN. LIB keeps it.
+- **[Inference]** The root parameter alone cannot select the changed assertions in `replay_run_test.py` (`WATCHED`, `HARNESS`, control result). The 0003 test files need an arm switch. An error in that switch can run the GEN expectations at the default root, and the control run still shows GREEN.
+
+**Consequence.** Case (c) fails as specified, or the implementer edits unlisted assertions. GEN passes (c) with less evidence than the control.
+
+**Smallest resolving test.** List every changed assertion by file and line (include `trace_lookup_test.py` 175, 184). Keep the GEN overlay out of the 0003 test files: copy them into the overlay and diff them against the 0003 originals. Require the diff to equal the table. Either generate one Orders log in `place`, or record "no Orders log" as a lost check in the verdict.
+
+### 3. The owner requirement "typed error on a type mismatch, live and in a REPLAY RUN" has no asserted case
+
+Category: scope. Severity: **high**. Disposition: pending. Disposition rationale: null.
+
+- **[Verified]** Owner decision: "A response that does not match the type gives a typed error, live and in a REPLAY RUN."
+- **[Verified]** All 8 cases of (d) carry a valid `Payment` body or fail before decode (the digest case keeps a valid `Payment`). The 0003 live tests cover success and a refused port (`transport`) only. In (f), DRIFT changes both BEAML files, so the live Payments response always matches. The pre-change record is an observed outcome class, not an asserted expectation.
+- **[Inference]** `reason: "decode"` and `reason: "status"` are never asserted, live or in replay. A generated decode that accepts extra keys, or a `place` that calls `finish` after a failed step, passes (a)–(e).
+
+**Consequence.** One explicit owner requirement and the runtime half of the pipe rule ("the pipe stops") stay untested. Pass clause (2) may then rest on an untested decode.
+
+**Smallest resolving test.** Add two asserted cases. Replay: a record with a correct digest and body `{"order_id":"order-1"}` gives `{:error, %PaymentError{reason: "decode"}}` with `finish/1` count 0. Live: the existing 0003 loopback stub returns a body with an extra key, then a 503. Expect 502, client span `outcome: "error"`, one RESPONSE RECORD, `finish/1` not called.
+
+### Deliberately not challenged
+
+- **Compiler size for one slice.** About 1,040 lines today; the new emit is large but bounded. "No verdict" covers a failed implementation.
+- **Template control by text search.** Weak, but objection 3 of round 1 now has the negative checks in (a).
+- **Span rename and `PaymentError` shape.** Owner decisions and Q6 cover them.
+
+**Not inspected.** `trace_lookup_repair_test.py`, `run_test.py` in full, `probe_support.ex` `span/5` body, the 0001 emit of exact map patterns. No code ran.
+
+### Disposition (main agent, 2026-11-06)
+
+**[Verified]** The main agent accepts objections 1, 2 and 3 of this review. The plan is revised (revision 4). This section records the disposition only; it is not an owner decision.
+
+- **Objection 1 (critical): accepted.** Changes: the plan fixes one LIB form, the strongest fair library. Its descriptor has no key list; LIB records whole values; a mandatory `rescue` around decode and finish returns `%ReplayLib.Error{}`. LIB passes (e) and is frozen by SHA-256 before GEN results of (d2) and (f) are judged. The pass and reject rule uses only this LIB; no weak form is built. See [README, Comparison arm LIB](../../README.md#comparison-arm-lib) and [Pass and reject rule](../../README.md#pass-and-reject-rule).
+- **Objection 2 (high): accepted.** Changes: the table lists every changed line by arm, file and line number. GEN and LIB run copies of the 0003 tests and `query.py` in a temporary tree with the repository layout; `overlay_diff_test.py` requires the copy diff to equal the table. The originals stay the control. GEN emits `payment_request_prepared` under `orders.prepare`, and LIB keeps the router log, so `query.py` line 17 and `trace_lookup_test.py` lines 175 and 184 stay unchanged. See [README, 0003 lines that change in the arm copies](../../README.md#0003-lines-that-change-in-the-arm-copies).
+- **Objection 3 (high): accepted.** Changes: new case (d2) with R1 (replay, body without `status` → `PaymentError` "decode"), R2 (replay of the L1 record), L1 (live extra key → reject, [Proposal]), L2 (live 503 → HTTP 502, error span, one record) and P1 (pipe stop). Each case asserts `finish` count 0. `Replay.record/3` now comes before the status check. See [README, Case (d2)](../../README.md#case-d2-type-mismatch-cases) and [plan.md](plan.md).
+
+**[Unknown]** Revision 4 has no new review round. A new round needs new evidence (skill rule "One round").
