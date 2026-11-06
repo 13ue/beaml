@@ -36,6 +36,7 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Event flows and backpressure](concepts/event-flows-and-backpressure.md): per-context flows, admission, ordering, failure and measured adoption gates.
 - [Event-sourcing/replay sources](sources/event-sourcing-and-replay.md): state folds, deterministic workflow history and compiler reproducers.
 - [Pinned replay source validation](sources/replay-source-validation.md): missing workflow identity, sink isolation, compatible commands and crash uncertainty.
+- [Vertical integration](concepts/vertical-integration.md): owner goal, one language from source to typed production data.
 - [Typed errors and replay](concepts/typed-errors-and-replay.md): compiler/runtime capture profiles, GROUND TRUTH, typed-invalid fixtures, completeness, isolated reproduction and per-context acceptance.
 
 ## Types and formal reasoning

@@ -291,3 +291,8 @@ Updated the workflow record, the [EXPERIMENT 0003 page](../experiments/0003-sour
 **[Verified]** v1 records HTTP bodies by default, with an 8 MiB truncation limit. No replay exists on the default branch; pull request #3336 is still open. Durability is draft pull request #4956. No supervision, links or monitors were found.
 Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track labels in [BAML docs](sources/baml-documentation.md), [canary compiler](sources/baml-canary-compiler.md), [compiler walkthrough](concepts/compilers/baml.md), [source registry](sources/README.md) and [language/tooling](concepts/baml-language-and-tooling.md). Added the [BAML v1 vs BEAM/OTP](concepts/baml-language-and-tooling.md#baml-v1-vs-beamotp) section. Extended the [Observatory comparison](concepts/observability-and-replay.md#baml-v1-update-pin-989676dd-2026-11-06). Updated [BAML internals](sources/baml-internals.md), [licence](sources/baml-license.md) and an evidence note under [round 3, objection 2](planning/roasting-rounds.md#2-baml-is-a-moving-baseline-with-overlapping-features).
 **[Unknown]** The owner reports that v1 is maybe finished. The captures support "very far along", not "finished". Status words conflict upstream ("public beta", "private beta", "early access"). Wire-byte fidelity, vendored licences and the outcome of #4956 remain open.
+
+## 2026-11-06: vertical integration as owner goal
+
+**[Verified]** Captured the [BAML homepage claim](../raw/research/baml/homepage-vertical-2026-11-06.md): one toolchain from build to feature flags.
+**[Requirement]** Recorded the owner goal in [vertical integration](concepts/vertical-integration.md).
