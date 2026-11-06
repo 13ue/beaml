@@ -242,6 +242,11 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: `unknown_keys` holds keys of the stored body that the decode does not read. Over: every key a step removes.
 → Because: the README defines the hint on body keys.
 
+**DL-054 · Repair · Type the stored body by its version before any step** (supersedes C12 "current name wins" and refines DL-048)
+→ Chose: a REPLAY RUN first checks the stored body against its own TYPE VERSION: every field of that version is type-checked, and every other key goes to `unknown_keys`. Only then do the steps run, on typed data. Over: run the steps on the raw body and let the current name win (C12); or let a key made by a step beat a stray key.
+→ Because: on the raw body a stray key could win over an `add` constant that a later `rename` moves, without a trace, and old fields were not fully typed (DL-023). This is decode by version (DL-043) carried through.
+→ Trigger: slice 3 final review (Devil's Advocate), BLOCK.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
