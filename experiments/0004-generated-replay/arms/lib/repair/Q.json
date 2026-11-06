@@ -1,0 +1,12 @@
+[
+  {
+    "file": "experiments/0002-http-correlation/apps/probe_support/lib/probe_support.ex",
+    "old": "  def valid_order!(%{\"order_id\" => \"order-1\"} = order) when map_size(order) == 1, do: order\n",
+    "new": "  def valid_order!(%{\"order_id\" => \"order-1\"} = order) when map_size(order) == 1, do: order\n  def valid_order!(%{\"order_id\" => \"order-1\", \"channel\" => \"web\"} = order) when map_size(order) == 2, do: order\n"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "old": "orders_artifact, OPERATION, ATTEMPT, ORDER, 200)",
+    "new": "orders_artifact, OPERATION, ATTEMPT, {**ORDER, \"channel\": \"web\"}, 200)"
+  }
+]

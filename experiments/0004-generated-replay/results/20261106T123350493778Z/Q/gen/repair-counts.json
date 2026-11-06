@@ -1,0 +1,11 @@
+{
+  "replay": 0,
+  "domain": 0,
+  "test": 1,
+  "files": {
+    "experiments/0003-source-linked-replay/tests/replay_run_test.py": {
+      "class": "test",
+      "hunks": 1
+    }
+  }
+}

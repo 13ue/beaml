@@ -1,0 +1,29 @@
+{
+  "evidence": {
+    "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T123350493778Z/Q/gen/build_output.txt",
+    "build_exit_code": 0,
+    "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T123350493778Z/Q/gen/new_live/observed.json",
+    "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T123350493778Z/Q/gen/pre_change/report.json"
+  },
+  "notes": {
+    "new_live": {
+      "expected_accept": false,
+      "cause": "flow error %OrdersBeamlSpike.PaymentError{reason: \"status\"}"
+    },
+    "pre_change": {
+      "expected_accept": false,
+      "host_validation": "nil"
+    }
+  },
+  "build": "correct_accept",
+  "new_live": "typed_reject",
+  "pre_change": "typed_reject",
+  "manual_change_sites": 0,
+  "domain_validation_sites": 0,
+  "test_expectation_sites": 1,
+  "repaired": {
+    "exit_code": 1,
+    "status": "fail",
+    "assertions": {}
+  }
+}

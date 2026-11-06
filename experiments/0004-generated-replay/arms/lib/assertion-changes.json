@@ -1,0 +1,9 @@
+[
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "line": 57,
+    "original": "      \"replay\" -> OrdersApi.Replay.run(input[\"order\"], input[\"trace_id\"], input[\"responses\"])",
+    "copy": "      \"replay\" -> with {:ok, p} <- ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}",
+    "reason": "replay.ex is deleted; same host validation as GEN"
+  }
+]

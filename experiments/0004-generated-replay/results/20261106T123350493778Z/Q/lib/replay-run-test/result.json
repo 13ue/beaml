@@ -1,0 +1,21 @@
+{
+  "test": "test_separate_runner_replays_first_call_and_rejects_invalid_records",
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "experiments/0003-source-linked-replay/tests/replay_run_test.py"
+  ],
+  "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/lib",
+  "status": "fail",
+  "steps": [
+    {
+      "ts": "2026-11-06T12:38:20.438996+00:00",
+      "action": "start",
+      "result": "running"
+    },
+    {
+      "ts": "2026-11-06T12:38:35.546044+00:00",
+      "action": "step",
+      "result": "fresh_releases_match_archived_beams"
+    }
+  ]
+}

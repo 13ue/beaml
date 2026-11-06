@@ -317,3 +317,76 @@ SHA-256 after: `tests/arms_test.py` `a726338a8552459f18f60ef75221ad022f5cf1969c3
 | D24 | DRIFT evidence keys `build_output`, `build_exit_code`, `new_live_report`, `pre_change_replay_report`; `run` key for the run dir | Repair | README fixes no names. Over: free-form evidence. Commits `run.py drift` (GREEN) to this shape; one test edit changes it |
 | D25 | Failed build ⇒ `new_live` and `pre_change` are `compile_error`, report paths may be absent | Repair | No release exists, so nothing can run. Over: a separate "not run" class, which the README does not list |
 | D26 | Re-derive class families, not exact classes (accept / reject / crash) | Undo | `correct` versus `wrong` and `typed` versus `false` need the expected outcome; the README judges that |
+
+## GREEN-2
+
+**Scope.** Compiler (d2) behaviour, GEN overlay, LIB arm (fresh worker), LIB freeze, `run.py`. No test file changed. No commit.
+
+### Steps (in order)
+
+1. **Compiler** (`main.rs`, +60 −38 against GREEN-1; `rustfmt --check --edition 2024` clean). Derived from the declarations, no fixture name in the emitter:
+   - `__beaml_decode_<output>/1`: one `:json.decode/1` in a `try`; `Map.take` of the declared fields, checked by the existing `__beaml_valid__` of the TYPE; returns `{:ok, value, unknown_keys}` or `:error`. Extra keys are a sorted hint.
+   - `payments_authorize/1`: `Http.post` returns `{:ok, status, bytes}` or `:error` (connect, send, framing, read: never a raise). `Replay.record/3` before the status check. Status ≠ 200 → `status`; `:error` → `transport`; decode `:error` → `decode`.
+   - A failure sets span attribute `reason`, then raises `BeamlFailure` inside the span (outcome `error`); `__beaml_attempt__/1` turns it into `{:error, %PaymentError{reason: r}}` outside the span. `place` stops the pipe (`with`).
+   - Hint: `unknown_keys` on the EFFECT span (only when not empty) and always in the RESPONSE RECORD (`[]` when none).
+   - `Replay.run/3`: the EFFECT step is `{:ok, p} <- __beaml_attempt__(span(... __beaml_result_payments_authorize(bytes)))`. Returns only `{:ok, p}` or `{:error, r}` (D7); the hint goes to the replay span.
+   - `cargo test`: exit 0 (unit 9/9, cli 12/12; `payments.beaml` snapshot byte-identical).
+2. **LIB arm** (fresh worker, no access to the GEN emitter, BEAML or GEN results). `ReplayLib` 59 lines, descriptor 14 lines, one `ReplayLib.record` call, `replay.ex` deleted. Passed (e) (`-k test_e_lib_form -k test_e_lib_arm_replays_matrix`, `results/20261106T122649926410Z`), then **freeze** `arms/lib/freeze.json` (ReplayLib `e5ad6e17…`, descriptor `933566cd…`), then `-k test_e_lib_type_mismatch` (`results/20261106T122809017595Z`): R1 `%ReplayLib.Error{step: "finish", reason: "ArgumentError"}`. No LIB repair before or after the freeze. LIB recorded outcomes: L0 200; L1 502 (no hint); L2 502, 0 records; R2 same error as R1.
+3. **GEN overlay**: router calls only `OrdersBeamlSpike.place/1` (keeps `orders.request`, `valid_order!`, `valid_payment!`, reply); `delete.txt` removes `payment_http.ex` and `replay.ex`; 6 copies with the 11 table rows; `assertion-changes.json`. GEN (d2) was judged only after the LIB freeze (12:28 UTC freeze; first full GEN run 12:29).
+4. **RED check of L0–L3 after the overlay** (GREEN-1 `main.rs` swapped in temporarily, restored, `cmp` equal; `results/20261106T123209852972Z`): L0 pass (overlay alone serves it); L1 fail own reason (no record hint, no span hint); L2 fail own reason (`raised MatchError`, span `reason` None); L3 fail own reason (span `ok`, `finish` 1). **[Verified]** Step 1 was written before this check, so this is a check of the reasons, not a strict RED-first order.
+5. **`run.py`** replaces the stub: default runs `compiler`, `overlay-diff`, `lib-freeze` (verify only), `arms`, `drift`; `drift`; `freeze`; `--list-steps`. Actions to `.beaml/actions.jsonl`, job bus `exp-0004-run`.
+
+### Commands (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline --manifest-path experiments/0001-syntax-to-beam/Cargo.toml` | 0 | 9/9, 12/12 |
+| `tests/overlay_diff_test.py` | 0 | 3/3 |
+| `tests/arms_test.py` | 0 | 16/16, `results/20261106T122905368972Z` |
+| `python3 -B experiments/0003-source-linked-replay/run.py` (control) | 0 | `pass`, `0003/results/20261106T123239743362Z` |
+| `run.py drift` (first) | 0 | `results/20261106T123350493778Z`; Q repair failed (see events) |
+| `tests/drift_test.py` (second DRIFT) | 0 | 3/3, `results/20261106T123902454745Z`; LIB probe defect (see events) |
+| `tests/drift_test.py` (counted DRIFT) | 0 | 3/3, `results/20261106T124451474390Z` |
+| `python3 -B experiments/0004-generated-replay/run.py` | 0 | `pass`, `results/20261106T124950474588Z`: all 5 steps exit 0; its DRIFT run gives the same 18 classes and site counts |
+
+### DRIFT (counted run `results/20261106T124451474390Z`)
+
+Classes are derived per row from `observed.json` (reply, proxy exchange, flow probe) and the pre-change `report.json`; the expected outcome comes from the Payments bytes and the drifted TYPE. Sites: replay = manual change sites; domain = `valid_payment!/2` / `valid_order!/1`; test = 0003 test expectations. Every repaired tree passed the 0003 8-case replay test again (exit 0).
+
+| DRIFT | Arm | build | new_live (cause) | pre_change (result) | replay | domain | test |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| R | GEN | correct_accept | false_reject (host `valid_payment!`) | typed_reject (`PaymentError decode`) | 0 | 1 | 2 |
+| R | LIB | correct_accept | false_reject (host `valid_payment!`) | typed_reject (`ReplayLib.Error finish`) | 0 | 1 | 2 |
+| N | GEN | correct_accept | false_reject (host `valid_payment!`) | typed_reject (`PaymentError decode`) | 0 | 1 | 2 |
+| N | LIB | correct_accept | false_reject (host `valid_payment!`) | typed_reject (`ReplayLib.Error finish`) | 0 | 1 | 2 |
+| Q | GEN | correct_accept | typed_reject (Payments 400 → `PaymentError status`) | typed_reject (`request_mismatch`) | 0 | 1 | 1 |
+| Q | LIB | correct_accept | untyped_crash (Payments 400 → transport `MatchError`) | typed_reject (`request_mismatch`) | 0 | 1 | 1 |
+
+Sum of manual change sites: GEN 0, LIB 0. Replay lines: GEN router 0; LIB 59 + 14 + 1. Compiler `main.rs` 1661 lines (one-time cost).
+
+**[Inference]** Q new_live: Payments `valid_order!/1` rejects the drifted request (400) before any decode, in both arms. GEN reports it typed (`status`), the unchanged 0002 transport of LIB raises. This is a live-path difference, not a REPLAY RUN difference. The pass and reject rule is not judged here (review).
+
+### Decisions (Decision4, GREEN-2)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| G12 | Failure inside the span as a raise of a generated `BeamlFailure` exception, caught by `__beaml_attempt__/1` | Repair | Chose raise-and-catch over own span code, because `ProbeSupport.span/5` (fixed SHA) sets `outcome: "error"` only on a raise. Commits us to one hidden exception module per output |
+| G13 | `Replay.record/3` computes the hint with a second decode call | Repair | Chose a second `:json.decode` live over `record/4`, because `record/3` is fixed (README, cli.rs). Live decode count is not asserted; replay keeps 1 |
+| G14 | Record field `unknown_keys` always present (`[]`); span attribute only when not empty | Undo | Stable record shape; no attribute noise |
+| G15 | Any transport failure (connect, send, framing, read) is `transport` | Undo | One reason for "no usable HTTP response" |
+| G16 | Decode reuses `__beaml_valid__` of the output TYPE on `Map.take` of the declared fields | Undo | Derived from the TYPE; template control stays |
+| G17 | LIB written by a fresh worker | Repair | Chose a separate worker over writing LIB myself, because the README forbids GEN-emitter access to the LIB writer and I had read it |
+| G18 | LIB DRIFT BEAML = drifted lines whose declaration exists in the 0002 `orders.beaml`, plus new interfaces | Repair | Chose this derivation over hand-written LIB fixtures, because the same TYPE edit must apply and LIB has no `effect`/`place`. One function in `run.py` |
+| G19 | Loopback proxy and an eval flow probe give the cause of a live failure | Repair | Chose extra evidence over the HTTP code alone, because a 502 does not show host validation versus arm failure. Commits DRIFT to two Payments calls per row |
+| G20 | Host validation reject of a fitting response = `false_reject`, same class in both arms; domain sites counted apart | Repair | README counts `valid_payment!/2` apart; classifying it `untyped_crash` would charge the host to an arm |
+| G21 | Build class `correct_accept` on exit 0 (both BEAML files change together) | Undo | drift_test ties `compile_error` to exit ≠ 0 |
+| G22 | Repairs as `arms/<arm>/repair/<D>.json` text edits; hunks counted from the real file diff; verified by the 0003 replay test in the repaired tree | Repair | Chose spec plus measured diff over a hand count. Commits the count to the file-class rule (ProbeSupport = domain, 0003 copies = test, else replay) |
+| G23 | Q repair edits `valid_order!/1` (Payments accepts `channel: "web"`) | Repair | Found by the first DRIFT run (Payments 400). Domain site, equal in both arms |
+| G24 | `run.py` default runs all steps, including `arms` and `drift` | Undo | One repeatable command, as 0003 |
+
+### Events outside the plan
+
+- **[Verified]** First DRIFT run: Q repair incomplete (Payments `valid_order!/1` 400); repaired by G23. Retained.
+- **[Verified]** Second DRIFT run: the LIB flow probe called the transport outside a span; `ReplayLib.record` then raised `FunctionClauseError` on `:undefined` span context, so LIB R/N showed `untyped_crash` while the live router failed in host validation. The probe now wraps the transport in `orders.payment_http` as the router does. Retained, not counted.
+- **[Verified]** One `run.py` all-steps run was stopped by me after this finding: `results/20261106T124408155023Z` and `results/20261106T124410526023Z` are partial, not counted.
+- **[Verified]** The LIB worker wrote no file outside `arms/lib/` and `results/`.

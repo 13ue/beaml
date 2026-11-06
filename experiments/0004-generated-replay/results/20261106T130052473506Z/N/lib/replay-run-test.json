@@ -1,0 +1,15 @@
+{
+  "exit_code": 0,
+  "status": "pass",
+  "assertions": {
+    "a1_record_bytes_equal_sent_bytes": true,
+    "replay_first_call": true,
+    "replay_a1_noncanonical_body": true,
+    "replay_missing_response": true,
+    "replay_operation_mismatch": true,
+    "replay_attempt_mismatch": true,
+    "replay_body_digest_mismatch": true,
+    "replay_status_mismatch": true,
+    "replay_request_mismatch": true
+  }
+}

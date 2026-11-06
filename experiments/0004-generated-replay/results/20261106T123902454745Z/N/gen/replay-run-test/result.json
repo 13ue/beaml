@@ -1,0 +1,318 @@
+{
+  "test": "test_separate_runner_replays_first_call_and_rejects_invalid_records",
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "experiments/0003-source-linked-replay/tests/replay_run_test.py"
+  ],
+  "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-ejfgdatf/N/gen",
+  "status": "pass",
+  "steps": [
+    {
+      "ts": "2026-11-06T12:41:27.641385+00:00",
+      "action": "start",
+      "result": "running"
+    },
+    {
+      "ts": "2026-11-06T12:41:42.852233+00:00",
+      "action": "step",
+      "result": "fresh_releases_match_archived_beams"
+    },
+    {
+      "ts": "2026-11-06T12:41:42.953430+00:00",
+      "action": "step",
+      "result": "receipt_1_verified"
+    },
+    {
+      "ts": "2026-11-06T12:41:43.011021+00:00",
+      "action": "step",
+      "result": "receipt_2_verified"
+    },
+    {
+      "ts": "2026-11-06T12:41:45.094745+00:00",
+      "action": "step",
+      "result": "live_baseline_and_records_verified"
+    },
+    {
+      "ts": "2026-11-06T12:41:46.564233+00:00",
+      "action": "step",
+      "result": "a1_stub_record_retained"
+    },
+    {
+      "ts": "2026-11-06T12:41:46.896101+00:00",
+      "action": "step",
+      "result": "replay_vm_observer_control_counted_transport"
+    },
+    {
+      "ts": "2026-11-06T12:41:48.975319+00:00",
+      "action": "step",
+      "result": "replay_cases_ran"
+    },
+    {
+      "ts": "2026-11-06T12:41:49.221923+00:00",
+      "action": "pass",
+      "result": "replay_verified"
+    }
+  ],
+  "release_exits": {
+    "payments": 0,
+    "orders": 0
+  },
+  "baseline": {
+    "receipts": [
+      {
+        "call": 1,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "state": "authorized"
+        },
+        "trace_id": "7c599783cc2673e6b98c1031e251a567"
+      },
+      {
+        "call": 2,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "state": "authorized"
+        },
+        "trace_id": "11fd56304428811d4362193fbadb49ae"
+      }
+    ],
+    "live_transport_attempts": [
+      1,
+      2
+    ],
+    "response_records": 2,
+    "responses_sha256": "377e18cd4aaaae2b14c70817b1b4ba982c314b3dddf23b2f30550c3779625b90"
+  },
+  "assertions": {
+    "a1_record_bytes_equal_sent_bytes": {
+      "expected": "eyAic3RhdGUiIDogImF1dGhvcml6ZWQiLAogICJvcmRlcl9pZCIgOiAib3JkZXItMSIgfQ==",
+      "actual": "eyAic3RhdGUiIDogImF1dGhvcml6ZWQiLAogICJvcmRlcl9pZCIgOiAib3JkZXItMSIgfQ=="
+    },
+    "replay_first_call": {
+      "expected": {
+        "result": {
+          "ok": {
+            "order_id": "order-1",
+            "state": "authorized"
+          }
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 1,
+        "OrdersBeamlSpike.finish/1": 1,
+        "ProbeSupport.valid_payment!/2": 1,
+        "OrdersBeamlSpike.prepare/1": 1
+      },
+      "actual": {
+        "result": {
+          "ok": {
+            "order_id": "order-1",
+            "state": "authorized"
+          }
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        "OrdersBeamlSpike.prepare/1": 1,
+        ":json.decode/1": 1,
+        "OrdersBeamlSpike.finish/1": 1,
+        "ProbeSupport.valid_payment!/2": 1
+      }
+    },
+    "replay_a1_noncanonical_body": {
+      "expected": {
+        "result": {
+          "ok": {
+            "order_id": "order-1",
+            "state": "authorized"
+          }
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 1,
+        "OrdersBeamlSpike.finish/1": 1,
+        "ProbeSupport.valid_payment!/2": 1,
+        "OrdersBeamlSpike.prepare/1": 1
+      },
+      "actual": {
+        "result": {
+          "ok": {
+            "order_id": "order-1",
+            "state": "authorized"
+          }
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        "OrdersBeamlSpike.prepare/1": 1,
+        ":json.decode/1": 1,
+        "OrdersBeamlSpike.finish/1": 1,
+        "ProbeSupport.valid_payment!/2": 1
+      }
+    },
+    "replay_missing_response": {
+      "expected": {
+        "result": {
+          "error": "missing_response"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      },
+      "actual": {
+        "result": {
+          "error": "missing_response"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      }
+    },
+    "replay_operation_mismatch": {
+      "expected": {
+        "result": {
+          "error": "operation_mismatch"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      },
+      "actual": {
+        "result": {
+          "error": "operation_mismatch"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      }
+    },
+    "replay_attempt_mismatch": {
+      "expected": {
+        "result": {
+          "error": "attempt_mismatch"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      },
+      "actual": {
+        "result": {
+          "error": "attempt_mismatch"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      }
+    },
+    "replay_body_digest_mismatch": {
+      "expected": {
+        "result": {
+          "error": "body_digest_mismatch"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      },
+      "actual": {
+        "result": {
+          "error": "body_digest_mismatch"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      }
+    },
+    "replay_status_mismatch": {
+      "expected": {
+        "result": {
+          "error": "status_mismatch"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      },
+      "actual": {
+        "result": {
+          "error": "status_mismatch"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      }
+    },
+    "replay_request_mismatch": {
+      "expected": {
+        "result": {
+          "error": "request_mismatch"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      },
+      "actual": {
+        "result": {
+          "error": "request_mismatch"
+        },
+        "transport": 0,
+        "OrdersApi.Router.call/2": 0,
+        "OrdersBeamlSpike.payments_authorize/1": 0,
+        ":gen_tcp.connect/4": 0,
+        ":json.decode/1": 0,
+        "OrdersBeamlSpike.finish/1": 0,
+        "ProbeSupport.valid_payment!/2": 0
+      }
+    }
+  }
+}

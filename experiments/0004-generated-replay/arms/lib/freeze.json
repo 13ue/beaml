@@ -1,0 +1,12 @@
+{
+  "sha256": {
+    "ReplayLib": "e5ad6e17b3a043496f160882866b8c31a2bdc8b8d2b3102d65db678adeb0bcbb",
+    "OrdersApi.ReplayDescriptor": "933566cd1565c9308847b3f95990905f21b6694d312364d8bf53ead2022e2c84"
+  },
+  "files": {
+    "ReplayLib": "experiments/0004-generated-replay/arms/lib/overlay/experiments/0002-http-correlation/apps/orders_api/lib/replay_lib.ex",
+    "OrdersApi.ReplayDescriptor": "experiments/0004-generated-replay/arms/lib/overlay/experiments/0002-http-correlation/apps/orders_api/lib/orders_api/replay_descriptor.ex"
+  },
+  "frozen_before": "GEN (d2) and DRIFT (f) judging",
+  "ts": "2026-11-06T12:28:03.521788+00:00"
+}

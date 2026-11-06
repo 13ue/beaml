@@ -1,0 +1,28 @@
+{
+  "retained": {
+    "original": {
+      "Elixir.OrdersBeamlSpike.beam.bin": "d89b3d8cf9659a02bb9df915e70375d3748ae5fd754c726e0919bc64437ca0bc",
+      "Elixir.PaymentsBeamlSpike.beam.bin": "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31",
+      "manifest.json": "66c7e711f4136cab30084687cddb230d2b370d61b995297e66268ebe27f3c395",
+      "orders.beaml": "8a4f7b2043b28668e42bbb5778387e383c5a59ffba2da12a550eee96199c5c09",
+      "orders.generated.ex": "0c763744d9ae2c229474a74087a4db1dc1d58b9bc8d302ba7c661e48a9414456",
+      "orders.logs.jsonl": "b4e2baeb396cd2f32fda36b236d444089e7d1923bea98adc7d6528f0c4a63272",
+      "orders.spans.jsonl": "3b062c7ae1b3b13ad7361071fc4790dd0c67cc3637e84ba224a8b3e8ebd0ca82",
+      "payments.beaml": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50",
+      "payments.generated.ex": "e57f13b48a94dc031be64daef13e28e820b7d19e281df07b89983db7f2bea14e",
+      "payments.logs.jsonl": "ae99c090dc7ceac5f427407acdf6154c04c6dcfceb1d289a83cd41344e430acd",
+      "payments.spans.jsonl": "f0b7e6d74c0aa5d95c2712e7e616ab0173383348c11c96de7fdbc7811c011052"
+    },
+    "current-revision": {
+      "Elixir.PaymentsBeamlSpike.beam.bin": "e18fbf636b5a0dd31b0186eaecdf1bb0cb9dfe129bead3526db9e462c20ba3f7",
+      "manifest.json": "6c9a99c0df438ebe103c86073c4cd9fb51d7d5aa41e6f02c1e1bfa1c57146b6e",
+      "payments.beaml": "54f7a883808c33ac6ab6eb18219e8903849538d03611e789e00642d9830f3161",
+      "payments.generated.ex": "bd03d544e0c586b2ddea41436ba7dc6882ace423ffd0e4c8c5670024818618d2"
+    }
+  },
+  "code": {
+    "experiments/0002-http-correlation/query.py": "c55c250d3f96cf013380241ab56fb72c5495240d4473dc40cc7170248a3568f8",
+    "experiments/0003-source-linked-replay/tests/trace_lookup_test.py": "6a7036195cc3025c252caa2cbe6ac4c9f13f78996752272249f0b5a6168b9ebe",
+    "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py": "5f83aa891c974c01179921ba2c27fd1b6b0f77c54a4de63ccf6641029b134804"
+  }
+}

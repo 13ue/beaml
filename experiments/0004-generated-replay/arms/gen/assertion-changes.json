@@ -1,0 +1,79 @@
+[
+  {
+    "file": "experiments/0002-http-correlation/query.py",
+    "line": 12,
+    "original": "    'orders.payment_http': ('orders', 'client', 'orders.request'),",
+    "copy": "    'orders.payments.authorize': ('orders', 'client', 'orders.request'),",
+    "reason": "Generated span name `<service>.<step>`"
+  },
+  {
+    "file": "experiments/0002-http-correlation/query.py",
+    "line": 13,
+    "original": "    'payments.request': ('payments', 'server', 'orders.payment_http'),",
+    "copy": "    'payments.request': ('payments', 'server', 'orders.payments.authorize'),",
+    "reason": "Same rename"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/response_capture_test.py",
+    "line": 175,
+    "original": "                   if row[\"name\"] == \"orders.payment_http\"}",
+    "copy": "                   if row[\"name\"] == \"orders.payments.authorize\"}",
+    "reason": "Same rename"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/response_capture_test.py",
+    "line": 213,
+    "original": "                if r[\"name\"] == \"orders.payment_http\"] == [(\"orders.payment_http\", \"error\")]",
+    "copy": "                if r[\"name\"] == \"orders.payments.authorize\"] == [(\"orders.payments.authorize\", \"error\")]",
+    "reason": "Same rename; `outcome: \"error\"` stays"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "line": 32,
+    "original": "WATCHED = (\"OrdersApi.Router.call/2\", \"OrdersApi.PaymentHttp.authorize/2\", \":gen_tcp.connect/4\",",
+    "copy": "WATCHED = (\"OrdersApi.Router.call/2\", \"OrdersBeamlSpike.payments_authorize/1\", \":gen_tcp.connect/4\",",
+    "reason": "The transport is generated"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "line": 48,
+    "original": "watched = [{OrdersApi.Router, :call, 2}, {OrdersApi.PaymentHttp, :authorize, 2}, {:gen_tcp, :connect, 4},",
+    "copy": "watched = [{OrdersApi.Router, :call, 2}, {OrdersBeamlSpike, :payments_authorize, 1}, {:gen_tcp, :connect, 4},",
+    "reason": "Same"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "line": 56,
+    "original": "      \"control\" -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(input[\"order\"]), [])",
+    "copy": "      \"control\" -> OrdersBeamlSpike.payments_authorize(OrdersBeamlSpike.prepare(input[\"order\"]))",
+    "reason": "Same"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "line": 57,
+    "original": "      \"replay\" -> OrdersApi.Replay.run(input[\"order\"], input[\"trace_id\"], input[\"responses\"])",
+    "copy": "      \"replay\" -> with {:ok, p} <- OrdersBeamlSpike.Replay.run(ProbeSupport.valid_order!(input[\"order\"]), input[\"trace_id\"], input[\"responses\"]), do: {:ok, ProbeSupport.valid_payment!(p, input[\"order\"])}",
+    "reason": "Domain validation stays host code, as in the router"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "line": 292,
+    "original": "        assert control == {\"result\": {\"raised\": \"MatchError\"}, \"transport\": 1, \"OrdersApi.Router.call/2\": 0,",
+    "copy": "        assert control == {\"result\": {\"error\": '%OrdersBeamlSpike.PaymentError{reason: \"transport\"}'}, \"transport\": 1, \"OrdersApi.Router.call/2\": 0,",
+    "reason": "The EFFECT returns a typed failure; counts stay"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "line": 293,
+    "original": "                           \"OrdersApi.PaymentHttp.authorize/2\": 1, \":gen_tcp.connect/4\": 1,",
+    "copy": "                           \"OrdersBeamlSpike.payments_authorize/1\": 1, \":gen_tcp.connect/4\": 1,",
+    "reason": "Same as line 32"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "line": 301,
+    "original": "                    \"OrdersApi.PaymentHttp.authorize/2\": 0, \":gen_tcp.connect/4\": 0,",
+    "copy": "                    \"OrdersBeamlSpike.payments_authorize/1\": 0, \":gen_tcp.connect/4\": 0,",
+    "reason": "Same as line 32"
+  }
+]

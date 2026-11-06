@@ -1,0 +1,131 @@
+[
+  {
+    "name": "elixir-version",
+    "argv": [
+      "elixir",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen",
+    "exit_code": 0
+  },
+  {
+    "name": "mix-version",
+    "argv": [
+      "mix",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen",
+    "exit_code": 0
+  },
+  {
+    "name": "rustc-version",
+    "argv": [
+      "rustc",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen",
+    "exit_code": 0
+  },
+  {
+    "name": "cargo-version",
+    "argv": [
+      "cargo",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen",
+    "exit_code": 0
+  },
+  {
+    "name": "python3-version",
+    "argv": [
+      "python3",
+      "--version"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen",
+    "exit_code": 0
+  },
+  {
+    "name": "dependencies",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "deps.get",
+      "--offline"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-ld0pytn_",
+    "exit_code": 0
+  },
+  {
+    "name": "generate-payments",
+    "argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--quiet",
+      "--manifest-path",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen/experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen/experiments/0003-source-linked-replay/results/20261106T123742503483Z/original/payments.beaml"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen",
+    "exit_code": 0
+  },
+  {
+    "name": "generate-orders",
+    "argv": [
+      "cargo",
+      "run",
+      "--offline",
+      "--quiet",
+      "--manifest-path",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen/experiments/0001-syntax-to-beam/Cargo.toml",
+      "--",
+      "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen/experiments/0003-source-linked-replay/results/20261106T123742503483Z/original/orders.beaml"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen",
+    "exit_code": 0
+  },
+  {
+    "name": "release-payments",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "release",
+      "payments",
+      "--overwrite"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-ld0pytn_",
+    "exit_code": 0
+  },
+  {
+    "name": "release-orders",
+    "argv": [
+      "env",
+      "MIX_ENV=prod",
+      "mix",
+      "release",
+      "orders",
+      "--overwrite"
+    ],
+    "cwd": "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-ld0pytn_",
+    "exit_code": 0
+  },
+  {
+    "name": "start-payments-payments",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-ld0pytn_/_build/prod/rel/payments/bin/payments",
+      "start"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen"
+  },
+  {
+    "name": "start-orders-orders",
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-replay-run-ld0pytn_/_build/prod/rel/orders/bin/orders",
+      "start"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/gen"
+  }
+]

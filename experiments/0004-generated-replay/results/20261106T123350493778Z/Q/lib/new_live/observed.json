@@ -1,0 +1,86 @@
+{
+  "reply": [
+    502,
+    {
+      "error": "downstream_failure"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "exchanges": [
+    {
+      "path": "/payments/authorize",
+      "request": "{\"channel\":\"web\",\"order_id\":\"order-1\"}",
+      "status": 400,
+      "body_base64": "eyJlcnJvciI6ImludmFsaWRfcmVxdWVzdCJ9"
+    }
+  ],
+  "records": [],
+  "spans": [
+    {
+      "attributes": {
+        "function": "prepare",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "91cdcfefd9f8bf7c39d7995ab641ba3645d0279f8762459fdcc18c90fd0cce49",
+        "outcome": "ok"
+      },
+      "name": "orders.prepare",
+      "service": "orders",
+      "start_time": -576460751293800375,
+      "kind": "internal",
+      "span_id": "589a03c439a37945",
+      "trace_id": "33cadc00cd16ee1cca48b0f66337b1f3",
+      "end_time": -576460751293364750,
+      "end_time_unix_nano": 1793968697285219250,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "8397a811946f610b",
+      "start_time_unix_nano": 1793968697284783625
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "error"
+      },
+      "name": "orders.payment_http",
+      "service": "orders",
+      "start_time": -576460751293032792,
+      "kind": "client",
+      "span_id": "3d694ec03b039caa",
+      "trace_id": "33cadc00cd16ee1cca48b0f66337b1f3",
+      "end_time": -576460751291880083,
+      "end_time_unix_nano": 1793968697286703917,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "8397a811946f610b",
+      "start_time_unix_nano": 1793968697285551208
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460751294119000,
+      "kind": "server",
+      "span_id": "8397a811946f610b",
+      "trace_id": "33cadc00cd16ee1cca48b0f66337b1f3",
+      "end_time": -576460751291728167,
+      "end_time_unix_nano": 1793968697286855833,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1793968697284465000
+    }
+  ],
+  "flow_probe": {
+    "result": {
+      "raised": "MatchError"
+    },
+    "host_validation": "nil",
+    "transport": 1,
+    "eval_exit_code": 0
+  }
+}

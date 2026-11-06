@@ -1,0 +1,3 @@
+# EXPERIMENT 0004 arm GEN: the host transport, CAPTURE and replay runner are generated now.
+experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex
+experiments/0002-http-correlation/apps/orders_api/lib/orders_api/replay.ex

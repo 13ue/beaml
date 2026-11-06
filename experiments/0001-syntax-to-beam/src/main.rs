@@ -1226,9 +1226,9 @@ impl Checker<'_> {
                     clauses.push(":ok <- expect(record[\"status\"], 200, :status_mismatch)".into());
                     clauses.push("{:ok, bytes} <- body(record)".into());
                     clauses.push(format!(
-                        "{output} = ProbeSupport.span({}, :internal, p0, nil, fn -> @parent.{}(bytes) end)",
+                        "{{:ok, {output}}} <- @parent.__beaml_attempt__(fn -> ProbeSupport.span({}, :internal, p0, nil, fn -> @parent.__beaml_result_{}(bytes) end) end)",
                         binary(&format!("{service}.{step}")),
-                        decode_name(&effect.output)
+                        effect.name.replace('.', "_")
                     ));
                 }
                 matched = true;
@@ -1298,21 +1298,32 @@ impl Checker<'_> {
             "  # beaml-declaration-v1 {name} {} {}\n",
             effect.source_range.start, effect.source_range.end
         );
+        // A failed EFFECT raises inside its span (outcome "error", attribute `reason`) and returns
+        // `{:error, %Failure{reason: r}}` outside it. Transport, status and decode never raise to the caller.
+        let failure = &effect.failures[0];
         out.push_str(&format!(
-            "  def {elixir}(a0) do\n    if __beaml_valid__(a0, {input}) do\n      ProbeSupport.span({span}, :client, a0, nil, fn ->\n        carrier = if ProbeSupport.config(:drop_context), do: [], else: :otel_propagator_text_map.inject([])\n        {{status, bytes}} = __MODULE__.Http.post(:{namespace}_port, {path}, a0, carrier)\n        __MODULE__.Replay.record(a0, status, bytes)\n        200 = status\n        {{:ok, {decode}(bytes)}}\n      end)\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n",
+            "  def {elixir}(a0) do\n    if __beaml_valid__(a0, {input}) do\n      __beaml_attempt__(fn ->\n        ProbeSupport.span({span}, :client, a0, nil, fn ->\n          carrier = if ProbeSupport.config(:drop_context), do: [], else: :otel_propagator_text_map.inject([])\n\n          case __MODULE__.Http.post(:{namespace}_port, {path}, a0, carrier) do\n            {{:ok, status, bytes}} ->\n              __MODULE__.Replay.record(a0, status, bytes)\n              if status == 200, do: __beaml_result_{elixir}(bytes), else: __beaml_fail_{elixir}({status_reason})\n\n            :error ->\n              __beaml_fail_{elixir}({transport_reason})\n          end\n        end)\n      end)\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n",
             input = binary(&effect.input),
             span = binary(&format!("{service}.{name}")),
             path = binary(&effect.path),
+            status_reason = binary("status"),
+            transport_reason = binary("transport"),
         ));
-        let fields: Vec<String> = self
+        // Tolerant typed decode: every declared field present with its TYPE, extra keys are a hint.
+        let declared: Vec<String> = self
             .record(&effect.output)
             .expect("checked output")
             .iter()
-            .map(|(field, _)| format!("{} => Map.get(value, {})", binary(field), binary(field)))
+            .map(|(field, _)| binary(field))
             .collect();
         out.push_str(&format!(
-            "  def {decode}(a0) do\n    value = :json.decode(a0)\n    %{{{}}}\n  end\n",
-            fields.join(", ")
+            "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
+            declared.join(", "),
+            output = binary(&effect.output),
+        ));
+        out.push_str(&format!(
+            "  def __beaml_result_{elixir}(a0) do\n    case {decode}(a0) do\n      {{:ok, value, []}} ->\n        {{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
+            decode_reason = binary("decode"),
         ));
         for failure in self.structs() {
             let fields: Vec<String> = self
@@ -1326,9 +1337,10 @@ impl Checker<'_> {
                 fields.join(", ")
             ));
         }
+        out.push_str("  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n");
         out.push_str(HTTP);
         out.push_str(&format!(
-            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 1,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        body_base64: Base.encode64(bytes),\n        body_length: byte_size(bytes),\n        body_sha256: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower)\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
+            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n\n      unknown_keys =\n        case @parent.{decode}(bytes) do\n          {{:ok, _, keys}} -> keys\n          _ -> []\n        end\n\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 1,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        body_base64: Base.encode64(bytes),\n        body_length: byte_size(bytes),\n        body_sha256: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),\n        unknown_keys: unknown_keys\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
             operation = binary(name),
             chain = self.emit_chain(steps, true, service, "      ", Step::Replay),
         ));
@@ -1346,38 +1358,48 @@ const HTTP: &str = r#"  defmodule Http do
       headers = Enum.map(carrier, fn {key, value} -> [key, ": ", value, "\r\n"] end)
       ProbeSupport.increment()
 
-      {:ok, socket} =
-        :gen_tcp.connect(
-          {127, 0, 0, 1},
-          port,
-          [:binary, active: false, packet: :http_bin, packet_size: 8192, send_timeout: 1000],
-          1000
-        )
+      # Any connect, send, framing or read failure is the typed transport failure, never a raise.
+      case :gen_tcp.connect(
+             {127, 0, 0, 1},
+             port,
+             [:binary, active: false, packet: :http_bin, packet_size: 8192, send_timeout: 1000],
+             1000
+           ) do
+        {:ok, socket} ->
+          try do
+            exchange(socket, port, path, body, headers)
+          catch
+            _, _ -> :error
+          after
+            :gen_tcp.close(socket)
+          end
 
-      try do
-        :ok =
-          :gen_tcp.send(socket, [
-            "POST /", path, " HTTP/1.1\r\n",
-            "Host: 127.0.0.1:#{port}\r\n",
-            "Connection: close\r\n",
-            "Content-Type: application/json\r\n",
-            "Content-Length: #{byte_size(body)}\r\n",
-            headers,
-            "\r\n",
-            body
-          ])
-
-        deadline = System.monotonic_time(:millisecond) + 2000
-        {:ok, {:http_response, {1, minor}, status, _}} = recv(socket, 0, deadline)
-        true = minor in [0, 1]
-        :ok = :inet.setopts(socket, packet: :httph_bin)
-        length = content_length(socket, deadline, 32, nil)
-        :ok = :inet.setopts(socket, packet: :raw)
-        {:ok, bytes} = recv(socket, length, deadline)
-        {status, bytes}
-      after
-        :gen_tcp.close(socket)
+        {:error, _} ->
+          :error
       end
+    end
+
+    defp exchange(socket, port, path, body, headers) do
+      :ok =
+        :gen_tcp.send(socket, [
+          "POST /", path, " HTTP/1.1\r\n",
+          "Host: 127.0.0.1:#{port}\r\n",
+          "Connection: close\r\n",
+          "Content-Type: application/json\r\n",
+          "Content-Length: #{byte_size(body)}\r\n",
+          headers,
+          "\r\n",
+          body
+        ])
+
+      deadline = System.monotonic_time(:millisecond) + 2000
+      {:ok, {:http_response, {1, minor}, status, _}} = recv(socket, 0, deadline)
+      true = minor in [0, 1]
+      :ok = :inet.setopts(socket, packet: :httph_bin)
+      length = content_length(socket, deadline, 32, nil)
+      :ok = :inet.setopts(socket, packet: :raw)
+      {:ok, bytes} = recv(socket, length, deadline)
+      {:ok, status, bytes}
     end
 
     defp content_length(socket, deadline, remaining, length) when remaining >= 0 do

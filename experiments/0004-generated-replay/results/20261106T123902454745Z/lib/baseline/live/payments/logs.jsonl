@@ -1,0 +1,2 @@
+{"service":"payments","operation":"authorize","trace_id":"d5aae978c42f4eedca2857c10a15ce37","span_id":"d38ad5e320032dba","event":"payment_stub_returned","order_id":"order-1"}
+{"service":"payments","operation":"authorize","trace_id":"aca33a98bb863d12b4ed5b0a5f41e4d1","span_id":"1045469aa77ae2e5","event":"payment_stub_returned","order_id":"order-1"}

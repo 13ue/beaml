@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/lib/experiments/0003-source-linked-replay/tests/replay_run_test.py", line 352, in <module>
+    test_separate_runner_replays_first_call_and_rejects_invalid_records(run, result)
+  File "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-2pv3q_q9/Q/lib/experiments/0003-source-linked-replay/tests/replay_run_test.py", line 197, in test_separate_runner_replays_first_call_and_rejects_invalid_records
+    assert (status, body) == (200, PAYMENT)
+AssertionError

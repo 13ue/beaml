@@ -1,0 +1,17 @@
+[
+  {
+    "file": "experiments/0002-http-correlation/apps/probe_support/lib/probe_support.ex",
+    "old": "unless value == %{\"order_id\" => order[\"order_id\"], \"status\" => \"authorized\"},",
+    "new": "unless value == %{\"order_id\" => order[\"order_id\"], \"status\" => \"authorized\", \"reference\" => \"ref-1\"},"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "old": "PAYMENT = {\"order_id\": \"order-1\", \"status\": \"authorized\"}",
+    "new": "PAYMENT = {\"order_id\": \"order-1\", \"status\": \"authorized\", \"reference\": \"ref-1\"}"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "old": "STUB_BODY = b'{ \"status\" : \"authorized\",\\n  \"order_id\" : \"order-1\" }'",
+    "new": "STUB_BODY = b'{ \"status\" : \"authorized\",\\n  \"order_id\" : \"order-1\",\\n  \"reference\" : \"ref-1\" }'"
+  }
+]
