@@ -49,6 +49,7 @@ Update [the source note](wiki/sources/roasting-rounds.md) and append an entry to
 State capture limits and distinguish proposals from executed results. Exclude secrets and restricted material.
 Run the wiki link checks. Add new pages to `wiki/index.md` when needed.
 This rule requires documentation, not implementation of review proposals, automatic commits, pushes or additional approval gates.
+Devil's Advocate checkpoints inside the `implement-step` pipeline are not roasting rounds. Record them only in the gate ledger.
 
 ## Start here
 

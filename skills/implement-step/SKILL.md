@@ -39,15 +39,28 @@ Do not expand scope to unrelated failures or overwrite pre-existing work.
 ## Test-first rule
 
 Use test-first development for meaningful code or behavior changes.
-Observe genuine RED before production changes, then show the evidence to the user before GREEN.
-The main agent presents worker evidence and waits for the user's review and instruction to continue.
-General task authorization does not waive this checkpoint. An explicit waiver or preauthorization does; retain it in the ledger.
+Observe genuine RED before production changes. The main agent reviews it, and a fresh agent checks it again before GREEN.
+The owner does not review RED (owner rule, 2026-11-06). Ask the owner only for open design decisions.
 For each new meaningful behavior step, repeat RED, agent RED review and GREEN.
 
 No-behavior changes to prose, docstrings, comments, formatting or literal wording do not need a new test.
 A string that changes logic, parsing, protocols or security changes behavior and is not exempt.
 If no meaningful automated test is possible, record the concrete reason and use the appropriate alternative check.
 Do not mirror implementation text or snapshot trivial wording. Record exceptions and actual checks in the ledger.
+
+## Devil's Advocate checkpoints
+
+Use the `advocatus-diaboli` skill at three checkpoints only: the plan (spec mode), the RED review and the final review (code mode).
+Each checkpoint uses one fresh agent. It does not read earlier reviews, and no agent reviews another agent's review.
+Be brutal about consequences, not about style. Attack the premise, false passes, missing cases and simpler alternatives.
+
+- **Keep** an objection only when it names a concrete wrong outcome and the smallest test that settles it.
+- **Block** only on critical or high. Record medium in the ledger and continue. Drop low.
+- **Cap** at three objections per checkpoint. Three strong ones beat twelve weak ones.
+- **Ignore** naming, wording, formatting, comment style and "could be documented better".
+- **One round.** The repair answers each blocking objection once. A new round needs new evidence, not a new reviewer.
+
+Record checkpoint objections in the gate ledger (`plan-review.md`, `red-review.md`, `review.md`), not as roasting rounds.
 
 ## Pipeline
 
