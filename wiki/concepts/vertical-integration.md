@@ -45,7 +45,7 @@ updated: 2026-11-06
 - An open TYPE (`String`, `Int`) is matched with a last branch that keeps the original value, for example `other -> Unknown(other)`. The target TYPE then has an `Unknown` variant, and every use of that TYPE must handle it.
 - `add` with a constant is allowed. It is an explicit statement about the old data, not a guess.
 - Unknown values stay visible through the stack. The check reports per environment how many values are `Unknown`.
-- Privacy is the highest goal. A field of an `interface` can be declared as PII. The compiler keeps that value out of logs, traces and reports across the stack. See [information-flow security](information-flow-security.md).
+- Privacy is the highest goal. A field of an `interface` can be declared as PII with the word `redacted` before its TYPE (`card_holder: redacted String`). The compiler keeps that value out of logs, traces and reports across the stack. See [information-flow security](information-flow-security.md).
 - By default the compiler checks only the stored TYPE VERSIONS. A run of the migrations over stored values is a separate step per environment, started on request.
 
 **[Verified]** Review round 1 found that a chain with guessing fallbacks cannot fail a build on bad data. Review round 2 found that an agent that may accept its own fallback hits turns the check into a formality. The rules above remove both: there is no guessing fallback, so there is nothing to accept.

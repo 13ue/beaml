@@ -270,6 +270,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: never warn on the last step. Over: let the version fall back to 1.
 → Because: the last step carries the newest version number; removing it would renumber stored records.
 
+### Redacted fields
+
+**DL-059 · Migrate · `redacted` marks PII on a field**
+→ Chose: the word `redacted` before the field TYPE: `interface Payment { order_id: String  card_holder: redacted String }`. Over: `pii` after the TYPE.
+→ Because: OWNER choice. The word says what the compiler does with the value (DL-029).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
