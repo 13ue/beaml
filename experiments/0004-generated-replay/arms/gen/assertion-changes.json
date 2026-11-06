@@ -75,5 +75,26 @@
     "original": "                    \"OrdersApi.PaymentHttp.authorize/2\": 0, \":gen_tcp.connect/4\": 0,",
     "copy": "                    \"OrdersBeamlSpike.payments_authorize/1\": 0, \":gen_tcp.connect/4\": 0,",
     "reason": "Same as line 32"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/replay_run_test.py",
+    "line": 141,
+    "original": "                                                        COMPILER / \"Cargo.toml\", \"--\", archived])",
+    "copy": "                                                        COMPILER / \"Cargo.toml\", \"--\", archived, \"--stored\", Path(__file__).with_name(\"stored-empty.jsonl\")])",
+    "reason": "Slice 2 (C10): the compiler needs a RECORD SNAPSHOT for a source with an effect; the copy passes the empty snapshot"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/response_capture_test.py",
+    "line": 92,
+    "original": "                                                        COMPILER / \"Cargo.toml\", \"--\", archived])",
+    "copy": "                                                        COMPILER / \"Cargo.toml\", \"--\", archived, \"--stored\", Path(__file__).with_name(\"stored-empty.jsonl\")])",
+    "reason": "Slice 2 (C10): the compiler needs a RECORD SNAPSHOT for a source with an effect; the copy passes the empty snapshot"
+  },
+  {
+    "file": "experiments/0003-source-linked-replay/tests/trace_lookup_test.py",
+    "line": 51,
+    "original": "                                      COMPILER / \"Cargo.toml\", \"--\", source])",
+    "copy": "                                      COMPILER / \"Cargo.toml\", \"--\", source, \"--stored\", Path(__file__).with_name(\"stored-empty.jsonl\")])",
+    "reason": "Slice 2 (C10): the compiler needs a RECORD SNAPSHOT for a source with an effect; the copy passes the empty snapshot"
   }
 ]

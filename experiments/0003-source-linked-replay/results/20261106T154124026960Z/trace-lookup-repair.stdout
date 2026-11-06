@@ -1,0 +1,5 @@
+/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T154142887885Z
+unchanged: expected exit 0 and the unchanged original 2/2 summary with the first receipt trace; actual {'exit_code': 0, 'complete': True, 'gaps': [], 'coverage': [2, 2], 'first_trace_id': '9de49ae526e5cd8eeb54b8dd71cfeb4b'}
+swapped-receipts: expected exit 1, incomplete, receipt_coverage, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'receipt_coverage'}], 'coverage': None, 'first_trace_id': None}
+missing-window: expected exit 1, incomplete, missing_window, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'missing_window'}], 'coverage': None, 'first_trace_id': None}
+outside-window: expected exit 1, incomplete, outside_window, and no function summary; actual {'exit_code': 1, 'complete': False, 'gaps': [{'code': 'outside_window'}], 'coverage': None, 'first_trace_id': None}

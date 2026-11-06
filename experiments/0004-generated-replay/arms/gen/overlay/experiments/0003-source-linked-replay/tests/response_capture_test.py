@@ -89,7 +89,7 @@ def test_live_orders_call_captures_predecode_response_and_one_transport_attempt(
             archived = evidence / f"{service}.beaml"
             shutil.copyfile(stage / fixture, archived)
             generated = command("generate-" + service, ["cargo", "run", "--offline", "--quiet", "--manifest-path",
-                                                        COMPILER / "Cargo.toml", "--", archived])
+                                                        COMPILER / "Cargo.toml", "--", archived, "--stored", Path(__file__).with_name("stored-empty.jsonl")])
             assert generated.count("defmodule BeamlSpike do") == 1
             code = stage / f"apps/{service}_api/lib/generated.ex"
             code.write_text(generated.replace("defmodule BeamlSpike do", f"defmodule {service.title()}BeamlSpike do"))

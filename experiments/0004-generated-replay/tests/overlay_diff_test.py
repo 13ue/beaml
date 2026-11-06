@@ -35,6 +35,9 @@ TABLE = {
         (REPLAY, 292): ('{"raised": "MatchError"}', ["%OrdersBeamlSpike.PaymentError{reason: ", "transport"], 1),
         (REPLAY, 293): ('"%s"' % TRANSPORT_OLD, ['"%s"' % TRANSPORT_NEW], 1),
         (REPLAY, 301): ('"%s"' % TRANSPORT_OLD, ['"%s"' % TRANSPORT_NEW], 1),
+        (REPLAY, 141): ('"--", archived])', ['"--stored", Path(__file__).with_name("stored-empty.jsonl")'], 1),
+        (CAPTURE, 92): ('"--", archived])', ['"--stored", Path(__file__).with_name("stored-empty.jsonl")'], 1),
+        (REPLAY_PATH + "/tests/trace_lookup_test.py", 51): ('"--", source])', ['"--stored", Path(__file__).with_name("stored-empty.jsonl")'], 1),
     },
     "lib": {
         (REPLAY, 57): ("OrdersApi.Replay.run(input[\"order\"], input[\"trace_id\"], input[\"responses\"])",

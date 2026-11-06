@@ -3,11 +3,15 @@ use std::io::Write;
 use std::ops::Range;
 
 type Checked<T> = Result<T, String>;
+// TYPE VERSIONS per TYPE name: index 0 is version 1.
+type Versions = BTreeMap<String, Vec<Vec<(String, String)>>>;
 
 #[derive(Clone, Debug, PartialEq)]
 enum Token {
     Word(String),
     Text(String),
+    // A version number of a MIGRATE CHAIN step (slice 2).
+    Number(u32),
     Symbol(char),
     Arrow,
     Pipe,
@@ -53,6 +57,17 @@ fn lex(source: &str) -> Checked<Vec<(Token, Range<usize>)>> {
                     }
                 }
                 Token::Word(word)
+            }
+            c if c.is_ascii_digit() => {
+                let mut digits = c.to_string();
+                while chars.peek().is_some_and(|(_, c)| c.is_ascii_digit()) {
+                    digits.push(chars.next().unwrap().1);
+                }
+                Token::Number(
+                    digits
+                        .parse()
+                        .map_err(|_| format!("number too large at byte {pos}"))?,
+                )
             }
             '"' => {
                 let mut text = String::new();
@@ -140,11 +155,21 @@ struct Effect {
     path: String,
     source_range: Range<usize>,
 }
+// `migrate T a -> b { rename old -> new }`: one step of the MIGRATE CHAIN of the TYPE T (slice 2).
+// The `interface` is the newest TYPE VERSION; older versions are derived backwards.
+#[derive(Clone, Debug)]
+struct Migration {
+    type_name: String,
+    from: u32,
+    to: u32,
+    renames: Vec<(String, String)>,
+}
 #[derive(Default)]
 struct Program {
     types: BTreeMap<String, Definition>,
     clauses: Vec<Clause>,
     effects: Vec<Effect>,
+    migrations: Vec<Migration>,
 }
 
 struct Parser {
@@ -189,6 +214,15 @@ impl Parser {
             Ok(word)
         } else {
             Err(self.error("expected name"))
+        }
+    }
+    fn number(&mut self) -> Checked<u32> {
+        match self.peek().clone() {
+            Token::Number(number) => {
+                self.at += 1;
+                Ok(number)
+            }
+            _ => Err(self.error("expected version number")),
         }
     }
     fn arrow(&mut self) -> Checked<()> {
@@ -391,6 +425,36 @@ impl Parser {
                         source_range: start..self.tokens[self.at - 1].1.end,
                     });
                 }
+                "migrate" => {
+                    let type_name = self.word()?;
+                    let from = self.number()?;
+                    self.arrow()?;
+                    let to = self.number()?;
+                    self.expect('{')?;
+                    let mut renames = Vec::new();
+                    while !self.eat('}') {
+                        match self.word()?.as_str() {
+                            "rename" => {
+                                let old = self.word()?;
+                                self.arrow()?;
+                                renames.push((old, self.word()?));
+                            }
+                            _ => {
+                                self.at -= 1;
+                                return Err(self.error(
+                                    "unsupported migrate step (slice 2 supports rename only)",
+                                ));
+                            }
+                        }
+                        self.eat(',');
+                    }
+                    program.migrations.push(Migration {
+                        type_name,
+                        from,
+                        to,
+                        renames,
+                    });
+                }
                 _ => return Err(self.error("expected interface, enum, or fn")),
             }
         }
@@ -404,6 +468,76 @@ struct Checker<'a> {
     signatures: BTreeMap<String, (Vec<String>, String)>,
     // The `!` list of each function; empty for a function that cannot fail.
     failures: BTreeMap<String, Vec<String>>,
+    // TYPE VERSIONS of each TYPE with a MIGRATE CHAIN: index 0 is version 1, the last is the interface.
+    versions: Versions,
+}
+
+// The MIGRATE CHAIN check: steps `1 -> 2 -> ...` without gaps per TYPE, each `rename old -> new` with
+// `new` in the version after the step and `old` not in it. Old versions are derived backwards.
+fn derive_versions(program: &Program) -> Checked<Versions> {
+    let mut chains: BTreeMap<&str, Vec<&Migration>> = BTreeMap::new();
+    for step in &program.migrations {
+        chains.entry(&step.type_name).or_default().push(step);
+    }
+    let mut versions = BTreeMap::new();
+    for (name, steps) in chains {
+        let Some(Definition::Record(newest)) = program.types.get(name) else {
+            return Err(format!("migrate {name}: unknown interface: {name}"));
+        };
+        for (index, step) in steps.iter().enumerate() {
+            let from = index as u32 + 1;
+            if step.from != from || step.to != from + 1 {
+                return Err(format!(
+                    "migrate {name} {} -> {}: the MIGRATE CHAIN of {name} must count 1 -> 2 -> 3 without gaps, expected {from} -> {}",
+                    step.from,
+                    step.to,
+                    from + 1
+                ));
+            }
+            if step.renames.is_empty() {
+                return Err(format!(
+                    "migrate {name} {} -> {}: a step needs at least one rename",
+                    step.from, step.to
+                ));
+            }
+        }
+        let mut chain = vec![newest.clone()];
+        for step in steps.iter().rev() {
+            let current = chain.last().unwrap();
+            let label = format!("migrate {name} {} -> {}", step.from, step.to);
+            unique(step.renames.iter().map(|(old, _)| old.clone()))
+                .map_err(|e| format!("{label}: {e}"))?;
+            unique(step.renames.iter().map(|(_, new)| new.clone()))
+                .map_err(|e| format!("{label}: {e}"))?;
+            let mut previous = current.clone();
+            for (old, new) in &step.renames {
+                if !lower(old) {
+                    return Err(format!("{label}: field names must start lowercase: {old}"));
+                }
+                if !current.iter().any(|(field, _)| field == new) {
+                    return Err(format!(
+                        "{label}: rename {old} -> {new}: field {new} is not in {name} {}",
+                        step.to
+                    ));
+                }
+                if current.iter().any(|(field, _)| field == old) {
+                    return Err(format!(
+                        "{label}: rename {old} -> {new}: field {old} is still in {name} {}",
+                        step.to
+                    ));
+                }
+                for field in previous.iter_mut() {
+                    if &field.0 == new {
+                        field.0 = old.clone();
+                    }
+                }
+            }
+            chain.push(previous);
+        }
+        chain.reverse();
+        versions.insert(name.to_string(), chain);
+    }
+    Ok(versions)
 }
 
 fn upper(name: &str) -> bool {
@@ -428,6 +562,7 @@ impl<'a> Checker<'a> {
             variants: BTreeMap::new(),
             signatures: BTreeMap::new(),
             failures: BTreeMap::new(),
+            versions: BTreeMap::new(),
         };
         for (name, def) in &program.types {
             if !upper(name) || name == "String" {
@@ -463,6 +598,7 @@ impl<'a> Checker<'a> {
         for name in program.types.keys() {
             checker.check_type(name, &mut Vec::new())?;
         }
+        checker.versions = derive_versions(program)?;
         if program.clauses.is_empty() {
             return Err("expected at least one function".into());
         }
@@ -1150,6 +1286,38 @@ fn decode_name(output: &str) -> String {
 }
 
 impl Checker<'_> {
+    // TYPE VERSIONS of a TYPE, oldest first; the last one is the `interface`.
+    fn type_versions(&self, name: &str) -> Vec<Vec<(String, String)>> {
+        match self.versions.get(name) {
+            Some(chain) => chain.clone(),
+            None => vec![self.record(name).cloned().unwrap_or_default()],
+        }
+    }
+    // The `rename` steps of the MIGRATE CHAIN of a TYPE, in chain order.
+    fn renames(&self, name: &str) -> Vec<(String, String)> {
+        self.program
+            .migrations
+            .iter()
+            .filter(|m| m.type_name == name)
+            .flat_map(|m| m.renames.clone())
+            .collect()
+    }
+    // The `type` key of a RESPONSE RECORD: the newest TYPE VERSION of the build.
+    fn emit_type_version(&self, name: &str) -> String {
+        let versions = self.type_versions(name);
+        let fields = sorted_fields(versions.last().unwrap());
+        format!(
+            "%{{name: {}, version: {}, fields: [{}], fingerprint: {}}}",
+            binary(name),
+            versions.len(),
+            fields
+                .iter()
+                .map(|(f, t)| format!("[{}, {}]", binary(f), binary(t)))
+                .collect::<Vec<_>>()
+                .join(", "),
+            binary(&fingerprint(&fields))
+        )
+    }
     // Failure TYPES named in any `!` list; each becomes a nested struct module.
     fn structs(&self) -> BTreeSet<String> {
         let clauses = self.program.clauses.iter().map(|c| &c.failures);
@@ -1316,8 +1484,21 @@ impl Checker<'_> {
             .iter()
             .map(|(field, _)| binary(field))
             .collect();
+        // MIGRATE CHAIN: for each `rename old -> new` step in chain order, an old record with `old` and
+        // without `new` reads `old` as `new`. The current name wins (C12); the old key is consumed.
+        let renames: String = self
+            .renames(&effect.output)
+            .iter()
+            .map(|(old, new)| {
+                format!(
+                    "    value =\n      if is_map(value) and Map.has_key?(value, {new}) == false and Map.has_key?(value, {old}),\n        do: Map.delete(Map.put(value, {new}, Map.get(value, {old})), {old}),\n        else: value\n\n",
+                    old = binary(old),
+                    new = binary(new)
+                )
+            })
+            .collect();
         out.push_str(&format!(
-            "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
+            "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n{renames}    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
             declared.join(", "),
             output = binary(&effect.output),
         ));
@@ -1340,8 +1521,9 @@ impl Checker<'_> {
         out.push_str("  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n");
         out.push_str(HTTP);
         out.push_str(&format!(
-            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n\n      unknown_keys =\n        case @parent.{decode}(bytes) do\n          {{:ok, _, keys}} -> keys\n          _ -> []\n        end\n\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 1,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        body_base64: Base.encode64(bytes),\n        body_length: byte_size(bytes),\n        body_sha256: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),\n        unknown_keys: unknown_keys\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
+            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n\n      unknown_keys =\n        case @parent.{decode}(bytes) do\n          {{:ok, _, keys}} -> keys\n          _ -> []\n        end\n\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 1,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        body_base64: Base.encode64(bytes),\n        body_length: byte_size(bytes),\n        body_sha256: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),\n        unknown_keys: unknown_keys,\n        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
             operation = binary(name),
+            type_version = self.emit_type_version(&effect.output),
             chain = self.emit_chain(steps, true, service, "      ", Step::Replay),
         ));
         out
@@ -1456,12 +1638,519 @@ const REPLAY_HELPERS: &str = r#"
     defp body(_record), do: {:error, :body_digest_mismatch}
 "#;
 
+// Fields of a TYPE VERSION sorted by field name (the order of the RESPONSE RECORD `type` key).
+fn sorted_fields(fields: &[(String, String)]) -> Vec<(String, String)> {
+    let mut sorted = fields.to_vec();
+    sorted.sort();
+    sorted
+}
+
+// Fingerprint of a TYPE VERSION: lower-case hex SHA-256 of the compact JSON of the sorted field list,
+// for example `[["order_id","String"],["status","String"]]`. The TYPE name is not part of it.
+fn fingerprint(fields: &[(String, String)]) -> String {
+    let text = format!(
+        "[{}]",
+        sorted_fields(fields)
+            .iter()
+            .map(|(f, t)| format!("[{},{}]", json_string(f), json_string(t)))
+            .collect::<Vec<_>>()
+            .join(",")
+    );
+    sha256(text.as_bytes())
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
+}
+
+fn json_string(text: &str) -> String {
+    let mut out = String::from("\"");
+    for c in text.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
+}
+
+// FIPS 180-4 SHA-256. The compiler has no dependencies.
+fn sha256(data: &[u8]) -> [u8; 32] {
+    const K: [u32; 64] = [
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
+        0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
+        0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
+        0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+        0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,
+        0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
+        0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,
+        0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
+        0xc67178f2,
+    ];
+    let mut h: [u32; 8] = [
+        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
+        0x5be0cd19,
+    ];
+    let mut message = data.to_vec();
+    message.push(0x80);
+    while message.len() % 64 != 56 {
+        message.push(0);
+    }
+    message.extend_from_slice(&((data.len() as u64) * 8).to_be_bytes());
+    for block in message.chunks(64) {
+        let mut w = [0u32; 64];
+        for (i, word) in block.chunks(4).enumerate() {
+            w[i] = u32::from_be_bytes([word[0], word[1], word[2], word[3]]);
+        }
+        for i in 16..64 {
+            let s0 = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
+            let s1 = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
+            w[i] = w[i - 16]
+                .wrapping_add(s0)
+                .wrapping_add(w[i - 7])
+                .wrapping_add(s1);
+        }
+        let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut hh] = h;
+        for i in 0..64 {
+            let s1 = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
+            let ch = (e & f) ^ (!e & g);
+            let t1 = hh
+                .wrapping_add(s1)
+                .wrapping_add(ch)
+                .wrapping_add(K[i])
+                .wrapping_add(w[i]);
+            let s0 = a.rotate_right(2) ^ a.rotate_right(13) ^ a.rotate_right(22);
+            let maj = (a & b) ^ (a & c) ^ (b & c);
+            let t2 = s0.wrapping_add(maj);
+            hh = g;
+            g = f;
+            f = e;
+            e = d.wrapping_add(t1);
+            d = c;
+            c = b;
+            b = a;
+            a = t1.wrapping_add(t2);
+        }
+        for (state, value) in h.iter_mut().zip([a, b, c, d, e, f, g, hh]) {
+            *state = state.wrapping_add(value);
+        }
+    }
+    let mut out = [0u8; 32];
+    for (i, word) in h.iter().enumerate() {
+        out[i * 4..i * 4 + 4].copy_from_slice(&word.to_be_bytes());
+    }
+    out
+}
+
+// A small JSON reader for RECORD SNAPSHOT lines. Numbers keep their text.
+#[derive(Clone, Debug, PartialEq)]
+enum Json {
+    Null,
+    Bool(bool),
+    Number(String),
+    Text(String),
+    List(Vec<Json>),
+    Object(Vec<(String, Json)>),
+}
+impl Json {
+    fn get(&self, key: &str) -> Option<&Json> {
+        match self {
+            Json::Object(pairs) => pairs.iter().find(|(k, _)| k == key).map(|(_, v)| v),
+            _ => None,
+        }
+    }
+    fn text(&self) -> Option<&str> {
+        match self {
+            Json::Text(text) => Some(text),
+            _ => None,
+        }
+    }
+}
+
+fn parse_json(text: &str) -> Option<Json> {
+    let bytes = text.as_bytes();
+    let mut at = 0;
+    let value = json_value(bytes, &mut at, 0)?;
+    json_space(bytes, &mut at);
+    (at == bytes.len()).then_some(value)
+}
+fn json_space(bytes: &[u8], at: &mut usize) {
+    while *at < bytes.len() && b" \t\r\n".contains(&bytes[*at]) {
+        *at += 1;
+    }
+}
+fn json_value(bytes: &[u8], at: &mut usize, depth: usize) -> Option<Json> {
+    if depth > 64 {
+        return None;
+    }
+    json_space(bytes, at);
+    match *bytes.get(*at)? {
+        b'{' => {
+            *at += 1;
+            let mut pairs = Vec::new();
+            json_space(bytes, at);
+            if bytes.get(*at) == Some(&b'}') {
+                *at += 1;
+                return Some(Json::Object(pairs));
+            }
+            loop {
+                json_space(bytes, at);
+                let Json::Text(key) = json_value(bytes, at, depth + 1)? else {
+                    return None;
+                };
+                json_space(bytes, at);
+                if bytes.get(*at) != Some(&b':') {
+                    return None;
+                }
+                *at += 1;
+                pairs.push((key, json_value(bytes, at, depth + 1)?));
+                json_space(bytes, at);
+                match bytes.get(*at)? {
+                    b',' => *at += 1,
+                    b'}' => {
+                        *at += 1;
+                        return Some(Json::Object(pairs));
+                    }
+                    _ => return None,
+                }
+            }
+        }
+        b'[' => {
+            *at += 1;
+            let mut items = Vec::new();
+            json_space(bytes, at);
+            if bytes.get(*at) == Some(&b']') {
+                *at += 1;
+                return Some(Json::List(items));
+            }
+            loop {
+                items.push(json_value(bytes, at, depth + 1)?);
+                json_space(bytes, at);
+                match bytes.get(*at)? {
+                    b',' => *at += 1,
+                    b']' => {
+                        *at += 1;
+                        return Some(Json::List(items));
+                    }
+                    _ => return None,
+                }
+            }
+        }
+        b'"' => {
+            *at += 1;
+            let mut text = String::new();
+            loop {
+                match *bytes.get(*at)? {
+                    b'"' => {
+                        *at += 1;
+                        return Some(Json::Text(text));
+                    }
+                    b'\\' => {
+                        let escape = *bytes.get(*at + 1)?;
+                        *at += 2;
+                        text.push(match escape {
+                            b'"' => '"',
+                            b'\\' => '\\',
+                            b'/' => '/',
+                            b'b' => '\u{8}',
+                            b'f' => '\u{c}',
+                            b'n' => '\n',
+                            b'r' => '\r',
+                            b't' => '\t',
+                            b'u' => {
+                                let high = json_hex(bytes, at)?;
+                                if (0xd800..0xdc00).contains(&high) {
+                                    if bytes.get(*at..*at + 2)? != b"\\u" {
+                                        return None;
+                                    }
+                                    *at += 2;
+                                    let low = json_hex(bytes, at)?;
+                                    if !(0xdc00..0xe000).contains(&low) {
+                                        return None;
+                                    }
+                                    char::from_u32(
+                                        0x10000 + ((high - 0xd800) << 10) + (low - 0xdc00),
+                                    )?
+                                } else {
+                                    char::from_u32(high)?
+                                }
+                            }
+                            _ => return None,
+                        });
+                    }
+                    byte if byte < 0x20 => return None,
+                    _ => {
+                        let start = *at;
+                        while *at < bytes.len()
+                            && bytes[*at] != b'"'
+                            && bytes[*at] != b'\\'
+                            && bytes[*at] >= 0x20
+                        {
+                            *at += 1;
+                        }
+                        text.push_str(std::str::from_utf8(&bytes[start..*at]).ok()?);
+                    }
+                }
+            }
+        }
+        b't' if bytes[*at..].starts_with(b"true") => {
+            *at += 4;
+            Some(Json::Bool(true))
+        }
+        b'f' if bytes[*at..].starts_with(b"false") => {
+            *at += 5;
+            Some(Json::Bool(false))
+        }
+        b'n' if bytes[*at..].starts_with(b"null") => {
+            *at += 4;
+            Some(Json::Null)
+        }
+        b'-' | b'0'..=b'9' => {
+            let start = *at;
+            while *at < bytes.len() && b"+-.eE0123456789".contains(&bytes[*at]) {
+                *at += 1;
+            }
+            let number = std::str::from_utf8(&bytes[start..*at]).ok()?;
+            number.parse::<f64>().ok()?;
+            Some(Json::Number(number.to_string()))
+        }
+        _ => None,
+    }
+}
+fn json_hex(bytes: &[u8], at: &mut usize) -> Option<u32> {
+    let hex = std::str::from_utf8(bytes.get(*at..*at + 4)?).ok()?;
+    *at += 4;
+    u32::from_str_radix(hex, 16).ok()
+}
+
+// One stored TYPE VERSION as a RESPONSE RECORD names it in its `type` key.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct StoredVersion {
+    operation: String,
+    name: String,
+    version: u32,
+    fingerprint: String,
+    fields: Vec<(String, String)>,
+}
+
+fn show_fields(fields: &[(String, String)]) -> String {
+    if fields.is_empty() {
+        return "{ }".into();
+    }
+    format!(
+        "{{ {} }}",
+        fields
+            .iter()
+            .map(|(f, t)| format!("{f}: {t}"))
+            .collect::<Vec<_>>()
+            .join(" ")
+    )
+}
+
+// Read the TYPE VERSION of one RECORD SNAPSHOT line. The body bytes are not read.
+fn stored_version(record: &Json) -> Result<StoredVersion, &'static str> {
+    let operation = record
+        .get("operation")
+        .and_then(Json::text)
+        .ok_or("stored RESPONSE RECORD has no operation")?;
+    let tv = record
+        .get("type")
+        .filter(|t| **t != Json::Null)
+        .ok_or("stored RESPONSE RECORD has no TYPE VERSION")?;
+    let malformed = "stored RESPONSE RECORD has a malformed TYPE VERSION";
+    let name = tv.get("name").and_then(Json::text).ok_or(malformed)?;
+    let version = match tv.get("version") {
+        Some(Json::Number(n)) => n.parse::<u32>().ok().filter(|v| *v >= 1).ok_or(malformed)?,
+        _ => return Err(malformed),
+    };
+    let fingerprint = tv
+        .get("fingerprint")
+        .and_then(Json::text)
+        .ok_or(malformed)?;
+    if fingerprint.len() != 64
+        || !fingerprint
+            .bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+    {
+        return Err(malformed);
+    }
+    let Some(Json::List(items)) = tv.get("fields") else {
+        return Err(malformed);
+    };
+    let mut fields = Vec::new();
+    for item in items {
+        match item {
+            Json::List(pair) => match pair.as_slice() {
+                [Json::Text(f), Json::Text(t)] => fields.push((f.clone(), t.clone())),
+                _ => return Err(malformed),
+            },
+            _ => return Err(malformed),
+        }
+    }
+    Ok(StoredVersion {
+        operation: operation.to_string(),
+        name: name.to_string(),
+        version,
+        fingerprint: fingerprint.to_string(),
+        fields,
+    })
+}
+
+impl Checker<'_> {
+    // Path check (README slice 2): each stored TYPE VERSION of an `operation` must equal the derived
+    // TYPE VERSION with the same number of the EFFECT output TYPE. Equal means the same name and the same
+    // fingerprint; the stored field list is read for the message only. Every line is checked.
+    fn check_stored(&self, source: &str, text: &str) -> Checked<()> {
+        let mut groups: BTreeMap<StoredVersion, (usize, usize)> = BTreeMap::new();
+        for (index, line) in text.lines().enumerate() {
+            let number = index + 1;
+            if line.trim().is_empty() {
+                continue;
+            }
+            let at = format!("record source: {source}:{number} (line {number})");
+            let record = parse_json(line)
+                .ok_or_else(|| format!("error: stored RESPONSE RECORD is not JSON\n  {at}"))?;
+            let stored = stored_version(&record).map_err(|e| format!("error: {e}\n  {at}"))?;
+            if self.effect(&stored.operation).is_none() {
+                return Err(format!(
+                    "error: stored RESPONSE RECORD of operation {} has no effect in the source\n  {at}",
+                    stored.operation
+                ));
+            }
+            groups.entry(stored).or_insert((0, number)).0 += 1;
+        }
+        let errors: Vec<String> = groups
+            .iter()
+            .filter_map(|(stored, (count, line))| self.no_path(source, stored, *count, *line))
+            .collect();
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors.join("\n"))
+        }
+    }
+    // The message for a stored TYPE VERSION without a path to the newest TYPE VERSION, or None.
+    fn no_path(
+        &self,
+        source: &str,
+        stored: &StoredVersion,
+        count: usize,
+        line: usize,
+    ) -> Option<String> {
+        let type_name = &self.effect(&stored.operation)?.output;
+        let versions = self.type_versions(type_name);
+        let newest = versions.len() as u32;
+        let derived = versions.get(stored.version as usize - 1);
+        if &stored.name == type_name
+            && derived.is_some_and(|d| fingerprint(d) == stored.fingerprint)
+        {
+            return None;
+        }
+        let newest_fields = versions.last().unwrap();
+        let plural = if count == 1 { "" } else { "S" };
+        let mut m = vec![
+            format!(
+                "error: TYPE {type_name} cannot read {count} stored RESPONSE RECORD{plural} of operation {}",
+                stored.operation
+            ),
+            format!(
+                "  stored TYPE VERSION: {} {} {} (fingerprint {})",
+                stored.name,
+                stored.version,
+                show_fields(&stored.fields),
+                &stored.fingerprint[..12]
+            ),
+            format!(
+                "  newest TYPE VERSION: {type_name} {newest} {}",
+                show_fields(newest_fields)
+            ),
+        ];
+        // A stored version older than the newest one is compared with its derived version.
+        let target = derived.filter(|_| stored.version < newest);
+        if let Some(d) = target {
+            m.push(format!(
+                "  derived TYPE VERSION: {type_name} {} {} (fingerprint {}), from the MIGRATE CHAIN",
+                stored.version,
+                show_fields(d),
+                &fingerprint(d)[..12]
+            ));
+        }
+        if &stored.name != type_name {
+            m.push(format!(
+                "  the stored TYPE name {} is not {type_name}",
+                stored.name
+            ));
+        }
+        let own = fingerprint(&stored.fields);
+        if own != stored.fingerprint {
+            m.push(format!(
+                "  the stored fingerprint {} is not the fingerprint of the stored fields ({})",
+                &stored.fingerprint[..12],
+                &own[..12]
+            ));
+        }
+        m.push(format!("  record source: {source} (first at line {line})"));
+        m.push("  no path from the stored TYPE VERSION to the newest TYPE VERSION".into());
+        let (compare, label) = match target {
+            Some(d) => (d, format!("derived TYPE VERSION {}", stored.version)),
+            None => (newest_fields, "newest TYPE VERSION".to_string()),
+        };
+        let gone: Vec<&(String, String)> = stored
+            .fields
+            .iter()
+            .filter(|f| !compare.contains(f))
+            .collect();
+        let added: Vec<&(String, String)> = compare
+            .iter()
+            .filter(|f| !stored.fields.contains(f))
+            .collect();
+        for (f, t) in &gone {
+            m.push(format!(
+                "  field {f}: {t} is in the stored TYPE VERSION, not in the {label}"
+            ));
+        }
+        for (f, t) in &added {
+            m.push(format!(
+                "  field {f}: {t} is in the {label}, not in the stored TYPE VERSION"
+            ));
+        }
+        match (target, gone.as_slice(), added.as_slice()) {
+            (Some(_), _, _) => m.push(format!(
+                "  help: the MIGRATE CHAIN of {type_name} must derive version {} with the fields of the stored TYPE VERSION; check its rename steps",
+                stored.version
+            )),
+            (None, [(old, old_type)], [(new, new_type)]) if old_type == new_type => m.push(format!(
+                "  help: if {new} is {old} renamed, declare: migrate {type_name} {} -> {} {{ rename {old} -> {new} }}",
+                stored.version,
+                newest + 1
+            )),
+            (None, [], [_, ..]) => m.push(format!(
+                "  help: a field added to {type_name} needs a MIGRATE CHAIN step `add <field>: <TYPE> = <constant>`; this compiler supports rename steps only"
+            )),
+            _ => (),
+        }
+        Some(m.join("\n"))
+    }
+}
+
 pub fn compile(source: &str) -> Checked<String> {
     compile_service(source, None)
 }
 
 // `service` is the source file stem (`orders`). Pipes and EFFECTS name their spans `<service>.<step>`.
 pub fn compile_service(source: &str, service: Option<&str>) -> Checked<String> {
+    compile_stored(source, service, None)
+}
+
+// `stored` is the `--stored` RECORD SNAPSHOT (slice 2). It is read after the parse and TYPE checks (C16).
+pub fn compile_stored(
+    source: &str,
+    service: Option<&str>,
+    stored: Option<&std::path::Path>,
+) -> Checked<String> {
     let program = Parser {
         tokens: lex(source)?,
         at: 0,
@@ -1488,6 +2177,17 @@ pub fn compile_service(source: &str, service: Option<&str>) -> Checked<String> {
         }
         _ => "",
     };
+    match stored {
+        Some(path) => {
+            let text = std::fs::read_to_string(path)
+                .map_err(|e| format!("cannot read --stored input: {}", e.kind()))?;
+            checker.check_stored(&path.display().to_string(), &text)?;
+        }
+        None if !program.effects.is_empty() => {
+            return Err("error: stored TYPE VERSIONS unknown: a source with an effect needs --stored SNAPSHOT.jsonl (an unknown store is not an empty store)".into());
+        }
+        None => (),
+    }
     Ok(checker.emit(service))
 }
 
@@ -1512,15 +2212,19 @@ fn action(result: &str) {
 fn main() {
     let result = (|| -> Checked<()> {
         let args: Vec<_> = std::env::args_os().skip(1).collect();
-        if args.len() != 1 {
-            return Err("usage: beaml-spike SOURCE.beaml (Elixir source goes to stdout)".into());
-        }
+        let stored = match args.as_slice() {
+            [_] => None,
+            [_, flag, path] if flag == "--stored" => Some(std::path::Path::new(path)),
+            _ => {
+                return Err("usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl] (Elixir source goes to stdout)".into());
+            }
+        };
         let source = std::fs::read_to_string(&args[0])
             .map_err(|e| format!("cannot read source: {}", e.kind()))?;
         let stem = std::path::Path::new(&args[0])
             .file_stem()
             .and_then(|stem| stem.to_str());
-        let code = compile_service(&source, stem)?;
+        let code = compile_stored(&source, stem, stored)?;
         std::io::stdout()
             .write_all(code.as_bytes())
             .map_err(|e| format!("cannot write output: {}", e.kind()))?;

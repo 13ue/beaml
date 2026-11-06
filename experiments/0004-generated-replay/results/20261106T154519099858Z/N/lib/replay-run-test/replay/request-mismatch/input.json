@@ -1,0 +1,39 @@
+{
+  "order": {
+    "order_id": "order-1"
+  },
+  "mode": "replay",
+  "trace_id": "26f35781794d277779b6168c510db6e1",
+  "responses": [
+    {
+      "status": 200,
+      "version": 1,
+      "request": {
+        "order_id": "order-2"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "26f35781794d277779b6168c510db6e1",
+      "body_length": 43,
+      "attempt": 1,
+      "artifact_id": "33e8ca0fe2cd40293f3bd8804049de020de3965615207aac34515004da792f9b",
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0ZSI6ImF1dGhvcml6ZWQifQ==",
+      "body_sha256": "dd83cce18da6a5f06fddf56602b50597cf34aec8927ee9ba5653b35d143e3f5b",
+      "client_span_id": "32c0b1ea76d422cc"
+    },
+    {
+      "status": 200,
+      "version": 1,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "73a6235f4dad4e24c0d41a1a054ae436",
+      "body_length": 43,
+      "attempt": 1,
+      "artifact_id": "33e8ca0fe2cd40293f3bd8804049de020de3965615207aac34515004da792f9b",
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0ZSI6ImF1dGhvcml6ZWQifQ==",
+      "body_sha256": "dd83cce18da6a5f06fddf56602b50597cf34aec8927ee9ba5653b35d143e3f5b",
+      "client_span_id": "92a8db9cc99de1c8"
+    }
+  ]
+}

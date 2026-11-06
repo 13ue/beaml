@@ -1,0 +1,143 @@
+{
+  "reply": [
+    200,
+    {
+      "order_id": "order-1",
+      "status": "authorized"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "exchanges": [
+    {
+      "path": "/payments/authorize",
+      "request": "{\"order_id\":\"order-1\"}",
+      "status": 200,
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0dXMiOiJhdXRob3JpemVkIn0="
+    }
+  ],
+  "records": [
+    {
+      "status": 200,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "status",
+            "String"
+          ]
+        ],
+        "fingerprint": "35a7a9d23ad4d4c63d3d1dd9de660161952b8b6fbf263967f4fd802661143747"
+      },
+      "version": 1,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "c655a20fc1370af382b23212886d6615",
+      "body_length": 44,
+      "unknown_keys": [],
+      "artifact_id": "d89b3d8cf9659a02bb9df915e70375d3748ae5fd754c726e0919bc64437ca0bc",
+      "attempt": 1,
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0dXMiOiJhdXRob3JpemVkIn0=",
+      "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba",
+      "client_span_id": "055bc41507bd34a6"
+    }
+  ],
+  "spans": [
+    {
+      "attributes": {
+        "function": "prepare",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "8a4f7b2043b28668e42bbb5778387e383c5a59ffba2da12a550eee96199c5c09",
+        "outcome": "ok"
+      },
+      "name": "orders.prepare",
+      "service": "orders",
+      "start_time": -576460751259620208,
+      "kind": "internal",
+      "span_id": "45284e58d098ac2a",
+      "trace_id": "c655a20fc1370af382b23212886d6615",
+      "end_time": -576460751259378292,
+      "end_time_unix_nano": 1793979404619742708,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "9252f060abff5ab8",
+      "start_time_unix_nano": 1793979404619500792
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "start_time": -576460751259079458,
+      "kind": "client",
+      "span_id": "055bc41507bd34a6",
+      "trace_id": "c655a20fc1370af382b23212886d6615",
+      "end_time": -576460751256880208,
+      "end_time_unix_nano": 1793979404622240792,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "9252f060abff5ab8",
+      "start_time_unix_nano": 1793979404620041542
+    },
+    {
+      "attributes": {
+        "function": "finish",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "8a4f7b2043b28668e42bbb5778387e383c5a59ffba2da12a550eee96199c5c09",
+        "outcome": "ok"
+      },
+      "name": "orders.finish",
+      "service": "orders",
+      "start_time": -576460751256670875,
+      "kind": "internal",
+      "span_id": "688ac636810ce8e7",
+      "trace_id": "c655a20fc1370af382b23212886d6615",
+      "end_time": -576460751256652167,
+      "end_time_unix_nano": 1793979404622468833,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "9252f060abff5ab8",
+      "start_time_unix_nano": 1793979404622450125
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460751259979125,
+      "kind": "server",
+      "span_id": "9252f060abff5ab8",
+      "trace_id": "c655a20fc1370af382b23212886d6615",
+      "end_time": -576460751256463333,
+      "end_time_unix_nano": 1793979404622657667,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1793979404619141875
+    }
+  ],
+  "flow_probe": {
+    "result": {
+      "ok": {
+        "order_id": "order-1",
+        "status": "authorized"
+      }
+    },
+    "host_validation": "ok",
+    "transport": 1,
+    "eval_exit_code": 0
+  }
+}

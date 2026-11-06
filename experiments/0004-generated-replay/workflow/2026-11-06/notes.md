@@ -509,3 +509,62 @@ New SHA-256 of `experiments/0004-generated-replay/tests/stored_types_test.py`: `
 | S14 | C18 source kind `N2-over-chain` is written from the template, also for the fixture names; no new file under `slice2/` | Repair | Chose a generated source over a new fixture file, because the repair scope excludes `slice2/`. Commits the fixture form of C18 to the template text; the guard test does not cover it |
 | S15 | C1b, C17, C18 snapshots are written per test, also for the fixture names; no new file under `stored/` | Undo | Same pattern as C7 (`v1-untyped`) |
 | S16 | `help_line` takes the stored and newest version; old calls keep `1 -> 2` | Undo | Default arguments; C1, C1b and C15 are unchanged in effect |
+
+## Slice 2 GREEN
+
+**Scope.** Compiler, `run.py`, GEN overlay copies, change table. No test assertion changed, except the three TABLE rows of `overlay_diff_test.py` (Repair below, decided by the main agent). No commit.
+
+### Steps
+
+1. Compiler CLI: `beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl]`. A source with an `effect` and no `--stored` fails with `stored TYPE VERSIONS unknown`, after the parse, TYPE and service checks (C16).
+2. Lexer: version number token. Parser: `migrate T a -> b { rename old -> new }`. Check: steps `1 -> 2 -> ...` without gaps, `new` in version `b`, `old` not in it. Old TYPE VERSIONS are derived backwards from the `interface`.
+3. Path check: every RECORD SNAPSHOT line is read (no body bytes). Each distinct (operation, name, version, fingerprint, fields) must have the EFFECT output TYPE name and the fingerprint of the derived version with the same number. Errors per README text; an older stored version also shows its derived version (C4).
+4. Generated `record/3` writes `type` (name, newest version, sorted fields, fingerprint). Generated decode: one block per `rename` step in chain order; the old key is read only when the current key is missing, and it is consumed (C11, C12, C13).
+5. SHA-256 and a small JSON reader are in the compiler; it still has no dependencies.
+6. `run.py`: the GEN build passes `--stored stored/empty.jsonl` and writes `stored-snapshot.json` (path, SHA-256). GEN copies: lines 141, 92, 51 pass `--stored` with `stored-empty.jsonl` (new empty file in the GEN overlay). README change table, `assertion-changes.json` and TABLE have the three rows.
+
+### Runs (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline` (0001) | 0 | unit 9/9, `cli` 14/14 |
+| `tests/stored_types_test.py` | 0 | 29/29 |
+| `tests/slice2_replay_test.py` | 0 | 9/9; `results/20261106T153231809212Z`; strict compile 0 for the three case trees |
+| `tests/arms_test.py` | 0 | 16/16; `results/20261106T153328146003Z` |
+| `tests/overlay_diff_test.py` | 0 | 3/3 |
+| `tests/drift_test.py` | 0 | 3/3 |
+| `0003-source-linked-replay/run.py` | 0 | `pass`, `0003/results/20261106T154124026960Z` |
+| `0004-generated-replay/run.py` | 0 | `pass`, `results/20261106T154230007902Z` |
+
+**[Verified] S10.** The real L0 capture of the base GEN build (`results/20261106T153328146003Z/gen/live/L0`) has the same `type` value and the same key set as `stored/v1.jsonl`.
+
+### Test SHA-256 before and after
+
+| File | Before | After |
+| --- | --- | --- |
+| `0001/tests/cli.rs` | `2354c81a…8d8b` | unchanged |
+| `tests/stored_types_test.py` | `a69b8886…d3257f` | unchanged |
+| `tests/slice2_replay_test.py` | `a77f32ed…c809dad` | unchanged |
+| `tests/arms_test.py` | `0298a9d9…f9b9bdf2` | unchanged |
+| `tests/drift_test.py` | `87d309d1…5d76f7` | unchanged |
+| `tests/arm_tree.py` | `ff23d780…ae6b1d` | unchanged |
+| `tests/overlay_diff_test.py` | `6fe091cdb018f9479fd15be6400cbfc1870bddc10ba0f52452d29ba68b5d76f7` | `3bfb0a6186462dfe930de6b40195da503a1d7ce6f9091050071b23f6a650a56a` |
+| GEN copy `replay_run_test.py` | `34e27bcd…87bcae` | `80803eb94b77342147ef1aa04c57ecc07b1225b9e4beee008c90761a449b5f7a` |
+| GEN copy `response_capture_test.py` | `12b7f00f…e99381` | `1c243fce95d8989221e35ca4c0fb71f9e2ada20fc482ffe58a264324cf5974ad` |
+| GEN copy `trace_lookup_test.py` | `6a703619…b9ebe` | `1bba3d32e767ffe095108283bc24b0ec6a6796246e3970c7dab1f94620f85d56` |
+
+### Decisions (Decision4, slice 2 GREEN)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| G1 | Add 3 TABLE rows to `overlay_diff_test.py` | Repair (main agent) | Chose add 3 TABLE rows. Over: leave copies unchanged. Because: the copies only gain a harness argument, and the table must list every changed line. Commits the change table to slice 2 rows |
+| G2 | Changed copy lines are 141, 92, 51, not 140, 91, 50 | Undo | The README gap named the first line of each call; the argument list is on the second line |
+| G3 | Empty snapshot of the copies: new file `stored-empty.jsonl` in the GEN overlay | Undo | Over `/dev/null`: a real empty RECORD SNAPSHOT, as in `stored/` |
+| G4 | SHA-256 and JSON reader written in the compiler | Repair | Chose own code over the `sha2` and `serde_json` crates. Because: the compiler has no dependencies and builds offline. Commits the compiler to about 250 more lines |
+| G5 | A record of an operation with no `effect` in the source is a compile error | Repair | Chose an error over ignoring the record. Because: no generated runner can read it. Over: README "fails only for a missing path". Commits a source that drops an EFFECT to an empty or cleaned snapshot |
+| G6 | A stored TYPE name other than the EFFECT output TYPE has no path | Undo | README path check names (name, version, fingerprint) |
+| G7 | Malformed `type` key, invalid JSON line, version 0: compile error with path and line | Undo | Same form as C7 |
+| G8 | Stored version older than the newest: message compares it with its derived version and gives a chain help line; same or newer: compares with the newest and gives the README `rename` help | Undo | Message text only; tokens per README |
+| G9 | Added field only (C5): help names the `add` step and says only `rename` exists | Undo | O4 text; `add` is out of scope |
+| G10 | `--stored` given to a source without `effect`: snapshot is read and checked | Undo | No test path; payments output stays byte-identical without `--stored` |
+| G11 | Chain errors: gaps, empty step, `new` not in the next version, `old` still in it | Undo | Out of scope in README; an error is safer than a wrong derivation |

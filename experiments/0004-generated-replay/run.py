@@ -63,6 +63,9 @@ DERIVATIVES = ("R", "N", "Q")
 LIB_MODULES = {"ReplayLib": "apps/orders_api/lib/replay_lib.ex",
                "OrdersApi.ReplayDescriptor": "apps/orders_api/lib/orders_api/replay_descriptor.ex"}
 FREEZE = EXPERIMENT / "arms" / "lib" / "freeze.json"
+# Slice 2 (README revision 6, C10): the GEN Orders source has an `effect`, so its build needs a RECORD
+# SNAPSHOT. Slice 1 runs use the empty snapshot; each build records its SHA-256. LIB has no `effect`.
+EMPTY_SNAPSHOT = EXPERIMENT / "stored" / "empty.jsonl"
 ORDER = {"order_id": "order-1"}
 MIX = ["env", "MIX_ENV=prod", "mix"]
 TESTS = "experiments/0004-generated-replay/tests/"
@@ -238,6 +241,9 @@ def build_tree(arm, tree, out, orders_beaml=None, payments_beaml=None):
     http = Path(tree) / HTTP_PATH
     output = out / "build_output.txt"
     exit_code = 0
+    stored = EMPTY_SNAPSHOT if arm == "gen" else None
+    save(out / "stored-snapshot.json", {"path": str(stored) if stored else None,
+                                        "sha256": hashlib.sha256(stored.read_bytes()).hexdigest() if stored else None})
     with output.open("w") as text:
         def step(name, args, cwd):
             nonlocal exit_code
@@ -257,7 +263,8 @@ def build_tree(arm, tree, out, orders_beaml=None, payments_beaml=None):
             code, generated = step("generate-" + service,
                                    ["cargo", "run", "--offline", "--quiet", "--manifest-path",
                                     Path(tree) / COMPILER_PATH / "Cargo.toml", "--",
-                                    http / ("apps/%s_api/priv/%s.beaml" % (service, service))], tree)
+                                    http / ("apps/%s_api/priv/%s.beaml" % (service, service))]
+                                   + (["--stored", stored] if service == "orders" and stored else []), tree)
             if code == 0:
                 target = http / ("apps/%s_api/lib/generated.ex" % service)
                 target.write_text(generated.replace("defmodule BeamlSpike do",

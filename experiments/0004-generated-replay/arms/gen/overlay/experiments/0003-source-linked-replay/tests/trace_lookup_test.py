@@ -48,7 +48,7 @@ def test_two_live_receipts_resolve_original_payments_declaration(run, result):
 
     def generate(source, destination, service, name):
         _, generated = command(name, ["cargo", "run", "--offline", "--quiet", "--manifest-path",
-                                      COMPILER / "Cargo.toml", "--", source])
+                                      COMPILER / "Cargo.toml", "--", source, "--stored", Path(__file__).with_name("stored-empty.jsonl")])
         assert generated.count("defmodule BeamlSpike do") == 1
         destination.write_text(generated.replace("defmodule BeamlSpike do", f"defmodule {service.title()}BeamlSpike do"))
         return generated
