@@ -985,3 +985,70 @@ Risk (inferred, not run): the P+r tree builds a release whose router calls `Orde
   - E5d matches `line 2` or `:2` as whole tokens.
 - New SHA-256 prefix of `slice4_retire_test.py`: `0441173b43a154db`. The run still gives 84 failures, all for missing compiler features.
 - Risk closed: the P+r build with an undefined `place/1` only warns (elixirc 1.18.1, exit 0); strict mode applies to G+r only.
+
+## Slice 4 GREEN
+
+STATE: GREEN with one open fault. Every done criterion exits 0, except `tests/slice4_replay_test.py`: 26/27, the fault is E4 with random names (below). No commit.
+
+### Steps
+
+1. Parser: `retire OPERATION keep NUMBER days`. T3 uses the EFFECT name rule (two segments that start lowercase). T4 `expected keep`, T5 `expected number of days`, T7 `keep supports days only, not <word>`. T5 `-1` / `1.5` and T6 stop in the lexer (unchanged). `Migration` and `Retire` hold their source range (keyword to `}` or `days`).
+2. `Checker::new`: T2 (`two times`) and T1 (`still declares effect <op>`) after the EFFECT checks, before `--stored`.
+3. `derive_versions`: a chain starts at any k >= 1; the gap error says `must count without gaps from its first MIGRATE STEP`. Version index = version - k in the decode, the `type` key and `no_path`. `no_path` has the help row `starts at version <k>; the stored TYPE VERSION <v> is older ... version control`.
+4. `check_stored`: C7 for every line; a live record gets the path check; a RETIRED RECORD gets none; other records give R1, one message per operation with the count line and the `help` line.
+5. DEAD LINES: W1 and W2 from the RECORD SNAPSHOT (oldest live version per EFFECT output TYPE; the last MIGRATE STEP is never dead). Warnings go to stderr after stdout, in source order. A build without `--stored` gives no warnings.
+6. `--remove-dead`: build, find DEAD LINES, remove whole lines (a line with other text stops with `cannot remove`), rebuild with zero warnings, write through a temporary file and a rename, print the diff. The diff is a port of Python `difflib.SequenceMatcher` and `unified_diff(n=0)` over `splitlines(keepends=True)`.
+7. Generated code with a RETIRE LINE: `Replay.Retired`, `retired/0` (sorted by operation), and `:ok <- not_retired(record["operation"])` directly after `select/2` in `run/3`. A source with a RETIRE LINE and no `effect` gets a small `Replay` module. A source without a RETIRE LINE keeps its output byte for byte.
+8. Action events: `compile` with `warnings: <count>` on every successful build; `remove-dead` with `result` and `removed: <count>`.
+
+### Runs (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline` (0001) | 0 | 9 + 14 passed (includes `payments.beaml` byte identity) |
+| `tests/slice4_retire_test.py` | 0 | 73/73; `-k Template` 5 more runs: OK |
+| `tests/slice4_replay_test.py` | 1 | 27 run, 1 failure: E4 `RandomNames`. `results/20261106T194033278276Z` |
+| `tests/slice3_types_test.py` | 0 | 69/69 |
+| `tests/stored_types_test.py` | 0 | 33/33 |
+| `tests/slice2_replay_test.py` | 0 | 21/21 |
+| `tests/slice3_replay_test.py` | 0 | 31/31 |
+| `tests/arms_test.py` | 0 | 16/16 |
+| `tests/overlay_diff_test.py` | 0 | 3/3 |
+| `tests/drift_test.py` | 0 | 3/3 |
+| `0003-source-linked-replay/run.py` | 0 | `pass`, `0003/results/20261106T200127874301Z` |
+| `0004-generated-replay/run.py` | 0 | `pass`, `results/20261106T200244602444Z` |
+| Scratch check: `--remove-dead` diff against Python `difflib`, 150 random Q4 layouts (blank and comment lines, LF and CRLF) | — | 0 differences |
+
+### Open fault: E4 with random names (observed)
+
+- PROBLEM: the eval of `s4-gr-random` E4 gives `{"raised": "ArgumentError"}`, `sent: 0`, `:gen_tcp.connect/4` 0. The EFFECT function was called once.
+- Cause: the generated EFFECT reads its port with `ProbeSupport.config(:<namespace>_port)` (slice 1 rule, unchanged). `config/1` is `Application.fetch_env!`. The template gives the live operation a random namespace (`nr...`), and the harness sets only `payments_port`. So the call raises before a connect.
+- The fixture names pass E4. Slice 2 and slice 3 live cases keep the namespace `payments`.
+- The compiler cannot fix this without a fixture special case or a new port rule (Migrate). The repair belongs to the test or the harness, for example a template that keeps the namespace `payments` for the live operation, or a harness that sets the port of the random namespace.
+
+### SHA-256
+
+| File | SHA-256 |
+| --- | --- |
+| `0001/src/main.rs` | → `e12492a2676038b6c3df3a57a24cf2db39b1d9e236d14ebd5f08389f88b153c0` |
+| `0001/tests/cli.rs` | `2354c81a1bd0b29f04dcda855870c3d8c3e45fcde5e0e27e38d7e04eb28b8d8b` (unchanged) |
+| every `tests/*.py`, `tests/payments.generated.snapshot`, `slice2/` to `slice4/`, `stored/`, `run.py` | unchanged (compared before and after) |
+
+### Decisions (Decision4, slice 4 GREEN)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| G4-1 | RETIRE LINE operation names use the EFFECT name rule | Undo | One rule; a retired name was once a valid EFFECT name |
+| G4-2 | R1 errors come before path errors; a C7 fault on any line stops first | Undo | Keeps the DL-040 order; message order only |
+| G4-3 | The retired check is a `with` clause `not_retired/1` after `select/2`, not a separate `run/3` function clause | Repair | Chose a `with` clause. Over a separate clause: the record is known only after `select/2`. Because README says "directly after select". Commits `prepare/1` to run before the reject (not counted by the tests) |
+| G4-4 | Port of Python `difflib` in the compiler for the removal diff | Repair | Chose a faithful port. Over a direct deletion diff: equal output only when no line repeats. Because the contract is byte equality with difflib. Commits the compiler to about 120 lines of diff code |
+| G4-5 | Two DEAD LINES on one line: `cannot remove` | Undo | Same rule as other text |
+| G4-6 | Usage text: `[--stored SNAPSHOT.jsonl [--remove-dead]]`; the unknown-store text also names a RETIRE LINE | Undo | Message text only; asserted tokens kept |
+| G4-7 | A failed `--remove-dead` records `removed: 0` | Undo | One event shape |
+| G4-8 | Stop at the E4 random-names fault; no test or harness change | Repair | Chose stop and report. Over a new port rule in the compiler: that is Migrate, and a namespace special case breaks "no fixture special cases". Commits the main agent to repair the template or the harness |
+
+## Slice 4 GREEN follow-up (harness)
+
+- E4 with random names failed in the harness, not in the compiler: the live operation had a random namespace, and the harness configures only `payments_port`.
+- The main agent changed `random_names()` in `tests/slice4_retire_test.py`: the live operation keeps the namespace `payments`; the operation part stays random. Repair, chose the harness over a new port rule (a new port rule is a language decision).
+- New SHA-256 prefix of `slice4_retire_test.py`: `2ec80179628fdb56`. Both slice 4 test files pass.

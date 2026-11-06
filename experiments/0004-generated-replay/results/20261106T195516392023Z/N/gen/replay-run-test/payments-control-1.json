@@ -1,0 +1,44 @@
+{
+  "capture": {
+    "bytes": {
+      "logs": 175,
+      "spans": 1056
+    },
+    "loss": []
+  },
+  "count": 1,
+  "node": "nonode@nohost",
+  "pid": "26311",
+  "applications": [
+    "payments_api",
+    "probe_support",
+    "plug_cowboy",
+    "plug",
+    "plug_crypto",
+    "mime",
+    "eex",
+    "cowboy_telemetry",
+    "telemetry",
+    "cowboy",
+    "ranch",
+    "ssl",
+    "public_key",
+    "asn1",
+    "cowlib",
+    "opentelemetry",
+    "opentelemetry_api",
+    "crypto",
+    "logger",
+    "sasl",
+    "elixir",
+    "compiler",
+    "stdlib",
+    "kernel"
+  ],
+  "beam_hash": "59cb8fdd146c6cb0b9902667db9fb4d97c66dfbbaf5a1bf3de0a4e1bb24c96e4",
+  "listener": "127.0.0.1",
+  "own_loaded": true,
+  "sibling": "orders_api",
+  "sibling_available": false,
+  "sibling_loaded": false
+}

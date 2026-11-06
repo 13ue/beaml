@@ -3,7 +3,7 @@ use std::io::Write;
 use std::ops::Range;
 
 type Checked<T> = Result<T, String>;
-// TYPE VERSIONS per TYPE name: index 0 is version 1.
+// TYPE VERSIONS per TYPE name: index 0 is the chain start version (1 without a shortened chain).
 type Versions = BTreeMap<String, Vec<Vec<(String, String)>>>;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -163,6 +163,17 @@ struct Migration {
     from: u32,
     to: u32,
     changes: Vec<Change>,
+    // From the `migrate` keyword to the closing `}` (slice 4: the removal of a DEAD LINE).
+    source_range: Range<usize>,
+}
+// `retire <operation> keep <n> days` (slice 4): the operation has left the source on purpose. Its stored
+// RESPONSE RECORDS are RETIRED RECORDS: not path-checked, not replayable, kept `keep_days` days (metadata only).
+#[derive(Clone, Debug)]
+struct Retire {
+    operation: String,
+    keep_days: u32,
+    // From the `retire` keyword to `days`.
+    source_range: Range<usize>,
 }
 // One MIGRATE CHANGE (slice 3): `rename old -> new`, `add f: T = "c"` or `drop f: T`.
 #[derive(Clone, Debug)]
@@ -178,6 +189,7 @@ struct Program {
     clauses: Vec<Clause>,
     effects: Vec<Effect>,
     migrations: Vec<Migration>,
+    retires: Vec<Retire>,
 }
 
 struct Parser {
@@ -498,6 +510,60 @@ impl Parser {
                         from,
                         to,
                         changes,
+                        source_range: start..self.tokens[self.at - 1].1.end,
+                    });
+                }
+                "retire" => {
+                    // T3-T7: `retire OPERATION keep NUMBER days`. The lexer rejects `-1`, `1.5` and a
+                    // number above the u32 range before the parser.
+                    let operation = match self.peek().clone() {
+                        Token::Word(word) => {
+                            self.at += 1;
+                            word
+                        }
+                        _ => return Err(self.error("retire: expected an operation name")),
+                    };
+                    if !operation_name(&operation) {
+                        return Err(format!(
+                            "retire {operation}: invalid operation name (expected namespace.operation, two lowercase segments) at byte {}",
+                            self.tokens[self.at - 1].1.start
+                        ));
+                    }
+                    if !matches!(self.peek(), Token::Word(word) if word == "keep") {
+                        return Err(
+                            self.error(&format!("retire {operation}: expected keep <n> days"))
+                        );
+                    }
+                    self.at += 1;
+                    let keep_days = match self.peek().clone() {
+                        Token::Number(number) => {
+                            self.at += 1;
+                            number
+                        }
+                        _ => {
+                            return Err(self.error(&format!(
+                                "retire {operation} keep: expected number of days"
+                            )));
+                        }
+                    };
+                    let unit = match self.peek().clone() {
+                        Token::Word(word) if word == "days" => {
+                            self.at += 1;
+                            None
+                        }
+                        Token::Word(word) => Some(word),
+                        Token::End => Some("the end of the source".into()),
+                        _ => Some("another token".into()),
+                    };
+                    if let Some(unit) = unit {
+                        return Err(self.error(&format!(
+                            "retire {operation} keep {keep_days}: keep supports days only, not {unit}"
+                        )));
+                    }
+                    program.retires.push(Retire {
+                        operation,
+                        keep_days,
+                        source_range: start..self.tokens[self.at - 1].1.end,
                     });
                 }
                 _ => return Err(self.error("expected interface, enum, or fn")),
@@ -513,7 +579,7 @@ struct Checker<'a> {
     signatures: BTreeMap<String, (Vec<String>, String)>,
     // The `!` list of each function; empty for a function that cannot fail.
     failures: BTreeMap<String, Vec<String>>,
-    // TYPE VERSIONS of each TYPE with a MIGRATE CHAIN: index 0 is version 1, the last is the interface.
+    // TYPE VERSIONS of each TYPE with a MIGRATE CHAIN: index 0 is the chain start, the last is the interface.
     versions: Versions,
 }
 
@@ -532,11 +598,19 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
         let Some(Definition::Record(newest)) = program.types.get(name) else {
             return Err(format!("migrate {name}: unknown interface: {name}"));
         };
+        // Slice 4: a MIGRATE CHAIN starts at any version k >= 1 (its first MIGRATE STEP `k -> k+1`).
+        let start = u64::from(steps[0].from);
         for (index, step) in steps.iter().enumerate() {
-            let from = index as u32 + 1;
-            if step.from != from || step.to != from + 1 {
+            let from = start + index as u64;
+            if from == 0 {
                 return Err(format!(
-                    "migrate {name} {} -> {}: the MIGRATE CHAIN of {name} must count 1 -> 2 -> 3 without gaps, expected {from} -> {}",
+                    "migrate {name} 0 -> {}: a MIGRATE CHAIN starts at version 1 or higher",
+                    step.to
+                ));
+            }
+            if u64::from(step.from) != from || u64::from(step.to) != from + 1 {
+                return Err(format!(
+                    "migrate {name} {} -> {}: the MIGRATE CHAIN of {name} must count without gaps from its first MIGRATE STEP, expected {from} -> {}",
                     step.from,
                     step.to,
                     from + 1
@@ -653,6 +727,11 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
     Ok(versions)
 }
 
+// An EFFECT name or a RETIRE LINE operation: `namespace.operation`, two segments that start lowercase.
+fn operation_name(name: &str) -> bool {
+    let segments: Vec<&str> = name.split('.').collect();
+    segments.len() == 2 && segments.iter().all(|s| lower(s))
+}
 fn upper(name: &str) -> bool {
     name.as_bytes().first().is_some_and(u8::is_ascii_uppercase)
 }
@@ -798,6 +877,7 @@ impl<'a> Checker<'a> {
             }
         }
         checker.effects()?;
+        checker.retires()?;
         Ok(checker)
     }
     fn failure_types(&self, failures: &[String]) -> Checked<()> {
@@ -810,6 +890,36 @@ impl<'a> Checker<'a> {
             self.record(failure)?;
         }
         Ok(())
+    }
+    // T1, T2 (slice 4): one RETIRE LINE per operation, and none for an operation with an `effect`.
+    fn retires(&self) -> Checked<()> {
+        for retire in &self.program.retires {
+            let op = &retire.operation;
+            if self
+                .program
+                .retires
+                .iter()
+                .filter(|r| &r.operation == op)
+                .count()
+                != 1
+            {
+                return Err(format!(
+                    "retire {op}: the operation is retired two times; declare one RETIRE LINE per operation"
+                ));
+            }
+            if self.effect(op).is_some() {
+                return Err(format!(
+                    "retire {op}: the source still declares effect {op}; remove the effect or the RETIRE LINE"
+                ));
+            }
+        }
+        Ok(())
+    }
+    fn retire(&self, operation: &str) -> Option<&Retire> {
+        self.program
+            .retires
+            .iter()
+            .find(|r| r.operation == operation)
     }
     fn effect(&self, name: &str) -> Option<&Effect> {
         self.program.effects.iter().find(|e| e.name == name)
@@ -824,8 +934,7 @@ impl<'a> Checker<'a> {
                     effect.kind
                 ));
             }
-            let segments: Vec<&str> = name.split('.').collect();
-            if segments.len() != 2 || !segments.iter().all(|s| lower(s)) {
+            if !operation_name(name) {
                 return Err(format!(
                     "invalid effect name: {name} (expected namespace.operation)"
                 ));
@@ -1287,7 +1396,10 @@ impl Checker<'_> {
     }
     fn emit(&self, service: &str) -> String {
         // Nested modules (failure structs, Http, Replay) need `defmodule`; payments.beaml output stays unchanged.
-        let nested = if self.structs().is_empty() && self.program.effects.is_empty() {
+        let nested = if self.structs().is_empty()
+            && self.program.effects.is_empty()
+            && self.program.retires.is_empty()
+        {
             ""
         } else {
             ", defmodule: 2"
@@ -1381,6 +1493,14 @@ impl Checker<'_> {
         for effect in &self.program.effects {
             out.push_str(&self.emit_effect(effect, service));
         }
+        if self.program.effects.is_empty() && !self.program.retires.is_empty() {
+            // Slice 4: a RETIRE LINE without an `effect`. A REPLAY RUN gives the `Retired` reject for a
+            // RETIRED RECORD, `missing_response` for no record and `operation_mismatch` otherwise.
+            out.push_str(&format!(
+                "  defmodule Replay do\n    import Kernel\n{}\n    def run(_a0, trace_id, records) do\n      with {{:ok, record}} <- select(records, trace_id),\n           :ok <- not_retired(record[\"operation\"]) do\n        {{:error, :operation_mismatch}}\n      end\n    end\n{SELECT}  end\n",
+                self.emit_retired()
+            ));
+        }
         out.push_str("end\n");
         out
     }
@@ -1406,7 +1526,15 @@ impl Checker<'_> {
             None => vec![self.record(name).cloned().unwrap_or_default()],
         }
     }
-    // The steps of the MIGRATE CHAIN of a TYPE, in chain order (1 -> 2 first).
+    // The version number of index 0 of `type_versions`: the `from` of the first MIGRATE STEP, else 1.
+    fn chain_start(&self, name: &str) -> u32 {
+        self.migrations(name).first().map_or(1, |m| m.from)
+    }
+    // The newest version number of a TYPE: the `to` of its last MIGRATE STEP, else 1.
+    fn newest_version(&self, name: &str) -> u32 {
+        self.migrations(name).last().map_or(1, |m| m.to)
+    }
+    // The steps of the MIGRATE CHAIN of a TYPE, in chain order (the chain start first).
     fn migrations(&self, name: &str) -> Vec<&Migration> {
         let mut steps: Vec<&Migration> = self
             .program
@@ -1424,7 +1552,7 @@ impl Checker<'_> {
         format!(
             "%{{name: {}, version: {}, fields: [{}], fingerprint: {}}}",
             binary(name),
-            versions.len(),
+            self.newest_version(name),
             fields
                 .iter()
                 .map(|(f, t)| format!("[{}, {}]", binary(f), binary(t)))
@@ -1498,6 +1626,10 @@ impl Checker<'_> {
                     ));
                 } else {
                     clauses.push("{:ok, record} <- select(records, trace_id)".into());
+                    // Slice 4: a RETIRED RECORD stops the REPLAY RUN before the operation check.
+                    if !self.program.retires.is_empty() {
+                        clauses.push(":ok <- not_retired(record[\"operation\"])".into());
+                    }
                     clauses.push(format!(
                         ":ok <- expect(record[\"operation\"], {}, :operation_mismatch)",
                         binary(step)
@@ -1616,9 +1748,10 @@ impl Checker<'_> {
         // decode error. No `type` key: the newest version. Without a chain the decode stays the slice 1 form.
         let migrations = self.migrations(&effect.output);
         let versions = self.type_versions(&effect.output);
-        let newest = versions.len();
+        let start = self.chain_start(&effect.output) as usize;
+        let newest = self.newest_version(&effect.output);
         let list = |last: usize| {
-            (1..=last)
+            (start..=last)
                 .map(|v| v.to_string())
                 .collect::<Vec<_>>()
                 .join(", ")
@@ -1634,7 +1767,7 @@ impl Checker<'_> {
                 .iter()
                 .enumerate()
                 .map(|(index, fields)| {
-                    format!("{{{}, {}}}", index + 1, binary(&fingerprint(fields)))
+                    format!("{{{}, {}}}", index + start, binary(&fingerprint(fields)))
                 })
                 .collect();
             // Per TYPE VERSION: its fields with their TYPES (DL-054).
@@ -1646,7 +1779,11 @@ impl Checker<'_> {
                         .iter()
                         .map(|(f, t)| format!("{{{}, {}}}", binary(f), binary(t)))
                         .collect();
-                    format!("        {} -> {{:ok, [{}]}}\n", index + 1, pairs.join(", "))
+                    format!(
+                        "        {} -> {{:ok, [{}]}}\n",
+                        index + start,
+                        pairs.join(", ")
+                    )
                 })
                 .collect();
             let mut changes = String::new();
@@ -1689,7 +1826,12 @@ impl Checker<'_> {
         let (result_head, arity) = if migrations.is_empty() {
             (format!("  def __beaml_result_{elixir}(a0) do\n"), "")
         } else {
-            (format!("  def __beaml_result_{elixir}(a0), do: __beaml_result_{elixir}(a0, nil)\n  def __beaml_result_{elixir}(a0, type_version) do\n"), ", type_version")
+            (
+                format!(
+                    "  def __beaml_result_{elixir}(a0), do: __beaml_result_{elixir}(a0, nil)\n  def __beaml_result_{elixir}(a0, type_version) do\n"
+                ),
+                ", type_version",
+            )
         };
         out.push_str(&format!(
             "{result_head}    case {decode}(a0{arity}) do\n      {{:ok, value, []}} ->\n        {{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
@@ -1710,14 +1852,60 @@ impl Checker<'_> {
         out.push_str("  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n");
         out.push_str(HTTP);
         out.push_str(&format!(
-            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n\n      unknown_keys =\n        case @parent.{decode}(bytes) do\n          {{:ok, _, keys}} -> keys\n          _ -> []\n        end\n\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 1,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        body_base64: Base.encode64(bytes),\n        body_length: byte_size(bytes),\n        body_sha256: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),\n        unknown_keys: unknown_keys,\n        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
+            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n\n      unknown_keys =\n        case @parent.{decode}(bytes) do\n          {{:ok, _, keys}} -> keys\n          _ -> []\n        end\n\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 1,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        body_base64: Base.encode64(bytes),\n        body_length: byte_size(bytes),\n        body_sha256: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),\n        unknown_keys: unknown_keys,\n        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
             operation = binary(name),
+            retired = self.emit_retired(),
             type_version = self.emit_type_version(&effect.output),
             chain = self.emit_chain(steps, true, service, "      ", Step::Replay),
         ));
         out
     }
 }
+
+impl Checker<'_> {
+    // Slice 4, inside `Replay`: the `Retired` struct, `retired/0` (the generated metadata, sorted by operation)
+    // and `not_retired/1`. Empty without a RETIRE LINE, so that other sources keep their output.
+    fn emit_retired(&self) -> String {
+        if self.program.retires.is_empty() {
+            return String::new();
+        }
+        let mut retires: Vec<&Retire> = self.program.retires.iter().collect();
+        retires.sort_by(|a, b| a.operation.cmp(&b.operation));
+        let entries: Vec<String> = retires
+            .iter()
+            .map(|r| {
+                format!(
+                    "%{{operation: {}, keep_days: {}}}",
+                    binary(&r.operation),
+                    r.keep_days
+                )
+            })
+            .collect();
+        let mut out = format!(
+            "\n    defmodule Retired do\n      defstruct [:operation, :keep_days]\n    end\n\n    def retired, do: [{}]\n\n",
+            entries.join(", ")
+        );
+        for r in &retires {
+            out.push_str(&format!(
+                "    defp not_retired({op}), do: {{:error, %__MODULE__.Retired{{operation: {op}, keep_days: {}}}}}\n",
+                r.keep_days,
+                op = binary(&r.operation)
+            ));
+        }
+        out.push_str("    defp not_retired(_operation), do: :ok\n");
+        out
+    }
+}
+
+// The record selection of a REPLAY RUN (the first helper of REPLAY_HELPERS).
+const SELECT: &str = r#"
+    defp select(records, trace_id) do
+      case Enum.filter(records, &(&1["trace_id"] == trace_id)) do
+        [record] -> {:ok, record}
+        _ -> {:error, :missing_response}
+      end
+    end
+"#;
 
 // Transport of an http.post EFFECT: 0002 framing on :gen_tcp, Content-Length bodies only.
 const HTTP: &str = r#"  defmodule Http do
@@ -2115,6 +2303,23 @@ fn json_hex(bytes: &[u8], at: &mut usize) -> Option<u32> {
     u32::from_str_radix(hex, 16).ok()
 }
 
+// What the DEAD LINE rules read from a RECORD SNAPSHOT (slice 4).
+#[derive(Default)]
+struct Snapshot {
+    // Every operation with at least one record (W1).
+    operations: BTreeSet<String>,
+    // The oldest stored version per EFFECT output TYPE, from records of operations with an `effect` (W2).
+    oldest: BTreeMap<String, u32>,
+}
+
+// A DEAD LINE: its byte range in the source, its form (`retire ...` or `migrate T a -> b`) and why it is dead.
+#[derive(Clone, Debug)]
+struct Dead {
+    range: Range<usize>,
+    form: String,
+    reason: String,
+}
+
 // One stored TYPE VERSION as a RESPONSE RECORD names it in its `type` key.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct StoredVersion {
@@ -2192,8 +2397,14 @@ impl Checker<'_> {
     // Path check (README slice 2): each stored TYPE VERSION of an `operation` must equal the derived
     // TYPE VERSION with the same number of the EFFECT output TYPE. Equal means the same name and the same
     // fingerprint; the stored field list is read for the message only. Every line is checked.
-    fn check_stored(&self, source: &str, text: &str) -> Checked<()> {
+    // Slice 4 (DL-055): a record of an operation with a RETIRE LINE is a RETIRED RECORD. It must parse with its
+    // `type` key (C7), but the path check does not run for it. A record of an operation with neither an
+    // `effect` nor a RETIRE LINE is error R1, one message per operation with the count of its records.
+    fn check_stored(&self, source: &str, text: &str) -> Checked<Snapshot> {
         let mut groups: BTreeMap<StoredVersion, (usize, usize)> = BTreeMap::new();
+        let mut snapshot = Snapshot::default();
+        // Operation -> (record count, first line) of records with no `effect` and no RETIRE LINE.
+        let mut orphans: BTreeMap<String, (usize, usize)> = BTreeMap::new();
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             if line.trim().is_empty() {
@@ -2203,23 +2414,71 @@ impl Checker<'_> {
             let record = parse_json(line)
                 .ok_or_else(|| format!("error: stored RESPONSE RECORD is not JSON\n  {at}"))?;
             let stored = stored_version(&record).map_err(|e| format!("error: {e}\n  {at}"))?;
-            if self.effect(&stored.operation).is_none() {
-                return Err(format!(
-                    "error: stored RESPONSE RECORD of operation {} has no effect in the source\n  {at}",
-                    stored.operation
-                ));
+            snapshot.operations.insert(stored.operation.clone());
+            if let Some(effect) = self.effect(&stored.operation) {
+                let oldest = snapshot
+                    .oldest
+                    .entry(effect.output.clone())
+                    .or_insert(stored.version);
+                *oldest = (*oldest).min(stored.version);
+                groups.entry(stored).or_insert((0, number)).0 += 1;
+            } else if self.retire(&stored.operation).is_none() {
+                orphans.entry(stored.operation).or_insert((0, number)).0 += 1;
             }
-            groups.entry(stored).or_insert((0, number)).0 += 1;
+        }
+        if !orphans.is_empty() {
+            return Err(orphans
+                .iter()
+                .map(|(op, (count, line))| {
+                    format!(
+                        "error: stored RESPONSE RECORD of operation {op} has no effect in the source\n  record source: {source}:{line} (line {line})\n  stored RESPONSE RECORDS of operation {op}: {count}\n  help: if the effect is deleted on purpose, declare: retire {op} keep <n> days"
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("\n"));
         }
         let errors: Vec<String> = groups
             .iter()
             .filter_map(|(stored, (count, line))| self.no_path(source, stored, *count, *line))
             .collect();
         if errors.is_empty() {
-            Ok(())
+            Ok(snapshot)
         } else {
             Err(errors.join("\n"))
         }
+    }
+    // DEAD LINES (slice 4, DL-056), in source order. W1: a RETIRE LINE whose operation has no record in the
+    // RECORD SNAPSHOT. W2: a MIGRATE STEP `T a -> b` when no record of an operation whose `effect` outputs T
+    // has a version <= a; RETIRED RECORDS do not count. The last MIGRATE STEP of a TYPE is never dead (DL-058).
+    fn dead_lines(&self, snapshot: &Snapshot) -> Vec<Dead> {
+        let mut dead = Vec::new();
+        for retire in &self.program.retires {
+            let op = &retire.operation;
+            if !snapshot.operations.contains(op) {
+                dead.push(Dead {
+                    range: retire.source_range.clone(),
+                    form: format!("retire {op} keep {} days", retire.keep_days),
+                    reason: format!("no stored RESPONSE RECORD of operation {op}"),
+                });
+            }
+        }
+        for step in &self.program.migrations {
+            let name = &step.type_name;
+            let last = self.newest_version(name);
+            let needed = snapshot.oldest.get(name).is_some_and(|v| *v <= step.from);
+            if step.to != last && !needed {
+                dead.push(Dead {
+                    range: step.source_range.clone(),
+                    form: format!("migrate {name} {} -> {}", step.from, step.to),
+                    reason: format!(
+                        "no stored RESPONSE RECORD of TYPE {name} has version {} or older",
+                        step.from
+                    ),
+                });
+            }
+        }
+        dead.sort_by_key(|d| d.range.start);
+        dead
     }
     // The message for a stored TYPE VERSION without a path to the newest TYPE VERSION, or None.
     fn no_path(
@@ -2231,8 +2490,14 @@ impl Checker<'_> {
     ) -> Option<String> {
         let type_name = &self.effect(&stored.operation)?.output;
         let versions = self.type_versions(type_name);
-        let newest = versions.len() as u32;
-        let derived = versions.get(stored.version as usize - 1);
+        let start = self.chain_start(type_name);
+        let newest = self.newest_version(type_name);
+        let derived = stored
+            .version
+            .checked_sub(start)
+            .and_then(|index| versions.get(index as usize));
+        // Slice 4: a stored version below the chain start (a removed DEAD LINE needed again, E17).
+        let below_start = stored.version < start && &stored.name == type_name;
         if &stored.name == type_name
             && derived.is_some_and(|d| fingerprint(d) == stored.fingerprint)
         {
@@ -2312,10 +2577,12 @@ impl Checker<'_> {
                 "  help: the MIGRATE CHAIN of {type_name} must derive version {} with the fields of the stored TYPE VERSION; check its rename, add and drop steps",
                 stored.version
             ));
-        } else if !gone
-            .iter()
-            .any(|(f, _)| added.iter().any(|(g, _)| f == g))
-        {
+        } else if below_start {
+            m.push(format!(
+                "  help: the MIGRATE CHAIN of {type_name} starts at version {start}; the stored TYPE VERSION {} is older. Restore the removed MIGRATE STEPS from version control",
+                stored.version
+            ));
+        } else if !gone.iter().any(|(f, _)| added.iter().any(|(g, _)| f == g)) {
             // A changed field TYPE under the same name gets no help line (out of scope).
             let migrate = format!("migrate {type_name} {} -> {}", stored.version, newest + 1);
             if let ([(old, old_type)], [(new, new_type)]) = (gone.as_slice(), added.as_slice())
@@ -2356,7 +2623,11 @@ impl Checker<'_> {
                 let reason = match (drops.is_empty(), adds.is_empty()) {
                     (false, true) => format!("if {} is removed", names(&drops)),
                     (true, false) => format!("if {} is new", names(&adds)),
-                    _ => format!("if {} is removed and {} is new", names(&drops), names(&adds)),
+                    _ => format!(
+                        "if {} is removed and {} is new",
+                        names(&drops),
+                        names(&adds)
+                    ),
                 };
                 m.push(format!(
                     "  help: {reason}, declare: {migrate} {{ {} }}",
@@ -2383,6 +2654,16 @@ pub fn compile_stored(
     service: Option<&str>,
     stored: Option<&std::path::Path>,
 ) -> Checked<String> {
+    build(source, service, stored).map(|built| built.code)
+}
+
+// A successful build: the Elixir source and the DEAD LINES of the source against the RECORD SNAPSHOT.
+struct Build {
+    code: String,
+    dead: Vec<Dead>,
+}
+
+fn build(source: &str, service: Option<&str>, stored: Option<&std::path::Path>) -> Checked<Build> {
     let program = Parser {
         tokens: lex(source)?,
         at: 0,
@@ -2409,22 +2690,281 @@ pub fn compile_stored(
         }
         _ => "",
     };
-    match stored {
+    let dead = match stored {
         Some(path) => {
             let text = std::fs::read_to_string(path)
                 .map_err(|e| format!("cannot read --stored input: {}", e.kind()))?;
-            checker.check_stored(&path.display().to_string(), &text)?;
+            let snapshot = checker.check_stored(&path.display().to_string(), &text)?;
+            checker.dead_lines(&snapshot)
         }
-        None if !program.effects.is_empty() => {
-            return Err("error: stored TYPE VERSIONS unknown: a source with an effect needs --stored SNAPSHOT.jsonl (an unknown store is not an empty store)".into());
+        None if !program.effects.is_empty() || !program.retires.is_empty() => {
+            return Err("error: stored TYPE VERSIONS unknown: a source with an effect or a RETIRE LINE needs --stored SNAPSHOT.jsonl (an unknown store is not an empty store)".into());
         }
-        None => (),
-    }
-    Ok(checker.emit(service))
+        None => Vec::new(),
+    };
+    Ok(Build {
+        code: checker.emit(service),
+        dead,
+    })
 }
 
-fn action(result: &str) {
-    // Logging must never prevent compilation. Source text and file paths are not recorded.
+// Python `str.splitlines(keepends=True)`: the line boundaries of the difflib reference (README slice 4).
+fn split_lines(text: &str) -> Vec<&str> {
+    let mut lines = Vec::new();
+    let mut begin = 0;
+    let mut chars = text.char_indices().peekable();
+    while let Some((at, c)) = chars.next() {
+        let end = match c {
+            '\r' if chars.peek().is_some_and(|(_, n)| *n == '\n') => {
+                chars.next();
+                at + 2
+            }
+            '\n' | '\r' | '\u{b}' | '\u{c}' | '\u{1c}' | '\u{1d}' | '\u{1e}' | '\u{85}'
+            | '\u{2028}' | '\u{2029}' => at + c.len_utf8(),
+            _ => continue,
+        };
+        lines.push(&text[begin..end]);
+        begin = end;
+    }
+    if begin < text.len() {
+        lines.push(&text[begin..]);
+    }
+    lines
+}
+
+// The matching blocks of Python `difflib.SequenceMatcher(None, a, b)` (no junk; autojunk for 200+ lines).
+fn matching_blocks(a: &[&str], b: &[&str]) -> Vec<(usize, usize, usize)> {
+    let mut b2j: std::collections::HashMap<&str, Vec<usize>> = std::collections::HashMap::new();
+    for (j, line) in b.iter().enumerate() {
+        b2j.entry(line).or_default().push(j);
+    }
+    if b.len() >= 200 {
+        let limit = b.len() / 100 + 1;
+        b2j.retain(|_, places| places.len() <= limit);
+    }
+    let longest = |alo: usize, ahi: usize, blo: usize, bhi: usize| {
+        let (mut besti, mut bestj, mut bestsize) = (alo, blo, 0);
+        let mut j2len: std::collections::HashMap<usize, usize> = std::collections::HashMap::new();
+        for i in alo..ahi {
+            let mut next = std::collections::HashMap::new();
+            for &j in b2j.get(a[i]).map_or(&[][..], |v| v.as_slice()) {
+                if j < blo {
+                    continue;
+                }
+                if j >= bhi {
+                    break;
+                }
+                let k = j
+                    .checked_sub(1)
+                    .and_then(|p| j2len.get(&p))
+                    .copied()
+                    .unwrap_or(0)
+                    + 1;
+                next.insert(j, k);
+                if k > bestsize {
+                    (besti, bestj, bestsize) = (i + 1 - k, j + 1 - k, k);
+                }
+            }
+            j2len = next;
+        }
+        while besti > alo && bestj > blo && a[besti - 1] == b[bestj - 1] {
+            (besti, bestj, bestsize) = (besti - 1, bestj - 1, bestsize + 1);
+        }
+        while besti + bestsize < ahi
+            && bestj + bestsize < bhi
+            && a[besti + bestsize] == b[bestj + bestsize]
+        {
+            bestsize += 1;
+        }
+        (besti, bestj, bestsize)
+    };
+    let mut queue = vec![(0, a.len(), 0, b.len())];
+    let mut blocks = Vec::new();
+    while let Some((alo, ahi, blo, bhi)) = queue.pop() {
+        let (i, j, k) = longest(alo, ahi, blo, bhi);
+        if k > 0 {
+            blocks.push((i, j, k));
+            if alo < i && blo < j {
+                queue.push((alo, i, blo, j));
+            }
+            if i + k < ahi && j + k < bhi {
+                queue.push((i + k, ahi, j + k, bhi));
+            }
+        }
+    }
+    blocks.sort();
+    let mut merged = Vec::new();
+    let (mut i1, mut j1, mut k1) = (0, 0, 0);
+    for (i2, j2, k2) in blocks {
+        if i1 + k1 == i2 && j1 + k1 == j2 {
+            k1 += k2;
+        } else {
+            if k1 > 0 {
+                merged.push((i1, j1, k1));
+            }
+            (i1, j1, k1) = (i2, j2, k2);
+        }
+    }
+    if k1 > 0 {
+        merged.push((i1, j1, k1));
+    }
+    merged.push((a.len(), b.len(), 0));
+    merged
+}
+
+// Python `"".join(difflib.unified_diff(a, b, label, label, n=0))` over `splitlines(keepends=True)`.
+fn unified_diff(old: &str, new: &str, label: &str) -> String {
+    let (a, b) = (split_lines(old), split_lines(new));
+    let mut codes = Vec::new();
+    let (mut i, mut j) = (0, 0);
+    for (ai, bj, size) in matching_blocks(&a, &b) {
+        if i < ai || j < bj {
+            codes.push((false, i, ai, j, bj));
+        }
+        (i, j) = (ai + size, bj + size);
+        if size > 0 {
+            codes.push((true, ai, i, bj, j));
+        }
+    }
+    // With n = 0 every equal run ends a group; a group is the changes between two equal runs.
+    let mut out = String::new();
+    for (equal, i1, i2, j1, j2) in codes {
+        if equal {
+            continue;
+        }
+        if out.is_empty() {
+            out.push_str(&format!("--- {label}\n+++ {label}\n"));
+        }
+        let range = |start: usize, stop: usize| match stop - start {
+            1 => format!("{}", start + 1),
+            0 => format!("{start},0"),
+            length => format!("{},{length}", start + 1),
+        };
+        out.push_str(&format!("@@ -{} +{} @@\n", range(i1, i2), range(j1, j2)));
+        for line in &a[i1..i2] {
+            out.push('-');
+            out.push_str(line);
+        }
+        for line in &b[j1..j2] {
+            out.push('+');
+            out.push_str(line);
+        }
+    }
+    out
+}
+
+fn line_number(text: &str, at: usize) -> usize {
+    text[..at].bytes().filter(|b| *b == b'\n').count() + 1
+}
+
+// The text without the whole lines of each DEAD LINE (README slice 4, removal contract 2 and 3). A line of a
+// DEAD LINE that holds other text than the DEAD LINE and white space stops the removal.
+fn without_dead(text: &str, dead: &[Dead]) -> Checked<String> {
+    let mut out = String::new();
+    let mut kept = 0;
+    for line in dead {
+        let begin = text[..line.range.start].rfind('\n').map_or(0, |at| at + 1);
+        let end = text[line.range.end..]
+            .find('\n')
+            .map_or(text.len(), |at| line.range.end + at + 1);
+        let blank = |part: &str| part.chars().all(char::is_whitespace);
+        let other = if !blank(&text[begin..line.range.start]) {
+            Some(line.range.start)
+        } else if !blank(&text[line.range.end..end]) {
+            Some(line.range.end)
+        } else {
+            None
+        };
+        if let Some(at) = other {
+            return Err(format!(
+                "error: cannot remove {}: line {} holds other text",
+                line.form,
+                line_number(text, at)
+            ));
+        }
+        out.push_str(&text[kept..begin]);
+        kept = end;
+    }
+    out.push_str(&text[kept..]);
+    Ok(out)
+}
+
+// Write through a temporary file in the same directory and a rename (README slice 4, removal contract 5).
+fn write_atomic(path: &std::path::Path, text: &str) -> Checked<()> {
+    let directory = match path.parent() {
+        Some(parent) if !parent.as_os_str().is_empty() => parent,
+        _ => std::path::Path::new("."),
+    };
+    let name = path
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    let temporary = directory.join(format!(".{name}.remove-dead-{}.tmp", std::process::id()));
+    let result = (|| -> std::io::Result<()> {
+        let permissions = std::fs::metadata(path)?.permissions();
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary)?;
+        file.write_all(text.as_bytes())?;
+        file.set_permissions(permissions)?;
+        file.sync_all()?;
+        std::fs::rename(&temporary, path)
+    })();
+    result.map_err(|e| {
+        let _ = std::fs::remove_file(&temporary);
+        format!("error: cannot write {}: {}", path.display(), e.kind())
+    })
+}
+
+// The removal command (README slice 4): build, find the DEAD LINES, remove them, rebuild, write atomically.
+// Return the number of removed DEAD LINE declarations.
+fn remove_dead(
+    path: &std::path::Path,
+    label: &str,
+    stem: Option<&str>,
+    stored: &std::path::Path,
+) -> Checked<usize> {
+    let old =
+        std::fs::read_to_string(path).map_err(|e| format!("cannot read source: {}", e.kind()))?;
+    let dead = build(&old, stem, Some(stored))?.dead;
+    if dead.is_empty() {
+        eprintln!("no DEAD LINE in {label}");
+        return Ok(0);
+    }
+    let new = without_dead(&old, &dead)?;
+    match build(&new, stem, Some(stored)) {
+        Ok(rebuilt) if rebuilt.dead.is_empty() => (),
+        Ok(rebuilt) => {
+            return Err(format!(
+                "error: removal check failed\n  the new text still has {} DEAD LINES",
+                rebuilt.dead.len()
+            ));
+        }
+        Err(error) => return Err(format!("error: removal check failed\n{error}")),
+    }
+    let diff = unified_diff(&old, &new, label);
+    write_atomic(path, &new)?;
+    std::io::stdout()
+        .write_all(diff.as_bytes())
+        .map_err(|e| format!("cannot write output: {}", e.kind()))?;
+    let plural = if dead.len() == 1 { "" } else { "S" };
+    eprintln!("removed {} DEAD LINE{plural} from {label}", dead.len());
+    Ok(dead.len())
+}
+
+// The warning of one DEAD LINE (README slice 4, "Warning texts").
+fn warning(source: &str, label: &str, stored: &str, dead: &Dead) -> String {
+    format!(
+        "warning: DEAD LINE: {}\n  at {label}:{}\n  record source: {stored}: {}\n  help: remove DEAD LINES with: beaml-spike {label} --stored {stored} --remove-dead",
+        dead.form,
+        line_number(source, dead.range.start),
+        dead.reason
+    )
+}
+
+fn action(action: &str, result: &str, count: Option<(&str, usize)>) {
+    // Logging must never prevent compilation. Source text, line text and file paths are not recorded.
     let _ = (|| -> std::io::Result<()> {
         std::fs::create_dir_all(".beaml")?;
         let mut file = std::fs::OpenOptions::new()
@@ -2435,34 +2975,54 @@ fn action(result: &str) {
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()
             .as_secs_f64();
+        let count = count.map_or(String::new(), |(key, n)| format!(",\"{key}\":{n}"));
         writeln!(
             file,
-            "{{\"ts\":{ts},\"source\":\"cli\",\"action\":\"compile\",\"target\":\"experiment-0001\",\"result\":\"{result}\"}}"
+            "{{\"ts\":{ts},\"source\":\"cli\",\"action\":\"{action}\",\"target\":\"experiment-0001\",\"result\":\"{result}\"{count}}}"
         )
     })();
 }
 fn main() {
-    let result = (|| -> Checked<()> {
-        let args: Vec<_> = std::env::args_os().skip(1).collect();
+    let args: Vec<_> = std::env::args_os().skip(1).collect();
+    let remove = matches!(args.as_slice(), [_, flag, _, last] if flag == "--stored" && last == "--remove-dead");
+    let result = (|| -> Checked<Option<(&str, usize)>> {
         let stored = match args.as_slice() {
             [_] => None,
             [_, flag, path] if flag == "--stored" => Some(std::path::Path::new(path)),
+            [_, flag, path, last] if flag == "--stored" && last == "--remove-dead" => {
+                Some(std::path::Path::new(path))
+            }
             _ => {
-                return Err("usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl] (Elixir source goes to stdout)".into());
+                return Err("usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff)".into());
             }
         };
-        let source = std::fs::read_to_string(&args[0])
+        let path = std::path::Path::new(&args[0]);
+        let label = args[0].to_string_lossy();
+        let stem = path.file_stem().and_then(|stem| stem.to_str());
+        if remove {
+            let removed = remove_dead(path, &label, stem, stored.expect("checked arguments"))?;
+            return Ok(Some(("removed", removed)));
+        }
+        let source = std::fs::read_to_string(path)
             .map_err(|e| format!("cannot read source: {}", e.kind()))?;
-        let stem = std::path::Path::new(&args[0])
-            .file_stem()
-            .and_then(|stem| stem.to_str());
-        let code = compile_stored(&source, stem, stored)?;
+        let built = build(&source, stem, stored)?;
         std::io::stdout()
-            .write_all(code.as_bytes())
+            .write_all(built.code.as_bytes())
             .map_err(|e| format!("cannot write output: {}", e.kind()))?;
-        Ok(())
+        if let Some(stored) = stored {
+            let stored = stored.display().to_string();
+            for dead in &built.dead {
+                eprintln!("{}", warning(&source, &label, &stored, dead));
+            }
+        }
+        Ok(Some(("warnings", built.dead.len())))
     })();
-    action(if result.is_ok() { "ok" } else { "error" });
+    let name = if remove { "remove-dead" } else { "compile" };
+    match &result {
+        Ok(count) => action(name, "ok", *count),
+        Err(_) if remove => action(name, "error", Some(("removed", 0))),
+        Err(_) => action(name, "error", None),
+    }
     if let Err(error) = result {
         eprintln!("{error}");
         std::process::exit(1);

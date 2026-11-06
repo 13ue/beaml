@@ -63,7 +63,9 @@ def random_names():
     word = lambda prefix: prefix + "".join(rng.choice(string.ascii_lowercase) for _ in range(6))  # noqa: E731
     const = lambda prefix: word(prefix) + '"\\é' + word("")  # noqa: E731
     return Names("Tq" + word(""), word("k_"), word("o_"), word("t_"), word("c_"), word("x_"), const("cw"),
-                 const("cx"), word("ns") + "." + word("op"), word("nr") + "." + word("oq"),
+                 const("cx"), word("ns") + "." + word("op"),
+                 # The live operation keeps the namespace `payments`: the harness configures only `payments_port`.
+                 "payments." + word("oq"),
                  rng.choice([0, U32_MAX, rng.randrange(1, 100000)]), "Gq" + word(""))
 
 

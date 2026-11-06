@@ -1,0 +1,39 @@
+{
+  "order": {
+    "order_id": "order-1"
+  },
+  "mode": "replay",
+  "trace_id": "d01cb37ffd72db03b18ef922e9b74ac0",
+  "responses": [
+    {
+      "status": 503,
+      "version": 1,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "d01cb37ffd72db03b18ef922e9b74ac0",
+      "body_length": 64,
+      "attempt": 1,
+      "artifact_id": "266cf3fe201d1add2a02e3fdc462b3b48240a4f3b807cb6ec8dcd075099c5d4d",
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJyZWZlcmVuY2UiOiJyZWYtMSIsInN0YXR1cyI6ImF1dGhvcml6ZWQifQ==",
+      "body_sha256": "dd19150945522a6e8777dd4e6c8bab5e7158355c4775d661a9d932f7a011ca10",
+      "client_span_id": "2b676b01da9d2b90"
+    },
+    {
+      "status": 200,
+      "version": 1,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "2d6ecebbe2bedc77612966e17bc2c722",
+      "body_length": 64,
+      "attempt": 1,
+      "artifact_id": "266cf3fe201d1add2a02e3fdc462b3b48240a4f3b807cb6ec8dcd075099c5d4d",
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJyZWZlcmVuY2UiOiJyZWYtMSIsInN0YXR1cyI6ImF1dGhvcml6ZWQifQ==",
+      "body_sha256": "dd19150945522a6e8777dd4e6c8bab5e7158355c4775d661a9d932f7a011ca10",
+      "client_span_id": "cda48429c127d114"
+    }
+  ]
+}

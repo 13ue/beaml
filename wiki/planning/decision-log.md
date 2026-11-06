@@ -308,6 +308,19 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: targeted. The rule holds in `migrate` steps and in the decode of data from outside (effect responses, stored records). Ordinary code may use a deliberate default (`fn greeting other: String -> String = "Hello"`).
 → Because: a guess is dangerous where data is stored or comes from another system; in ordinary code a default is a design choice.
 
+### EXPERIMENT 0004 slice 4 GREEN
+
+**DL-066 · Repair · Retired check after `select`**
+→ Chose: `Replay.run/3` checks for a RETIRED RECORD with a `with` step right after `select/2`. Over: a separate first clause of `run/3`.
+→ Because: the record is known only after `select`. Commits `prepare/1` to run before the reject.
+
+**DL-067 · Repair · `--remove-dead` diff is a port of difflib**
+→ Chose: a faithful port of Python difflib. Over: a direct deletion diff. Because: the contract is byte equality with difflib (150 random layouts, LF and CRLF, matched).
+
+**DL-068 · Repair · Live operation keeps the `payments` namespace in random-name tests**
+→ Chose: fix the test harness. Over: a new port-key rule in the compiler.
+→ Because: the generated EFFECT reads `<namespace>_port`, and the harness sets only `payments_port`; a new port rule would be a language decision.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
