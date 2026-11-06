@@ -1,0 +1,35 @@
+// [Proposal] EXPERIMENT 0004 discussion example (2026-11-06). The 0001 compiler does not parse `effect` or `|>` yet.
+
+interface Order {
+  order_id: String
+  customer: String
+}
+
+interface Payment {
+  order_id: String
+  status: String
+}
+
+// Everything that leaves this module. Recorded live, substituted in a REPLAY RUN.
+effect orders.load        String  -> Order   = db.get("orders")
+effect inventory.reserve  Order   -> Order   = http.post("inventory/reserve")
+effect payments.authorize Order   -> Payment = http.post("payments/authorize")
+effect audit.publish      Payment -> Payment = queue.send("audit")
+effect mail.confirm       Payment -> Payment = mail.send("order-confirmed")
+
+// Pure decision: no effect, same input gives the same output.
+fn finish Payment { order_id, status: "authorized" } -> Payment =
+  Payment { order_id: order_id, status: "paid" }
+
+fn finish Payment { order_id, status } -> Payment =
+  Payment { order_id: order_id, status: "declined: " + status }
+
+// The flow lives in BEAML.
+fn place order_id: String -> Payment =
+  order_id
+  |> orders.load
+  |> inventory.reserve
+  |> payments.authorize
+  |> finish
+  |> audit.publish
+  |> mail.confirm
