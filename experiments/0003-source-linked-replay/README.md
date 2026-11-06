@@ -1,7 +1,7 @@
 ---
 id: experiment-0003-source-linked-replay-plan
 kind: experiment
-status: in-progress
+status: complete
 updated: 2026-11-06
 ---
 
@@ -45,9 +45,13 @@ flowchart LR
 
 ## Evidence and limits
 
-**[Proposal]** Reserve `python3 experiments/0003-source-linked-replay/run.py` as the repeatable command. Retain the command, toolchain versions, hashes, trace and source evidence, replay records and assertions under a new `results/<UTC-id>/` per run. Preserve failed runs. Record the use case start, steps and result in `.beaml/actions.jsonl` without source text or paths.
+**[Verified]** Run `python3 experiments/0003-source-linked-replay/run.py` from the repository root. It runs five steps in series: `compiler-reference` (the gate 1 `cargo test`), `trace-lookup`, `trace-lookup-repair`, `response-capture` and `replay-run`. The repair step gets `--source-run` with the lookup result directory of the same run. A failed lookup skips the repair step. `run.py --list-steps` prints the five steps as JSON and runs nothing. [Plan](workflow/2026-11-06/run/plan.md), [notes](workflow/2026-11-06/run/notes.md)
 
-**[Unknown]** `run.py` does not exist yet. Each gate uses its own test command. The counts are acceptance targets for local loopback calls from a synthetic driver. Only the two successful requests contribute to the coverage result. The negative controls use derivative evidence.
+**[Verified]** Each run makes a new runner directory `results/<UTC-id>/`. It keeps `result.json` (command, start and finish time, toolchain versions, steps with exit code, result directory and status) and the stdout and stderr of each started step. Each step that runs a gate test also writes its own result directory with its hashes. The run passes only when all five steps exit 0. The `compiler-reference` step passes only with exactly one passed test. Failed runs stay. Events `start`, `step` and `finish` go to `.beaml/actions.jsonl` without paths.
+
+**[Verified]** The latest run after the zero-test repair passed all five steps. [Runner result](results/20261106T082425551626Z/result.json), [repair notes](workflow/2026-11-06/run/notes.md#repair-zero-test-gate-2026-11-06)
+
+**[Unknown]** The counts are acceptance targets for local loopback calls from a synthetic driver. Only the two successful requests contribute to the coverage result. The negative controls use derivative evidence.
 
 ### Gate status
 
@@ -57,6 +61,7 @@ flowchart LR
 | Live evidence and exact source lookup, with repair | 1–3 | **[Verified]** RED, GREEN, independent TEST and review passed. The repair adds receipt order and window checks | [Notes](workflow/2026-11-05/lookup/notes.md), [lookup TEST run](results/20261105T232448420501Z/result.json), [repair TEST record](workflow/2026-11-05/lookup/repair-test-result.json), [repair review](workflow/2026-11-05/lookup/repair-review.md) |
 | Predecode response capture and transport observer | 4 (live part) | **[Verified]** RED, owner RED review, GREEN, independent TEST (10/10 checks) and review passed. One response record per live receipt | [Notes](workflow/2026-11-05/capture/notes.md), [TEST record](workflow/2026-11-05/capture/test-result.json), [TEST run](results/20261106T063936223444Z/result.json), [review](workflow/2026-11-05/capture/review.md) |
 | Isolated replay and invalid-record controls | 4–5 | **[Verified]** RED revision 3, agent RED review and fresh check, GREEN, independent TEST (9/10 checks, whitespace check on raw logs accepted) and review (PASS WITH CHANGES) passed | [Notes](workflow/2026-11-05/replay/notes.md), [TEST record](workflow/2026-11-05/replay/test-result.json), [GREEN run](results/20261106T080316413341Z/result.json), [review](workflow/2026-11-05/replay/review.md) |
+| Repeatable command `run.py` | 1–5 (all gates, in series) | **[Verified]** RED, RED review, GREEN and independent TEST (5/5 checks) passed. The review gave BLOCK on O1 (zero-test pass). O1 was repaired with a RED test; the repaired run passed | [Notes](workflow/2026-11-06/run/notes.md), [TEST record](workflow/2026-11-06/run/test-result.json), [review](workflow/2026-11-06/run/review.md), [repaired run](results/20261106T082425551626Z/result.json) |
 
 ```mermaid
 flowchart LR
@@ -80,6 +85,13 @@ python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.
 
 - **R1.** **[Unknown]** `OrdersApi.Replay.run/3` does not bind the record to the loaded Orders build. Only the test harness checks the build. A runner check waits for [D002](../../wiki/planning/decisions-to-be-made.md#d002--scope-of-the-replay-artifact-identity).
 - **R2.** **[Unknown]** The body digest is an integrity check inside the record, not tamper protection. An edit of body, length and SHA-256 together is not detected.
+
+**[Unknown]** Limits of `run.py` after the review (O2, medium). [Review](workflow/2026-11-06/run/review.md#disposition-main-agent-2026-11-06)
+
+- **O2.** **[Unknown]** The runner directory has no own output hashes (`output-hashes.json`). The `compiler-reference` stdout is the only gate 1 evidence of a run and has no hash. A later change of a linked step directory is not detected from the runner record.
+- **O2.** **[Unknown]** `result.json` stores the step result directories as absolute paths. In a different checkout these links do not resolve.
+- **[Unknown]** The independent TEST ran on the GREEN commit `f303eb0`, before the zero-test repair. The repaired run comes from the repair phase. No separate TEST or review of the repair is recorded.
+- **[Unknown]** `run.py` has no timeout per step. A hung release blocks the run.
 
 **[Verified]** The CAPTURE gate changed only [`OrdersApi.PaymentHttp`](../0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex), 22 lines added. The owner chose one response record per live receipt, for both calls. This replaces "for the first call" in the EXECUTION input above. The transport counter counts `[1, 2]` for the two live calls and `[0, 1]` for the invalid order and the refused connect. Fresh Claude Opus 5.5 workers ran this gate by owner choice. [Notes](workflow/2026-11-05/capture/notes.md#capture-test)
 

@@ -4,7 +4,7 @@
   "model": "gpt-6.1-sol",
   "reasoning_effort": "medium",
   "fork_turns": "none",
-  "status": "in-progress",
+  "status": "complete",
   "authorization": "Bounded EXPERIMENT 0003 implementation authorized. The owner reviewed the compiler RED. Each later gate requires separate RED review.",
   "checkpoint": {
     "phase": "compiler-reference",
@@ -72,6 +72,24 @@
       "review": "replay/review.md",
       "review_verdict": "PASS WITH CHANGES; R1 and R2 recorded as limits, no code change",
       "workers": "fresh Claude Opus 5.5 workers by owner choice instead of GPT-6.1 Sol",
+      "status": "verified"
+    },
+    {
+      "gate": "Repeatable command run.py",
+      "command": "python3 experiments/0003-source-linked-replay/run.py",
+      "plan": "../2026-11-06/run/plan.md",
+      "notes": "../2026-11-06/run/notes.md",
+      "red": "../2026-11-06/run/red-output.log",
+      "red_review": "../2026-11-06/run/red-review.md",
+      "green": "../2026-11-06/run/green-result.json",
+      "green_run": "../../results/20261106T081942619923Z/result.json",
+      "independent_test": "../2026-11-06/run/test-result.json",
+      "independent_test_note": "5/5 checks on f303eb0, before the zero-test repair",
+      "review": "../2026-11-06/run/review.md",
+      "review_verdict": "BLOCK on O1 (zero-test pass); O1 repaired; O2 recorded as a limit",
+      "repair_red": "../2026-11-06/run/repair-red-output.log",
+      "repair_run": "../../results/20261106T082425551626Z/result.json",
+      "limits": "Runner dir has no own output hashes; step result dirs are absolute paths (review O2, medium)",
       "status": "verified"
     }
   ]

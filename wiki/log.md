@@ -272,3 +272,10 @@ Updated [BAML docs](sources/baml-documentation.md#debugging-and-replay-of-a-reco
 **[Verified]** The independent TEST passed 9 of 10 checks. `git diff --check` failed only on blank lines in retained raw run logs; the main agent accepted this. The final review gave PASS WITH CHANGES. [TEST record](../experiments/0003-source-linked-replay/workflow/2026-11-05/replay/test-result.json), [review](../experiments/0003-source-linked-replay/workflow/2026-11-05/replay/review.md)
 Updated the workflow record, the [EXPERIMENT 0003 page](../experiments/0003-source-linked-replay/README.md#gate-status), its overview page and the [R&D register](planning/research-and-development.md#experiment-register).
 **[Unknown]** The runner does not bind the record to the loaded build (R1, waits for [D002](planning/decisions-to-be-made.md#d002--scope-of-the-replay-artifact-identity)). The body digest is integrity, not tamper protection (R2). `run.py` does not exist yet.
+
+## [2026-11-06] verify | EXPERIMENT 0003 complete
+
+**[Verified]** `python3 experiments/0003-source-linked-replay/run.py` runs the five gate steps in series. RED, RED review, GREEN and the independent TEST (5/5 checks) passed. [Notes](../experiments/0003-source-linked-replay/workflow/2026-11-06/run/notes.md), [TEST record](../experiments/0003-source-linked-replay/workflow/2026-11-06/run/test-result.json)
+**[Verified]** The review blocked a zero-test pass of the compiler reference step (O1). The repair added a RED test. The repaired run passed 5/5 steps. [Review](../experiments/0003-source-linked-replay/workflow/2026-11-06/run/review.md), [runner result](../experiments/0003-source-linked-replay/results/20261106T082425551626Z/result.json)
+Updated the workflow record, the [EXPERIMENT 0003 page](../experiments/0003-source-linked-replay/README.md#evidence-and-limits), its overview page and the [R&D register](planning/research-and-development.md#experiment-register).
+**[Unknown]** The runner directory has no own output hashes and stores absolute step paths (O2). No independent TEST of the repair is recorded. A passed EXPERIMENT does not establish production readiness.
