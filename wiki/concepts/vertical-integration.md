@@ -56,6 +56,9 @@ updated: 2026-11-06
 - Division offers both forms: a function can return a typed `DivByZero` failure (`!`), or declare the divisor as a non-zero integer TYPE, so that the caller must prove it.
 - A deploy blocks only when an environment stores a TYPE VERSION that the `migrate` chain cannot reach. `Unknown` counts are reported, not blocking.
 
+- An `effect` that leaves the source while an environment stores its records blocks the build until `retire <effect> keep <duration>` is declared. Retired records are kept for the duration and then deleted; `keep 0 days` deletes at deploy and the report says so.
+- The compiler warns about dead `retire` lines and dead `migrate` steps (no stored records left in any environment), and a command removes them on request.
+
 **[Verified]** On the BEAM, integer division by zero raises (`badarith`). Plain arithmetic therefore breaks "no crash" without one of the two forms above.
 
 **[Unknown]** Research items:

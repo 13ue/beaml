@@ -247,6 +247,19 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: on the raw body a stray key could win over an `add` constant that a later `rename` moves, without a trace, and old fields were not fully typed (DL-023). This is decode by version (DL-043) carried through.
 → Trigger: slice 3 final review (Devil's Advocate), BLOCK.
 
+### Deleted effects and dead code
+
+**DL-055 · Migrate · A deleted effect with stored records**
+→ Question: an `effect` leaves the source, but an environment still stores its records. Block or warn?
+→ Options: block; warn; block until the effect is retired explicitly.
+→ Chose: block until `retire <effect> keep <duration>` is declared. Retired records stay stored and are not replayable; after the duration they are deleted. `keep 0 days` deletes at deploy; the deploy report states the deletion loudly, because it cannot be undone. Over: a warning only.
+→ Because: nothing becomes unreadable without an explicit statement in the source, the same pattern as `add` with a constant. A retention limit serves privacy (DL-029).
+→ Supersedes the GREEN rule in DL-040, which blocked with no way out.
+
+**DL-056 · Migrate · Dead code warnings and automatic removal**
+→ Chose: the compiler warns when a `retire` line or a `migrate` step is no longer needed, because no environment stores records of that effect or version. A command removes such lines on request. A record that appears again later (for example from a backup) blocks the build again.
+→ Because: the chain must not grow forever, and the removal must stay safe.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
