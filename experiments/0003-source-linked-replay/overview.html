@@ -94,7 +94,7 @@ tr:last-child td{border-bottom:0}
       <div class="arrow">──►</div>
       <div class="split">
         <div class="box ok"><b>① Which code ran?</b><small>bytes 91–193 of the original</small></div>
-        <div class="box wait"><b>② Replay</b><small>no network, gate 4</small></div>
+        <div class="box ok"><b>② Replay</b><small>no network, gate 4</small></div>
       </div>
     </div>
   </div>
@@ -108,7 +108,7 @@ tr:last-child td{border-bottom:0}
     <div class="gate"><span class="n">Gate 2</span><h3>Source lookup</h3><span class="chip ok">✓ verified</span></div>
     <div class="gate"><span class="n">Gate 2b</span><h3>Lookup repair</h3><span class="chip ok">✓ verified</span></div>
     <div class="gate"><span class="n">Gate 3</span><h3>Response CAPTURE</h3><span class="chip ok">✓ verified</span></div>
-    <div class="gate now"><span class="n">Gate 4</span><h3>REPLAY RUN</h3><span class="chip wait">◷ RED rev. 2, in review</span></div>
+    <div class="gate"><span class="n">Gate 4</span><h3>REPLAY RUN</h3><span class="chip ok">✓ verified</span></div>
   </div>
   <p class="note">Each gate has the same steps: RED test → agent RED review → GREEN → independent TEST → review → docs.</p>
 </section>
@@ -147,8 +147,8 @@ tr:last-child td{border-bottom:0}
 </section>
 
 <section>
-  <h2>Gate 4: what is in progress</h2>
-  <p>A separate debug runner replays the retained response. The live router does not change.</p>
+  <h2>Gate 4: done</h2>
+  <p>Verified: a separate debug runner replays the retained response. The live router did not change.</p>
   <div class="diagram" style="display:grid;gap:18px">
     <div class="flow">
       <span class="chip host" style="min-width:64px">LIVE</span>
@@ -174,7 +174,9 @@ tr:last-child td{border-bottom:0}
         <tr><td>Record missing</td><td><code>missing_response</code></td></tr>
         <tr><td>Wrong operation</td><td><code>operation_mismatch</code></td></tr>
         <tr><td>Wrong attempt</td><td><code>attempt_mismatch</code></td></tr>
-        <tr><td>Body changed</td><td><code>body_digest_mismatch</code> (new)</td></tr>
+        <tr><td>Body changed</td><td><code>body_digest_mismatch</code></td></tr>
+        <tr><td>Other recorded status</td><td><code>status_mismatch</code></td></tr>
+        <tr><td>Other recorded request</td><td><code>request_mismatch</code></td></tr>
       </tbody>
     </table>
   </div>
@@ -213,13 +215,13 @@ tr:last-child td{border-bottom:0}
   <h2>Comparison with BAML</h2>
   <div class="tbl">
     <table>
-      <thead><tr><th>Capability</th><th>BAML (checked)</th><th>BEAML gate 4 (target)</th></tr></thead>
+      <thead><tr><th>Capability</th><th>BAML (checked)</th><th>BEAML gate 4</th></tr></thead>
       <tbody>
         <tr><td>Record calls</td><td class="green">yes (Collector, spans)</td><td class="green">yes (gate 3)</td></tr>
-        <tr><td>Parse a retained response again</td><td class="green">yes (<code>b.parse</code>, <code>F@parse</code>)</td><td>planned</td></tr>
-        <tr><td>Replay the downstream decision</td><td class="red">no, user code</td><td>planned</td></tr>
-        <tr><td>Prove 0 transport attempts</td><td>not built in</td><td>planned</td></tr>
-        <tr><td>Wrong record → clear error</td><td>not built in</td><td>planned</td></tr>
+        <tr><td>Parse a retained response again</td><td class="green">yes (<code>b.parse</code>, <code>F@parse</code>)</td><td class="green">yes</td></tr>
+        <tr><td>Replay the downstream decision</td><td class="red">no, user code</td><td class="green">yes</td></tr>
+        <tr><td>Prove 0 transport attempts</td><td>not built in</td><td class="green">yes</td></tr>
+        <tr><td>Wrong record → clear error</td><td>not built in</td><td class="green">yes</td></tr>
         <tr><td>Built-in replay</td><td class="red">no (only open PR #3336)</td><td>host runner</td></tr>
       </tbody>
     </table>
@@ -231,10 +233,10 @@ tr:last-child td{border-bottom:0}
   <h2>Next steps</h2>
   <div class="diagram">
     <div class="flow">
-      <div class="box ok"><b>RED rev. 2</b><small>6/6 cases fail as expected</small></div><div class="arrow">──►</div>
-      <div class="box wait"><b>RED review</b><small>Claude + fresh agent</small></div><div class="arrow">──►</div>
-      <div class="box open"><b>GREEN</b><small>runner + shared decode</small></div><div class="arrow">──►</div>
-      <div class="box open"><b>TEST + review</b></div><div class="arrow">──►</div>
+      <div class="box ok"><b>RED rev. 3</b><small>8/8 cases fail as expected</small></div><div class="arrow">──►</div>
+      <div class="box ok"><b>RED review</b><small>agent + fresh check</small></div><div class="arrow">──►</div>
+      <div class="box ok"><b>GREEN</b><small>runner + shared decode</small></div><div class="arrow">──►</div>
+      <div class="box ok"><b>TEST + review</b><small>9/10, PASS WITH CHANGES</small></div><div class="arrow">──►</div>
       <div class="box open"><b><code>run.py</code></b><small>one command for all</small></div>
     </div>
   </div>

@@ -36,9 +36,7 @@
       "task": "/root/source_linked_replay_delivery/replay_verify_compiler"
     }
   ],
-  "pending_gates": [
-    "Isolated replay and invalid-record controls"
-  ],
+  "pending_gates": [],
   "completed_gates": [
     {
       "gate": "Live evidence and exact source lookup",
@@ -59,6 +57,20 @@
       "independent_test": "capture/test-result.json",
       "review": "capture/review.md",
       "review_advisories": "A1-A4, non-blocking; A1 and A3 wait for an owner decision",
+      "workers": "fresh Claude Opus 5.5 workers by owner choice instead of GPT-6.1 Sol",
+      "status": "verified"
+    },
+    {
+      "gate": "Isolated replay and invalid-record controls",
+      "notes": "replay/notes.md",
+      "red": "../../results/20261106T075903031507Z/result.json",
+      "red_review": "replay/red-review.md",
+      "green": "replay/green-result.json",
+      "green_run": "../../results/20261106T080316413341Z/result.json",
+      "independent_test": "replay/test-result.json",
+      "independent_test_note": "9/10 checks; git diff --check fails only on blank lines at EOF in retained raw run logs; accepted",
+      "review": "replay/review.md",
+      "review_verdict": "PASS WITH CHANGES; R1 and R2 recorded as limits, no code change",
       "workers": "fresh Claude Opus 5.5 workers by owner choice instead of GPT-6.1 Sol",
       "status": "verified"
     }

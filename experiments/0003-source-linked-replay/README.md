@@ -56,14 +56,14 @@ flowchart LR
 | Compiler reference | Function reference from the checked declaration | **[Verified]** RED, GREEN, independent TEST and review passed | [Notes](workflow/2026-11-05/notes.md), [verification](workflow/2026-11-05/result.json), [GREEN run](results/20261105T225807421990Z/result.json) |
 | Live evidence and exact source lookup, with repair | 1–3 | **[Verified]** RED, GREEN, independent TEST and review passed. The repair adds receipt order and window checks | [Notes](workflow/2026-11-05/lookup/notes.md), [lookup TEST run](results/20261105T232448420501Z/result.json), [repair TEST record](workflow/2026-11-05/lookup/repair-test-result.json), [repair review](workflow/2026-11-05/lookup/repair-review.md) |
 | Predecode response capture and transport observer | 4 (live part) | **[Verified]** RED, owner RED review, GREEN, independent TEST (10/10 checks) and review passed. One response record per live receipt | [Notes](workflow/2026-11-05/capture/notes.md), [TEST record](workflow/2026-11-05/capture/test-result.json), [TEST run](results/20261106T063936223444Z/result.json), [review](workflow/2026-11-05/capture/review.md) |
-| Isolated replay and invalid-record controls | 4–5 | RED confirmed (revision 3), agent RED review | [Notes](workflow/2026-11-05/replay/notes.md#red-revision-3-status-and-request-checks), [RED run](results/20261106T075903031507Z/result.json) |
+| Isolated replay and invalid-record controls | 4–5 | **[Verified]** RED revision 3, agent RED review and fresh check, GREEN, independent TEST (9/10 checks, whitespace check on raw logs accepted) and review (PASS WITH CHANGES) passed | [Notes](workflow/2026-11-05/replay/notes.md), [TEST record](workflow/2026-11-05/replay/test-result.json), [GREEN run](results/20261106T080316413341Z/result.json), [review](workflow/2026-11-05/replay/review.md) |
 
 ```mermaid
 flowchart LR
   B["BEAML · checked declaration range"] --> Q["OBSERVATORY query · 2/2 summary and exact source"]
   H["Host · two Orders → Payments calls, spans, window"] --> Q
   H --> C["Host · saved predecode HTTP response, one per receipt"]
-  C -. "open gate" .-> R["Host · isolated Orders replay"]
+  C --> R["Host · isolated Orders replay"]
 ```
 
 **[Requirement]** Repeat the lookup gate with two commands. Run the live test first. Then run the repair test with `--source-run` on its new result directory. The owner chose this on 2026-11-06. The retained archive without wall-clock span times stays as `missing_clock` evidence. [Decision record](workflow/2026-11-05/lookup/notes.md#lookup-repair-test-review-and-owner-decision)
@@ -74,14 +74,19 @@ python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.
   --source-run experiments/0003-source-linked-replay/results/<fresh live result dir>
 ```
 
-**[Unknown]** The verified gates cover the synthetic two-call lookup, CAPTURE and transport observation on one host. They do not show a REPLAY RUN or invalid replay records. Partial windows were checked only in scratch derivatives. The malformed `service` parser crash stays open. A passed gate does not establish production readiness.
+**[Unknown]** The verified gates cover the synthetic two-call lookup, CAPTURE, transport observation, one isolated REPLAY RUN and six invalid replay records on one host. The REPLAY RUN had zero transport entries. Each invalid record failed with a typed reason before decode. Partial windows were checked only in scratch derivatives. The malformed `service` parser crash stays open. A passed gate does not establish production readiness.
+
+**[Unknown]** Limits of the REPLAY RUN gate after the final review. [Limits](workflow/2026-11-05/replay/notes.md#limits-after-the-final-review), [review](workflow/2026-11-05/replay/review.md#disposition-main-agent-2026-11-06)
+
+- **R1.** **[Unknown]** `OrdersApi.Replay.run/3` does not bind the record to the loaded Orders build. Only the test harness checks the build. A runner check waits for [D002](../../wiki/planning/decisions-to-be-made.md#d002--scope-of-the-replay-artifact-identity).
+- **R2.** **[Unknown]** The body digest is an integrity check inside the record, not tamper protection. An edit of body, length and SHA-256 together is not detected.
 
 **[Verified]** The CAPTURE gate changed only [`OrdersApi.PaymentHttp`](../0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex), 22 lines added. The owner chose one response record per live receipt, for both calls. This replaces "for the first call" in the EXECUTION input above. The transport counter counts `[1, 2]` for the two live calls and `[0, 1]` for the invalid order and the refused connect. Fresh Claude Opus 5.5 workers ran this gate by owner choice. [Notes](workflow/2026-11-05/capture/notes.md#capture-test)
 
 **[Unknown]** Review advisories limit the CAPTURE evidence. None blocks the gate. [Review](workflow/2026-11-05/capture/review.md#advisory-items)
 
 - **A1.** **[Unknown]** The test cannot show that the record bytes are raw. Re-encoded compact JSON gives the same 44 bytes. Only the code order shows predecode. **[Requirement]** The owner put the check into the gate 4 RED on 2026-11-06. A loopback stub returns a non-canonical body. The test compares the record bytes exactly.
-- **A2.** **[Proposal]** `authorize/2` joins transport and decode. The REPLAY RUN gate needs one shared decode function for the live path and replay.
+- **A2.** **[Proposal]** `authorize/2` joins transport and decode. The REPLAY RUN gate needs one shared decode function for the live path and replay. **[Verified]** Resolved in gate 4. Live `authorize/2` and the REPLAY RUN call one shared `OrdersApi.PaymentHttp.decode/1`. [GREEN review checklist](workflow/2026-11-05/replay/notes.md#green-review-checklist)
 - **A3.** **[Unknown]** The Orders artifact ID covers only `OrdersBeamlSpike`. It does not cover the host decode or `valid_payment!` validation. **[Requirement]** The owner keeps this open and does not solve it now. See [D002](../../wiki/planning/decisions-to-be-made.md#d002--scope-of-the-replay-artifact-identity).
 
 **[Requirement]** The response record has no timestamp. The owner chose this on 2026-11-06 for data economy at large volume. The time comes from the span through `trace_id` and `client_span_id`. Trace sampling is open in [D003](../../wiki/planning/decisions-to-be-made.md#d003--trace-sampling-and-retained-response-records). [Owner decisions](workflow/2026-11-05/capture/notes.md#owner-decisions-after-review)

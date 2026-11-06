@@ -265,3 +265,10 @@ Updated the [EXPERIMENT 0003 page](../experiments/0003-source-linked-replay/READ
 **[Inference]** BAML offers introspection and offline re-parse, not a REPLAY RUN with isolation and evidence checks.
 Updated [BAML docs](sources/baml-documentation.md#debugging-and-replay-of-a-recorded-call-2026-11-06), [BAML internals](sources/baml-internals.md#recorded-calls-and-offline-parse-2026-11-06) and the [Observatory comparison](concepts/observability-and-replay.md#baml-recorded-call-debugging-compared-with-experiment-0003).
 **[Unknown]** Nothing was run. Body-recording defaults, byte fidelity and code-search completeness are not established. The EXPERIMENT 0003 page is unchanged; its replay decision is open elsewhere.
+
+## [2026-11-06] verify | EXPERIMENT 0003 REPLAY RUN gate
+
+**[Verified]** Gate 4 passed (acceptance cases 4 and 5). RED revision 3 had an agent RED review and a fresh check. GREEN added `OrdersApi.Replay.run/3` and one shared `PaymentHttp.decode/1`. The REPLAY RUN had zero transport entries. Six invalid records failed with typed reasons before decode. [Notes](../experiments/0003-source-linked-replay/workflow/2026-11-05/replay/notes.md), [GREEN run](../experiments/0003-source-linked-replay/results/20261106T080316413341Z/result.json)
+**[Verified]** The independent TEST passed 9 of 10 checks. `git diff --check` failed only on blank lines in retained raw run logs; the main agent accepted this. The final review gave PASS WITH CHANGES. [TEST record](../experiments/0003-source-linked-replay/workflow/2026-11-05/replay/test-result.json), [review](../experiments/0003-source-linked-replay/workflow/2026-11-05/replay/review.md)
+Updated the workflow record, the [EXPERIMENT 0003 page](../experiments/0003-source-linked-replay/README.md#gate-status), its overview page and the [R&D register](planning/research-and-development.md#experiment-register).
+**[Unknown]** The runner does not bind the record to the loaded build (R1, waits for [D002](planning/decisions-to-be-made.md#d002--scope-of-the-replay-artifact-identity)). The body digest is integrity, not tamper protection (R2). `run.py` does not exist yet.
