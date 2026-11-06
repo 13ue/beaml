@@ -3,203 +3,177 @@ id: experiment-0004-generated-replay-plan
 kind: experiment
 status: proposed
 updated: 2026-11-06
-revision: 2 (after the plan review, BLOCK)
+revision: 3 (slice 1 after the owner decisions of 2026-11-06)
 ---
 
 # EXPERIMENT 0004 — Generated REPLAY RUN
 
-**[Proposal]** Can the BEAML compiler generate the REPLAY RUN code for one outbound EFFECT from the BEAML declaration, so that the host writes no replay code? And does the generated code do more than a shared Elixir replay library with a hand-written descriptor?
+**[Requirement]** Can the BEAML compiler generate the flow, the HTTP EFFECT, the decode, the CAPTURE and the REPLAY RUN runner from one BEAML source, so that the host writes no replay code and no transport? Does the generated arm do more than a shared Elixir replay library with a hand-written descriptor? The section [Owner decisions (2026-11-06)](#owner-decisions-2026-11-06) is the authority. It overrides older plan text.
 
-**[Requirement]** Owner request, 2026-11-06: the compiler generates the REPLAY RUN runner from the declaration, not hand-written host code. Teams must not build and maintain a replay runner for each codebase. The language must supply it.
+**[Verified]** [EXPERIMENT 0003](../0003-source-linked-replay/README.md#gate-status) passed with a hand-written runner, [`OrdersApi.Replay.run/3`](../0002-http-correlation/apps/orders_api/lib/orders_api/replay.ex), and a hand-written CAPTURE, `capture/3` in [`payment_http.ex`](../0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex). The host [router](../0002-http-correlation/apps/orders_api/lib/orders_api/router.ex) owns the order prepare → `authorize/2` → finish. The [0001 compiler](../0001-syntax-to-beam/src/main.rs) parses `interface`, `enum` and `fn` only. Its interfaces are structural and exact.
 
-**[Verified]** [EXPERIMENT 0003](../0003-source-linked-replay/README.md#gate-status) passed with a hand-written runner, [`OrdersApi.Replay.run/3`](../0002-http-correlation/apps/orders_api/lib/orders_api/replay.ex). It hard-codes the operation `payments.authorize`, attempt 1, status 200, the request check against `prepare/1`, the body digest check and six error reasons. It calls the host functions `ProbeSupport.valid_order!/1`, `OrdersApi.PaymentHttp.decode/1` and `ProbeSupport.valid_payment!/2`. [GREEN record](../0003-source-linked-replay/workflow/2026-11-05/replay/notes.md#green)
+**[Verified]** The 0003 live tests check the 0002 trace contract in [`query.py`](../0002-http-correlation/query.py): spans `orders.request`, `orders.prepare`, `orders.payment_http`, `orders.finish` and the log `payment_request_prepared`. `ProbeSupport.span/5` sets `outcome: "error"` only when the wrapped function raises.
 
-**[Verified]** The CAPTURE side is also hand-written: `capture/3` in [`payment_http.ex`](../0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex) hard-codes `operation`, `attempt`, `version` and the field set. It exists only for replay.
+**[Proposal]** Hypothesis: with the flow, the EFFECT and its failure type in BEAML, a BEAML-only TYPE change (DRIFT) needs fewer manual change sites in the generated arm (GEN) than in the library arm (LIB). GEN also catches a DRIFT that LIB misses.
 
-**[Verified]** The current [`orders.beaml`](../0002-http-correlation/apps/orders_api/priv/orders.beaml) declares only `prepare` and `finish`. No source line connects them to the HTTP call. The host [router](../0002-http-correlation/apps/orders_api/lib/orders_api/router.ex) owns the order prepare → `authorize/2` → finish.
+## Plan history
 
-**[Verified]** The [0001 compiler](../0001-syntax-to-beam/src/main.rs) parses `interface`, `enum` and `fn` only. It writes one module `BeamlSpike` to stdout, with checked public functions and one `# beaml-declaration-v1 <name> <start> <end>` comment per clause. The 0002 [`run.py`](../0002-http-correlation/run.py) renames the module to `OrdersBeamlSpike` or `PaymentsBeamlSpike`.
+- **Revision 1.** Generated runner next to a host flow. Plan review: BLOCK (1 critical, 2 high). [plan-review.md](workflow/2026-11-06/plan-review.md)
+- **Revision 2.** LIB arm first as a kill switch, typed record fields, DRIFT R/N/Q, pass and reject rule, three syntax options (A, B, C) with owner questions Q1–Q5.
+- **Revision 3 (this page).** The owner chose option B with `effect`, `!` and `|>`, a generated decode, no kill switch and LIB in parallel. Q1, Q2 and Q5 are answered. Syntax options A and C are closed; [syntax-options.beaml](syntax-options.beaml) stays as history. Use git history for the full revision 2 text.
 
-**[Inference]** The compiler cannot derive replay code from today's source. Every syntax option must add the link prepare → EFFECT → finish, the operation name and the recorded fields.
+## Slice 1 scope
 
-**[Inference]** Plan review objection 1 holds: the 0003 runner contains no SCHEMA fact, so a SCHEMA change alone does not separate generated code from a shared library. [Plan review](workflow/2026-11-06/plan-review.md#1-case-e-does-not-separate-the-language-claim-the-0003-hand-written-runner-already-passes-most-of-it)
-
-**[Proposal]** Hypothesis: one added declaration with typed record fields lets the compiler emit the CAPTURE function and the runner. A BEAML-only TYPE or signature change (DRIFT) then needs fewer manual change sites in the generated arm than in a library arm. The generated arm also catches a DRIFT that the library arm misses.
+- **In [Requirement].** `effect` declarations with `http.post`. One `!` failure type. Pipe `|>` that passes a failure on, with the compile check against the `!` list. A decode generated from the declared TYPE. A generated `record` (CAPTURE) and a generated REPLAY RUN runner. The flow `place` in BEAML. The router calls only generated code.
+- **Later [Requirement] (slice 2+).** `with ... else`, the Elixir `name`/`name!` pair, the formatter alignment rule, other EFFECT kinds (db, queue, mail), a second EFFECT, the old-record policy (Q4), the artifact check in the runner (Q3).
 
 ```mermaid
 flowchart LR
-  subgraph GEN["Arm GEN (generated)"]
-    D["BEAML · orders.beaml with EFFECT declaration, typed record fields"] --> C["BEAML · compiler, one invocation"]
-    C --> G["BEAML · generated prepare, finish, checks"]
-    C --> GR["BEAML · generated Replay.record (CAPTURE fields)"]
-    C --> GN["BEAML · generated Replay.run (checks from TYPES)"]
+  subgraph GEN["Arm GEN"]
+    S["BEAML · orders.beaml: effect, prepare, finish, place"] --> C["BEAML · compiler, one invocation"]
+    C --> P["BEAML · generated place, prepare, finish"]
+    C --> T["BEAML · generated HTTP EFFECT and typed decode"]
+    C --> R["BEAML · generated Replay.record and Replay.run"]
   end
   subgraph LIB["Arm LIB (comparison)"]
-    LD["Host · hand-written descriptor"] --> LL["Host · generic replay library: record, run"]
+    LH["Host · 0002 router, transport, :json.decode"] --> LL["Host · ReplayLib + hand-written descriptor"]
   end
-  H["Host · router, transport"] -->|live call| G
-  H -->|one call per arm| GR
-  H -->|one call per arm| LL
-  GR --> S["Host · CAPTURE store, RESPONSE RECORD"]
-  LL --> S
-  S --> GN
-  S --> LL
-  GN -->|hooks, Q2| X["Host · decode and domain validation"]
-  LL --> X
-  E["Host · test harness, same cases for both arms"] --> GN
-  E --> LL
+  H["Host · router: validate order, call place, validate payment, reply"] --> P
+  P --> T --> R
+  R --> ST["Host · ProbeSupport: spans, counter, CAPTURE store"]
+  LL --> ST
+  X["Host · test harness, same 8 cases and DRIFT per arm"] --> R
+  X --> LL
 ```
+
+## Slice 1 BEAML source (orders)
+
+**[Proposal]** The fixture `orders.beaml` for GEN. The syntax follows the owner example [order-flow.beaml](examples/order-flow.beaml). `payments.beaml` stays unchanged.
+
+```beaml
+interface Order { order_id: String }
+interface Payment { order_id: String status: String }
+interface PaymentError { reason: String }
+
+// Leaves the module. Recorded live, substituted in a REPLAY RUN.
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + "", status: status }
+
+// The flow lives in BEAML. A failed step stops the pipe and passes PaymentError on.
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
+  |> finish
+```
+
+**[Proposal]** Generated Elixir, in the one module that 0002 `run.py` renames to `OrdersBeamlSpike`:
+
+- `prepare/1`, `finish/1` as today. `place/1` returns `{:ok, payment}` or `{:error, %OrdersBeamlSpike.PaymentError{reason: r}}`. The `place!/1` half of the pair is slice 2.
+- `payments_authorize/1`: the HTTP EFFECT. POST to `/payments/authorize` on `127.0.0.1` and the port from `ProbeSupport.config(:payments_port)`. Trace context injection, `ProbeSupport.increment/0`, status 200 only, Content-Length framing as in 0002. Then `Replay.record/3`, then the typed decode.
+- Typed decode of `Payment`: `:json.decode/1`, then an exact key set with String values. Else `reason: "decode"`. Transport failure gives `reason: "transport"`, another status gives `reason: "status"`.
+- Spans through `ProbeSupport.span/5`: `orders.prepare`, `orders.payments.authorize` (client), `orders.finish`. A failure raises inside the span and becomes `{:error, ...}` outside it, so `outcome: "error"` stays.
+- `Replay.record/3` writes the 0003 RESPONSE RECORD format version 1 to `ProbeSupport.Capture.write/2`. `Replay.run/3` takes `(order, trace_id, records)`. It runs `place` with the EFFECT step replaced by the record checks, then the same typed decode and `finish`. It returns `{:ok, payment}`, one of the six 0003 atoms, or `{:error, %PaymentError{}}`.
 
 ## Fixed inputs and ownership
 
-- **LANGUAGE/COMPILATION.** Use the 0001 compiler and the 0002 BEAML fixtures. Add one EFFECT declaration to `orders.beaml` in the syntax that the owner chooses. Emit the replay code in the same compiler invocation as the Elixir output, on the same stdout. Leave `payments.beaml` output unchanged when it declares no EFFECT.
-- **LANGUAGE/COMPILATION.** **[Proposal]** The replay code is a nested module `Replay` inside the generated module, with two functions. `record/3` builds the RESPONSE RECORD from the request, status and bytes. `run/3` (or `/4`, Q2) checks a record and calls `finish`. After the 0002 rename it is `OrdersBeamlSpike.Replay`.
-- **LANGUAGE/COMPILATION.** **[Requirement]** Typed record fields (plan review objection 3). Each recorded field names a BEAML TYPE or a field of a TYPE. The compiler checks each one against the declared TYPES of `prepare` and `finish`. A pasted text template cannot pass this check.
-- **EXECUTION.** Reuse the two 0002 releases, the ports, the HTTP path and the RESPONSE RECORD format version 1. The host keeps transport, decode and domain validation. CAPTURE fields come from the declaration (GEN) or the descriptor (LIB). The host CAPTURE body becomes one call. The hook contract is owner question Q2.
-- **EXECUTION.** Reuse the 0003 replay harness: `bin/orders eval` of the retained Orders release, BEAM call counts, the transport counter, the refused Payments port and the A1 loopback stub. The harness takes an arm parameter (entry function and build).
-- **EXECUTION.** **[Proposal]** Each arm is an overlay on a temporary copy of the 0002 tree, applied by `0004/run.py`. The 0002 tree and the 0003 runner stay unchanged as the control.
-- **R&D process.** Follow [implement-step](../../skills/implement-step/SKILL.md). Devil's Advocate at the plan, the RED review and the final review. Record them in the gate ledger only.
+- **LANGUAGE/COMPILATION.** The 0001 compiler gets `effect`, `!`, `|>` and the emit above. One invocation, one stdout. `payments.beaml` output stays byte-identical.
+- **EXECUTION.** Reuse the two 0002 releases, the ports, the HTTP path, RESPONSE RECORD format version 1 and `ProbeSupport` (unchanged SHA-256). The router keeps `orders.request`, `valid_order!/1`, `valid_payment!/2` and the reply. It calls `OrdersBeamlSpike.place/1` and nothing else of the flow.
+- **EXECUTION.** Each arm is an overlay on a temporary copy of the 0002 tree, applied by `0004/run.py`. The 0002 tree, the 0003 runner and the 0003 tests at their default root stay the control.
+- **R&D process.** Follow [implement-step](../../skills/implement-step/SKILL.md). Devil's Advocate at the plan, the RED review and the final review, in the gate ledger only.
 
 ## Comparison arm LIB
 
-**[Proposal]** A generic Elixir replay library, driven by a hand-written descriptor. This is the "shared helper" baseline of [round 3, objection 4](../../wiki/planning/roasting-rounds.md#4-fixture-replay-can-leave-the-language-claim-untested).
+**[Requirement]** No kill switch. LIB is built in parallel with GEN, as the comparison.
 
-- **Descriptor.** One Elixir map or module per EFFECT: operation, attempt, status, recorded fields (request keys and response keys), decode function, finish function. Budget: about 15 lines.
-- **Library.** `ReplayLib.record(descriptor, request, status, bytes)` and `ReplayLib.run(descriptor, order, trace_id, records)`. Same six reasons and check order as 0003. It uses the descriptor fields for CAPTURE and for the response shape check. A generic `rescue` around `finish` is permitted. Budget: about the size of the 0003 runner (48 lines), maximum 60 lines.
-- **Fairness.** A fresh worker writes LIB before any compiler change and without access to the GEN emitter. LIB may call the public 0003 generated functions (`prepare`, `finish`). It may not read BEAML source or metadata that 0004 adds to the generated module.
-- **Order.** Build LIB and run case (b) and DRIFT on LIB first. This is the plan review's smallest resolving test. If LIB already detects every DRIFT derivative with zero manual change sites, stop before compiler work and apply the reject rule.
+- **Descriptor.** One Elixir map or module per EFFECT: operation, attempt, status, recorded request and response keys, decode function, finish function. Budget: about 15 lines.
+- **Library.** `ReplayLib.record(descriptor, request, status, bytes)` and `ReplayLib.run(descriptor, order, trace_id, records)`. Same six reasons and check order as 0003. A generic `rescue` around `finish` is permitted. Budget: maximum 60 lines.
+- **Live path.** The 0002 router and transport stay. The CAPTURE body in `payment_http.ex` becomes one `ReplayLib.record` call. `replay.ex` is deleted.
+- **Fairness.** A fresh worker writes LIB without access to the GEN emitter or the 0004 BEAML fixture. LIB may call the public generated `prepare` and `finish`. It may not read BEAML source or metadata that 0004 adds to the generated module.
+- **[Inference]** A LIB that records whole values and checks no field list has no stale descriptor. With a generic `rescue` it can detect DRIFT-R and DRIFT-N. Then DRIFT-Q and the change-site count decide. The plan permits that LIB form; the reject rule can then apply.
 
 ## Slice 1: acceptance cases in order
 
-One EFFECT (`payments.authorize`), one function pair (`prepare`, `finish`). Both arms run cases (b) and DRIFT. Case (a) applies to GEN only.
-
-1. **Emit typed replay code (a, GEN).** The compiler reads `orders.beaml` with the EFFECT declaration. One invocation writes the Elixir module and `Replay` with `record` and `run` to stdout. The generated code holds the declared operation, attempt, status and the recorded fields from the TYPES. `payments.beaml` output stays byte-identical. The 0003 gate 1 test `payments_cli_emits_checked_authorize_reference` still passes. Negative cases, each fails compilation with a clear error and no stdout:
-   - an unknown function name;
-   - a recorded request TYPE that is not the output TYPE of `prepare`;
-   - a recorded response TYPE that is not the input TYPE of `finish`;
-   - a recorded field that the named TYPE does not have (for example `request.amount` on `Order`);
-   - no recorded field.
-   Template control: compile a DRIFT variant of `orders.beaml`. The generated `record` and `run` must change in the field set. A text template with fixed literals fails this.
-2. **Pass the 0003 replay matrix (b, both arms).** Run the 8 cases of the 0003 replay test against each arm: valid, A1 non-canonical, missing, operation, attempt, request, status, digest. Expected values stay as in 0003. Transport, router, `authorize/2` and `connect/4` count zero in all 8 cases. Live `authorize/2` and the runner call the same decode function. Each arm writes its own valid record on the live path through its `record` function. The GEN overlay deletes `replay.ex`. `router.ex` and `probe_support.ex` keep their SHA-256 in both arms.
-3. **DRIFT (both arms, the deciding case).** Change only BEAML TYPES or signatures. Do not touch the LIB descriptor or any host replay code. Regenerate and rebuild both arms. Derivatives:
-   - **DRIFT-R.** Add `reference: String` to `Payment` (response) in both BEAML files.
+1. **(a) Parse and check.** The compiler accepts the slice 1 source above, exit 0. Each bad declaration fails with exit ≠ 0, a clear message and no stdout:
+   - unknown fn in a pipe (`|> charge`);
+   - TYPE mismatch in a pipe (`|> finish` directly after `|> prepare`: `Order` is not `Payment`);
+   - undeclared failure in a pipe (`place` without `! PaymentError`); the message names the step `payments.authorize` and the type `PaymentError`;
+   - field not in TYPE (`finish` reads `amount`, which `Payment` does not have);
+   - unsupported EFFECT kind (`db.get`) in slice 1.
+2. **(b) Emit.** One compiler run writes the Elixir module with `place/1`, `payments_authorize/1`, the typed decode, `Replay.record/3` and `Replay.run/3`, the `PaymentError` struct and one `beaml-declaration-v1` comment per declaration. The module compiles with warnings as errors. Template control: compile DRIFT-R; the generated decode must contain `reference`. The 0003 gate 1 test `payments_cli_emits_checked_authorize_reference` still passes.
+3. **(c) Live.** The GEN router calls only `OrdersBeamlSpike.place/1`. `payment_http.ex` and `replay.ex` are deleted. The 0003 live tests and `0003/run.py` pass against the GEN overlay with exactly the assertion changes in the table below. No other assertion changes.
+4. **(d) Replay.** The 0003 8-case matrix passes against `OrdersBeamlSpike.Replay.run/3`: valid, A1 non-canonical, missing, operation, attempt, request, status, digest. Expected values stay as in 0003. Router, transport and `:gen_tcp.connect/4` count zero in all 8 cases. Live and replay use the same generated decode.
+5. **(e) LIB.** LIB with its descriptor passes the same 8 cases, with the same counts. The unchanged 0003 live tests pass against the LIB overlay.
+6. **(f) DRIFT.** Per arm, change only BEAML TYPES or signatures; do not touch the LIB descriptor or host replay code. Regenerate and rebuild. Derivatives:
+   - **DRIFT-R.** Add `reference: String` to `Payment` in both BEAML files.
    - **DRIFT-N.** Rename the `Payment` field `status` to `state` in both BEAML files.
-   - **DRIFT-Q.** Change the request TYPE that `prepare` returns (for example a new field with a literal value), and the matching Payments input.
-   For each derivative and arm, record the outcome at build, on a new live record, and on the pre-change record. Outcome classes: compile error with a clear message, typed reject, correct accept, false reject, wrong accept, untyped runtime crash. Then repair each arm until case (b) passes again. Count manual change sites per arm.
-   - **Expected [Inference].** GEN regenerates matching checks or fails at compile time. LIB keeps a stale descriptor. It may false-reject, wrong-accept or crash.
+   - **DRIFT-Q.** Add a field with a literal value to the request TYPE that `prepare` returns, and the matching Payments input.
+   For each derivative and arm, record the outcome at build, on a new live record and on the pre-change record. Outcome classes: compile error with a clear message, typed reject, correct accept, false reject, wrong accept, crash without a typed reason. Then repair each arm until (d) or (e) passes again. Count manual change sites per arm.
+
+### 0003 assertions that change in (c) and (d)
+
+**[Inference]** Each change follows from "the router calls only generated code". The 0003 files get one root parameter (default: the 0002 tree), so the 0003 control run stays unchanged. The GEN overlay carries the changed `query.py` lines.
+
+| File | Assertion | Change | Reason |
+| --- | --- | --- | --- |
+| 0002 `query.py` | `CONTRACT` span `orders.payment_http`, parent of `payments.request` | `orders.payments.authorize` | Generated span name is `<service>.<step>` |
+| 0002 `query.py` | `LOGS` row `payment_request_prepared` under `orders.prepare` | removed | It was a router line; generated code writes spans only |
+| 0003 `response_capture_test.py` | client span name (lines 175, 213) | `orders.payments.authorize` | Same span rename; `outcome: "error"` stays |
+| 0003 `replay_run_test.py` | `WATCHED` and `isolated` key `OrdersApi.PaymentHttp.authorize/2` | `OrdersBeamlSpike.payments_authorize/1` | The transport is generated |
+| 0003 `replay_run_test.py` | `HARNESS` entry `OrdersApi.Replay.run/3` | `OrdersBeamlSpike.Replay.run/3`; the harness calls `valid_order!/1` before and `valid_payment!/2` after | Domain validation stays host code, as in the router |
+| 0003 `replay_run_test.py` | observer control result `{"raised": "MatchError"}` | `{"error": "%OrdersBeamlSpike.PaymentError{reason: \"transport\"}"}` | The EFFECT returns a typed failure; the count values stay |
+| 0004 revision 2 | SHA-256 check of `router.ex` | removed | The router changes by owner decision |
+
+All counts in the 8-case matrix stay as in 0003.
 
 ### Replay lines and manual change sites
 
-- **Replay line.** A host line that exists only for replay: CAPTURE, the `record` call, hook wiring, the runner call site, caller-side build or artifact checks, the LIB descriptor and library. Count these lines in both arms (plan review objection 2). Generated lines and compiler lines are not host lines; report compiler size as a one-time cost.
-- **Manual change site.** One contiguous edited hunk in a hand-written file that is necessary for an arm to pass case (b) after a DRIFT. Exclude the DRIFT edit in BEAML (equal in both arms). Count domain validation edits (`ProbeSupport.valid_payment!/2` compares an exact two-key map) and test expectation edits separately. They are equal in both arms and not replay sites.
+- **Replay line.** A host line that exists only for replay: CAPTURE, the `record` call, hook wiring, the runner call site, caller-side validation or artifact checks, the LIB descriptor and library. Count them in both arms. Generated and compiler lines are not host lines; report compiler size as a one-time cost.
+- **Manual change site.** One contiguous edited hunk in a hand-written file that an arm needs to pass (d) or (e) after a DRIFT. Exclude the BEAML DRIFT edit. Count domain validation edits (`valid_payment!/2`) and test expectation edits apart; they are equal in both arms.
 
 ### Pass and reject rule
 
-- **Pass [Proposal].** The language claim holds for slice 1 only if both are true: (1) summed over the DRIFT derivatives, GEN needs fewer manual change sites than LIB; (2) for at least one derivative, GEN gives a compile error, a typed reject or a correct accept, while LIB gives a wrong accept or an untyped runtime crash. GEN has no wrong accept in any derivative.
-- **Reject [Proposal].** Reject the language claim for this slice if LIB needs the same number or fewer manual change sites, or if LIB misses no DRIFT that GEN catches, or if GEN gives a wrong accept. Record the reject in the register; do not continue to slice 2 on this claim.
-- **No verdict.** If GEN fails case (a) or (b), slice 1 fails as an implementation. It gives no verdict on the claim.
-- **[Unknown]** Whether an untyped runtime crash counts as a miss is owner question Q5. The rule above counts it as a miss.
-
-### Reuse of 0003 evidence and tests
-
-| Case | Reuses | New |
-| --- | --- | --- |
-| 1 (a) | 0003 gate 1 CLI test as regression control | CLI test for `Replay.record` and `Replay.run`; five negative declarations; template control |
-| 2 (b) | 0003 `replay_run_test.py`: harness, 8 derivatives, A1 stub, observer, live baseline. The [0003 GREEN run](../0003-source-linked-replay/results/20261106T080316413341Z/result.json) is the baseline of the hand-written runner | Arm parameter (entry and overlay build); LIB library and descriptor; replay line count |
-| 3 DRIFT | Harness, A1 stub pattern, 0003 `run.py` (5 steps) per arm build | Three DRIFT derivatives; outcome classes; change-site count |
-
-## Slice 2 (after slice 1 passes)
-
-- **Second EFFECT (old case d).** A second outbound EFFECT with its own operation and TYPES, served from the loopback stub. Zero host replay lines in GEN; count LIB descriptor lines. The harness needs new constants for it (plan review objection 3).
-- **Old record after a SCHEMA change (old case e, Q4).** A record from the original build against the new build fails with a typed reason before `finish`. The retained original release still replays the original record.
-- **Artifact check (Q3).** Move the check into generated code if Q3 (i) and D002 permit it.
-
-## Syntax options
-
-**[Proposal]** Three options. No option is forced. The owner chooses. All options must now name typed record fields and must let the compiler see a DRIFT. All snippets are also in [syntax-options.beaml](syntax-options.beaml).
-
-### Option A — `effect` block
-
-```beaml
-effect authorize_payment {
-  operation: "payments.authorize"
-  request: prepare
-  response: finish
-  attempts: 1
-  status: 200
-  record { request: Order, response: Payment, key: request.order_id }
-}
-```
-
-- **Commits us to.** A new top-level keyword and block grammar. The host keeps the orchestration. The RESPONSE RECORD fields become a language-level contract (GENERATED ABI).
-- **Typed record fields.** Each entry names a TYPE or a field path. The compiler checks `request: Order` against the output of `prepare`, `response: Payment` against the input of `finish`, and `request.order_id` against `Order`.
-- **DRIFT.** A TYPE change in `Payment` or `Order` regenerates `record` and `run`. A changed `prepare` output that no longer matches `request: Order` fails at compile time. The block repeats the TYPE names, so a DRIFT can need one BEAML edit in the block. That edit is BEAML, not a host replay site.
-- **D001.** Not touched today. A second EFFECT outcome needs a variant TYPE in the block.
-- **D002.** The block is in the Orders source, so the SOURCE ID covers it. If the block names host hooks (Q2), the D002 "module-set digest" option is definable.
-- **Risk.** Template false pass is now limited by the typed checks and the template control in case (a).
-
-### Option B — `extern fn` and the flow in BEAML
-
-```beaml
-extern fn authorize_payment Order -> Payment
-  effect "payments.authorize" { attempts: 1, status: 200, record: request, response }
-
-fn place order: Order -> Payment = finish(authorize_payment(prepare(order)))
-```
-
-- **Commits us to.** BEAML calls host code. EFFECTS appear in signatures. The orchestration moves from the router into BEAML. The live router changes, so the 0003 live evidence must run again, and `router.ex` loses its SHA-256 check. Largest compiler change.
-- **Typed record fields.** The extern signature is the record TYPE: `request` is `Order`, `response` is `Payment`. The existing checker types `place`.
-- **DRIFT.** Strongest. Every DRIFT goes through the checked call chain `finish(authorize_payment(prepare(order)))`. A mismatch fails at compile time with the existing TYPE error. The record follows the signature, with no repeated TYPE names.
-- **D001.** Direct. The extern return TYPE carries the outcomes, for example `-> AuthorizeOutcome`.
-- **D002.** Strongest. The externs list the host functions exactly.
-
-### Option C — attribute on the existing function
-
-```beaml
-@effect("payments.authorize", request: prepare, attempts: 1, status: 200, record: { request: Order, response: Payment })
-fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + "", status: status }
-```
-
-- **Commits us to.** An attribute syntax. Smallest grammar change. One attribute per EFFECT.
-- **Typed record fields.** The old string form `"request status body"` cannot pass objection 3; the compiler cannot check text. The attribute must take TYPE references. The response TYPE is implicit: the input of the annotated `finish`.
-- **DRIFT.** The same checks as A, if the attribute takes TYPE references. A change of the `finish` input TYPE is visible without an attribute edit. A change of `prepare` output needs the attribute TYPE to match.
-- **D001.** Not touched. Error reasons stay atoms.
-- **D002.** Weakest. Host hooks follow a naming rule, so the module set is not derivable.
-- **[Inference]** Risk for objection 4: the attribute is close to a descriptor inside the source. It separates from LIB only through the typed checks, not through the syntax.
+- **Pass [Proposal].** The language claim holds for slice 1 only if both are true: (1) summed over the DRIFT derivatives, GEN needs fewer manual change sites than LIB; (2) for at least one derivative, GEN gives a compile error, a typed reject or a correct accept, while LIB gives a wrong accept or a crash without a typed reason. GEN has no wrong accept in any derivative.
+- **Reject [Proposal].** Reject the claim for this slice if LIB needs the same number or fewer manual change sites, if LIB misses no DRIFT that GEN catches, or if GEN gives a wrong accept. Record the reject in the register.
+- **Miss [Requirement].** A crash without a typed reason counts as a missed DRIFT (owner decision).
+- **No verdict.** If GEN fails (a)–(d), slice 1 fails as an implementation and gives no verdict on the claim.
 
 ## Decisions (Decision4)
 
-| Decision | Class | Choice or question |
+| Decision | Class | Choice and reason |
 | --- | --- | --- |
-| Syntax of the EFFECT declaration | Migrate | Q1 |
-| Hook contract from runner to host decode and validation | Migrate | Q2 |
-| Artifact check in the generated runner (review R1) | Migrate | Q3, slice 2, waits for D002 |
-| Old record after a SCHEMA change | Migrate | Q4, slice 2 |
-| Runtime crash as a miss in the pass rule | Migrate | Q5 |
-| Comparison arm LIB, built first | Repair | Chose a LIB arm before compiler work over a later value gate, because plan review objection 1 shows that no GEN-only case separates the claim. Commits us to equal budgets and a fresh LIB author |
-| CAPTURE from the declaration | Repair | Chose a generated `record/3` over a host CAPTURE plus a drift test, because plan review objection 2 counts CAPTURE as replay. Commits us to one changed CAPTURE call in `payment_http.ex` per arm |
-| Typed record fields | Repair | Chose TYPE-checked record entries over transport field names, because plan review objection 3 shows a template passes otherwise. Commits us to a resolver for TYPE and field paths |
-| Runner location: nested module in the generated output | Repair | Chose nested `Replay` module over a second output file, because 0002 `run.py` reads one stdout and renames one module |
-| Arms as overlays on a copy of 0002 | Repair | Chose overlays over edits to the 0002 tree, because both arms and the 0003 control must build from the same base |
-| Error reasons as atoms | Repair | The six 0003 atoms for the 8 cases. One new atom `response_type_mismatch` for DRIFT, the same in both arms. Commits us to revisit with D001 |
+| Failure TYPE as an interface `PaymentError { reason: String }` with the values `transport`, `status`, `decode` | Repair | The smallest typed struct with a named field. No enum payload rules needed. Q6 can replace it |
+| `place/1` returns `{:ok, v}` or `{:error, struct}` only | Repair | It is the `name/n` half of the owner pair; `name!/n` is slice 2 and adds, not changes |
+| Generated span names `<service>.<step>` | Repair | Derived, not a literal from 0002. Commits us to the listed assertion changes |
+| Remove the `payment_request_prepared` log from the contract | Repair | The router line goes away; a generated domain log has no source |
+| Generated code calls `ProbeSupport` for spans, counter, config and CAPTURE store | Repair | The existing 0002 adapter, unchanged. A language runtime contract replaces it later |
+| Target from `<namespace>_port` config, host `127.0.0.1` | Repair | Matches 0002 configuration. Real addressing waits for Q7 |
+| Transport with `:gen_tcp` and 0002 framing | Repair | Keeps the `:gen_tcp.connect/4` and transport counters of the 0003 observer |
+| Host keeps `valid_order!/1` and `valid_payment!/2`; harness calls them around `Replay.run/3` | Repair | Domain validation is host code; keeps the 0003 counts |
+| Replay evidence errors stay the six 0003 atoms; flow failures are `PaymentError` | Repair | Keeps the 0003 matrix unchanged. Revisit with D001 |
+| Root parameter for the 0003 tests; changed `query.py` lines in the GEN overlay | Repair | Keeps 0002 and 0003 as an unchanged control |
+| Elixir name `payments_authorize/1`, nested `Replay` and `PaymentError` modules | Undo | Local naming inside one generated module |
+| Reject non-`http` EFFECT kinds at compile time in slice 1 | Undo | Keeps the slice boundary visible; slice 2 removes the reject |
+| LIB worker runs in parallel with GEN, in its own directory; tests serialized | Undo | Owner decision overrides the one-writer rule; no shared build output |
+| `http.post("payments/authorize")` as the slice 1 call form | Migrate | Taken from the owner example; source files depend on it. Q7 confirms |
 
 **[Verified]** No decision is Answer: 0004 publishes nothing and makes no external claim.
 
 ### Owner questions
 
-- **Q1. Syntax.** A (`effect` block), B (`extern fn` with flow in BEAML) or C (attribute with TYPE references). All three must carry typed record fields. B gives the strongest DRIFT check at the highest cost. A and C give the same checks with different grammar. See above.
-- **Q2. Hook contract.** (i) The declaration names the host functions, for example `decode: OrdersApi.PaymentHttp.decode`. (ii) The runner takes a hooks argument, `run(order, trace_id, records, hooks)`. (iii) A host module implements a generated behaviour. (iv) BEAML owns the decode; the live path calls the generated decode. In all four, hook wiring lines are replay lines and count in both arms. The answer is necessary for slice 1.
-- **Q3. Artifact check (R1).** (i) The generated runner rejects a record whose `artifact_id` differs from the loaded module (`artifact_mismatch`). (ii) The caller keeps the check, as in 0003; it counts as replay lines in both arms. Slice 1 uses (ii). The answer is necessary for slice 2. Depends on [D002](../../wiki/planning/decisions-to-be-made.md#d002--scope-of-the-replay-artifact-identity).
-- **Q4. Old record after a SCHEMA change (slice 2).** (i) Typed reject from a SCHEMA version in the record. (ii) Typed reject from `artifact_id` (needs Q3 (i)). (iii) No check; the generated `finish` raises.
-- **Q5. Crash as a miss.** Does an untyped runtime crash in LIB count as a miss in the pass rule? (i) Yes, only a compile error or a typed reject counts as a catch (plan default). (ii) No, any failure counts as a catch; then only wrong accepts and change sites decide.
+- **Q1, Q2, Q5.** Answered by the owner decisions: option B with `effect` and `|>`; BEAML owns the decode; a crash without a typed reason is a miss.
+- **Q3. Artifact check (slice 2).** (i) The generated runner rejects a record with another `artifact_id` (`artifact_mismatch`). (ii) The caller keeps the check; it counts as replay lines. Slice 1 uses (ii). Depends on [D002](../../wiki/planning/decisions-to-be-made.md#d002--scope-of-the-replay-artifact-identity).
+- **Q4. Old record after a SCHEMA change (slice 2).** (i) Typed reject from a SCHEMA version in the record. (ii) Typed reject from `artifact_id` (needs Q3 (i)). (iii) The generated decode rejects it with `PaymentError` (slice 1 behavior).
+- **Q6. Shape of an EFFECT failure TYPE (Migrate, before slice 2).** (i) User-declared interface with `reason: String` (slice 1 default). (ii) User-declared `enum` with fixed variant names per EFFECT kind, for example `Transport`, `Status`, `Decode`. (iii) A built-in `HttpError` TYPE that the user names after `!`.
+- **Q7. HTTP call form and target (Migrate, before slice 2).** (i) `http.post("payments/authorize")` with the target from configuration by namespace (slice 1 default). (ii) A named target declaration in BEAML, for example `target payments = env("PAYMENTS_URL")`. (iii) Another form from the owner.
 
 ## Evidence and limits
 
 **[Unknown]** No run exists. This page is a plan.
 
-**[Inference]** A LIB that records whole values and checks no field list has no stale descriptor fields. It can detect DRIFT-R and DRIFT-N through a generic `rescue` around `finish`. Then DRIFT-Q and the change-site count decide. The plan permits that LIB form; the pass rule can then reject the claim.
-
-**[Inference]** DRIFT-R and DRIFT-N need a domain validation edit in `ProbeSupport.valid_payment!/2` in both arms. It is counted separately, not as a replay site.
+**[Inference]** DRIFT-R and DRIFT-N need a `valid_payment!/2` edit in both arms. It counts apart, not as a replay site.
 
 **[Unknown]** Limits carried from 0003: the body digest is integrity, not tamper protection (R2). The RESPONSE RECORD has no timestamp (D003). The check order of the six reasons is not tested. Two records for one trace give `missing_response` without a test.
 
@@ -207,17 +181,13 @@ fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id
 
 ### Out of scope
 
+- Everything in "Later" above.
 - Retries, attempts > 1, timeouts, uncertain outcomes (round 3, objection 3).
 - A REPLAY CAPSULE format, durable storage, trace sampling (D003).
-- Zed/LSP support for the new syntax, beyond the discussion file.
-- A BAML comparison. [BAML v1](../../wiki/sources/baml-v1.md#observability) has no replay on its default branch at the pin; this is not a test of BAML.
-- The operator-time value gate (see below).
+- Zed/LSP support for the new syntax.
+- A BAML comparison and the operator-time value gate. [BAML v1](../../wiki/sources/baml-v1.md#observability) has no replay on its default branch at the pin.
 
-### What the value gate still needs
-
-**[Proposal]** Slice 1 covers the change-site part of objection 4's value gate. The operator part is not in 0004. It needs independent operators, one fixed incident artifact, active time to source and to reproduced failure, counterbalanced order, individual times, and a pinned BAML build as a third arm if it fits the workflow.
-
-**[Proposal]** Smallest next test after slice 1: the second EFFECT in both arms (slice 2), with change sites counted the same way.
+**[Proposal]** Smallest next test after slice 1: a second EFFECT in both arms, with change sites counted the same way.
 
 ## Owner decisions (2026-11-06)
 
