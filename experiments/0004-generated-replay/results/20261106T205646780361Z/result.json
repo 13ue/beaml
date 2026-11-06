@@ -1,0 +1,328 @@
+{
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "experiments/0004-generated-replay/run.py"
+  ],
+  "started_at": "2026-11-06T20:56:46.780361+00:00",
+  "steps": [
+    {
+      "name": "compiler",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "overlay-diff",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/overlay_diff_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "lib-freeze",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/run.py",
+        "freeze"
+      ],
+      "exit_code": 0,
+      "status": "pass",
+      "summary": {
+        "status": "pass",
+        "action": "verified",
+        "sha256": {
+          "ReplayLib": "e5ad6e17b3a043496f160882866b8c31a2bdc8b8d2b3102d65db678adeb0bcbb",
+          "OrdersApi.ReplayDescriptor": "933566cd1565c9308847b3f95990905f21b6694d312364d8bf53ead2022e2c84"
+        },
+        "frozen": {
+          "ReplayLib": "e5ad6e17b3a043496f160882866b8c31a2bdc8b8d2b3102d65db678adeb0bcbb",
+          "OrdersApi.ReplayDescriptor": "933566cd1565c9308847b3f95990905f21b6694d312364d8bf53ead2022e2c84"
+        }
+      }
+    },
+    {
+      "name": "arms",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/arms_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "drift",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/run.py",
+        "drift"
+      ],
+      "exit_code": 0,
+      "status": "pass",
+      "summary": {
+        "run": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z",
+        "status": "pass",
+        "drift": {
+          "R": {
+            "gen": {
+              "evidence": {
+                "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/R/gen/build_output.txt",
+                "build_exit_code": 0,
+                "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/R/gen/new_live/observed.json",
+                "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/R/gen/pre_change/report.json"
+              },
+              "notes": {
+                "new_live": {
+                  "expected_accept": true,
+                  "cause": "host_validation ArgumentError"
+                },
+                "pre_change": {
+                  "expected_accept": false,
+                  "host_validation": "nil"
+                }
+              },
+              "build": "correct_accept",
+              "new_live": "false_reject",
+              "pre_change": "typed_reject",
+              "manual_change_sites": 0,
+              "domain_validation_sites": 1,
+              "test_expectation_sites": 2,
+              "repaired": {
+                "exit_code": 0,
+                "status": "pass",
+                "assertions": {
+                  "a1_record_bytes_equal_sent_bytes": true,
+                  "replay_first_call": true,
+                  "replay_a1_noncanonical_body": true,
+                  "replay_missing_response": true,
+                  "replay_operation_mismatch": true,
+                  "replay_attempt_mismatch": true,
+                  "replay_body_digest_mismatch": true,
+                  "replay_status_mismatch": true,
+                  "replay_request_mismatch": true
+                }
+              }
+            },
+            "lib": {
+              "evidence": {
+                "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/R/lib/build_output.txt",
+                "build_exit_code": 0,
+                "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/R/lib/new_live/observed.json",
+                "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/R/lib/pre_change/report.json"
+              },
+              "notes": {
+                "new_live": {
+                  "expected_accept": true,
+                  "cause": "host_validation ArgumentError"
+                },
+                "pre_change": {
+                  "expected_accept": false,
+                  "host_validation": "nil"
+                }
+              },
+              "build": "correct_accept",
+              "new_live": "false_reject",
+              "pre_change": "typed_reject",
+              "manual_change_sites": 0,
+              "domain_validation_sites": 1,
+              "test_expectation_sites": 2,
+              "repaired": {
+                "exit_code": 0,
+                "status": "pass",
+                "assertions": {
+                  "a1_record_bytes_equal_sent_bytes": true,
+                  "replay_first_call": true,
+                  "replay_a1_noncanonical_body": true,
+                  "replay_missing_response": true,
+                  "replay_operation_mismatch": true,
+                  "replay_attempt_mismatch": true,
+                  "replay_body_digest_mismatch": true,
+                  "replay_status_mismatch": true,
+                  "replay_request_mismatch": true
+                }
+              }
+            }
+          },
+          "N": {
+            "gen": {
+              "evidence": {
+                "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/N/gen/build_output.txt",
+                "build_exit_code": 0,
+                "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/N/gen/new_live/observed.json",
+                "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/N/gen/pre_change/report.json"
+              },
+              "notes": {
+                "new_live": {
+                  "expected_accept": true,
+                  "cause": "host_validation ArgumentError"
+                },
+                "pre_change": {
+                  "expected_accept": false,
+                  "host_validation": "nil"
+                }
+              },
+              "build": "correct_accept",
+              "new_live": "false_reject",
+              "pre_change": "typed_reject",
+              "manual_change_sites": 0,
+              "domain_validation_sites": 1,
+              "test_expectation_sites": 2,
+              "repaired": {
+                "exit_code": 0,
+                "status": "pass",
+                "assertions": {
+                  "a1_record_bytes_equal_sent_bytes": true,
+                  "replay_first_call": true,
+                  "replay_a1_noncanonical_body": true,
+                  "replay_missing_response": true,
+                  "replay_operation_mismatch": true,
+                  "replay_attempt_mismatch": true,
+                  "replay_body_digest_mismatch": true,
+                  "replay_status_mismatch": true,
+                  "replay_request_mismatch": true
+                }
+              }
+            },
+            "lib": {
+              "evidence": {
+                "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/N/lib/build_output.txt",
+                "build_exit_code": 0,
+                "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/N/lib/new_live/observed.json",
+                "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/N/lib/pre_change/report.json"
+              },
+              "notes": {
+                "new_live": {
+                  "expected_accept": true,
+                  "cause": "host_validation ArgumentError"
+                },
+                "pre_change": {
+                  "expected_accept": false,
+                  "host_validation": "nil"
+                }
+              },
+              "build": "correct_accept",
+              "new_live": "false_reject",
+              "pre_change": "typed_reject",
+              "manual_change_sites": 0,
+              "domain_validation_sites": 1,
+              "test_expectation_sites": 2,
+              "repaired": {
+                "exit_code": 0,
+                "status": "pass",
+                "assertions": {
+                  "a1_record_bytes_equal_sent_bytes": true,
+                  "replay_first_call": true,
+                  "replay_a1_noncanonical_body": true,
+                  "replay_missing_response": true,
+                  "replay_operation_mismatch": true,
+                  "replay_attempt_mismatch": true,
+                  "replay_body_digest_mismatch": true,
+                  "replay_status_mismatch": true,
+                  "replay_request_mismatch": true
+                }
+              }
+            }
+          },
+          "Q": {
+            "gen": {
+              "evidence": {
+                "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/Q/gen/build_output.txt",
+                "build_exit_code": 0,
+                "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/Q/gen/new_live/observed.json",
+                "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/Q/gen/pre_change/report.json"
+              },
+              "notes": {
+                "new_live": {
+                  "expected_accept": false,
+                  "cause": "flow error %OrdersBeamlSpike.PaymentError{reason: \"status\"}"
+                },
+                "pre_change": {
+                  "expected_accept": false,
+                  "host_validation": "nil"
+                }
+              },
+              "build": "correct_accept",
+              "new_live": "typed_reject",
+              "pre_change": "typed_reject",
+              "manual_change_sites": 0,
+              "domain_validation_sites": 1,
+              "test_expectation_sites": 1,
+              "repaired": {
+                "exit_code": 0,
+                "status": "pass",
+                "assertions": {
+                  "a1_record_bytes_equal_sent_bytes": true,
+                  "replay_first_call": true,
+                  "replay_a1_noncanonical_body": true,
+                  "replay_missing_response": true,
+                  "replay_operation_mismatch": true,
+                  "replay_attempt_mismatch": true,
+                  "replay_body_digest_mismatch": true,
+                  "replay_status_mismatch": true,
+                  "replay_request_mismatch": true
+                }
+              }
+            },
+            "lib": {
+              "evidence": {
+                "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/Q/lib/build_output.txt",
+                "build_exit_code": 0,
+                "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/Q/lib/new_live/observed.json",
+                "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261106T205936482400Z/Q/lib/pre_change/report.json"
+              },
+              "notes": {
+                "new_live": {
+                  "expected_accept": false,
+                  "cause": "flow raised MatchError"
+                },
+                "pre_change": {
+                  "expected_accept": false,
+                  "host_validation": "nil"
+                }
+              },
+              "build": "correct_accept",
+              "new_live": "untyped_crash",
+              "pre_change": "typed_reject",
+              "manual_change_sites": 0,
+              "domain_validation_sites": 1,
+              "test_expectation_sites": 1,
+              "repaired": {
+                "exit_code": 0,
+                "status": "pass",
+                "assertions": {
+                  "a1_record_bytes_equal_sent_bytes": true,
+                  "replay_first_call": true,
+                  "replay_a1_noncanonical_body": true,
+                  "replay_missing_response": true,
+                  "replay_operation_mismatch": true,
+                  "replay_attempt_mismatch": true,
+                  "replay_body_digest_mismatch": true,
+                  "replay_status_mismatch": true,
+                  "replay_request_mismatch": true
+                }
+              }
+            }
+          }
+        },
+        "sites": {
+          "gen": 0,
+          "lib": 0
+        },
+        "repaired_all": true
+      }
+    }
+  ],
+  "status": "pass",
+  "finished_at": "2026-11-06T21:04:26.982584+00:00"
+}

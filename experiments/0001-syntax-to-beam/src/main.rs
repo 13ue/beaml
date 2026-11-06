@@ -2480,6 +2480,45 @@ impl Checker<'_> {
         dead.sort_by_key(|d| d.range.start);
         dead
     }
+    // The completeness rule (README slice 4, removal contract step 2a, DL-069): the refusal message per DEAD
+    // LINE without evidence, keyed by its start byte. A dead MIGRATE STEP of T needs a record of an operation
+    // whose `effect` outputs T (the records W2 counts). A dead RETIRE LINE needs a non-empty snapshot.
+    fn refusals(&self, snapshot: &Snapshot, stored: &str) -> BTreeMap<usize, String> {
+        let help = "an empty or partial RECORD SNAPSHOT makes needed lines look dead\n  help: if the --stored file holds every stored RESPONSE RECORD, run again with --assume-complete";
+        let mut out = BTreeMap::new();
+        for dead in self.dead_lines(snapshot) {
+            let why = if let Some(retire) = self
+                .program
+                .retires
+                .iter()
+                .find(|r| r.source_range == dead.range)
+            {
+                snapshot.operations.is_empty().then(|| {
+                    format!(
+                        "no stored RESPONSE RECORD of any operation (operation {})",
+                        retire.operation
+                    )
+                })
+            } else {
+                self.program
+                    .migrations
+                    .iter()
+                    .find(|m| m.source_range == dead.range)
+                    .filter(|m| !snapshot.oldest.contains_key(&m.type_name))
+                    .map(|m| format!("no stored RESPONSE RECORD of TYPE {}", m.type_name))
+            };
+            if let Some(why) = why {
+                out.insert(
+                    dead.range.start,
+                    format!(
+                        "error: removal refused: {}\n  record source: {stored}: {why}; {help}",
+                        dead.form
+                    ),
+                );
+            }
+        }
+        out
+    }
     // The message for a stored TYPE VERSION without a path to the newest TYPE VERSION, or None.
     fn no_path(
         &self,
@@ -2664,6 +2703,16 @@ struct Build {
 }
 
 fn build(source: &str, service: Option<&str>, stored: Option<&std::path::Path>) -> Checked<Build> {
+    build_with_refusals(source, service, stored).map(|(built, _)| built)
+}
+
+// The build and, per DEAD LINE (by its start byte), the refusal of the completeness rule (README slice 4,
+// removal contract step 2a, revision 8.2).
+fn build_with_refusals(
+    source: &str,
+    service: Option<&str>,
+    stored: Option<&std::path::Path>,
+) -> Checked<(Build, BTreeMap<usize, String>)> {
     let program = Parser {
         tokens: lex(source)?,
         at: 0,
@@ -2690,22 +2739,29 @@ fn build(source: &str, service: Option<&str>, stored: Option<&std::path::Path>) 
         }
         _ => "",
     };
-    let dead = match stored {
+    let (dead, refusals) = match stored {
         Some(path) => {
             let text = std::fs::read_to_string(path)
                 .map_err(|e| format!("cannot read --stored input: {}", e.kind()))?;
-            let snapshot = checker.check_stored(&path.display().to_string(), &text)?;
-            checker.dead_lines(&snapshot)
+            let label = path.display().to_string();
+            let snapshot = checker.check_stored(&label, &text)?;
+            (
+                checker.dead_lines(&snapshot),
+                checker.refusals(&snapshot, &label),
+            )
         }
         None if !program.effects.is_empty() || !program.retires.is_empty() => {
             return Err("error: stored TYPE VERSIONS unknown: a source with an effect or a RETIRE LINE needs --stored SNAPSHOT.jsonl (an unknown store is not an empty store)".into());
         }
-        None => Vec::new(),
+        None => (Vec::new(), BTreeMap::new()),
     };
-    Ok(Build {
-        code: checker.emit(service),
-        dead,
-    })
+    Ok((
+        Build {
+            code: checker.emit(service),
+            dead,
+        },
+        refusals,
+    ))
 }
 
 // Python `str.splitlines(keepends=True)`: the line boundaries of the difflib reference (README slice 4).
@@ -2890,7 +2946,22 @@ fn without_dead(text: &str, dead: &[Dead]) -> Checked<String> {
 }
 
 // Write through a temporary file in the same directory and a rename (README slice 4, removal contract 5).
-fn write_atomic(path: &std::path::Path, text: &str) -> Checked<()> {
+// Revision 8.2 (DL-069): resolve SOURCE to the real file first, so that a symbolic link stays a link, and
+// refuse a file that the process cannot open for writing.
+fn write_atomic(source: &std::path::Path, text: &str) -> Checked<()> {
+    let cannot =
+        |e: std::io::Error| format!("error: cannot write {}: {}", source.display(), e.kind());
+    let real = std::fs::canonicalize(source).map_err(cannot)?;
+    if let Err(e) = std::fs::OpenOptions::new().write(true).open(&real) {
+        return Err(match e.kind() {
+            std::io::ErrorKind::PermissionDenied => format!(
+                "error: cannot write {}: the file is not writable",
+                source.display()
+            ),
+            _ => cannot(e),
+        });
+    }
+    let path = real.as_path();
     let directory = match path.parent() {
         Some(parent) if !parent.as_os_str().is_empty() => parent,
         _ => std::path::Path::new("."),
@@ -2913,7 +2984,7 @@ fn write_atomic(path: &std::path::Path, text: &str) -> Checked<()> {
     })();
     result.map_err(|e| {
         let _ = std::fs::remove_file(&temporary);
-        format!("error: cannot write {}: {}", path.display(), e.kind())
+        cannot(e)
     })
 }
 
@@ -2924,16 +2995,34 @@ fn remove_dead(
     label: &str,
     stem: Option<&str>,
     stored: &std::path::Path,
+    assume_complete: bool,
+) -> Checked<usize> {
+    let recheck = |new: &str| build(new, stem, Some(stored));
+    remove_dead_with(path, label, stem, stored, assume_complete, &recheck)
+}
+
+// The removal command with its recheck (contract step 4) as a parameter: the seam of unit test U1.
+fn remove_dead_with(
+    path: &std::path::Path,
+    label: &str,
+    stem: Option<&str>,
+    stored: &std::path::Path,
+    assume_complete: bool,
+    recheck: &dyn Fn(&str) -> Checked<Build>,
 ) -> Checked<usize> {
     let old =
         std::fs::read_to_string(path).map_err(|e| format!("cannot read source: {}", e.kind()))?;
-    let dead = build(&old, stem, Some(stored))?.dead;
+    let (built, refusals) = build_with_refusals(&old, stem, Some(stored))?;
+    let dead = built.dead;
     if dead.is_empty() {
         eprintln!("no DEAD LINE in {label}");
         return Ok(0);
     }
+    if !assume_complete && !refusals.is_empty() {
+        return Err(refusals.into_values().collect::<Vec<_>>().join("\n"));
+    }
     let new = without_dead(&old, &dead)?;
-    match build(&new, stem, Some(stored)) {
+    match recheck(&new) {
         Ok(rebuilt) if rebuilt.dead.is_empty() => (),
         Ok(rebuilt) => {
             return Err(format!(
@@ -2984,7 +3073,9 @@ fn action(action: &str, result: &str, count: Option<(&str, usize)>) {
 }
 fn main() {
     let args: Vec<_> = std::env::args_os().skip(1).collect();
-    let remove = matches!(args.as_slice(), [_, flag, _, last] if flag == "--stored" && last == "--remove-dead");
+    let remove = matches!(args.as_slice(), [_, flag, _, last, ..] if flag == "--stored" && last == "--remove-dead");
+    let assume_complete =
+        matches!(args.as_slice(), [_, _, _, _, last] if last == "--assume-complete");
     let result = (|| -> Checked<Option<(&str, usize)>> {
         let stored = match args.as_slice() {
             [_] => None,
@@ -2992,15 +3083,28 @@ fn main() {
             [_, flag, path, last] if flag == "--stored" && last == "--remove-dead" => {
                 Some(std::path::Path::new(path))
             }
+            [_, flag, path, last, assume]
+                if flag == "--stored"
+                    && last == "--remove-dead"
+                    && assume == "--assume-complete" =>
+            {
+                Some(std::path::Path::new(path))
+            }
             _ => {
-                return Err("usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff)".into());
+                return Err("usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)".into());
             }
         };
         let path = std::path::Path::new(&args[0]);
         let label = args[0].to_string_lossy();
         let stem = path.file_stem().and_then(|stem| stem.to_str());
         if remove {
-            let removed = remove_dead(path, &label, stem, stored.expect("checked arguments"))?;
+            let removed = remove_dead(
+                path,
+                &label,
+                stem,
+                stored.expect("checked arguments"),
+                assume_complete,
+            )?;
             return Ok(Some(("removed", removed)));
         }
         let source = std::fs::read_to_string(path)
@@ -3203,20 +3307,38 @@ mod tests {
                 std::fs::metadata(&source).unwrap(),
                 listing(&directory),
             );
-            let error = remove_dead_with(&source, "orders.beaml", Some("orders"), &stored, true, recheck)
-                .unwrap_err();
+            let error = remove_dead_with(
+                &source,
+                "orders.beaml",
+                Some("orders"),
+                &stored,
+                true,
+                recheck,
+            )
+            .unwrap_err();
             let after = std::fs::metadata(&source).unwrap();
             assert!(error.starts_with("error: removal check failed"), "{error}");
             assert!(error.contains(expected), "{error}");
             assert_eq!(before, std::fs::read(&source).unwrap(), "same bytes");
-            assert_eq!((stat.ino(), stat.mtime(), stat.mtime_nsec()), (after.ino(), after.mtime(), after.mtime_nsec()), "same inode and modification time");
+            assert_eq!(
+                (stat.ino(), stat.mtime(), stat.mtime_nsec()),
+                (after.ino(), after.mtime(), after.mtime_nsec()),
+                "same inode and modification time"
+            );
             assert_eq!(names, listing(&directory), "no temporary file");
         }
         // Control: the normal recheck removes the RETIRE LINE (the setup has a DEAD LINE and passes step 2a).
         let normal = |new: &str| build(new, Some("orders"), Some(&stored));
         assert_eq!(
             Ok(1),
-            remove_dead_with(&source, "orders.beaml", Some("orders"), &stored, true, &normal)
+            remove_dead_with(
+                &source,
+                "orders.beaml",
+                Some("orders"),
+                &stored,
+                true,
+                &normal
+            )
         );
         assert!(!std::fs::read_to_string(&source).unwrap().contains("retire"));
         let _ = std::fs::remove_dir_all(&directory);

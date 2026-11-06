@@ -1,0 +1,4 @@
+interface Order { order_id: String }
+interface Payment { order_id: String state: String }
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+fn finish Payment { order_id, state } -> Payment = Payment { order_id: order_id + "", state: state }

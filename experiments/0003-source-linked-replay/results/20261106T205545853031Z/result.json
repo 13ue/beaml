@@ -1,0 +1,126 @@
+{
+  "test": "test_two_live_receipts_resolve_original_payments_declaration",
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+  ],
+  "cwd": "/Users/lennart/Projects/beaml",
+  "status": "pass",
+  "steps": [
+    {
+      "ts": "2026-11-06T20:55:45.853418+00:00",
+      "action": "start",
+      "result": "running"
+    },
+    {
+      "ts": "2026-11-06T20:56:01.479955+00:00",
+      "action": "step",
+      "result": "fresh_releases_match_archived_beams"
+    },
+    {
+      "ts": "2026-11-06T20:56:01.570825+00:00",
+      "action": "step",
+      "result": "first_receipt_verified"
+    },
+    {
+      "ts": "2026-11-06T20:56:01.627068+00:00",
+      "action": "step",
+      "result": "second_receipt_verified"
+    },
+    {
+      "ts": "2026-11-06T20:56:05.426111+00:00",
+      "action": "step",
+      "result": "same_name_distinct_compiled_revision_and_missing_source_control_ready"
+    },
+    {
+      "ts": "2026-11-06T20:56:05.515609+00:00",
+      "action": "pass",
+      "result": "exact_source_lookup_verified"
+    }
+  ],
+  "baseline": {
+    "receipts": [
+      {
+        "call": 1,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "481aa0f4acf5d18662eee4423e3fa162"
+      },
+      {
+        "call": 2,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "7499595cb7a6d11287b6e8e9a733fccd"
+      }
+    ],
+    "edges": 10,
+    "logs": 4,
+    "payments_count_delta": 2
+  },
+  "release_exits": {
+    "payments": 0,
+    "orders": 0
+  },
+  "lookup": {
+    "expected": {
+      "artifact_id": "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31",
+      "source_id": {
+        "qualified_name": "payments.authorize",
+        "source_sha256": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50"
+      },
+      "matched_calls": 2,
+      "completed_calls": 2,
+      "successful_outcomes": 2,
+      "first_trace_id": "481aa0f4acf5d18662eee4423e3fa162",
+      "declaration": "fn authorize Order { order_id } -> Payment = Payment { order_id: order_id + \"\", status: \"authorized\" }"
+    },
+    "actual": {
+      "artifact_id": "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31",
+      "source_id": {
+        "qualified_name": "payments.authorize",
+        "source_sha256": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50"
+      },
+      "matched_calls": 2,
+      "completed_calls": 2,
+      "successful_outcomes": 2,
+      "first_trace_id": "481aa0f4acf5d18662eee4423e3fa162",
+      "declaration": "fn authorize Order { order_id } -> Payment = Payment { order_id: order_id + \"\", status: \"authorized\" }",
+      "byte_range": [
+        91,
+        193
+      ],
+      "source": "payments.beaml",
+      "generated": "payments.generated.ex",
+      "beam": "Elixir.PaymentsBeamlSpike.beam.bin"
+    },
+    "exit_code": 0,
+    "query_gaps": []
+  },
+  "missing_original": {
+    "expected_gap": "missing_source",
+    "exit_code": 1,
+    "actual_gaps": [
+      {
+        "code": "missing_source",
+        "service": "payments"
+      }
+    ],
+    "summary": null
+  },
+  "span_bindings": {
+    "artifact_ids": [
+      "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31",
+      "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31"
+    ],
+    "source_hashes": [
+      "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50",
+      "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50"
+    ]
+  }
+}

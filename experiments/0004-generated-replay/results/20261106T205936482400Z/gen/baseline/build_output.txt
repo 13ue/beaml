@@ -1,0 +1,77 @@
+$ env MIX_ENV=prod mix deps.get --offline  (exit 0)
+Resolving Hex dependencies...
+Resolution completed in 0.012s
+Unchanged:
+  cowboy 2.20.0
+  cowboy_telemetry 0.4.0
+  cowlib 2.21.0
+  mime 2.0.7
+  opentelemetry 1.7.0
+  opentelemetry_api 1.5.0
+  plug 1.20.3
+  plug_cowboy 2.8.1
+  plug_crypto 2.2.1
+  ranch 2.3.0
+  telemetry 1.4.2
+* Getting plug_cowboy (Hex package)
+* Getting opentelemetry_api (Hex package)
+* Getting opentelemetry (Hex package)
+* Getting cowboy (Hex package)
+* Getting cowboy_telemetry (Hex package)
+* Getting plug (Hex package)
+* Getting mime (Hex package)
+* Getting plug_crypto (Hex package)
+* Getting telemetry (Hex package)
+* Getting cowlib (Hex package)
+* Getting ranch (Hex package)
+You have added/upgraded packages you could sponsor, run `mix hex.sponsor` to learn more
+
+$ cargo run --offline --quiet --manifest-path /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-6v9l3ats/gen/baseline/experiments/0001-syntax-to-beam/Cargo.toml -- /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-6v9l3ats/gen/baseline/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl  (exit 0)
+
+$ cargo run --offline --quiet --manifest-path /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-6v9l3ats/gen/baseline/experiments/0001-syntax-to-beam/Cargo.toml -- /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-6v9l3ats/gen/baseline/experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml  (exit 0)
+
+$ mix compile --force --warnings-as-errors  (exit 0, recorded only)
+$ env MIX_ENV=prod mix release orders --overwrite  (exit 0)
+* assembling orders-0.1.0 on MIX_ENV=prod
+* using config/runtime.exs to configure the release at runtime
+
+Release created at _build/prod/rel/orders
+
+    # To start your system
+    _build/prod/rel/orders/bin/orders start
+
+Once the release is running:
+
+    # To connect to it remotely
+    _build/prod/rel/orders/bin/orders remote
+
+    # To stop it gracefully (you may also send SIGINT/SIGTERM)
+    _build/prod/rel/orders/bin/orders stop
+
+To list all commands:
+
+    _build/prod/rel/orders/bin/orders
+
+
+$ env MIX_ENV=prod mix release payments --overwrite  (exit 0)
+* assembling payments-0.1.0 on MIX_ENV=prod
+* using config/runtime.exs to configure the release at runtime
+
+Release created at _build/prod/rel/payments
+
+    # To start your system
+    _build/prod/rel/payments/bin/payments start
+
+Once the release is running:
+
+    # To connect to it remotely
+    _build/prod/rel/payments/bin/payments remote
+
+    # To stop it gracefully (you may also send SIGINT/SIGTERM)
+    _build/prod/rel/payments/bin/payments stop
+
+To list all commands:
+
+    _build/prod/rel/payments/bin/payments
+
+

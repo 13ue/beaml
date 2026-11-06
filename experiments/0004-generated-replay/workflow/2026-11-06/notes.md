@@ -1091,3 +1091,43 @@ STATE: GREEN with one open fault. Every done criterion exits 0, except `tests/sl
 | H-3 | E18 now passes `--assume-complete` | Undo | E21c is the refusal of the old E18 setup |
 | H-4 | U1 through a recheck parameter, not a FIFO race | Repair | Over a FIFO that changes the snapshot between reads: flaky. Commits GREEN to a seam |
 | H-5 | Writable test by an open for writing, not mode bits | Repair | Covers files of other owners |
+
+## Slice 4 hardening, GREEN
+
+- Base commit: `c5bb9387` (RED). Only `0001/src/main.rs` changes; no test file changes.
+- `build_with_refusals` returns the build and the step 2a refusal per DEAD LINE; `build` keeps its signature.
+- `Checker::refusals`: a dead MIGRATE STEP of T without an `effect` record of T; a dead RETIRE LINE with an empty snapshot.
+- `remove_dead_with(..., assume_complete, recheck)` is the U1 seam; `remove_dead` passes the normal build.
+- `write_atomic` resolves SOURCE with `canonicalize`, opens the real file for writing first (`PermissionDenied` gives `the file is not writable`), and renames in the directory of the real file.
+- `main` reads `--assume-complete` only as the fifth argument after `--remove-dead`; the usage text names it.
+
+### GREEN results (observed, serial)
+
+| Run | Result |
+| --- | --- |
+| `cargo test` | 10 + 14 pass (U1 included) |
+| `slice2_replay_test.py`, `slice3_replay_test.py`, `slice3_types_test.py` | 21, 31, 69 OK |
+| `slice4_retire_test.py`, `slice4_replay_test.py` | 87, 27 OK |
+| `stored_types_test.py`, `arms_test.py`, `overlay_diff_test.py`, `drift_test.py` | 33, 16, 3, 3 OK |
+| `0003/run.py` | `pass`, `0003/results/20261106T205544853058Z` |
+| `0004/run.py` | `pass`, `results/20261106T205646780361Z` |
+| `payments.beaml` output, HEAD binary against GREEN binary | stdout and stderr byte-identical |
+
+### SHA-256 prefixes (GREEN)
+
+| File | SHA-256 prefix |
+| --- | --- |
+| `0001/src/main.rs` | `6f0dab605fa2f489` |
+
+### Open point
+
+- `cargo fmt --check` reports diffs only inside the committed U1 test (layout, three places). Not changed: the task forbids test edits.
+
+### Decisions (Decision4, hardening GREEN)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| HG-1 | Refusals keyed by the start byte, in a second map beside `Build` | Undo | `Build` and `Dead` are built by U1; new fields would break it |
+| HG-2 | Refusal before the line layout check (step 2) | Undo | README order; message choice only |
+| HG-3 | The action event does not record `--assume-complete` | Undo | Same event shape; a later field is additive |
+| HG-4 | Error text for other write faults keeps `cannot write <SOURCE>: <kind>` | Undo | Same text as before |

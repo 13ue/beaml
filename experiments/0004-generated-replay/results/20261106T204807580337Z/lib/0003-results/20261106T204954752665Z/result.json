@@ -1,0 +1,74 @@
+{
+  "test": "test_lookup_requires_receipt_order_and_recorded_window",
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-B",
+    "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py",
+    "--source-run",
+    "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-9dcu4iy0/experiments/0003-source-linked-replay/results/20261106T204936442037Z"
+  ],
+  "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-9dcu4iy0",
+  "source_run": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-9dcu4iy0/experiments/0003-source-linked-replay/results/20261106T204936442037Z",
+  "status": "pass",
+  "cases": {
+    "unchanged": {
+      "expected": "exit 0 and the unchanged original 2/2 summary with the first receipt trace",
+      "observed": {
+        "exit_code": 0,
+        "complete": true,
+        "gaps": [],
+        "coverage": [
+          2,
+          2
+        ],
+        "first_trace_id": "87c6bc23b4ceab1a94065ebd7ae435ac"
+      },
+      "passed": true
+    },
+    "swapped-receipts": {
+      "expected": "exit 1, incomplete, receipt_coverage, and no function summary",
+      "observed": {
+        "exit_code": 1,
+        "complete": false,
+        "gaps": [
+          {
+            "code": "receipt_coverage"
+          }
+        ],
+        "coverage": null,
+        "first_trace_id": null
+      },
+      "passed": true
+    },
+    "missing-window": {
+      "expected": "exit 1, incomplete, missing_window, and no function summary",
+      "observed": {
+        "exit_code": 1,
+        "complete": false,
+        "gaps": [
+          {
+            "code": "missing_window"
+          }
+        ],
+        "coverage": null,
+        "first_trace_id": null
+      },
+      "passed": true
+    },
+    "outside-window": {
+      "expected": "exit 1, incomplete, outside_window, and no function summary",
+      "observed": {
+        "exit_code": 1,
+        "complete": false,
+        "gaps": [
+          {
+            "code": "outside_window"
+          }
+        ],
+        "coverage": null,
+        "first_trace_id": null
+      },
+      "passed": true
+    }
+  }
+}
