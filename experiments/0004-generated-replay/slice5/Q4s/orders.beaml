@@ -1,0 +1,19 @@
+// EXPERIMENT 0004 slice 5: a MIGRATE CHAIN of four TYPE VERSIONS (sources Q4, Q4s, Q4z).
+type Order { order_id: String }
+type Payment v4 { order_id: String state: String reference: String }
+// The first two MIGRATE STEPS are DEAD LINES when no record has v2 or older.
+
+// The last MIGRATE STEP is a DEAD LINE when only its target version is stored.
+migrate Payment v3 -> v4 { drop channel: String, add reference: String = "pre-v4" }
+type PaymentError { reason: String }
+
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+fn finish Payment { order_id, state, reference } -> Payment = Payment { order_id: order_id + "", state: state, reference: reference }
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
+  |> finish

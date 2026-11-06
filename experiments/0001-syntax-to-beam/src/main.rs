@@ -3343,4 +3343,86 @@ mod tests {
         assert!(!std::fs::read_to_string(&source).unwrap().contains("retire"));
         let _ = std::fs::remove_dir_all(&directory);
     }
+
+    // U2 (EXPERIMENT 0004 README revision 9.1, slice 5 contract step 4): a recheck whose newest version of a TYPE
+    // differs from the old text writes nothing. The insertion rule makes this unreachable, so the test forces it
+    // through the recheck seam of U1: the forced recheck builds a text without mark and chain (newest v1).
+    #[test]
+    fn removal_writes_nothing_when_the_newest_version_changes() {
+        const HEAD: &str = "type Order { order_id: String }\ntype Payment { order_id: String state: String }\n";
+        const CHAIN: &str = "migrate Payment v1 -> v2 { rename status -> state }\n";
+        const TAIL: &str = "type PaymentError { reason: String }\n\neffect payments.authorize Order -> Payment ! PaymentError = http.post(\"payments/authorize\")\n\nfn prepare Order { order_id } -> Order = Order { order_id: order_id + \"\" }\nfn finish Payment { order_id, state } -> Payment = Payment { order_id: order_id + \"\", state: state }\n\nfn place order: Order -> Payment ! PaymentError =\n  order\n  |> prepare\n  |> payments.authorize\n  |> finish\n";
+        use std::os::unix::fs::MetadataExt;
+        let directory = std::env::temp_dir().join(format!(
+            "beaml-u2-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&directory).unwrap();
+        let source = directory.join("orders.beaml");
+        let stored = directory.join("empty.jsonl");
+        std::fs::write(&source, format!("{HEAD}{CHAIN}{TAIL}")).unwrap();
+        std::fs::write(&stored, "").unwrap();
+        let listing = |dir: &std::path::Path| {
+            let mut names: Vec<_> = std::fs::read_dir(dir)
+                .unwrap()
+                .map(|e| e.unwrap().file_name())
+                .collect();
+            names.sort();
+            names
+        };
+        // The forced recheck: a valid build of a text whose newest version of Payment is v1, not v2.
+        let reset_text = format!("{HEAD}{TAIL}");
+        let reset = |_: &str| build(&reset_text, Some("orders"), Some(&stored));
+        let (before, stat, names) = (
+            std::fs::read(&source).unwrap(),
+            std::fs::metadata(&source).unwrap(),
+            listing(&directory),
+        );
+        let error = remove_dead_with(
+            &source,
+            "orders.beaml",
+            Some("orders"),
+            &stored,
+            true,
+            &reset,
+        )
+        .unwrap_err();
+        let after = std::fs::metadata(&source).unwrap();
+        assert!(error.starts_with("error: removal check failed"), "{error}");
+        assert!(
+            error.contains("newest version of Payment changed from v2 to v1"),
+            "{error}"
+        );
+        assert_eq!(before, std::fs::read(&source).unwrap(), "same bytes");
+        assert_eq!(
+            (stat.ino(), stat.mtime(), stat.mtime_nsec()),
+            (after.ino(), after.mtime(), after.mtime_nsec()),
+            "same inode and modification time"
+        );
+        assert_eq!(names, listing(&directory), "no temporary file");
+        // Control: the normal recheck removes the step and writes the VERSION MARK v2.
+        let normal = |new: &str| build(new, Some("orders"), Some(&stored));
+        assert_eq!(
+            Ok(1),
+            remove_dead_with(
+                &source,
+                "orders.beaml",
+                Some("orders"),
+                &stored,
+                true,
+                &normal
+            )
+        );
+        let written = std::fs::read_to_string(&source).unwrap();
+        assert!(
+            written.contains("type Payment v2 { order_id: String state: String }")
+                && !written.contains("migrate"),
+            "{written}"
+        );
+        let _ = std::fs::remove_dir_all(&directory);
+    }
 }

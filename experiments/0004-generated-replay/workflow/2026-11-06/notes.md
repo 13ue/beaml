@@ -1131,3 +1131,97 @@ STATE: GREEN with one open fault. Every done criterion exits 0, except `tests/sl
 | HG-2 | Refusal before the line layout check (step 2) | Undo | README order; message choice only |
 | HG-3 | The action event does not record `--assume-complete` | Undo | Same event shape; a later field is additive |
 | HG-4 | Error text for other write faults keeps `cannot write <SOURCE>: <kind>` | Undo | Same text as before |
+
+## Slice 5 plan repair and RED
+
+STATE README: revision 9.1 (slice 5 section, front matter and one plan history line only). Base: HEAD `6727353d` (compiler identical to `f29e3f12`).
+
+### Plan changes (README revision 9.1)
+
+| # | Fault (fresh check) | Change | Class |
+| --- | --- | --- | --- |
+| 1 | HIGH: F12b `type Payment v1` without a chain depends on O7 | F12b: `type Payment v3` (Q4z fields, no chain) with v4 records gives N1 | Undo |
+| 2 | HIGH: no T23 layout puts the mark on a wrong line | New T23 layouts: `type PaymentError {` above `type Payment {` (error TYPE always `<T>Error`), and a `// type Payment {` comment line above the declaration | Undo |
+| 3 | MEDIUM: E21d in the E15 row and in its own row | E21d removed from the E15 row | Undo |
+| 4 | MEDIUM: the M3 help line proposes `v3 -> v4` but not the mark | New rule: a `help` line that proposes a step for a marked TYPE ends with `; write: type T v<n+1>`; F11b asserts both in one line | Undo |
+| 5 | MEDIUM: W3 and the stderr normaliser are open | Closed lists W3, W4 and S of exact strings; exact regex forms of W1 and W2; A1 scope by `git diff --name-status f29e3f12` minus slice 5 files, compiler and grammar sources, `*.md`, `results/` and `.beaml/` | Undo |
+| 6 | MEDIUM: `cli.rs:208` only asserts an absence | Allowed row with the new fallback text; F2 asserts that this text is the real fallback error | Undo |
+| 7 | O7 dependence not listed | PENDING O7 list: F6, F13, F14; under (c) E20 and F8c | Undo |
+| 8 | Found in RED: E13 cannot expect a warning without a tag | C2 template tags its step `s12` (allowed row) | Undo |
+| 9 | Found in RED: E21b also changes by DL-070 | E21b: three refusals (row added to the expectation table) | Undo |
+| 10 | Found in RED: a random chain start makes an unmarked chain an F14 source | Random version numbers only on sources with a VERSION MARK (base b; M3 `v(b+2)`, Q4s and Q4z `v(b+3)`) | Undo |
+| 11 | Found in RED: A2 inputs and the DL-070 extra warning undefined | A2 inputs: `--stored stored/empty.jsonl` for a source with `effect` or `retire`; the new stderr drops the warning of the last step of each chain | Undo |
+
+### RED tests
+
+| File | Cases | RED result |
+| --- | --- | --- |
+| `tests/slice5_syntax_test.py` | F1, F2 (3 positions), F2 fallback, F3, F3b (2), F3c, F4 (7 faults × 3 positions), F5, F7, F8, F8b, F9, F10, F11, F11b, F12, F12 control, F12b, F12c, F15; Fixture and Template; P1, A2 (47 sources), A3; fixture guard | 54 run, 128 failures (subtests incl.), 8 skipped, 0 Python errors. Pass: fixture guard, A3 (guard) |
+| `tests/slice5_squash_test.py` | F20, F21, F21b, F22, F23 (10 layouts, random CRLF in Template), F24, F25, F26 (2), F27, F28 (2) | 24 run, 42 failures, 0 Python errors |
+| `tests/slice5_replay_test.py` | F9 live, F11, F11c, F29 (replay and live); harness checks | 12 run, 10 failures, 0 Python errors. Pass: harness (2). `results/20261106T213703272678Z` |
+| `tests/slice5_rewrite_test.py` | A1: rows well formed, no deleted or new path, every changed line, completeness | 4 run, 2 failures. Pass: row guard, path check |
+| `0001/src/main.rs` | U2 `removal_writes_nothing_when_the_newest_version_changes` | fails; existing 10 + 14 pass |
+
+Fail reasons (observed):
+
+- Every F, U2 and replay failure: `expected interface, enum, or fn at byte N` (the parser does not know `type`). F4, F3 and F2 reach exit 1 for that reason, but their tokens are missing.
+- A2: `<source> is not rewritten (W1, W2)` for every source of the rewrite scope.
+- P1: the snapshot differs from the base snapshot in no line.
+- A1: no allowed row is used, and 47 sources still hold `interface` (completeness).
+
+PENDING O7 (skipped, written for option (b)): F6, F8c, F13, F14, in Fixture and Template. Not run under option (c): E20 (slice 4 Q4s and Q4s-crlf become F14 sources: E17, E17 control, E15b, E17b; A2 rows of Q4s, Q4s-crlf).
+
+Self-checks (scratch, not in the repository):
+
+- Every template kind (fixture and 30 random name sets, 26 kinds incl. T23 layouts with CRLF) in the base syntax (`base_form`) builds with the current compiler: 0 failures.
+- A1 against a fake GREEN rewrite (W1 to W4 on every scope file, the slice 4 test prototype, the rows): no leftover line, every row used once. Mutant (one extra change in `slice4/C2`): A1 reports it.
+- A2 against a fake new compiler (base compiler on `base_form` of the rewritten text, offsets mapped back): 47 of 47 equal; S covers every version string of the base stderr.
+- The F20 README example diff equals the difflib diff of the template.
+- The allowed rows of `slice4_retire_test.py` come from a scratch prototype of its GREEN rewrite (tags `type`, `s12`, `s34`; `source_text(..., mark=None)`; `assert_removed` with the mark line). GREEN must reproduce these lines or bring a new row to the main agent.
+
+Side effect (observed): the self-check runs appended 869 lines to the tracked append-only log `experiments/0004-generated-replay/.beaml/actions.jsonl` (cwd of the scratch runs). Not reverted. A1 does not audit `.beaml/`.
+
+### SHA-256 prefixes (RED)
+
+| File | SHA-256 prefix |
+| --- | --- |
+| `README.md` (revision 9.1) | `bc2119d4bb0d6f2d` |
+| `tests/slice5_syntax_test.py` | `d60e9c9ebb74f0c0` |
+| `tests/slice5_squash_test.py` | `beab62b99a107155` |
+| `tests/slice5_replay_test.py` | `e9f9eda6449a5d9c` |
+| `tests/slice5_rewrite_test.py` | `73439f644dce1e81` |
+| `slice5/rewrite-allowed.json` (28 rows) | `7d998ee657f56a09` |
+| `slice5/B5/orders.beaml` | `e22dbc86e8848339` |
+| `slice5/M3/orders.beaml` | `fbc198cbc3792ace` |
+| `slice5/Q4/orders.beaml` | `ddadf4af59d0055a` |
+| `slice5/Q4s/orders.beaml` | `8eafb38e5fb3d898` |
+| `slice5/Q4z/orders.beaml` | `17358b7aa3a8c641` |
+| `slice5/Q4-crlf/orders.beaml` | `6736c242b447bed0` |
+| `slice5/C2/orders.beaml` | `46ea1f2f410218cf` |
+| `0001/src/main.rs` (U2 test only) | `15f128e178c14646` |
+| slice 1 to slice 4 sources, fixtures and tests, `stored/`, `run.py`, grammar | unchanged |
+
+### Verification (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline` (0001) | 101 | 10 + 14 existing pass; U2 fails (parser) |
+| `tests/slice5_syntax_test.py` | 1 | RED as above |
+| `tests/slice5_squash_test.py` | 1 | RED as above |
+| `tests/slice5_replay_test.py` | 1 | RED as above |
+| `tests/slice5_rewrite_test.py` | 1 | RED as above |
+| `tests/stored_types_test.py`, `slice3_types_test.py`, `slice4_retire_test.py` | 0 | 33, 69, 87 OK |
+| `tests/slice2_replay_test.py`, `slice3_replay_test.py`, `slice4_replay_test.py` | 0 | 21, 31, 27 OK; `results/20261106T213735450469Z`, `results/20261106T213925232381Z`, `results/20261106T214300910739Z` |
+
+### Decisions (Decision4, slice 5 plan repair and RED)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| S5-1 | Plan changes 1 to 11 above | Undo | Test plan and message text only; each kills a named false pass |
+| S5-2 | A1 excludes `integrations/zed-beaml/` (incl. corpus and highlight tests), `*.md`, `results/`, `.beaml/` | Undo | Grammar tests hold column marks and tree names; docs and logs are not rewrites. The grammar check covers the grammar |
+| S5-3 | Allowed rows fix the exact GREEN lines of the slice 4 test rewrite | Undo | Closed list as the check asked; a new row needs the main agent |
+| S5-4 | Error TYPE named `<T>Error` also with random names | Undo | Keeps the prefix trap of T23 with random names |
+| S5-5 | F7 checks `version: N` in the generated record; the live record is in F9 and F29 | Undo | Saves one release build per name set |
+| S5-6 | U2 forces the newest version through the recheck seam with a real build of a text without mark and chain | Undo | Independent of new `Build` fields; same seam as U1 |
+| S5-7 | Message forms `has v1 or older`, `must derive v2`, `expected v2 -> v3` | Undo | Message text only; one `v` spelling (DL-072) |
+| S5-8 | Self-check log lines in `.beaml/actions.jsonl` kept | Undo | Append-only log; the main agent decides about the commit |

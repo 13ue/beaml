@@ -1,0 +1,230 @@
+[
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "            (\"interface %s { %s: String %s: String }\\n\" % (T, fields[0], fields[1]), None)]",
+    "new": "            (\"type %s { %s: String %s: String }\\n\" % (T, fields[0], fields[1]), \"type\")]",
+    "reason": "Revision 9.1 template helper: the TYPE line gets the tag `type`, so `source_text` can insert the VERSION MARK (W1 also applies)"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "    chain = [(\"migrate %s 1 -> 2 { rename %s -> %s }\\n\" % (T, o, t), None)] if kind == \"C2\" else []",
+    "new": "    chain = [(\"migrate %s v1 -> v2 { rename %s -> %s }\\n\" % (T, o, t), \"s12\")] if kind == \"C2\" else []",
+    "reason": "E13 (DL-070): the C2 step gets the tag `s12`, so its W2 warning can be expected (W2 also applies)"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "        last = [(\"// The last MIGRATE STEP carries the newest TYPE VERSION. It is never a DEAD LINE.\\n\", None),",
+    "new": "        last = [(\"// The last MIGRATE STEP carries the newest TYPE VERSION. It is a DEAD LINE when only its target version is stored.\\n\", None),",
+    "reason": "Q4 template comment (DL-070): the last MIGRATE STEP can be a DEAD LINE"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "                (s34 + \"\\n\", None)]",
+    "new": "                (s34 + \"\\n\", \"s34\")]",
+    "reason": "DL-070: the last step of Q4 gets the tag `s34`, so it can be warned about, refused and removed"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "            (\"interface %s { %s: String %s: String %s: String }\\n\" % (T, k, t, x), None)] + chain + [",
+    "new": "            (\"type %s { %s: String %s: String %s: String }\\n\" % (T, k, t, x), \"type\")] + chain + [",
+    "reason": "Revision 9.1 template helper: the TYPE line gets the tag `type`, so `source_text` can insert the VERSION MARK (W1 also applies)"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "def source_text(N, kind, without=()):",
+    "new": "def source_text(N, kind, without=(), mark=None):",
+    "reason": "Revision 9.1 template helper: `source_text` takes `mark` (DL-071 mark after a SQUASH)"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "    return \"\".join(text for text, tag in segments(N, kind) if tag not in without)",
+    "new": "    return \"\".join(text.replace(N.T, \"%s v%d\" % (N.T, mark), 1) if mark and tag == \"type\" else text",
+    "reason": "Revision 9.1 template helper: `source_text` inserts ` v<mark>` after the TYPE name of the `type` segment"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": null,
+    "new": "                   for text, tag in segments(N, kind) if tag not in without)",
+    "reason": "Revision 9.1 template helper: second line of the new `source_text` expression"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "        new_text = source_text(N, kind, without=tags)",
+    "new": "        mark = (4 if kind in Q_FAMILY else 2) if any(tag[0] == \"s\" for tag in tags) else None",
+    "reason": "E15 family (DL-071): a removal of a MIGRATE STEP writes the newest version as the VERSION MARK"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": null,
+    "new": "        new_text = source_text(N, kind, without=tags, mark=mark)",
+    "reason": "E15 family (DL-071): the expected file has the VERSION MARK"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": null,
+    "new": "        marked = \"wrote VERSION MARK v%d on type %s in %s\" % (mark, N.T, rel) if mark else \"wrote VERSION MARK\"",
+    "reason": "E15 family (DL-071): stderr has the `wrote VERSION MARK` line when a mark is written"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "             \"renamed\": True, \"temp_left\": False},",
+    "new": "             \"renamed\": True, \"temp_left\": False, \"mark_line\": bool(mark)},",
+    "reason": "E15 family (DL-071): expect the `wrote VERSION MARK` line exactly when a mark is written"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "             \"temp_left\": not run[\"listing_same\"]},",
+    "new": "             \"temp_left\": not run[\"listing_same\"], \"mark_line\": marked in run[\"stderr\"]},",
+    "reason": "E15 family (DL-071): observe the `wrote VERSION MARK` line"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "    def test_E12b_empty_snapshot_gives_two_W2_warnings_not_for_the_last_step(self):",
+    "new": "    def test_E12b_empty_snapshot_gives_three_W2_warnings(self):",
+    "reason": "E12b (DL-070): three W2 warnings; the test name no longer says `not for the last step`"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "        self.assert_warnings(\"Q4\", \"empty\", [\"s12\", \"s23\"])",
+    "new": "        self.assert_warnings(\"Q4\", \"empty\", [\"s12\", \"s23\", \"s34\"])",
+    "reason": "E12b (DL-070): the empty snapshot also makes `v3 -> v4` dead"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "    def test_E12c_newest_version_only_gives_two_W2_warnings_not_for_the_last_step(self):",
+    "new": "    def test_E12c_newest_version_only_gives_three_W2_warnings(self):",
+    "reason": "E12c (DL-070): three W2 warnings; the test name no longer says `not for the last step`"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "        self.assert_warnings(\"Q4\", \"q-v4\", [\"s12\", \"s23\"])",
+    "new": "        self.assert_warnings(\"Q4\", \"q-v4\", [\"s12\", \"s23\", \"s34\"])",
+    "reason": "E12c (DL-070): records of v4 only also make `v3 -> v4` dead"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "    def test_E13_last_step_is_never_dead(self):",
+    "new": "    def test_E13_last_step_is_dead_when_only_its_target_version_is_stored(self):",
+    "reason": "E13 (DL-070): the last step is dead when only its target version is stored"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "        self.assert_clean(\"C2\", \"c2-v2\")",
+    "new": "        self.assert_warnings(\"C2\", \"c2-v2\", [\"s12\"])",
+    "reason": "E13 (DL-070): one W2 warning for `migrate Payment v1 -> v2`"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "        self.assertEqual(source_text(self.names, \"Q4s-crlf\").encode(), run[\"after\"])",
+    "new": "        self.assertEqual(source_text(self.names, \"Q4s-crlf\", mark=4).encode(), run[\"after\"])",
+    "reason": "E15d (DL-071): the expected CRLF file has the VERSION MARK"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "        self.assert_refused(\"Q4\", \"empty\", (\"s12\", \"s23\"))",
+    "new": "        self.assert_refused(\"Q4\", \"empty\", (\"s12\", \"s23\", \"s34\"))",
+    "reason": "E21 (DL-070): three refusals"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "        self.assert_refused(\"Q4g+r\", \"qg-old1\", (\"s12\", \"s23\"))",
+    "new": "        self.assert_refused(\"Q4g+r\", \"qg-old1\", (\"s12\", \"s23\", \"s34\"))",
+    "reason": "E21b (DL-070, revision 9.1): three refusals; `v3 -> v4` has no record of the effect operation either"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "        run = self.assert_removed(\"Q4\", \"empty\", (\"s12\", \"s23\"), extra=(ASSUME,))",
+    "new": "        run = self.assert_removed(\"Q4\", \"empty\", (\"s12\", \"s23\", \"s34\"), extra=(ASSUME,))",
+    "reason": "E21d (DL-070): all three steps are removed"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "        self.assertEqual(source_text(self.names, \"Q4s\").encode(), run[\"after\"])",
+    "new": "        self.assertEqual(source_text(self.names, \"Q4\", without=(\"s12\", \"s23\", \"s34\"), mark=4).encode(), run[\"after\"])",
+    "reason": "E21d (DL-071): the file equals Q4z (Q4 with ` v4` and no migrate line)"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+    ],
+    "old": "            {\"link\": True, \"target\": target, \"real\": source_text(self.names, \"Q4s\").encode(), \"new_inode\": True,",
+    "new": "            {\"link\": True, \"target\": target, \"real\": source_text(self.names, \"Q4s\", mark=4).encode(), \"new_inode\": True,",
+    "reason": "E22 (DL-071): the real file is Q4s with the VERSION MARK"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/slice4/Q4/orders.beaml",
+      "experiments/0004-generated-replay/slice4/Q4-crlf/orders.beaml",
+      "experiments/0004-generated-replay/slice4/Q4s/orders.beaml",
+      "experiments/0004-generated-replay/slice4/Q4s-crlf/orders.beaml",
+      "experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml"
+    ],
+    "old": "// The last MIGRATE STEP carries the newest TYPE VERSION. It is never a DEAD LINE.",
+    "new": "// The last MIGRATE STEP carries the newest TYPE VERSION. It is a DEAD LINE when only its target version is stored.",
+    "reason": "Q4 fixture comment (DL-070), the same text as the Q4 template of slice4_retire_test.py"
+  },
+  {
+    "files": [
+      "experiments/0001-syntax-to-beam/tests/cli.rs"
+    ],
+    "old": "        !stderr.contains(\"expected interface, enum, or fn\"),",
+    "new": "        !stderr.contains(\"expected type, enum, effect, migrate, retire or fn\"),",
+    "reason": "Revision 9.1: the fallback text of the parser names every declaration word; F2 asserts that this is the real fallback error"
+  },
+  {
+    "files": [
+      "experiments/0004-generated-replay/tests/payments.generated.snapshot"
+    ],
+    "old": "  # beaml-declaration-v1 authorize 91 193",
+    "new": "  # beaml-declaration-v1 authorize 81 183",
+    "reason": "P1 (DL-076): the two type lines are 10 bytes shorter than the interface lines before fn authorize"
+  }
+]
