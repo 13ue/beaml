@@ -312,3 +312,7 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 
 **[Proposal]** Added the [slice 4 plan](../experiments/0004-generated-replay/README.md#slice-4) (README revision 8): `retire <operation> keep <n> days` for a deleted EFFECT with stored records (DL-055), DEAD LINE warnings for unused RETIRE LINES and MIGRATE STEPS, and the `--remove-dead` command (DL-056). Cases E1–E20 and a pass and reject rule. Added a register row in [research and development](planning/research-and-development.md).
 **[Proposal]** Added the glossary terms RETIRE LINE, RETIRED RECORD and DEAD LINE. New OWNER question O6: how the newest version number stays when the last MIGRATE STEP is dead. Nothing was run.
+
+## 2026-11-06: TYPE version prior art
+
+**[Verified]** Added the research capture [TYPE version numbers in schema systems](../raw/research/type-versioning-prior-art-2026-11-06.md) for OWNER question O6: no observed system restarts a version counter; squashes keep the newest number. Nothing was run.
