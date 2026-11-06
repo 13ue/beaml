@@ -2,7 +2,7 @@
 id: planning-roasting-rounds
 kind: review-record
 status: open-objections
-updated: 2026-11-05
+updated: 2026-11-06
 ---
 
 # BEAML roasting rounds
@@ -114,6 +114,8 @@ See the [versioned source details](../../raw/requirements/2026-11-05-roasting-ro
 **[Inference]** Comparing BEAML to a prompt wrapper would ignore those capabilities. Typed failures and searchable traces alone do not differentiate the tools.
 **[Proposal]** Use BAML for one typed extraction and an idiomatic Elixir host for the domain operation. Give the host the same shared tools as the BEAML case.
 Pin the BAML build and verify its capabilities in the fixture. Test the newer line separately if it fits the same workflow.
+
+**[Verified]** Evidence update 2026-11-06, after the round. The disposition stays pending. The newer line is BAML v1, a general-purpose language with its own release line. It moved from the 0.23.1 nightlies to `baml-language-0.25.1` in two days. No 1.0 tag exists, and the workspace version says beta. The v0 docs now call v0 "the legacy DSL". This supports the objection: the baseline moves fast and overlaps more. A comparison must pin one toolchain build. [BAML v1 source page](../sources/baml-v1.md#versions-and-release-lines)
 
 ### 3. OTP restarts processes. It cannot settle an uncertain payment
 

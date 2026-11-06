@@ -283,3 +283,11 @@ Updated the workflow record, the [EXPERIMENT 0003 page](../experiments/0003-sour
 ## [2026-11-06] verify | EXPERIMENT 0003 final verification
 
 **[Verified]** A fresh final verification tested the run.py zero-test repair. `run_test.py` passed 5 tests. The real run passed 5/5 steps. A missing Rust test name now fails the compiler reference step. [Final verification](../experiments/0003-source-linked-replay/workflow/2026-11-06/run/result.json), [runner result](../experiments/0003-source-linked-replay/results/20261106T082750423575Z/result.json)
+
+## [2026-11-06] ingest | BAML v1 language and status
+
+**[Verified]** Read two new captures: [release status](../raw/research/baml/v1-status-2026-11-06.md) and [language and repository](../raw/research/baml/v1-language-repo-2026-11-06.md) at pin `989676dd5169497c0d2a8d8e1d10914e987ae262`. Nothing was run.
+**[Verified]** BAML v1 is a separate general-purpose language. Its release line is `baml-language-0.25.1`; no 1.0 tag exists. The v0 docs now call v0 "the legacy DSL"; v0 continues as `0.226.3`.
+**[Verified]** v1 records HTTP bodies by default, with an 8 MiB truncation limit. No replay exists on the default branch; pull request #3336 is still open. Durability is draft pull request #4956. No supervision, links or monitors were found.
+Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track labels in [BAML docs](sources/baml-documentation.md), [canary compiler](sources/baml-canary-compiler.md), [compiler walkthrough](concepts/compilers/baml.md), [source registry](sources/README.md) and [language/tooling](concepts/baml-language-and-tooling.md). Added the [BAML v1 vs BEAM/OTP](concepts/baml-language-and-tooling.md#baml-v1-vs-beamotp) section. Extended the [Observatory comparison](concepts/observability-and-replay.md#baml-v1-update-pin-989676dd-2026-11-06). Updated [BAML internals](sources/baml-internals.md), [licence](sources/baml-license.md) and an evidence note under [round 3, objection 2](planning/roasting-rounds.md#2-baml-is-a-moving-baseline-with-overlapping-features).
+**[Unknown]** The owner reports that v1 is maybe finished. The captures support "very far along", not "finished". Status words conflict upstream ("public beta", "private beta", "early access"). Wire-byte fidelity, vendored licences and the outcome of #4956 remain open.

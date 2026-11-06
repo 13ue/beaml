@@ -3,7 +3,7 @@ id: source-baml-canary-compiler
 title: "BAML: pinned canary language and compiler"
 kind: source
 status: researched
-updated: 2026-11-05
+updated: 2026-11-06
 ---
 
 # BAML: pinned canary language and compiler
@@ -35,5 +35,7 @@ The [FunctionSpec/streaming design note](https://github.com/BoundaryML/baml/blob
 ## Version and adoption caveat
 
 GitHub's latest-release API returned `baml-language-0.23.1-nightly.20261104.a` at retrieval, targeting `c83cef10dd18741b47c5a3fb5d2334d076ff6e17`, published `2026-11-05T09:07:44Z`, with `prerelease=false`. The nightly name and flag are both preserved as observations. Neither establishes stable compatibility. [Release](https://github.com/BoundaryML/baml/releases/tag/baml-language-0.23.1-nightly.20261104.a)
+
+**[Verified]** Update 2026-11-06: this track is BAML v1. Later releases are `baml-language-0.24.0`, `0.25.0` and `0.25.1` (2026-11-06). No 1.0 tag exists. The newer pin is `989676dd5169497c0d2a8d8e1d10914e987ae262`. [BAML v1 source page](baml-v1.md#versions-and-release-lines)
 
 **[Proposal]** BEAML should choose a compatibility target explicitly: inspired syntax, DSL interchange, parser behavior, or full runtime compatibility. The inspected code supports architectural comparison; it does not make any of those choices for this project.

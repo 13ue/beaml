@@ -52,17 +52,30 @@ The [repaired run](../../experiments/0002-http-correlation/results/20261105T2205
 
 ## BAML recorded-call debugging compared with EXPERIMENT 0003
 
-Upstream capabilities are not BEAML capabilities. BAML rows are documentation or code read on 2026-11-06, not run. [BAML docs](../sources/baml-documentation.md#debugging-and-replay-of-a-recorded-call-2026-11-06), [BAML code](../sources/baml-internals.md#recorded-calls-and-offline-parse-2026-11-06)
+Upstream capabilities are not BEAML capabilities. BAML rows are documentation or code read on 2026-11-06, not run. [BAML docs](../sources/baml-documentation.md#debugging-and-replay-of-a-recorded-call-2026-11-06), [BAML code](../sources/baml-internals.md#recorded-calls-and-offline-parse-2026-11-06), [BAML v1 at pin `989676dd`](../sources/baml-v1.md#observability)
 
 | Step | BAML | BEAML EXPERIMENT 0003 |
 |---|---|---|
 | Record the call | **[Verified]** v0 Collector keeps raw HTTP request/response and reply text. v1 recordings keep inputs, output, error, type arguments, network events and a source CAS id | **[Verified]** Host keeps the predecode response, one record per live receipt ([gate 3](../../experiments/0003-source-linked-replay/README.md#gate-status)) |
 | Find the source that ran | **[Verified]** v1 `processes.baml_source_code_content_id` | **[Verified]** Trace → SOURCE ID → archived declaration; other build rejected (gates 1–3) |
-| Re-run decode offline | **[Verified]** `b.parse` (v0) or `F@parse` (v1) on reply text, written by hand into a test | **[Proposal]** Same host decode on recorded bytes (gate 4, not started) |
-| Re-run the downstream decision | **[Unknown]** No built-in path. User code can implement `ai.Runner` or a fake `ai.Client` | **[Proposal]** Orders finish logic with substituted response (gate 4) |
-| Isolation and evidence checks | **[Unknown]** No live-call count, artifact check or invalid-record error found. Playground HTTP pinning is an open pull request | **[Proposal]** Zero live attempts, artifact check, missing/mismatched record errors (gates 4–5) |
+| Re-run decode offline | **[Verified]** `b.parse` (v0) or `F@parse` (v1) on reply text, written by hand into a test | **[Verified]** `OrdersApi.Replay.run/3` calls the live `PaymentHttp.decode/1` on the recorded bytes (gate 4) [notes](../../experiments/0003-source-linked-replay/workflow/2026-11-05/replay/notes.md) |
+| Re-run the downstream decision | **[Unknown]** No built-in path. User code can implement `ai.Runner` or a fake `ai.Client` | **[Verified]** Orders finish and PAYMENT validation run on the recorded response, with zero transport attempts (gate 4) [TEST](../../experiments/0003-source-linked-replay/workflow/2026-11-05/replay/test-result.json) |
+| Isolation and evidence checks | **[Unknown]** No live-call count, artifact check or invalid-record error found. Playground HTTP pinning is an open pull request | **[Verified]** Zero transport attempts; typed errors for missing response, operation, attempt, request, status and body digest mismatch (gates 4–5). The runner does not check the build identity [review](../../experiments/0003-source-linked-replay/workflow/2026-11-05/replay/review.md) |
 
 **[Inference]** BAML supports introspection plus offline re-parse. It does not offer a REPLAY RUN as the GLOSSARY defines it. Re-parse alone is reachable with a shared decode function and a test, in BAML or plain Elixir. A REPLAY RUN adds value only through the decision path, isolation and evidence errors. Even then a hand-written runner can meet it ([round 3, objection 4](../planning/roasting-rounds.md#4-fixture-replay-can-leave-the-language-claim-untested)).
+
+### BAML v1 update (pin `989676dd`, 2026-11-06)
+
+**[Verified]** Code read at pin `989676dd5169497c0d2a8d8e1d10914e987ae262`, not run. [Source page](../sources/baml-v1.md#observability)
+
+| Step | BAML v1 at the newer pin | Change from the table above |
+|---|---|---|
+| Record the call | Recording is on by default (`BAML_TELEMETRY=medium`). Network spans keep request and response bodies unless the publisher sets `http_bodies = false` | Resolves the earlier **[Unknown]** about the default body policy |
+| Body limits | A body over 8 MiB is recorded as truncated. Identical bodies share one CAS blob. Non-allowlisted header and query values are stored as SHA-256 hashes | New. **[Unknown]** Wire-byte fidelity is still open |
+| Query | `baml query` runs SQL over local recordings or Boundary Cloud | Unchanged |
+| Replay | No replay on the default branch. Pull request #3336 is still open, last update 2026-04-08. Draft #4956 resumes from a heap snapshot; it is not record and replay | Unchanged; #4956 is new nearby work |
+
+**[Inference]** BAML v1 defaults differ from the BEAML Observatory requirement. The BEAML requirement sets payloads OFF by default; BAML records bodies by default and hashes non-allowlisted header values. A predictable-domain hash can still reveal a value ([OTel guidance](https://opentelemetry.io/docs/security/handling-sensitive-data/)). This is a difference in policy, not a defect claim.
 
 ## Replay is a separately consented artifact
 

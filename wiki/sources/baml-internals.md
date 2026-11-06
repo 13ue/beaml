@@ -48,6 +48,8 @@ Paths below are under `baml_language/crates/` at the pin.
 
 **[Inference]** BAML v1 records enough to re-parse a failed call offline. It has no built-in REPLAY RUN with identity checks or a live-call count. **[Unknown]** Exact wire-byte fidelity of the stored body and the default body-recording policy.
 
+**[Verified]** Update 2026-11-06: at the newer pin `989676dd5169497c0d2a8d8e1d10914e987ae262`, network spans record bodies by default, with an 8 MiB truncation limit. Wire-byte fidelity is still **[Unknown]**. [BAML v1 source page](baml-v1.md#observability)
+
 ## Correction scope
 
 The earlier [architecture-prose note](baml-canary-compiler.md) is now qualified: conceptual TIR corresponds to actual `hir_ty`; the concrete query is per-body inference. Engine README epoch-GC prose lags permit-based source. Established SDK docs' nullable partial types/Jinja syntax differ from canary shared T/backtick/colon syntax. Neither track should be applied silently to the other. [Correction record](../../raw/research/baml-internals/record-2026-11-05.md)

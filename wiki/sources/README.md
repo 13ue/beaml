@@ -1,20 +1,21 @@
 ---
 id: source-registry
 status: evidence-index
-updated: 2026-11-05
+updated: 2026-11-06
 ---
 
 # Source registry
 
-This registry indexes evidence, not implementation dependencies. All research was accessed 2026-11-05. Exact URLs, attribution, coverage and restrictions are recorded in each source page and linked raw provenance. **[Verified]** means read against upstream evidence, not executed in BEAML. Mutable documentation is date-pinned; version/commit-pinned sources are identified explicitly.
+This registry indexes evidence, not implementation dependencies. Most research was accessed 2026-11-05; later access dates are on each source page. Exact URLs, attribution, coverage and restrictions are recorded in each source page and linked raw provenance. **[Verified]** means read against upstream evidence, not executed in BEAML. Mutable documentation is date-pinned; version/commit-pinned sources are identified explicitly.
 
 | Source page | Origin / version | Evidence role | Retained coverage / main limit |
 |---|---|---|---|
 | [Engineering specification](engineering-spec-v0.5.md) | Supplied PDF dated 2026-11-05; v0.3 baseline +v0.4/v0.5 appendices; SHA-256 in provenance | **[Requirement]** Intended BEAML product behavior | Full original + 14-page text extraction; design proposal, no implemented/measured/security-proof claim |
 | [Karpathy LLM Wiki](karpathy-llm-wiki.md) | Andrej Karpathy Gist revision ac46de1ad27f92b28ac95459c782c07f6b8c964a | KB workflow inspiration | Selected researcher notes, not full text/comments; license not established |
 | [Decision4](decision4.md) | Habitat Thinking 1.0.1, commit 5ccb19fc1fb8c6327d4edd8832550f7e8c40853e | Decision-consequence lens | Selected unchanged files; CC BY 4.0 text / MIT schema-examples; not inherited agent policy |
-| [BAML established docs](baml-documentation.md) | BoundaryML mutable official docs | Typed prompts, SDK/schema/provider/testing/stream concepts | Selected attributed observations; not a single versioned language release |
+| [BAML established docs](baml-documentation.md) | BoundaryML mutable official docs (BAML v0, "legacy DSL") | Typed prompts, SDK/schema/provider/testing/stream concepts | Selected attributed observations; not a single versioned language release |
 | [BAML canary compiler](baml-canary-compiler.md) | BoundaryML commit a5db82f06c1da0dfac28e283a15d19d37a3f2cf2 | Compiler/type/runtime/query precedent | Selected source inspection, not executed; broader than established DSL docs; BexVM differs from OTP |
+| [BAML v1](baml-v1.md) | BoundaryML commit 989676dd5169497c0d2a8d8e1d10914e987ae262; release `baml-language-0.25.1`; accessed 2026-11-06 | v1 language, stdlib, runtime, hosts, tooling, observability, release status | Selected code read and release/web observations, not executed; no 1.0; PR descriptions only |
 | [BAML reuse/license](baml-license.md) | Same pinned repository, Apache 2.0 root license | Reuse obligations and scope | Not full dependency/legal clearance; no BAML implementation copied |
 | [Compiler/tooling](compiler-tooling.md) | Rowan 0.17.0, Proptest 1.12.0; LSP 3.17 pinned commit; rustc/rust-analyzer/Salsa docs | Lossless syntax, queries, IR, LSP and test precedents | Mixed pinned/mutable references; no dependencies selected or prototype executed |
 | [BEAM/OTP/Phoenix](beam-otp-phoenix.md) | OTP 29.1.2, Elixir 1.20.x observed; LiveView source v1.2.13; Phoenix.HTML 4.3.0 | Runtime/Mix/HEEx feasibility | Selected source/docs, mixed cached doc versions; no compatibility tuple validated |
@@ -63,7 +64,7 @@ The expanded [information-flow source](information-flow-security.md) and [Observ
 Raw captures are immutable historical records. Read the maintained source/mechanism pages for the current interpretation:
 
 - **BAML architecture prose versus code:** the conceptual TIR named in prose is implemented by `baml_compiler2_hir_ty`; actual MIR/emitter imports/infer_body establish the wiring. BexEngine's older epoch-GC description is stale relative to its heap-permit/parking/root-relocation implementation. [Corrected source trace](baml-internals.md), [compiler walkthrough](../concepts/compilers/baml.md).
-- **BAML version tracks:** established SDK nullable partial types/Jinja/no-colon fields differ from pinned canary shared-T/schema-default stream behavior and colon/backtick interpolation. No single general compatibility contract follows. [Streaming comparison](../concepts/structured-output-and-streaming.md), [track distinction](../concepts/compilers/baml.md#three-distinctions-before-reuse).
+- **BAML version tracks:** established SDK nullable partial types/Jinja/no-colon fields differ from pinned canary shared-T/schema-default stream behavior and colon/backtick interpolation. No single general compatibility contract follows. The established track is BAML v0; the canary track is BAML v1, a separate general-purpose language ([v1 source](baml-v1.md)). [Streaming comparison](../concepts/structured-output-and-streaming.md), [track distinction](../concepts/compilers/baml.md#three-distinctions-before-reuse).
 - **OTP pipeline/history:** current tagged `compile.erl` uses integrated Core→SSA lowering; an old Kernel-related pass name/comment does not establish a separate current Kernel IR. Current binary structures also supersede the guide's acknowledged older layout description. [Compiler trace](../concepts/beam/execution-and-compilation.md), [memory trace](../concepts/beam/terms-memory-and-gc.md).
 - **GHC provenance refinement:** initial selected notes could not resolve the release tag; a later immutable ref-resolution record establishes the full mirror commit. The maintained GHC pages use it, without claiming a local build/signature verification.
 

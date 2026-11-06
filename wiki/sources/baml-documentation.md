@@ -8,6 +8,8 @@ updated: 2026-11-06
 
 # BAML: established documentation track
 
+**[Verified]** Correction 2026-11-06: this track is BAML v0. The pages now call it "the legacy DSL", and v0 continues as a separate release line (`0.226.3`). BAML v1 is a separate general-purpose language with its own release line. "Established" means older and widely used, not current. See [BAML v1](baml-v1.md).
+
 Status: researched source summary, not BEAML specification. Retrieved 2026-11-05. These official pages are mutable and not pinned to a single package release. See [raw record](../../raw/research/baml/research-record.md) and [provenance](../../raw/research/baml/provenance.json).
 
 **[Verified]** Source observations below were checked directly, not tested in BEAML. Publisher: BoundaryML. Upstream source/code remains subject to its own license; these are attributed research summaries.

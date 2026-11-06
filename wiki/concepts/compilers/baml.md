@@ -3,7 +3,7 @@ id: concept-baml-source-walkthrough
 title: BAML compiler, runtime schema and stream mechanisms
 kind: synthesis
 status: inspected-and-proposed
-updated: 2026-11-05
+updated: 2026-11-06
 ---
 
 # BAML compiler, runtime schema and stream mechanisms
@@ -14,8 +14,8 @@ updated: 2026-11-05
 
 | Track | What the evidence actually supports |
 |---|---|
-| Established documentation / engine | Schema-oriented functions, Jinja raw prompts, generated host clients/nullable partial types; not one release-pinned language spec |
-| Pinned `baml_language` compiler2 / Bex runtime | General typed code, colon fields/config, backtick expression interpolation, ordinary synthesized companions, runtime nominal types and shared-T streams |
+| Established documentation / engine (BAML v0, now "legacy DSL") | Schema-oriented functions, Jinja raw prompts, generated host clients/nullable partial types; not one release-pinned language spec |
+| Pinned `baml_language` compiler2 / Bex runtime (BAML v1, 0.x beta; [v1 source](../../sources/baml-v1.md)) | General typed code, colon fields/config, backtick expression interpolation, ordinary synthesized companions, runtime nominal types and shared-T streams |
 | BEAML proposal | Rust compiler to generated Elixir/Erlang, independent type/effect/refinement/security semantics and OTP runtime |
 
 **[Verified]** Pinned `streaming_partial_parse.baml` concretely uses colon field/client/prompt syntax and `${...}` interpolation. This does not establish the whole accepted grammar; it establishes that “BAML syntax” must be version-scoped. [Fixture](https://github.com/BoundaryML/baml/blob/a5db82f06c1da0dfac28e283a15d19d37a3f2cf2/baml_language/crates/baml_tests/baml_src/ns_streaming_partial_parse/streaming_partial_parse.baml), [established-doc track](../../sources/baml-documentation.md)

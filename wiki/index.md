@@ -58,7 +58,8 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 
 ## BAML product concepts and reuse
 
-- [Established BAML docs](sources/baml-documentation.md): mutable DSL/provider/SDK documentation track.
+- [Established BAML docs](sources/baml-documentation.md): mutable BAML v0 (legacy DSL)/provider/SDK documentation track.
+- [BAML v1](sources/baml-v1.md): general-purpose v1 language, stdlib, runtime, hosts, tooling, observability and 0.x beta status at pin `989676dd`.
 - [Pinned BAML canary overview](sources/baml-canary-compiler.md): broader language/type/compiler track, linked to actual implementation detail.
 - [BAML licensing](sources/baml-license.md): pinned root license and scoped reuse obligations.
 - [BAML language/tooling](concepts/baml-language-and-tooling.md): inspiration versus compatibility decisions.
