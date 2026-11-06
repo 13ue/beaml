@@ -1,11 +1,12 @@
 {
   "experiment": "0003-source-linked-replay",
-  "phase": "replay-run-and-invalid-record-red-revision-2-separate-runner",
+  "phase": "replay-run-and-invalid-record-red-revision-3-status-and-request-checks",
   "status": "red-confirmed",
   "authorization": {
     "scope": "RED test, evidence and a runner entry stub without logic",
     "owner_red_review": "pending",
-    "production_changes_authorized": "entry stub only (OrdersApi.Replay.run/3 returns {:error, :not_implemented})"
+    "production_changes_authorized": "entry stub only (OrdersApi.Replay.run/3 returns {:error, :not_implemented})",
+    "agent_red_review": "red-review.md (revision 2); F1-F3 accepted into revision 3"
   },
   "worker": "fresh Claude Opus 5.5 subagent; owner chose this instead of GPT-6.1 Sol",
   "command": [
@@ -21,7 +22,7 @@
     "malformed service parser crash",
     "run.py"
   ],
-  "revision": 2,
+  "revision": 3,
   "revision_1": {
     "test": "test_isolated_replay_reproduces_first_call_and_rejects_invalid_records",
     "test_sha256": "d316a542b6e3ef9ac2f66c6a5ea8f0a8cdd6c71d7fe9523e02051903c888f250",
@@ -62,12 +63,13 @@
     "fresh Claude Opus 5.5 workers instead of GPT-6.1 Sol"
   ],
   "test": "test_separate_runner_replays_first_call_and_rejects_invalid_records",
-  "test_sha256": "a07034f90f3c3026f5499af3b05508f6e9a26429223e6c7cd07f5d23d2a510f9",
-  "run": "../../../results/20261106T074837838124Z/result.json",
+  "test_sha256": "e38a88cf5a442d698f9e9d4b237ca1c78e8fee384b252d55eb624e0fd2801b94",
+  "run": "../../../results/20261106T075903031507Z/result.json",
   "scaffolding": {
     "file": "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/replay.ex",
     "sha256": "0b3a531b63dbac848f2bf0e359e8b043d45de53dcb97ee4cee7b3b02d3192e32",
-    "content": "OrdersApi.Replay.run/3 returns {:error, :not_implemented}; no logic"
+    "content": "OrdersApi.Replay.run/3 returns {:error, :not_implemented}; no logic",
+    "sha256_unchanged_revision_3": true
   },
   "production_sha256_unchanged": {
     "experiments/0002-http-correlation/apps/orders_api/lib/orders_api/payment_http.ex": "b0f5bba3f4d7921f3d520dd9e92244bdb7fa76dd1949dbffc651770c19ca67f5",
@@ -93,6 +95,36 @@
     "replay_missing_response: expected {error: missing_response}, all counts 0; actual {error: not_implemented}, all counts 0",
     "replay_operation_mismatch: expected {error: operation_mismatch}; actual {error: not_implemented}",
     "replay_attempt_mismatch: expected {error: attempt_mismatch}; actual {error: not_implemented}",
-    "replay_body_digest_mismatch: expected {error: body_digest_mismatch}; actual {error: not_implemented}"
-  ]
+    "replay_body_digest_mismatch: expected {error: body_digest_mismatch}; actual {error: not_implemented}",
+    "replay_status_mismatch: expected {error: status_mismatch}, all counts 0; actual {error: not_implemented}, all counts 0",
+    "replay_request_mismatch: expected {error: request_mismatch}, all counts 0; actual {error: not_implemented}, all counts 0"
+  ],
+  "revision_2": {
+    "test": "test_separate_runner_replays_first_call_and_rejects_invalid_records",
+    "test_sha256": "a07034f90f3c3026f5499af3b05508f6e9a26429223e6c7cd07f5d23d2a510f9",
+    "run": "../../../results/20261106T074837838124Z/result.json",
+    "assertion_failures": [
+      "replay_first_call: expected {ok: PAYMENT}, prepare 1, decode 1, finish 1, valid_payment! 1, transport/router/authorize/connect 0; actual {error: not_implemented}, all counts 0",
+      "replay_a1_noncanonical_body: same expected and actual as replay_first_call",
+      "replay_missing_response: expected {error: missing_response}, all counts 0; actual {error: not_implemented}, all counts 0",
+      "replay_operation_mismatch: expected {error: operation_mismatch}; actual {error: not_implemented}",
+      "replay_attempt_mismatch: expected {error: attempt_mismatch}; actual {error: not_implemented}",
+      "replay_body_digest_mismatch: expected {error: body_digest_mismatch}; actual {error: not_implemented}"
+    ],
+    "review": "red-review.md"
+  },
+  "revision_3_changes": [
+    "F1: harness guards {:error, reason} with is_atom; a non-atom reason is reported as inspect(reason)",
+    "F2: new case replay_status_mismatch (first record status 503, body unchanged)",
+    "F3: new case replay_request_mismatch (first record request order_id order-2)"
+  ],
+  "review_disposition": {
+    "F1": "accepted (revision 3)",
+    "F2": "accepted (revision 3)",
+    "F3": "accepted (revision 3)",
+    "F4": "GREEN review checklist: router.ex SHA-256 unchanged",
+    "F5": "GREEN review checklist: live authorize/2 and runner call one shared decode function",
+    "F6": "dropped (low)",
+    "F7": "fixed in README"
+  }
 }

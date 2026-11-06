@@ -56,7 +56,7 @@ flowchart LR
 | Compiler reference | Function reference from the checked declaration | **[Verified]** RED, GREEN, independent TEST and review passed | [Notes](workflow/2026-11-05/notes.md), [verification](workflow/2026-11-05/result.json), [GREEN run](results/20261105T225807421990Z/result.json) |
 | Live evidence and exact source lookup, with repair | 1–3 | **[Verified]** RED, GREEN, independent TEST and review passed. The repair adds receipt order and window checks | [Notes](workflow/2026-11-05/lookup/notes.md), [lookup TEST run](results/20261105T232448420501Z/result.json), [repair TEST record](workflow/2026-11-05/lookup/repair-test-result.json), [repair review](workflow/2026-11-05/lookup/repair-review.md) |
 | Predecode response capture and transport observer | 4 (live part) | **[Verified]** RED, owner RED review, GREEN, independent TEST (10/10 checks) and review passed. One response record per live receipt | [Notes](workflow/2026-11-05/capture/notes.md), [TEST record](workflow/2026-11-05/capture/test-result.json), [TEST run](results/20261106T063936223444Z/result.json), [review](workflow/2026-11-05/capture/review.md) |
-| Isolated replay and invalid-record controls | 4–5 | **[Unknown]** Not started | — |
+| Isolated replay and invalid-record controls | 4–5 | RED confirmed (revision 3), agent RED review | [Notes](workflow/2026-11-05/replay/notes.md#red-revision-3-status-and-request-checks), [RED run](results/20261106T075903031507Z/result.json) |
 
 ```mermaid
 flowchart LR

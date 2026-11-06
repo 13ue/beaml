@@ -16,3 +16,12 @@
 {"ts": "2026-11-06T07:48:59.248495+00:00", "source": "cli", "action": "step", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "replay_vm_observer_control_counted_transport"}
 {"ts": "2026-11-06T07:49:02.022041+00:00", "source": "cli", "action": "step", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "replay_cases_ran"}
 {"ts": "2026-11-06T07:49:02.383114+00:00", "source": "cli", "action": "fail", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "replay_assertions_failed"}
+{"ts": "2026-11-06T07:59:03.032179+00:00", "source": "cli", "action": "start", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "running"}
+{"ts": "2026-11-06T07:59:19.234658+00:00", "source": "cli", "action": "step", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "fresh_releases_match_archived_beams"}
+{"ts": "2026-11-06T07:59:19.319692+00:00", "source": "cli", "action": "step", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "receipt_1_verified"}
+{"ts": "2026-11-06T07:59:19.366766+00:00", "source": "cli", "action": "step", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "receipt_2_verified"}
+{"ts": "2026-11-06T07:59:21.428191+00:00", "source": "cli", "action": "step", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "live_baseline_and_records_verified"}
+{"ts": "2026-11-06T07:59:22.908594+00:00", "source": "cli", "action": "step", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "a1_stub_record_retained"}
+{"ts": "2026-11-06T07:59:23.206553+00:00", "source": "cli", "action": "step", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "replay_vm_observer_control_counted_transport"}
+{"ts": "2026-11-06T07:59:25.490750+00:00", "source": "cli", "action": "step", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "replay_cases_ran"}
+{"ts": "2026-11-06T07:59:26.202177+00:00", "source": "cli", "action": "fail", "target": "test_separate_runner_replays_first_call_and_rejects_invalid_records", "result": "replay_assertions_failed"}

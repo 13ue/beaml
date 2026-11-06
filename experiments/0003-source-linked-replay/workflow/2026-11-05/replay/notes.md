@@ -138,3 +138,63 @@ See the [output](red-output.log) (revision 2 appended), [run result](../../../re
 - **[Unknown]** A raised error in the runner (bad order, bad Base64, bad JSON) is reported as `raised`. Should these become typed reasons?
 - **[Unknown]** The test cannot show that live and runner call the same decode function. The GREEN review must check the shared call (A2).
 - **[Unknown]** A3 / D002 stays open. Only the `OrdersBeamlSpike` hash is checked.
+
+## RED revision 3: status and request checks
+
+### Changes
+
+**[Verified]** The main agent accepted three findings of the [RED review](red-review.md). This revision adds them to the test. All other cases and assertions stay unchanged. The test name stays unchanged.
+
+- **F1.** The harness called `Atom.to_string(reason)` outside the `try`. A non-atom reason crashed the eval and gave `test_setup_failed`. Now a guard `when is_atom(reason)` handles atoms. A fallback clause reports `inspect(reason)`. A non-atom reason is now a reported mismatch, not a crash. [F1](red-review.md#f1--low-fix-before-green-non-atom-error-reason-crashes-the-harness)
+- **F2.** The recorded `status` was not checked. A runner that ignored `status` passed. New case `replay_status_mismatch`: the first record with `status` 503, body unchanged. Expected `{error: status_mismatch}`. [F2](red-review.md#f2--medium-owner-decision-recorded-status-is-not-checked)
+- **F3.** The record `request` was not compared with the prepared request. New case `replay_request_mismatch`: the first record with `request` `{"order_id": "order-2"}`. Expected `{error: request_mismatch}`. [F3](red-review.md#f3--medium-owner-decision-record-request-is-not-compared-with-the-prepared-request)
+
+**[Proposal]** Both new cases use the invalid-record contract. Decode, finish, `valid_payment!`, router, `authorize/2`, `connect` and transport must be zero. Prepare is not constrained. The runner contract now has six reasons: `missing_response`, `operation_mismatch`, `attempt_mismatch`, `body_digest_mismatch`, `status_mismatch`, `request_mismatch`.
+
+### Run
+
+```sh
+python3 -B experiments/0003-source-linked-replay/tests/replay_run_test.py
+```
+
+Test: `test_separate_runner_replays_first_call_and_rejects_invalid_records` in [replay_run_test.py](../../../tests/replay_run_test.py), SHA-256 `e38a88cf5a442d698f9e9d4b237ca1c78e8fee384b252d55eb624e0fd2801b94`. Run directory: [results/20261106T075903031507Z](../../../results/20261106T075903031507Z/result.json). Exit code 1. Run serially on loopback.
+
+**[Verified]** All setup, baseline and control assertions passed. All commands exited 0, including the 9 eval runs. Fresh releases matched the archived BEAMs. Two HTTP 200 calls returned the PAYMENT with one correlated trace each. Transport `[1, 2]`. Both releases exited 0. The A1 record bytes equal the sent bytes. The observer control counted transport 1, `authorize/2` 1, `connect` 1, prepare 1 and router 0. Only `kernel`, `stdlib`, `compiler`, `elixir` and `logger` ran. The loaded `OrdersBeamlSpike` hash equals the run record. The original `responses.jsonl` hash did not change during the run.
+
+| Assertion | Expected | Actual |
+| --- | --- | --- |
+| `replay_first_call` | `{ok: PAYMENT}`, prepare 1, decode 1, finish 1, `valid_payment!` 1, others 0 | `{error: not_implemented}`, all counts 0 |
+| `replay_a1_noncanonical_body` | Same as `replay_first_call` | Same as `replay_first_call` |
+| `replay_missing_response` | `{error: missing_response}`, all counts 0 | `{error: not_implemented}`, all counts 0 |
+| `replay_operation_mismatch` | `{error: operation_mismatch}`, all counts 0 | `{error: not_implemented}`, all counts 0 |
+| `replay_attempt_mismatch` | `{error: attempt_mismatch}`, all counts 0 | `{error: not_implemented}`, all counts 0 |
+| `replay_body_digest_mismatch` | `{error: body_digest_mismatch}`, all counts 0 | `{error: not_implemented}`, all counts 0 |
+| `replay_status_mismatch` | `{error: status_mismatch}`, all counts 0 | `{error: not_implemented}`, all counts 0 |
+| `replay_request_mismatch` | `{error: request_mismatch}`, all counts 0 | `{error: not_implemented}`, all counts 0 |
+
+"All counts 0" in the invalid rows excludes prepare, which is not constrained.
+
+**[Verified]** This is a genuine behavior RED. The 6 invalid cases fail only on the result value. The two valid cases fail on the result value and on the missing decision counts (prepare, decode, finish, `valid_payment!`). The isolation counts already hold (zero), so GREEN must keep them.
+
+**[Inference]** The F1 fallback did not run in this RED: the stub returns the atom `not_implemented`. It matters only when GREEN returns a non-atom reason.
+
+**[Verified]** No production file changed. SHA-256 before and after the run: `replay.ex` `0b3a531b…92e32`, `payment_http.ex` `b0f5bba3…a67f5`, `router.ex` `67ce7dc8…6918d`.
+
+See the [output](red-output.log) (revision 3 appended), [run result](../../../results/20261106T075903031507Z/result.json), [commands](../../../results/20261106T075903031507Z/commands.json), [input hashes](../../../results/20261106T075903031507Z/input-hashes.json), [output hashes](../../../results/20261106T075903031507Z/output-hashes.json), [replay reports](../../../results/20261106T075903031507Z/replay/) and [action events](action-events.jsonl).
+
+### Open questions
+
+- **[Unknown]** F4 and F5 move to the GREEN review checklist. See the [disposition](red-review.md#disposition-main-agent-2026-11-06).
+- **[Unknown]** The order of checks among the six reasons is not tested. Each derivative changes one field only.
+
+### RED revision 3 check (fresh agent, Devil's Advocate code mode)
+
+**[Verified]** Verdict PASS WITH CHANGES. No critical or high objection. Genuine behavior RED. The ledger matches the run evidence.
+
+**[Proposal]** Disposition (main agent, 2026-11-06): the medium objections move to the GREEN review checklist. They need no new RED round.
+
+- **O1, medium.** The status case uses only 503. A GREEN with a rule like `status >= 400` passes, but then a 201 record replays as ok. Live `authorize/2` accepts exactly 200. GREEN review: the runner accepts exactly status 200.
+- **O2, medium.** Generated `prepare/1` is identity, so the request case cannot tell "record request equals the input order" from "record request equals `prepare(order)`". GREEN review: the runner compares the record request with the result of `prepare/1`.
+- **O3, low.** A self-contradicting sentence in this section. Fixed.
+
+GREEN review checklist for gate 4: `router.ex` SHA-256 unchanged (F4). Live `authorize/2` and the runner call one shared decode function (F5). Status rule is exactly 200 (O1). Request check uses `prepare/1` (O2).

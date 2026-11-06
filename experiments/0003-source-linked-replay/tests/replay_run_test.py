@@ -1,4 +1,4 @@
-"""Check the separate REPLAY RUN runner on the first Orders call and the invalid replay records (gate 4, RED revision 2)."""
+"""Check the separate REPLAY RUN runner on the first Orders call and the invalid replay records (gate 4, RED revision 3)."""
 import base64
 import datetime
 import hashlib
@@ -37,8 +37,9 @@ WATCHED = ("OrdersApi.Router.call/2", "OrdersApi.PaymentHttp.authorize/2", ":gen
 # replay errors, a separate runner module in the Orders app (option A), a body digest check.
 # [Proposal] Runner contract for GREEN: `OrdersApi.Replay.run(order, trace_id, records)` returns
 # `{:ok, payment}` or `{:error, reason}`. Reasons: missing_response, operation_mismatch,
-# attempt_mismatch, body_digest_mismatch. The runner shares the live decode and validation function
-# (review A2). It never calls the router, `authorize/2` or `:gen_tcp.connect/4`.
+# attempt_mismatch, body_digest_mismatch, status_mismatch, request_mismatch (revision 3).
+# The runner shares the live decode and validation function (review A2).
+# It never calls the router, `authorize/2` or `:gen_tcp.connect/4`.
 # The retained Orders release runs this harness with `bin/orders eval`: no application starts.
 # BEAM call counts observe the runner from outside. `:json.decode/1` counts decode entries.
 HARNESS = r'''
@@ -60,7 +61,9 @@ result =
   end
 report = case result do
   {:ok, payment} -> %{ok: payment}
-  {:error, reason} -> %{error: Atom.to_string(reason)}
+  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}
+  # Review F1: a non-atom reason is a reported mismatch, not a harness crash.
+  {:error, reason} -> %{error: inspect(reason)}
   {:raised, name} -> %{raised: name}
   other -> %{unexpected: inspect(other)}
 end
@@ -319,6 +322,9 @@ def test_separate_runner_replays_first_call_and_rejects_invalid_records(run, res
             "attempt_mismatch": [{**records[0], "attempt": ATTEMPT + 1}, *records[1:]],
             "body_digest_mismatch": [{**records[0], "body_base64": base64.b64encode(tampered).decode()},
                                      *records[1:]],
+            # Review F2: other recorded status, body unchanged. Review F3: other recorded request.
+            "status_mismatch": [{**records[0], "status": 503}, *records[1:]],
+            "request_mismatch": [{**records[0], "request": {"order_id": "order-2"}}, *records[1:]],
         }
         for code, derivative in derivatives.items():
             actual = run_replay(code.replace("_", "-"), first_trace, derivative)
