@@ -229,3 +229,6 @@ fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id
 - **[Requirement]** Long-term direction: applications are written in BEAML. Only a pure interface layer (for example LiveView) stays in Elixir and uses generated event handlers.
 - **[Proposal]** Main agent: the generated HTTP code may use a socket or an HTTP library inside. The 0003 live tests run again against the changed router.
 - **[Unknown]** Open: the BEAML syntax of the HTTP call itself.
+- **[Requirement]** BEAML has a pipe operator `|>`. The flow `place` uses it instead of nested calls.
+- **[Requirement]** Formatter rule: consecutive `effect` lines (no blank line between them) align three columns: the input type after the longest name, `->` after the longest input type, `=` after the longest output type. A blank line starts a new block.
+- **[Proposal]** `effect` marks every call that leaves the function: HTTP, other apps (also over BEAM messages), database, queue, file, time, randomness. Every `effect` result is recorded; a REPLAY RUN substitutes it. The keyword name is still open.
