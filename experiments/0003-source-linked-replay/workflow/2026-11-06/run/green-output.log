@@ -1,0 +1,10 @@
+$ python3 -B experiments/0003-source-linked-replay/tests/run_test.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.438s
+
+OK
+exit=0
+$ python3 experiments/0003-source-linked-replay/run.py
+{"run": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T081942619923Z", "status": "pass"}
+exit=0

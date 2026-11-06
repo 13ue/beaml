@@ -27,3 +27,36 @@
 - New test `test_default_steps_match_gate_commands`. It runs `run.py --list-steps` without `BEAML_0003_RUN_CONFIG`. It expects JSON `{"steps": [{"name", "command"}]}` with the five names, order and exact argv. The repair argv ends with `--source-run {result_dir:trace-lookup}`. The test checks that the manifest and the four scripts exist. It starts no step.
 - GREEN pass rule: all `run_test.py` tests pass. The TEST phase also runs `python3 experiments/0003-source-linked-replay/run.py` once for real. It must exit 0, and the repair step `result.json` `source_run` must equal the lookup step `result_dir` of the same run.
 - RED: `python3 -B experiments/0003-source-linked-replay/tests/run_test.py` from repo root. 4 tests, 4 failures, 0 errors, exit 1. Each fails on the stub exit code: `2 != 0` (all pass, default steps), `2 != 1` (two fail cases), "not implemented". See [red-output.log](red-output.log).
+
+## GREEN (2026-11-06)
+- Change: `run.py` only (stub to runner). 138 lines. No test, gate code or wiki change.
+- `run.py` runs the five default steps serially from the repo root. `--list-steps` prints them as JSON.
+- The repair step gets `--source-run <lookup result_dir>`. The runner replaces the token or appends the pair. It skips repair when lookup fails or gives no dir.
+- The run dir keeps `<step>.stdout` and `<step>.stderr` for each started step (O2).
+- A step that cannot start gets `status: fail`, `exit_code: null` and a runner line in its stderr. Later steps run. `result.json` and the `finish` event stay (O3).
+- Event logging catches all errors. Events have no paths.
+- Test SHA-256 before and after: `f477226bc24b3acdd6a4e5f6dc1f11fd73d8f00f07a8add04a3e9f312a874f57` (equal).
+
+**Commands (repo root)**
+- `python3 -B experiments/0003-source-linked-replay/tests/run_test.py`: 4 tests, OK, exit 0.
+- `python3 -m py_compile experiments/0003-source-linked-replay/run.py`: exit 0.
+- `python3 experiments/0003-source-linked-replay/run.py`: exit 0, status pass, about 63 s.
+- O3 check: scratch config with a missing program for `trace-lookup`. Exit 1. Lookup `fail`, repair `skipped`, later steps `pass`, last event `finish`/`fail`.
+- O3 check: action log path not writable. No exception. Exit 1 (expected from the missing program).
+
+**Run dirs**
+- Runner: `results/20261106T081942619923Z`.
+- trace-lookup: `results/20261106T081944824172Z`.
+- trace-lookup-repair: `results/20261106T082004790073Z`. Its `source_run` equals the lookup dir.
+- response-capture: `results/20261106T082005025365Z`.
+- replay-run: `results/20261106T082023566609Z`.
+- compiler-reference: no result dir. Its evidence is `compiler-reference.stdout` in the runner dir.
+
+**Checklist**
+- All `run_test.py` tests pass: yes.
+- Real run exit 0, five steps `pass`, every exit code 0: yes.
+- Repair `source_run` equals lookup `result_dir`: yes.
+- O2 stdout per step retained: yes.
+- O3 missing program: yes.
+- Python 3.9 compatible: yes (local Python 3.9.6).
+- Evidence: [green-output.log](green-output.log), [green-result.json](green-result.json).

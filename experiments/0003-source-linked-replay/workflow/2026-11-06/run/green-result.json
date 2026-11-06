@@ -1,0 +1,71 @@
+{
+  "phase": "GREEN",
+  "date": "2026-11-06",
+  "changed_files": [
+    "experiments/0003-source-linked-replay/run.py"
+  ],
+  "run_py_lines": 138,
+  "test_sha256_before": "f477226bc24b3acdd6a4e5f6dc1f11fd73d8f00f07a8add04a3e9f312a874f57",
+  "test_sha256_after": "f477226bc24b3acdd6a4e5f6dc1f11fd73d8f00f07a8add04a3e9f312a874f57",
+  "checks": [
+    {
+      "command": "python3 -B experiments/0003-source-linked-replay/tests/run_test.py",
+      "exit_code": 0,
+      "tests": 4,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "command": "python3 -m py_compile experiments/0003-source-linked-replay/run.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 experiments/0003-source-linked-replay/run.py",
+      "exit_code": 0,
+      "run_dir": "experiments/0003-source-linked-replay/results/20261106T081942619923Z",
+      "steps": [
+        {
+          "name": "compiler-reference",
+          "exit_code": 0,
+          "status": "pass",
+          "result_dir": null
+        },
+        {
+          "name": "trace-lookup",
+          "exit_code": 0,
+          "status": "pass",
+          "result_dir": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T081944824172Z"
+        },
+        {
+          "name": "trace-lookup-repair",
+          "exit_code": 0,
+          "status": "pass",
+          "result_dir": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082004790073Z"
+        },
+        {
+          "name": "response-capture",
+          "exit_code": 0,
+          "status": "pass",
+          "result_dir": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082005025365Z"
+        },
+        {
+          "name": "replay-run",
+          "exit_code": 0,
+          "status": "pass",
+          "result_dir": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082023566609Z"
+        }
+      ],
+      "repair_source_run_equals_lookup_result_dir": true
+    },
+    {
+      "check": "O2 one stdout and stderr file per step in run dir",
+      "status": "pass"
+    },
+    {
+      "check": "O3 missing program fails only its step; result.json and finish event written (scratch config)",
+      "status": "pass",
+      "exit_code": 1
+    }
+  ],
+  "status": "pass"
+}
