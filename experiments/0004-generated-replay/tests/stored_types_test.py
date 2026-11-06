@@ -1,6 +1,8 @@
 """EXPERIMENT 0004 slice 2 (README revision 6): compile cases against stored TYPE VERSIONS.
 
 Cases C1, C2 (build), C3 (build), C4, C5, C6, C7, C8, C10 (build with v1), C14 (build), C15.
+Repair cases: C1b (bad TYPE VERSION at line 2 after a good one), C17 (fields and fingerprint disagree),
+C18 (help line `2 -> 3`: newest version 2, stored version 2 without a path).
 Each case runs twice:
   Fixture   the case sources in drift/ and slice2/, the RECORD SNAPSHOTS in stored/;
   Template  the same sources and snapshots built from a template with random TYPE and field names,
@@ -90,6 +92,9 @@ FIXTURE_NAMES = Names("Payment", "order_id", "status", "state", "reference", "st
 FIXTURE_SOURCES = {"base": "arms/gen/orders.beaml", "N": "drift/N/orders.beaml", "R": "drift/R/orders.beaml",
                    "N-chain": "slice2/N-chain/orders.beaml", "N-statuz": "slice2/N-statuz/orders.beaml",
                    "N2": "slice2/N2/orders.beaml", "N2-chain": "slice2/N2-chain/orders.beaml"}
+# Kinds with no fixture file: the Fixture class writes them from the template with the fixture names.
+# N2-over-chain: interface [k2, n] with the chain `1 -> 2 { rename o -> n }` (newest version 2).
+GENERATED_KINDS = ("N2-over-chain",)
 
 TEMPLATE = """interface Order { order_id: String }
 interface %(T)s { %(declared)s }
@@ -118,7 +123,8 @@ def template_source(names, kind):
     N = names
     fields, chain = {"base": ([N.k, N.o], None), "N": ([N.k, N.n], None), "R": ([N.k, N.o, N.x], None),
                      "N-chain": ([N.k, N.n], (N.o, N.n)), "N-statuz": ([N.k, N.n], (N.w, N.n)),
-                     "N2": ([N.k2, N.o], None), "N2-chain": ([N.k2, N.o], (N.k, N.k2))}[kind]
+                     "N2": ([N.k2, N.o], None), "N2-chain": ([N.k2, N.o], (N.k, N.k2)),
+                     "N2-over-chain": ([N.k2, N.n], (N.o, N.n))}[kind]
     return TEMPLATE % {
         "T": N.T, "declared": " ".join("%s: String" % f for f in fields),
         "chain": "migrate %s 1 -> 2 { rename %s -> %s }\n" % ((N.T,) + chain) if chain else "",
@@ -136,13 +142,22 @@ class StoredTypes:
         self.work = Path(holder)
         (self.work / "cwd").mkdir()
 
+    def ctx(self):
+        """Names of this run, for a re-run of a failed template case."""
+        N = self.names
+        return " [names: T=%s k=%s o=%s n=%s x=%s w=%s k2=%s]" % (N.T, N.k, N.o, N.n, N.x, N.w, N.k2)
+
     def write_snapshot(self, label, records):
         path = self.work / ("snapshot-%s-%s.jsonl" % (label, random.randrange(10 ** 8)))
         path.write_text("".join(json.dumps(r, separators=(",", ":")) + "\n" for r in records))
         return path
 
-    def record(self, version, fields):
-        return dict(v1_record(), type=type_version(self.names.T, version, fields))
+    def record(self, version, fields, fingerprint_fields=None):
+        """A record of TYPE VERSION (version, fields). With fingerprint_fields, the fingerprint of those fields."""
+        tv = type_version(self.names.T, version, fields)
+        if fingerprint_fields is not None:
+            tv["fingerprint"] = type_version(self.names.T, version, fingerprint_fields)["fingerprint"]
+        return dict(v1_record(), type=tv)
 
     def compile(self, kind, stored):
         argv = [compiler(), str(self.source(kind))] + (["--stored", str(stored)] if stored is not None else [])
@@ -151,15 +166,15 @@ class StoredTypes:
 
     def assert_compiles(self, kind, stored):
         code, stdout, stderr = self.compile(kind, stored)
-        self.assertEqual(0, code, "%s with --stored %s: expected exit 0; stderr: %s" % (kind, stored, stderr))
+        self.assertEqual(0, code, "%s with --stored %s: expected exit 0; stderr: %s%s" % (kind, stored, stderr, self.ctx()))
         return stdout
 
     def assert_rejected(self, kind, stored, tokens):
         code, stdout, stderr = self.compile(kind, stored)
-        self.assertNotEqual(0, code, "%s with --stored %s: expected exit != 0" % (kind, stored))
-        self.assertEqual("", stdout, "%s: expected no stdout" % kind)
+        self.assertNotEqual(0, code, "%s with --stored %s: expected exit != 0%s" % (kind, stored, self.ctx()))
+        self.assertEqual("", stdout, "%s: expected no stdout%s" % (kind, self.ctx()))
         missing = [t for t in tokens if t not in stderr]
-        self.assertEqual([], missing, "%s: message must name these tokens; actual: %s" % (kind, stderr))
+        self.assertEqual([], missing, "%s: message must name these tokens; actual: %s%s" % (kind, stderr, self.ctx()))
         log = self.work / "cwd" / ".beaml" / "actions.jsonl"
         if stored is not None and log.is_file():
             self.assertNotIn(Path(stored).name, log.read_text(), "action events must not record the --stored path")
@@ -167,17 +182,36 @@ class StoredTypes:
 
     def assert_decode(self, stdout, present, absent):
         body = decode_body(stdout, self.names.T)
-        self.assertIsNotNone(body, "no generated decode __beaml_decode_%s" % self.names.T.lower())
+        self.assertIsNotNone(body, "no generated decode __beaml_decode_%s%s" % (self.names.T.lower(), self.ctx()))
         self.assertEqual(([], []), ([p for p in present if not mentions(body, p)], [a for a in absent if mentions(body, a)]),
-                         "decode names (missing, unexpected): %s" % body)
+                         "decode names (missing, unexpected): %s%s" % (body, self.ctx()))
 
-    def help_line(self, old, new):
-        return "migrate %s 1 -> 2 { rename %s -> %s }" % (self.names.T, old, new)
+    def help_line(self, old, new, stored=1, newest=1):
+        """README: `migrate T <stored> -> <next> { rename <old> -> <new> }`, <next> = newest version + 1."""
+        return "migrate %s %d -> %d { rename %s -> %s }" % (self.names.T, stored, newest + 1, old, new)
 
     # C1 and C6: the same source; only the stored records differ.
     def test_C1_rename_without_chain_is_compile_error(self):
         N, stored = self.names, self.snapshot("v1")
         self.assert_rejected("N", stored, [N.T, N.o, N.n, str(stored), self.help_line(N.o, N.n)])
+
+    def test_C1b_bad_type_version_after_a_good_one_is_compile_error(self):
+        # Line 1 has a path (it is the newest version); line 2 has none. A check of line 1 only passes wrongly.
+        N, stored = self.names, self.snapshot("v1new-v1")
+        self.assert_rejected("N", stored, [N.T, N.o, N.n, str(stored), self.help_line(N.o, N.n)])
+
+    def test_C17_fingerprint_not_fields_decides_the_path(self):
+        # fields = newest version (a path), fingerprint = the old version (no path). README: the compiler
+        # compares fingerprints and reads fields only for its message. So the fingerprint wins: no path.
+        N, stored = self.names, self.snapshot("v1-fp-mismatch")
+        prefix = type_version(N.T, 1, [N.k, N.o])["fingerprint"][:12]
+        self.assert_rejected("N", stored, [N.T, str(stored), "fingerprint", prefix])
+
+    def test_C18_help_line_names_stored_and_next_version(self):
+        # Newest version 2 (chain o -> n), stored version 2 with k (not k2): no path. Help: 2 -> 3.
+        N, stored = self.names, self.snapshot("v2")
+        self.assert_rejected("N2-over-chain", stored,
+                             [N.T, N.k, N.k2, str(stored), self.help_line(N.k, N.k2, stored=2, newest=2)])
 
     def test_C6_same_source_with_empty_snapshot_compiles(self):
         stdout = self.assert_compiles("N", self.snapshot("empty"))
@@ -201,7 +235,7 @@ class StoredTypes:
     def test_C7_record_without_type_version_is_compile_error(self):
         stored = self.snapshot("v1-untyped")
         stderr = self.assert_rejected("base", stored, [NO_TYPE_VERSION, str(stored)])
-        self.assertTrue("line 2" in stderr or "%s:2" % stored in stderr, "C7: message must name line 2: %s" % stderr)
+        self.assertTrue("line 2" in stderr or "%s:2" % stored in stderr, "C7: message must name line 2: %s%s" % (stderr, self.ctx()))
 
     def test_C8_effect_source_without_stored_input_is_compile_error(self):
         self.assert_rejected("base", None, [UNKNOWN_STORE])
@@ -223,12 +257,20 @@ class Fixture(StoredTypes, unittest.TestCase):
     names = FIXTURE_NAMES
 
     def source(self, kind):
+        if kind in GENERATED_KINDS:
+            path = self.work / kind / "orders.beaml"
+            if not path.is_file():
+                path.parent.mkdir()
+                path.write_text(template_source(self.names, kind))
+            return path
         return EXPERIMENT / FIXTURE_SOURCES[kind]
 
     def snapshot(self, label):
         if label == "v1-untyped":
             untyped = {k: v for k, v in v1_record().items() if k != "type"}
             return self.write_snapshot(label, [v1_record(), untyped])
+        if label in ("v1new-v1", "v1-fp-mismatch", "v2"):
+            return self.write_snapshot(label, repair_records(self, label))
         return EXPERIMENT / "stored" / ("%s.jsonl" % label)
 
     def test_fixtures_match_the_template_rule(self):
@@ -261,7 +303,16 @@ class Template(StoredTypes, unittest.TestCase):
         records = {"empty": [], "v1": [self.record(1, [N.k, N.o])],
                    "v1-v2": [self.record(1, [N.k, N.o]), self.record(2, [N.k, N.n])],
                    "v1-untyped": [self.record(1, [N.k, N.o]), {k: v for k, v in v1_record().items() if k != "type"}]}
-        return self.write_snapshot(label, records[label])
+        records = repair_records(self, label) if label not in records else records[label]
+        return self.write_snapshot(label, records)
+
+
+def repair_records(case, label):
+    """Snapshots of the repair cases C1b, C17, C18, for fixture and random names alike."""
+    N = case.names
+    return {"v1new-v1": [case.record(1, [N.k, N.n]), case.record(1, [N.k, N.o])],
+            "v1-fp-mismatch": [case.record(1, [N.k, N.n], fingerprint_fields=[N.k, N.o])],
+            "v2": [case.record(2, [N.k, N.n])]}[label]
 
 
 if __name__ == "__main__":

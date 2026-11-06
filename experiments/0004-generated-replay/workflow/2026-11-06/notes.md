@@ -483,3 +483,29 @@ Sum of manual change sites: GEN 0, LIB 0. Replay lines: GEN router 0; LIB 59 + 1
 | S11 | `:json.decode/1` count 1 in replay cases | Undo | Same as slice 1 R1; the fallback must not decode twice |
 
 **[Unknown]** No Migrate question came up. The GEN 0003 copy gap needs a change to the slice 1 change table; the main agent decides who writes it.
+
+## Slice 2 RED repair
+
+Three medium gaps of the RED check are closed in `tests/stored_types_test.py`. Each new case runs with the fixture names and with random names.
+
+| Case | Snapshot | Source | Expected |
+| --- | --- | --- | --- |
+| C1b | line 1: `T 1 { k n }` (path); line 2: `T 1 { k o }` (no path) | N | C1 tokens, help `1 -> 2` |
+| C17 | one record: `fields` = `T 1 { k n }`, `fingerprint` = fingerprint of `{ k o }` | N | compile error that names `T`, the `--stored` path, `fingerprint` and the first 12 hex of the stored fingerprint |
+| C18 | one record: `T 2 { k n }` | N2-over-chain: `interface T { k2 n }`, `migrate T 1 -> 2 { rename o -> n }` | tokens `T`, `k`, `k2`, path, help `migrate T 2 -> 3 { rename k -> k2 }` |
+
+Every assertion message now ends with the names of the run (`[names: T=... k=... ...]`), so a failed template case can be re-run.
+
+Run: 29 tests, 28 fail, 0 errors. The guard test passes. All six new tests fail for the same reason as the old ones: the compiler prints its usage text, because it does not accept `--stored`.
+
+New SHA-256 of `experiments/0004-generated-replay/tests/stored_types_test.py`: `a69b8886e8e8b032822e45b02a8caac84f19cbf4b81a3b9855d464845bd3257f`
+
+### Decisions (Decision4, slice 2 RED repair)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| S12 | C17: the fingerprint wins over `fields` | Repair | Chose "fingerprint decides, no path" over "fields decide". Because: README path check says equal means the same fingerprint, and the compiler reads `fields` only for its message. The README has no text for a fields/fingerprint mismatch. Over: a separate mismatch error text. Commits the message to name `fingerprint` and the first 12 hex of the stored fingerprint (README error text line) |
+| S13 | C18 help form `<stored> -> <newest + 1>` | Undo | README rule, literally: `<stored>` = version of the stored record, `<next>` = newest version + 1 |
+| S14 | C18 source kind `N2-over-chain` is written from the template, also for the fixture names; no new file under `slice2/` | Repair | Chose a generated source over a new fixture file, because the repair scope excludes `slice2/`. Commits the fixture form of C18 to the template text; the guard test does not cover it |
+| S15 | C1b, C17, C18 snapshots are written per test, also for the fixture names; no new file under `stored/` | Undo | Same pattern as C7 (`v1-untyped`) |
+| S16 | `help_line` takes the stored and newest version; old calls keep `1 -> 2` | Undo | Default arguments; C1, C1b and C15 are unchanged in effect |
