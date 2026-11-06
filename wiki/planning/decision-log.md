@@ -341,6 +341,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: `migrate Payment v3 -> v4 { … }` and `type Payment v3 { … }`. Over: plain numbers in `migrate` lines.
 → Because: one spelling for a version everywhere; a search for `v3` finds every use. Fixtures and tests of slices 2–4 change mechanically.
 
+### Tooling
+
+**DL-073 · Undo · Grammar covers the decided forms**
+→ Chose: the Tree-sitter grammar parses and highlights `effect`, `|>`, `!` lists, `type Name [vN]`, `interface` (kept until slice 5), `enum`, `redacted`, `migrate` (plain and `v` numbers), `retire … keep … days`. The grammar is more tolerant than the compiler (optional commas in `migrate`; `with` clause shapes are a guess because no source uses them yet). Version numbers use the constructor colour.
+→ Evidence: 0 ERROR nodes in 28 real sources; corpus and highlight tests pass.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

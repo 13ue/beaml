@@ -2,6 +2,18 @@
 
 Open a `.beaml` file to use BEAML syntax highlighting. The grammar covers the syntax in [EXPERIMENT 0001](../../experiments/0001-syntax-to-beam/README.md). The compiler checks TYPE correctness and record completeness.
 
+The grammar also covers the forms of the decision log (`wiki/planning/decision-log.md`):
+
+- `effect` with a dotted name, the pipe `|>` and `!` failure TYPES (DL-013 to DL-015).
+- `with ... do ... else ... end` (DL-014). Only the keywords are decided; the clause shapes parse tolerantly.
+- `type Name { ... }` and `type Name v3 { ... }` next to `interface` (DL-061, DL-070 to DL-072).
+- `enum` variants with and without a payload, for example `Unknown(String)` (DL-062).
+- `redacted` before a field TYPE (DL-059).
+- MIGRATE CHAIN steps `migrate T 1 -> 2 { ... }` and `migrate T v1 -> v2 { ... }` with `rename`, `add` and `drop` (DL-022, DL-023, DL-072).
+- `retire op.name keep 30 days` (DL-055, DL-057).
+
+Version numbers use the capture `@number`. `preview.py` shows it in the constructor colour (class `c`).
+
 ## Install in Zed 1.27 on macOS
 
 1. Open `~/Library/Application Support/Zed/extensions/` in Finder.

@@ -1,0 +1,302 @@
+==================
+Record type with version mark and redacted field
+==================
+
+type Payment v3 { order_id: String  card_holder: redacted String }
+type Order { id: String, }
+interface Legacy { id: String }
+
+---
+
+(source_file
+  (type_declaration
+    (type
+      (identifier))
+    (version)
+    (field_declaration
+      (property
+        (identifier))
+      (type
+        (identifier)))
+    (field_declaration
+      (property
+        (identifier))
+      (redacted)
+      (type
+        (identifier))))
+  (type_declaration
+    (type
+      (identifier))
+    (field_declaration
+      (property
+        (identifier))
+      (type
+        (identifier))))
+  (interface_declaration
+    (type
+      (identifier))
+    (field_declaration
+      (property
+        (identifier))
+      (type
+        (identifier)))))
+
+==================
+Enum with plain and payload variants
+==================
+
+enum Status { Paid Declined(String), Unknown(String) }
+
+---
+
+(source_file
+  (enum_declaration
+    (type
+      (identifier))
+    (variant_declaration
+      (constructor
+        (identifier)))
+    (variant_declaration
+      (constructor
+        (identifier))
+      (type
+        (identifier)))
+    (variant_declaration
+      (constructor
+        (identifier))
+      (type
+        (identifier)))))
+
+==================
+Effect with dotted name and failure list
+==================
+
+effect payments.authorize Order -> Payment ! PaymentError | Timeout = http.post("payments/authorize")
+
+---
+
+(source_file
+  (effect_declaration
+    (qualified_name
+      (identifier)
+      (identifier))
+    (type
+      (identifier))
+    (type
+      (identifier))
+    (failures
+      (type
+        (identifier))
+      (type
+        (identifier)))
+    (call
+      (qualified_name
+        (identifier)
+        (identifier))
+      (string))))
+
+==================
+Pipe in a function with a failure TYPE
+==================
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
+  |> finish
+
+---
+
+(source_file
+  (function_clause
+    (identifier)
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (type
+      (identifier))
+    (failures
+      (type
+        (identifier)))
+    (pipe
+      (pipe
+        (pipe
+          (identifier)
+          (identifier))
+        (qualified_name
+          (identifier)
+          (identifier)))
+      (identifier))))
+
+==================
+MIGRATE CHAIN with plain numbers
+==================
+
+migrate Payment 1 -> 2 { rename status -> state, add channel: String = "web" }
+migrate Payment 2 -> 3 { drop channel: String } migrate Payment 3 -> 4 { }
+
+---
+
+(source_file
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (rename_operation
+      (property
+        (identifier))
+      (property
+        (identifier)))
+    (add_operation
+      (property
+        (identifier))
+      (type
+        (identifier))
+      (string)))
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (drop_operation
+      (property
+        (identifier))
+      (type
+        (identifier))))
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)))
+
+==================
+MIGRATE CHAIN with v numbers, multi-line, comments
+==================
+
+migrate Payment v1 -> v2 {
+  // a rename keeps the value
+  rename status -> state
+  add channel: String = "web",
+  drop secret: redacted String // typed (DL-023)
+}
+
+---
+
+(source_file
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (comment)
+    (rename_operation
+      (property
+        (identifier))
+      (property
+        (identifier)))
+    (add_operation
+      (property
+        (identifier))
+      (type
+        (identifier))
+      (string))
+    (drop_operation
+      (property
+        (identifier))
+      (redacted)
+      (type
+        (identifier)))
+    (comment)))
+
+==================
+Retire an operation
+==================
+
+retire payments.authorize keep 30 days
+retire legacy keep 0 days
+
+---
+
+(source_file
+  (retire_declaration
+    (qualified_name
+      (identifier)
+      (identifier))
+    (integer))
+  (retire_declaration
+    (identifier)
+    (integer)))
+
+==================
+With expression
+==================
+
+fn run order: Order -> Payment ! PaymentError =
+  with p <- order |> prepare, check(p) do finish(p) else
+    PaymentError { reason } -> fail(reason)
+  end
+
+---
+
+(source_file
+  (function_clause
+    (identifier)
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (type
+      (identifier))
+    (failures
+      (type
+        (identifier)))
+    (with_expression
+      (with_clause
+        (identifier)
+        (pipe
+          (identifier)
+          (identifier)))
+      (with_clause
+        (call
+          (identifier)
+          (identifier)))
+      (call
+        (identifier)
+        (identifier))
+      (else_arm
+        (record
+          (type
+            (identifier))
+          (record_field
+            (property
+              (identifier))))
+        (call
+          (identifier)
+          (identifier))))))
+
+==================
+Keywords stay identifiers outside their forms
+==================
+
+fn keep days: String, add: String -> String = days + add
+
+---
+
+(source_file
+  (function_clause
+    (identifier)
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (type
+      (identifier))
+    (concatenation
+      (identifier)
+      (identifier))))

@@ -1,0 +1,62 @@
+type Payment v3 { order_id: String, card_holder: redacted String }
+// <- keyword
+//   ^ type
+//           ^ number
+//                ^ property
+//                                               ^ keyword
+//                                                        ^ type
+interface Order { order_id: String }
+// <- keyword
+enum Status { Paid Unknown(String) }
+// <- keyword
+//            ^ constructor
+//                 ^ constructor
+//                         ^ type
+migrate Payment v1 -> v2 { rename status -> state, add channel: String = "web" }
+// <- keyword
+//      ^ type
+//              ^ number
+//                    ^ number
+//                         ^ keyword
+//                                ^ property
+//                                                 ^ keyword
+//                                                                       ^ string
+migrate Payment 2 -> 3 {
+//              ^ number
+  // keep the old field as a typed value
+//   ^ comment
+  drop channel: redacted String
+//^ keyword
+//     ^ property
+//              ^ keyword
+}
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+// <- keyword
+//     ^ function
+//                        ^ type
+//                                         ^ operator
+//                                                          ^ function
+retire payments.authorize keep 30 days
+// <- keyword
+//     ^ function
+//                        ^ keyword
+//                             ^ number
+//                                ^ keyword
+fn place order: Order -> Payment ! PaymentError | Timeout =
+// <- keyword
+// ^ function
+//                                              ^ operator
+  with p <- order |> prepare |> payments.authorize do finish(p) else
+//^ keyword
+//       ^ operator
+//                ^ operator
+//                   ^ function
+//                              ^ function
+//                                                 ^ keyword
+//                                                              ^ keyword
+    PaymentError { reason } -> fail(reason)
+//  ^ type
+//                 ^ property
+//                             ^ function
+  end
+//^ keyword

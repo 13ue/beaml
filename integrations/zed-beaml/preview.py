@@ -36,7 +36,7 @@ table{border-collapse:collapse;font:13.5px/1.6 ui-monospace,"SF Mono",Menlo,mono
 .line{white-space:pre;padding-right:16px}
 .keyword{color:var(--keyword);font-weight:600}.type{color:var(--type)}.function{color:var(--function)}
 .property{color:var(--property)}.string,.string.escape{color:var(--string)}.operator{color:var(--operator)}
-.punctuation{color:var(--punct)}.constructor{color:var(--constructor)}.comment{color:var(--comment);font-style:italic}
+.punctuation{color:var(--punct)}.constructor,.number{color:var(--constructor)}.comment{color:var(--comment);font-style:italic}
 .note{color:var(--muted);font-size:13px}
 """
 
@@ -50,7 +50,8 @@ def highlight(path):
 
 
 SHORT = {"keyword": "k", "type": "t", "function": "f", "property": "p", "string": "s", "string escape": "s",
-         "operator": "o", "punctuation bracket": "b", "punctuation delimiter": "b", "constructor": "c", "comment": "m"}
+         "operator": "o", "punctuation bracket": "b", "punctuation delimiter": "b", "constructor": "c", "comment": "m",
+         "number": "c"}
 
 
 def chat_fragment(files):
