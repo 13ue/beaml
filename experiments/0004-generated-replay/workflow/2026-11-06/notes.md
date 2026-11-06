@@ -197,3 +197,74 @@ Bad and DRIFT fixture hashes are in [red-output.log](red-output.log).
 
 **[Proposal]** D18 class lowered from Migrate to Repair by the main agent. Reason: the span attribute name `reason` on a failed EFFECT is contained in this experiment and changes with one emit edit. Decision4 rule: every de-escalation is recorded.
 **[Verified]** README updated: case L3, the LIB R1 assertion before the freeze, LIB runs L3, and the D7 return shape of `Replay.run/3`.
+
+## GREEN-1 (compiler)
+
+**Scope.** Compiler only: `experiments/0001-syntax-to-beam/src/main.rs`. No change to tests, fixtures, router, apps, arm overlays, LIB or `run.py`. No commit. Input: the review condition in [red-review.md](red-review.md) ("Two-step GREEN") and the RED check of the main agent.
+
+### Change summary
+
+`main.rs`: 1038 → 1639 lines (`git diff --numstat`: +631, −30). `rustfmt --check` passes on `main.rs`.
+
+- **Lexer.** Dotted names (`payments.authorize`, `http.post`), token `|>`, symbols `!` and `|`. A plain identifier position still rejects a dotted name.
+- **Parser.** `effect NAME IN -> OUT ! ERR = KIND("path")`. `! A | B` after the output TYPE of `fn` and `effect`. A `fn` body `head |> step |> step`.
+- **Checker.** Unsupported EFFECT kind (only `http.post`). EFFECT name `namespace.operation`. Failure TYPES are declared interfaces. An EFFECT has one failure TYPE with `reason: String`, an interface output with String fields only, a safe path. Pipe: unknown step, input TYPE per step, each step failure TYPE in the `!` list of the enclosing fn. A `!` fn is a pipe step only. One EFFECT, one flow per EFFECT (one clause, its parameter starts the pipe). The existing pattern check gives "unknown field: Payment.amount".
+- **Emit, derived from the declarations.** Service name = source file stem (`orders`). `place/1` (`{:ok, v}` or `{:error, e}`, `with` chain, a failed step stops the pipe), spans `<service>.<step>` through `ProbeSupport.span/5`, the event `<EFFECT output TYPE, lower case>_request_prepared` in the span of the pure step before the EFFECT, `payments_authorize/1` (client span, trace context, `Http.post`, `Replay.record/3` before the status check), `__beaml_decode_payment/1` (field names from the TYPE), one struct module per failure TYPE (`PaymentError`), `Http` (0002 framing on `:gen_tcp`), `Replay.record/3` (RESPONSE RECORD version 1), `Replay.run/3` (the flow with the EFFECT step replaced by the six 0003 checks, then decode in a replay span `orders.payments.authorize`, then `finish`). Without EFFECTS, `!` lists and pipes, the output is unchanged (`payments.beaml` snapshot test).
+
+**[Verified]** Held back, per the review condition (decode behavior that (d2) asserts must not be written in GREEN-1): the missing-key and wrong-TYPE decode error, the `unknown_keys` hint (record and span), the typed `PaymentError` for transport, status and decode, the span attribute `reason`. In GREEN-1 these paths raise (`MatchError`, `ArgumentError`). GREEN-2 therefore needs a compiler change too.
+
+### Commands (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline --manifest-path experiments/0001-syntax-to-beam/Cargo.toml` | 0 | unit 9/9, `cli` 12/12 (all (a), (b), both template controls, both guards) |
+| `python3 -B experiments/0003-source-linked-replay/run.py` | 0 | control `pass`, `results/20261106T121058907971Z` |
+| `python3 -B experiments/0004-generated-replay/tests/overlay_diff_test.py` | 1 | 2 failed, 1 passed |
+| `python3 -B experiments/0004-generated-replay/tests/arms_test.py` | 1 | 13 failed, 3 passed; `results/20261106T121208673328Z` |
+| `python3 -B experiments/0004-generated-replay/tests/drift_test.py` | 1 | 2 failed, 1 passed |
+
+Also run once before: `arms_test.py -k test_b` → pass (`results/20261106T121006597252Z`). SHA-256 `tests/cli.rs` before and after: `bf2b82fd1ff015ae86181b2b392018d1853aa8cb624f2507b09d582dd227210b` (equal). `main.rs` after: `80d596170a1eb361a9481474a6443c15db8391b7950e016d5f860876daba61ec`.
+
+### Fresh RED check input (after GREEN-1)
+
+| Test | Status | Reason |
+| --- | --- | --- |
+| `test_b_gen_module_compiles_with_warnings_as_errors` | pass | Generated module compiles with `--warnings-as-errors` in the GEN tree |
+| `test_d2_L0_live_valid_body_baseline` | pass | Not RED: the old router and host transport serve it; the generated EFFECT is not on the live path |
+| `test_d2_L1_live_unknown_key_accepted_with_hint` | fail | HTTP 502, not 200: host `payment_http.ex` passes the extra key to `finish`; no `unknown_keys`. Router (GREEN-2) and hint (held back) |
+| `test_d2_L2_live_status_503_rejected` | fail | 0 records, span `orders.payment_http`: host transport raises before its CAPTURE. Router (GREEN-2) |
+| `test_d2_L3_live_missing_key_is_typed_decode_error` | fail | No `orders.payments.authorize` span, `finish` 1: host path. Router (GREEN-2) and typed decode (held back) |
+| `test_d2_R1_replay_missing_key_is_decode_error` | fail | Own reason: `raised ArgumentError`, `finish/1` 1, not `PaymentError{reason: "decode"}` with `finish/1` 0. `:json.decode/1` 1, transport 0 hold |
+| `test_d2_R2_replay_of_L1_record_gives_same_success_and_hint` | fail | Own reason: result `{ok, PAYMENT}` and counts equal; replay span has no hint (`[None]`, not `[["fraud_score"]]`) |
+| `test_d2_R3_replay_wrongly_typed_field_is_decode_error` | fail | Own reason: `raised ArgumentError`, `finish/1` 1 |
+| `test_d2_P1_pipe_stops_after_failed_effect` | fail | Own reason: `raised MatchError`, not `PaymentError{reason: "transport"}`; `prepare/1` 1 and `finish/1` 0 hold |
+| `test_c_gen_router_calls_only_place_...` | fail | Router calls `finish`, `prepare`; `payment_http.ex`, `replay.ex` present (GREEN-2) |
+| `test_c_gen_0003_runner_passes_all_five_steps`, `test_d_gen_replay_matrix_eight_cases` | fail | GEN copy of `replay_run_test.py` not in the tree (GREEN-2) |
+| `test_e_*` (3) | fail | No `ReplayLib`, descriptor, LIB copies or freeze (LIB arm) |
+| `test_control_originals_unchanged_by_arm_runs` | pass | Guard |
+| overlay `..._gen`, `..._lib` | fail | Copies and `assertion-changes.json` missing |
+| drift `test_f_lib_is_frozen_before_drift` | fail | No `arms/lib/freeze.json` |
+| drift `test_f_drift_outcomes_recorded_per_arm_and_derivative` | fail | `run.py` stub exits 2 `not_implemented` |
+
+**[Inference]** R1, R2, R3 and P1 fail for their own reason. L1, L2 and L3 still fail on the host router first; their own reason shows only after the GREEN-2 router overlay.
+
+### Decisions (Decision4, GREEN-1)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| G1 | Hold back the (d2) behaviors (decode checks, hint, typed transport/status/decode failure, span `reason`) | Undo | Review condition; keeps the fresh RED of R1, R2, R3, P1 genuine. GREEN-2 needs a compiler step |
+| G2 | `<service>` of span names = source file stem, required to be a lowercase identifier when a pipe or an EFFECT exists | Repair | README derives `<service>.<step>`; the source has no other service name. One emit edit changes it |
+| G3 | `<TYPE>_request_prepared` uses the output TYPE of the EFFECT (`Payment` → `payment`), lower case without separators | Repair | Only reading that gives the kept `payment_request_prepared` |
+| G4 | Failure TYPE in the `!` list is matched by name, not structurally | Repair | The generated struct carries the name. Structural later only accepts more sources. Owner question candidate |
+| G5 | `! A \| B` lists parse and check for `fn`; an EFFECT has exactly one failure TYPE with `reason: String` | Undo | Owner decision allows lists; Q6 default (i) for slice 1 |
+| G6 | A `!` fn may only be a pipe step; a pipe is only a whole fn body; a pipe fn has one clause | Undo | Slice 1 boundary; no `with` yet |
+| G7 | One EFFECT per source; its flow has one parameter that starts the pipe and calls the EFFECT once; EFFECT output fields are String only | Undo | Slice 1 boundary (README "second EFFECT" is later; decode "String values") |
+| G8 | Nested modules: `import Kernel, only: [..., defmodule: 2]` only when failure TYPES or EFFECTS exist; `Http` and `Replay` import full `Kernel`; `Replay` reaches the parent by `@parent` from `Module.split` | Undo | Keeps `payments.beaml` output byte-identical and survives the 0002 rename of one `defmodule BeamlSpike do` |
+| G9 | Decode is `def` (public), because `Replay.run/3` calls it from the nested module | Undo | Test accepts `def` or `defp` |
+| G10 | `Replay.run/3` runs the pure steps without spans and without the Orders log; one replay span `orders.payments.authorize` (`:internal`) wraps the decode | Undo | 0003 replay had no spans; R2 reads the hint from this span |
+| G11 | The old parser message `expected interface, enum, or fn` stays unchanged | Undo | D14 guard depends on it |
+
+### Events outside the plan
+
+- **[Verified]** A careless shell command ran `git stash` once during GREEN-1. The worker restored the change at once with `git stash pop`; `git stash list` is empty and the diff is complete. No commit.
+- **[Verified]** A compiler run from the 0001 directory wrote `experiments/0001-syntax-to-beam/.beaml/actions.jsonl`. The worker removed this untracked file.
