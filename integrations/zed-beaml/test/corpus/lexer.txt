@@ -1,0 +1,29 @@
+==================
+Unicode whitespace
+==================
+
+fn sample -> String = "valid"
+
+---
+
+(source_file
+  (function_clause
+    (identifier)
+    (type (identifier))
+    (string)))
+
+==================
+A line comment stops at LF
+==================
+
+// commentstill comment
+fn sample -> String = "valid"
+
+---
+
+(source_file
+  (comment)
+  (function_clause
+    (identifier)
+    (type (identifier))
+    (string)))

@@ -1,0 +1,27 @@
+interface Order { id: String, customer: Customer }
+// <- keyword
+//        ^ type
+//                ^ property
+//                    ^ type
+interface Customer { name: String }
+enum OrderResult { Ok(Order), Error(String, String) }
+// <- keyword
+fn describe Ok(Order { id, customer: Customer { name } }), suffix: String -> String =
+// <- keyword
+// ^ function
+//          ^ constructor
+//                         ^ property
+//                                                                        ^ operator
+  format(id, "https://example.test/\"quoted\"" + suffix) // end of line
+//^ function
+//           ^ string
+//                   ^ !comment
+//                                 ^ string.escape
+//                                             ^ operator
+//                                                       ^ comment
+fn sample -> OrderResult = Ok(Order { id: "1", customer: Customer { name: "Ada" } })
+// <- keyword
+// ^ function
+// ^ !comment
+fn format id: String, message: String -> String = id + message
+fn describe Error(reason, detail), suffix: String -> String = reason + detail + suffix

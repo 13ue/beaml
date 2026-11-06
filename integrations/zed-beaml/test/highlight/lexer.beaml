@@ -1,0 +1,4 @@
+// commentstill comment
+//          ^ comment
+fn sample -> String = "valid"
+// <- keyword

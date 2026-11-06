@@ -1,0 +1,66 @@
+==================
+Declarations
+==================
+
+interface Order { id: String, customer: Customer }
+interface Customer { name: String }
+enum Result { Ok(Order) Error(String, String), Empty() }
+
+---
+
+(source_file
+  (interface_declaration
+    (type (identifier))
+    (field_declaration (property (identifier)) (type (identifier)))
+    (field_declaration (property (identifier)) (type (identifier))))
+  (interface_declaration
+    (type (identifier))
+    (field_declaration (property (identifier)) (type (identifier))))
+  (enum_declaration
+    (type (identifier))
+    (variant_declaration (constructor (identifier)) (type (identifier)))
+    (variant_declaration (constructor (identifier)) (type (identifier)) (type (identifier)))
+    (variant_declaration (constructor (identifier)))))
+
+==================
+Function clauses and nested patterns
+==================
+
+fn describe Ok(Order { id, customer: Customer { name, } }), suffix: String -> String =
+  format(id, "// data \"quoted\"" + suffix) // real comment
+fn describe Error(reason, detail), suffix: String -> String = reason + detail + suffix
+fn sample -> Result = Error("unknown", "detail")
+
+---
+
+(source_file
+  (function_clause
+    (identifier)
+    (parameter
+      (call
+        (identifier)
+        (record
+          (type (identifier))
+          (record_field (property (identifier)))
+          (record_field
+            (property (identifier))
+            (record
+              (type (identifier))
+              (record_field (property (identifier))))))))
+    (parameter (identifier) (type (identifier)))
+    (type (identifier))
+    (call
+      (identifier)
+      (identifier)
+      (concatenation (string (escape) (escape)) (identifier))))
+  (comment)
+  (function_clause
+    (identifier)
+    (parameter (call (identifier) (identifier) (identifier)))
+    (parameter (identifier) (type (identifier)))
+    (type (identifier))
+    (concatenation (identifier) (concatenation (identifier) (identifier))))
+  (function_clause
+    (identifier)
+    (type (identifier))
+    (call (identifier) (string) (string))))

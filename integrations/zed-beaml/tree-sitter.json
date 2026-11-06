@@ -1,0 +1,14 @@
+{
+  "grammars": [
+    {
+      "name": "beaml",
+      "scope": "source.beaml",
+      "file-types": ["beaml"],
+      "highlights": "languages/beaml/highlights.scm"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "description": "BEAML syntax from EXPERIMENT 0001"
+  }
+}

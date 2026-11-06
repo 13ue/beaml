@@ -1,0 +1,4 @@
+name = "BEAML"
+grammar = "beaml"
+path_suffixes = ["beaml"]
+line_comments = ["// "]

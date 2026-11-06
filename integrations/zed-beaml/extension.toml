@@ -1,0 +1,10 @@
+id = "beaml"
+name = "BEAML"
+version = "0.1.0"
+schema_version = 1
+description = "Syntax highlighting for BEAML"
+
+# Zed's installed extension loader uses the bundled grammars/beaml.wasm.
+[grammars.beaml]
+repository = ""
+rev = ""
