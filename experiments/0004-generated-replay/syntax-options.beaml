@@ -1,0 +1,59 @@
+// EXPERIMENT 0004: syntax options for a generated REPLAY RUN runner.
+// [Proposal] Discussion file only. The 0001 compiler does not parse the new forms.
+// Each option adds the same missing fact: prepare -> outbound EFFECT -> finish.
+// The owner chooses. See README.md, section "Syntax options".
+
+// ---------------------------------------------------------------------------
+// Shared fixture: the current orders.beaml (0002), unchanged.
+// ---------------------------------------------------------------------------
+
+interface Order { order_id: String }
+interface Payment { order_id: String status: String }
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + "", status: status }
+
+// ---------------------------------------------------------------------------
+// OPTION A: an `effect` declaration block next to the functions.
+// The host keeps the orchestration (router). The block links the functions.
+// ---------------------------------------------------------------------------
+
+effect authorize_payment {
+  operation: "payments.authorize"
+  request: prepare        // the BEAML fn whose result is the sent request
+  response: finish        // the BEAML fn that takes the decoded response
+  attempts: 1
+  status: 200             // the one accepted transport status
+  record { request, status, body }   // body = bytes + length + SHA-256
+}
+
+// ---------------------------------------------------------------------------
+// OPTION B: an `extern fn` for the host EFFECT, and the flow in BEAML.
+// BEAML owns the call order. Any fn that calls the extern gets a REPLAY RUN.
+// ---------------------------------------------------------------------------
+
+extern fn authorize_payment Order -> Payment
+  effect "payments.authorize" { attempts: 1, status: 200, record: request, status, body }
+
+fn place order: Order -> Payment = finish(authorize_payment(prepare(order)))
+
+// ---------------------------------------------------------------------------
+// OPTION C: an attribute on the existing function that takes the response.
+// Smallest grammar change. The metadata is literal values on one fn.
+// ---------------------------------------------------------------------------
+
+@effect("payments.authorize", request: prepare, attempts: 1, status: 200, record: "request status body")
+fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + "", status: status }
+
+// ---------------------------------------------------------------------------
+// D001 touch point (all options): typed outcomes of an EFFECT.
+// Today the effect has one success outcome. A second outcome needs a variant TYPE.
+// ---------------------------------------------------------------------------
+
+// D001 option "keep enum" (parsed by the 0001 compiler today):
+enum AuthorizeOutcome {
+  Authorized(Payment)
+  Declined(String)
+}
+
+// D001 option "use type" (not parsed today):
+type AuthorizeOutcome = Authorized(Payment) | Declined(String)
