@@ -52,7 +52,11 @@ updated: 2026-11-06
 
 **[Proposal]** The value run executes inside each environment and returns counts only, not record identities. A record identity can link to a person, and the fact that a record reached `Unknown` says something about its values.
 
-**[Inference]** A total function in BEAML can still raise on the BEAM (for example division by zero). "No crash" needs either checked arithmetic or a typed failure for such operations.
+- The compiler checks PII flow in both forms: a PII value that reaches an effect, and a value derived from PII by a branch (implicit flow). This is a target for the compiler, not the next slice.
+- Division offers both forms: a function can return a typed `DivByZero` failure (`!`), or declare the divisor as a non-zero integer TYPE, so that the caller must prove it.
+- A deploy blocks only when an environment stores a TYPE VERSION that the `migrate` chain cannot reach. `Unknown` counts are reported, not blocking.
+
+**[Verified]** On the BEAM, integer division by zero raises (`badarith`). Plain arithmetic therefore breaks "no crash" without one of the two forms above.
 
 **[Unknown]** Research items:
 
