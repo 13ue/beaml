@@ -326,6 +326,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: an agent with an empty or partial snapshot could cut a chain that production still needs; the review saw a symlink replaced and a read-only file rewritten.
 → Trigger: slice 4 final review (Devil's Advocate), PASS WITH NOTES.
 
+**DL-070 · Migrate · The version number sits on the type** (answers O6; will supersede DL-058)
+→ Question: where does the newest TYPE VERSION number live when dead `migrate` steps are removed?
+→ Options: (a) the last step is never dead; (b) an anchor line `migrate Payment 3`; (c) the version on the type line; (d1) implicit in the stored records; (d2) a compiler-written lock file.
+→ Chose: (c) in the form `type Payment v3 { … }`. Version numbers only grow; dead steps may be removed, and `--remove-dead` writes the number onto the type line.
+→ Because: one visible source of truth in the code, reproducible and reviewable. Prior art (Protobuf, Confluent, Lamdera, Django, Flyway, Kubernetes) never resets a counter; see `raw/research/type-versioning-prior-art-2026-11-06.md`.
+→ Open detail: when the `vN` mark is required, and whether `migrate` lines use `v1 -> v2`.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
