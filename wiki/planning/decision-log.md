@@ -284,6 +284,10 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: `type` for variants and records together. The exact record and variant shapes under `type` are the next question.
 → Context: in most non-ML languages `type` means an alias; in the ML family and in Gleam (a BEAM language) it declares data. The comparison came from training knowledge and was not checked against documentation.
 
+**DL-061 · Migrate · `type` for records, `enum` for variants** (supersedes DL-060)
+→ Chose: `type` declares a record (replaces `interface`); `enum` keeps declaring variants. `interface` stays free for behaviour contracts later. Over: DL-060 (`type` for both).
+→ Because: OWNER choice after the question of what `interface` and contracts should mean. DL-060 read a two-part option as one answer; the main agent should have asked.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
