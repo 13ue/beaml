@@ -288,6 +288,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: `type` declares a record (replaces `interface`); `enum` keeps declaring variants. `interface` stays free for behaviour contracts later. Over: DL-060 (`type` for both).
 → Because: OWNER choice after the question of what `interface` and contracts should mean. DL-060 read a two-part option as one answer; the main agent should have asked.
 
+**DL-062 · Migrate · `Unknown` is a declared variant**
+→ Question: how does an `enum` keep a value it does not know?
+→ Options: U1, declare `Unknown(String)` as a normal variant; U2, mark the enum open and let the compiler add `Unknown` (forms `enum E from String { A = "a" }` and `enum E<String> { A }`).
+→ Chose: U1. No literals inside an `enum`; the mapping from a String to a variant is written as function clauses. The compiler checks that the last clause over an open TYPE keeps the original value. Over: U2.
+→ Because: OWNER rejected the `from String` form and literals in an `enum`; `<String>` would read as a generic argument once generics arrive.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
