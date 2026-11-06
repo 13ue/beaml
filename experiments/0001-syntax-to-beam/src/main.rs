@@ -1608,10 +1608,10 @@ impl Checker<'_> {
         // MIGRATE CHAIN: the decode reads a body as the TYPE VERSION of its RESPONSE RECORD (DL-043). The
         // version number picks the MIGRATE STEPS; the fingerprint only validates the version. A body of
         // version n gets the MIGRATE CHANGES of the steps n -> n+1 -> ... -> newest in chain order; a live
-        // body is the newest version and gets none. Per MIGRATE CHANGE (slice 3, DL-048, DL-049):
-        // `rename old -> new` reads `old` as `new` only without `new` (C12) and always removes `old`;
-        // `add f = c` always puts `c`; `drop f: String` needs a String value and removes it.
-        // `unknown_keys`: keys of the stored body that the decode does not read, sorted, each once.
+        // body is the newest version and gets none. Before any step the body is typed by its own TYPE
+        // VERSION (DL-054): every field of that version must hold its TYPE, every other key goes to
+        // `unknown_keys` (sorted). The steps then work on typed data only: `rename old -> new` moves the
+        // value, `add f = c` puts `c`, `drop f` removes the (already typed) field.
         // A record `type` with another TYPE name, an unknown version or another fingerprint is a typed
         // decode error. No `type` key: the newest version. Without a chain the decode stays the slice 1 form.
         let migrations = self.migrations(&effect.output);
@@ -1637,6 +1637,18 @@ impl Checker<'_> {
                     format!("{{{}, {}}}", index + 1, binary(&fingerprint(fields)))
                 })
                 .collect();
+            // Per TYPE VERSION: its fields with their TYPES (DL-054).
+            let by_version: String = versions
+                .iter()
+                .enumerate()
+                .map(|(index, fields)| {
+                    let pairs: Vec<String> = sorted_fields(fields)
+                        .iter()
+                        .map(|(f, t)| format!("{{{}, {}}}", binary(f), binary(t)))
+                        .collect();
+                    format!("        {} -> {{:ok, [{}]}}\n", index + 1, pairs.join(", "))
+                })
+                .collect();
             let mut changes = String::new();
             for step in &migrations {
                 let guard = format!(
@@ -1646,32 +1658,31 @@ impl Checker<'_> {
                 for change in &step.changes {
                     changes.push_str(&match change {
                         Change::Rename(old, new) => format!(
-                            "    {{value, unread}} =\n      if {guard} and Map.has_key?(value, {old}) do\n        if Map.has_key?(value, {new}),\n          do: {{Map.delete(value, {old}), [{old} | unread]}},\n          else: {{Map.delete(Map.put(value, {new}, Map.get(value, {old})), {old}), unread}}\n      else\n        {{value, unread}}\n      end\n\n",
+                            "    value =\n      if {guard},\n        do: Map.delete(Map.put(value, {new}, Map.get(value, {old})), {old}),\n        else: value\n\n",
                             old = binary(old),
                             new = binary(new)
                         ),
                         Change::Add(field, _, constant) => format!(
-                            "    {{value, unread}} =\n      if {guard} do\n        if Map.has_key?(value, {field}),\n          do: {{Map.put(value, {field}, {constant}), [{field} | unread]}},\n          else: {{Map.put(value, {field}, {constant}), unread}}\n      else\n        {{value, unread}}\n      end\n\n",
+                            "    value = if {guard}, do: Map.put(value, {field}, {constant}), else: value\n\n",
                             field = binary(field),
                             constant = binary(constant.as_ref().expect("checked constant"))
                         ),
-                        Change::Drop(field, ty) => format!(
-                            "    value =\n      if {guard} do\n        if __beaml_valid__(Map.get(value, {field}), {ty}), do: Map.delete(value, {field}), else: nil\n      else\n        value\n      end\n\n",
-                            field = binary(field),
-                            ty = binary(ty)
+                        Change::Drop(field, _) => format!(
+                            "    value = if {guard}, do: Map.delete(value, {field}), else: value\n\n",
+                            field = binary(field)
                         ),
                     });
                 }
             }
             out.push_str(&format!(
-                "  def {decode}(a0), do: {decode}(a0, nil)\n  def {decode}(a0, type_version) do\n    declared = [{declared}]\n\n    version =\n      case type_version do\n        nil ->\n          {newest}\n\n        %{{{name_key} => {name}, {version_key} => v, {fingerprint_key} => f}} ->\n          if Enum.member?([{known}], {{v, f}}), do: v, else: 0\n\n        _ ->\n          0\n      end\n\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    value = body\n    unread = []\n\n{changes}    shape = if Enum.member?([{all}], version) and is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}) do\n      keys = Enum.concat(unread, Map.keys(Map.drop(value, declared)))\n      {{:ok, shape, Enum.sort(Enum.uniq(Enum.filter(keys, fn key -> Map.has_key?(body, key) end)))}}\n    else\n      :error\n    end\n  end\n",
+                "  def {decode}(a0), do: {decode}(a0, nil)\n  def {decode}(a0, type_version) do\n    declared = [{declared}]\n\n    version =\n      case type_version do\n        nil ->\n          {newest}\n\n        %{{{name_key} => {name}, {version_key} => v, {fingerprint_key} => f}} ->\n          if Enum.member?([{known}], {{v, f}}), do: v, else: 0\n\n        _ ->\n          0\n      end\n\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    fields =\n      case version do\n{by_version}        _ -> :none\n      end\n\n    {{value, unread}} =\n      case {{fields, body}} do\n        {{{{:ok, fields}}, %{{}}}} ->\n          names = Enum.map(fields, fn {{field, _}} -> field end)\n\n          if Enum.all?(fields, fn {{field, type}} -> __beaml_valid__(Map.get(body, field), type) end),\n            do: {{Map.take(body, names), Enum.sort(Map.keys(Map.drop(body, names)))}},\n            else: {{nil, []}}\n\n        _ ->\n          {{nil, []}}\n      end\n\n{changes}    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}) do\n      {{:ok, shape, unread}}\n    else\n      :error\n    end\n  end\n",
                 declared = declared.join(", "),
                 name_key = binary("name"),
                 name = binary(&effect.output),
                 version_key = binary("version"),
                 fingerprint_key = binary("fingerprint"),
                 known = known.join(", "),
-                all = list(newest),
+                by_version = by_version,
                 output = binary(&effect.output),
             ));
         }

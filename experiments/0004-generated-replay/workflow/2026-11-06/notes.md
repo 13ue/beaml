@@ -846,3 +846,43 @@ Failure reasons (observed, fixture names):
 | `0001/src/main.rs` | `b8ee231b…` (unchanged) |
 
 README revision 7.2: C12, D11b, D11c and the slice 3 decode rules struck through and superseded by DL-054; D17, D18 rows and a DL-054 decision row added.
+
+## Slice 3 final review repair, GREEN
+
+Base: HEAD `9474e4b` (RED). Change in `0001/src/main.rs` only, in the decode with a MIGRATE CHAIN (DL-054):
+
+- The decode first picks the fields with TYPES of the record's TYPE VERSION (`{:ok, [...]}` per version, else `:none`).
+- Each field of that version must hold its TYPE (`__beaml_valid__`); otherwise a typed `decode` error. Other keys go to `unknown_keys`, sorted.
+- The steps then work on typed data: `rename` moves the value, `add` puts the constant, `drop` removes the field. No key-presence checks remain.
+- A live body (no `type`) is the newest version: its other keys go to `unknown_keys` as before.
+- A TYPE without a chain keeps the slice 1 decode. Uses `case`, not new Kernel imports, so the import line is unchanged.
+
+### Runs (serial)
+
+| Run | Exit | Result |
+| --- | --- | --- |
+| `cargo test` (0001) | 0 | 9 + 14 passed |
+| `tests/slice2_replay_test.py` | 0 | 21/21, `results/20261106T174355901404Z` |
+| `tests/slice3_types_test.py` | 0 | 69/69 |
+| `tests/slice3_replay_test.py` | 0 | 31/31, `results/20261106T174546197158Z` |
+| `tests/arms_test.py` | 0 | 16/16, `results/20261106T174919690659Z` |
+| `tests/overlay_diff_test.py` | 0 | 3/3 |
+| `tests/drift_test.py` | 0 | 3/3 |
+| `0003-source-linked-replay/run.py` | 0 | `pass`, `0003/results/20261106T175654653083Z` |
+| `0004-generated-replay/run.py` | 0 | `pass`, `results/20261106T175755407440Z` |
+
+`payments.beaml` output: byte-identical to `tests/payments.generated.snapshot` and to the output of a HEAD build (`cmp`).
+
+### SHA-256
+
+| File | SHA-256 |
+| --- | --- |
+| `0001/src/main.rs` | `b8ee231b…` → `b3f4a765f3d5071fd8bcde2f0f3ac6ade7c629a632f75afc7d0d5d4cd010f9a8` |
+| test files, fixtures | unchanged since RED `9474e4b` |
+
+### Decisions (Decision4, GREEN)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| GR-1 | Version field table as `{:ok, list}` and a `case` match | Undo | Over new `is_list` and `!=` imports: the Kernel import line stays, so the payments output stays byte-identical |
+| GR-2 | `drop` no longer checks the value itself | Undo | The TYPE VERSION check already typed the field; a second check is dead code |

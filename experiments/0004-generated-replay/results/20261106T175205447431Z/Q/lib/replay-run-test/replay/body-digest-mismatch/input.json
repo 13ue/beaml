@@ -1,0 +1,41 @@
+{
+  "order": {
+    "order_id": "order-1"
+  },
+  "mode": "replay",
+  "trace_id": "5f070d20a80a514b12dcc8cea04aacf5",
+  "responses": [
+    {
+      "status": 200,
+      "version": 1,
+      "request": {
+        "channel": "web",
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "5f070d20a80a514b12dcc8cea04aacf5",
+      "body_length": 44,
+      "attempt": 1,
+      "artifact_id": "49a862e3036653bd88add839c24b1b28b134eb31a597c26019b0fb201222de57",
+      "body_base64": "eyJzdGF0dXMiOiJhdXRob3JpemVkIiwib3JkZXJfaWQiOiJvcmRlci0xIn0=",
+      "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba",
+      "client_span_id": "45e9ee90fa883951"
+    },
+    {
+      "status": 200,
+      "version": 1,
+      "request": {
+        "channel": "web",
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "ead74e75363d1db5606226b5663cef1b",
+      "body_length": 44,
+      "attempt": 1,
+      "artifact_id": "49a862e3036653bd88add839c24b1b28b134eb31a597c26019b0fb201222de57",
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0dXMiOiJhdXRob3JpemVkIn0=",
+      "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba",
+      "client_span_id": "06faba8acd445ae0"
+    }
+  ]
+}

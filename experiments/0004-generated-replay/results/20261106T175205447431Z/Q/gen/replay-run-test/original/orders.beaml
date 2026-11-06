@@ -1,0 +1,17 @@
+interface Order { order_id: String }
+interface PaymentRequest { order_id: String channel: String }
+interface Payment { order_id: String status: String }
+interface PaymentError { reason: String }
+
+// Leaves the module. Recorded live, substituted in a REPLAY RUN.
+effect payments.authorize PaymentRequest -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare Order { order_id } -> PaymentRequest = PaymentRequest { order_id: order_id + "", channel: "web" }
+fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + "", status: status }
+
+// The flow lives in BEAML. A failed step stops the pipe and passes PaymentError on.
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
+  |> finish
