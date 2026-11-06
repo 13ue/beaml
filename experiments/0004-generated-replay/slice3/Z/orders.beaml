@@ -1,0 +1,17 @@
+// Case D14: `drop` then `add` of the same name; version 1 and version 3 have one fingerprint.
+interface Order { order_id: String }
+interface Payment { order_id: String status: String }
+migrate Payment 1 -> 2 { drop status: String }
+migrate Payment 2 -> 3 { add status: String = "new" }
+interface PaymentError { reason: String }
+
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + "", status: status }
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
+  |> finish

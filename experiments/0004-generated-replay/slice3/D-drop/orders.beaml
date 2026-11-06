@@ -1,0 +1,16 @@
+// Case D4, D9: a removed field with `drop`.
+interface Order { order_id: String }
+interface Payment { order_id: String }
+migrate Payment 1 -> 2 { drop status: String }
+interface PaymentError { reason: String }
+
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+fn finish Payment { order_id } -> Payment = Payment { order_id: order_id + "" }
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
+  |> finish

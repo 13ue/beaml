@@ -219,6 +219,15 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: DL-047 read a stray key as typed data, which is decode by key presence (rejected in DL-043), and it overrode the constant, which DL-028 makes a statement about all old records.
 → Trigger: fresh check of the slice 3 plan.
 
+**DL-049 · Repair · `drop` takes String only in slice 3** (narrows DL-044; DL-046 then checks String values)
+→ Chose: `drop` accepts String fields only; any other TYPE is a source error with a help line. Over: `drop` with a declared TYPE.
+→ Because: the decode checks String values only, so a declared-TYPE drop could not be replayed honestly.
+→ Trigger: fresh check of the slice 3 plan.
+
+**DL-050 · Repair · Chain checks run before the effect checks**
+→ Chose: the consistency checks of the MIGRATE CHAIN (K1–K12) run in the version derivation, before the effect checks. Over: drop K2 and K4.
+→ Because: the effect check rejects non-String fields first, which made K2 and K4 unreachable.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

@@ -3,7 +3,7 @@ id: experiment-0004-generated-replay-plan
 kind: experiment
 status: proposed
 updated: 2026-11-06
-revision: 7 (slice 3 plan)
+revision: 7.1 (slice 3 plan repair)
 ---
 
 # EXPERIMENT 0004 — Generated REPLAY RUN
@@ -24,7 +24,8 @@ revision: 7 (slice 3 plan)
 - **Revision 4.** Repairs the three objections of the revision 3 review: one strongest LIB form, frozen before any GEN result is judged; a complete 0003 change table, checked by a diff test on test copies; asserted TYPE mismatch cases, live and in a REPLAY RUN. [Disposition](workflow/2026-11-06/plan-review.md#disposition-main-agent-2026-11-06-1).
 - **Revision 5.** Adds the [slice 1 verdict](#slice-1-verdict-2026-11-06) and the [slice 2 plan](#slice-2). Slice 1 text above stays unchanged. The slice 1 pass and reject rule does not apply to slice 2.
 - **Revision 6.** Applies the OWNER answers O1–O4 to [slice 2](#slice-2): a MIGRATE CHAIN replaces the RENAME ALIAS options S1, S2 and S3; the record carries the TYPE version number; the build fails only when a stored TYPE VERSION has no path through the chain; C5 (DRIFT R without a chain) is now a compile error. Only the slice 2 section changes.
-- **Revision 7 (this page).** Adds the [slice 3 plan](#slice-3): `add` with a constant and `drop` with a TYPE in the MIGRATE CHAIN (DL-042). The slice 1 and slice 2 text stays unchanged.
+- **Revision 7.** Adds the [slice 3 plan](#slice-3): `add` with a constant and `drop` with a TYPE in the MIGRATE CHAIN (DL-042). The slice 1 and slice 2 text stays unchanged.
+- **Revision 7.1 (this page).** Repairs the slice 3 plan after its fresh check: the `add` constant always wins in a REPLAY RUN (DL-048, D8, new D11b); K checks run before the EFFECT output check, so K2 and K4 are reachable; `drop` takes `String` only (K6, D7, D5c); new help cases D2b and D5b; `unknown_keys == []` stated for D11 and D14. Only the slice 3 section changes.
 
 ## Slice 1 scope
 
@@ -466,7 +467,7 @@ The tests assert these tokens, not the full text: `Payment`, the old field, the 
 **[Requirement]** OWNER decisions for slice 3:
 
 - `add <field>: <TYPE> = <constant>`. The constant is an explicit statement about old data (DL-028). A REPLAY RUN of an older record fills the constant.
-- `drop <field>: <TYPE>`. The TYPE makes every old TYPE VERSION fully typed (DL-023). A REPLAY RUN of an older record removes the field. The dropped value is not used.
+- `drop <field>: <TYPE>`. The TYPE makes every old TYPE VERSION fully typed (DL-023). A REPLAY RUN of an older record removes the field. The dropped value is not used. In slice 3 the TYPE is `String` (revision 7.1, DL-044).
 - The MIGRATE CHANGES of one MIGRATE STEP are separated by commas. Slice 3 implements `rename`, `add` and `drop` only.
 - The build fails only when a stored TYPE VERSION has no path (DL-031). A field added without `add` or removed without `drop` leaves no path. The error has a `help` line with the missing MIGRATE CHANGE.
 
@@ -493,7 +494,7 @@ constant = STRING_LITERAL
 - **[Proposal]** A comma is necessary between two MIGRATE CHANGES. A trailing comma is a parse error. The slice 2 parser accepts a missing comma; no slice 2 source or test uses two MIGRATE CHANGES in one step, so this change breaks no slice 2 case.
 - **[Proposal]** `add` needs `=` and a constant. There is no default value (DL-028).
 - **[Proposal]** In slice 3 the constant is a string literal, and the field of an `add` has the TYPE `String`. The compiler has no `Int` TYPE and no literal form for a record or an `enum` value.
-- **[Proposal]** The TYPE of a `drop` is `String` or a TYPE declared in the source. An unknown TYPE (for example `Int`) is a compile error.
+- **[Proposal]** The TYPE of a `drop` is `String` (revision 7.1, DL-044). Any other TYPE, declared (for example `PaymentError`) or unknown (for example `Int`), is a compile error (K6). The generated decode checks `String` values only, so a `drop` of a declared TYPE has no replay case in slice 3.
 - **[Proposal]** Any other word in a MIGRATE STEP is an error. A computed assignment such as `amount = Money(amount_cents, currency)` is not supported.
 
 ### Derivation backwards (slice 3)
@@ -502,7 +503,7 @@ constant = STRING_LITERAL
 
 - `rename old -> new`: the field `new` of version b has the name `old` in version a (slice 2).
 - `add f: T = c`: version a is version b without the field `f`.
-- `drop f: T`: version a is version b with the field `f: T`.
+- `drop f: String`: version a is version b with the field `f: String`.
 
 **[Inference]** Example above: version 3 is `{ order_id state status }`. Version 2 is `{ order_id state channel }`. Version 1 is `{ order_id status }`. The name `status` leaves in step 1 -> 2 and comes back with another meaning in step 2 -> 3. The field `channel` lives only in version 2.
 
@@ -510,14 +511,16 @@ constant = STRING_LITERAL
 
 **[Proposal]** The compiler checks each MIGRATE STEP against the source alone. It reports these errors before the `--stored` check (as C16). They fail also with an empty RECORD SNAPSHOT.
 
+**[Proposal] Check order (revision 7.1).** The K checks run where the MIGRATE CHAIN is derived (`derive_versions`). The compiler calls it before the EFFECT check that allows `String` output fields only (`main.rs`, `Checker::new` calls `derive_versions` before `effects()`). So K2 and K4 report their own message for the EFFECT output TYPE, not the EFFECT message. In one MIGRATE STEP, K7 and K8 run before the checks of the single MIGRATE CHANGES (K1–K6).
+
 | ID | Source fault | Error, asserted tokens |
 | --- | --- | --- |
 | K1 | `add f` where `f` is not in version b | `migrate T a -> b`, `add f`, `not in T b` |
 | K2 | `add f: X` where `f` has another TYPE Y in version b | `add f`, `X`, `Y` |
 | K3 | `add f: String = 5` (the constant is not a string literal) | `add f`, `5`, `String` |
-| K4 | `add f: X = "c"` where `X` is not `String` (and `f: X` in version b) | `add f`, `X`, `String fields only` |
+| K4 | `add f: X = "c"` where `X` is not `String` (and `f: X` in version b). Reachable only by the check order above | `add f`, `X`, `String fields only` |
 | K5 | `drop f` where `f` is in version b | `drop f`, `still in T b` |
-| K6 | `drop f: Int` (unknown TYPE) | `drop f`, `unknown type: Int` |
+| K6 | `drop f: X` where `X` is not `String`, for example `Int` (unknown) or `PaymentError` (declared) | `drop f`, `X`, `String fields only` |
 | K7 | One field name two times in one MIGRATE STEP, for example `{ drop f: String, add f: String = "c" }` or `{ rename f -> g, add f: String = "c" }` | `migrate T a -> b`, `f`, `two times` |
 | K8 | Empty MIGRATE STEP `{ }` | `migrate T a -> b`, `at least one rename, add or drop` |
 | K9 | Missing comma: `{ add f: String = "c" drop g: String }` | `expected ','` |
@@ -530,7 +533,7 @@ constant = STRING_LITERAL
 **[Inference]** Two faults are not visible in the source alone. They fail through the path check, as the misspelled `rename` of slice 2 (DL-036):
 
 - An `add f` for a field that old records already hold. The derived old version lacks `f`; a stored record with `f` has no path (case D15).
-- A `drop f: X` with the wrong TYPE. The derived old version has `f: X`; a stored record with `f: String` has another fingerprint (case D7).
+- Revision 7.1: a `drop f: X` with a TYPE other than `String` is now a source error (K6, case D7), not a path error.
 
 **[Proposal]** `add` of a field in one step and `drop` of the same field in a later step is legal (field `channel` above). Each MIGRATE STEP is a statement about one pair of versions, and records of the middle version can exist. `drop` and a later `add` of the same name is also legal (name reuse, case D14).
 
@@ -540,9 +543,11 @@ constant = STRING_LITERAL
 
 **[Proposal]** Each MIGRATE CHANGE of a step, applied to the body:
 
-- `rename old -> new`: unchanged from slice 2 (F4). `old` is read as `new` only when the body has no `new`.
-- `add f: T = c`: when the body has no `f`, the decode puts `c`. When the body has `f`, the body value stays and must pass the TYPE check (same rule as C12).
-- `drop f: T`: the body must hold `f` with a value of TYPE `T`. Otherwise the decode gives `PaymentError{reason: "decode"}`. Then the decode removes `f`. A dropped key is consumed; it is not an unknown key.
+- `rename old -> new`: `old` is read as `new` only when the body has no `new` (slice 2, F4 and C12). The `rename` always removes `old` from the working body (DL-048). When the body also holds `new`, the value of `old` is not read, and `old` goes into `unknown_keys`.
+- `add f: String = c`: the decode always puts `c` (DL-048). When the working body holds a key `f`, its value is not read, and `f` goes into `unknown_keys`. A body value never wins over the constant.
+- `drop f: String`: the body must hold `f` with a `String` value. Otherwise the decode gives `PaymentError{reason: "decode"}`. Then the decode removes `f`. A dropped key is consumed; it is not an unknown key.
+
+**[Proposal]** `unknown_keys` holds, sorted and each key once, every key of the stored body that the decode does not read: a key that a `rename` or an `add` removes unread, and every key outside the declared fields at the end. This keeps the slice 2 cases C11 and C12 unchanged.
 
 **[Proposal]** The record body and its digest stay unchanged. The live path never puts a constant. A TYPE without a MIGRATE CHAIN keeps the slice 1 decode (payments output byte-identical).
 
@@ -553,10 +558,10 @@ constant = STRING_LITERAL
 | Difference between stored and newest TYPE VERSION | `help` line, asserted |
 | --- | --- |
 | Only added fields `a: String`, `b: String` | `migrate T <stored> -> <next> { add a: String = <constant>, add b: String = <constant> }` |
-| Only removed fields `x: X`, `y: Y` | `migrate T <stored> -> <next> { drop x: X, drop y: Y }` |
-| One removed `x: X`, one added `a: X` (slice 2 rename case) | first line unchanged (`rename x -> a`); second line `migrate T <stored> -> <next> { drop x: X, add a: X = <constant> }` |
-| Removed and added fields in other counts | one line with all `drop` MIGRATE CHANGES, then all `add` MIGRATE CHANGES, sorted by field name |
-| An added field with a TYPE other than `String` | no `add` form; the line says `add supports String fields only` |
+| Only removed fields `x: String`, `y: String` | `migrate T <stored> -> <next> { drop x: String, drop y: String }` |
+| One removed `x: String`, one added `a: String` (slice 2 rename case) | first line unchanged (`rename x -> a`); second line `migrate T <stored> -> <next> { drop x: String, add a: String = <constant> }` |
+| Removed and added fields in other counts | one line with all `drop` MIGRATE CHANGES, then all `add` MIGRATE CHANGES, each group sorted by field name |
+| A removed field with a TYPE other than `String` (revision 7.1) | no `drop` form; the line says `drop supports String fields only` |
 | The same field name with another TYPE | no `help` line (a changed field TYPE is out of scope) |
 | A stored version older than the newest without a path | `help: the MIGRATE CHAIN of T must derive version <stored> with the fields of the stored TYPE VERSION; check its rename, add and drop steps` |
 
@@ -572,6 +577,8 @@ error: TYPE Payment cannot read 1 stored RESPONSE RECORD of operation payments.a
   help: if status is removed, declare: migrate Payment 1 -> 2 { drop status: String }
 ```
 
+**[Inference] Revision 7.1.** The row "an added field with a TYPE other than `String`" is removed. An added field is in the newest TYPE VERSION, and the EFFECT check rejects a newest field other than `String` before the `--stored` check. No source can reach that row.
+
 **[Proposal]** The tests assert tokens, not the full text: the TYPE name, each named field, the `--stored` path and the asserted `help` form. Compiler action events do not record the path (AGENTS rule).
 
 ### Cases (slice 3)
@@ -580,7 +587,8 @@ error: TYPE Payment cannot read 1 stored RESPONSE RECORD of operation payments.a
 
 Sources:
 
-- **R+add.** `interface Payment { order_id: String reference: String status: String }`, `migrate Payment 1 -> 2 { add reference: String = "pre-v2" }`.
+- **R+add.** `interface Payment { order_id: String status: String reference: String }`, `migrate Payment 1 -> 2 { add reference: String = "pre-v2" }`.
+- **R2.** `interface Payment { order_id: String status: String reference: String channel: String }` without a chain (two added fields).
 - **R.** The R+add interface without a chain (slice 2 C5 source).
 - **D+drop.** `interface Payment { order_id: String }`, `migrate Payment 1 -> 2 { drop status: String }`.
 - **D.** The D+drop interface without a chain.
@@ -591,19 +599,23 @@ Sources:
 | --- | --- | --- | --- | --- | --- |
 | D1 | R+add | `v1` | exit 0 | `correct_accept` `{order_id, reference: "pre-v2", status}`, `unknown_keys == []`, `finish/1` 1 | not run |
 | D2 | R | `v1` | compile error: `Payment`, `reference`, path, help `migrate Payment 1 -> 2 { add reference: String = <constant> }` | not run | not run |
+| D2b | R2 | `v1` | compile error: `Payment`, `channel`, `reference`, path, help `migrate Payment 1 -> 2 { add channel: String = <constant>, add reference: String = <constant> }` (sorted by field name) | not run | not run |
 | D3 | R | empty | exit 0 | none | not run |
 | D4 | D+drop | `v1` | exit 0 | `correct_accept` `{order_id}`, `unknown_keys == []` (`status` consumed), `finish/1` 1 | `correct_accept` `{order_id}`, `unknown_keys == ["status"]`; new record holds `Payment 2 { order_id }` and its fingerprint |
 | D5 | D | `v1` | compile error: `Payment`, `status`, `String`, path, help `migrate Payment 1 -> 2 { drop status: String }` | not run | not run |
+| D5b | DRIFT N (`interface Payment { order_id: String state: String }`, slice 2 C1 source) | `v1` | compile error: `Payment`, path, help `migrate Payment 1 -> 2 { rename status -> state }` and help `migrate Payment 1 -> 2 { drop status: String, add state: String = <constant> }` | not run | not run |
+| D5c | D | hand-built `v1` record with `status: PaymentError` in the TYPE VERSION | compile error: `Payment`, `status`, `PaymentError`, path, `drop supports String fields only`; no `drop status: PaymentError` form | not run | not run |
 | D6 | D | empty | exit 0 | none | `correct_accept` |
-| D7 | D+drop with `drop status: PaymentError` | `v1` | compile error (no path): `Payment`, `status`, `String`, `PaymentError`, path | not run | not run |
-| D7b | D7 source | empty | exit 0 | none | not run |
-| D8 | R+add build | `v1` | exit 0 | hand-built `v1` record with `"reference":"r-9"` in the body: `correct_accept` with `reference: "r-9"`, `unknown_keys == []` | not run |
+| D7 | D+drop with `drop status: PaymentError` | `v1` | compile error K6: `drop status`, `PaymentError`, `String fields only`, no stdout | not run | not run |
+| D7b | D7 source | empty | the same compile error: a source error, independent of the records | none | not run |
+| D8 | R+add build | `v1` | exit 0 | hand-built `v1` record with `"reference":"r-9"` in the body: `correct_accept` with `reference: "pre-v2"`, `unknown_keys == ["reference"]` (DL-048) | not run |
 | D9 | D+drop build | `v1` | exit 0 | hand-built `v1` record without `status`: `typed_reject` `decode`, `finish/1` 0. Second record with `"status":7`: the same | not run |
 | D10 | R+add build | `v1` | exit 0 | not run | `typed_reject` `decode`, `finish/1` 0: the stub body has no `reference`, and a live body gets no constant. The new record holds version 2 |
-| D11 | M | records of version 1, 2 and 3 | exit 0 | v1 `{status: "authorized"}` → `{state: "authorized", status: "migrated"}`; v2 `{state: "settled", channel: "app"}` → `{state: "settled", status: "migrated"}`, `unknown_keys == []`; v3 body unchanged | not run |
+| D11 | M | records of version 1, 2 and 3 | exit 0 | v1 `{status: "authorized"}` → `{state: "authorized", status: "migrated"}`, `unknown_keys == []`; v2 `{state: "settled", channel: "app"}` → `{state: "settled", status: "migrated"}`, `unknown_keys == []`; v3 body unchanged, `unknown_keys == []` | not run |
+| D11b | M build | records of version 1, 2 and 3 | exit 0 | hand-built v1 record with both keys `{state: "settled", status: "authorized"}` → `{state: "settled", status: "migrated"}`, `unknown_keys == ["status"]`. The old `status` value is only in `unknown_keys` (DL-048) | not run |
 | D12 | M without `drop channel: String` in step 2 -> 3 | empty | compile error K1: `migrate Payment 1 -> 2`, `add channel`, `not in Payment 2` | not run | not run |
 | D13 | M | a version 2 record without `channel` | compile error (no path): `Payment`, `channel`, `derived TYPE VERSION 2`, path | not run | not run |
-| D14 | Z | `v1` | exit 0 | `correct_accept` with `status: "new"`, not the stored value | live body `{order_id, status}` keeps its `status` value |
+| D14 | Z | `v1` | exit 0 | `correct_accept` with `status: "new"`, not the stored value, `unknown_keys == []` | live body `{order_id, status}` keeps its `status` value, `unknown_keys == []`; new record holds version 3 |
 | D15 | `interface Payment { order_id: String status: String }`, `migrate Payment 1 -> 2 { add status: String = "x" }` | `v1` | compile error (no path): `Payment`, `status`, `derived TYPE VERSION 1`, path | not run | not run |
 | D15b | D15 source | empty | exit 0 | none | not run |
 | K1–K12 | per the consistency table, built on the R+add or D+drop source | empty | compile error with the K tokens, no stdout | not run | not run |
@@ -611,15 +623,17 @@ Sources:
 
 **[Inference]** What each control kills:
 
-- D3, D6, D7b and D15b against D2, D5, D7 and D15: the error must come from the stored records, not from the source (as C6 against C1).
+- D3, D6 and D15b against D2, D5 and D15: the error must come from the stored records, not from the source (as C6 against C1). D7b against D7 shows the opposite: K6 is a source error.
 - D10: a decode that puts the constant also into live bodies (a guess on new data).
 - D11 v1 and D14: a decode by key presence or by body shape. Both keep the stored `status` value. D14 has the same fingerprint for versions 1 and 3, so only the record version tells the decode which steps to apply.
 - D11 v2: a decode that applies the steps of version 1 to a version 2 body, or that does not consume a dropped key.
 - D9: a `drop` that removes a field without its TYPE check (DL-023).
-- D8: a decode that overwrites a body value with the constant. The rule is the C12 rule; a change of this rule is Undo.
+- D8 and D11b: a decode that keeps a body value over the constant (decode by key presence, rejected in DL-048). In D11b the stray value comes through a `rename` step with both keys in the body.
+- D2b and D5b: help lines with one MIGRATE CHANGE only, or in another order.
+- D5c: a `drop` help form for a TYPE that `drop` does not take.
 - The template runs: a compiler with the fixture names or the fixture constant in it.
 
-**[Proposal] Test files.** `tests/slice3_types_test.py` holds the compile cases D2, D3, D5–D7b, D12, D13, D15, D15b, K1–K12 and the builds of D1, D4, D11 and D14. `tests/slice3_replay_test.py` holds the replay and live cases D1, D4, D8–D11 and D14. New files keep the SHA-256 of all slice 2 test files unchanged; D16 runs them unchanged.
+**[Proposal] Test files.** `tests/slice3_types_test.py` holds the compile cases D2, D2b, D3, D5–D7b, D12, D13, D15, D15b, K1–K12 and the builds of D1, D4, D11 and D14. `tests/slice3_replay_test.py` holds the replay and live cases D1, D4, D8–D11b and D14. New files keep the SHA-256 of all slice 2 test files unchanged; D16 runs them unchanged.
 
 **[Proposal] Compiler change sites.** `Migration` holds a list of MIGRATE CHANGES. The parser reads `rename`, `add` and `drop` with comma separators. `derive_versions` applies the three backward rules and checks K1–K8. The decode generator emits one block per MIGRATE CHANGE. `no_path` emits the new `help` lines.
 
@@ -627,10 +641,10 @@ Sources:
 
 **[Proposal] Pass.** The claim holds for slice 3 only if all are true:
 
-1. D2 and D5 fail at compile time with exit ≠ 0, no stdout and all asserted tokens, with fixture names and with random names.
+1. D2, D2b, D5, D5b and D5c fail at compile time with exit ≠ 0, no stdout and all asserted tokens, with fixture names and with random names.
 2. D3 and D6 compile. So the D2 and D5 errors come from the stored records.
-3. D1, D4, D8, D11 and D14 give `correct_accept` for every old record with exactly the expected values and `unknown_keys`.
-4. D7, D12, D13, D15 and K1–K12 fail at compile time with their tokens. D7b and D15b compile. D9 and D10 give `typed_reject` `decode`.
+3. D1, D4, D8, D11, D11b and D14 give `correct_accept` for every old record with exactly the expected values and `unknown_keys`.
+4. D7, D7b, D12, D13, D15 and K1–K12 fail at compile time with their tokens. D15b compiles. D9 and D10 give `typed_reject` `decode`.
 5. D16 passes: every slice 1 and slice 2 test, unchanged.
 6. GEN gives no `wrong_accept` and no untyped crash in any case.
 
@@ -639,7 +653,8 @@ Sources:
 - D2 or D5 compiles with the `v1` RECORD SNAPSHOT.
 - D3 or D6 also fails.
 - D10 accepts: the constant filled a live body.
-- D11 or D14 accepts with the stored `status` value instead of the constant (`wrong_accept`).
+- D11, D11b or D14 accepts with the stored `status` value instead of the constant (`wrong_accept`).
+- D8 accepts with `reference: "r-9"` (`wrong_accept`).
 - D9 accepts a version 1 body without the dropped field.
 
 **No verdict.** If D16 fails, slice 3 fails as an implementation and gives no verdict on the claim.
@@ -647,7 +662,7 @@ Sources:
 ### Out of scope (slice 3)
 
 - Computed MIGRATE CHANGES (`amount = Money(...)`), `Unknown`, `enum` matching in a step, PII.
-- An `Int` TYPE and constants other than a string literal. `add` for a field of a record or `enum` TYPE.
+- An `Int` TYPE and constants other than a string literal. `add` or `drop` for a field of a record or `enum` TYPE (revision 7.1: `drop` takes `String` only).
 - A changed field TYPE under the same name in one step (K7 rejects `drop f` with `add f` in one step).
 - The run of migrations over stored values (DL-027) and rollback windows for a lossy `drop`.
 - The lifetime of a MIGRATE STEP after no stored record needs it.
@@ -661,11 +676,13 @@ Sources:
 | `add` with constant, `drop` with TYPE, commas, `rename`/`add`/`drop` only, path rule unchanged, decode by version | OWNER (DL-022, DL-023, DL-028, DL-031, DL-042, DL-043) | Given for slice 3 |
 | Comma necessary between MIGRATE CHANGES; trailing comma is an error | Undo | Over optional commas: a missing comma becomes visible (K9, K10). No slice 2 source has two changes in a step |
 | `add` only for `String` fields with a string literal constant | Repair | Over adding `Int` and record or `enum` literals: the compiler has only `String` and declared TYPES. Commits slice 3 sources to `String` constants |
-| `drop` TYPE is `String` or a declared TYPE; `Int` is an unknown TYPE | Repair | Over a new `Int` TYPE: no value checks for `Int` exist. The OWNER sketch `drop amount_cents: Int` waits for an `Int` TYPE |
+| ~~`drop` TYPE is `String` or a declared TYPE~~ Superseded in revision 7.1: `drop` TYPE is `String` only (DL-044) | Repair | Chose `String` only. Over a declared TYPE: the generated decode checks `String` values only, and no case replays a dropped value of a declared TYPE, so the claim would be untested. Because a fresh check found that gap. Commits a record or `enum` `drop` to a later slice with a nested decode |
 | One field name at most once per MIGRATE STEP (K7) | Undo | Over order-dependent changes in one step. A field that leaves and comes back takes two steps. A later relaxation breaks no source |
 | `add` then a later `drop` of the same field, and `drop` then a later `add`, are legal | Repair | Over a reject: each step is a statement about one version pair, and middle-version records can exist. Commits the decode to version dispatch (D11, D14) |
-| `add` of a field that old records hold, and a wrong `drop` TYPE, fail through the path check | Repair | Same reason as DL-036: the source alone cannot show them; with an empty snapshot they compile |
-| `add` in the decode: the body value wins when the body has the field | Undo | Same rule as C12 and F4. Local to the generated decode (D8) |
+| `add` of a field that old records hold fails through the path check | Repair | Same reason as DL-036: the source alone cannot show it; with an empty snapshot it compiles. Revision 7.1: a `drop` TYPE other than `String` is a source error (K6) |
+| ~~`add` in the decode: the body value wins when the body has the field~~ Superseded by DL-048: the `add` constant always wins in a REPLAY RUN; the body key goes into `unknown_keys`; a `rename` removes the old key from the working body | Repair (DL-048) | Over a body value that wins: a body value read as typed data is decode by key presence (rejected in DL-043), and it overrides the constant, which DL-028 makes a statement about all old records. Commits D8 and D11b |
+| K checks run before the EFFECT output check; K2 and K4 stay; the help row for an added field with a TYPE other than `String` is removed (revision 7.1) | Repair | Chose the check order that `Checker::new` already has (`derive_versions` before `effects()`). Over dropping K2 and K4: the order costs no extra compiler code and keeps a precise message. Because no source can reach the removed help row. Commits GREEN to keep that order |
+| New help cases D2b, D5b, D5c (revision 7.1) | Undo | Test cases for planned help rows; no new rule |
 | `drop` in the decode checks the dropped value against its TYPE; a missing or wrong value is a typed `decode` reject | Repair | Over removing without a check: DL-023 says old versions are fully typed. Commits every old body to its full TYPE VERSION (D9) |
 | A live body never gets a constant | Repair | DL-028: the constant is a statement about old data only. Commits live traffic to the newest TYPE (D10) |
 | `help` lines name the missing `add` or `drop` with a `<constant>` placeholder | Undo | Message text only. The compiler does not guess a constant |

@@ -622,3 +622,77 @@ Expected values come from a carrier table in the test (field that holds X and Y 
 | F5 | Version dispatch only for a TYPE with a MIGRATE CHAIN | Repair | Chose chain-only. Over: dispatch for every TYPE. Because: payments output must stay byte-identical. Commits two decode forms in the compiler |
 | F6 | Runtime random-name variants run in arm trees (template source in a temp dir) | Undo | Test-only; 4 more release builds |
 | F7 | New fixture sources under `slice2/`; snapshots written by the tests | Undo | Same pattern as `repair_records` |
+
+## Slice 3 plan repair and RED
+
+STATE README: revision 7.1 (slice 3 section, front matter and one plan history line only).
+
+### Plan changes (README revision 7.1)
+
+| # | Fault (fresh check) | Change |
+| --- | --- | --- |
+| 1 | HIGH: the body value won over the `add` constant (DL-047 form) | DL-048 in "Generated decode (slice 3)": `add` always puts the constant; a body key with the same name goes into `unknown_keys`; a `rename` always removes the old key from the working body. New `unknown_keys` rule (C11 and C12 unchanged). D8 expects `reference: "pre-v2"` and `unknown_keys == ["reference"]`. New case D11b. Decision row superseded. |
+| 2 | MEDIUM: K2, K4 and the help row for a non-String added field looked unreachable (`main.rs` EFFECT check, String output fields only) | Check order stated: K checks run in `derive_versions`, which `Checker::new` calls before `effects()`. K2 and K4 stay. The help row is removed: an added field is in the newest TYPE VERSION, and `effects()` rejects a non-String newest field before `--stored`. |
+| 3 | MEDIUM: a `drop` with a declared TYPE had no replay case | `drop` takes `String` only. K6 now covers every non-String TYPE (`String fields only`). D7 and D7b are source errors (K6). The help table row for a removed non-String field says `drop supports String fields only` (new case D5c). |
+| 4 | MEDIUM: help lines with two changes untested | D2b (two `add`, sorted by field name), D5b (`rename` help line plus `drop`/`add` line, DRIFT N source). |
+| 5 | Minor | `unknown_keys == []` stated for D11 v1, v2, v3 and D14 (replay and live). |
+
+### RED tests
+
+New files (pattern of slice 2: Fixture class with fixture files, Template class with random TYPE names, field names and constants; a random constant holds `"`, `\` and `é`; expected values from tables in the tests).
+
+| File | Cases | RED result |
+| --- | --- | --- |
+| `tests/slice3_types_test.py` | D2, D2b, D3, D5, D5b, D5c, D6, D7, D7b, D12, D13, D15, D15b, K1–K12 (K7 two forms), builds D1, D4, D11, D14; fixture guard | 59 run, 56 failures (54 tests + 2 K7 subtests), 0 Python errors. Pass: D3, D6 (controls, as C6), fixture guard |
+| `tests/slice3_replay_test.py` | D1, D4 (replay and live), D8, D9 (missing and `7`), D10 (live), D11 v1–v3, D11b, D14 (replay and live), strict build; fixture and random names | 23 run, 22 failures, 0 Python errors. Pass: control hashes unchanged. `results/20261106T164321602324Z` |
+
+Fail reasons (current compiler):
+
+- Sources with `add` or `drop`: `unsupported migrate step (slice 2 supports rename only)` (builds D1, D4, D11, D14; D7, D7b, D12, D13, D15, D15b; K1–K7, K11; every replay tree).
+- D2, D2b, D5, D5b, D5c: the error exists, but the asserted `help` line (`add ... = <constant>`, `drop ... : String`, `drop supports String fields only`) is missing.
+- K8: `a step needs at least one rename` (token `at least one rename, add or drop` missing). K9, K10, K12: the slice 2 parse message, without `expected ','`, `expected rename, add or drop`, or `add` and `drop`.
+
+Fake checks (scratch only, not in the repository):
+
+- A mocked harness that decodes by the README rule passes all 22 replay and live tests: the test logic runs without Python errors.
+- A mocked decode that ignores `add` and `drop` (slice 2 decode) fails D1, D4, D8, D9, D11, D11b and D14, with fixture and random names. Inferred, not run: a decode where the body value wins fails D8 and D11b, because the table expects the constant.
+
+### SHA-256 (new files; changed: README only)
+
+| File | SHA-256 |
+| --- | --- |
+| `tests/slice3_types_test.py` | `5b1f0d53922dfba874b46c33ee01cbef9f24c2fee2f476bf966ddf350a561f4e` |
+| `tests/slice3_replay_test.py` | `6f310c41f7271686dce924dc5edeceb002c0d82a951c24d534793cd170714cf6` |
+| `slice3/R-add/orders.beaml` | `6a69e59710c35b45b654ac8a58c349a29b1199d6f1db015403756c792df88055` |
+| `slice3/R2/orders.beaml` | `3dd37d0d519244b3bdcd6cec45736af512991221d3ae2f74a42d592a96a6b28f` |
+| `slice3/D-drop/orders.beaml` | `8165ff376514f99e6742419ae270d54d36bc1c4232506deea65cb5ed5f097df4` |
+| `slice3/D/orders.beaml` | `c44b187ec4fee7ec7bcc9db5725115b7f8cab2756d2fda5213bc592809323790` |
+| `slice3/M/orders.beaml` | `ff13cbc02825bd7b0dc61ca373e91b7f0c46783b32eced94d6f2abeccb176f56` |
+| `slice3/M-nodrop/orders.beaml` | `2c58cf7f0e4b51691628ea03ec60cd004b15230112370324f86d1d733f14172e` |
+| `slice3/Z/orders.beaml` | `9289b51326867f06335e4b0489a8b01c74bf060b192acd08afd0712a06509fef` |
+| `slice3/D15/orders.beaml` | `138fc21653baf840af2945c2aa3d0c521cc82734f0068c1a095863c57e3de4de` |
+| `slice3/D7/orders.beaml` | `eb1bad739058486ce1ecdd54f4ed534757c3cc081ac179109473c4c6135863c4` |
+| `tests/stored_types_test.py`, `tests/slice2_replay_test.py`, `0001/src/main.rs`, `run.py` | unchanged |
+
+### Verification (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline` (0001) | 0 | 9 + 14 passed |
+| `tests/slice3_types_test.py` | 1 | RED as above |
+| `tests/slice3_replay_test.py` | 1 | RED as above |
+| `tests/stored_types_test.py` | 0 | OK |
+| `tests/slice2_replay_test.py` | 0 | 21/21; `results/20261106T164415019578Z` |
+
+### Decisions (Decision4, slice 3 plan repair and RED)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| P1 | `add` constant always wins; body key into `unknown_keys`; `rename` removes the old key | Repair (DL-048, decided by the main agent) | Applied as decided |
+| P2 | K checks before the EFFECT output check; keep K2, K4; remove the non-String `add` help row | Repair | Chose the existing order (`derive_versions` before `effects()`). Over dropping K2 and K4. Because the order needs no extra code and keeps a precise message; no source reaches the help row. Commits GREEN to keep the K checks in `derive_versions` |
+| P3 | `drop` takes `String` only (K6 widened; D7 and D7b are source errors; new D5c) | Repair | Chose `String` only. Over a declared-TYPE `drop` with a replay case. Because the decode checks `String` values only; a nested decode is not cheap, and an untested claim is not honest. Commits record and `enum` `drop` to a later slice. The decision log text of DL-044 must change (main agent) |
+| P4 | `unknown_keys` = keys the decode does not read, sorted, each once | Undo | Local to the generated decode; keeps C11 and C12 |
+| P5 | D5b uses the DRIFT N source; D11b expects `state` from the body (C12) and `status` from the constant | Undo | Reuses the slice 2 rule; no new rule |
+| P6 | K fixtures come from the template with fixture names (no files); main cases have files in `slice3/` | Undo | Slice 2 pattern (`GENERATED_KINDS`) |
+| P7 | Replay tests import the slice 2 helpers (`counts`, `accepted`, `decode_rejected`) | Undo | No copy; slice 2 files unchanged |
+| P8 | R+add field order `order_id status reference` (README text aligned) | Undo | Same order as DRIFT R; R+add is R plus the chain |
