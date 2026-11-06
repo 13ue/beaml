@@ -13,6 +13,7 @@ Expected tokens, warning lines, diffs and files come from the README tables and 
 never from the compiler. A removal case copies the source into a temporary directory first.
 Run: python3 -B experiments/0004-generated-replay/tests/slice4_retire_test.py [-k NAME]
 """
+import re
 import base64
 import difflib
 import hashlib
@@ -280,7 +281,7 @@ class Slice4Retire:
     # Assertions.
     def assert_rejected(self, kind, label, tokens, absent=(), stored=None):
         code, stdout, stderr, source, stored = self.compile(kind, label, stored)
-        self.assertNotEqual(0, code, self.ctx(kind, label, "expected exit != 0; stderr:", stderr))
+        self.assertEqual(1, code, self.ctx(kind, label, "expected exit 1 (not a crash); stderr:", stderr))
         self.assertEqual("", stdout, self.ctx(kind, label, "expected no stdout"))
         tokens = [stored if t is PATH else t for t in tokens]
         self.assertEqual(([], []), ([t for t in tokens if t not in stderr],
@@ -412,7 +413,7 @@ class Slice4Retire:
 
     def test_E05d_retired_record_without_type_version_is_compile_error(self):
         stderr = self.assert_rejected("G+r", "v1+untyped", [st.NO_TYPE_VERSION, PATH])
-        self.assertTrue("line 2" in stderr or ":2" in stderr, self.ctx("E5d names line 2", stderr))
+        self.assertTrue(re.search(r"(\bline 2\b|:2\b)", stderr), self.ctx("E5d names line 2", stderr))
 
     # E6, E6b, E8: source faults (T1-T7).
     def test_E06_retire_line_for_a_declared_effect_is_compile_error(self):

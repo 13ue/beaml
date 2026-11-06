@@ -976,3 +976,12 @@ Risk (inferred, not run): the P+r tree builds a release whose router calls `Orde
 | S4-7 | `retired/0` value checked in the eval VM (replay file), not in stdout text | Undo | The emitter writes strings as byte lists; text match is brittle |
 | S4-8 | `Retired` read from its `inspect` text, fields in any order | Undo | Struct field order of `inspect` is not part of the contract |
 | S4-9 | The replay test adds the EFFECT functions of the slice 4 operations to `arms.WATCHED` in its own process | Undo | `arms_test.py` stays unchanged |
+
+## Slice 4 RED check follow-up
+
+- The fresh RED check found no high problem.
+- The main agent tightened two assertions in `tests/slice4_retire_test.py`:
+  - rejected sources must exit 1, not any non-zero code (a crash exit no longer passes);
+  - E5d matches `line 2` or `:2` as whole tokens.
+- New SHA-256 prefix of `slice4_retire_test.py`: `0441173b43a154db`. The run still gives 84 failures, all for missing compiler features.
+- Risk closed: the P+r build with an undefined `place/1` only warns (elixirc 1.18.1, exit 0); strict mode applies to G+r only.
