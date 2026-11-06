@@ -302,6 +302,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: the diff keeps CRLF line ends, the count is the number of removed declarations, the event field is `removed`, and the usage text names `--remove-dead`.
 → Detail: 0004 notes.md, "Slice 4 plan repair and RED", S4-4.
 
+**DL-065 · Migrate · Where the last branch must keep the value**
+→ Question: does "the last branch over an open TYPE keeps the original value" hold everywhere?
+→ Options: strict, in every match over an open TYPE; targeted, only where data comes from outside or from the past.
+→ Chose: targeted. The rule holds in `migrate` steps and in the decode of data from outside (effect responses, stored records). Ordinary code may use a deliberate default (`fn greeting other: String -> String = "Hello"`).
+→ Because: a guess is dangerous where data is stored or comes from another system; in ordinary code a default is a design choice.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

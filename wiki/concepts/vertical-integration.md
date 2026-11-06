@@ -41,8 +41,8 @@ updated: 2026-11-06
 
 - A `migrate` chain with `rename`, `add` and `drop` holds the TYPE history. Only the newest `interface` is declared. `drop` names the TYPE of the removed field, so that every old version is fully typed.
 - No guessing fallback. A step may not invent a value for a case it does not know.
-- A closed TYPE (an `enum`) is matched exhaustively.
-- An open TYPE (`String`, `Int`) is matched with a last branch that keeps the original value, for example `other -> Unknown(other)`. The target TYPE then has an `Unknown` variant, and every use of that TYPE must handle it.
+- A closed TYPE (an `enum`) is matched exhaustively. `Unknown(String)` is a declared variant; an `enum` holds no literals, and the mapping is written as function clauses (DL-062). Records are declared with `type` (DL-061).
+- In `migrate` steps and in the decode of data from outside, an open TYPE (`String`, `Int`) is matched with a last branch that keeps the original value, for example `other -> Unknown(other)`. The target TYPE then has an `Unknown` variant, and every use of that TYPE must handle it.
 - `add` with a constant is allowed. It is an explicit statement about the old data, not a guess.
 - Unknown values stay visible through the stack. The check reports per environment how many values are `Unknown`.
 - Privacy is the highest goal. A field of an `interface` can be declared as PII with the word `redacted` before its TYPE (`card_holder: redacted String`). The compiler keeps that value out of logs, traces and reports across the stack. See [information-flow security](information-flow-security.md).
