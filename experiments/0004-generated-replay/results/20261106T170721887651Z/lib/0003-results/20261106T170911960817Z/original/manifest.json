@@ -1,0 +1,123 @@
+{
+  "fixtures": {
+    "payments": {
+      "source": "apps/payments_api/priv/payments.beaml",
+      "source_hash": "6e3f6a12f4554d118d8e37c4d117815553a9f0d2821ea9983683952974c6da50"
+    },
+    "orders": {
+      "source": "apps/orders_api/priv/orders.beaml",
+      "source_hash": "411a0acd0e09f1ce2dbedba827ff2ab0182eaeca8b99df0b411f9b24f71bcdf1"
+    }
+  },
+  "capture": {
+    "payments": {
+      "bytes": {
+        "logs": 350,
+        "spans": 2112
+      },
+      "loss": []
+    },
+    "orders": {
+      "bytes": {
+        "logs": 348,
+        "responses": 886,
+        "spans": 3822
+      },
+      "loss": []
+    }
+  },
+  "processes": {
+    "payments": {
+      "capture": {
+        "bytes": {},
+        "loss": []
+      },
+      "count": 0,
+      "node": "nonode@nohost",
+      "pid": "58277",
+      "applications": [
+        "payments_api",
+        "probe_support",
+        "plug_cowboy",
+        "plug",
+        "plug_crypto",
+        "mime",
+        "eex",
+        "cowboy_telemetry",
+        "telemetry",
+        "cowboy",
+        "ranch",
+        "ssl",
+        "public_key",
+        "asn1",
+        "cowlib",
+        "opentelemetry",
+        "opentelemetry_api",
+        "crypto",
+        "logger",
+        "sasl",
+        "elixir",
+        "compiler",
+        "stdlib",
+        "kernel"
+      ],
+      "beam_hash": "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31",
+      "listener": "127.0.0.1",
+      "own_loaded": true,
+      "sibling": "orders_api",
+      "sibling_available": false,
+      "sibling_loaded": false
+    },
+    "orders": {
+      "capture": {
+        "bytes": {},
+        "loss": []
+      },
+      "count": 0,
+      "node": "nonode@nohost",
+      "pid": "58371",
+      "applications": [
+        "orders_api",
+        "probe_support",
+        "plug_cowboy",
+        "plug",
+        "plug_crypto",
+        "mime",
+        "eex",
+        "cowboy_telemetry",
+        "telemetry",
+        "cowboy",
+        "ranch",
+        "ssl",
+        "public_key",
+        "asn1",
+        "cowlib",
+        "opentelemetry",
+        "opentelemetry_api",
+        "crypto",
+        "logger",
+        "sasl",
+        "elixir",
+        "compiler",
+        "stdlib",
+        "kernel"
+      ],
+      "beam_hash": "9b5ec850c5e6d8f0d71f58f5cb71e956916ff9e2f2fa657d83533234f0fd43b5",
+      "listener": "127.0.0.1",
+      "own_loaded": true,
+      "sibling": "payments_api",
+      "sibling_available": false,
+      "sibling_loaded": false
+    }
+  },
+  "artifacts": {
+    "payments": {
+      "generated_hash": "e57f13b48a94dc031be64daef13e28e820b7d19e281df07b89983db7f2bea14e",
+      "beam_hash": "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31"
+    },
+    "orders": {
+      "generated_hash": "f62f1e2e6562735965f00fcf773443e3ef66db7480039e0a823c9487d0936ad8",
+      "beam_hash": "9b5ec850c5e6d8f0d71f58f5cb71e956916ff9e2f2fa657d83533234f0fd43b5"
+    }
+  }
+}

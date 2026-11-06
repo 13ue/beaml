@@ -739,3 +739,62 @@ Repairs four medium gaps of the fresh RED check. No compiler change. README unch
 | R4 | New case IDs D2c, D11c, D14-v3 are not in the README case table | Repair | Chose test-only IDs. Over a README revision now. Because the rows test existing README rules. Commits the main agent to add them to the README case table |
 | R5 | D2c source comes from the template (no fixture file), as the K cases | Undo | Pattern P6 |
 | R6 | Template source directory keyed by kind and names hash | Undo | The sort-order subtests change the names inside one test |
+
+## Slice 3 GREEN
+
+STATE: GREEN. All done criteria exit 0 after the harness repair of the main agent (see "Harness fault"). No commit.
+
+### Steps
+
+1. Parser: a MIGRATE STEP holds MIGRATE CHANGES `rename`, `add f: T = <constant>` and `drop f: T`, separated by commas. A missing comma gives `expected ','` (K9). A trailing comma gives `expected rename, add or drop` (K10). A missing `=` gives `expected '='` (K11). Another word gives `unsupported migrate step: <word>; a MIGRATE CHANGE is rename, add or drop` (K12).
+2. `derive_versions`: backward rules for `rename`, `add` and `drop`; K8, then K7, then K1, K2, K4, K3 (`add`) and K6, K5 (`drop`) per MIGRATE CHANGE. `Checker::new` still calls it before `effects()` (DL-050).
+3. Decode of a TYPE with a MIGRATE CHAIN: the record version picks the MIGRATE STEPS; the version and fingerprint pair must be a derived TYPE VERSION, else a typed decode error. One block per MIGRATE CHANGE (DL-048, DL-049). `unknown_keys`: sorted, each key once, only keys of the stored body. The `rename` fix of D11c is part of the DL-048 block.
+4. `no_path` help lines per the README table: `rename` line, then one line with all `drop` and all `add` MIGRATE CHANGES (each group sorted); `drop supports String fields only` for a non-String field; no line for a changed field TYPE; `must derive version <n> ... rename, add and drop steps` for an older stored version.
+5. README: case rows D2c, D11c, D14-v3 and the test file paragraph.
+
+### Runs (serial)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline` (0001) | 0 | 9 + 14 passed; `payments.beaml` output equals `tests/payments.generated.snapshot` (`cmp`) |
+| `tests/slice3_types_test.py` | 0 | 65/65 |
+| `tests/slice3_replay_test.py` (before the harness repair) | 1 | 27 run, 5 failures, all `RandomNames`: D1, D8, D11, D11b, D14. Fixture names: all pass. `results/20261106T165828959405Z` |
+| `tests/slice3_replay_test.py` (after the harness repair, run by the main agent) | 0 | 27/27 |
+| `tests/stored_types_test.py` | 0 | 33/33 |
+| `tests/slice2_replay_test.py` | 0 | 21/21; `results/20261106T170535614183Z` |
+| `tests/arms_test.py` | 0 | 16/16; `results/20261106T170721887651Z` |
+| `tests/overlay_diff_test.py` | 0 | 3/3 |
+| `tests/drift_test.py` | 0 | 3/3 |
+| `0003-source-linked-replay/run.py` | 0 | `pass`, `0003/results/20261106T171503615957Z` |
+| `0004-generated-replay/run.py` | 0 | `pass`, `results/20261106T171604583428Z` |
+
+### Harness fault (observed)
+
+- The 5 failures are the cases where the decoded value holds a random `add` constant with `é`. Expected `...\\é...`, actual `...\\�...`.
+- The raw eval stdout (`results/20261106T165828959405Z/commands/s3-radd-random-eval-D1.stdout`) holds the byte `e9` (Latin-1), not `c3 a9` (UTF-8).
+- Cause: `arms_test.py` `orders_env` gives the eval VM no `LANG`. Without a UTF-8 locale, `IO.puts` writes Latin-1. Check: `env -i ... elixir -e 'IO.puts(<json with <<99,195,169>>>)'` gives `63 e9`; with `LANG=en_US.UTF-8` it gives `63 c3 a9`.
+- So the decode value is correct UTF-8; the report channel breaks it. The slice 3 RED used a mocked harness and did not see this.
+- Repair (main agent, Repair class): `orders_env` in `tests/arms_test.py` sets `LANG` and `LC_ALL` to `en_US.UTF-8`. No assertion changed. `arms_test.py` SHA-256 `0298a9d9be2a050b…` → `855edf10b70a5018ccb70bb70dbc0fc5c77ec8225ae448b9a4ee5c55f1eeedab`.
+
+### SHA-256 (test files and fixtures: unchanged, except the harness repair)
+
+| File | SHA-256 |
+| --- | --- |
+| `tests/slice3_types_test.py` | `c4266ffc25de392856254b8675d14325cde1ef29e710e1c3d41f2547e6445f1c` (unchanged) |
+| `tests/slice3_replay_test.py` | `a2080d9d88a34ebd8baf303dc4425064bfc49eb62f9cfbae26cf481c53c841a0` (unchanged) |
+| `0001/tests/cli.rs` | `2354c81a1bd0b29f04dcda855870c3d8c3e45fcde5e0e27e38d7e04eb28b8d8b` (unchanged) |
+| `tests/arms_test.py` | `0298a9d9be2a050b…` → `855edf10b70a5018ccb70bb70dbc0fc5c77ec8225ae448b9a4ee5c55f1eeedab` (harness repair, main agent) |
+| other `tests/*.py`, `slice2/`, `slice3/`, `stored/`, `drift/` | unchanged |
+| `0001/src/main.rs` | `e90df458…3b01` → `b8ee231ba9e87bfdaa80d65c9db59feb0545d1b2e2b38915b976b9c4b6000874` |
+
+### Decisions (Decision4, slice 3 GREEN)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| G3-1 | Runtime check of the record fingerprint against the derived version | Repair | Chose a typed decode error for a version and fingerprint pair that the chain does not derive. Over: version only. Because the task says the fingerprint validates. Commits every replayed record to a derived TYPE VERSION |
+| G3-2 | `unknown_keys` keeps only keys of the stored body | Repair | Chose a filter on the stored body. Over: report every removed key. Because a constant that a later `rename` removes is no body key (README: keys of the stored body). Commits the decode to keep the original body |
+| G3-3 | `drop` value check uses the generated `String` check (`is_binary` and `String.valid?`) | Undo | Same check as a declared String field |
+| G3-4 | K order: K8, K7, then per change K1, K2, K4, K3 and K6, K5 | Undo | README order (K7, K8 before single changes); messages only |
+| G3-5 | Help line text: `if <drops> is removed and <adds> is new, declare: ...`; non-String fields: `no MIGRATE CHANGE for f: T: drop supports String fields only, add supports String fields only` | Undo | Message text; README tokens kept |
+| G3-6 | A constant other than a string literal (word or number) parses and fails at K3 | Undo | K3 needs the token in its message |
+| G3-7 | Stop at the harness fault; no test file change | Repair | Chose stop and report. Over: edit `orders_env`. Because test files are out of the GREEN scope. Closed: the main agent repaired `orders_env` (UTF-8 locale) |

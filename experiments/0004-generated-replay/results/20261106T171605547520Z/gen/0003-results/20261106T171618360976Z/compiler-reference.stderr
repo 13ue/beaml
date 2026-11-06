@@ -1,0 +1,3 @@
+   Compiling beaml-spike v0.1.0 (/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-2v9xl6l8/experiments/0001-syntax-to-beam)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
+     Running tests/cli.rs (experiments/0001-syntax-to-beam/target/debug/deps/cli-6ba597b100ad03d9)

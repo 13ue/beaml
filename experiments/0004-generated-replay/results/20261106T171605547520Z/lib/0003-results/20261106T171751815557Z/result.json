@@ -1,0 +1,163 @@
+{
+  "test": "test_live_orders_call_captures_predecode_response_and_one_transport_attempt",
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "experiments/0003-source-linked-replay/tests/response_capture_test.py"
+  ],
+  "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-ilxrc7az",
+  "status": "pass",
+  "steps": [
+    {
+      "ts": "2026-11-06T17:17:51.815918+00:00",
+      "action": "start",
+      "result": "running"
+    },
+    {
+      "ts": "2026-11-06T17:18:06.438237+00:00",
+      "action": "step",
+      "result": "fresh_releases_match_archived_beams"
+    },
+    {
+      "ts": "2026-11-06T17:18:06.490478+00:00",
+      "action": "step",
+      "result": "receipt_1_verified"
+    },
+    {
+      "ts": "2026-11-06T17:18:06.539179+00:00",
+      "action": "step",
+      "result": "receipt_2_verified"
+    },
+    {
+      "ts": "2026-11-06T17:18:08.650799+00:00",
+      "action": "step",
+      "result": "live_releases_stopped"
+    },
+    {
+      "ts": "2026-11-06T17:18:10.122748+00:00",
+      "action": "step",
+      "result": "observer_control_reached_transport_failure"
+    },
+    {
+      "ts": "2026-11-06T17:18:10.330457+00:00",
+      "action": "pass",
+      "result": "capture_and_transport_verified"
+    }
+  ],
+  "baseline": {
+    "receipts": [
+      {
+        "call": 1,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "dca32b7b92a68edf42ec29201a9dc902"
+      },
+      {
+        "call": 2,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "e9781f3325b17d71bd2154a118091c94"
+      }
+    ],
+    "payments_count_delta": 2
+  },
+  "release_exits": {
+    "payments": 0,
+    "orders": 0
+  },
+  "assertions": {
+    "orders_transport_attempts_after_each_call": {
+      "expected": [
+        1,
+        2
+      ],
+      "actual": [
+        1,
+        2
+      ]
+    },
+    "response_record_traces": {
+      "expected": [
+        "dca32b7b92a68edf42ec29201a9dc902",
+        "e9781f3325b17d71bd2154a118091c94"
+      ],
+      "actual": [
+        "dca32b7b92a68edf42ec29201a9dc902",
+        "e9781f3325b17d71bd2154a118091c94"
+      ]
+    },
+    "first_response_record": {
+      "expected": {
+        "version": 1,
+        "trace_id": "dca32b7b92a68edf42ec29201a9dc902",
+        "client_span_id": "796162f27d1edf55",
+        "artifact_id": "9b5ec850c5e6d8f0d71f58f5cb71e956916ff9e2f2fa657d83533234f0fd43b5",
+        "operation": "payments.authorize",
+        "attempt": 1,
+        "request": {
+          "order_id": "order-1"
+        },
+        "status": 200,
+        "body_length": 44,
+        "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba"
+      },
+      "actual": {
+        "version": 1,
+        "trace_id": "dca32b7b92a68edf42ec29201a9dc902",
+        "client_span_id": "796162f27d1edf55",
+        "artifact_id": "9b5ec850c5e6d8f0d71f58f5cb71e956916ff9e2f2fa657d83533234f0fd43b5",
+        "operation": "payments.authorize",
+        "attempt": 1,
+        "request": {
+          "order_id": "order-1"
+        },
+        "status": 200,
+        "body_length": 44,
+        "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba"
+      }
+    },
+    "first_response_body": {
+      "expected": {
+        "bounded": true,
+        "json": {
+          "order_id": "order-1",
+          "status": "authorized"
+        }
+      },
+      "actual": {
+        "bounded": true,
+        "json": {
+          "order_id": "order-1",
+          "status": "authorized"
+        }
+      }
+    },
+    "observer_control_attempts_invalid_then_refused": {
+      "expected": [
+        0,
+        1
+      ],
+      "actual": [
+        0,
+        1
+      ]
+    },
+    "observer_control_response_records": {
+      "expected": 0,
+      "actual": 0
+    }
+  },
+  "observer_control": {
+    "refused_port": 64485,
+    "exit": 0,
+    "statuses": [
+      400,
+      502
+    ]
+  }
+}

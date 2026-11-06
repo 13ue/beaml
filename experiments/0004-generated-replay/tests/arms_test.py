@@ -206,7 +206,8 @@ def refused_port():
 def orders_env(out, payments_port):
     return dict(PATH="/usr/bin:/bin:/usr/sbin:/sbin", PROBE_SERVICE="orders", PROBE_OUTPUT=str(out),
                 PROBE_PAYMENTS_PORT=str(payments_port), PROBE_DROP_CONTEXT="false",
-                RELEASE_DISTRIBUTION="none", RELEASE_COOKIE="beaml_synthetic_loopback_test")
+                RELEASE_DISTRIBUTION="none", RELEASE_COOKIE="beaml_synthetic_loopback_test",
+                LANG="en_US.UTF-8", LC_ALL="en_US.UTF-8")
 
 
 def payments_stub(status, body):

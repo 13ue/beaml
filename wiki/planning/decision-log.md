@@ -228,6 +228,20 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: the consistency checks of the MIGRATE CHAIN (K1–K12) run in the version derivation, before the effect checks. Over: drop K2 and K4.
 → Because: the effect check rejects non-String fields first, which made K2 and K4 unreachable.
 
+### EXPERIMENT 0004 slice 3 GREEN
+
+**DL-051 · Repair · UTF-8 locale in the test VM**
+→ Chose: `orders_env` in `arms_test.py` sets `LANG` and `LC_ALL` to UTF-8. Over: an ASCII-escaped report.
+→ Because: the generated code was right; the test VM without a locale wrote Latin-1. The worker raised it as Migrate; the main agent lowered it to Repair, because only the own test harness changes.
+
+**DL-052 · Repair · Fingerprint checked at run time**
+→ Chose: a REPLAY RUN checks the record fingerprint against its version. Over: trust the version number only.
+→ Because: the version picks the steps, the fingerprint validates (DL-037, DL-043).
+
+**DL-053 · Repair · `unknown_keys` lists stored body keys only**
+→ Chose: `unknown_keys` holds keys of the stored body that the decode does not read. Over: every key a step removes.
+→ Because: the README defines the hint on body keys.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

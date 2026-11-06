@@ -1,0 +1,102 @@
+{
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "experiments/0003-source-linked-replay/run.py"
+  ],
+  "started_at": "2026-11-06T17:17:30.867698+00:00",
+  "finished_at": "2026-11-06T17:18:31.933303+00:00",
+  "toolchain": {
+    "python": "3.9.6",
+    "trace-lookup": {
+      "elixir": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nElixir 1.18.1 (compiled with Erlang/OTP 27)\n",
+      "mix": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nMix 1.18.1 (compiled with Erlang/OTP 27)\n",
+      "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)\n",
+      "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)\n",
+      "python3": "Python 3.9.6\n"
+    },
+    "trace-lookup-repair": {
+      "python": "3.9.6"
+    },
+    "response-capture": {
+      "elixir": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nElixir 1.18.1 (compiled with Erlang/OTP 27)\n",
+      "mix": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nMix 1.18.1 (compiled with Erlang/OTP 27)\n",
+      "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)\n",
+      "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)\n",
+      "python3": "Python 3.9.6\n"
+    },
+    "replay-run": {
+      "elixir": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nElixir 1.18.1 (compiled with Erlang/OTP 27)\n",
+      "mix": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nMix 1.18.1 (compiled with Erlang/OTP 27)\n",
+      "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)\n",
+      "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)\n",
+      "python3": "Python 3.9.6\n"
+    }
+  },
+  "steps": [
+    {
+      "name": "compiler-reference",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml",
+        "--test",
+        "cli",
+        "payments_cli_emits_checked_authorize_reference",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "result_dir": null,
+      "status": "pass"
+    },
+    {
+      "name": "trace-lookup",
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+      ],
+      "exit_code": 0,
+      "result_dir": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-ilxrc7az/experiments/0003-source-linked-replay/results/20261106T171733430747Z",
+      "status": "pass"
+    },
+    {
+      "name": "trace-lookup-repair",
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py",
+        "--source-run",
+        "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-ilxrc7az/experiments/0003-source-linked-replay/results/20261106T171733430747Z"
+      ],
+      "exit_code": 0,
+      "result_dir": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-ilxrc7az/experiments/0003-source-linked-replay/results/20261106T171751583736Z",
+      "status": "pass"
+    },
+    {
+      "name": "response-capture",
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/response_capture_test.py"
+      ],
+      "exit_code": 0,
+      "result_dir": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-ilxrc7az/experiments/0003-source-linked-replay/results/20261106T171751815557Z",
+      "status": "pass"
+    },
+    {
+      "name": "replay-run",
+      "command": [
+        "python3",
+        "-B",
+        "experiments/0003-source-linked-replay/tests/replay_run_test.py"
+      ],
+      "exit_code": 0,
+      "result_dir": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-lib-ilxrc7az/experiments/0003-source-linked-replay/results/20261106T171810441115Z",
+      "status": "pass"
+    }
+  ],
+  "status": "pass"
+}

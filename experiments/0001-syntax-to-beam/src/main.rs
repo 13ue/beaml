@@ -155,14 +155,22 @@ struct Effect {
     path: String,
     source_range: Range<usize>,
 }
-// `migrate T a -> b { rename old -> new }`: one step of the MIGRATE CHAIN of the TYPE T (slice 2).
+// `migrate T a -> b { change, change }`: one MIGRATE STEP of the MIGRATE CHAIN of the TYPE T.
 // The `interface` is the newest TYPE VERSION; older versions are derived backwards.
 #[derive(Clone, Debug)]
 struct Migration {
     type_name: String,
     from: u32,
     to: u32,
-    renames: Vec<(String, String)>,
+    changes: Vec<Change>,
+}
+// One MIGRATE CHANGE (slice 3): `rename old -> new`, `add f: T = "c"` or `drop f: T`.
+#[derive(Clone, Debug)]
+enum Change {
+    Rename(String, String),
+    // The constant is `Ok(text)` for a string literal, `Err(token text)` for any other token (K3).
+    Add(String, String, Result<String, String>),
+    Drop(String, String),
 }
 #[derive(Default)]
 struct Program {
@@ -231,6 +239,45 @@ impl Parser {
         }
         self.at += 1;
         Ok(())
+    }
+    // One MIGRATE CHANGE: `rename old -> new`, `add f: T = <constant>` or `drop f: T`.
+    fn change(&mut self) -> Checked<Change> {
+        let kind = match self.peek().clone() {
+            Token::Word(word) => word,
+            _ => return Err(self.error("expected rename, add or drop")),
+        };
+        match kind.as_str() {
+            "rename" => {
+                self.at += 1;
+                let old = self.word()?;
+                self.arrow()?;
+                Ok(Change::Rename(old, self.word()?))
+            }
+            "add" => {
+                self.at += 1;
+                let field = self.word()?;
+                self.expect(':')?;
+                let ty = self.word()?;
+                self.expect('=')?;
+                let constant = match self.peek().clone() {
+                    Token::Text(text) => Ok(text),
+                    Token::Word(word) => Err(word),
+                    Token::Number(number) => Err(number.to_string()),
+                    _ => return Err(self.error("expected a constant after '='")),
+                };
+                self.at += 1;
+                Ok(Change::Add(field, ty, constant))
+            }
+            "drop" => {
+                self.at += 1;
+                let field = self.word()?;
+                self.expect(':')?;
+                Ok(Change::Drop(field, self.word()?))
+            }
+            other => Err(self.error(&format!(
+                "unsupported migrate step: {other}; a MIGRATE CHANGE is rename, add or drop"
+            ))),
+        }
     }
     // Optional `! Error | Error`.
     fn failures(&mut self) -> Checked<Vec<String>> {
@@ -431,28 +478,26 @@ impl Parser {
                     self.arrow()?;
                     let to = self.number()?;
                     self.expect('{')?;
-                    let mut renames = Vec::new();
-                    while !self.eat('}') {
-                        match self.word()?.as_str() {
-                            "rename" => {
-                                let old = self.word()?;
-                                self.arrow()?;
-                                renames.push((old, self.word()?));
+                    // MIGRATE CHANGES separated by commas; no trailing comma (K9, K10).
+                    let mut changes = Vec::new();
+                    if !self.eat('}') {
+                        loop {
+                            changes.push(self.change()?);
+                            if self.eat('}') {
+                                break;
                             }
-                            _ => {
-                                self.at -= 1;
+                            if !self.eat(',') {
                                 return Err(self.error(
-                                    "unsupported migrate step (slice 2 supports rename only)",
+                                    "expected ',' between two MIGRATE CHANGES or '}' after the last one",
                                 ));
                             }
                         }
-                        self.eat(',');
                     }
                     program.migrations.push(Migration {
                         type_name,
                         from,
                         to,
-                        renames,
+                        changes,
                     });
                 }
                 _ => return Err(self.error("expected interface, enum, or fn")),
@@ -472,8 +517,11 @@ struct Checker<'a> {
     versions: Versions,
 }
 
-// The MIGRATE CHAIN check: steps `1 -> 2 -> ...` without gaps per TYPE, each `rename old -> new` with
-// `new` in the version after the step and `old` not in it. Old versions are derived backwards.
+// The MIGRATE CHAIN check: MIGRATE STEPS `1 -> 2 -> ...` without gaps per TYPE. Old TYPE VERSIONS are
+// derived backwards from the `interface`, from the newest MIGRATE STEP to the oldest (slice 3):
+// `rename old -> new` names the field `new` of version b `old` in version a; `add f` removes `f`;
+// `drop f: String` adds `f: String`. The consistency checks K1-K8 run here, before the EFFECT checks
+// (DL-050). In one MIGRATE STEP, K7 and K8 run before the checks of the single MIGRATE CHANGES.
 fn derive_versions(program: &Program) -> Checked<Versions> {
     let mut chains: BTreeMap<&str, Vec<&Migration>> = BTreeMap::new();
     for step in &program.migrations {
@@ -494,41 +542,106 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
                     from + 1
                 ));
             }
-            if step.renames.is_empty() {
-                return Err(format!(
-                    "migrate {name} {} -> {}: a step needs at least one rename",
-                    step.from, step.to
-                ));
-            }
         }
         let mut chain = vec![newest.clone()];
         for step in steps.iter().rev() {
             let current = chain.last().unwrap();
-            let label = format!("migrate {name} {} -> {}", step.from, step.to);
-            unique(step.renames.iter().map(|(old, _)| old.clone()))
-                .map_err(|e| format!("{label}: {e}"))?;
-            unique(step.renames.iter().map(|(_, new)| new.clone()))
-                .map_err(|e| format!("{label}: {e}"))?;
+            let (a, b) = (step.from, step.to);
+            let label = format!("migrate {name} {a} -> {b}");
+            // K8: an empty MIGRATE STEP.
+            if step.changes.is_empty() {
+                return Err(format!(
+                    "{label}: a MIGRATE STEP needs at least one rename, add or drop"
+                ));
+            }
+            // K7: one field name at most once per MIGRATE STEP (both names of a `rename`).
+            let mut seen = BTreeSet::new();
+            for change in &step.changes {
+                let names: Vec<&String> = match change {
+                    Change::Rename(old, new) => vec![old, new],
+                    Change::Add(field, _, _) | Change::Drop(field, _) => vec![field],
+                };
+                for field in names {
+                    if !seen.insert(field.clone()) {
+                        return Err(format!(
+                            "{label}: field {field} is named two times in one MIGRATE STEP; a field that leaves and comes back needs two MIGRATE STEPS"
+                        ));
+                    }
+                }
+            }
+            let type_of = |field: &str| {
+                current
+                    .iter()
+                    .find(|(f, _)| f == field)
+                    .map(|(_, t)| t.clone())
+            };
             let mut previous = current.clone();
-            for (old, new) in &step.renames {
-                if !lower(old) {
-                    return Err(format!("{label}: field names must start lowercase: {old}"));
-                }
-                if !current.iter().any(|(field, _)| field == new) {
-                    return Err(format!(
-                        "{label}: rename {old} -> {new}: field {new} is not in {name} {}",
-                        step.to
-                    ));
-                }
-                if current.iter().any(|(field, _)| field == old) {
-                    return Err(format!(
-                        "{label}: rename {old} -> {new}: field {old} is still in {name} {}",
-                        step.to
-                    ));
-                }
-                for field in previous.iter_mut() {
-                    if &field.0 == new {
-                        field.0 = old.clone();
+            for change in &step.changes {
+                match change {
+                    Change::Rename(old, new) => {
+                        if !lower(old) {
+                            return Err(format!(
+                                "{label}: field names must start lowercase: {old}"
+                            ));
+                        }
+                        if type_of(new).is_none() {
+                            return Err(format!(
+                                "{label}: rename {old} -> {new}: field {new} is not in {name} {b}"
+                            ));
+                        }
+                        if type_of(old).is_some() {
+                            return Err(format!(
+                                "{label}: rename {old} -> {new}: field {old} is still in {name} {b}"
+                            ));
+                        }
+                        for field in previous.iter_mut() {
+                            if &field.0 == new {
+                                field.0 = old.clone();
+                            }
+                        }
+                    }
+                    Change::Add(field, ty, constant) => {
+                        // K1, K2, K4, K3.
+                        let Some(actual) = type_of(field) else {
+                            return Err(format!(
+                                "{label}: add {field}: field {field} is not in {name} {b}"
+                            ));
+                        };
+                        if &actual != ty {
+                            return Err(format!(
+                                "{label}: add {field}: {ty}: field {field} has the TYPE {actual} in {name} {b}"
+                            ));
+                        }
+                        if ty != "String" {
+                            return Err(format!(
+                                "{label}: add {field}: {ty}: add supports String fields only"
+                            ));
+                        }
+                        if let Err(token) = constant {
+                            return Err(format!(
+                                "{label}: add {field}: String = {token}: the constant must be a String literal"
+                            ));
+                        }
+                        previous.retain(|(f, _)| f != field);
+                    }
+                    Change::Drop(field, ty) => {
+                        // K6, K5.
+                        if ty != "String" {
+                            return Err(format!(
+                                "{label}: drop {field}: {ty}: drop supports String fields only"
+                            ));
+                        }
+                        if !lower(field) {
+                            return Err(format!(
+                                "{label}: field names must start lowercase: {field}"
+                            ));
+                        }
+                        if type_of(field).is_some() {
+                            return Err(format!(
+                                "{label}: drop {field}: field {field} is still in {name} {b}"
+                            ));
+                        }
+                        previous.push((field.clone(), ty.clone()));
                     }
                 }
             }
@@ -1492,57 +1605,80 @@ impl Checker<'_> {
             .iter()
             .map(|(field, _)| binary(field))
             .collect();
-        // MIGRATE CHAIN: the decode reads a body as the TYPE VERSION of its RESPONSE RECORD (final review
-        // repair: decode by version, not by key presence). A body of version n gets the rename steps
-        // n -> n+1 -> ... -> newest in chain order; a live body is the newest version and gets none.
-        // In a step, `old` is read as `new` only without `new`: the current name wins (C12).
-        // A record `type` with another TYPE name or an unknown version is a typed decode error.
-        // No `type` key: the newest version. Without a chain the decode stays the slice 1 form.
+        // MIGRATE CHAIN: the decode reads a body as the TYPE VERSION of its RESPONSE RECORD (DL-043). The
+        // version number picks the MIGRATE STEPS; the fingerprint only validates the version. A body of
+        // version n gets the MIGRATE CHANGES of the steps n -> n+1 -> ... -> newest in chain order; a live
+        // body is the newest version and gets none. Per MIGRATE CHANGE (slice 3, DL-048, DL-049):
+        // `rename old -> new` reads `old` as `new` only without `new` (C12) and always removes `old`;
+        // `add f = c` always puts `c`; `drop f: String` needs a String value and removes it.
+        // `unknown_keys`: keys of the stored body that the decode does not read, sorted, each once.
+        // A record `type` with another TYPE name, an unknown version or another fingerprint is a typed
+        // decode error. No `type` key: the newest version. Without a chain the decode stays the slice 1 form.
         let migrations = self.migrations(&effect.output);
-        let newest = self.type_versions(&effect.output).len();
+        let versions = self.type_versions(&effect.output);
+        let newest = versions.len();
         let list = |last: usize| {
             (1..=last)
                 .map(|v| v.to_string())
                 .collect::<Vec<_>>()
                 .join(", ")
         };
-        let (head, version, renames, known, arity) = if migrations.is_empty() {
-            (format!("  def {decode}(a0) do\n"), String::new(), String::new(), String::new(), "")
+        if migrations.is_empty() {
+            out.push_str(&format!(
+                "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
+                declared.join(", "),
+                output = binary(&effect.output),
+            ));
         } else {
-            let renames: String = migrations
+            let known: Vec<String> = versions
                 .iter()
-                .flat_map(|step| step.renames.iter().map(move |rename| (step.from, rename)))
-                .map(|(from, (old, new))| {
-                    format!(
-                        "    value =\n      if Enum.member?([{versions}], version) and is_map(value) and Map.has_key?(value, {new}) == false and Map.has_key?(value, {old}),\n        do: Map.delete(Map.put(value, {new}, Map.get(value, {old})), {old}),\n        else: value\n\n",
-                        versions = list(from as usize),
-                        old = binary(old),
-                        new = binary(new)
-                    )
+                .enumerate()
+                .map(|(index, fields)| {
+                    format!("{{{}, {}}}", index + 1, binary(&fingerprint(fields)))
                 })
                 .collect();
-            (
-                format!("  def {decode}(a0), do: {decode}(a0, nil)\n  def {decode}(a0, type_version) do\n"),
-                format!(
-                    "    version =\n      case type_version do\n        nil -> {newest}\n        %{{{name_key} => {name}, {version_key} => v}} -> v\n        _ -> 0\n      end\n\n",
-                    name_key = binary("name"),
-                    name = binary(&effect.output),
-                    version_key = binary("version"),
-                ),
-                renames,
-                format!("Enum.member?([{}], version) and ", list(newest)),
-                ", type_version",
-            )
-        };
-        out.push_str(&format!(
-            "{head}    declared = [{}]\n\n{version}    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n{renames}    shape = if {known}is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
-            declared.join(", "),
-            output = binary(&effect.output),
-        ));
-        let result_head = if migrations.is_empty() {
-            format!("  def __beaml_result_{elixir}(a0) do\n")
+            let mut changes = String::new();
+            for step in &migrations {
+                let guard = format!(
+                    "Enum.member?([{}], version) and is_map(value)",
+                    list(step.from as usize)
+                );
+                for change in &step.changes {
+                    changes.push_str(&match change {
+                        Change::Rename(old, new) => format!(
+                            "    {{value, unread}} =\n      if {guard} and Map.has_key?(value, {old}) do\n        if Map.has_key?(value, {new}),\n          do: {{Map.delete(value, {old}), [{old} | unread]}},\n          else: {{Map.delete(Map.put(value, {new}, Map.get(value, {old})), {old}), unread}}\n      else\n        {{value, unread}}\n      end\n\n",
+                            old = binary(old),
+                            new = binary(new)
+                        ),
+                        Change::Add(field, _, constant) => format!(
+                            "    {{value, unread}} =\n      if {guard} do\n        if Map.has_key?(value, {field}),\n          do: {{Map.put(value, {field}, {constant}), [{field} | unread]}},\n          else: {{Map.put(value, {field}, {constant}), unread}}\n      else\n        {{value, unread}}\n      end\n\n",
+                            field = binary(field),
+                            constant = binary(constant.as_ref().expect("checked constant"))
+                        ),
+                        Change::Drop(field, ty) => format!(
+                            "    value =\n      if {guard} do\n        if __beaml_valid__(Map.get(value, {field}), {ty}), do: Map.delete(value, {field}), else: nil\n      else\n        value\n      end\n\n",
+                            field = binary(field),
+                            ty = binary(ty)
+                        ),
+                    });
+                }
+            }
+            out.push_str(&format!(
+                "  def {decode}(a0), do: {decode}(a0, nil)\n  def {decode}(a0, type_version) do\n    declared = [{declared}]\n\n    version =\n      case type_version do\n        nil ->\n          {newest}\n\n        %{{{name_key} => {name}, {version_key} => v, {fingerprint_key} => f}} ->\n          if Enum.member?([{known}], {{v, f}}), do: v, else: 0\n\n        _ ->\n          0\n      end\n\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    value = body\n    unread = []\n\n{changes}    shape = if Enum.member?([{all}], version) and is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}) do\n      keys = Enum.concat(unread, Map.keys(Map.drop(value, declared)))\n      {{:ok, shape, Enum.sort(Enum.uniq(Enum.filter(keys, fn key -> Map.has_key?(body, key) end)))}}\n    else\n      :error\n    end\n  end\n",
+                declared = declared.join(", "),
+                name_key = binary("name"),
+                name = binary(&effect.output),
+                version_key = binary("version"),
+                fingerprint_key = binary("fingerprint"),
+                known = known.join(", "),
+                all = list(newest),
+                output = binary(&effect.output),
+            ));
+        }
+        let (result_head, arity) = if migrations.is_empty() {
+            (format!("  def __beaml_result_{elixir}(a0) do\n"), "")
         } else {
-            format!("  def __beaml_result_{elixir}(a0), do: __beaml_result_{elixir}(a0, nil)\n  def __beaml_result_{elixir}(a0, type_version) do\n")
+            (format!("  def __beaml_result_{elixir}(a0), do: __beaml_result_{elixir}(a0, nil)\n  def __beaml_result_{elixir}(a0, type_version) do\n"), ", type_version")
         };
         out.push_str(&format!(
             "{result_head}    case {decode}(a0{arity}) do\n      {{:ok, value, []}} ->\n        {{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
@@ -2159,20 +2295,63 @@ impl Checker<'_> {
                 "  field {f}: {t} is in the {label}, not in the stored TYPE VERSION"
             ));
         }
-        match (target, gone.as_slice(), added.as_slice()) {
-            (Some(_), _, _) => m.push(format!(
-                "  help: the MIGRATE CHAIN of {type_name} must derive version {} with the fields of the stored TYPE VERSION; check its rename steps",
+        // Help lines (README slice 3, "Path errors and help lines"). `<constant>` stays a placeholder.
+        if target.is_some() {
+            m.push(format!(
+                "  help: the MIGRATE CHAIN of {type_name} must derive version {} with the fields of the stored TYPE VERSION; check its rename, add and drop steps",
                 stored.version
-            )),
-            (None, [(old, old_type)], [(new, new_type)]) if old_type == new_type => m.push(format!(
-                "  help: if {new} is {old} renamed, declare: migrate {type_name} {} -> {} {{ rename {old} -> {new} }}",
-                stored.version,
-                newest + 1
-            )),
-            (None, [], [_, ..]) => m.push(format!(
-                "  help: a field added to {type_name} needs a MIGRATE CHAIN step `add <field>: <TYPE> = <constant>`; this compiler supports rename steps only"
-            )),
-            _ => (),
+            ));
+        } else if !gone
+            .iter()
+            .any(|(f, _)| added.iter().any(|(g, _)| f == g))
+        {
+            // A changed field TYPE under the same name gets no help line (out of scope).
+            let migrate = format!("migrate {type_name} {} -> {}", stored.version, newest + 1);
+            if let ([(old, old_type)], [(new, new_type)]) = (gone.as_slice(), added.as_slice())
+                && old_type == new_type
+            {
+                m.push(format!(
+                    "  help: if {new} is {old} renamed, declare: {migrate} {{ rename {old} -> {new} }}"
+                ));
+            }
+            let other: Vec<String> = gone
+                .iter()
+                .chain(added.iter())
+                .filter(|(_, t)| t != "String")
+                .map(|(f, t)| format!("{f}: {t}"))
+                .collect();
+            if !other.is_empty() {
+                m.push(format!(
+                    "  help: no MIGRATE CHANGE for {}: drop supports String fields only, add supports String fields only",
+                    other.join(", ")
+                ));
+            } else if !gone.is_empty() || !added.is_empty() {
+                let mut drops: Vec<&String> = gone.iter().map(|(f, _)| f).collect();
+                let mut adds: Vec<&String> = added.iter().map(|(f, _)| f).collect();
+                drops.sort();
+                adds.sort();
+                let changes: Vec<String> = drops
+                    .iter()
+                    .map(|f| format!("drop {f}: String"))
+                    .chain(adds.iter().map(|f| format!("add {f}: String = <constant>")))
+                    .collect();
+                let names = |fields: &[&String]| {
+                    fields
+                        .iter()
+                        .map(|f| f.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                };
+                let reason = match (drops.is_empty(), adds.is_empty()) {
+                    (false, true) => format!("if {} is removed", names(&drops)),
+                    (true, false) => format!("if {} is new", names(&adds)),
+                    _ => format!("if {} is removed and {} is new", names(&drops), names(&adds)),
+                };
+                m.push(format!(
+                    "  help: {reason}, declare: {migrate} {{ {} }}",
+                    changes.join(", ")
+                ));
+            }
         }
         Some(m.join("\n"))
     }
