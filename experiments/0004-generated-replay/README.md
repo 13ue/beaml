@@ -218,3 +218,14 @@ fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id
 **[Proposal]** Slice 1 covers the change-site part of objection 4's value gate. The operator part is not in 0004. It needs independent operators, one fixed incident artifact, active time to source and to reproduced failure, counterbalanced order, individual times, and a pinned BAML build as a third arm if it fits the workflow.
 
 **[Proposal]** Smallest next test after slice 1: the second EFFECT in both arms (slice 2), with change sites counted the same way.
+
+## Owner decisions (2026-11-06)
+
+- **[Requirement]** BEAML owns the call order. Syntax option B: the flow `place` is written in BEAML. The host router only calls generated code.
+- **[Requirement]** BEAML makes the HTTP call itself. No hand-written host transport.
+- **[Requirement]** BEAML generates the response decode from the declared type. A response that does not match the type gives a typed error, live and in a REPLAY RUN.
+- **[Requirement]** In the comparison, a runtime crash without a typed reason counts as a missed DRIFT.
+- **[Requirement]** No kill switch. Start the generated arm directly. Build the library arm in parallel as the comparison.
+- **[Requirement]** Long-term direction: applications are written in BEAML. Only a pure interface layer (for example LiveView) stays in Elixir and uses generated event handlers.
+- **[Proposal]** Main agent: the generated HTTP code may use a socket or an HTTP library inside. The 0003 live tests run again against the changed router.
+- **[Unknown]** Open: the BEAML syntax of the HTTP call itself.
