@@ -30,6 +30,7 @@ Compiler action events and experiment use-case events append to `.beaml/actions.
 Keep event logging enabled in normal CLI runs. Never record source text, secrets or input paths in those events.
 
 Record new open R&D decisions in [Decisions to be made](wiki/planning/decisions-to-be-made.md).
+Record every closed decision in the append-only [decision log](wiki/planning/decision-log.md): question, options, choice, reason, trigger and a link to the detail.
 Give each decision a stable ID, owner, evidence and next check. Link related pages to that entry.
 
 ## Visual communication

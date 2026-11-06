@@ -8,6 +8,7 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 
 - [R&D register](planning/research-and-development.md): experiment process, candidate domain ownership and retained evidence.
 - [Offene Fragen / Decisions to be made](planning/decisions-to-be-made.md): open R&D choices, evidence and decision triggers.
+- [Decision log](planning/decision-log.md): closed decisions with options, reason and trigger, in order.
 - [Main-agent orchestration](sources/main-agent-orchestration.md): adopted global coordination rule, worker scope and discovery limits.
 - [Test-first policy](sources/test-first-policy.md): adopted RED, user review and GREEN checkpoints and their scope.
 - [Implementation workflow](../skills/implement-step/SKILL.md): fresh GPT-6.1 Sol Medium agents, two Ponytail proposals and independent verification.
