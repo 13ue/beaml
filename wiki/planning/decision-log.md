@@ -196,6 +196,24 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: the fallback form swapped values for a rotation (`a -> c`, `b -> a`, `c -> b`) and rejected live bodies after a reuse. Records carry their version, and name reuse is legal.
 → Trigger: slice 2 final review (Devil's Advocate), BLOCK. Detail: 0004 notes.md, "Slice 2 final review repair".
 
+### EXPERIMENT 0004 slice 3 plan
+
+**DL-044 · Repair · Slice 3 limits to the existing TYPES**
+→ Chose: `add` takes a String field with a string literal; `drop` takes String or a declared TYPE. Over: `Int`, record or enum literals now.
+→ Because: the compiler knows only String and declared TYPES. `drop amount_cents: Int` from the concept sketch waits for an `Int` TYPE.
+
+**DL-045 · Repair · `add` and `drop` of the same field across steps are legal**
+→ Chose: allow `add` then `drop`, and `drop` then `add` (name reuse). Over: forbid it.
+→ Because: records of the middle version can exist; decode by version (DL-043) handles reuse.
+
+**DL-046 · Repair · Dropped values are checked against their TYPE**
+→ Chose: replay of an old record checks the dropped value against the TYPE named in `drop`. Over: remove it unchecked.
+→ Because: DL-023 says old versions are fully typed.
+
+**DL-047 · Undo · A value in the old body wins over the `add` constant**
+→ Chose: if an old record already holds the added field, its value wins over the constant. Same rule as C12 (current name wins).
+→ Detail: 0004 README, "Slice 3".
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

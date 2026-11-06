@@ -302,3 +302,8 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 **[Verified]** Recorded the slice 1 final review in the [0004 README](../experiments/0004-generated-replay/README.md#slice-1-verdict-2026-11-06): implementation passes with notes; the claim is REJECTED (manual change sites GEN 0 = LIB 0; no compile error caught a DRIFT).
 **[Requirement]** The OWNER supersedes the slice 1 rule for slice 2. Added the [slice 2 plan](../experiments/0004-generated-replay/README.md#slice-2) and the register row in [research and development](planning/research-and-development.md).
 **[Proposal]** Added the glossary terms RESPONSE RECORD, DRIFT, TYPE VERSION, RECORD SNAPSHOT and RENAME ALIAS. Nothing was run.
+
+## 2026-11-06: EXPERIMENT 0004 slice 3 plan
+
+**[Proposal]** Added the [slice 3 plan](../experiments/0004-generated-replay/README.md#slice-3) (README revision 7): `add <field>: <TYPE> = <constant>` and `drop <field>: <TYPE>` in the MIGRATE CHAIN, comma-separated MIGRATE CHANGES, backward derivation, consistency checks K1–K12, cases D1–D16 and a pass and reject rule. Added a register row in [research and development](planning/research-and-development.md).
+**[Proposal]** Added the glossary terms MIGRATE STEP and MIGRATE CHANGE. No new OWNER question. Nothing was run.

@@ -3,7 +3,7 @@ id: experiment-0004-generated-replay-plan
 kind: experiment
 status: proposed
 updated: 2026-11-06
-revision: 6 (slice 2 OWNER answers O1–O4)
+revision: 7 (slice 3 plan)
 ---
 
 # EXPERIMENT 0004 — Generated REPLAY RUN
@@ -23,7 +23,8 @@ revision: 6 (slice 2 OWNER answers O1–O4)
 - **Revision 3.** The owner chose option B with `effect`, `!` and `|>`, a generated decode, no kill switch and LIB in parallel. Q1, Q2 and Q5 are answered. Syntax options A and C are closed; [syntax-options.beaml](syntax-options.beaml) stays as history. Use git history for the full revision 2 text. Plan review: BLOCK (1 critical, 2 high).
 - **Revision 4.** Repairs the three objections of the revision 3 review: one strongest LIB form, frozen before any GEN result is judged; a complete 0003 change table, checked by a diff test on test copies; asserted TYPE mismatch cases, live and in a REPLAY RUN. [Disposition](workflow/2026-11-06/plan-review.md#disposition-main-agent-2026-11-06-1).
 - **Revision 5.** Adds the [slice 1 verdict](#slice-1-verdict-2026-11-06) and the [slice 2 plan](#slice-2). Slice 1 text above stays unchanged. The slice 1 pass and reject rule does not apply to slice 2.
-- **Revision 6 (this page).** Applies the OWNER answers O1–O4 to [slice 2](#slice-2): a MIGRATE CHAIN replaces the RENAME ALIAS options S1, S2 and S3; the record carries the TYPE version number; the build fails only when a stored TYPE VERSION has no path through the chain; C5 (DRIFT R without a chain) is now a compile error. Only the slice 2 section changes.
+- **Revision 6.** Applies the OWNER answers O1–O4 to [slice 2](#slice-2): a MIGRATE CHAIN replaces the RENAME ALIAS options S1, S2 and S3; the record carries the TYPE version number; the build fails only when a stored TYPE VERSION has no path through the chain; C5 (DRIFT R without a chain) is now a compile error. Only the slice 2 section changes.
+- **Revision 7 (this page).** Adds the [slice 3 plan](#slice-3): `add` with a constant and `drop` with a TYPE in the MIGRATE CHAIN (DL-042). The slice 1 and slice 2 text stays unchanged.
 
 ## Slice 1 scope
 
@@ -453,3 +454,225 @@ The tests assert these tokens, not the full text: `Payment`, the old field, the 
 - **O3. Answered 2026-11-06.** A `rename` whose old field is in no stored and no derived version is a compile error.
 - **O4. Answered 2026-11-06.** DRIFT R with old records and no `add` step is a compile error (no path). With `migrate ... { add <field>: <TYPE> = <constant> }` it compiles. Slice 2 implements only `rename`.
 - **O5 (Migrate), open.** Production source of truth for stored TYPE VERSIONS: RECORD SNAPSHOT, lock file or live query of the deployed nodes?
+
+## Slice 3
+
+**[Requirement]** DL-042 fixes the content: `add` with a constant and `drop` with a TYPE in the MIGRATE CHAIN. The slice 2 text above stays unchanged. Its pass and reject rule does not apply to slice 3. The slice 2 tests must stay green.
+
+### Question and claim (slice 3)
+
+**[Requirement]** Can the compiler refuse an added or a removed response field without an `add` or `drop` MIGRATE CHANGE, because stored RESPONSE RECORDS hold the old TYPE VERSION? With the MIGRATE CHANGE, the source compiles. Old RESPONSE RECORDS then replay as `correct_accept`: an `add` fills its constant, a `drop` removes the field. The decode goes by TYPE VERSION (DL-043), also in a chain that mixes `rename`, `add` and `drop` and reuses a field name.
+
+**[Requirement]** OWNER decisions for slice 3:
+
+- `add <field>: <TYPE> = <constant>`. The constant is an explicit statement about old data (DL-028). A REPLAY RUN of an older record fills the constant.
+- `drop <field>: <TYPE>`. The TYPE makes every old TYPE VERSION fully typed (DL-023). A REPLAY RUN of an older record removes the field. The dropped value is not used.
+- The MIGRATE CHANGES of one MIGRATE STEP are separated by commas. Slice 3 implements `rename`, `add` and `drop` only.
+- The build fails only when a stored TYPE VERSION has no path (DL-031). A field added without `add` or removed without `drop` leaves no path. The error has a `help` line with the missing MIGRATE CHANGE.
+
+### Syntax (slice 3)
+
+**[Requirement]** Example with all three MIGRATE CHANGES:
+
+```beaml
+interface Payment { order_id: String state: String status: String }
+migrate Payment 1 -> 2 { rename status -> state, add channel: String = "web" }
+migrate Payment 2 -> 3 { drop channel: String, add status: String = "migrated" }
+```
+
+**[Proposal]** Grammar of a MIGRATE STEP:
+
+```text
+migrate  = "migrate" TYPE NUMBER "->" NUMBER "{" change ( "," change )* "}"
+change   = "rename" FIELD "->" FIELD
+         | "add" FIELD ":" TYPE "=" constant
+         | "drop" FIELD ":" TYPE
+constant = STRING_LITERAL
+```
+
+- **[Proposal]** A comma is necessary between two MIGRATE CHANGES. A trailing comma is a parse error. The slice 2 parser accepts a missing comma; no slice 2 source or test uses two MIGRATE CHANGES in one step, so this change breaks no slice 2 case.
+- **[Proposal]** `add` needs `=` and a constant. There is no default value (DL-028).
+- **[Proposal]** In slice 3 the constant is a string literal, and the field of an `add` has the TYPE `String`. The compiler has no `Int` TYPE and no literal form for a record or an `enum` value.
+- **[Proposal]** The TYPE of a `drop` is `String` or a TYPE declared in the source. An unknown TYPE (for example `Int`) is a compile error.
+- **[Proposal]** Any other word in a MIGRATE STEP is an error. A computed assignment such as `amount = Money(amount_cents, currency)` is not supported.
+
+### Derivation backwards (slice 3)
+
+**[Requirement]** The `interface` is the newest TYPE VERSION. The compiler derives version a from version b for each MIGRATE STEP `a -> b`, from the newest step to the oldest:
+
+- `rename old -> new`: the field `new` of version b has the name `old` in version a (slice 2).
+- `add f: T = c`: version a is version b without the field `f`.
+- `drop f: T`: version a is version b with the field `f: T`.
+
+**[Inference]** Example above: version 3 is `{ order_id state status }`. Version 2 is `{ order_id state channel }`. Version 1 is `{ order_id status }`. The name `status` leaves in step 1 -> 2 and comes back with another meaning in step 2 -> 3. The field `channel` lives only in version 2.
+
+### Consistency checks (slice 3)
+
+**[Proposal]** The compiler checks each MIGRATE STEP against the source alone. It reports these errors before the `--stored` check (as C16). They fail also with an empty RECORD SNAPSHOT.
+
+| ID | Source fault | Error, asserted tokens |
+| --- | --- | --- |
+| K1 | `add f` where `f` is not in version b | `migrate T a -> b`, `add f`, `not in T b` |
+| K2 | `add f: X` where `f` has another TYPE Y in version b | `add f`, `X`, `Y` |
+| K3 | `add f: String = 5` (the constant is not a string literal) | `add f`, `5`, `String` |
+| K4 | `add f: X = "c"` where `X` is not `String` (and `f: X` in version b) | `add f`, `X`, `String fields only` |
+| K5 | `drop f` where `f` is in version b | `drop f`, `still in T b` |
+| K6 | `drop f: Int` (unknown TYPE) | `drop f`, `unknown type: Int` |
+| K7 | One field name two times in one MIGRATE STEP, for example `{ drop f: String, add f: String = "c" }` or `{ rename f -> g, add f: String = "c" }` | `migrate T a -> b`, `f`, `two times` |
+| K8 | Empty MIGRATE STEP `{ }` | `migrate T a -> b`, `at least one rename, add or drop` |
+| K9 | Missing comma: `{ add f: String = "c" drop g: String }` | `expected ','` |
+| K10 | Trailing comma: `{ drop g: String, }` | `expected rename, add or drop` |
+| K11 | `add f: String` without `= constant` | `expected '='` |
+| K12 | Computed assignment `{ f = Money(g, h) }` | `unsupported migrate step`, `rename`, `add`, `drop` |
+
+**[Proposal]** K7 counts the old and the new name of a `rename`. With K7 the MIGRATE CHANGES of one step do not depend on their order. A field that leaves and comes back needs two MIGRATE STEPS (case D11, D14).
+
+**[Inference]** Two faults are not visible in the source alone. They fail through the path check, as the misspelled `rename` of slice 2 (DL-036):
+
+- An `add f` for a field that old records already hold. The derived old version lacks `f`; a stored record with `f` has no path (case D15).
+- A `drop f: X` with the wrong TYPE. The derived old version has `f: X`; a stored record with `f: String` has another fingerprint (case D7).
+
+**[Proposal]** `add` of a field in one step and `drop` of the same field in a later step is legal (field `channel` above). Each MIGRATE STEP is a statement about one pair of versions, and records of the middle version can exist. `drop` and a later `add` of the same name is also legal (name reuse, case D14).
+
+### Generated decode (slice 3)
+
+**[Requirement]** The decode goes by TYPE VERSION (DL-043). A body of version v gets the MIGRATE STEPS v -> v+1 -> ... -> newest in chain order. A live body is the newest version and gets no MIGRATE CHANGE.
+
+**[Proposal]** Each MIGRATE CHANGE of a step, applied to the body:
+
+- `rename old -> new`: unchanged from slice 2 (F4). `old` is read as `new` only when the body has no `new`.
+- `add f: T = c`: when the body has no `f`, the decode puts `c`. When the body has `f`, the body value stays and must pass the TYPE check (same rule as C12).
+- `drop f: T`: the body must hold `f` with a value of TYPE `T`. Otherwise the decode gives `PaymentError{reason: "decode"}`. Then the decode removes `f`. A dropped key is consumed; it is not an unknown key.
+
+**[Proposal]** The record body and its digest stay unchanged. The live path never puts a constant. A TYPE without a MIGRATE CHAIN keeps the slice 1 decode (payments output byte-identical).
+
+### Path errors and help lines (slice 3)
+
+**[Proposal]** The path check of slice 2 stays: equal means the same fingerprint as the derived version with the same number. Only the `help` lines change. `<stored>` is the stored version; `<next>` is the newest version plus 1 (slice 2 rule). `<constant>` stays a placeholder: the compiler does not guess a value (DL-028).
+
+| Difference between stored and newest TYPE VERSION | `help` line, asserted |
+| --- | --- |
+| Only added fields `a: String`, `b: String` | `migrate T <stored> -> <next> { add a: String = <constant>, add b: String = <constant> }` |
+| Only removed fields `x: X`, `y: Y` | `migrate T <stored> -> <next> { drop x: X, drop y: Y }` |
+| One removed `x: X`, one added `a: X` (slice 2 rename case) | first line unchanged (`rename x -> a`); second line `migrate T <stored> -> <next> { drop x: X, add a: X = <constant> }` |
+| Removed and added fields in other counts | one line with all `drop` MIGRATE CHANGES, then all `add` MIGRATE CHANGES, sorted by field name |
+| An added field with a TYPE other than `String` | no `add` form; the line says `add supports String fields only` |
+| The same field name with another TYPE | no `help` line (a changed field TYPE is out of scope) |
+| A stored version older than the newest without a path | `help: the MIGRATE CHAIN of T must derive version <stored> with the fields of the stored TYPE VERSION; check its rename, add and drop steps` |
+
+Example (case D5):
+
+```text
+error: TYPE Payment cannot read 1 stored RESPONSE RECORD of operation payments.authorize
+  stored TYPE VERSION: Payment 1 { order_id: String status: String } (fingerprint <first 12 hex>)
+  newest TYPE VERSION: Payment 1 { order_id: String }
+  record source: <the --stored path>
+  no path from the stored TYPE VERSION to the newest TYPE VERSION
+  field status: String is in the stored TYPE VERSION, not in the newest TYPE VERSION
+  help: if status is removed, declare: migrate Payment 1 -> 2 { drop status: String }
+```
+
+**[Proposal]** The tests assert tokens, not the full text: the TYPE name, each named field, the `--stored` path and the asserted `help` form. Compiler action events do not record the path (AGENTS rule).
+
+### Cases (slice 3)
+
+**[Proposal]** Fixture names follow slice 2: TYPE `Payment`, fields `order_id`, `status`, added field `reference`, constant `"pre-v2"`. Sources are in `slice3/<case>/orders.beaml`. `stored/v1.jsonl` is reused; other snapshots are written per test (pattern S15). Every compile and replay case also runs from a template with random TYPE names, field names and constants. A random constant holds a quote, a backslash and a non-ASCII letter, so that a constant written into the compiler or a wrong escape fails. Replay cases use the slice 2 harness mode `replay_plain`. Live calls run the generated `place/1` in an eval VM against the unchanged Payments stub (slice 2, S5). The stub body is `{order_id, status}`.
+
+Sources:
+
+- **R+add.** `interface Payment { order_id: String reference: String status: String }`, `migrate Payment 1 -> 2 { add reference: String = "pre-v2" }`.
+- **R.** The R+add interface without a chain (slice 2 C5 source).
+- **D+drop.** `interface Payment { order_id: String }`, `migrate Payment 1 -> 2 { drop status: String }`.
+- **D.** The D+drop interface without a chain.
+- **M.** The example of the syntax section (three versions, `rename`, `add` and `drop`, name reuse of `status`, `channel` only in version 2).
+- **Z.** `interface Payment { order_id: String status: String }`, `migrate Payment 1 -> 2 { drop status: String }`, `migrate Payment 2 -> 3 { add status: String = "new" }`. Version 1 and version 3 have the same fields and the same fingerprint.
+
+| ID | Source | RECORD SNAPSHOT | Build | Old record (REPLAY RUN) | Live call |
+| --- | --- | --- | --- | --- | --- |
+| D1 | R+add | `v1` | exit 0 | `correct_accept` `{order_id, reference: "pre-v2", status}`, `unknown_keys == []`, `finish/1` 1 | not run |
+| D2 | R | `v1` | compile error: `Payment`, `reference`, path, help `migrate Payment 1 -> 2 { add reference: String = <constant> }` | not run | not run |
+| D3 | R | empty | exit 0 | none | not run |
+| D4 | D+drop | `v1` | exit 0 | `correct_accept` `{order_id}`, `unknown_keys == []` (`status` consumed), `finish/1` 1 | `correct_accept` `{order_id}`, `unknown_keys == ["status"]`; new record holds `Payment 2 { order_id }` and its fingerprint |
+| D5 | D | `v1` | compile error: `Payment`, `status`, `String`, path, help `migrate Payment 1 -> 2 { drop status: String }` | not run | not run |
+| D6 | D | empty | exit 0 | none | `correct_accept` |
+| D7 | D+drop with `drop status: PaymentError` | `v1` | compile error (no path): `Payment`, `status`, `String`, `PaymentError`, path | not run | not run |
+| D7b | D7 source | empty | exit 0 | none | not run |
+| D8 | R+add build | `v1` | exit 0 | hand-built `v1` record with `"reference":"r-9"` in the body: `correct_accept` with `reference: "r-9"`, `unknown_keys == []` | not run |
+| D9 | D+drop build | `v1` | exit 0 | hand-built `v1` record without `status`: `typed_reject` `decode`, `finish/1` 0. Second record with `"status":7`: the same | not run |
+| D10 | R+add build | `v1` | exit 0 | not run | `typed_reject` `decode`, `finish/1` 0: the stub body has no `reference`, and a live body gets no constant. The new record holds version 2 |
+| D11 | M | records of version 1, 2 and 3 | exit 0 | v1 `{status: "authorized"}` → `{state: "authorized", status: "migrated"}`; v2 `{state: "settled", channel: "app"}` → `{state: "settled", status: "migrated"}`, `unknown_keys == []`; v3 body unchanged | not run |
+| D12 | M without `drop channel: String` in step 2 -> 3 | empty | compile error K1: `migrate Payment 1 -> 2`, `add channel`, `not in Payment 2` | not run | not run |
+| D13 | M | a version 2 record without `channel` | compile error (no path): `Payment`, `channel`, `derived TYPE VERSION 2`, path | not run | not run |
+| D14 | Z | `v1` | exit 0 | `correct_accept` with `status: "new"`, not the stored value | live body `{order_id, status}` keeps its `status` value |
+| D15 | `interface Payment { order_id: String status: String }`, `migrate Payment 1 -> 2 { add status: String = "x" }` | `v1` | compile error (no path): `Payment`, `status`, `derived TYPE VERSION 1`, path | not run | not run |
+| D15b | D15 source | empty | exit 0 | none | not run |
+| K1–K12 | per the consistency table, built on the R+add or D+drop source | empty | compile error with the K tokens, no stdout | not run | not run |
+| D16 | all slice 1 and slice 2 tests | as before | as before | as before | as before |
+
+**[Inference]** What each control kills:
+
+- D3, D6, D7b and D15b against D2, D5, D7 and D15: the error must come from the stored records, not from the source (as C6 against C1).
+- D10: a decode that puts the constant also into live bodies (a guess on new data).
+- D11 v1 and D14: a decode by key presence or by body shape. Both keep the stored `status` value. D14 has the same fingerprint for versions 1 and 3, so only the record version tells the decode which steps to apply.
+- D11 v2: a decode that applies the steps of version 1 to a version 2 body, or that does not consume a dropped key.
+- D9: a `drop` that removes a field without its TYPE check (DL-023).
+- D8: a decode that overwrites a body value with the constant. The rule is the C12 rule; a change of this rule is Undo.
+- The template runs: a compiler with the fixture names or the fixture constant in it.
+
+**[Proposal] Test files.** `tests/slice3_types_test.py` holds the compile cases D2, D3, D5–D7b, D12, D13, D15, D15b, K1–K12 and the builds of D1, D4, D11 and D14. `tests/slice3_replay_test.py` holds the replay and live cases D1, D4, D8–D11 and D14. New files keep the SHA-256 of all slice 2 test files unchanged; D16 runs them unchanged.
+
+**[Proposal] Compiler change sites.** `Migration` holds a list of MIGRATE CHANGES. The parser reads `rename`, `add` and `drop` with comma separators. `derive_versions` applies the three backward rules and checks K1–K8. The decode generator emits one block per MIGRATE CHANGE. `no_path` emits the new `help` lines.
+
+### Pass and reject rule (slice 3)
+
+**[Proposal] Pass.** The claim holds for slice 3 only if all are true:
+
+1. D2 and D5 fail at compile time with exit ≠ 0, no stdout and all asserted tokens, with fixture names and with random names.
+2. D3 and D6 compile. So the D2 and D5 errors come from the stored records.
+3. D1, D4, D8, D11 and D14 give `correct_accept` for every old record with exactly the expected values and `unknown_keys`.
+4. D7, D12, D13, D15 and K1–K12 fail at compile time with their tokens. D7b and D15b compile. D9 and D10 give `typed_reject` `decode`.
+5. D16 passes: every slice 1 and slice 2 test, unchanged.
+6. GEN gives no `wrong_accept` and no untyped crash in any case.
+
+**[Proposal] Reject.** Any unmet pass clause rejects the claim for slice 3, except a failed D16 (below). Record the reject in the register. Examples:
+
+- D2 or D5 compiles with the `v1` RECORD SNAPSHOT.
+- D3 or D6 also fails.
+- D10 accepts: the constant filled a live body.
+- D11 or D14 accepts with the stored `status` value instead of the constant (`wrong_accept`).
+- D9 accepts a version 1 body without the dropped field.
+
+**No verdict.** If D16 fails, slice 3 fails as an implementation and gives no verdict on the claim.
+
+### Out of scope (slice 3)
+
+- Computed MIGRATE CHANGES (`amount = Money(...)`), `Unknown`, `enum` matching in a step, PII.
+- An `Int` TYPE and constants other than a string literal. `add` for a field of a record or `enum` TYPE.
+- A changed field TYPE under the same name in one step (K7 rejects `drop f` with `add f` in one step).
+- The run of migrations over stored values (DL-027) and rollback windows for a lossy `drop`.
+- The lifetime of a MIGRATE STEP after no stored record needs it.
+- The LIB arm. Slice 2 shows that LIB holds no TYPE facts; slice 3 adds no LIB run.
+- The production source of stored TYPE VERSIONS (O5, open).
+
+### Decisions (Decision4, slice 3 plan)
+
+| Decision | Class | Choice and reason |
+| --- | --- | --- |
+| `add` with constant, `drop` with TYPE, commas, `rename`/`add`/`drop` only, path rule unchanged, decode by version | OWNER (DL-022, DL-023, DL-028, DL-031, DL-042, DL-043) | Given for slice 3 |
+| Comma necessary between MIGRATE CHANGES; trailing comma is an error | Undo | Over optional commas: a missing comma becomes visible (K9, K10). No slice 2 source has two changes in a step |
+| `add` only for `String` fields with a string literal constant | Repair | Over adding `Int` and record or `enum` literals: the compiler has only `String` and declared TYPES. Commits slice 3 sources to `String` constants |
+| `drop` TYPE is `String` or a declared TYPE; `Int` is an unknown TYPE | Repair | Over a new `Int` TYPE: no value checks for `Int` exist. The OWNER sketch `drop amount_cents: Int` waits for an `Int` TYPE |
+| One field name at most once per MIGRATE STEP (K7) | Undo | Over order-dependent changes in one step. A field that leaves and comes back takes two steps. A later relaxation breaks no source |
+| `add` then a later `drop` of the same field, and `drop` then a later `add`, are legal | Repair | Over a reject: each step is a statement about one version pair, and middle-version records can exist. Commits the decode to version dispatch (D11, D14) |
+| `add` of a field that old records hold, and a wrong `drop` TYPE, fail through the path check | Repair | Same reason as DL-036: the source alone cannot show them; with an empty snapshot they compile |
+| `add` in the decode: the body value wins when the body has the field | Undo | Same rule as C12 and F4. Local to the generated decode (D8) |
+| `drop` in the decode checks the dropped value against its TYPE; a missing or wrong value is a typed `decode` reject | Repair | Over removing without a check: DL-023 says old versions are fully typed. Commits every old body to its full TYPE VERSION (D9) |
+| A live body never gets a constant | Repair | DL-028: the constant is a statement about old data only. Commits live traffic to the newest TYPE (D10) |
+| `help` lines name the missing `add` or `drop` with a `<constant>` placeholder | Undo | Message text only. The compiler does not guess a constant |
+| New test files for slice 3; slice 2 test files unchanged | Undo | Keeps the slice 2 SHA-256 as regression evidence |
+| No LIB run in slice 3 | Repair | Over a LIB control per slice: LIB holds no TYPE facts (slice 2). Commits the slice 3 verdict to GEN cases only |
+| New GLOSSARY terms MIGRATE STEP and MIGRATE CHANGE | Undo | One name for the `migrate` line and one for its entries; slice 2 text used "step" for both |
+
+### OWNER questions (slice 3)
+
+**[Inference]** No new Migrate question. Every syntax that slice 3 uses is decided (DL-022, DL-023, DL-028). O5 stays open from slice 2.

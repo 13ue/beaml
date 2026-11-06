@@ -2,7 +2,7 @@
 id: beaml-glossary
 kind: proposed-convention
 status: proposed-not-adopted
-updated: 2026-11-05
+updated: 2026-11-06
 ---
 
 # BEAML glossary
@@ -56,6 +56,8 @@ Use CAPITALS when naming a glossary term. Use its qualified name when the scope 
 | RECORD SNAPSHOT | A read-only copy of stored RESPONSE RECORDS that the compiler reads to learn the stored TYPE VERSIONS. | LANGUAGE/COMPILATION | Datensatzabzug |
 | RENAME ALIAS | A `rename old -> new` step of a MIGRATE CHAIN: a field of the newer TYPE VERSION has the old name in the older TYPE VERSION. | LANGUAGE/COMPILATION | Umbenennungsalias |
 | MIGRATE CHAIN | The `migrate` steps of one TYPE in the source. The `interface` is the newest TYPE VERSION; the compiler derives each older TYPE VERSION backwards from the steps. | LANGUAGE/COMPILATION | Migrationskette |
+| MIGRATE STEP | One `migrate T a -> b { ... }` line of a MIGRATE CHAIN. It changes TYPE VERSION a into TYPE VERSION b with one or more MIGRATE CHANGES, separated by commas. | LANGUAGE/COMPILATION | Migrationsschritt |
+| MIGRATE CHANGE | One `rename`, `add` or `drop` entry in a MIGRATE STEP. `add` gives a constant for older records; `drop` names the TYPE of the removed field. | LANGUAGE/COMPILATION | Migrationsänderung |
 | EFFECT | An operation category tracked by language rules to constrain behavior beyond pure computation. | LANGUAGE/COMPILATION | Wirkung |
 | SECURITY LABEL | A restriction attached to data or control flow and interpreted by a versioned security policy. | LANGUAGE/COMPILATION | Sicherheitskennzeichnung |
 | CAPABILITY | Explicit authority to perform a named operation under a stated contract. | LANGUAGE/COMPILATION | Berechtigungsnachweis |
