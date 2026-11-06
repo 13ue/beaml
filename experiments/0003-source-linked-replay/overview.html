@@ -158,9 +158,9 @@ tr:last-child td{border-bottom:0}
       <div class="box ok"><b>decode + validate</b><small>shared function</small></div>
     </div>
     <div class="flow">
-      <span class="chip wait" style="min-width:64px">REPLAY</span>
-      <div class="box wait"><b>Replay runner</b><small>separate module</small></div><div class="arrow">──►</div>
-      <div class="box wait"><b>Response record</b><small>check digest, operation, attempt</small></div><div class="arrow">──►</div>
+      <span class="chip ok" style="min-width:64px">REPLAY</span>
+      <div class="box ok"><b>Replay runner</b><small>separate module</small></div><div class="arrow">──►</div>
+      <div class="box ok"><b>Response record</b><small>check operation, attempt, request, status, digest</small></div><div class="arrow">──►</div>
       <div class="box ok"><b>decode + validate</b><small>same function</small></div><div class="arrow">──►</div>
       <div class="box"><b>{:ok, …} / {:error, …}</b><small>no HTTP status</small></div>
     </div>
