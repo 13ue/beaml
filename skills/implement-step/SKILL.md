@@ -48,9 +48,9 @@ A string that changes logic, parsing, protocols or security changes behavior and
 If no meaningful automated test is possible, record the concrete reason and use the appropriate alternative check.
 Do not mirror implementation text or snapshot trivial wording. Record exceptions and actual checks in the ledger.
 
-## Devil's Advocate checkpoints
+## Devil's Advocate checkpoint
 
-Use the `advocatus-diaboli` skill at three checkpoints only: the plan (spec mode), the RED review and the final review (code mode).
+Use the `advocatus-diaboli` skill at one checkpoint only: the final review of a slice (code mode). The plan and the RED review get a normal fresh-agent check.
 Each checkpoint uses one fresh agent. It does not read earlier reviews, and no agent reviews another agent's review.
 Be brutal about consequences, not about style. Attack the premise, false passes, missing cases and simpler alternatives.
 
