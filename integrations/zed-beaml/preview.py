@@ -1,7 +1,8 @@
 """Render BEAML files as a syntax-highlighted local HTML page with the project grammar.
 
-Usage: python3 integrations/zed-beaml/preview.py [file.beaml ...]
-Writes integrations/zed-beaml/preview.html. Needs npx (Tree-sitter CLI 0.26.5).
+Usage: python3 integrations/zed-beaml/preview.py [--chat] [file.beaml ...]
+Writes integrations/zed-beaml/preview.html. With --chat, prints a compact HTML fragment for an inline chat widget.
+Needs npx (Tree-sitter CLI 0.26.5).
 """
 import html
 import pathlib
@@ -48,7 +49,24 @@ def highlight(path):
     return re.search(r"<table>.*</table>", out, re.S).group(0)
 
 
+SHORT = {"keyword": "k", "type": "t", "function": "f", "property": "p", "string": "s", "string escape": "s",
+         "operator": "o", "punctuation bracket": "b", "punctuation delimiter": "b", "constructor": "c", "comment": "m"}
+
+
+def chat_fragment(files):
+    out = []
+    for f in files:
+        lines = re.findall(r"<td class=line>(.*?)\n?</td></tr>", highlight(f), re.S)
+        code = "\n".join(lines)
+        code = re.sub(r"<span class='([^']+)'>", lambda m: f"<i class={SHORT.get(m.group(1), 'o')}>", code)
+        out.append(f"<div class=h>{f.name} · {len(lines)} lines</div><pre>{code.replace('</span>', '</i>')}</pre>")
+    return "".join(out)
+
+
 def main(args):
+    if args[:1] == ["--chat"]:
+        print(chat_fragment([ROOT / f for f in (args[1:] or DEFAULT)]))
+        return
     files = [ROOT / f for f in (args or DEFAULT)]
     parts = []
     for f in files:
