@@ -798,3 +798,51 @@ STATE: GREEN. All done criteria exit 0 after the harness repair of the main agen
 | G3-5 | Help line text: `if <drops> is removed and <adds> is new, declare: ...`; non-String fields: `no MIGRATE CHANGE for f: T: drop supports String fields only, add supports String fields only` | Undo | Message text; README tokens kept |
 | G3-6 | A constant other than a string literal (word or number) parses and fails at K3 | Undo | K3 needs the token in its message |
 | G3-7 | Stop at the harness fault; no test file change | Repair | Chose stop and report. Over: edit `orders_env`. Because test files are out of the GREEN scope. Closed: the main agent repaired `orders_env` (UTF-8 locale) |
+
+## Slice 3 final review repair, RED
+
+Base: HEAD `29ea5c2` (DL-054). Defect: the `rename` check ran on the raw working body. DL-054 types the stored body by its TYPE VERSION first.
+
+### Changed expectations (DL-054)
+
+| Case | Old expectation | New expectation |
+| --- | --- | --- |
+| C12 | `state: "settled"`, `unknown_keys == ["status"]` | `state: "authorized"`, `unknown_keys == ["state"]` |
+| D11b | `{t: "settled", o: cm}`, `["o"]` | `{t: "authorized", o: cm}`, `["t"]` |
+| D11c | `{t: "t-kept", o: "x-new"}`, `["o"]` | `{t: "o-old", o: "x-new"}`, `["t"]` |
+
+Other cases keep their expectation: C11, C13, D8, D9 and D11 v2/v3 do not depend on the raw-body rule.
+
+### New cases (fixture names and random names)
+
+- D17, source kind SAR (`slice3/SAR/orders.beaml`): `{drop c}`, `{add c = cx}`, `{rename c -> x}`. Rows D17-v1, D17-v1-stray, D17-v2-stray, D17-v3-stray.
+- D18, source kind RD (`slice3/RD/orders.beaml`): `{rename o -> t}`, `{drop t}`. Rows D18-v1, D18-v1-stray-int, D18-v1-old-int, D18-v2-stray, D18-v2-int.
+- Builds D17 and D18 in `slice3_types_test.py` (guards, green).
+
+### Runs (serial)
+
+| File | Exit | Result |
+| --- | --- | --- |
+| `tests/slice2_replay_test.py` | 1 | 21 run, 1 failure: C12 (actual `state: "settled"`) |
+| `tests/slice3_types_test.py` | 0 | 69/69 (new D17, D18 builds and fixture guard pass) |
+| `tests/slice3_replay_test.py` | 1 | 31 run, 8 failures: D11b, D11c, D17, D18, each with fixture and random names |
+
+Failure reasons (observed, fixture names):
+
+- D11b, D11c, C12: the stray new name wins over the typed old field.
+- D17-v1-stray, D17-v2-stray, D17-v3-stray: `reference: "STRAY"`. Controls D17-v1 pass.
+- D18-v1-stray-int: rejected (`decode`). D18-v1-old-int: accepted. Controls D18-v1, D18-v2-stray, D18-v2-int pass.
+- No Python error.
+
+### SHA-256
+
+| File | SHA-256 |
+| --- | --- |
+| `tests/slice2_replay_test.py` | `ca07a09b…` → `7a986fc40ea8aee4ba4c377bf31b21a895dd0ecaf1b81e3a6667bc40e2629900` |
+| `tests/slice3_replay_test.py` | `a2080d9d…` → `bd40e51a8d1cb23dbf36e87e9601e91787affff13a680cfb15194bbbfbc0da50` |
+| `tests/slice3_types_test.py` | `c4266ffc…` → `327a27d837f6587959eefe86386293cb36fda31b402540e924d3c3858fca1aad` |
+| `slice3/SAR/orders.beaml` | new, `65d09d04d3a1dc3695deb44c5a39f464f210b3130ecbc4fbcb977f22328188b5` |
+| `slice3/RD/orders.beaml` | new, `bd2b2d2af74c8dffca0ccb50cf65269189fea438181dad31a4290d3884a53658` |
+| `0001/src/main.rs` | `b8ee231b…` (unchanged) |
+
+README revision 7.2: C12, D11b, D11c and the slice 3 decode rules struck through and superseded by DL-054; D17, D18 rows and a DL-054 decision row added.

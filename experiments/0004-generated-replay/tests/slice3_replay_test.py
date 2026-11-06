@@ -1,4 +1,5 @@
-"""EXPERIMENT 0004 slice 3 replay and live cases (README revision 7.1): D1, D4, D8, D9, D10, D11, D11b, D11c, D14.
+"""EXPERIMENT 0004 slice 3 replay and live cases (README revision 7.2): D1, D4, D8, D9, D10, D11, D11b, D11c, D14,
+D17, D18. Revision 7.2 (DL-054): a REPLAY RUN types the stored body by its own TYPE VERSION before any step.
 
 Old RESPONSE RECORDS replay through the generated decode of a build with `add` and `drop` in the MIGRATE
 CHAIN. The trees reuse the arms harness (tests/arms_test.py) and the slice 2 helpers (mode `replay_plain`,
@@ -26,7 +27,7 @@ EXPERIMENT = arm_tree.EXPERIMENT
 RANDOM_NAMES = s3.random_names()
 # Build: source kind and RECORD SNAPSHOT label of slice3_types_test.
 BUILDS = {"radd": ("R-add", "v1"), "ddrop": ("D-drop", "v1"), "m": ("M", "M-all"), "z": ("Z", "Z-all"),
-          "rr": ("RR", "RR-v1")}
+          "rr": ("RR", "RR-v1"), "sar": ("SAR", "SAR-all"), "rd": ("RD", "RD-all")}
 
 
 def variant(build, names, fixture):
@@ -67,15 +68,30 @@ EXPECTED = {
                {"k": "order-1", "t": "settled", "o": "=cm"}, []),
     "D11-v3": ("m", (3, V("k", "t", "o")), {"k": "order-1", "t": "settled", "o": "done"},
                {"k": "order-1", "t": "settled", "o": "done"}, []),
+    # DL-054: t is not a field of version 1, so it is a stray key (unknown_keys); t comes from o by the rename.
     "D11b": ("m", (1, V("k", "o")), {"k": "order-1", "t": "settled", "o": "authorized"},
-             {"k": "order-1", "t": "settled", "o": "=cm"}, ["o"]),
+             {"k": "order-1", "t": "authorized", "o": "=cm"}, ["t"]),
     "D14": ("z", (1, V("k", "o")), {"k": "order-1", "o": "authorized"}, {"k": "order-1", "o": "=cz"}, []),
     # Version 3 has the fingerprint of version 1: only the version number may pick the MIGRATE STEPS.
     "D14-v3": ("z", (3, V("k", "o")), {"k": "order-1", "o": "done"}, {"k": "order-1", "o": "done"}, []),
-    # Chain {rename o -> t}, {rename x -> o}. Step 1 -> 2: the body holds t, so o is not read and leaves the
-    # working body (DL-048) into unknown_keys. Step 2 -> 3: x is read as o. A rename that keeps o gives o = "o-old".
+    # Chain {rename o -> t}, {rename x -> o}. DL-054: version 1 is {k, o, x}; t is a stray key (unknown_keys).
+    # Step 1 -> 2: o is read as t. Step 2 -> 3: x is read as o. A rename that keeps o gives o = "o-old".
     "D11c": ("rr", (1, V("k", "o", "x")), {"k": "order-1", "o": "o-old", "t": "t-kept", "x": "x-new"},
-             {"k": "order-1", "t": "t-kept", "o": "x-new"}, ["o"]),
+             {"k": "order-1", "t": "o-old", "o": "x-new"}, ["t"]),
+    # D17 (DL-054), chain {drop c}, {add c = cx}, {rename c -> x}. A stray x in an old body never wins:
+    # the constant (versions 1 and 2) or the typed c (version 3) reaches x through the rename.
+    "D17-v1": ("sar", (1, V("k", "c")), {"k": "order-1", "c": "c-one"}, {"k": "order-1", "x": "=cx"}, []),
+    "D17-v1-stray": ("sar", (1, V("k", "c")), {"k": "order-1", "c": "c-one", "x": "STRAY"},
+                     {"k": "order-1", "x": "=cx"}, ["x"]),
+    "D17-v2-stray": ("sar", (2, V("k")), {"k": "order-1", "x": "STRAY"}, {"k": "order-1", "x": "=cx"}, ["x"]),
+    "D17-v3-stray": ("sar", (3, V("k", "c")), {"k": "order-1", "c": "c-three", "x": "STRAY"},
+                     {"k": "order-1", "x": "c-three"}, ["x"]),
+    # D18 (DL-054), chain {rename o -> t}, {drop t}. The version 1 field o is type-checked; a stray t is unknown.
+    "D18-v1": ("rd", (1, V("k", "o")), {"k": "order-1", "o": "o-one"}, {"k": "order-1"}, []),
+    "D18-v1-stray-int": ("rd", (1, V("k", "o")), {"k": "order-1", "o": "o-one", "t": 7}, {"k": "order-1"}, ["t"]),
+    "D18-v1-old-int": ("rd", (1, V("k", "o")), {"k": "order-1", "o": 7, "t": "t-stray"}, "decode", None),
+    "D18-v2-stray": ("rd", (2, V("k", "t")), {"k": "order-1", "t": "t-two", "o": "o-stray"}, {"k": "order-1"}, ["o"]),
+    "D18-v2-int": ("rd", (2, V("k", "t")), {"k": "order-1", "t": 7}, "decode", None),
 }
 # Live calls: the unchanged stub body {k: "order-1", o: "authorized"}. Expected value or "decode", unknown_keys,
 # and the TYPE VERSION (number, field roles) of the new record.
@@ -173,7 +189,7 @@ class Slice3Replay:
     def test_D11_each_stored_version_replays_by_its_version(self):
         self.assert_replays("D11-v1", "D11-v2", "D11-v3")
 
-    def test_D11b_old_value_of_a_renamed_key_does_not_beat_the_constant(self):
+    def test_D11b_v1_record_with_both_names_reads_the_old_field_by_its_version(self):
         self.assert_replays("D11b")
 
     def test_D14_v1_record_gets_the_constant_not_the_stored_value(self):
@@ -182,8 +198,14 @@ class Slice3Replay:
     def test_D14_v3_record_with_the_v1_fingerprint_replays_by_its_version(self):
         self.assert_replays("D14-v3")
 
-    def test_D11c_rename_removes_the_old_key_before_a_later_rename_to_it(self):
+    def test_D11c_v1_record_with_a_stray_new_name_reads_by_its_version(self):
         self.assert_replays("D11c")
+
+    def test_D17_stray_key_never_beats_the_constant_or_the_typed_field(self):
+        self.assert_replays("D17-v1", "D17-v1-stray", "D17-v2-stray", "D17-v3-stray")
+
+    def test_D18_old_field_is_type_checked_and_stray_key_is_unknown(self):
+        self.assert_replays("D18-v1", "D18-v1-stray-int", "D18-v1-old-int", "D18-v2-stray", "D18-v2-int")
 
     def test_D14_live_body_keeps_its_value(self):
         self.live("D14-live")

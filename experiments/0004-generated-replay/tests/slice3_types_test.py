@@ -1,7 +1,7 @@
 """EXPERIMENT 0004 slice 3 (README revision 7.1): compile cases of `add` and `drop` in the MIGRATE CHAIN.
 
 Cases D2, D2b, D2c, D3, D5, D5b, D5c, D6, D7, D7b, D12, D13, D15, D15b, K1-K12 and the builds of D1, D4,
-D11, D11c and D14 (D14 also with records of version 1 and 3). The replay and live cases are in slice3_replay_test.py.
+D11, D11c, D14, D17 and D18 (D14 also with records of version 1 and 3). The replay and live cases are in slice3_replay_test.py.
 Each case runs twice:
   Fixture   the case sources in slice3/ and drift/, the RECORD SNAPSHOTS in stored/ or written per test;
   Template  the same sources and snapshots built from a template with random TYPE names, field names and
@@ -106,6 +106,10 @@ def kinds(N):
         "Z": ([N.k, N.o], [["drop %s: String" % N.o], [add(N.o, N.cz)]]),
         # D11c: `rename o -> t`, then `rename x -> o` (DL-048: a `rename` removes its old key).
         "RR": ([N.k, N.t, N.o], [["rename %s -> %s" % (N.o, N.t)], ["rename %s -> %s" % (N.x, N.o)]]),
+        # D17 (DL-054): `drop c`, then `add c` with a constant, then `rename c -> x`; a stray x must not win.
+        "SAR": ([N.k, N.x], [["drop %s: String" % N.c], [add(N.c, N.cx)], ["rename %s -> %s" % (N.c, N.x)]]),
+        # D18 (DL-054): `rename o -> t`, then `drop t`; the v1 field o is type-checked, a stray t is unknown.
+        "RD": ([N.k], [["rename %s -> %s" % (N.o, N.t)], ["drop %s: String" % N.t]]),
         # D2c: stored {k, o, c}, newest {k, x}: two drops and one add, no chain.
         "D2c": ([N.k, N.x], []),
         "D15": ([N.k, N.o], [[add(N.o, N.cd)]]),
@@ -128,7 +132,8 @@ def kinds(N):
 
 
 FIXTURE_SOURCES = {kind: "slice3/%s/orders.beaml" % kind
-                   for kind in ("R-add", "R2", "D-drop", "D", "M", "M-nodrop", "Z", "RR", "D15", "D7")}
+                   for kind in ("R-add", "R2", "D-drop", "D", "M", "M-nodrop", "Z", "RR", "D15", "D7",
+                                "SAR", "RD")}
 FIXTURE_SOURCES.update({"R": "drift/R/orders.beaml", "N": "drift/N/orders.beaml"})
 
 
@@ -154,6 +159,8 @@ def snapshot_types(N, label):
             "v1-typed": [(1, [N.k, (N.o, "PaymentError")])],
             "Z-all": [(1, [N.k, N.o]), (3, [N.k, N.o])],
             "RR-v1": [(1, [N.k, N.o, N.x])],
+            "SAR-all": [(1, [N.k, N.c]), (2, [N.k]), (3, [N.k, N.c])],
+            "RD-all": [(1, [N.k, N.o]), (2, [N.k, N.t])],
             "v1-koc": [(1, [N.k, N.o, N.c])]}[label]
 
 
@@ -308,6 +315,14 @@ class Slice3Types:
     def test_D11c_build_rename_chain_reusing_the_renamed_name(self):
         N = self.names
         self.assert_decode_mentions(self.assert_compiles("RR", "RR-v1"), [N.o, N.t, N.x])
+
+    def test_D17_build_drop_add_rename_chain_with_versions_1_2_3(self):
+        N = self.names
+        self.assert_decode_mentions(self.assert_compiles("SAR", "SAR-all"), [N.cx, N.c, N.x])
+
+    def test_D18_build_rename_then_drop_chain_with_versions_1_2(self):
+        N = self.names
+        self.assert_decode_mentions(self.assert_compiles("RD", "RD-all"), [N.o, N.t])
 
     # K1-K12: source faults, empty RECORD SNAPSHOT (README, Consistency checks).
     def test_K01_add_of_field_not_in_next_version(self):

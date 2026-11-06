@@ -1,4 +1,5 @@
 """EXPERIMENT 0004 slice 2 replay cases (README revision 6): C2, C3, C9, C11, C12, C13, C14.
+C12 follows DL-054 (README revision 7.2): the stored body is typed by its TYPE VERSION before the rename.
 Final review repair: C19 (name reuse) and C20 (rotation), each with fixture names and random names.
 
 Old RESPONSE RECORDS of TYPE VERSION `Payment 1 { order_id status }` (stored/v1.jsonl) replay through the
@@ -133,10 +134,11 @@ class ChainReplay(arms.Case):
         self.assertEqual(accepted({"order_id": "order-1", "state": "captured"}, hint=[["fraud_score"]]),
                          counts("s2-chain", "C11", record, observe=True))
 
-    def test_C12_current_name_wins_over_old_name(self):
+    def test_C12_v1_record_with_both_names_reads_the_old_field_by_its_version(self):
+        # DL-054 supersedes "current name wins": version 1 is {order_id, status}; state is a stray key.
         body = b'{"order_id":"order-1","state":"settled","status":"authorized"}'
         record = arms.with_body(records(V1)[0], body)
-        self.assertEqual(accepted({"order_id": "order-1", "state": "settled"}, hint=[["status"]]),
+        self.assertEqual(accepted({"order_id": "order-1", "state": "authorized"}, hint=[["state"]]),
                          counts("s2-chain", "C12", record, observe=True))
 
     def test_C13_neither_name_is_typed_decode_error(self):
