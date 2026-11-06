@@ -47,6 +47,7 @@ The runner also records use-case start, each step and final pass/fail events. Th
 
 A constructor pattern such as `Ok(Order { customer: Customer { name } })` selects fields without weakening input validation.
 The host boundary requires all declared fields, rejects extra fields and checks nested variants and UTF-8 strings.
+The declaration syntax is an open R&D choice. [D001: `enum` or `type`](../../wiki/planning/decisions-to-be-made.md#d001--enum-or-type-declarations)
 
 ## Experimental host representation
 

@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::Write;
+use std::ops::Range;
 
 type Checked<T> = Result<T, String>;
 
@@ -12,7 +13,7 @@ enum Token {
     End,
 }
 
-fn lex(source: &str) -> Checked<Vec<(Token, usize)>> {
+fn lex(source: &str) -> Checked<Vec<(Token, Range<usize>)>> {
     if source.len() > 262_144 {
         return Err("source exceeds spike limit (256 KiB)".into());
     }
@@ -74,12 +75,13 @@ fn lex(source: &str) -> Checked<Vec<(Token, usize)>> {
             '{' | '}' | '(' | ')' | ':' | ',' | '=' | '+' => Token::Symbol(ch),
             _ => return Err(format!("unsupported token at byte {pos}")),
         };
-        tokens.push((token, pos));
+        let end = chars.peek().map_or(source.len(), |&(next, _)| next);
+        tokens.push((token, pos..end));
         if tokens.len() > 8192 {
             return Err("token limit exceeded".into());
         }
     }
-    tokens.push((Token::End, source.len()));
+    tokens.push((Token::End, source.len()..source.len()));
     Ok(tokens)
 }
 
@@ -104,6 +106,7 @@ struct Clause {
     args: Vec<Node>,
     output: String,
     body: Node,
+    source_range: Range<usize>,
 }
 #[derive(Default)]
 struct Program {
@@ -112,7 +115,7 @@ struct Program {
 }
 
 struct Parser {
-    tokens: Vec<(Token, usize)>,
+    tokens: Vec<(Token, Range<usize>)>,
     at: usize,
 }
 impl Parser {
@@ -120,7 +123,7 @@ impl Parser {
         &self.tokens[self.at].0
     }
     fn error(&self, message: &str) -> String {
-        format!("{message} at byte {}", self.tokens[self.at].1)
+        format!("{message} at byte {}", self.tokens[self.at].1.start)
     }
     fn eat(&mut self, ch: char) -> bool {
         if self.peek() == &Token::Symbol(ch) {
@@ -157,7 +160,7 @@ impl Parser {
             Token::Word(_) => {
                 let name = self.word()?;
                 if self.peek() == &Token::Symbol('(')
-                    && self.tokens[self.at].1 != self.tokens[self.at - 1].1 + name.len()
+                    && self.tokens[self.at].1.start != self.tokens[self.at - 1].1.end
                 {
                     return Err(self.error("no whitespace before call or constructor parentheses"));
                 }
@@ -208,6 +211,7 @@ impl Parser {
     fn program(mut self) -> Checked<Program> {
         let mut program = Program::default();
         while self.peek() != &Token::End {
+            let start = self.tokens[self.at].1.start;
             match self.word()?.as_str() {
                 "interface" => {
                     let name = self.word()?;
@@ -282,6 +286,7 @@ impl Parser {
                         args,
                         output,
                         body,
+                        source_range: start..self.tokens[self.at - 1].1.end,
                     });
                 }
                 _ => return Err(self.error("expected interface, enum, or fn")),
@@ -832,6 +837,10 @@ impl Checker<'_> {
                 .collect();
             out.push_str(&format!("  def {name}({}) do\n    if {} do\n      result = __beaml_{name}({})\n      if __beaml_valid__(result, {}), do: result, else: raise(ArgumentError, \"invalid BEAML output\")\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n", args.join(", "), if checks.is_empty() { "true".into() } else { checks.join(" and ") }, args.join(", "), binary(output)));
             for clause in self.program.clauses.iter().filter(|c| &c.name == name) {
+                out.push_str(&format!(
+                    "  # beaml-declaration-v1 {name} {} {}\n",
+                    clause.source_range.start, clause.source_range.end
+                ));
                 let mut used = BTreeSet::new();
                 referenced_names(&clause.body, &mut used);
                 out.push_str(&format!(
