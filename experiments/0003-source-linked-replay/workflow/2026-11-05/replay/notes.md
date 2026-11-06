@@ -277,3 +277,13 @@ See the [output](green-output.log) and the [GREEN result](green-result.json).
 - **[Unknown]** Two records for one trace give `missing_response`. No test checks this.
 - **[Unknown]** An invalid order or a non-string `body_base64` raises. These are not typed reasons.
 - **[Unknown]** A3 / D002 stays open. Only the `OrdersBeamlSpike` hash is checked.
+
+## Limits after the final review
+
+**[Unknown]** The runner does not bind the record to the loaded build (review R1, waits for D002). The body digest is an integrity check inside the record, not tamper protection (review R2). [Review](review.md)
+
+## Independent TEST
+
+**[Verified]** 9 of 10 checks passed at commit `66e52aa`. All four 0003 tests and the 8 0002 unit tests exited 0. Format and warning checks passed. Output hashes: 97 files, 0 mismatches. [TEST log](test-output.log), [TEST record](test-result.json)
+**[Verified]** Check 7 (`git diff --check`) failed only on blank lines at the end of retained raw run logs. Source files are clean.
+**[Proposal]** Disposition (main agent): accepted. Retained run output stays byte-exact. Future whitespace checks exclude `results/`.

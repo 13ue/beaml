@@ -1,0 +1,57 @@
+# Independent test of gate 4 REPLAY RUN (EXPERIMENT 0003)
+# Tester: fresh Claude Opus 5.5 subagent, 2026-11-06. Branch exp-0003-replay, commit 66e52aa.
+# Run serially from the repository root. Loopback only. No code, test or production file changed.
+
+## Check 1: SHA-256 before the runs
+replay_run_test.py          e38a88cf5a442d698f9e9d4b237ca1c78e8fee384b252d55eb624e0fd2801b94  ledger: equal
+response_capture_test.py    da92ade2d614b83905f4f928988855bc5b92a585b17290c70964c61f801626fc  GREEN run input-hashes: equal
+trace_lookup_test.py        6a7036195cc3025c252caa2cbe6ac4c9f13f78996752272249f0b5a6168b9ebe  GREEN run input-hashes: equal
+trace_lookup_repair_test.py 5f83aa891c974c01179921ba2c27fd1b6b0f77c54a4de63ccf6641029b134804  GREEN run input-hashes: equal
+router.ex                   67ce7dc826c6ce81b42f75f5b5502216702ecdb2e3ce37593af78ab10616918d  ledger after: equal
+payment_http.ex             3802517290858296ead60824d9cd83e3a00e0263c2c5017732b0278ea7ee7388  ledger after: equal
+replay.ex                   fa8bef737e35c0e7acd2d97817b4cc594e08349683633a3a70c3a3c69cfb0112  ledger after: equal
+Note: the ledger notes.md gives a full hash only for replay_run_test.py. The other three tests are compared with input-hashes.json of the GREEN runs. git diff 17679a4..66e52aa does not change any test file.
+SHA-256 after all runs: all seven values unchanged.
+
+## Check 2
+$ python3 -B experiments/0003-source-linked-replay/tests/replay_run_test.py
+exit 0
+run: experiments/0003-source-linked-replay/results/20261106T080638262268Z (status pass, 9/9 assertions equal, 21/21 commands exit 0)
+
+## Check 3
+$ python3 -B experiments/0003-source-linked-replay/tests/response_capture_test.py
+exit 0
+run: experiments/0003-source-linked-replay/results/20261106T080705087475Z (status pass, 6/6 assertions equal)
+
+## Check 4
+$ python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_test.py
+exit 0
+run: experiments/0003-source-linked-replay/results/20261106T080728814727Z (status pass)
+$ python3 -B experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py --source-run experiments/0003-source-linked-replay/results/20261106T080728814727Z
+exit 0
+run: experiments/0003-source-linked-replay/results/20261106T080752016180Z (status pass; unchanged 2/2, swapped-receipts, missing-window, outside-window as expected)
+
+## Check 5
+$ cd experiments/0002-http-correlation && python3 -m unittest discover -s tests
+exit 0 (Ran 8 tests, OK)
+
+## Check 6
+$ cd experiments/0002-http-correlation && mix format --check-formatted apps/orders_api/lib/orders_api/payment_http.ex apps/orders_api/lib/orders_api/replay.ex
+exit 0
+Release build logs (release-orders/payments .stdout/.stderr, compile-revision.*) of runs 080638, 080705, 080728: 0 lines with "warning".
+
+## Check 7
+$ git diff --check 17679a4..66e52aa
+exit 2
+14 findings, all "new blank line at EOF" in retained raw run output (process.log, release-*.stdout) under results/2026110608*.
+$ git diff --check 17679a4..66e52aa -- ':!experiments/0003-source-linked-replay/results'
+exit 0 (source, test and ledger files are clean)
+The RED commit (d599694..17679a4) has the same findings in its run directory. The result files are raw captures and must stay unchanged.
+
+## Check 8
+Run 20261106T080638262268Z: output-hashes.json lists 97 files. 97 checked, 0 mismatch, 0 missing.
+Original responses.jsonl: run record responses_sha256 5c2b880d880de406ab811acec4677d4648c1abee1e2e3760bdb3463103f7a5e7.
+orders/responses.jsonl and original/orders.responses.jsonl now: 5c2b880d...f7a5e7 (equal, unchanged).
+
+## Other observations
+During the test run, an other agent changed notes.md (+4 lines) and added review.md in this ledger directory (08:08Z). The tester did not make these changes.

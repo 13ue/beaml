@@ -1,0 +1,29 @@
+{
+  "experiment": "0003-source-linked-replay",
+  "gate": 4,
+  "phase": "replay-run-test",
+  "tester": "fresh Claude Opus 5.5 subagent",
+  "date": "2026-11-06",
+  "commit": "66e52aa",
+  "status": "pass-with-note",
+  "checks": [
+    {"id": 1, "name": "sha256 of 4 tests and router.ex, payment_http.ex, replay.ex equal ledger", "result": "pass",
+     "note": "ledger has a full test hash only for replay_run_test.py; other tests compared with GREEN run input-hashes.json; values unchanged after the runs"},
+    {"id": 2, "name": "replay_run_test.py", "exit_code": 0, "result": "pass", "run": "experiments/0003-source-linked-replay/results/20261106T080638262268Z"},
+    {"id": 3, "name": "response_capture_test.py", "exit_code": 0, "result": "pass", "run": "experiments/0003-source-linked-replay/results/20261106T080705087475Z"},
+    {"id": "4a", "name": "trace_lookup_test.py", "exit_code": 0, "result": "pass", "run": "experiments/0003-source-linked-replay/results/20261106T080728814727Z"},
+    {"id": "4b", "name": "trace_lookup_repair_test.py --source-run 20261106T080728814727Z", "exit_code": 0, "result": "pass", "run": "experiments/0003-source-linked-replay/results/20261106T080752016180Z"},
+    {"id": 5, "name": "0002 python3 -m unittest discover -s tests", "exit_code": 0, "tests": 8, "result": "pass"},
+    {"id": "6a", "name": "mix format --check-formatted payment_http.ex replay.ex", "exit_code": 0, "result": "pass"},
+    {"id": "6b", "name": "no compiler warnings in release build logs", "warnings": 0, "result": "pass"},
+    {"id": 7, "name": "git diff --check 17679a4..66e52aa", "exit_code": 2, "result": "fail",
+     "note": "14 'new blank line at EOF' findings, all in retained raw run output under results/; same pattern in the RED commit; exit 0 without results/"},
+    {"id": 8, "name": "output-hashes.json of replay run and original responses.jsonl hash", "files_checked": 97, "mismatches": 0, "missing": 0,
+     "responses_sha256": "5c2b880d880de406ab811acec4677d4648c1abee1e2e3760bdb3463103f7a5e7", "responses_unchanged": true, "result": "pass"}
+  ],
+  "unexpected": [
+    "git diff --check fails on retained raw run output (blank line at EOF), not on source",
+    "an other agent changed notes.md and added review.md in the ledger directory during the test"
+  ],
+  "output": "test-output.log"
+}
