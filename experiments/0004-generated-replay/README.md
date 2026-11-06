@@ -249,3 +249,4 @@ All counts in the 8-case matrix stay as in 0003. The revision 2 SHA-256 check of
 - **[Requirement]** `!` in a type stays, although Elixir uses `!` in names for "raises". The owner accepts this.
 - **[Requirement]** For each BEAML function that can fail, the Elixir output has two functions: `name/n` returns `{:ok, value}` or `{:error, error}`; `name!/n` returns the value or raises an exception generated from the failure type.
 - **[Requirement]** Generated Elixir errors are typed structs with named fields, for example `%Orders.LoadError.NotFound{id: "order-1"}`. Not plain tuples.
+- **[Requirement]** Generated decode is strict by default: an unknown key in a response is a typed error. A later explicit opt-in for tolerant decode stays open.
