@@ -1,0 +1,163 @@
+{
+  "test": "test_live_orders_call_captures_predecode_response_and_one_transport_attempt",
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "experiments/0003-source-linked-replay/tests/response_capture_test.py"
+  ],
+  "cwd": "/Users/lennart/Projects/beaml",
+  "status": "pass",
+  "steps": [
+    {
+      "ts": "2026-11-06T08:28:10.721424+00:00",
+      "action": "start",
+      "result": "running"
+    },
+    {
+      "ts": "2026-11-06T08:28:25.802073+00:00",
+      "action": "step",
+      "result": "fresh_releases_match_archived_beams"
+    },
+    {
+      "ts": "2026-11-06T08:28:25.886025+00:00",
+      "action": "step",
+      "result": "receipt_1_verified"
+    },
+    {
+      "ts": "2026-11-06T08:28:25.933604+00:00",
+      "action": "step",
+      "result": "receipt_2_verified"
+    },
+    {
+      "ts": "2026-11-06T08:28:28.008778+00:00",
+      "action": "step",
+      "result": "live_releases_stopped"
+    },
+    {
+      "ts": "2026-11-06T08:28:29.442041+00:00",
+      "action": "step",
+      "result": "observer_control_reached_transport_failure"
+    },
+    {
+      "ts": "2026-11-06T08:28:29.662358+00:00",
+      "action": "pass",
+      "result": "capture_and_transport_verified"
+    }
+  ],
+  "baseline": {
+    "receipts": [
+      {
+        "call": 1,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "30b4cfce4ddc8846c688b9b5d03c0037"
+      },
+      {
+        "call": 2,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "ecb6809a08074a0b569dc1a1b18892e3"
+      }
+    ],
+    "payments_count_delta": 2
+  },
+  "release_exits": {
+    "payments": 0,
+    "orders": 0
+  },
+  "assertions": {
+    "orders_transport_attempts_after_each_call": {
+      "expected": [
+        1,
+        2
+      ],
+      "actual": [
+        1,
+        2
+      ]
+    },
+    "response_record_traces": {
+      "expected": [
+        "30b4cfce4ddc8846c688b9b5d03c0037",
+        "ecb6809a08074a0b569dc1a1b18892e3"
+      ],
+      "actual": [
+        "30b4cfce4ddc8846c688b9b5d03c0037",
+        "ecb6809a08074a0b569dc1a1b18892e3"
+      ]
+    },
+    "first_response_record": {
+      "expected": {
+        "version": 1,
+        "trace_id": "30b4cfce4ddc8846c688b9b5d03c0037",
+        "client_span_id": "92d4cd9c865baba1",
+        "artifact_id": "9b5ec850c5e6d8f0d71f58f5cb71e956916ff9e2f2fa657d83533234f0fd43b5",
+        "operation": "payments.authorize",
+        "attempt": 1,
+        "request": {
+          "order_id": "order-1"
+        },
+        "status": 200,
+        "body_length": 44,
+        "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba"
+      },
+      "actual": {
+        "version": 1,
+        "trace_id": "30b4cfce4ddc8846c688b9b5d03c0037",
+        "client_span_id": "92d4cd9c865baba1",
+        "artifact_id": "9b5ec850c5e6d8f0d71f58f5cb71e956916ff9e2f2fa657d83533234f0fd43b5",
+        "operation": "payments.authorize",
+        "attempt": 1,
+        "request": {
+          "order_id": "order-1"
+        },
+        "status": 200,
+        "body_length": 44,
+        "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba"
+      }
+    },
+    "first_response_body": {
+      "expected": {
+        "bounded": true,
+        "json": {
+          "order_id": "order-1",
+          "status": "authorized"
+        }
+      },
+      "actual": {
+        "bounded": true,
+        "json": {
+          "order_id": "order-1",
+          "status": "authorized"
+        }
+      }
+    },
+    "observer_control_attempts_invalid_then_refused": {
+      "expected": [
+        0,
+        1
+      ],
+      "actual": [
+        0,
+        1
+      ]
+    },
+    "observer_control_response_records": {
+      "expected": 0,
+      "actual": 0
+    }
+  },
+  "observer_control": {
+    "refused_port": 52824,
+    "exit": 0,
+    "statuses": [
+      400,
+      502
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+# Final verification of EXPERIMENT 0003 run.py repair (HEAD cf6e837, 2026-11-06)
+
+## 1. python3 -B experiments/0003-source-linked-replay/tests/run_test.py (exit 0)
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.656s
+
+OK
+
+## 2. python3 experiments/0003-source-linked-replay/run.py (exit 0, 61 s)
+{"run": "/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082750423575Z", "status": "pass"}
+status pass
+compiler-reference pass 0 None
+trace-lookup pass 0 /Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082751252610Z
+trace-lookup-repair pass 0 /Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082810481053Z
+response-capture pass 0 /Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082810721105Z
+replay-run pass 0 /Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082829756155Z
+repair argv tail ['--source-run', '/Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082751252610Z']
+compiler-reference 'test result:' lines: 1
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.25s
+repair result.json source_run: /Users/lennart/Projects/beaml/experiments/0003-source-linked-replay/results/20261106T082751252610Z
+
+## 2b. Extra probe: real cargo, nonexistent test name, scratch config (exit 1)
+compiler-reference fail, exit_code 0, reason 'expected exactly 1 passed test'
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+## 3. SHA-256
+1685fb844919abd68b025dcb294bb4a26bb6fddfdd118c1caf322db3d9023d52  experiments/0003-source-linked-replay/run.py
+cb9e7eee8eb14bd0a154f931390b2eb5534dbed10fea7a90dcfdda605d2812c0  experiments/0003-source-linked-replay/tests/run_test.py
+notes.md: run.py 1685fb84...3d52, run_test.py cb9e7eee...12c0 (equal)
+
+## 4. git diff --stat f303eb0 HEAD -- run.py tests/run_test.py
+ experiments/0003-source-linked-replay/run.py       | 14 +++++++++++
+ .../0003-source-linked-replay/tests/run_test.py    | 28 +++++++++++++++++++---
+ 2 files changed, 39 insertions(+), 3 deletions(-)
+
+## 6. python3 scripts/lint_wiki.py (exit 0)
+Checked 78 maintained Markdown files; 0 error(s). PDF hash, bytes, page count and per-page text rechecked.
+Parsed raw JSON records; verified 6 explicitly retained capture hashes.
+Limits: inline Markdown links/headings only; original raw documents not linted; no external URL, semantic truth, security proof or runtime checks.

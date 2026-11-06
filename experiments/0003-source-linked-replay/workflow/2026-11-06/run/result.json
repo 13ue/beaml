@@ -1,0 +1,48 @@
+{
+  "phase": "FINAL VERIFY",
+  "date": "2026-11-06",
+  "head": "cf6e837",
+  "target": "EXPERIMENT 0003 complete; TEST of the run.py zero-test repair (b086e80)",
+  "log": "final-test-output.log",
+  "checks": [
+    {"id": 1, "check": "python3 -B tests/run_test.py", "status": "pass", "exit_code": 0, "tests": 5, "failures": 0, "errors": 0},
+    {"id": 2, "check": "real run python3 run.py", "status": "pass", "exit_code": 0, "duration_s": 61,
+     "run_dir": "experiments/0003-source-linked-replay/results/20261106T082750423575Z",
+     "steps_pass": 5,
+     "compiler_reference_test_result_lines": 1,
+     "compiler_reference_summary": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out",
+     "repair_source_run_equals_lookup_result_dir": true,
+     "lookup_result_dir": "experiments/0003-source-linked-replay/results/20261106T082751252610Z",
+     "runner_events_last": "finish/pass"},
+    {"id": "2b", "check": "extra probe: real cargo with a nonexistent test name (scratch config, outside repo)", "status": "pass",
+     "exit_code": 1, "step_status": "fail", "step_exit_code": 0, "reason": "expected exactly 1 passed test"},
+    {"id": 3, "check": "SHA-256 of run.py and tests/run_test.py vs notes.md 'Repair: zero-test gate'", "status": "pass",
+     "run_py": "1685fb844919abd68b025dcb294bb4a26bb6fddfdd118c1caf322db3d9023d52",
+     "run_test_py": "cb9e7eee8eb14bd0a154f931390b2eb5534dbed10fea7a90dcfdda605d2812c0"},
+    {"id": 4, "check": "diff f303eb0..HEAD of run.py and run_test.py is minimal and fixes review O1", "status": "pass",
+     "note": "run.py +14 (re import, REFERENCE, ONE_TEST regex, one_test_passed(), 2-line gate on compiler-reference). run_test.py +25/-3 (stub summary line, new zero-test case). No other behavior change."},
+    {"id": 5, "check": "README.md of 0003 and latest wiki/log.md entry match ledger and run", "status": "pass",
+     "wrong_claims": [],
+     "stale_after_this_verify": [
+       "README, log.md: 'No (independent) TEST of the repair is recorded' is now answered by this record",
+       "README, R&D register: 'latest run' 20261106T082425551626Z is no longer the latest; still a valid passed run"]},
+    {"id": 6, "check": "python3 scripts/lint_wiki.py", "status": "pass", "exit_code": 0, "errors": 0}
+  ],
+  "unresolved_defects": [],
+  "accepted_limits": ["review O2 (medium): no runner output-hashes.json; absolute step paths", "no per-step timeout"],
+  "changed_file_scope": {
+    "code_or_tests_changed": false,
+    "commits": 0,
+    "new_files": [
+      "experiments/0003-source-linked-replay/workflow/2026-11-06/run/final-test-output.log",
+      "experiments/0003-source-linked-replay/workflow/2026-11-06/run/result.json",
+      "experiments/0003-source-linked-replay/results/20261106T082750423575Z/",
+      "experiments/0003-source-linked-replay/results/20261106T082751252610Z/",
+      "experiments/0003-source-linked-replay/results/20261106T082810481053Z/",
+      "experiments/0003-source-linked-replay/results/20261106T082810721105Z/",
+      "experiments/0003-source-linked-replay/results/20261106T082829756155Z/"
+    ],
+    "ignored_appends": [".beaml/actions.jsonl"]
+  },
+  "status": "pass"
+}

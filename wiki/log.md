@@ -279,3 +279,7 @@ Updated the workflow record, the [EXPERIMENT 0003 page](../experiments/0003-sour
 **[Verified]** The review blocked a zero-test pass of the compiler reference step (O1). The repair added a RED test. The repaired run passed 5/5 steps. [Review](../experiments/0003-source-linked-replay/workflow/2026-11-06/run/review.md), [runner result](../experiments/0003-source-linked-replay/results/20261106T082425551626Z/result.json)
 Updated the workflow record, the [EXPERIMENT 0003 page](../experiments/0003-source-linked-replay/README.md#evidence-and-limits), its overview page and the [R&D register](planning/research-and-development.md#experiment-register).
 **[Unknown]** The runner directory has no own output hashes and stores absolute step paths (O2). No independent TEST of the repair is recorded. A passed EXPERIMENT does not establish production readiness.
+
+## [2026-11-06] verify | EXPERIMENT 0003 final verification
+
+**[Verified]** A fresh final verification tested the run.py zero-test repair. `run_test.py` passed 5 tests. The real run passed 5/5 steps. A missing Rust test name now fails the compiler reference step. [Final verification](../experiments/0003-source-linked-replay/workflow/2026-11-06/run/result.json), [runner result](../experiments/0003-source-linked-replay/results/20261106T082750423575Z/result.json)
