@@ -11,6 +11,9 @@ EXPERIMENT = Path(__file__).resolve().parents[1]
 REPO = EXPERIMENT.parents[1]
 RUNNER = EXPERIMENT / "run.py"
 STEPS = ["compiler-reference", "trace-lookup", "trace-lookup-repair", "response-capture", "replay-run"]
+# `run.py --list-steps` prints {"steps": [{"name", "command"}]} with argv relative to the repo root.
+# The runner replaces this token with the result dir of the trace-lookup step of the same run.
+LOOKUP_DIR_TOKEN = "{result_dir:trace-lookup}"
 
 # Stub step: record argv, create a result dir like the real tests, print it first, exit with the given code.
 STUB = r'''
@@ -103,6 +106,29 @@ class RunnerTest(unittest.TestCase):
         self.check_events(tmp, events, [("compiler-reference", "pass"), ("trace-lookup", "fail"),
                                         ("trace-lookup-repair", "skipped"), ("response-capture", "pass"),
                                         ("replay-run", "pass")], "fail")
+
+    def test_default_steps_match_gate_commands(self):
+        # O1 (red-review.md): the default step list of run.py, without running any step.
+        env = {k: v for k, v in os.environ.items() if k != "BEAML_0003_RUN_CONFIG"}
+        cp = subprocess.run([sys.executable, "-B", str(RUNNER), "--list-steps"], cwd=REPO, env=env,
+                            capture_output=True, text=True, timeout=60)
+        self.assertEqual(cp.returncode, 0, cp.stdout + cp.stderr)
+        listed = json.loads(cp.stdout)
+        tests = "experiments/0003-source-linked-replay/tests/"
+        manifest = "experiments/0001-syntax-to-beam/Cargo.toml"
+        expected = [
+            ("compiler-reference", ["cargo", "test", "--manifest-path", manifest, "--test", "cli",
+                                    "payments_cli_emits_checked_authorize_reference", "--", "--exact", "--nocapture"]),
+            ("trace-lookup", ["python3", "-B", tests + "trace_lookup_test.py"]),
+            ("trace-lookup-repair", ["python3", "-B", tests + "trace_lookup_repair_test.py",
+                                     "--source-run", LOOKUP_DIR_TOKEN]),
+            ("response-capture", ["python3", "-B", tests + "response_capture_test.py"]),
+            ("replay-run", ["python3", "-B", tests + "replay_run_test.py"]),
+        ]
+        self.assertEqual([(s["name"], s["command"]) for s in listed["steps"]], expected)
+        for path in (manifest, tests + "trace_lookup_test.py", tests + "trace_lookup_repair_test.py",
+                     tests + "response_capture_test.py", tests + "replay_run_test.py"):
+            self.assertTrue((REPO / path).is_file(), path)
 
     def test_failed_independent_step_fails_run(self):
         tmp, cp, calls, runs, result, events = self.execute(failing=("response-capture",))

@@ -20,3 +20,10 @@
 - Toolchain: python version plus step `toolchain.json` files is enough? (Proposal: yes.)
 - Per-step timeout: none in the plan; a hung release blocks the run.
 - `integrations/zed-beaml/preview.py` showed as untracked during this phase and later went away. Another process changed it. This phase did not touch it.
+
+## RED review repair: O1 (2026-11-06)
+- Source: [red-review.md](red-review.md) O1 (high). O2 and O3 (medium) are GREEN review checks, not test changes.
+- `plan.md`: step paths now start at the repo root (`experiments/0003-source-linked-replay/tests/...`). Gate 1 keeps `--nocapture`, as in `workflow/2026-11-05/notes.md`, so its stdout is evidence.
+- New test `test_default_steps_match_gate_commands`. It runs `run.py --list-steps` without `BEAML_0003_RUN_CONFIG`. It expects JSON `{"steps": [{"name", "command"}]}` with the five names, order and exact argv. The repair argv ends with `--source-run {result_dir:trace-lookup}`. The test checks that the manifest and the four scripts exist. It starts no step.
+- GREEN pass rule: all `run_test.py` tests pass. The TEST phase also runs `python3 experiments/0003-source-linked-replay/run.py` once for real. It must exit 0, and the repair step `result.json` `source_run` must equal the lookup step `result_dir` of the same run.
+- RED: `python3 -B experiments/0003-source-linked-replay/tests/run_test.py` from repo root. 4 tests, 4 failures, 0 errors, exit 1. Each fails on the stub exit code: `2 != 0` (all pass, default steps), `2 != 1` (two fail cases), "not implemented". See [red-output.log](red-output.log).
