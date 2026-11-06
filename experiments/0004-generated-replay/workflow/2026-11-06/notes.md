@@ -268,3 +268,52 @@ Also run once before: `arms_test.py -k test_b` → pass (`results/20261106T12100
 
 - **[Verified]** A careless shell command ran `git stash` once during GREEN-1. The worker restored the change at once with `git stash pop`; `git stash list` is empty and the diff is complete. No commit.
 - **[Verified]** A compiler run from the 0001 directory wrote `experiments/0001-syntax-to-beam/.beaml/actions.jsonl`. The worker removed this untracked file.
+
+## RED repair round 2
+
+**[Requirement]** Input: fresh review of the RED tests after GREEN-1, objections 1 and 2 (high), 3 (medium). Tests only: `tests/arms_test.py`, `tests/drift_test.py`. No compiler, router, app, LIB or `run.py` change. No commit.
+
+**Fix 1 (high), L2 typed reason (`arms_test.py`).** A raise (for example `200 = status`, `MatchError`) also gives span `outcome: "error"`. L2 now requires:
+- live span `orders.payments.authorize` = `[("error", "status")]` (attribute `reason`, D18);
+- new eval run `L2-place` (`mode: place`, `observe: true`) against the same 503 stub: result `{"error": "%OrdersBeamlSpike.PaymentError{reason: \"status\"}"}`, stub `sent` 1, `payments_authorize/1` 1, `:gen_tcp.connect/4` 1, `finish/1` 0, and the eval client span `[("error", "status")]`.
+- L3 already asserts `reason: "decode"` on the span; no change.
+- New helper `payments_stub(status, body)` (the stub of `live`, moved out unchanged).
+
+**Fix 2 (high), DRIFT evidence (`drift_test.py`).** Contract for `run.py drift` (comment `EVIDENCE_CONTRACT` text in the file): last stdout line `{"run": <new dir in results/>, "drift": ...}`; per row `evidence = {build_output, build_exit_code, new_live_report, pre_change_replay_report}`. The test requires:
+- the run dir is new and lies directly in `results/`; each evidence file exists and lies inside the run dir;
+- build exit ≠ 0 ⇔ `build == "compile_error"`; with a failed build, `new_live` and `pre_change` are `compile_error`;
+- `new_live`: HTTP 200 → `correct_accept` | `wrong_accept`; else `typed_reject` | `false_reject` | `untyped_crash`;
+- `pre_change`: `ok` → accept family, `error` → `typed_reject` | `false_reject`, `raised` → `untyped_crash`.
+- **[Verified]** Scratch self-check (not in the repository) of `evidence_problems`: a consistent row passes; a wrong build class, a wrong live class, a wrong replay class, a path outside the run dir and missing evidence each fail.
+
+**Fix 3 (medium), L0 and P1 (`arms_test.py`).**
+- L0: exactly 1 `orders.payments.authorize` span and 0 `orders.payment_http` spans.
+- P1: `payments_authorize/1` 1 and `:gen_tcp.connect/4` 1 (call counts from `WATCHED`, as in R2).
+
+**Runs (serial).** Retained result: `results/20261106T121933265225Z`.
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `python3 -B experiments/0004-generated-replay/tests/arms_test.py` | 1 | 14 failed, 2 passed, 0 errors |
+| `python3 -B experiments/0004-generated-replay/tests/overlay_diff_test.py` | 1 | 2 failed, 1 passed (unchanged: copies missing) |
+| `python3 -B experiments/0004-generated-replay/tests/drift_test.py` | 1 | 2 failed, 1 passed, 0 errors |
+| `cargo test --offline --manifest-path experiments/0001-syntax-to-beam/Cargo.toml` | 0 | unit 9/9, `cli` 12/12 |
+
+| Changed test | Status | Reason |
+| --- | --- | --- |
+| `test_d2_L0_live_valid_body_baseline` | fail (was pass) | Own reason: `effect_spans` 0, `host_transport_spans` 1. The host transport serves L0 |
+| `test_d2_L2_live_status_503_rejected` | fail | Live: 0 records, no EFFECT span (host path). Eval `L2-place`: `raised MatchError`, client span `("error", None)`. This is the false pass of objection 1, now caught |
+| `test_d2_P1_pipe_stops_after_failed_effect` | fail | Own reason: `raised MatchError`; `effect` 1, `connect` 1, `prepare` 1, `finish` 0 hold |
+| `test_f_drift_outcomes_recorded_per_arm_and_derivative` | fail | `run.py` stub exits 2 `not_implemented`; evidence checks not reached (self-check above) |
+
+SHA-256 after: `tests/arms_test.py` `a726338a8552459f18f60ef75221ad022f5cf1969c3dfc1a2c8761e3c4186963`, `tests/drift_test.py` `87d309d14af335bbbbd3179d42136018feb616810ac75ba2ea60a7d51effc486`.
+
+### Decisions (Decision4, RED repair round 2)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| D22 | L2 typed check through an eval `place` against a 503 stub, plus span `reason` live | Repair | A live HTTP reply cannot show a raise versus a typed error; the eval result can. Over: span attribute only. Commits GREEN-2 to a typed `status` path in `place/1` |
+| D23 | Span attribute name `reason` (D18, README L3) for `status` too | Undo | Same name and value set as `PaymentError.reason` |
+| D24 | DRIFT evidence keys `build_output`, `build_exit_code`, `new_live_report`, `pre_change_replay_report`; `run` key for the run dir | Repair | README fixes no names. Over: free-form evidence. Commits `run.py drift` (GREEN) to this shape; one test edit changes it |
+| D25 | Failed build ⇒ `new_live` and `pre_change` are `compile_error`, report paths may be absent | Repair | No release exists, so nothing can run. Over: a separate "not run" class, which the README does not list |
+| D26 | Re-derive class families, not exact classes (accept / reject / crash) | Undo | `correct` versus `wrong` and `typed` versus `false` need the expected outcome; the README judges that |

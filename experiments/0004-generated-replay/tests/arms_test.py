@@ -42,6 +42,7 @@ MISSING_KEY_BODY = b'{"order_id":"order-1"}'
 WRONG_TYPE_BODY = b'{"order_id":"order-1","status":7}'
 DECODE_ERROR = '%OrdersBeamlSpike.PaymentError{reason: "decode"}'
 TRANSPORT_ERROR = '%OrdersBeamlSpike.PaymentError{reason: "transport"}'
+STATUS_ERROR = '%OrdersBeamlSpike.PaymentError{reason: "status"}'
 EIGHT_CASES = ("replay_first_call", "replay_a1_noncanonical_body", "replay_missing_response",
                "replay_operation_mismatch", "replay_attempt_mismatch", "replay_body_digest_mismatch",
                "replay_status_mismatch", "replay_request_mismatch")
@@ -197,13 +198,8 @@ def orders_env(out, payments_port):
                 RELEASE_DISTRIBUTION="none", RELEASE_COOKIE="beaml_synthetic_loopback_test")
 
 
-def live(arm, name, status, body):
-    """One Orders call against the 0003 loopback stub (http.server, Content-Length framing)."""
-    built = build(arm)
-    out = RESULTS / arm / "live" / name
-    out.mkdir(parents=True)
-    for kind in ("spans", "logs"):
-        (out / (kind + ".jsonl")).touch()
+def payments_stub(status, body):
+    """The 0003 loopback Payments stub (http.server, Content-Length framing). Return (server, sent bodies)."""
     sent = []
 
     class Stub(http.server.BaseHTTPRequestHandler):
@@ -220,6 +216,17 @@ def live(arm, name, status, body):
 
     stub = http.server.HTTPServer(("127.0.0.1", 0), Stub)
     threading.Thread(target=stub.serve_forever, daemon=True).start()
+    return stub, sent
+
+
+def live(arm, name, status, body):
+    """One Orders call against the 0003 loopback stub."""
+    built = build(arm)
+    out = RESULTS / arm / "live" / name
+    out.mkdir(parents=True)
+    for kind in ("spans", "logs"):
+        (out / (kind + ".jsonl")).touch()
+    stub, sent = payments_stub(status, body)
     process = None
     try:
         with (out / "process.log").open("wb") as log:
@@ -380,10 +387,14 @@ class GenTypeMismatch(Case):
         return [s for s in observed["spans"] if s["name"] == span_name]
 
     def test_d2_L0_live_valid_body_baseline(self):
+        # Review round 2: the generated EFFECT must serve L0, not the host transport (span `orders.payment_http`).
         seen = self.observed("L0")
-        self.assertEqual({"reply": [200, PAYMENT], "transport": 1, "sent": 1, "records": 1, "finish": 1},
+        self.assertEqual({"reply": [200, PAYMENT], "transport": 1, "sent": 1, "records": 1, "finish": 1,
+                          "effect_spans": 1, "host_transport_spans": 0},
                          {"reply": seen["reply"], "transport": seen["transport"], "sent": seen["sent"],
-                          "records": len(seen["records"]), "finish": len(self.spans(seen, "orders.finish"))})
+                          "records": len(seen["records"]), "finish": len(self.spans(seen, "orders.finish")),
+                          "effect_spans": len(self.spans(seen, "orders.payments.authorize")),
+                          "host_transport_spans": len(self.spans(seen, "orders.payment_http"))})
 
     def test_d2_L1_live_unknown_key_accepted_with_hint(self):
         seen = self.observed("L1")
@@ -401,15 +412,33 @@ class GenTypeMismatch(Case):
              "finish": len(self.spans(seen, "orders.finish"))})
 
     def test_d2_L2_live_status_503_rejected(self):
+        # Review round 2: a raise (for example `200 = status`, MatchError) also gives outcome "error".
+        # Require the typed reason: span attribute `reason: "status"` (D18) live, and
+        # `place/1` returns `PaymentError{reason: "status"}` in an eval VM against the same 503 stub, not a raise.
         seen = self.observed("L2")
         record = seen["records"][0] if len(seen["records"]) == 1 else {}
+        stub, sent = payments_stub(503, VALID_BODY)
+        try:
+            report = harness("gen", "L2-place", {"mode": "place", "observe": True}, payments_port=stub.server_address[1])
+        finally:
+            stub.shutdown()
+            stub.server_close()
+        calls = report["calls"]
         self.assertEqual(
             {"reply": [502, {"error": "downstream_failure"}], "transport": 1, "records": 1, "status": 503,
-             "bytes": base64.b64encode(VALID_BODY).decode(), "client": ["error"], "finish": 0},
+             "bytes": base64.b64encode(VALID_BODY).decode(), "client": [("error", "status")], "finish": 0,
+             "place": {"result": {"error": STATUS_ERROR}, "sent": 1, "effect": 1, "connect": 1, "finish": 0,
+                       "client": [("error", "status")]}},
             {"reply": seen["reply"], "transport": seen["transport"], "records": len(seen["records"]),
              "status": record.get("status"), "bytes": record.get("body_base64"),
-             "client": [s["attributes"].get("outcome") for s in self.spans(seen, "orders.payments.authorize")],
-             "finish": len(self.spans(seen, "orders.finish"))})
+             "client": [(s["attributes"].get("outcome"), s["attributes"].get("reason"))
+                        for s in self.spans(seen, "orders.payments.authorize")],
+             "finish": len(self.spans(seen, "orders.finish")),
+             "place": {"result": report["result"], "sent": len(sent),
+                       "effect": calls.get("OrdersBeamlSpike.payments_authorize/1"),
+                       "connect": calls.get(":gen_tcp.connect/4"), "finish": calls.get("OrdersBeamlSpike.finish/1"),
+                       "client": [(s["attributes"].get("outcome"), s["attributes"].get("reason"))
+                                  for s in report.get("spans", []) if s["name"] == "orders.payments.authorize"]}})
 
     def test_d2_L3_live_missing_key_is_typed_decode_error(self):
         # Owner decision: a response that does not match the TYPE gives a typed error, live too (review objection 2).
@@ -462,10 +491,14 @@ class GenTypeMismatch(Case):
         self.assertEqual(self.decode_error(), self.replay_record("R3", record))
 
     def test_d2_P1_pipe_stops_after_failed_effect(self):
+        # Review round 2: the EFFECT and the connect attempt each run once, so a catch-all rescue
+        # before the EFFECT cannot pass.
         report = harness("gen", "P1", {"mode": "place"})
         calls = report["calls"]
-        self.assertEqual({"result": {"error": TRANSPORT_ERROR}, "prepare": 1, "finish": 0},
+        self.assertEqual({"result": {"error": TRANSPORT_ERROR}, "prepare": 1, "effect": 1, "connect": 1, "finish": 0},
                          {"result": report["result"], "prepare": calls.get("OrdersBeamlSpike.prepare/1"),
+                          "effect": calls.get("OrdersBeamlSpike.payments_authorize/1"),
+                          "connect": calls.get(":gen_tcp.connect/4"),
                           "finish": calls.get("OrdersBeamlSpike.finish/1")})
 
 
