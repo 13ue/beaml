@@ -104,6 +104,16 @@ def base_text(path):
     return tests_block(text) if path == MAIN_RS else text
 
 
+# The slice 5 GREEN commit. The diff audit checks the rewrite as it was committed, so later work
+# (overview page, new run.py steps) does not count as rewrite. The no-old-form check still reads the working tree.
+REWRITE = "bdc79eccc352807ba11123a06b1b2c4f830ea7a8"
+
+
+def rewrite_text(path):
+    text = git("show", "%s:%s" % (REWRITE, path)).decode()
+    return tests_block(text) if path == MAIN_RS else text
+
+
 def work_text(path):
     # Bytes, then decode: read_text() would turn CRLF into LF (Q4-crlf, Q4s-crlf).
     text = (REPO / path).read_bytes().decode()
@@ -139,11 +149,11 @@ def changed_paths():
     for base, own in ((BASE, lambda p: not is_test_code(p)), (red_base(), is_test_code)):
         if base is None:
             continue
-        for line in git("diff", "--name-status", "--no-renames", base).decode().splitlines():
+        for line in git("diff", "--name-status", "--no-renames", base, REWRITE).decode().splitlines():
             status, path = line.split("\t", 1)
             if not excluded(path) and (own(path) or path not in rows):
                 rows[path] = status
-    if base_text(MAIN_RS) != work_text(MAIN_RS):
+    if base_text(MAIN_RS) != rewrite_text(MAIN_RS):
         rows[MAIN_RS] = "M"
     return sorted((status, path) for path, status in rows.items())
 
@@ -223,7 +233,7 @@ class RewriteAudit(unittest.TestCase):
             if status != "M":
                 continue
             with self.subTest(path=path):
-                old, new = base_text(path), work_text(path)
+                old, new = base_text(path), rewrite_text(path)
                 olds, news, used = apply_rows(path, leftover(path, old, new), rows)
                 for index, count in used.items():
                     used_total.setdefault(index, {})[path] = count

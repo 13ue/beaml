@@ -1,0 +1,20 @@
+{
+  "result": {
+    "error": "%OrdersBeamlSpike.TqjkaywcError{reason: \"decode\"}"
+  },
+  "unwatched": [
+    "{OrdersBeamlSpike, :payments_authorize, 1}"
+  ],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 0,
+    "OrdersBeamlSpike.payments_authorize/1": "nil",
+    "OrdersBeamlSpike.payments_oqulqlvi/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "a1179e2b917e850dc0128a37c176fe3c7598455d34bdd86b58677c7029e5dd5b"
+}

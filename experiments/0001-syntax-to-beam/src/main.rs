@@ -2720,7 +2720,15 @@ impl Checker<'_> {
         ];
         // N1 (slice 5, DL-070): version numbers only grow. A stored version newer than the newest version of the
         // source means a reset (a lowered mark, removed MIGRATE STEPS); no MIGRATE STEP can count backwards.
-        if &stored.name == type_name && stored.version > newest {
+        // Slice 5 final review (medium 1): the version check comes before the name check. A stored TYPE of another
+        // name with a newer version also gets N1, never a help line that counts backwards.
+        if stored.version > newest {
+            if &stored.name != type_name {
+                m.push(format!(
+                    "  the stored TYPE name {} is not {type_name}",
+                    stored.name
+                ));
+            }
             m.push(format!("  record source: {source} (first at line {line})"));
             m.push(format!(
                 "  the stored TYPE VERSION v{} is newer than the newest TYPE VERSION v{newest}; version numbers only grow",

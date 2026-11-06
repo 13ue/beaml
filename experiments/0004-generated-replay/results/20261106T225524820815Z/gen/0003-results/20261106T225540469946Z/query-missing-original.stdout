@@ -1,0 +1,13 @@
+{
+  "complete": false,
+  "gaps": [
+    {
+      "code": "missing_source",
+      "service": "payments"
+    }
+  ],
+  "traces": [],
+  "edges": [],
+  "logs": [],
+  "fixtures": []
+}

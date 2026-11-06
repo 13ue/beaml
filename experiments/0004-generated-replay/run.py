@@ -2,7 +2,8 @@
 
 Usage (from any cwd; loopback only; every step runs serially):
   python3 -B experiments/0004-generated-replay/run.py          all steps: compiler, overlay diff, LIB freeze,
-                                                               arms (a-e), DRIFT (f); one result dir per run
+                                                               arms (a-e), DRIFT (f), the slice 2-5 test
+                                                               files; one result dir per run
   python3 -B experiments/0004-generated-replay/run.py drift    case (f) only: DRIFT R, N, Q per arm
   python3 -B experiments/0004-generated-replay/run.py freeze   write arms/lib/freeze.json once, else verify it
   python3 -B experiments/0004-generated-replay/run.py --list-steps
@@ -76,6 +77,10 @@ STEPS = [
     ("arms", [sys.executable, "-B", TESTS + "arms_test.py"]),
     ("drift", [sys.executable, "-B", "experiments/0004-generated-replay/run.py", "drift"]),
 ]
+# Slices 2-5: one step per test file, serially, after the slice 1 steps (step name = file name without `_test.py`).
+SLICE_TESTS = ("stored_types", "slice2_replay", "slice3_types", "slice3_replay", "slice4_retire", "slice4_replay",
+               "slice5_syntax", "slice5_squash", "slice5_replay", "slice5_rewrite")
+STEPS += [(name.replace("_", "-"), [sys.executable, "-B", TESTS + name + "_test.py"]) for name in SLICE_TESTS]
 # File classes of a repair hunk (README "Replay lines and manual change sites").
 DOMAIN_FILES = (HTTP_PATH + "/apps/probe_support/lib/probe_support.ex",)
 TEST_FILES = tuple([HTTP_PATH + "/query.py"] + [REPLAY_PATH + "/tests/" + n for n in arm_tree.TEST_NAMES])

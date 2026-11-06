@@ -12,6 +12,8 @@ The grammar also covers the forms of the decision log (`wiki/planning/decision-l
 - MIGRATE CHAIN steps `migrate T v1 -> v2 { ... }` with `rename`, `add` and `drop` (DL-022, DL-023, DL-072). A plain number gives an ERROR node (DL-074).
 - `retire op.name keep 30 days` (DL-055, DL-057).
 
+A version is `v` and a number without a leading zero (`v[1-9][0-9]*`): `v0` and `v03` give an ERROR node. The grammar does not check the u32 range: the compiler rejects `v4294967296` (F4). The corpus file [errors.txt](test/corpus/errors.txt) holds the ERROR cases.
+
 Version numbers use the capture `@number`. `preview.py` shows it in the constructor colour (class `c`).
 
 ## Install in Zed 1.27 on macOS

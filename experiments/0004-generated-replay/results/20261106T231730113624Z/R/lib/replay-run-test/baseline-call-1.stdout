@@ -1,0 +1,62 @@
+{
+  "complete": true,
+  "gaps": [],
+  "traces": [
+    "a5d65f3b601343b80903f808319f0304"
+  ],
+  "edges": [
+    {
+      "trace_id": "a5d65f3b601343b80903f808319f0304",
+      "parent_span_id": "77ef0ad5074fdb11",
+      "span_id": "473c91f75fc8fda8"
+    },
+    {
+      "trace_id": "a5d65f3b601343b80903f808319f0304",
+      "parent_span_id": "77ef0ad5074fdb11",
+      "span_id": "aca9f8884ffa2b3f"
+    },
+    {
+      "trace_id": "a5d65f3b601343b80903f808319f0304",
+      "parent_span_id": "77ef0ad5074fdb11",
+      "span_id": "918907f6f33ae8be"
+    },
+    {
+      "trace_id": "a5d65f3b601343b80903f808319f0304",
+      "parent_span_id": "81359768326e451c",
+      "span_id": "f13d8071e1ac2af9"
+    },
+    {
+      "trace_id": "a5d65f3b601343b80903f808319f0304",
+      "parent_span_id": "aca9f8884ffa2b3f",
+      "span_id": "81359768326e451c"
+    }
+  ],
+  "logs": [
+    {
+      "service": "orders",
+      "operation": "prepare",
+      "span_id": "473c91f75fc8fda8",
+      "trace_id": "a5d65f3b601343b80903f808319f0304",
+      "event": "payment_request_prepared",
+      "order_id": "order-1"
+    },
+    {
+      "service": "payments",
+      "operation": "authorize",
+      "event": "payment_stub_returned",
+      "span_id": "f13d8071e1ac2af9",
+      "trace_id": "a5d65f3b601343b80903f808319f0304",
+      "order_id": "order-1"
+    }
+  ],
+  "fixtures": {
+    "payments": {
+      "source": "apps/payments_api/priv/payments.beaml",
+      "source_hash": "5752cfe09efc341b20f2b61bbfffb16c51cf0e780840ef7ec85325df5d1d22c8"
+    },
+    "orders": {
+      "source": "apps/orders_api/priv/orders.beaml",
+      "source_hash": "fd5a465a4f1a5d48810d71109fd38b26eadcf53f9a38dbd44c481e899b5ecef6"
+    }
+  }
+}

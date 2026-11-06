@@ -1,0 +1,7 @@
+    warning: OrdersBeamlSpike.place/1 is undefined or private
+    │
+ 18 │           send_resp(conn, 404, "oops")
+    │                                 ~
+    │
+    └─ /private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-pr-random-ypdmgnmu/experiments/0002-http-correlation/deps/plug/lib/plug/router.ex:18:33: OrdersApi.Router.do_match/4
+

@@ -133,8 +133,8 @@ module.exports = grammar({
     escape: () => token.immediate(/\\[nrt"\\]/),
     comment: () => token(seq("//", /[^\n]*/)),
 
-    // A TYPE VERSION: `v3` (DL-072) or a plain number (slice 2-4 fixtures).
-    version: () => /v[0-9]+/,
+    // A TYPE VERSION: `v3` (DL-072); no `v0`, no leading zero. The u32 range is a compiler check.
+    version: () => /v[1-9][0-9]*/,
     integer: () => /[0-9]+/,
 
     identifier: () => /[A-Za-z_][A-Za-z0-9_]*/,

@@ -153,7 +153,7 @@ figure.code pre i{font-style:normal}
     <div class="gate"><span class="n">Slice 2</span><h3><code>rename</code> + stored versions</h3><span class="chip ok">BLOCK → repaired</span></div>
     <div class="gate"><span class="n">Slice 3</span><h3><code>add</code> + <code>drop</code></h3><span class="chip ok">BLOCK → repaired</span></div>
     <div class="gate"><span class="n">Slice 4</span><h3><code>retire</code> + dead lines</h3><span class="chip ok">PASS WITH NOTES → hardened</span></div>
-    <div class="gate now"><span class="n">Slice 5</span><h3><code>type</code> + <code>v</code> marks</h3><span class="chip wait">GREEN; review not recorded</span></div>
+    <div class="gate now"><span class="n">Slice 5</span><h3><code>type</code> + <code>v</code> marks</h3><span class="chip ok">PASS WITH NOTES → closed</span></div>
   </div>
   <p class="note">Each slice: plan → fresh check → RED → GREEN → final review (Devil's Advocate, DL-007) → repair. Verdicts from the decision log triggers and <span class="mono">workflow/2026-11-06/notes.md</span>.</p>
 </section>
@@ -245,8 +245,8 @@ figure.code pre i{font-style:normal}
       <div class="head"><span class="chip wait">Slice 5</span><h3>After a SQUASH, can the type line keep the newest version, so every DEAD LINE can go and the number never falls back?</h3></div>
       <dl>
         <dt>Built</dt><dd><code>type</code> replaces <code>interface</code> (DL-061); <code>v</code> on every version (DL-072); VERSION MARK <code>type Payment v4</code>; <code>--remove-dead</code> writes the mark (DL-070, DL-071); 55 files rewritten, audited (A1) and checked for equal behaviour (A2).</dd>
-        <dt>Final review</dt><dd>Not recorded in the repo at HEAD. GREEN found two RED test faults, fixed by the main agent (DL-078).</dd>
-        <dt>Tests</dt><dd><code>slice5_syntax</code> 54 (8 skipped, PENDING O7); <code>slice5_squash</code> 24; <code>slice5_replay</code> 12; <code>slice5_rewrite</code> 5; cargo 11 + 14; grammar 13 parses, 69 highlight assertions.</dd>
+        <dt>Final review</dt><dd><b>PASS WITH NOTES</b>. (1) N1 fired only when the stored TYPE name equals the source name: a record <code>Pay v6</code> against <code>type Payment v4</code> got the backwards help <code>migrate Payment v6 -&gt; v5</code>. Fix: the version check comes before the name check; test F12d. (2) The grammar accepted <code>v0</code> and <code>v03</code> and had no ERROR cases. Fix: version token <code>v[1-9][0-9]*</code>, corpus <code>errors.txt</code> (<code>interface</code>, plain numbers, <code>v0</code>, <code>v01</code>); the u32 range stays a compiler check. GREEN found two RED test faults, fixed by the main agent (DL-078).</dd>
+        <dt>Tests</dt><dd><code>slice5_syntax</code> 56 (8 skipped, PENDING O7); <code>slice5_squash</code> 24; <code>slice5_replay</code> 12; <code>slice5_rewrite</code> 5 (A1: 2 fail on post-slice-5 paths, <code>overview.html</code> and <code>run.py</code>; OWNER decision open); cargo 11 + 14; grammar 17 parses (4 ERROR cases), 69 highlight assertions; <code>run.py</code> runs all slice 2–5 test files.</dd>
         <dt>Commits</dt><dd class="mono">6727353d plan · 721e7eea RED · eefaf483 RED repair · bdc79ecc GREEN</dd>
       </dl>
     </div>
@@ -269,7 +269,7 @@ figure.code pre i{font-style:normal}
         <tr class="grp"><td colspan="3">In progress</td></tr>
         <tr><td>VERSION MARK strictness</td><td><span class="chip wait">provisional (a), O7</span></td><td>DL-077</td></tr>
         <tr><td>Production source of stored versions</td><td><span class="chip wait">snapshot only, O5</span></td><td>DL-034, DL-063</td></tr>
-        <tr><td>Slice 5 final review</td><td><span class="chip wait">not recorded</span></td><td>DL-007</td></tr>
+        <tr><td>Slice 5 final review</td><td><span class="chip ok">PASS WITH NOTES, closed</span></td><td>DL-007</td></tr>
         <tr class="grp"><td colspan="3">Decided, syntax open or not built</td></tr>
         <tr><td><code>Unknown(String)</code> as a declared <code>enum</code> variant; last clause keeps the value</td><td><span class="chip open">decided, not built</span></td><td>DL-028, DL-062, DL-065</td></tr>
         <tr><td><code>redacted</code> PII field: <code>card_holder: redacted String</code></td><td><span class="chip open">syntax decided, not built</span></td><td>DL-029, DL-059</td></tr>

@@ -1,0 +1,75 @@
+test_D11_build_mixed_chain_with_versions_1_2_3 (__main__.Fixture) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_D11c_build_rename_chain_reusing_the_renamed_name (__main__.Fixture) ... ok
+test_D12_add_of_field_not_in_next_version_is_K1 (__main__.Fixture) ... ok
+test_D13_version_2_record_without_added_field_has_no_path (__main__.Fixture) ... ok
+test_D14_build_drop_then_add_chain_with_v1 (__main__.Fixture) ... ok
+test_D14_build_drop_then_add_chain_with_versions_1_and_3 (__main__.Fixture) ... ok
+test_D15_add_of_field_that_old_records_hold_has_no_path (__main__.Fixture) ... ok
+test_D15b_same_source_with_empty_snapshot_compiles (__main__.Fixture) ... ok
+test_D17_build_drop_add_rename_chain_with_versions_1_2_3 (__main__.Fixture) ... ok
+test_D18_build_rename_then_drop_chain_with_versions_1_2 (__main__.Fixture) ... ok
+test_D1_build_add_chain_with_v1 (__main__.Fixture) ... ok
+test_D2_added_field_without_add_is_compile_error (__main__.Fixture) ... ok
+test_D2b_two_added_fields_help_line_sorted_by_name (__main__.Fixture) ... ok
+test_D2c_two_removed_one_added_field_help_line_drops_then_adds (__main__.Fixture) ... ok
+test_D3_added_field_with_empty_snapshot_compiles (__main__.Fixture) ... ok
+test_D4_build_drop_chain_with_v1 (__main__.Fixture) ... ok
+test_D5_removed_field_without_drop_is_compile_error (__main__.Fixture) ... ok
+test_D5b_one_removed_one_added_field_gives_rename_and_drop_add_help (__main__.Fixture) ... ok
+test_D5c_removed_field_of_other_type_has_no_drop_form (__main__.Fixture) ... ok
+test_D6_removed_field_with_empty_snapshot_compiles (__main__.Fixture) ... ok
+test_D7_drop_of_other_type_is_compile_error (__main__.Fixture) ... ok
+test_D7b_drop_of_other_type_fails_also_with_empty_snapshot (__main__.Fixture) ... ok
+test_K01_add_of_field_not_in_next_version (__main__.Fixture) ... ok
+test_K02_add_with_other_type_than_the_field (__main__.Fixture) ... ok
+test_K03_add_constant_not_a_string_literal (__main__.Fixture) ... ok
+test_K04_add_of_field_with_type_other_than_string (__main__.Fixture) ... ok
+test_K05_drop_of_field_still_in_next_version (__main__.Fixture) ... ok
+test_K06_drop_of_type_other_than_string (__main__.Fixture) ... ok
+test_K07_field_two_times_in_one_step (__main__.Fixture) ... ok
+test_K08_empty_step (__main__.Fixture) ... ok
+test_K09_missing_comma (__main__.Fixture) ... ok
+test_K10_trailing_comma (__main__.Fixture) ... ok
+test_K11_add_without_constant (__main__.Fixture) ... ok
+test_K12_computed_assignment (__main__.Fixture) ... ok
+test_fixtures_match_the_template_rule (__main__.Fixture) ... ok
+test_D11_build_mixed_chain_with_versions_1_2_3 (__main__.Template) ... ok
+test_D11c_build_rename_chain_reusing_the_renamed_name (__main__.Template) ... ok
+test_D12_add_of_field_not_in_next_version_is_K1 (__main__.Template) ... ok
+test_D13_version_2_record_without_added_field_has_no_path (__main__.Template) ... ok
+test_D14_build_drop_then_add_chain_with_v1 (__main__.Template) ... ok
+test_D14_build_drop_then_add_chain_with_versions_1_and_3 (__main__.Template) ... ok
+test_D15_add_of_field_that_old_records_hold_has_no_path (__main__.Template) ... ok
+test_D15b_same_source_with_empty_snapshot_compiles (__main__.Template) ... ok
+test_D17_build_drop_add_rename_chain_with_versions_1_2_3 (__main__.Template) ... ok
+test_D18_build_rename_then_drop_chain_with_versions_1_2 (__main__.Template) ... ok
+test_D1_build_add_chain_with_v1 (__main__.Template) ... ok
+test_D2_added_field_without_add_is_compile_error (__main__.Template) ... ok
+test_D2b_two_added_fields_help_line_sorted_by_name (__main__.Template) ... ok
+test_D2c_two_removed_one_added_field_help_line_drops_then_adds (__main__.Template) ... ok
+test_D3_added_field_with_empty_snapshot_compiles (__main__.Template) ... ok
+test_D4_build_drop_chain_with_v1 (__main__.Template) ... ok
+test_D5_removed_field_without_drop_is_compile_error (__main__.Template) ... ok
+test_D5b_one_removed_one_added_field_gives_rename_and_drop_add_help (__main__.Template) ... ok
+test_D5c_removed_field_of_other_type_has_no_drop_form (__main__.Template) ... ok
+test_D6_removed_field_with_empty_snapshot_compiles (__main__.Template) ... ok
+test_D7_drop_of_other_type_is_compile_error (__main__.Template) ... ok
+test_D7b_drop_of_other_type_fails_also_with_empty_snapshot (__main__.Template) ... ok
+test_K01_add_of_field_not_in_next_version (__main__.Template) ... ok
+test_K02_add_with_other_type_than_the_field (__main__.Template) ... ok
+test_K03_add_constant_not_a_string_literal (__main__.Template) ... ok
+test_K04_add_of_field_with_type_other_than_string (__main__.Template) ... ok
+test_K05_drop_of_field_still_in_next_version (__main__.Template) ... ok
+test_K06_drop_of_type_other_than_string (__main__.Template) ... ok
+test_K07_field_two_times_in_one_step (__main__.Template) ... ok
+test_K08_empty_step (__main__.Template) ... ok
+test_K09_missing_comma (__main__.Template) ... ok
+test_K10_trailing_comma (__main__.Template) ... ok
+test_K11_add_without_constant (__main__.Template) ... ok
+test_K12_computed_assignment (__main__.Template) ... ok
+
+----------------------------------------------------------------------
+Ran 69 tests in 1.150s
+
+OK

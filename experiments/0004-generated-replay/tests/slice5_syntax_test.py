@@ -541,6 +541,30 @@ class Slice5Syntax(Slice5):
         self.assertNotIn("declare: migrate", stderr, self.ctx("F12c: no help line that counts backwards"))
         self.assert_whole_versions(stderr, N.r, 1)
 
+    def test_F12d_record_of_another_name_newer_than_the_mark_is_N1(self):
+        # Slice 5 final review, medium 1: N1 fired only when the stored TYPE name equals the source name. A record of
+        # another name (a prefix of T) at v(V+2) against `type T vV` got a help line that counts backwards.
+        N = self.names
+        V, other = N.V, N.T[:3]
+        stored = self.work / ("snapshot-%s.jsonl" % random.randrange(10 ** 8))
+        stored.write_bytes((json.dumps(make_record(N, V + 2, "kt", name=other), separators=(",", ":"),
+                                       ensure_ascii=False) + "\n").encode())
+        for kind in ("Q4z", "Q4s"):
+            with self.subTest(kind=kind):
+                code, stdout, stderr = self.run_compiler([self.source(kind), "--stored", stored])
+                backwards = [m.group(0) for m in re.finditer(r"migrate \S+ v(\d+) -> v(\d+)", stderr)
+                             if int(m.group(2)) < int(m.group(1))]
+                lower = [m.group(0) for m in re.finditer(r"type \S+ v(\d+)", stderr) if int(m.group(1)) < V + 2
+                         and "write:" in stderr[max(0, m.start() - 8):m.start()]]
+                tokens = [str(stored) if t is PATH else t for t in self.n1_tokens(V + 2, V)]
+                self.assertEqual((1, "", [], [], []),
+                                 (code, stdout, [t for t in tokens if t not in stderr], backwards, lower),
+                                 self.ctx("F12d %s: exit 1, no stdout, N1 tokens (missing), backwards steps, "
+                                          "lower `write: type` marks;" % kind, "stderr:", stderr))
+                self.assert_whole_versions(stderr, V + 2, V)
+                self.assertIn("the stored TYPE name %s is not %s" % (other, N.T), stderr,
+                              self.ctx("F12d %s: the name mismatch stays visible;" % kind, stderr))
+
     # F15: the largest version number.
     def test_F15_largest_version_has_no_newer_version_and_no_panic(self):
         N = self.names

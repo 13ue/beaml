@@ -1,0 +1,35 @@
+==================
+Interface is no record keyword
+:error
+==================
+
+interface X {}
+
+---
+
+==================
+Plain numbers in a MIGRATE STEP
+:error
+==================
+
+migrate T 1 -> 2 { rename a -> b }
+
+---
+
+==================
+Version v0 on the type line
+:error
+==================
+
+type T v0 { a: String }
+
+---
+
+==================
+Version with a leading zero in a MIGRATE STEP
+:error
+==================
+
+migrate T v01 -> v2 { rename a -> b }
+
+---

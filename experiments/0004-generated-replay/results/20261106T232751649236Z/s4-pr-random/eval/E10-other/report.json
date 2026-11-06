@@ -1,0 +1,26 @@
+{
+  "result": {
+    "error": "operation_mismatch"
+  },
+  "unwatched": [
+    "{OrdersBeamlSpike, :payments_authorize, 1}",
+    "{OrdersBeamlSpike, :prepare, 1}",
+    "{OrdersBeamlSpike, :payments_charge, 1}",
+    "{OrdersBeamlSpike, :nsvonpwb_opomruyi, 1}",
+    "{OrdersBeamlSpike, :payments_oqkhowse, 1}"
+  ],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 0,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 0,
+    "OrdersBeamlSpike.nsvonpwb_opomruyi/1": "nil",
+    "OrdersBeamlSpike.payments_authorize/1": "nil",
+    "OrdersBeamlSpike.payments_charge/1": "nil",
+    "OrdersBeamlSpike.payments_oqkhowse/1": "nil",
+    "OrdersBeamlSpike.prepare/1": "nil",
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "cbf77b4e3ba1095d76ed89a1367b9e15a7ed9bc97b4419812687519a509c160a"
+}

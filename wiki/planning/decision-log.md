@@ -370,6 +370,10 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: the B5 fixture guard compares with the new syntax; F23 clears the action log per layout. Over: leave the tests red.
 → Detail: 0004 notes.md, "Slice 5 GREEN follow-up (test faults)".
 
+**DL-079 · Undo · Slice 5 review notes closed**
+→ Chose: the N1 version check runs before the TYPE name check (no backwards help line); the grammar version regex is `v[1-9][0-9]*` with ERROR corpus tests for `interface` and plain numbers; `run.py` runs the slice 2–5 test files; the rewrite audit compares the GREEN commit `bdc79ecc` with its base instead of the working tree.
+→ Because: slice 5 final review (Devil's Advocate), PASS WITH NOTES. The audit scope was raised as Migrate by a worker and lowered to Undo by the main agent: only our own test changes.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

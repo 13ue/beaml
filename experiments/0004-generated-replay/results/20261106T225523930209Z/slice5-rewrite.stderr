@@ -1,0 +1,52 @@
+test_A1_allowed_rows_are_well_formed (__main__.RewriteAudit) ... ok
+test_A1_every_changed_line_is_a_rewrite_rule_or_an_allowed_row (__main__.RewriteAudit) ... test_A1_no_deleted_or_new_path_in_scope (__main__.RewriteAudit) ... FAIL
+test_A1_test_code_keeps_no_old_form (__main__.RewriteAudit) ... ok
+test_A1_the_rewrite_is_complete (__main__.RewriteAudit) ... ok
+
+======================================================================
+FAIL: test_A1_every_changed_line_is_a_rewrite_rule_or_an_allowed_row (__main__.RewriteAudit) (path='experiments/0004-generated-replay/run.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice5_rewrite_test.py", line 230, in test_A1_every_changed_line_is_a_rewrite_rule_or_an_allowed_row
+    self.assertEqual(([], []), (olds, news),
+AssertionError: Tuples differ: ([], []) != (['                                        [710 chars]S]'])
+
+First differing element 0:
+[]
+['                                        [65 chars]run']
+
+- ([], [])
++ (['                                                               arms (a-e), '
++   'DRIFT (f); one result dir per run'],
++  ['                                                               arms (a-e), '
++   'DRIFT (f), the slice 2-5 test',
++   '                                                               files; one '
++   'result dir per run',
++   '# Slices 2-5: one step per test file, serially, after the slice 1 steps '
++   '(step name = file name without `_test.py`).',
++   'SLICE_TESTS = ("stored_types", "slice2_replay", "slice3_types", '
++   '"slice3_replay", "slice4_retire", "slice4_replay",',
++   '               "slice5_syntax", "slice5_squash", "slice5_replay", '
++   '"slice5_rewrite")',
++   'STEPS += [(name.replace("_", "-"), [sys.executable, "-B", TESTS + name + '
++   '"_test.py"]) for name in SLICE_TESTS]']) : A1 experiments/0004-generated-replay/run.py: changed lines that are neither W1 to W4 nor an allowed row (old, new)
+
+======================================================================
+FAIL: test_A1_no_deleted_or_new_path_in_scope (__main__.RewriteAudit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice5_rewrite_test.py", line 216, in test_A1_no_deleted_or_new_path_in_scope
+    self.assertEqual([], [(s, p) for s, p in changed_paths() if s != "M"],
+AssertionError: Lists differ: [] != [('A', 'experiments/0004-generated-replay/overview.html')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+('A', 'experiments/0004-generated-replay/overview.html')
+
+- []
++ [('A', 'experiments/0004-generated-replay/overview.html')] : A1: a deleted or new path outside the slice 5, compiler, grammar, doc and results scope
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.285s
+
+FAILED (failures=2)

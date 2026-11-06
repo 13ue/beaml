@@ -1345,3 +1345,42 @@ STATE GREEN: not committed (the main agent commits). Base: HEAD `eefaf483`. Two 
 - Fault 2, `tests/slice5_squash_test.py` F23: all layouts share one work directory, so the action log grew per layout. The main agent removes the log before each layout.
 - New SHA-256 prefixes: `slice5_syntax_test.py` `eb1286b916a69827`, `slice5_squash_test.py` `75e439e3e0e89359`. Both files pass (8 PENDING O7 skips); `slice5_rewrite_test.py` passes.
 - Undo-class: a revert restores the old tests.
+
+## Slice 5 review notes closed
+
+Final review verdict: PASS WITH NOTES. Base HEAD `1b546463`. Not committed; the main agent commits.
+
+- Medium 1 (N1 with another TYPE name). RED: `test_F12d_record_of_another_name_newer_than_the_mark_is_N1` (Fixture and Template, Q4z and Q4s). It failed with the observed help `migrate Payment v6 -> v5 { add reference: String = <constant> }; write: type Payment v5`. GREEN: `no_path` in `0001/src/main.rs` checks `stored.version > newest` before the name check. The N1 message keeps the line `the stored TYPE name X is not T`. `slice5_syntax` 56 tests, OK (8 PENDING O7 skips).
+- Medium 2 (grammar). RED: `test/corpus/errors.txt` with 4 `:error` cases. `interface X {}` and `migrate T 1 -> 2` already gave ERROR (guards); `v0` and `v01` did not. GREEN: version token `v[1-9][0-9]*`; the README notes that the u32 range stays a compiler check. Tree-sitter 0.26.5: 17/17 parses, 69 highlight assertions, native and WASM. `grammars/beaml.wasm` rebuilt. Parse of 59 real sources (results/ excluded): 0 ERROR nodes, except `examples/order-flow.beaml` and `syntax-options.beaml` (`interface` proposals, ERROR by DL-074). `preview.py --chat` exit 0.
+- `run.py`: 10 new steps after `drift` (`stored-types` to `slice5-rewrite`), one per test file, with `exit_code` in `result.json`.
+- Run `results/20261106T225523930209Z`: all steps exit 0 except `slice5-rewrite` (exit 1). Counts: stored_types 33, slice2_replay 21, slice3_types 69, slice3_replay 31, slice4_retire 87, slice4_replay 27, slice5_syntax 56, slice5_squash 24, slice5_replay 12, slice5_rewrite 5 (2 fail). cargo 11 + 14 pass.
+- PROBLEM: A1 of `slice5_rewrite_test.py` audits the working tree against `f29e3f12`. Every later change in its scope fails it. `overview.html` (new in `1b546463`) fails A1 already at HEAD; the `run.py` steps add a second failure. Before this change, `run.py` did not run the file, so nobody saw the failure.
+
+### SHA-256 prefixes
+
+| File | SHA-256 prefix |
+| --- | --- |
+| `0001/src/main.rs` | `3ccd7927b1030ce6` |
+| `tests/slice5_syntax_test.py` | `d0e6639e40bffba6` |
+| `run.py` | `ed54830963042d2e` |
+| `integrations/zed-beaml/grammar.js` | `f162170854abe23a` |
+| `integrations/zed-beaml/grammars/beaml.wasm` | `d5cfdf49d750fd58` |
+| `integrations/zed-beaml/test/corpus/errors.txt` | `8116248366f9bb2e` |
+
+### Decisions (Decision4)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| S5N-1 | N1 for every stored version above the newest, any name; the name line stays | Undo | Smallest fix; no backwards help is possible |
+| S5N-2 | F12d stored name is the first 3 letters of T, fields `kt` | Undo | Reproduces the observed `Pay` case and the backwards help |
+| S5N-3 | Grammar ERROR cases also cover `v0` and `v01` | Undo | They are the RED for the tighter regex |
+| S5N-4 | Step names = file name without `_test.py`, `_` as `-` | Undo | Same style as `overlay-diff` |
+| S5N-5 | The rebuilt `beaml.wasm` is kept | Undo | README: build the WASM after a grammar change |
+| S5N-6 | The A1 audit and `rewrite-allowed.json` stay unchanged; `run.py` exits 1 | Migrate (OWNER) | Options: (a) A1 audits up to the GREEN commit `bdc79ecc`, not the working tree; (b) add allowed rows and a new-path rule for later work; (c) leave `slice5-rewrite` out of `run.py` |
+| S5N-7 | New `results/` run directories stay untracked | Undo | Commit or delete is for the main agent |
+
+## Slice 5 audit scope
+
+- `tests/slice5_rewrite_test.py` compared the working tree with the base, so every later change in its scope failed A1 (the overview page, the new run.py steps).
+- The main agent pinned the diff audit to the slice 5 GREEN commit `bdc79ecc`: `git diff BASE bdc79ecc` and `git show bdc79ecc:<path>`. The no-old-form check still reads the working tree.
+- Undo-class: our own test design; the worker had raised it as Migrate. `run.py` now exits 0 with all slice 2–5 steps.

@@ -1,0 +1,40 @@
+{
+  "result": {
+    "ok": {
+      "k_wiaxfj": "order-1",
+      "o_kxltbu": "done"
+    }
+  },
+  "unwatched": [],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "3452aaa45993bd02a58556078e973a7afe6e0680b39dadaad36bc823c7e4fb37",
+  "spans": [
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "kind": "internal",
+      "trace_id": "5781c12bc459e3d374ed7455f447a6fd",
+      "span_id": "d85f1f2ea774b5b0",
+      "end_time": -576460751857390250,
+      "end_time_unix_nano": 1794006461101124750,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time": -576460751858651750,
+      "start_time_unix_nano": 1794006461099863250
+    }
+  ]
+}

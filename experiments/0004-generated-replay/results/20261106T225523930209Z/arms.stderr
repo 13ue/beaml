@@ -1,0 +1,21 @@
+test_b_gen_module_compiles_with_warnings_as_errors (__main__.GenBuild) ... ok
+test_c_gen_0003_runner_passes_all_five_steps (__main__.GenRunner) ... ok
+test_d_gen_replay_matrix_eight_cases (__main__.GenRunner) ... ok
+test_c_gen_router_calls_only_place_and_host_replay_files_are_deleted (__main__.GenStructure) ... ok
+test_d2_L0_live_valid_body_baseline (__main__.GenTypeMismatch) ... ok
+test_d2_L1_live_unknown_key_accepted_with_hint (__main__.GenTypeMismatch) ... ok
+test_d2_L2_live_status_503_rejected (__main__.GenTypeMismatch) ... ok
+test_d2_L3_live_missing_key_is_typed_decode_error (__main__.GenTypeMismatch) ... ok
+test_d2_P1_pipe_stops_after_failed_effect (__main__.GenTypeMismatch) ... ok
+test_d2_R1_replay_missing_key_is_decode_error (__main__.GenTypeMismatch) ... ok
+test_d2_R2_replay_of_L1_record_gives_same_success_and_hint (__main__.GenTypeMismatch) ... ok
+test_d2_R3_replay_wrongly_typed_field_is_decode_error (__main__.GenTypeMismatch) ... ok
+test_e_lib_arm_replays_matrix (__main__.LibArm) ... ok
+test_e_lib_form_is_the_fixed_strongest_library (__main__.LibArm) ... ok
+test_e_lib_type_mismatch_outcomes_recorded_then_frozen (__main__.LibArm) ... ok
+test_control_originals_unchanged_by_arm_runs (__main__.ZzControlUnchanged) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 168.900s
+
+OK
