@@ -110,7 +110,8 @@ Delegate any remaining documentation or record updates to a fresh worker before 
 The main agent reviews worker reports and reports changes, evidence, exclusions and remaining risk.
 The main agent never reads the diff or ledger itself and never writes implementation, configuration or documentation.
 Do not run an automatic second repair cycle or claim success on unresolved failures. Report the blocking evidence.
-Commit, push, merge, publish or contact others only when separately authorized by the user's task.
+The main agent commits at the end of every phase, after its own check (owner rule, 2026-11-06). Workers do not commit.
+Push, merge, publish or contact others only when separately authorized by the user's task.
 The agent RED review implements the user's explicit test-first instruction. It grants no extra scope or external-action permission.
 
 ## Origin
