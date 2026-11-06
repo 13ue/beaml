@@ -1,0 +1,42 @@
+[
+  {
+    "file": "experiments/0004-generated-replay/tests/slice5_syntax_test.py",
+    "line": "(\"migrate %s %s -> %s { rename %s -> %s }\\n\" % (T, numbers[0], numbers[1], o, t), \"s12\"),",
+    "reason": "B5c template: the chain step takes its numbers as a parameter, so F3 and F3b can build the plain-number faults"
+  },
+  {
+    "file": "experiments/0004-generated-replay/tests/slice5_syntax_test.py",
+    "line": "text = source_text(self.names, \"B5c\").replace(\"migrate %s v1 -> v2\" % T, \"migrate %s 1 -> 2\" % T, 1)",
+    "reason": "F3: builds the plain-number fault `migrate T 1 -> 2` on purpose"
+  },
+  {
+    "file": "experiments/0004-generated-replay/tests/slice5_syntax_test.py",
+    "line": "\"migrate %s 1\" % T, \"needs v\", \"help: write: migrate %s v1 -> v2\" % T], label=\"F3\")",
+    "reason": "F3: the asserted error token `migrate T 1` of the plain-number fault"
+  },
+  {
+    "file": "experiments/0004-generated-replay/tests/slice5_syntax_test.py",
+    "line": "\"migrate from\": b5c.replace(\"migrate %s v1 ->\" % N.T, \"migrate %s %s ->\" % (N.T, fault), 1),",
+    "reason": "F4: puts each VERSION fault into the `migrate` from position on purpose"
+  },
+  {
+    "file": "experiments/0004-generated-replay/tests/slice5_syntax_test.py",
+    "line": "\"migrate %s v%d -> v2\" % (N.T, N.r), \"migrate %s %d -> 2\" % (N.T, N.r)], label=\"F12c\")",
+    "reason": "F12c: the absent token, a help line that counts backwards in the old form"
+  },
+  {
+    "file": "experiments/0004-generated-replay/tests/slice5_syntax_test.py",
+    "line": "NORMALISER_S = [(\"migrate Payment 1 -> 2\", \"migrate Payment v1 -> v2\"),",
+    "reason": "Normaliser S: the exact base stderr string of the old compiler"
+  },
+  {
+    "file": "experiments/0004-generated-replay/tests/slice5_syntax_test.py",
+    "line": "(\"migrate Payment 2 -> 3\", \"migrate Payment v2 -> v3\"),",
+    "reason": "Normaliser S: the exact base stderr string of the old compiler"
+  },
+  {
+    "file": "experiments/0004-generated-replay/tests/slice5_rewrite_test.py",
+    "line": "X + \"/run.py\": [(r're.search(r\"^interface Payment \\{([^}]*)\\}\"', r're.search(r\"^type Payment(?: v[1-9][0-9]*)? \\{([^}]*)\\}\"'),",
+    "reason": "W4: the exact old string of run.py that GREEN replaces"
+  }
+]

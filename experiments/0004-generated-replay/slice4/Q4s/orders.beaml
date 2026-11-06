@@ -3,7 +3,7 @@ interface Order { order_id: String }
 interface Payment { order_id: String state: String reference: String }
 // The first two MIGRATE STEPS are DEAD LINES when no record has version 2 or older.
 
-// The last MIGRATE STEP carries the newest TYPE VERSION. It is never a DEAD LINE.
+// The last MIGRATE STEP carries the newest TYPE VERSION. It is a DEAD LINE when only its target version is stored.
 migrate Payment 3 -> 4 { drop channel: String, add reference: String = "pre-v4" }
 interface PaymentError { reason: String }
 

@@ -1,0 +1,8 @@
+warning: DEAD LINE: migrate Tqpaermk 1 -> 2
+  at /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-random-1mv5c834/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml:5
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-hntzhgb3/stored.jsonl: no stored RESPONSE RECORD of TYPE Tqpaermk has version 1 or older
+  help: remove DEAD LINES with: beaml-spike /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-random-1mv5c834/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml --stored /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-hntzhgb3/stored.jsonl --remove-dead
+warning: DEAD LINE: migrate Tqpaermk 2 -> 3
+  at /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-random-1mv5c834/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml:7
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-hntzhgb3/stored.jsonl: no stored RESPONSE RECORD of TYPE Tqpaermk has version 2 or older
+  help: remove DEAD LINES with: beaml-spike /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-random-1mv5c834/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml --stored /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-hntzhgb3/stored.jsonl --remove-dead

@@ -7,7 +7,7 @@ migrate Payment 1 -> 2 { rename status -> state }
 migrate Payment 2 -> 3 {
   add channel: String = "web"
 }
-// The last MIGRATE STEP carries the newest TYPE VERSION. It is never a DEAD LINE.
+// The last MIGRATE STEP carries the newest TYPE VERSION. It is a DEAD LINE when only its target version is stored.
 migrate Payment 3 -> 4 { drop channel: String, add reference: String = "pre-v4" }
 interface PaymentError { reason: String }
 

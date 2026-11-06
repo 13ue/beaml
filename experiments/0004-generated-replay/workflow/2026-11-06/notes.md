@@ -1225,3 +1225,58 @@ Side effect (observed): the self-check runs appended 869 lines to the tracked ap
 | S5-6 | U2 forces the newest version through the recheck seam with a real build of a text without mark and chain | Undo | Independent of new `Build` fields; same seam as U1 |
 | S5-7 | Message forms `has v1 or older`, `must derive v2`, `expected v2 -> v3` | Undo | Message text only; one `v` spelling (DL-072) |
 | S5-8 | Self-check log lines in `.beaml/actions.jsonl` kept | Undo | Append-only log; the main agent decides about the commit |
+
+## Slice 5 RED repair
+
+STATE README: revision 9.2 (slice 5 section, front matter, one plan history line). Base: HEAD `721e7eea`. Not committed (the main agent commits).
+
+### Faults and changes
+
+| # | Fault (fresh check) | Change | Class |
+| --- | --- | --- | --- |
+| 1 | HIGH: a negative test (`is_err`, `!success`) passes when its inline source is never rewritten; A1 read only `.beaml` files and skipped `0001/src/` | New `test_A1_test_code_keeps_no_old_form`: TEST_CODE (cli.rs, runtime_test.exs, `mod tests` of main.rs, every `experiments/*/run.py`, Python tests of 0003 and 0004, every `arms/*/overlay/` file) keeps no `interface` before a TYPE name or placeholder and no `migrate` with a plain number or number placeholder, except the closed list `slice5/deliberate-old-forms.json` (8 rows, each exactly one line). A1 line audit: test code (`.py`, `.rs`) against the slice 5 RED commit (first commit whose slice4_retire_test.py holds `def test_E12b_empty_snapshot_gives_three_W2_warnings`); `mod tests` block of main.rs against `721e7eea`; other paths against `f29e3f12` | Undo |
+| 1b | Found: W1 missed `%(chain)sinterface` (stored_types_test.py TEMPLATE) and `\ninterface` in a string literal (RETIRED in main.rs `mod tests`) | W1 also matches after `%s`, `)s` and the escape `\n`. Fake GREEN (W1 to W4 on every TEST_CODE file except slice5 tests): 0 old forms left | Undo |
+| 1c | Found: A1 read the working tree with `read_text()`, which turns CRLF into LF, so Q4-crlf and Q4s-crlf could never pass | Read bytes, then decode | Undo |
+| 2 | MEDIUM: rows 0 to 24 locked GREEN lines of a scratch draft | The slice 4 changes are RED tests now, in the old syntax: tags `type`, `s12` (C2), `s34`; `source_text(..., mark=None)`; `assert_removed` expects the mark and the `wrote VERSION MARK` line; E12b, E12c, E13, E15d, E21, E21b, E21d, E22. The Q4 template comment and the 5 Q4 fixture comments change now (fixture guard stays green). Rows shrink to 3 (Q4 fixture comment vs `f29e3f12`, cli.rs fallback, snapshot line). No slice 4 expectation depends on O7 | Undo |
+| 3 | MEDIUM: "10 + 14 pass" not possible from `cargo test --offline` | Rerun with `--no-fail-fast`: unit 10 pass, 1 fail (U2); cli.rs 14 pass | Undo |
+| 4 | LOW: F2 and F12c token checks | F2 asserts the exact line `help: declare: type <Name> { ... }`; F12, F12b, F12c assert `TYPE VERSION v<n>` as a whole token | Undo |
+
+### RED result (observed)
+
+| Command | Exit | Result |
+| --- | --- | --- |
+| `cargo test --offline --no-fail-fast` (0001) | 101 | unit: 10 pass, 1 fail (U2, `expected interface, enum, or fn at byte 5`); `tests/cli.rs`: 14 pass |
+| `tests/slice4_retire_test.py` | 1 | 87 run, 22 fail, 65 pass. Fail (Fixture and Template): E12b, E12c (2 warnings, expected 3), E13 (0, expected 1), E15, E15c, E15d, E16, E22, E21d (no mark, no `wrote VERSION MARK` line), E21, E21b (2 refusals, expected 3). 0 Python errors. Fixture guard green |
+| `tests/slice5_syntax_test.py` | 1 | 54 run, 128 failures, 8 skipped, 0 Python errors (parser does not know `type`) |
+| `tests/slice5_squash_test.py` | 1 | 24 run, 42 failures, 0 Python errors |
+| `tests/slice5_replay_test.py` | 1 | 12 run, 10 failures, 0 Python errors; `results/20261106T215556692170Z` |
+| `tests/slice5_rewrite_test.py` | 1 | 5 run, 5 fail before the RED commit exists (`the slice 5 RED commit is missing`) for 2 of them. Scratch run with the working tree as the RED base: 3 fail for the right reason (rows 26, 27 unused; old forms in TEST_CODE incl. `cli.rs:80-81` and main.rs `mod tests`; 47 sources not rewritten), 2 pass (row guard, path check) |
+| `tests/slice4_replay_test.py`, `stored_types_test.py`, `slice3_types_test.py` | 0 | 27, 33, 69 OK; `results/20261106T215612415586Z` |
+| `tests/slice2_replay_test.py`, `slice3_replay_test.py` | 0 | 21, 31 OK; `results/20261106T215844817820Z`, `results/20261106T220033792749Z` |
+
+### SHA-256 prefixes (RED repair)
+
+| File | SHA-256 prefix |
+| --- | --- |
+| `README.md` (revision 9.2) | `79ad6fb87b577b55` |
+| `tests/slice4_retire_test.py` | `a97b965a675c392b` |
+| `tests/slice5_rewrite_test.py` | `a2edcc9a359d3367` |
+| `tests/slice5_syntax_test.py` | `74021b9d1c501a4e` |
+| `slice5/rewrite-allowed.json` (3 rows) | `0b9237c437924e2f` |
+| `slice5/deliberate-old-forms.json` (8 rows, new) | `0be20290662cf1e4` |
+| `slice4/Q4/orders.beaml` | `4609e98fc4a6ac9d` |
+| `slice4/Q4-crlf/orders.beaml` | `9ce67d615c666f17` |
+| `slice4/Q4s/orders.beaml` | `4ec30d8c243d7183` |
+| `slice4/Q4s-crlf/orders.beaml` | `bd24421370226ed2` |
+| `slice4/Q4g+r/orders.beaml` | `3a5c0f6cb82d4b2d` |
+
+### Decisions (Decision4, slice 5 RED repair)
+
+| ID | Decision | Class | Choice and reason |
+| --- | --- | --- | --- |
+| S5R-1 | RED base found by `git log -S` on a slice 4 test name, not a fixed SHA | Undo | The RED commit SHA is unknown before the commit; the marker is a RED-only test name that W1 to W4 never change. A1 fails clearly while the commit is missing |
+| S5R-2 | Test code completeness with a closed JSON list of deliberate negatives | Undo | A list inside the test file would match itself |
+| S5R-3 | Q4 fixture comments change in RED, row 25 stays (against `f29e3f12`) | Undo | Keeps the slice 4 fixture guard green; comment only (A2 shift handles changed lines) |
+| S5R-4 | E16 also changes (its first removal now writes the mark) | Undo | Direct consequence of the `assert_removed` change; listed in README |
+| S5R-5 | W1 extended (after placeholder, after `\n`); A1 reads bytes | Undo | Without them GREEN could not pass A1 by W1 to W4 alone |
+| S5R-6 | F2 exact help line `help: declare: type <Name> { ... }` (the README block form) | Undo | Message text; the README block is the exact form |

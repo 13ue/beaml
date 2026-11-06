@@ -3,7 +3,7 @@ id: experiment-0004-generated-replay-plan
 kind: experiment
 status: proposed
 updated: 2026-11-06
-revision: 9.1 (slice 5 plan repair)
+revision: 9.2 (slice 5 RED repair)
 ---
 
 # EXPERIMENT 0004 — Generated REPLAY RUN
@@ -31,7 +31,8 @@ revision: 9.1 (slice 5 plan repair)
 - **Revision 8.1.** Repairs the slice 4 plan after its fresh check: new cases E1d, E3b, E9c, E11c, E11d, E12c, E15c, E15d and a harness check; a Q4 layout that tests byte preservation (comments, blank line, multi-line block, no final newline, CRLF); the claim holds only with a RECORD SNAPSHOT; the T5 lexer message; the diff and count rules of the removal command. Only the slice 4 section changes.
 - **Revision 8.2.** Hardens the removal command after the slice 4 final review (DL-069, Repair): the completeness rule with the flag `--assume-complete` (contract step 2a), a symlinked or read-only SOURCE (contract step 5), and a unit test for the recheck guard (step 4). New cases E21 to E22b and U1; E18 now passes `--assume-complete`. Only the slice 4 section changes.
 - **Revision 9.** Adds the [slice 5 plan](#slice-5): `type` replaces `interface` (DL-061), `v` on every version number (DL-072), the VERSION MARK on the type line and the SQUASH by `--remove-dead` (DL-070, DL-071; DL-058 superseded). Mechanical rewrite of the slice 1 to slice 4 sources and tests with an audit. OWNER question O7 is open. The slice 1 to slice 4 text stays unchanged.
-- **Revision 9.1 (this page).** Repairs the slice 5 plan after its fresh check: F12b uses `type Payment v3` with v4 records (no O7 dependence); two new T23 layouts (`type PaymentError {` above `type Payment {`, and a `// type Payment {` comment); the `help` line of a TYPE with a VERSION MARK also names the new mark (F11b); W3, W4 and the stderr normaliser S are closed lists of exact strings; A1 audits every changed file; an allowed row for the fallback text in `cli.rs`; the PENDING O7 list. Found while writing RED: E13 needs a tag on the C2 step, E21b gives three refusals, and random version numbers go only to sources with a VERSION MARK. Only the slice 5 section changes.
+- **Revision 9.1.** Repairs the slice 5 plan after its fresh check: F12b uses `type Payment v3` with v4 records (no O7 dependence); two new T23 layouts (`type PaymentError {` above `type Payment {`, and a `// type Payment {` comment); the `help` line of a TYPE with a VERSION MARK also names the new mark (F11b); W3, W4 and the stderr normaliser S are closed lists of exact strings; A1 audits every changed file; an allowed row for the fallback text in `cli.rs`; the PENDING O7 list. Found while writing RED: E13 needs a tag on the C2 step, E21b gives three refusals, and random version numbers go only to sources with a VERSION MARK. Only the slice 5 section changes.
+- **Revision 9.2 (this page).** Repairs the slice 5 RED tests after their fresh check: A1 also audits the test code (base: the slice 5 RED commit; the `mod tests` block of `main.rs` against `721e7eea`) and requires that no test code keeps an old form, except a closed list of deliberate negatives; the slice 4 expectation changes are RED tests now, in the old syntax, so the allowed rows shrink to three; W1 also matches directly after a format placeholder; F2 asserts the exact `help` line; the N1 cases assert `TYPE VERSION v<n>` as a whole token. Only the slice 5 section changes.
 
 ## Slice 1 scope
 
@@ -1106,7 +1107,7 @@ error: interface does not declare a record; records use type
   note: the word interface is kept for behaviour contracts
 ```
 
-Asserted tokens: `interface`, `type <Name> {`, `help:`, `behaviour contracts`; exit 1, no stdout. **[Inference]** Why not an alias: with an alias, sources with `interface Name { field: T }` would exist when behaviour contracts arrive. The contract form would then have to tell a record body from a contract body, or break those sources. A hard error now keeps the word without a meaning, so a later contract form breaks nothing. Every source in the repository moves to `type` in the same commit, so no transition period has a user.
+Asserted tokens: `interface`, `type <Name> {`, `help:`, `behaviour contracts`; exit 1, no stdout. Revision 9.2: F2 also asserts the exact line `help: declare: type <Name> { ... }` (white space around the line stripped). **[Inference]** Why not an alias: with an alias, sources with `interface Name { field: T }` would exist when behaviour contracts arrive. The contract form would then have to tell a record body from a contract body, or break those sources. A hard error now keeps the word without a meaning, so a later contract form breaks nothing. Every source in the repository moves to `type` in the same commit, so no transition period has a user.
 
 **[Proposal] A plain number in a `migrate` line is a hard error with a `help` line.** DL-072 rejected plain numbers, so an alias would change an OWNER decision.
 
@@ -1157,7 +1158,7 @@ error: TYPE Payment cannot read 1 stored RESPONSE RECORD of operation payments.a
   help: the source must declare v5 or newer; restore the type line and the MIGRATE STEPS from version control
 ```
 
-Asserted tokens: `TYPE VERSION v<s>`, `newer than`, `v<n>`, `only grow`. **[Verified]** Today such a record gets the generic no-path text with no `help` line, or a rename `help` with `migrate T <s> -> <n+1>`, which counts backwards.
+Asserted tokens: `TYPE VERSION v<s>`, `newer than`, `v<n>`, `only grow`. Revision 9.2: F12, F12b and F12c assert each `TYPE VERSION v<k>` as a whole token (no digit after it), so `TYPE VERSION v1` does not match inside `TYPE VERSION v1234`. **[Verified]** Today such a record gets the generic no-path text with no `help` line, or a rename `help` with `migrate T <s> -> <n+1>`, which counts backwards.
 
 **[Proposal] Largest version.** When the newest version is v4294967295, a `help` line that needs `v<n+1>` says `no newer version: v4294967295 is the largest version number`. **[Inference]** At HEAD `newest + 1` is a `u32` addition: a debug build panics, a release build wraps to 0. Case F15 asserts exit 1, not a panic.
 
@@ -1220,7 +1221,7 @@ Example (case F20, Q4 with records of v3 only; line 3 is the type line):
 | W3 | an exact string of the closed list W3 below | its exact new string |
 | W4 | an exact string of the closed list W4 below (code that matches the keyword) | its exact new string |
 
-**[Proposal] Exact forms of W1 and W2 (revision 9.1).** W1 replaces the word `interface` before one space and a TYPE name or a format placeholder (`%s`, `%(T)s`, `{name}`). W2 puts `v` before both numbers of `migrate <T> <a> -> <b>`, where `<a>` and `<b>` are digits, `%d`, `%s` or `{...}`.
+**[Proposal] Exact forms of W1 and W2 (revision 9.1).** W1 replaces the word `interface` before one space and a TYPE name or a format placeholder (`%s`, `%(T)s`, `{name}`). Revision 9.2: the word may also follow a format placeholder directly (`%(chain)s` in the `TEMPLATE` of `tests/stored_types_test.py`) or the escape `\n` inside a string literal (`RETIRED` in the `mod tests` block of `main.rs`). W2 puts `v` before both numbers of `migrate <T> <a> -> <b>`, where `<a>` and `<b>` are digits, `%d`, `%s` or `{...}`.
 
 **[Proposal] Closed list W3 (revision 9.1).** Exact old and new strings, replaced inside a line of the named file. **[Verified]** These are all version tokens in the expected messages of the test code at `f29e3f12` (search of the listed files).
 
@@ -1244,7 +1245,14 @@ Example (case F20, Q4 with records of v3 only; line 3 is the type line):
 
 **[Proposal] Rewrite audit `tests/slice5_rewrite_test.py` (A1, revision 9.1).** Scope: every path of `git diff --name-status f29e3f12` (working tree against the base), except (1) the new slice 5 files (`slice5/`, `tests/slice5_*`), (2) the compiler and grammar sources (`experiments/0001-syntax-to-beam/src/`, and all of `integrations/zed-beaml/`: the grammar, its generated parser, and its corpus and highlight tests, which have column marks and tree names and are covered by the grammar check), (3) documentation (`*.md`), (4) run directories under `results/` and the append-only action logs under `.beaml/`. A deleted, renamed or new path in this scope fails. For each modified path, the audit reads the base version (`git show f29e3f12:<path>`), takes the changed line blocks (difflib over `splitlines(keepends=True)`), removes each new line that equals W1 to W4 applied to an old line of its block, and requires that every other old or new line is a row of `slice5/rewrite-allowed.json` (`file`, `old`, `new`, `reason`; `old` or `new` is null for an inserted or a removed line). Each row must be used exactly once per listed file. The rows are only the expectation changes of the next table, the comment of the Q4 template, the snapshot line and the fallback text. Completeness: no `.beaml` file of the rewrite scope still has an `interface` declaration or a plain number in a `migrate` line, and the W4 and allowed-row sites hold their new text. A fresh reviewer checks every allowed row at the RED review. A row that GREEN finds missing goes to the main agent with its reason before the GREEN commit.
 
-**[Proposal] Slice 4 expectations that change, by DL-070 and DL-071 (allowed rows):**
+**[Proposal] A1 revision 9.2 (supersedes the base and the row text above).** A negative test (`is_err`, `!success`, exit 1) also passes when its inline source is never rewritten, so A1 audits the test code too:
+
+- **Bases.** Test code (a `.py` or `.rs` path in the scope) is diffed against the slice 5 RED commit: the first commit whose `tests/slice4_retire_test.py` holds `def test_E12b_empty_snapshot_gives_three_W2_warnings`. Every other path is diffed against `f29e3f12`. The `#[cfg(test)] mod tests` block of `experiments/0001-syntax-to-beam/src/main.rs` (to the end of the file) is diffed against `721e7eea`, so U2 counts as base. While the RED commit does not exist, A1 fails with that reason.
+- **Rule.** GREEN changes test code only by W1 to W4, and every changed line of the `mod tests` block is W1 to W4 or an allowed row.
+- **Rows.** The slice 4 expectation changes of the next table are RED tests now (in the old syntax: tags `type`, `s12`, `s34`, `source_text(..., mark=None)`, the `wrote VERSION MARK` check in `assert_removed`, E12b, E12c, E13, E15 family, E16, E21, E21b, E21d, E22). They fail for their DL-070 or DL-071 reason until GREEN. The Q4 fixture comment changes in RED as well. `slice5/rewrite-allowed.json` keeps three rows: the Q4 fixture comment (against `f29e3f12`), the fallback text in `cli.rs` and the snapshot line.
+- **Test code completeness.** TEST_CODE: `0001/tests/cli.rs`, `0001/tests/runtime_test.exs`, the `mod tests` block of `main.rs`, every `experiments/*/run.py`, the Python tests of `experiments/0003-*/tests/` and `experiments/0004-*/tests/`, and every file of `arms/*/overlay/`. After GREEN no line of TEST_CODE has `interface` before a TYPE name or a placeholder, or a `migrate` line with a plain number or a number placeholder (`%d`, `%s`, `{...}`), except the closed list `slice5/deliberate-old-forms.json` (`file`, exact stripped `line`, `reason`; each row matches exactly one line of its file). The list holds only the deliberate negative inputs of the slice 5 tests, the normaliser S strings and the W4 old string.
+
+**[Proposal] Slice 4 expectations that change, by DL-070 and DL-071 (RED tests since revision 9.2; only the last three rows are allowed rows):**
 
 | Case | Old expectation | New expectation |
 | --- | --- | --- |
@@ -1396,6 +1404,9 @@ New sources:
 | Revision 9.1: F12b without O7 dependence; T23 prefix and comment layouts; mark in the help line of a marked TYPE; closed lists W3, W4 and S; A1 scope by `git diff`; fallback text row; E13 tag, E21b three refusals | Undo | Test plan and message text only; each kills a named false pass of the fresh check |
 | Revision 9.1: random version numbers only on sources with a VERSION MARK | Undo | Keeps every case outside the PENDING O7 list independent of O7; a revert restores the random chain start |
 | Revision 9.1: A1 does not audit `integrations/zed-beaml/` and `*.md` | Undo | Grammar tests hold column marks and tree names that move with the grammar; the grammar check covers them. Docs are not read by tests |
+| Revision 9.2: A1 audits test code against the slice 5 RED commit and the `mod tests` block of `main.rs` against `721e7eea`; test code completeness with a closed list of deliberate negatives | Undo | Test harness only. Kills a negative test that passes on an unrewritten inline source |
+| Revision 9.2: slice 4 expectation changes are RED tests in the old syntax, not allowed rows; the Q4 fixture comment changes in RED | Undo | Removes rows copied from a scratch draft; the changes run as tests. A revert restores rows 0 to 24 |
+| Revision 9.2: W1 after a format placeholder; F2 exact help line; N1 versions as whole tokens | Undo | Test checks only; each closes a named gap of the fresh check |
 | Which mark forms are legal beside a complete chain or without a chain | OWNER (O7) | Not chosen; see below |
 
 **[Verified]** No decision is Answer: slice 5 publishes nothing.

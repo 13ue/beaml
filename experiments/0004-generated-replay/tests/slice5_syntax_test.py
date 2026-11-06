@@ -387,9 +387,12 @@ class Slice5Syntax(Slice5):
                 at = text.index(head)
                 bad = text[:at] + "interface" + text[at + len("type"):]
                 byte = len(bad[:at].encode())
-                self.assert_rejected(self.write_source(bad, "F2"), [], [
+                stderr = self.assert_rejected(self.write_source(bad, "F2"), [], [
                     "interface", "type %s {" % name, "help:", "behaviour contracts", "at byte %d" % byte],
                     label="F2 " + name)
+                # Revision 9.2: the exact help line of the README block, not only its tokens.
+                self.assertIn("help: declare: type %s { ... }" % name, [line.strip() for line in stderr.splitlines()],
+                              self.ctx("F2 %s: the exact line `help: declare: type %s { ... }`;" % (name, name), stderr))
 
     def test_F02_fallback_error_names_every_declaration_word(self):
         # Revision 9.1: the text that cli.rs line 208 checks for absence is the real fallback error.
@@ -508,9 +511,15 @@ class Slice5Syntax(Slice5):
     def n1_tokens(self, stored, newest):
         return ["TYPE VERSION v%d" % stored, "newer than", "TYPE VERSION v%d" % newest, "only grow", PATH]
 
+    def assert_whole_versions(self, stderr, *versions):
+        # Revision 9.2: `TYPE VERSION v1` must stand as a whole token, not inside `TYPE VERSION v1NNN`.
+        missing = [v for v in versions if not re.search(r"TYPE VERSION v%d(?![0-9])" % v, stderr)]
+        self.assertEqual([], missing, self.ctx("N1: TYPE VERSION v<n> as a whole token;", stderr))
+
     def test_F12_record_newer_than_the_mark_is_N1(self):
         N = self.names
-        self.assert_rejected("M3", [(N.M + 2, "kt")], self.n1_tokens(N.M + 2, N.M), label="F12")
+        stderr = self.assert_rejected("M3", [(N.M + 2, "kt")], self.n1_tokens(N.M + 2, N.M), label="F12")
+        self.assert_whole_versions(stderr, N.M + 2, N.M)
 
     def test_F12_control_the_same_record_against_a_higher_mark_builds(self):
         N = self.names
@@ -521,14 +530,16 @@ class Slice5Syntax(Slice5):
         # Revision 9.1: Q4z with the mark lowered by one (a reset), records of the old mark. No O7 dependence.
         N = self.names
         V = N.V
-        self.assert_rejected(self.write_source(self.mark_edited("Q4z", V - 1), "F12b"), [(V, "ktx")],
-                             self.n1_tokens(V, V - 1), label="F12b")
+        stderr = self.assert_rejected(self.write_source(self.mark_edited("Q4z", V - 1), "F12b"), [(V, "ktx")],
+                                      self.n1_tokens(V, V - 1), label="F12b")
+        self.assert_whole_versions(stderr, V, V - 1)
 
     def test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1(self):
         N = self.names
         stderr = self.assert_rejected("B5", [(N.r, "ko")], self.n1_tokens(N.r, 1), absent=[
             "migrate %s v%d -> v2" % (N.T, N.r), "migrate %s %d -> 2" % (N.T, N.r)], label="F12c")
         self.assertNotIn("declare: migrate", stderr, self.ctx("F12c: no help line that counts backwards"))
+        self.assert_whole_versions(stderr, N.r, 1)
 
     # F15: the largest version number.
     def test_F15_largest_version_has_no_newer_version_and_no_panic(self):

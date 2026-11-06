@@ -83,6 +83,8 @@ def retire_form(op, n):
 # Sources (README, Cases (slice 4)). A source is a list of segments (text, tag). A tag marks a line that
 # can be a DEAD LINE: "retire", "s12" (`migrate T 1 -> 2`), "s23" (`migrate T 2 -> 3`). The text of a source
 # is the join of its segments; the expected text after a removal is the join without the removed tags.
+# Slice 5 (DL-070, DL-071; README "Slice 4 expectations that change"): "s34" (`migrate T 3 -> 4`) can be a
+# DEAD LINE too, and the TYPE line has the tag "type", so `source_text(..., mark=n)` can insert the VERSION MARK.
 G_FAMILY = ("B", "G", "B+r", "G+r", "G+r0", "P", "P+r", "C2")
 Q_FAMILY = ("Q4", "Q4s", "Q4-crlf", "Q4s-crlf", "Q4g+r", "Q4-oneline")
 T_KINDS = ("T2", "T3a", "T3b", "T4", "T5a", "T5b", "T5c", "T6", "T7a", "T7b")
@@ -111,12 +113,12 @@ def segments(N, kind):
     op = N.old if kind in ("B", "B+r", "C2") else N.new
     retire = [(line + "\n", "retire") for line in retire_lines(N, kind)]
     head = [(header, None), ("interface Order { order_id: String }\n", None),
-            ("interface %s { %s: String %s: String }\n" % (T, fields[0], fields[1]), None)]
+            ("interface %s { %s: String %s: String }\n" % (T, fields[0], fields[1]), "type")]
     finish = ("fn finish %s { %s, %s } -> %s = %s { %s: %s + \"\", %s: %s }\n"
               % (T, fields[0], fields[1], T, T, fields[0], fields[0], fields[1], fields[1]), None)
     if kind in ("P", "P+r"):
         return head + retire + [("\n", None), finish]
-    chain = [("migrate %s 1 -> 2 { rename %s -> %s }\n" % (T, o, t), None)] if kind == "C2" else []
+    chain = [("migrate %s 1 -> 2 { rename %s -> %s }\n" % (T, o, t), "s12")] if kind == "C2" else []
     return head + chain + [
         ("interface PaymentError { reason: String }\n", None), ("\n", None),
         ("effect %s Order -> %s ! PaymentError = http.post(\"payments/authorize\")\n" % (op, T), None)] + retire + [
@@ -136,8 +138,8 @@ def q_segments(N, kind):
         last = []
     else:
         s23 = [("migrate %s 2 -> 3 {\n  add %s: String = %s\n}\n" % (T, c, literal(N.cw)), "s23")]
-        last = [("// The last MIGRATE STEP carries the newest TYPE VERSION. It is never a DEAD LINE.\n", None),
-                (s34 + "\n", None)]
+        last = [("// The last MIGRATE STEP carries the newest TYPE VERSION. It is a DEAD LINE when only its target version is stored.\n", None),
+                (s34 + "\n", "s34")]
     chain = [("// The first two MIGRATE STEPS are DEAD LINES when no record has version 2 or older.\n", None),
              ("migrate %s 1 -> 2 { rename %s -> %s }\n" % (T, o, t), "s12"), ("\n", None)] + s23 + last
     if kind in ("Q4s", "Q4s-crlf"):
@@ -145,7 +147,7 @@ def q_segments(N, kind):
     retire = [(retire_form(N.old, N.n) + "\n", "retire")] if kind == "Q4g+r" else []
     segs = [("// EXPERIMENT 0004 slice 4: a MIGRATE CHAIN of four TYPE VERSIONS (sources Q4, Q4s, Q4g+r).\n", None),
             ("interface Order { order_id: String }\n", None),
-            ("interface %s { %s: String %s: String %s: String }\n" % (T, k, t, x), None)] + chain + [
+            ("interface %s { %s: String %s: String %s: String }\n" % (T, k, t, x), "type")] + chain + [
         ("interface PaymentError { reason: String }\n", None), ("\n", None),
         ("effect %s Order -> %s ! PaymentError = http.post(\"payments/authorize\")\n" % (op, T), None)] + retire + [
         ("\n", None), ("fn prepare Order { order_id } -> Order = Order { order_id: order_id + \"\" }\n", None),
@@ -157,8 +159,9 @@ def q_segments(N, kind):
     return segs
 
 
-def source_text(N, kind, without=()):
-    return "".join(text for text, tag in segments(N, kind) if tag not in without)
+def source_text(N, kind, without=(), mark=None):
+    return "".join(text.replace(N.T, "%s v%d" % (N.T, mark), 1) if mark and tag == "type" else text
+                   for text, tag in segments(N, kind) if tag not in without)
 
 
 def line_of(N, kind, tag):
@@ -358,17 +361,19 @@ class Slice4Retire:
         N = self.names
         run = self.remove(kind, label, relative=relative, extra=extra)
         old_text = run["before"].decode()
-        new_text = source_text(N, kind, without=tags)
+        mark = (4 if kind in Q_FAMILY else 2) if any(tag[0] == "s" for tag in tags) else None
+        new_text = source_text(N, kind, without=tags, mark=mark)
         rel = run["relative"]
         diff = "".join(difflib.unified_diff(old_text.splitlines(keepends=True), new_text.splitlines(keepends=True),
                                             rel, rel, n=0))
         count = "removed %d DEAD LINE%s from %s" % (len(tags), "" if len(tags) == 1 else "S", rel)
+        marked = "wrote VERSION MARK v%d on type %s in %s" % (mark, N.T, rel) if mark else "wrote VERSION MARK"
         self.assertEqual(
             {"code": 0, "stdout": diff, "count": True, "error": False, "file": new_text.encode(),
-             "renamed": True, "temp_left": False},
+             "renamed": True, "temp_left": False, "mark_line": bool(mark)},
             {"code": run["code"], "stdout": run["stdout"], "count": count in run["stderr"],
              "error": "error:" in run["stderr"], "file": run["after"], "renamed": not run["same_inode"],
-             "temp_left": not run["listing_same"]},
+             "temp_left": not run["listing_same"], "mark_line": marked in run["stderr"]},
             self.ctx(kind, label, "removal contract; stderr:", run["stderr"]))
         events = [e for e in self.events(self.work) if e.get("action") == "remove-dead"]
         self.assertEqual((1, len(tags)), (len(events), events[-1].get("removed") if events else None),
@@ -482,14 +487,14 @@ class Slice4Retire:
     def test_E12_records_of_version_3_give_two_W2_warnings_in_source_order(self):
         self.assert_warnings("Q4", "q-v3", ["s12", "s23"])
 
-    def test_E12b_empty_snapshot_gives_two_W2_warnings_not_for_the_last_step(self):
-        self.assert_warnings("Q4", "empty", ["s12", "s23"])
+    def test_E12b_empty_snapshot_gives_three_W2_warnings(self):
+        self.assert_warnings("Q4", "empty", ["s12", "s23", "s34"])
 
-    def test_E12c_newest_version_only_gives_two_W2_warnings_not_for_the_last_step(self):
-        self.assert_warnings("Q4", "q-v4", ["s12", "s23"])
+    def test_E12c_newest_version_only_gives_three_W2_warnings(self):
+        self.assert_warnings("Q4", "q-v4", ["s12", "s23", "s34"])
 
-    def test_E13_last_step_is_never_dead(self):
-        self.assert_clean("C2", "c2-v2")
+    def test_E13_last_step_is_dead_when_only_its_target_version_is_stored(self):
+        self.assert_warnings("C2", "c2-v2", ["s12"])
 
     def test_E14_retired_records_do_not_keep_a_step_alive(self):
         self.assert_warnings("Q4g+r", "qg-v3+old1", ["s12", "s23"])
@@ -506,7 +511,7 @@ class Slice4Retire:
 
     def test_E15d_removal_keeps_CRLF_line_ends(self):
         run = self.assert_removed("Q4-crlf", "q-v3", ("s12", "s23"))
-        self.assertEqual(source_text(self.names, "Q4s-crlf").encode(), run["after"])
+        self.assertEqual(source_text(self.names, "Q4s-crlf", mark=4).encode(), run["after"])
 
     def test_E16_second_removal_changes_nothing(self):
         first = self.assert_removed("Q4", "q-v3", ("s12", "s23"))
@@ -574,18 +579,18 @@ class Slice4Retire:
                          self.ctx(kind, label, "one refusal per DEAD LINE in source order; stderr:", run["stderr"]))
 
     def test_E21_empty_snapshot_refuses_dead_migrate_steps(self):
-        self.assert_refused("Q4", "empty", ("s12", "s23"))
+        self.assert_refused("Q4", "empty", ("s12", "s23", "s34"))
 
     def test_E21b_retired_records_only_refuse_dead_migrate_steps(self):
         # The snapshot is not empty, but it holds no record of TYPE T from its effect.
-        self.assert_refused("Q4g+r", "qg-old1", ("s12", "s23"))
+        self.assert_refused("Q4g+r", "qg-old1", ("s12", "s23", "s34"))
 
     def test_E21c_empty_snapshot_refuses_a_dead_retire_line(self):
         self.assert_refused("G+r", "empty", ("retire",))
 
     def test_E21d_assume_complete_removes_with_an_empty_snapshot(self):
-        run = self.assert_removed("Q4", "empty", ("s12", "s23"), extra=(ASSUME,))
-        self.assertEqual(source_text(self.names, "Q4s").encode(), run["after"])
+        run = self.assert_removed("Q4", "empty", ("s12", "s23", "s34"), extra=(ASSUME,))
+        self.assertEqual(source_text(self.names, "Q4", without=("s12", "s23", "s34"), mark=4).encode(), run["after"])
 
     def test_E21e_assume_complete_without_or_before_remove_dead_is_a_usage_error(self):
         relative, _ = self.copy_source("Q4")
@@ -606,7 +611,7 @@ class Slice4Retire:
         real_inode, real_listing = os.stat(real).st_ino, sorted(os.listdir(real.parent))
         self.assert_removed("Q4", "q-v3", ("s12", "s23"), relative=link_relative)
         self.assertEqual(
-            {"link": True, "target": target, "real": source_text(self.names, "Q4s").encode(), "new_inode": True,
+            {"link": True, "target": target, "real": source_text(self.names, "Q4s", mark=4).encode(), "new_inode": True,
              "real_listing": real_listing},
             {"link": os.path.islink(link), "target": os.readlink(link) if os.path.islink(link) else None,
              "real": real.read_bytes(), "new_inode": os.stat(real).st_ino != real_inode,
