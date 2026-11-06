@@ -276,6 +276,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: the word `redacted` before the field TYPE: `interface Payment { order_id: String  card_holder: redacted String }`. Over: `pii` after the TYPE.
 → Because: OWNER choice. The word says what the compiler does with the value (DL-029).
 
+### Declarations
+
+**DL-060 · Migrate · `type` declares variants and records** (closes D001)
+→ Question: keep `enum` (and `interface` for records), or use `type`?
+→ Options: `enum` for variants and `interface` for records (Rust, Swift, Scala 3 style); `type` for both (Gleam, OCaml, Elm style).
+→ Chose: `type` for variants and records together. The exact record and variant shapes under `type` are the next question.
+→ Context: in most non-ML languages `type` means an alias; in the ML family and in Gleam (a BEAM language) it declares data. The comparison came from training knowledge and was not checked against documentation.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

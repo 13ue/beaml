@@ -13,7 +13,7 @@ See [specification gaps](specification-gaps.md) for the historical specification
 
 ## D001 — Enum or type declarations
 
-- **Status** OPEN
+- **Status** CLOSED 2026-11-06: `type` for variants and records together. See [DL-060](decision-log.md).
 - **Decision owner** Repository owner
 - **Scope** LANGUAGE/COMPILATION
 - **Decision trigger** Before selecting a canonical declaration grammar or migrating the fixture.
