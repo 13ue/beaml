@@ -70,3 +70,13 @@ Category: alternatives and implementation. Severity: **high**. Disposition: pend
 - **D001 and D002 out of scope.** The plan marks them as owner questions; no failure follows now.
 
 **Not inspected.** The 0001 compiler emit path in full, the 0003 replay notes and review, `run.py`, D002 text and the BAML raw captures. No code ran.
+
+## Disposition (main agent, 2026-11-06)
+
+**[Verified]** The main agent accepts objections 1, 2 and 3. The plan is revised (revision 2). This section records the disposition only; it is not an owner decision on Q1–Q5.
+
+- **Objection 1 (critical): accepted.** Changes: a comparison arm LIB (generic Elixir library and hand-written descriptor), built and tested first as a kill switch. A deciding case DRIFT (DRIFT-R, DRIFT-N, DRIFT-Q) with outcome classes and manual change sites per arm. A stated pass rule and reject rule. Old case (e) and its old-record policy (Q4) move to slice 2. See [README, Comparison arm LIB](../../README.md#comparison-arm-lib) and [Pass and reject rule](../../README.md#pass-and-reject-rule).
+- **Objection 2 (high): accepted.** Changes: the generated output covers CAPTURE through `Replay.record/3`. CAPTURE, hook wiring, the runner call site and caller-side artifact checks count as replay lines in both arms. See [README, Replay lines and manual change sites](../../README.md#replay-lines-and-manual-change-sites) and Q2, Q3.
+- **Objection 3 (high): accepted.** Changes: recorded fields are typed in BEAML and checked against the TYPES of `prepare` and `finish`. Case (a) has five negative declarations and a template control. Slice 1 is case (a), case (b) and DRIFT on one function; the second EFFECT (old case d) moves to slice 2. See [README, Slice 1](../../README.md#slice-1-acceptance-cases-in-order), [Syntax options](../../README.md#syntax-options) and [plan.md](plan.md).
+
+**[Unknown]** The revised plan has no new review round. A new round needs new evidence (skill rule "One round").

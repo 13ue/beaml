@@ -1,6 +1,8 @@
 // EXPERIMENT 0004: syntax options for a generated REPLAY RUN runner.
 // [Proposal] Discussion file only. The 0001 compiler does not parse the new forms.
 // Each option adds the same missing fact: prepare -> outbound EFFECT -> finish.
+// Revision 2 (plan review): recorded fields are typed. The compiler checks each
+// against the TYPES of prepare and finish, so a DRIFT is visible at compile time.
 // The owner chooses. See README.md, section "Syntax options".
 
 // ---------------------------------------------------------------------------
@@ -23,7 +25,11 @@ effect authorize_payment {
   response: finish        // the BEAML fn that takes the decoded response
   attempts: 1
   status: 200             // the one accepted transport status
-  record { request, status, body }   // body = bytes + length + SHA-256
+  record { request: Order, response: Payment, key: request.order_id }
+  // request: Order must equal the output TYPE of prepare.
+  // response: Payment must equal the input TYPE of finish.
+  // key: a field path; Order must have order_id. Status and body bytes stay transport fields.
+  // DRIFT: a TYPE change regenerates record/run; a prepare output change fails compilation.
 }
 
 // ---------------------------------------------------------------------------
@@ -32,7 +38,9 @@ effect authorize_payment {
 // ---------------------------------------------------------------------------
 
 extern fn authorize_payment Order -> Payment
-  effect "payments.authorize" { attempts: 1, status: 200, record: request, status, body }
+  effect "payments.authorize" { attempts: 1, status: 200, record: request, response }
+// Typed record: request = Order, response = Payment, from the extern signature.
+// DRIFT: the existing checker types the call chain in `place`; a mismatch fails compilation.
 
 fn place order: Order -> Payment = finish(authorize_payment(prepare(order)))
 
@@ -41,7 +49,9 @@ fn place order: Order -> Payment = finish(authorize_payment(prepare(order)))
 // Smallest grammar change. The metadata is literal values on one fn.
 // ---------------------------------------------------------------------------
 
-@effect("payments.authorize", request: prepare, attempts: 1, status: 200, record: "request status body")
+// The revision 1 string form record: "request status body" cannot be checked. Use TYPE references.
+// The response TYPE is the input TYPE of the annotated fn. DRIFT: the same checks as option A.
+@effect("payments.authorize", request: prepare, attempts: 1, status: 200, record: { request: Order, response: Payment })
 fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + "", status: status }
 
 // ---------------------------------------------------------------------------
