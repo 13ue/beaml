@@ -411,6 +411,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice; the order in the source is the rule.
 → Note: a signature below one whose keys are a subset of it can never match; the compiler can report it, as Elixir reports a clause that cannot match.
 
+**DL-086 · Migrate · Pipe in any expression, constructors as steps** (extends DL-014)
+→ Chose: the pipe `|>` is allowed in any expression, not only as a whole body. Enum constructors and variants may be pipe steps: `reason |> DeclineReason |> Declined`. The TYPE check per step and the `!` rule stay.
+→ Because: OWNER choice; a value reads left to right instead of inside out.
+
+**DL-087 · Migrate · An unreachable signature or clause is a compile error**
+→ Chose: a constructor signature or a function clause that an earlier one always matches first does not compile. Over: a warning.
+→ Because: OWNER choice; with "first match wins" (DL-085) such a line is dead and misleading.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
