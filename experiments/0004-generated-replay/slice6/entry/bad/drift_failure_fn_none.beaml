@@ -1,0 +1,14 @@
+// Slice 6d reject case: the head has a failure TYPE, fn echo has none (DL-130).
+type NoCurrency {}
+type Amount { value: String currency: String }
+fn Amount value: String, currency: String -> Amount ! NoCurrency
+fn Amount _, "" -> Amount ! NoCurrency = NoCurrency {}
+fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, currency: currency }
+
+enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }
+
+type PlaceOrder { order_id: String amount: Amount channel: Channel }
+
+effect ui.echo PlaceOrder -> PlaceOrder ! NoCurrency = ui.event("echo") |> echo
+
+fn echo p: PlaceOrder -> PlaceOrder = p

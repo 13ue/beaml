@@ -3,7 +3,8 @@
 Slice 6b step 6a (DL-110, DL-118, D6B-96): DRIFT has GEN rows only. The repair check is the GEN replay
 of the repaired tree, not the 0003 copy `replay_run_test.py`.
 
-The outcomes are recorded, not asserted: the pass and reject rule judges them (README).
+DL-135 (M7 option A, D6B-189): the GEN classes are pinned (PIN). The DRIFT status is pass only for the pin,
+a verified freeze and repaired_all true. A wanted class change moves PIN and run.DRIFT_PIN together.
 Run: python3 -B experiments/0004-generated-replay/tests/drift_test.py
 """
 import hashlib
@@ -25,6 +26,10 @@ LIB_MODULES = ("ReplayLib", "OrdersApi.ReplayDescriptor")
 ACCEPT = {"correct_accept", "wrong_accept"}
 REJECT = {"typed_reject", "false_reject"}
 RESULTS_ROOT = EXPERIMENT / "results"
+# DL-135, D6B-189: expected (build, new_live, pre_change) of the GEN row; 58 of 61 retained runs.
+PIN = {"R": ("correct_accept", "false_reject", "typed_reject"),
+       "N": ("correct_accept", "false_reject", "typed_reject"),
+       "Q": ("correct_accept", "typed_reject", "typed_reject")}
 # Review round 2, evidence per row of `run.py drift` (last stdout line {"run": <new dir in results/>, "drift": ...}):
 #   row["evidence"] = {"build_output": <file>, "build_exit_code": <int>,
 #                      "new_live_report": <live observed.json: {"reply": [code, body], ...}>,
@@ -118,6 +123,19 @@ class DriftRun(unittest.TestCase):
                 problems.extend(evidence_problems(where, row, self.run_dir))
         self.assertEqual([], problems)
         self.assertEqual(self.before, self.after, "a DRIFT run changed the frozen LIB")
+
+    def test_f_drift_classes_equal_the_pin(self):
+        # DL-135: a crash, a build failure or another class change is a fail, not a recorded outcome.
+        self.assert_run()
+        rows = {d: tuple(((self.summary.get("drift", {}).get(d) or {}).get("gen") or {}).get(o)
+                         for o in OBSERVATIONS) for d in DERIVATIVES}
+        self.assertEqual(PIN, rows)
+        self.assertEqual("pass", self.summary.get("status"))
+
+    def test_f_drift_pin_matches_run_py(self):
+        sys.path.insert(0, str(EXPERIMENT))
+        import run
+        self.assertEqual(PIN, run.DRIFT_PIN)
 
     def test_f_6a_drift_has_gen_rows_only(self):
         # D6B-96, DL-118: the LIB arm leaves DRIFT with DL-110. No LIB row, no LIB baseline, no LIB output.

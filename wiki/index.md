@@ -41,7 +41,7 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Pinned replay source validation](sources/replay-source-validation.md): missing workflow identity, sink isolation, compatible commands and crash uncertainty.
 - [Vertical integration](concepts/vertical-integration.md): owner goal, one language from source to typed production data.
 - [MIGRATE STEP fates](concepts/migrate-fates.md): DL-125 FATE OPERATIONS `redact`, `quarantine`, `retire`, `map`; proposed semantics and open questions.
-- [Syntax sentiment](concepts/syntax-sentiment.md): loved and hated themes, BEAML scorecard (20 aligned, 5 tension, 7 gap), open items D026 to D033, decided after the first example applications (DL-135).
+- [Syntax sentiment](concepts/syntax-sentiment.md): loved and hated themes, BEAML scorecard (20 aligned, 5 tension, 7 gap), open items D026 to D033, decided after the first example applications (DL-140).
 - [Typed errors and replay](concepts/typed-errors-and-replay.md): compiler/runtime capture profiles, GROUND TRUTH, typed-invalid fixtures, completeness, isolated reproduction and per-context acceptance.
 
 ## Types and formal reasoning

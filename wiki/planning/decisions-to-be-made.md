@@ -440,7 +440,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D020 — Does a MIGRATE STEP govern BEAML-owned persistence, or only RESPONSE RECORDS
 
-- **Status** OPEN
+- **Status** CLOSED, [DL-137](decision-log.md): option A, one `migrate` block for both streams, By: 13ue, 2026-11-07
 - **Decision owner** OWNER
 - **Class** Migrate (roadmap part 3)
 - **Scope** EXECUTION, MIGRATE CHAIN, DL-102, DL-125
@@ -564,7 +564,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Does BEAML need an absent-value form, and how does it meet the historical S06 "missing vs explicit null" requirement? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-135](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Does BEAML need an absent-value form, and how does it meet the historical S06 "missing vs explicit null" requirement? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [hated row 1](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (null references), [loved row 4](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (ergonomic null handling).
 
@@ -579,7 +579,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: When a deep `effect` gains a failure TYPE, must every caller's `!` list change? Is that ripple accepted or softened (generic `-> T ! E`, failure groups)? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-135](decision-log.md)). No option is recommended.
+**[Proposal]** Question: When a deep `effect` gains a failure TYPE, must every caller's `!` list change? Is that ripple accepted or softened (generic `-> T ! E`, failure groups)? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [hated row 11](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (checked exceptions, versionability), [loved row 3](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (errors as values).
 
@@ -594,7 +594,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Does `#{...}` stay literal text permanently, or does BEAML get a checked interpolation form? What is the recorded reason either way? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-135](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Does `#{...}` stay literal text permanently, or does BEAML get a checked interpolation form? What is the recorded reason either way? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [loved row 16](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (string interpolation).
 
@@ -609,7 +609,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Which collection TYPES and literals does BEAML get, and in what form, given DL-129 already needs a `List` TYPE? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-135](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Which collection TYPES and literals does BEAML get, and in what form, given DL-129 already needs a `List` TYPE? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [loved row 11](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (comprehensions), [hated row 21](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (missing sum types and `Option` in Go).
 
@@ -624,7 +624,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Does BEAML get an anonymous-function form, or do top-level clauses remain the only functions? How are `map` and `filter` then written? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-135](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Does BEAML get an anonymous-function form, or do top-level clauses remain the only functions? How are `map` and `filter` then written? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [loved row 10](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (closures, lambdas, first-class functions).
 
@@ -639,7 +639,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Does BEAML expose BEAM concurrency in syntax, and would such a form stay uncolored? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-135](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Does BEAML expose BEAM concurrency in syntax, and would such a form stay uncolored? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [loved row 13](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (lightweight concurrency), [hated row 5](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (async function coloring).
 
@@ -654,7 +654,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Do optional separators between fields and variants stay? Is bare `Pending` next to `Approved()` one spelling or two? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-135](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Do optional separators between fields and variants stay? Is bare `Pending` next to `Approved()` one spelling or two? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [hated row 25](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (silent adjacent concatenation), [profile gap list](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-syntax-profile.md#6-gaps-noticed-in-the-kb-for-the-synthesis-worker).
 
@@ -669,7 +669,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Is there a budget for top-level forms, and who counts against it when `on`, the FATE OPERATIONS and `effect` policies arrive? Set the budget before these forms land? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-135](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Is there a budget for top-level forms, and who counts against it when `on`, the FATE OPERATIONS and `effect` policies arrive? Set the budget before these forms land? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [hated row 4](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (complexity creep, 28 % of Rust respondents), [loved row 22](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (small language, one way).
 
@@ -684,7 +684,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** Before the first public release or external announcement.
 - **Next check** When a public repository, package or talk is planned.
 
-**[Proposal]** Question: Keep the name BEAML next to BAML, or change it, given the name proximity and the shared design space? Raised by the OWNER on 2026-11-07 when BAML was taken up in the syntax sentiment research ([DL-136](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Keep the name BEAML next to BAML, or change it, given the name proximity and the shared design space? Raised by the OWNER on 2026-11-07 when BAML was taken up in the syntax sentiment research ([DL-141](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: the [name proximity facts](../../raw/research/2026-11-07-baml-syntax-sentiment/baml-reception.md#6-name-proximity-baml-and-beaml). BAML is "Basically A Made-up Language" per its README, "tongue-in-cheek" per the team; third parties expand it as "Boundary AI Markup Language"; BAML also named a bank brand until 2019 and a WPF markup format. No project, package or page named `beaml` exists on GitHub, PyPI, npm, Hex or in web search. BEAML is BAML plus one letter and contains "BEAM". Both are typed languages for agent software with a Rust toolchain, typed LLM functions, exhaustive `match`, typed errors and telemetry by default ([shared design space](../sources/baml-v1.md#beaml-relevance)).
 
@@ -694,6 +694,10 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## Answered 2026-11-07
 
+- [DL-139](decision-log.md): M6, a slice may build and pin a Migrate default, except syntax and record formats (B with a limit).
+- [DL-137](decision-log.md): D020, one `migrate` block governs RESPONSE RECORDS and database rows (A).
+- [DL-136](decision-log.md): M1, `--stored` checks only replayable records; non-200 and bad digest are counted (A).
+- [DL-135](decision-log.md): M7, the DRIFT status pins classes; crash, build failure, open repair are fail (A).
 - [DL-134](decision-log.md): Q6D-4, `--stored` also checks stored ENTRY RECORDS (A).
 - [DL-133](decision-log.md): Q6D-3, a decode reject is a generated `Rejected` struct (A).
 - [DL-131](decision-log.md): Q6D-2, the host calls one generated function per ENTRY LINE (A).

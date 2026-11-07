@@ -774,7 +774,46 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: every later record stream copies this answer. B keeps the build green while stored events break at the REPLAY RUN, which breaks the vertical line at the first inbound stream.
 → Effect: D024 closed. Slice 6d adds the `--stored` case for ENTRY RECORDS and an N-test; the DL-124 text rule applies (no stored value is printed). The MIGRATE STEP forms of DL-125 apply to entry fields.
 
-**DL-135 · Repair · Ingest the PL syntax sentiment research; decide its tensions after the first example applications**
+**DL-135 · Migrate · The DRIFT status pins the outcome classes; a crash, a build failure or an open repair is `fail` (RED TEAM 01 M7, option A)**
+→ Question: what does `DRIFT: pass` mean in a full `run.py` run? Today only the freeze hash of the LIB modules decides it; a retained run with `untyped_crash` on R, N and Q was `pass` (C3). No slice 6 test runs in the full run (C4).
+→ Options: A, pin the expected class per derivative in `drift_test.py`, make `run.py drift` fail on a build failure, a crash class or `repaired_all` false, add the slice 6 test files to `run.py`; B, keep "recorded, not asserted" and put a limit line beside every "14 of 14".
+→ Chose: A.
+→ By: 13ue
+→ Because: a green crash run is a false pass, the thing the vertical line must prevent. The pin cost is known from the byte pins.
+→ Effect: C3 and C4 go to GREEN (`redteam_c3_test.py`, D6B-189, D6B-190 unblocked). D10 limit lines become unnecessary once the slice 6 files run in `run.py`. A wanted class change moves the pin with a diff proof, as the byte pins do.
+
+**DL-136 · Migrate · `--stored` checks only the records that the REPLAY RUN decodes; non-200 and bad-digest records are counted, not checked (RED TEAM 01 M1, option A)**
+→ Question: `--stored` blocks on a 503 record or a record with a wrong digest although `Replay.run` rejects both before it reads `value` (C2, C5). Which records does the check read?
+→ Options: A, the check uses the replay rule: it skips non-200 and bad-digest records and prints one count line ("N records, K checked, M not replayable"); B, the check blocks as today and DL-121 is narrowed to 200 records; C, the check reads `status` and the digest and gives a separate non-blocking note per record.
+→ Chose: A.
+→ By: 13ue
+→ Because: DL-121 ("the check result equals the REPLAY RUN result") becomes true again. A recorded outage is not a TYPE change and asks for no MIGRATE STEP.
+→ Effect: one shared "replayable record" rule in the compiler for `--stored` and the REPLAY RUN (rt-correctness R2-3). The count line never prints a stored value (DL-124). Scope: RESPONSE RECORDS only; stored database rows are D020.
+
+**DL-137 · Migrate · One `migrate` block governs RESPONSE RECORDS and BEAML-owned database rows with the same fates (D020, option A)**
+→ Question: BEAML owns the rows of the PROTOTYPE table (DL-127) and reads them through `db.get` and `db.list` (DL-129). When a TYPE changes, what governs the stored rows?
+→ Options: A, the same `migrate T vN -> vM` block governs both streams with the same fates: `map` applies on read, `quarantine` parks the row, `retire` takes it out of the read set after the keep window, `redact` removes the field; the build blocks until every old row has a fate; B, rows get only the value mapping of the MIGRATE CHAIN (`add`, `drop`, `map`) and no fates; C, a separate block for rows (for example `state T vN -> vM { … }`).
+→ Chose: A.
+→ By: 13ue
+→ Because: the thesis is that a TYPE change travels from the source to the table with no second migration system. B leaves a non-mappable row with no declared fate; C is a second syntax for one question.
+→ Effect: D020 closed. `--stored` reads the table live (DL-127) and applies DL-102, DL-122, DL-134 and DL-136 to rows: only rows that `db.get` or `db.list` would decode are checked. The `retire` meaning for rows follows M5. The fate forms of DL-125 are one slice for both streams. Open for any persistence form other than the DL-127 table.
+
+**DL-138 · Repair · A stored ENTRY RECORD carries its capture outcome; `--stored` checks only accepted entries (slice 6d RED review O1)**
+→ Chose: the ENTRY RECORD gets an `outcome` key (`"accepted"` or `"rejected"` with the reject reason), written at capture; `--stored` runs constructors and literals only over accepted entries and prints the DL-136 count line ("N entries, K checked, M rejected at capture"). Over: no reject records (loses the evidence of bad UI events), or a check against the base source (a second build).
+→ By: Fable (after the slice 6d RED review, Opus)
+→ Because: DL-136 fixed the same rule for RESPONSE RECORDS, and DL-134 says every record stream copies that answer. A rejected UI event is not a TYPE change and asks for no MIGRATE STEP. Class Repair: the choice follows two OWNER decisions; a different reading would need the OWNER (recorded here so it can be questioned).
+→ Effect: slice 6d RED repair adds a reject record fixture, the `outcome` key, a `null` value case that must not crash the check, and the count line. O2: the help text must not name a TYPE VERSION (D6B-130). O3: a removed ENTRY LINE with stored entries behaves as a removed EFFECT with stored RESPONSE RECORDS does today (parity, pinned by a test); if today's behaviour is undefined, the repair reports it as a question.
+
+**DL-139 · Migrate · A slice may build and pin a Migrate default, except for syntax and record formats (RED TEAM 01 M6, option B with a limit)**
+→ Question: DL-097 and DL-041 stop a step at the first Migrate question; slice 6d planned to build its defaults before the OWNER answered (D7). May a slice build a default?
+→ Options: A, always ask first, no built default; B, build the default, pin it with a test and a decision-log entry "default, By: Opus, open", and log the question; a different OWNER answer triggers a repair step.
+→ Chose: B with a limit: a slice may build a default only when a different answer stays inside one repair step. Syntax (grammar, line forms, keywords), record formats (stored record keys, RESPONSE RECORD and ENTRY RECORD layout) and anything that host code calls wait for the OWNER.
+→ By: 13ue
+→ Because: two of the four Q6D answers differed from the slice default; Q6D-1 would have rebuilt the parser and the grammar. Everything else is a bounded repair and should not wait a night.
+→ Effect: DL-097 is extended, not replaced. A built default carries `By: Opus (default, open)` in the log and in the ledger; the OWNER's answer closes it as "confirmed" or "repaired". The main agent decides the limit per question and records that call with `By: Fable`.
+→ OWNER addition (13ue, same day): every built default is presented to the OWNER explicitly, as its own question with a picture and the options, never only as a line in a list or a log. The OWNER must never find a built default by chance. A built default stays open until the OWNER has signed it off; the main agent repeats the question in every later walk-through until the OWNER confirms or changes it. Silence is not a sign-off (see DL-107).
+
+**DL-140 · Repair · Ingest the PL syntax sentiment research; decide its tensions after the first example applications**
 → Question: ingest the PL syntax sentiment research (loved and hated features, BEAML lens) into the wiki, and when to decide its tensions and gaps?
 → Options: ingest now and decide the tensions now; ingest now and decide them after the first example applications; keep it as temporary research outside the wiki.
 → Chose: ingest now, decide the tensions after the first example applications.
@@ -783,7 +822,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Trigger: research handed back 2026-11-07.
 → Effect: capture under `raw/research/2026-11-07-pl-syntax-sentiment/`, [source page](../sources/pl-syntax-sentiment-2026.md), [concept page](../concepts/syntax-sentiment.md); eight open items D026 to D033 in [decisions to be made](decisions-to-be-made.md), each with trigger "after the first example applications".
 
-**DL-136 · Repair · Take BAML up as a topic in the syntax sentiment research**
+**DL-141 · Repair · Take BAML up as a topic in the syntax sentiment research**
 → Question: take BAML (BoundaryML's language) up as a topic in the syntax sentiment research?
 → Options: yes, as a syntax precedent and a name question; no, the technical precedent pages suffice.
 → Chose: yes.
