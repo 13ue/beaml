@@ -107,3 +107,8 @@ Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/
 - **G6D-04** A pure ENTRY LINE target in a source with an outbound EFFECT writes no ENTRY RECORD and has no `Replay.entry`. UI events of that target reach no `--stored` check and no REPLAY RUN. Challenge (TEST O2): the D6B-136 reason (no `Replay` module) does not hold there. → By: Opus (GREEN slice6d, default, open) · Repair (raised from Undo by TEST O2, Fable)
 - **G6D-03** The ENTRY RECORD `type` key lists the fields in source order; a RESPONSE RECORD sorts them. The fingerprint sorts in both. → By: Opus (GREEN slice6d, default, open) · Repair
 - **G6D-12** The input TYPE needs a keep-value variant for a literal enum field and `name: String` constructor signatures, with the outbound texts in the `effect <op>:` form. No test pins it. → By: Opus (GREEN slice6d, default, open) · Undo
+
+## Database transports P4a, RED text defaults (added after the RED review)
+
+- **order_v2 error text** names `orders.save` and `Order.amount` (built D6B-39 text for a chained row TYPE with a constructor field). By: Opus (RED db-transport, default, open).
+- **N25b error text** names `TYPE Order v1` and the field `channel` (DL-122 text for a list item). By: Opus (RED db-transport, default, open).
