@@ -374,6 +374,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: the N1 version check runs before the TYPE name check (no backwards help line); the grammar version regex is `v[1-9][0-9]*` with ERROR corpus tests for `interface` and plain numbers; `run.py` runs the slice 2–5 test files; the rewrite audit compares the GREEN commit `bdc79ecc` with its base instead of the working tree.
 → Because: slice 5 final review (Devil's Advocate), PASS WITH NOTES. The audit scope was raised as Migrate by a worker and lowered to Undo by the main agent: only our own test changes.
 
+### Decisions after the unattended run
+
+**DL-080 · Migrate · O7: any VERSION MARK that agrees with the chain is legal** (closes O7; DL-077 becomes final)
+→ Question: when may `type T vN` appear?
+→ Options: (a) any mark that agrees with the chain, and a chain without a mark; (b) a mark only after a squash; (c) like (b), and a chain above v1 must have a mark.
+→ Chose: (a). Over: (b) and (c).
+→ Because: OWNER choice. The compiler checks only agreement (M1); `--remove-dead` still writes the mark when it removes steps (DL-071).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
