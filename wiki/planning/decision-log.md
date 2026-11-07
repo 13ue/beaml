@@ -758,6 +758,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: one comment form, already in the grammar, the highlighter and every fixture. A second form adds nothing.
 → Effect: every sketch, picture and fixture uses `//`. No compiler change.
 
+**DL-133 · Migrate · A decode reject at the host is a generated `Rejected` struct, apart from the fn's failure TYPE (Q6D-3, option A)**
+→ Question: how does the host see a UI event whose Decode-Form fails the decode or a constructor?
+→ Options: A, `{:error, %BeamlSpike.Rejected{reason: "decode" | "constructor"}}`, a generated struct apart from domain failures; B, the fn's failure TYPE with `reason: "decode"`, as the outbound EFFECT does; C, a plain tuple `{:error, {:rejected, "decode"}}`.
+→ Chose: A.
+→ By: 13ue
+→ Because: the UI must tell "the form is broken" from "the flow failed"; B merges both into one struct and fails for a fn without `!`; C is no TYPE, a host pattern on structs misses it.
+→ Effect: D023 closed. Slice 6d generates the `Rejected` struct once per build; reasons are `"decode"` and `"constructor"` (D6B-132, D6B-143).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

@@ -500,7 +500,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D023 — The form of a decode reject at the host (Q6D-3)
 
-- **Status** OPEN
+- **Status** CLOSED, [DL-133](decision-log.md): option A, a generated `Rejected` struct, By: 13ue, 2026-11-07
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** host call boundary, DL-101, DL-128
@@ -543,6 +543,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## Answered 2026-11-07
 
+- [DL-133](decision-log.md): Q6D-3, a decode reject is a generated `Rejected` struct (A).
 - [DL-131](decision-log.md): Q6D-2, the host calls one generated function per ENTRY LINE (A).
 - [DL-130](decision-log.md): Q6D-1, the ENTRY LINE is an `effect` line with head TYPEs, inbound like outbound (E').
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.
