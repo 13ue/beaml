@@ -675,6 +675,23 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Verified]** BEAML today: six top-level keyword forms (`type`, `enum`, `fn`, `effect`, `migrate`, `retire`) plus `redacted`, `with` release, `with ... do`, VERSION MARK; sketched: `on`, four FATE OPERATIONS, policy on `effect` lines, `where` rules (DL-125, DL-126, DL-128). No budget is recorded ([scorecard](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#2-scorecard)).
 
+## D034 — Keep the name BEAML next to BAML, or change it
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** Positioning, repository name, package names, documentation
+- **Decision trigger** Before the first public release or external announcement.
+- **Next check** When a public repository, package or talk is planned.
+
+**[Proposal]** Question: Keep the name BEAML next to BAML, or change it, given the name proximity and the shared design space? Raised by the OWNER on 2026-11-07 when BAML was taken up in the syntax sentiment research ([DL-136](decision-log.md)). No option is recommended.
+
+**[Verified]** Evidence: the [name proximity facts](../../raw/research/2026-11-07-baml-syntax-sentiment/baml-reception.md#6-name-proximity-baml-and-beaml). BAML is "Basically A Made-up Language" per its README, "tongue-in-cheek" per the team; third parties expand it as "Boundary AI Markup Language"; BAML also named a bank brand until 2019 and a WPF markup format. No project, package or page named `beaml` exists on GitHub, PyPI, npm, Hex or in web search. BEAML is BAML plus one letter and contains "BEAM". Both are typed languages for agent software with a Rust toolchain, typed LLM functions, exhaustive `match`, typed errors and telemetry by default ([shared design space](../sources/baml-v1.md#beaml-relevance)).
+
+**[Inference]** Search collision runs one way today: a search for BEAML returns BEAM and BAML results. Whether proximity reads as "a BAML fork" (cost) or "BAML, but on the BEAM" (positioning) is the OWNER's call ([scorecard of what BAML already chose](../../raw/research/2026-11-07-baml-syntax-sentiment/baml-reception.md#4-scorecard-against-the-loved-and-hated-rows)).
+
+**[Unknown]** Pronunciation of BAML; trademark status of BAML and BEAML (no register searched); whether a reader confuses the two in practice. By: Fable (INGEST, baml-reception).
+
 ## Answered 2026-11-07
 
 - [DL-134](decision-log.md): Q6D-4, `--stored` also checks stored ENTRY RECORDS (A).

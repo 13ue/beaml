@@ -22,6 +22,7 @@ This registry indexes evidence, not implementation dependencies. Most research w
 | [Information-flow security](information-flow-security.md) | Cornell Jif 3.3.0; Myers/Liskov; Hirsch/Cecchetti arXiv v2; EEF guidance | Label/pc/authority/effect and runtime-threat grounding | Selected docs and paper abstracts; no proof audit or BEAML theorem |
 | [Observability/storage](observability-platforms.md) | OTel displayed spec 1.62.0 +mutable guides; Postgres 18; ClickHouse/AWS S3 docs | Context/privacy/queue/tenant/retention mechanisms | Selected paraphrases; no deployment benchmark, backend deletion test or signal package pin |
 | [PL syntax sentiment](pl-syntax-sentiment-2026.md) | Claude research workers, 2026-11-07; 94 upstream URLs listed per page | Industry sentiment on syntax features; BEAML lens | Selected excerpts and researcher notes; researcher ranking; Reddit and Lobste.rs blocked; some survey numbers from snippets |
+| [BAML syntax reception](baml-syntax-reception-2026.md) | Claude research worker, 2026-11-07; 38 upstream sources (docs, blog, HN via Algolia, reviews, GitHub, registries) | How BAML's syntax is received; scorecard against the sentiment rows; BAML/BEAML name facts | Selected excerpts; HN evidence thin; no Reddit; PR diffs not read; pronunciation and trademarks unknown |
 
 ## Mechanism-level additions
 

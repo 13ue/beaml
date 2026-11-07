@@ -68,3 +68,5 @@ Provider selection, runtime client overrides and fallback can change the recipie
 An unstable community Elixir integration is not an alternative proof of the proposed BEAM compiler/ABI. Establish a small generated-module call with validated input/output, structured errors, cancellation and source-location mapping before scaling the runtime. [Elixir status](https://docs.boundaryml.com/guide/installation-language/elixir)
 
 See [structured output and streaming](structured-output-and-streaming.md) and [reuse constraints](../sources/baml-license.md).
+
+See also [BAML as the nearest precedent](syntax-sentiment.md#9-baml-as-the-nearest-precedent): how BAML's syntax is received, its scorecard against the loved and hated rows, and the BAML/BEAML name proximity (D034).

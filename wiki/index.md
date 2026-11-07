@@ -21,6 +21,7 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Roasting sources](sources/roasting-rounds.md): selected conversation capture and review-method provenance.
 - [Syntax spike requirement](sources/syntax-spike-requirement.md): accepted experimental syntax, R&D request and adopted initial Elixir backend.
 - [PL syntax sentiment research](sources/pl-syntax-sentiment-2026.md): captured 2026 research on loved and hated syntax features; researcher ranking, snippet-only numbers and blocked forums as limits.
+- [BAML syntax reception](sources/baml-syntax-reception-2026.md): how BAML's syntax is received, its scorecard against the sentiment rows (11 aligned, 8 tension, 4 mixed), the BAML/BEAML name facts; thin forum evidence as limit.
 - [Working glossary](../GLOSSARY.md): scoped terms, proposed owners and German aliases; no universal runtime model.
 - [Candidate context map](planning/context-map.md): language/compilation, execution and Observatory models with explicit translation boundaries.
 - [Local strategy-wiki source](sources/agentic-strategy-wiki.md): selected local glossary/context patterns and provenance; no imported business model or policy.
