@@ -130,3 +130,34 @@ One high objection (R1). Two medium notes (R2, R3). R1 is a plan-text fix plus o
 **Undo**
 → R2 and R3 medium, not blocking. → By: Opus (plan re-check P3/P4) · Undo
 → O2 and the O3 P4 part closed. → By: Opus (plan re-check P3/P4) · Undo
+
+## Re-check 2 after plan repair 2
+
+**[Observed]** 2026-11-07, one round, new evidence only (R1 closure). Fresh context, read only. Read: "Plan repair 2 (after re-check)" in [plan.md](plan.md#plan-repair-2-after-re-check-2026-11-07) and [decisions.md](decisions.md#plan-repair-2-after-re-check-2026-11-07), the QDB-8 text in decisions.md, the [0005 plan repair 2](../../../../0005-prototype-fullstack/workflow/2026-11-07/plan.md#plan-repair-2-after-re-check-2026-11-07), the [0005 README](../../../../0005-prototype-fullstack/README.md#acceptance-criteria) acceptance note and [owner-review.md](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md). No build, no test run.
+By: Opus (plan re-check 2 P4) for every finding and decision in this section.
+
+### Verdict: PASS
+
+R1 is closed. No high objection. Two medium notes.
+
+### Checked and holding
+
+- **[Verified] (1) 0005 thesis chain.** `Note { text: String }` v1 → v2 `add tag: String = ""`, String fields only, so the built D6B-39 does not apply; `Order` keeps `Amount` and `Channel` and has no chain. N7 writes `note-1` through `/notes` under v1, generates from `note_v2/`, runs `--stored` over the live table (exit 0, the `Note` row counted as checked beside the `Order` rows), reads `tag ""` on the page, and checks that the row keeps `version = 1`. N7b writes a v2 row and lists both versions together, with a second `--stored`. N8c covers both snapshots. N11 (no DDL) covers N7, N7b and N8. The README acceptance line and the 0005 repair 2 acceptance line restore N7 and N7b.
+- **[Verified] (2) N20b.** The main case (`3 rows, 3 checked`) fails a reader that drops or skips the `Note` rows. It also fails a reader that checks every row against `Order`, because the `Note` fingerprints are not on the `Order` chain (N20 rule). Control 1 (`Note` fields under `type.name "Order"`, exit 1 naming `Order`) fails a reader that matches a fingerprint against any TYPE and ignores `type.name`. Control 2 (off-chain `Note` fingerprint, exit 1 naming `Note`) fails a reader that counts `Note` rows without the path check. The v1 and v2 `Note` rows together fail a reader that accepts only the newest version. **[Inference]** No reader that passes all three gets the TYPE selection or the chain wrong. Limit: fake rows file only; the live proof is 0005 N7.
+- **[Verified] (3) QDB-8 B everywhere.** P4 decisions QDB-8 says "Option B (default, ruling)" and "Default B"; owner-review "## Big", the P4 pointer line, the M4 line and "First question tomorrow" say B. The 0005 line 242 keeps the A text as history with an inline "Replaced by QDB-8 B" marker; the plan-review R1 lines quote A as evidence only. No live text sets A as default. QDB-6b, QDB-8, PDB-18 and PDB-24 stand under "## Big"; Q5-8 reads put/3.
+- **[Verified] (4) No new open Migrate question.** `ui.notes` is a second list ENTRY LINE under the existing Q5-9 A default (big, open) and the Q5-6 module rule; `ui_note/1` and `ui_notes/1` follow the existing name rule. `! StoreError` on `notes.list` copies `orders.list` (P4 line 41). `/notes` is a host route only. `BeamlDb.list(table, type, query)` already takes the TYPE name (P4 host table), so two ROW TYPES in one `records` table need no new host API. **[Inference]** A host `list` that ignores `type` makes `/notes` fail loudly (QDB-4 A: one bad row fails the list), not pass falsely.
+
+### Medium notes (not blocking)
+
+- **M1 · The original 0005 N7 and N7b lines (plan lines 118 and 200) still name `order_v2` with no inline marker.** Repair 2 says it replaces them, and line 242 has a marker. A RED worker that reads only the N-test list can pick the old text. Suggested: one "Replaced by plan repair 2" marker on each of the two lines.
+- **M2 · N7 counts "the `Order` rows of N2 to N6" as checked, with no fixed number.** The row total depends on the test order (N8 adds `order-zero`, N8b deletes it). Suggested: N7 compares `K checked` with `row_count` of its `snapshot-meta.json`, so a skipped row cannot hide in an unpinned count.
+
+### Decisions
+
+**Repair**
+→ PASS statt BLOCK, weil N7/N7b, N20b and both controls close R1. → By: Opus (plan re-check 2 P4) · Repair
+
+**Undo**
+→ M1 and M2 medium, not blocking. → By: Opus (plan re-check 2 P4) · Undo
+→ The A text in 0005 line 242 kept as marked history, not stale. → By: Opus (plan re-check 2 P4) · Undo
+→ `ui.notes`, `/notes`, `! StoreError` on `notes.list` need no new Migrate entry (covered by Q5-9 A, Q5-6, P4 line 41). → By: Opus (plan re-check 2 P4) · Undo
