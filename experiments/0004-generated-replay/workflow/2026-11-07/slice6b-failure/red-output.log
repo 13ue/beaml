@@ -1,14 +1,15 @@
 # Command (repository root): python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py
-# Date: 2026-11-07. Compiler: experiments/0001-syntax-to-beam at commit 922389ab, production file unchanged.
+# Date: 2026-11-07. RED repair run. Compiler: experiments/0001-syntax-to-beam at commit f8e957f0, production file unchanged.
 # Elixir 1.18.1 (compiled with Erlang/OTP 27)
-
 test_body_fixture_compiles_to_the_planned_shape (__main__.Slice6Failure.test_body_fixture_compiles_to_the_planned_shape) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
 FAIL
 test_body_of_neither_type (__main__.Slice6Failure.test_body_of_neither_type) ... FAIL
 test_body_of_neither_type_record_failure (__main__.Slice6Failure.test_body_of_neither_type_record_failure) ... FAIL
 test_duplicate_failure_keeps_its_text (__main__.Slice6Failure.test_duplicate_failure_keeps_its_text) ... ok
+test_effect_beside_int_failure_compiles (__main__.Slice6Failure.test_effect_beside_int_failure_compiles) ... FAIL
 test_effect_overlap (__main__.Slice6Failure.test_effect_overlap) ... FAIL
 test_effect_structural_overlap (__main__.Slice6Failure.test_effect_structural_overlap) ... FAIL
+test_equal_record_failures_in_a_list (__main__.Slice6Failure.test_equal_record_failures_in_a_list) ... FAIL
 test_no_int_in_effect_failure (__main__.Slice6Failure.test_no_int_in_effect_failure) ... FAIL
 test_overlap_fixture_compiles (__main__.Slice6Failure.test_overlap_fixture_compiles) ... FAIL
 test_overlap_in_a_list (__main__.Slice6Failure.test_overlap_in_a_list) ... FAIL
@@ -16,6 +17,7 @@ test_pipe_ends_in_neither_type (__main__.Slice6Failure.test_pipe_ends_in_neither
 test_plan_source_with_int_failure_compiles (__main__.Slice6Failure.test_plan_source_with_int_failure_compiles) ... FAIL
 test_runtime_body (__main__.Slice6Failure.test_runtime_body) ... FAIL
 test_runtime_overlap (__main__.Slice6Failure.test_runtime_overlap) ... FAIL
+test_runtime_pipe_ends_in_record_failure (__main__.Slice6Failure.test_runtime_pipe_ends_in_record_failure) ... FAIL
 test_same_enum_both_sides (__main__.Slice6Failure.test_same_enum_both_sides) ... FAIL
 test_same_int_both_sides (__main__.Slice6Failure.test_same_int_both_sides) ... FAIL
 test_same_record_both_sides (__main__.Slice6Failure.test_same_record_both_sides) ... FAIL
@@ -27,10 +29,10 @@ test_variant_is_no_failure_type (__main__.Slice6Failure.test_variant_is_no_failu
 FAIL: test_body_fixture_compiles_to_the_planned_shape (__main__.Slice6Failure.test_body_fixture_compiles_to_the_planned_shape)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 150, in test_body_fixture_compiles_to_the_planned_shape
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 152, in test_body_fixture_compiles_to_the_planned_shape
     self.assert_lines(self.assert_built(BODY), [
                       ~~~~~~~~~~~~~~~~~^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 116, in assert_built
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 118, in assert_built
     self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 0 and Elixir on stdout; stderr: " + stderr)
@@ -49,12 +51,12 @@ First differing element 0:
 FAIL: test_body_of_neither_type (__main__.Slice6Failure.test_body_of_neither_type)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 225, in test_body_of_neither_type
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 251, in test_body_of_neither_type
     self.assert_rejected("type E {}\nfn f x: String -> String ! Int = E {}\n",
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "type mismatch: expected String ! Int, got E")
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -72,12 +74,12 @@ First differing element 2:
 FAIL: test_body_of_neither_type_record_failure (__main__.Slice6Failure.test_body_of_neither_type_record_failure)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 230, in test_body_of_neither_type_record_failure
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 256, in test_body_of_neither_type_record_failure
     self.assert_rejected("type E {}\ntype Bad { reason: String }\nfn f x: String -> String ! Bad = E {}\n",
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "type mismatch: expected String ! Bad, got E")
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -94,15 +96,34 @@ First differing element 2:
 + (1, '', 'type mismatch: expected String, got E') : expected exit 1, no stdout and the exact message
 
 ======================================================================
+FAIL: test_effect_beside_int_failure_compiles (__main__.Slice6Failure.test_effect_beside_int_failure_compiles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 194, in test_effect_beside_int_failure_compiles
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: unknown type: Int
+
+
+======================================================================
 FAIL: test_effect_overlap (__main__.Slice6Failure.test_effect_overlap)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 208, in test_effect_overlap
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 226, in test_effect_overlap
     self.assert_rejected("type O { reason: String }\ntype I { id: String }\n" + EFFECT_HEAD % "O ! O" + OTHER,
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          overlap("effect payments.authorize", "O", effect=True))
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -124,14 +145,14 @@ First differing element 2:
 FAIL: test_effect_structural_overlap (__main__.Slice6Failure.test_effect_structural_overlap)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 213, in test_effect_structural_overlap
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 231, in test_effect_structural_overlap
     self.assert_rejected("type O { reason: String }\ntype P { reason: String }\ntype I { id: String }\n"
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          + EFFECT_HEAD % "P ! O" + OTHER,
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          overlap("effect payments.authorize", "P", failure="O", effect=True))
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -151,17 +172,83 @@ First differing element 2:
 -  'reason: String })') : expected exit 1, no stdout and the exact message
 
 ======================================================================
+FAIL: test_equal_record_failures_in_a_list (__main__.Slice6Failure.test_equal_record_failures_in_a_list)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 238, in test_equal_record_failures_in_a_list
+    self.assert_rejected("type A { reason: String }\ntype B { reason: String }\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn f x: String -> String ! A | B = x\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "error: fn f: the failure TYPE A is also a failure TYPE: B has the same fields\n"
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "  help: remove B after !")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn f: the failure TYPE A i[67 chars]r !') != (0, '# Generated by experiment 0001. Not a[1117 chars], '')
+
+First differing element 0:
+1
+0
+
+- (1,
++ (0,
++  '# Generated by experiment 0001. Not a stable ABI.\n'
++  'defmodule BeamlSpike do\n'
++  '  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, map_size: 1, ==: 2, '
++  '<>: 2, if: 2, raise: 2, def: 2, defp: 2, defmodule: 2]\n'
++  '  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and '
++  'String.valid?(v)\n'
++  '  defp __beaml_valid__(v, <<65>>) when is_map(v) and map_size(v) == 1, do: '
++  '__beaml_valid__(Map.get(v, <<114,101,97,115,111,110>>), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<66>>) when is_map(v) and map_size(v) == 1, do: '
++  '__beaml_valid__(Map.get(v, <<114,101,97,115,111,110>>), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(_, _), do: false\n'
++  '  def f(a0) do\n'
++  '    if __beaml_valid__(a0, <<83,116,114,105,110,103>>) do\n'
++  '      case __beaml_f(a0) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<83,116,114,105,110,103>>), do: {:ok, '
++  'result}, else: raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 f 52 88\n'
++  '  defp __beaml_f(v_x), do: {:ok, v_x}\n'
++  'end\n',
+-  '',
+?    ^
+
++  '')
+?    ^
+
+-  'error: fn f: the failure TYPE A is also a failure TYPE: B has the same '
+-  'fields\n'
+-  '  help: remove B after !') : expected exit 1, no stdout and the exact message
+
+======================================================================
 FAIL: test_no_int_in_effect_failure (__main__.Slice6Failure.test_no_int_in_effect_failure)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 248, in test_no_int_in_effect_failure
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 274, in test_no_int_in_effect_failure
     self.assert_rejected("type O { reason: String, code: Int }\ntype P { id: String }\ntype I { id: String }\n"
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          + EFFECT_HEAD % "P ! O" + "fn g i: I -> P ! O = i |> payments.authorize\n",
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "effect payments.authorize: slice 6b fails with String fields only, not O.code")
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -183,10 +270,10 @@ First differing element 2:
 FAIL: test_overlap_fixture_compiles (__main__.Slice6Failure.test_overlap_fixture_compiles)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 164, in test_overlap_fixture_compiles
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 166, in test_overlap_fixture_compiles
     self.assert_lines(self.assert_built(OVERLAP), [
                       ~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 116, in assert_built
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 118, in assert_built
     self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 0 and Elixir on stdout; stderr: " + stderr)
@@ -205,10 +292,10 @@ First differing element 0:
 FAIL: test_overlap_in_a_list (__main__.Slice6Failure.test_overlap_in_a_list)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 188, in test_overlap_in_a_list
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 206, in test_overlap_in_a_list
     self.assert_rejected("fn f x: String -> String ! Int | String = x\n", overlap("fn f", "String"))
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -230,14 +317,14 @@ First differing element 2:
 FAIL: test_pipe_ends_in_neither_type (__main__.Slice6Failure.test_pipe_ends_in_neither_type)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 235, in test_pipe_ends_in_neither_type
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 261, in test_pipe_ends_in_neither_type
     self.assert_rejected("type Bad { reason: String }\nfn seven x: String -> Int = 7\n"
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "fn p x: String -> String ! Bad = x |> seven\n",
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "type mismatch: expected String ! Bad, got Int")
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -257,10 +344,10 @@ First differing element 2:
 FAIL: test_plan_source_with_int_failure_compiles (__main__.Slice6Failure.test_plan_source_with_int_failure_compiles)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 172, in test_plan_source_with_int_failure_compiles
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 174, in test_plan_source_with_int_failure_compiles
     self.assert_built("fn f x: String -> String ! Int = 5\n")
     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 116, in assert_built
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 118, in assert_built
     self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 0 and Elixir on stdout; stderr: " + stderr)
@@ -279,12 +366,12 @@ First differing element 0:
 FAIL: test_runtime_body (__main__.Slice6Failure.test_runtime_body)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 175, in test_runtime_body
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 177, in test_runtime_body
     self.run_runtime(BODY, BODY_CASES)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 131, in run_runtime
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 133, in run_runtime
     stdout = self.assert_built(fixture)
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 116, in assert_built
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 118, in assert_built
     self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 0 and Elixir on stdout; stderr: " + stderr)
@@ -303,12 +390,12 @@ First differing element 0:
 FAIL: test_runtime_overlap (__main__.Slice6Failure.test_runtime_overlap)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 178, in test_runtime_overlap
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 180, in test_runtime_overlap
     self.run_runtime(OVERLAP, OVERLAP_CASES)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 131, in run_runtime
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 133, in run_runtime
     stdout = self.assert_built(fixture)
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 116, in assert_built
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 118, in assert_built
     self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 0 and Elixir on stdout; stderr: " + stderr)
@@ -324,13 +411,37 @@ First differing element 0:
 
 
 ======================================================================
+FAIL: test_runtime_pipe_ends_in_record_failure (__main__.Slice6Failure.test_runtime_pipe_ends_in_record_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 187, in test_runtime_pipe_ends_in_record_failure
+    self.run_runtime(source, {"pbad_record_failure": 'BeamlSpike.pbad("q") == {:error, %BeamlSpike.Bad{reason: "q"}}'})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 133, in run_runtime
+    stdout = self.assert_built(fixture)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 118, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: type mismatch: expected String, got Bad
+
+
+======================================================================
 FAIL: test_same_enum_both_sides (__main__.Slice6Failure.test_same_enum_both_sides)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 204, in test_same_enum_both_sides
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 222, in test_same_enum_both_sides
     self.assert_rejected("enum Why {\n  Short(String)\n}\nfn f x: Why -> Why ! Why = x\n", overlap("fn f", "Why"))
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -352,10 +463,10 @@ First differing element 2:
 FAIL: test_same_int_both_sides (__main__.Slice6Failure.test_same_int_both_sides)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 191, in test_same_int_both_sides
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 209, in test_same_int_both_sides
     self.assert_rejected("fn f n: Int -> Int ! Int = n\n", overlap("fn f", "Int"))
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -377,10 +488,10 @@ First differing element 2:
 FAIL: test_same_record_both_sides (__main__.Slice6Failure.test_same_record_both_sides)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 195, in test_same_record_both_sides
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 213, in test_same_record_both_sides
     self.assert_rejected("type R { id: String }\nfn f x: R -> R ! R = x\n", overlap("fn f", "R"))
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -433,10 +544,10 @@ First differing element 0:
 FAIL: test_same_type_both_sides (__main__.Slice6Failure.test_same_type_both_sides)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 184, in test_same_type_both_sides
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 202, in test_same_type_both_sides
     self.assert_rejected("fn f x: String -> String ! String = x\n", overlap("fn f", "String"))
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -458,12 +569,12 @@ First differing element 2:
 FAIL: test_structural_records_overlap (__main__.Slice6Failure.test_structural_records_overlap)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 199, in test_structural_records_overlap
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 217, in test_structural_records_overlap
     self.assert_rejected("type R { id: String }\ntype S { id: String }\nfn f x: R -> R ! S = x\n",
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          overlap("fn f", "R", failure="S"))
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -519,12 +630,12 @@ First differing element 0:
 FAIL: test_variant_is_no_failure_type (__main__.Slice6Failure.test_variant_is_no_failure_type)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 243, in test_variant_is_no_failure_type
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 269, in test_variant_is_no_failure_type
     self.assert_rejected("enum Why {\n  Short(String)\n}\nfn f x: String -> String ! Short = x\n",
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "unknown type: Short\n  help: Short is a variant of the enum Why, not a TYPE; write Why")
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 124, in assert_rejected
     self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                      "expected exit 1, no stdout and the exact message")
@@ -546,7 +657,7 @@ First differing element 2:
 -  '  help: Short is a variant of the enum Why, not a TYPE; write Why') : expected exit 1, no stdout and the exact message
 
 ----------------------------------------------------------------------
-Ran 19 tests in 0.705s
+Ran 22 tests in 0.739s
 
-FAILED (failures=18)
+FAILED (failures=21)
 # exit 1

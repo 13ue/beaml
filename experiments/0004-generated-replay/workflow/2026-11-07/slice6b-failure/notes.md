@@ -78,3 +78,31 @@ Result: 19 tests, 18 FAIL, 1 pass. Exit 1.
 - `elixirc --warnings-as-errors` exits 0 on unused-import warnings (Elixir 1.18.1, step 1 observation).
 - No accept case with an EFFECT and a non-record `fn` failure (first point above).
 - The struct module place and the `def` wrapper are not asserted.
+
+## RED repair
+
+Trigger: [red-review.md](red-review.md), verdict Block (objections 1 and 2 high, 3 medium).
+Command: `python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py` (repository root). Full output: [red-output.log](red-output.log).
+Result: 22 tests, 21 FAIL, 1 pass (the guard). Exit 1.
+
+| Test | Expected | Actual today | Reason |
+|---|---|---|---|
+| `test_runtime_pipe_ends_in_record_failure` | exit 0; `pbad("q") == {:error, %BeamlSpike.Bad{reason: "q"}}` | stops at build, `type mismatch: expected String, got Bad` | The pipe body is checked against the output TYPE only (objection 1). |
+| `test_effect_beside_int_failure_compiles` | exit 0, line `defp __beaml_extra(_), do: {:error, 5}`, no `defmodule Int do` | exit 1, `unknown type: Int` | `failure_types` accepts records only (objection 2). |
+| `test_equal_record_failures_in_a_list` | exit 1 with the R3 text | exit 0 | `unique` compares names only (objection 3). |
+
+### Decisions
+
+| # | Class | Choice | Alternative | Reason |
+|---|---|---|---|---|
+| R1 | Undo | The pipe case is a test of its own with an inline source, with a runtime check. `body.beaml` stays unchanged. | Add `mkbad` and `pbad` to `body.beaml` | In `body.beaml` the build stops at `unknown type: Why` first. The test then does not fail for the reason of objection 1. |
+| R2 | Undo | The EFFECT case uses `slice2/reuse/orders.beaml` plus `fn extra x: String -> String ! Int = 5`, with `--stored stored/empty.jsonl`. It also asserts the `{:error, 5}` line. | A new fixture | The review names these files. Both exist. |
+| R3 | Repair | Chose: reject `! A \| B` when A and B are plain records with equal fields. Over: allow the pair. Because: plain records are structural in this compiler; D6B-17 is nominal only for constructor TYPES. Commits us to: a later nominal-records decision relaxes this reject. Record it as DL-097 at the end of the phase. | Allow | Objection 3. `! A \| B` is then the same TYPE two times, like `! String \| String`. |
+| R4 | Undo | R3 text: `error: fn f: the failure TYPE A is also a failure TYPE: B has the same fields` plus `  help: remove B after !`. | `duplicate name: B` | No compiler text exists for this case today. The text follows the structural form of D6B-06 (decision 4). `duplicate name` is false, because the names differ. |
+| R5 | Undo | `compile()` in the test takes extra CLI arguments. | A second compile helper | One small change; the other tests do not change. |
+
+### Checks
+
+- Each new test fails for the reason that the review states. Observed above.
+- Production unchanged: `cargo test --offline --no-fail-fast` 27 pass (13 unit, 14 CLI). `slice6_int_test.py` 16 OK.
+- `run.py` was not run and no result directory changed (another worker runs the suite).

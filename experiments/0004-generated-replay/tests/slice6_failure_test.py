@@ -20,6 +20,8 @@ import stored_types_test as st  # noqa: E402
 
 BODY = EXPERIMENT / "slice6" / "failure" / "body.beaml"
 OVERLAP = EXPERIMENT / "slice6" / "failure" / "overlap.beaml"
+ORDERS = EXPERIMENT / "slice2" / "reuse" / "orders.beaml"
+EMPTY_STORED = EXPERIMENT / "stored" / "empty.jsonl"
 
 
 def b(text):
@@ -96,14 +98,14 @@ class Slice6Failure(unittest.TestCase):
         self.work = Path(holder)
         (self.work / "cwd").mkdir()
 
-    def compile(self, source):
-        """`source`: a Path or BEAML text. Return (code, stdout, stderr)."""
+    def compile(self, source, extra=()):
+        """`source`: a Path or BEAML text; `extra`: more CLI arguments. Return (code, stdout, stderr)."""
         if not isinstance(source, Path):
             path = self.work / "src" / "case.beaml"
             path.parent.mkdir(exist_ok=True)
             path.write_text(source)
             source = path
-        result = subprocess.run([st.compiler(), str(source)], cwd=self.work / "cwd", capture_output=True, text=True)
+        result = subprocess.run([st.compiler(), str(source), *extra], cwd=self.work / "cwd", capture_output=True, text=True)
         log = self.work / "cwd" / ".beaml" / "actions.jsonl"
         if log.is_file():
             text = log.read_text()
@@ -177,6 +179,22 @@ class Slice6Failure(unittest.TestCase):
     def test_runtime_overlap(self):
         self.run_runtime(OVERLAP, OVERLAP_CASES)
 
+    def test_runtime_pipe_ends_in_record_failure(self):
+        # RED review objection 1, D6B-05 and D6B-07: a pipe that ends in a record failure gives the struct.
+        # Today: "type mismatch: expected String, got Bad".
+        source = ("type Bad { reason: String }\nfn mkbad x: String -> Bad = Bad { reason: x }\n"
+                  "fn pbad x: String -> String ! Bad = x |> mkbad\n")
+        self.run_runtime(source, {"pbad_record_failure": 'BeamlSpike.pbad("q") == {:error, %BeamlSpike.Bad{reason: "q"}}'})
+
+    def test_effect_beside_int_failure_compiles(self):
+        # RED review objection 2: emit_effect must not treat a non-record failure as a record.
+        # Today: "unknown type: Int".
+        code, stdout, stderr = self.compile(ORDERS.read_text() + "fn extra x: String -> String ! Int = 5\n",
+                                            extra=["--stored", str(EMPTY_STORED)])
+        self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+                         "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+        self.assert_lines(stdout, ["defp __beaml_extra(_), do: {:error, 5}"], absent=["defmodule Int do"])
+
     # Reject cases: overlap (DL-093, D6B-06, D6B-08, D6B-09).
 
     def test_same_type_both_sides(self):
@@ -213,6 +231,14 @@ class Slice6Failure(unittest.TestCase):
         self.assert_rejected("type O { reason: String }\ntype P { reason: String }\ntype I { id: String }\n"
                              + EFFECT_HEAD % "P ! O" + OTHER,
                              overlap("effect payments.authorize", "P", failure="O", effect=True))
+
+    def test_equal_record_failures_in_a_list(self):
+        # RED review objection 3, notes.md RED repair decision R3: plain records are structural, so A and B are
+        # the same TYPE. Today: exit 0.
+        self.assert_rejected("type A { reason: String }\ntype B { reason: String }\n"
+                             "fn f x: String -> String ! A | B = x\n",
+                             "error: fn f: the failure TYPE A is also a failure TYPE: B has the same fields\n"
+                             "  help: remove B after !")
 
     def test_duplicate_failure_keeps_its_text(self):
         # Guard: `unique` runs before the overlap check. Today the same text.
