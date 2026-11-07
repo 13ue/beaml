@@ -1519,22 +1519,32 @@ impl<'a> Checker<'a> {
                 }
             }
             // DL-116 interim (D6B-154, D6B-157): a redacted output field at any depth is a String or Int field of a
-            // TYPE without a constructor. Before the slice 1 decode limit.
-            let mut todo = vec![effect.output.clone()];
+            // TYPE without a constructor. Before the slice 1 decode limit. D6B-184: also not below an enum payload
+            // or a TYPE with a constructor, because D6B-106 stores the constructor inputs in `value`.
+            let mut todo = vec![(effect.output.clone(), false)];
             let mut seen = BTreeSet::new();
-            while let Some(ty) = todo.pop() {
-                let Some(Definition::Record(fields)) = self.program.types.get(&ty) else {
-                    continue;
-                };
-                if !seen.insert(ty.clone()) {
+            while let Some((ty, below)) = todo.pop() {
+                if !seen.insert((ty.clone(), below)) {
                     continue;
                 }
+                let fields = match self.program.types.get(&ty) {
+                    Some(Definition::Record(fields)) => fields,
+                    Some(Definition::Enum(variants)) => {
+                        todo.extend(
+                            variants
+                                .iter()
+                                .flat_map(|(_, p)| p)
+                                .map(|t| (t.clone(), true)),
+                        );
+                        continue;
+                    }
+                    None => continue,
+                };
+                let below = below || self.constructors.contains(&ty);
                 for (field, t) in fields {
                     if !self.is_redacted(&ty, field) {
-                        todo.push(t.clone());
-                    } else if !["String", "Int"].contains(&t.as_str())
-                        || self.constructors.contains(&ty)
-                    {
+                        todo.push((t.clone(), below));
+                    } else if !["String", "Int"].contains(&t.as_str()) || below {
                         return Err(format!(
                             "error: effect {name}: the redacted field {ty}.{field} must be a String or Int field of a TYPE without a constructor in slice 6b (DL-116)\n  help: remove redacted from {ty}.{field}; the limit holds until a rule over an absent value exists (DL-116)"
                         ));

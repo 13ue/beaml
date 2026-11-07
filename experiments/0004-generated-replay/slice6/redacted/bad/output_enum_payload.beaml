@@ -1,0 +1,12 @@
+// DL-116 (O2): a redacted field in the payload TYPE of an enum field of an EFFECT output.
+type Holder { name: redacted String }
+enum Pay { Card(Holder)  Cash  Unknown(String) }
+fn Pay kind: String, name: String -> Pay
+fn Pay "card", n -> Pay = Card(Holder { name: n })
+fn Pay "cash", _ -> Pay = Cash
+fn Pay other, _ -> Pay = Unknown(other)
+type Order { order_id: String }
+type Payment { order_id: String status: String pay: Pay }
+type PaymentError { reason: String }
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+fn place order: Order -> Payment ! PaymentError = order |> payments.authorize

@@ -34,9 +34,10 @@ import stored_types_test as st  # noqa: E402
 BASE = "f29e3f12"
 # Slice 6b step 6a changes the record writer of every EFFECT by contract (repin.md in slice6b-records-v2).
 # R-EQ now compares BASE with PRE_6A, the last compiler before step 6a.
-# PIN, the step 12 compiler (DL-119), pins the bytes; before: 0747c315 (step 6a).
+# PIN, the step 6b compiler (D6B-172: dotted unknown_keys in every EFFECT source, 237a4578..461d024e), pins the
+# bytes; before: 237a4578 (step 12, DL-119), 0747c315 (step 6a).
 PRE_6A = "4a7cffba"
-PIN = "237a4578"
+PIN = "461d024e"
 U32_MAX = 4294967295
 NO_PATH = "no path from the stored TYPE VERSION"
 FALLBACK = "expected type, enum, effect, migrate, retire or fn"

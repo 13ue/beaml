@@ -230,3 +230,35 @@ By: Opus (GREEN, slice6b-redacted-fields) for the work in this section.
 - `arms_test` 11, `drift_test` 5: OK.
 - `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings`: clean. `cargo test`: 21 and 14 passed.
 - slice 2 to 5 tests were not run again after the re-pin.
+
+## Review repair (O1, O2)
+
+By: Opus (REVIEW REPAIR, slice6b-redacted-fields) for every entry in this section. Target: the objections O1 and O2 of [review.md](review.md). O3 is not in this repair (M1 scope).
+
+### Phase RED (observed)
+
+- New fixtures: `slice6/redacted/bad/output_enum_payload.beaml` (a redacted `Holder.name` in the payload of the enum field `Payment.pay`) and `slice6/redacted/bad/output_constructor_above.beaml` (a redacted `Inner.s` below `Amount`, which has a constructor). Both are the review probe sources in the fixture style.
+- New case: `test_R6_dl116_below_an_enum_payload_or_a_constructor_type` in `tests/slice6_redacted_test.py`. Expected: the existing DL-116 interim text with `Holder.name` and `Inner.s`, exit 1, no stdout.
+- Run against a scratch `git archive` build of HEAD ffef71c0 (`BEAML_SPIKE`): 20 tests, 2 failures. Both subtests fail because the build accepts the source (exit 0, Elixir on stdout). The other 19 tests pass, also `test_R6_fixtures_build_without_redacted_and_with` with the two new fixtures.
+
+### Phase GREEN (observed)
+
+- `Checker::effects`, DL-116 walk: each queued TYPE carries a flag "below an enum payload or a TYPE with a constructor". An enum queues its payload TYPES with the flag set. A record with a constructor sets the flag for its fields. A redacted field with the flag set gets the DL-116 text. The existing texts are unchanged.
+- `slice6_redacted_test.py`: 20 tests, OK.
+- Byte check: all 2036 tracked `.beaml` sources, HEAD scratch build against the new build, exit code, stdout and stderr (`--stored stored/empty.jsonl` for a source with `effect` or `retire`): **0 sources differ** (803 build with exit 0).
+- O1: `PIN` in `tests/slice5_syntax_test.py` moves from `237a4578` to `461d024e`, with a comment that names D6B-172 and the range `237a4578..461d024e`. The diff proof is the review "D6B-172 diff proof" and the GREEN re-pin diff proof. The GREEN re-pin missed this PIN: it moved three pins, not this one, and did not run the slice 2 to 5 tests again.
+- `slice5_syntax_test.py`: 60 tests, OK (before the move: 33 failures).
+- `cargo fmt --check` clean, `cargo clippy -- -D warnings` clean, `cargo test` 21 and 14 passed.
+- slice 6 unittest: constructor 25, decode_ctor 8, decode 10, effect_reach 8, enum 20, failure 22, fmt 25, host_struct 3, int 16, pipe 12, record 5, redacted 20, stored_elixir 15, struct_order 3: all OK. `arms_test` 11 OK, `drift_test` 5 OK.
+- Not run: `slice6_redacted_failure_test.py` (6c RED, expected red) and the full `run.py` (not in this brief). The next full `run.py` must confirm `slice5-syntax`.
+
+### Decisions
+
+#### Undo
+
+- D6B-185 · Undo · The O2 fixtures use the review probe sources, with the fixture comment line and the parameter name `order`. By: Opus (REVIEW REPAIR, slice6b-redacted-fields)
+- D6B-186 · Undo · The PIN moves without a new diff proof run; the GREEN change gives 0 differing sources, so the 461d024e bytes equal the new bytes. By: Opus (REVIEW REPAIR, slice6b-redacted-fields)
+
+#### Repair
+
+- D6B-184 · Repair · Chose: the existing DL-116 interim text for a redacted field below an enum payload or a TYPE with a constructor, with the TYPE that holds the field (`Holder.name`, `Inner.s`). Over: a new text that names the enum or the constructor TYPE above. Because: one DL-116 text; the help line names the field to change. Commits us to: the text says "a TYPE without a constructor" also for the enum payload case, where the constructor is on the enum; the docs phase states this limit in `spec.md`. By: Opus (REVIEW REPAIR, slice6b-redacted-fields)
