@@ -13,6 +13,7 @@ the decision log and notes.md, never from the new compiler.
 Run: python3 -B experiments/0004-generated-replay/tests/slice6_decode_test.py [-k NAME]
 """
 from pathlib import Path
+import os
 import subprocess
 import sys
 import unittest
@@ -106,6 +107,15 @@ REPLAY_CASES = {
                           % (RESOLVED, ok(v("Unknown", '"refunded"')))),
     "replay_not_a_string_is_decode": 'replay.("%s", 5) == %s' % (FAIL, DECODE_ERROR),
 }
+# RED review N3: the wire value stands only in the typed field. No span attribute and no RESPONSE RECORD key holds it,
+# except the raw body `body_base64` (base64, until DL-105).
+NO_VALUE = ('live.("refunded") == %s and '
+            'Enum.all?(Process.get(), fn {{:attr, _}, v} -> not String.contains?(inspect(v), "refunded"); _ -> true end) and '
+            'not String.contains?(inspect(Map.delete(captured.("refunded"), :body_base64)), "refunded")'
+            % ok(v("Unknown", '"refunded"')))
+# RED review N2: a build without Pending writes the record of a "pending" response through the real JSON encode
+# (ProbeSupport.json is :json.encode); the build with Pending then reads that line with --stored.
+WRITE = 'File.write!(System.fetch_env!("RECORD_OUT"), IO.iodata_to_binary(:json.encode(captured.("pending"))) <> "\\n")\n'
 
 PS_LITERALS = 'enum PaymentState { Authorized = "ok"  Pending = "pending"  Unknown(String) }\n'
 REST = ("type Order { order_id: String }\ntype PaymentError { reason: String }\n"
@@ -138,8 +148,10 @@ class Slice6Decode(unittest.TestCase):
         self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
                          "expected exit 1, no stdout and the exact message")
 
-    def run_runtime(self, cases):
-        stdout, _ = self.build(STORED)
+    def run_runtime(self, cases, source=ORDERS, script=""):
+        code, stdout, stderr = self.compile(source, ["--stored", str(STORED)])
+        self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+                         "expected exit 0 and Elixir on stdout; stderr: " + stderr)
         out = self.work / "beam"
         out.mkdir()
         (out / "generated.ex").write_text(stdout)
@@ -148,8 +160,9 @@ class Slice6Decode(unittest.TestCase):
                                str(out / "generated.ex")], capture_output=True, text=True)
         self.assertEqual(0, beam.returncode, "elixirc failed:\n" + beam.stdout + beam.stderr)
         listed = ",\n".join('  {"%s", fn -> %s end}' % item for item in cases.items())
-        (out / "checks.exs").write_text(sf.RUNTIME_HEAD + HELPERS + "\ncases = [\n" + listed + "\n]\n" + sf.RUNTIME_TAIL)
-        run = subprocess.run(["elixir", "-pa", str(out), str(out / "checks.exs")], capture_output=True, text=True)
+        (out / "checks.exs").write_text(sf.RUNTIME_HEAD + HELPERS + script + "\ncases = [\n" + listed + "\n]\n" + sf.RUNTIME_TAIL)
+        env = dict(os.environ, RECORD_OUT=str(self.work / "written.jsonl"))
+        run = subprocess.run(["elixir", "-pa", str(out), str(out / "checks.exs")], capture_output=True, text=True, env=env)
         results = dict(line.rsplit(" ", 1) for line in run.stdout.splitlines() if line.endswith((" PASS", " FAIL")))
         for name in cases:
             with self.subTest(name):
@@ -175,6 +188,18 @@ class Slice6Decode(unittest.TestCase):
 
     def test_runtime_replay(self):
         self.run_runtime(REPLAY_CASES)
+
+    def test_wire_value_stays_in_the_typed_field(self):
+        # RED review N3: no span attribute, record key or action event holds the wire value.
+        self.run_runtime({"value_only_in_the_typed_field": NO_VALUE})
+        self.assertNotIn("refunded", (self.work / "cwd" / ".beaml" / "actions.jsonl").read_text())
+
+    def test_written_record_reports_the_count(self):
+        # RED review N2: writer and --stored check agree on the JSON key unknown_fields (DL-103 note, count 1).
+        self.run_runtime({"record_written": "true"}, ORDERS.read_text().replace('Pending = "pending"  ', ""), WRITE)
+        _, stderr = self.build(self.work / "written.jsonl")
+        self.assertEqual("note: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize kept a value "
+                         "of field state that a literal of PaymentState maps now (DL-103)", stderr.strip())
 
     # Reject cases.
 

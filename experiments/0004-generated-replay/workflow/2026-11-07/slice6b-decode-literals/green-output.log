@@ -1,0 +1,111 @@
+# GREEN, slice 6b step 7. Repository root. Toolchain: cargo 1.94.0 (85eff7c80 2026-01-15), rustc 1.94.0 (4a4ef493e 2026-03-02), Elixir 1.18.1 (compiled with Erlang/OTP 27), Python 3.13.12
+## 1. RED of the two new tests (N2, N3), before the main.rs change. Compiler: HEAD 3687bb4e, main.rs unchanged.
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_test.py -k wire_value -k written_record
+FAIL: test_wire_value_stays_in_the_typed_field (__main__.Slice6Decode.test_wire_value_stays_in_the_typed_field)
+AssertionError: Tuples differ: (0, True) != (1, False)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: effect payments.authorize: slice 1 decodes String fields only, not Payment.state
+FAIL: test_written_record_reports_the_count (__main__.Slice6Decode.test_written_record_reports_the_count)
+AssertionError: Tuples differ: (0, True) != (1, False)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: effect payments.authorize: slice 1 decodes String fields only, not Payment.state
+Ran 2 tests in 0.233s
+FAILED (failures=2)
+exit: 1
+
+## 2. GREEN runs. Compiler: live tree, main.rs changed (cargo build --offline by the harness).
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_test.py
+Ran 10 tests in 8.275s
+OK
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py
+Ran 16 tests in 1.541s
+OK
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py
+Ran 22 tests in 2.484s
+OK
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py
+Ran 20 tests in 2.456s
+OK
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py
+Ran 12 tests in 1.564s
+OK
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py
+FAIL: test_constructor_type_in_an_effect_output_field (__main__.Slice6Constructor.test_constructor_type_in_an_effect_output_field)
+Ran 25 tests in 3.153s
+FAILED (failures=1)
+exit: 1
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py
+FAIL: test_last_clause_does_not_keep_the_value (__main__.Slice6DecodeCtor.test_last_clause_does_not_keep_the_value)
+FAIL: test_runtime_first_signature_wins (__main__.Slice6DecodeCtor.test_runtime_first_signature_wins)
+FAIL: test_runtime_live_decode (__main__.Slice6DecodeCtor.test_runtime_live_decode)
+FAIL: test_runtime_replay (__main__.Slice6DecodeCtor.test_runtime_replay)
+FAIL: test_stored_record_fails_the_record_constructor (__main__.Slice6DecodeCtor.test_stored_record_fails_the_record_constructor)
+FAIL: test_stored_record_matches_no_signature (__main__.Slice6DecodeCtor.test_stored_record_matches_no_signature)
+FAIL: test_stored_records_pass_the_constructors (__main__.Slice6DecodeCtor.test_stored_records_pass_the_constructors)
+Ran 7 tests in 0.294s
+FAILED (failures=7)
+exit: 1
+$ python3 -B experiments/0004-generated-replay/tests/slice6_struct_order_test.py
+FAIL: test_effect_module_with_pure_record_failure_compiles (__main__.Slice6StructOrder.test_effect_module_with_pure_record_failure_compiles)
+Ran 2 tests in 0.644s
+FAILED (failures=1)
+exit: 1
+$ cargo fmt --check
+exit: 0
+$ cargo clippy --offline --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.33s
+exit: 0
+$ cargo test --offline --no-fail-fast
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/stored_types_test.py
+Ran 33 tests in 0.989s
+OK
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/slice3_types_test.py
+Ran 69 tests in 0.977s
+OK
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/slice4_retire_test.py
+Ran 87 tests in 1.583s
+OK
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/slice5_syntax_test.py
+Ran 60 tests in 4.396s
+OK
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/slice5_squash_test.py
+Ran 24 tests in 1.067s
+OK
+exit: 0
+$ python3 -B experiments/0004-generated-replay/tests/slice5_rewrite_test.py
+Ran 5 tests in 3.051s
+OK
+exit: 0
+
+## 3. Checks of the three failing files against the HEAD compiler (scratch build of `git archive 3687bb4e`, main.rs unchanged)
+$ BEAML_SPIKE=<scratch>/head3687/.../beaml-spike python3 -B .../slice6_constructor_test.py
+FAIL: test_constructor_type_in_an_effect_output_field
+Ran 25 tests; FAILED (failures=1)
+$ BEAML_SPIKE=<scratch>/head3687/.../beaml-spike python3 -B .../slice6_decode_ctor_test.py
+Ran 7 tests; FAILED (failures=7)
+$ BEAML_SPIKE=<scratch>/head3687/.../beaml-spike python3 -B .../slice6_struct_order_test.py
+Ran 2 tests; FAILED (failures=1)
+Result: the same failures with and without this change. Cause: the step 8 RED (commit 3687bb4e changed the constructor test to the step 8 text) and the struct-order RED. Not this step.
+
+## 4. Byte-equal check: HEAD compiler (3687bb4e) against the GREEN compiler, stdout and stderr
+experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml: byte-equal
+experiments/0004-generated-replay/arms/gen/orders.beaml --stored stored/empty.jsonl: byte-equal
+Every slice6/**/*.beaml with --stored stored/empty.jsonl: equal output and exit, except slice6/decode/orders.beaml (exit 1 -> 0, the step 7 fixture).
+
+## 5. Hashes (sha256)
+53fad8ac0d37e7bd6ef1b25142993aaadc885bd098c68a7f89488e9e01ba7594  experiments/0001-syntax-to-beam/src/main.rs
+3a716651f294e3d668e34dfbc42795bcb76bff4ccfdec136f8c79b5e2a11ab37  experiments/0004-generated-replay/tests/slice6_decode_test.py
+05f2b9702e50df5b4c0e45bdcbf8759d3bc145a39b822dff9c8e86de74ac20cf  experiments/0004-generated-replay/slice6/decode/orders.beaml
+b6d9d64d7f2d69f6bd602084b24897ffe122f3a7419fa6d8d054656353678507  experiments/0004-generated-replay/slice6/decode/stored-fail.jsonl
+8f6d5ed83eae7c849e33270ea46feaeef6d7df68d9561d42ca8323a27531f4b9  experiments/0004-generated-replay/slice6/decode/stored-resolved.jsonl
+c82a68236b9370e31413b94fd57c643bcdc0abb136a44a9488e6781b1943912a  experiments/0004-generated-replay/slice6/decode/stored.jsonl

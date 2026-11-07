@@ -1289,6 +1289,31 @@ impl<'a> Checker<'a> {
         }
         Ok(())
     }
+    // The keep-value variant X(String) of a literal enum: the variant without a literal (D6B-21).
+    fn keep_variant(&self, name: &str) -> Option<&str> {
+        let literals = self.program.literals.get(name)?;
+        match self.program.types.get(name)? {
+            Definition::Enum(variants) => variants
+                .iter()
+                .find(|(v, args)| {
+                    args.as_slice() == ["String"] && !literals.iter().any(|(w, _)| w == v)
+                })
+                .map(|(v, _)| v.as_str()),
+            Definition::Record(_) => None,
+        }
+    }
+    // The literal enum fields of an EFFECT output TYPE, sorted by field name: (field, enum).
+    fn literal_fields(&self, output: &str) -> Vec<(String, String)> {
+        let mut fields: Vec<(String, String)> = self
+            .record(output)
+            .cloned()
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|(_, t)| self.program.literals.contains_key(t))
+            .collect();
+        fields.sort();
+        fields
+    }
     // D6B-04: any TYPE after `!`. RED repair R3: two failure TYPES with equal fields are the same TYPE.
     fn failure_types(&self, owner: &str, failures: &[String]) -> Checked<()> {
         unique(failures.iter().cloned())?;
@@ -1423,7 +1448,20 @@ impl<'a> Checker<'a> {
                 ));
             }
             for (field, ty) in self.record(&effect.output)? {
-                if ty != "String" {
+                let output = &effect.output;
+                // Slice 6b step 7: an enum with ENUM LITERALS decodes by its mapping (D6B-35).
+                if self.program.literals.contains_key(ty) {
+                    if self.versioned(output) {
+                        return Err(format!(
+                            "error: effect {name}: the enum field {output}.{field} cannot stand in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n  help: remove the MIGRATE CHAIN and the VERSION MARK of {output}, or make {field} a String field"
+                        ));
+                    }
+                    if self.keep_variant(ty).is_none() {
+                        return Err(format!(
+                            "error: effect {name}: the enum {ty} of {output}.{field} has no keep-value variant (DL-065)\n  help: add the variant Unknown(String) to enum {ty}"
+                        ));
+                    }
+                } else if ty != "String" {
                     return Err(format!(
                         "effect {name}: slice 1 decodes String fields only, not {}.{field}",
                         effect.output
@@ -2551,9 +2589,58 @@ impl Checker<'_> {
                 .collect::<Vec<_>>()
                 .join(", ")
         };
+        // Slice 6b step 7 (D6B-35, D6B-37): a literal enum field maps its wire String by `__beaml_literal_E`:
+        // a literal gives its variant, another String the keep-value variant, any other value `:error` (the
+        // typed reject `decode`). Only with literal fields; other outputs keep their bytes.
+        let literal_fields = self.literal_fields(&effect.output);
+        let unknown_fields = format!(
+            "__beaml_unknown_fields_{}",
+            effect.output.to_ascii_lowercase()
+        );
+        let mut literal_map = String::new();
+        if !literal_fields.is_empty() {
+            let enums: BTreeSet<&String> = literal_fields.iter().map(|(_, e)| e).collect();
+            for enum_name in enums {
+                for (variant, literal) in &self.program.literals[enum_name] {
+                    out.push_str(&format!(
+                        "  defp __beaml_literal_{enum_name}({}), do: {{{}, {}, []}}\n",
+                        binary(literal),
+                        binary(enum_name),
+                        binary(variant)
+                    ));
+                }
+                out.push_str(&format!(
+                    "  defp __beaml_literal_{enum_name}(v) when is_binary(v), do: {{{}, {}, [v]}}\n  defp __beaml_literal_{enum_name}(_), do: :error\n",
+                    binary(enum_name),
+                    binary(self.keep_variant(enum_name).expect("checked keep-value variant"))
+                ));
+            }
+            // D6B-37: the field names whose value went to the keep-value variant, sorted, no values.
+            let keeps: Vec<String> = literal_fields
+                .iter()
+                .map(|(f, e)| {
+                    format!(
+                        "{{{}, {}, {}}}",
+                        binary(f),
+                        binary(e),
+                        binary(self.keep_variant(e).expect("checked keep-value variant"))
+                    )
+                })
+                .collect();
+            out.push_str(&format!(
+                "  def {unknown_fields}(value) do\n    Enum.flat_map([{}], fn {{field, owner, keep}} ->\n      case Map.get(value, field) do\n        {{^owner, ^keep, _}} -> [field]\n        _ -> []\n      end\n    end)\n  end\n",
+                keeps.join(", ")
+            ));
+            for (field, enum_name) in &literal_fields {
+                literal_map.push_str(&format!(
+                    "    shape =\n      if is_map(shape) and Map.has_key?(shape, {field}),\n        do: Map.update!(shape, {field}, &__beaml_literal_{enum_name}/1),\n        else: shape\n\n",
+                    field = binary(field)
+                ));
+            }
+        }
         if !self.versioned(&effect.output) {
             out.push_str(&format!(
-                "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
+                "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n{literal_map}    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
                 declared.join(", "),
                 output = binary(&effect.output),
             ));
@@ -2628,16 +2715,30 @@ impl Checker<'_> {
                 ", type_version",
             )
         };
+        let mark = if literal_fields.is_empty() {
+            String::new()
+        } else {
+            format!(
+                "fields = {unknown_fields}(value)\n        if fields == [], do: :ok, else: :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_fields, fields)\n        "
+            )
+        };
         out.push_str(&format!(
-            "{result_head}    case {decode}(a0{arity}) do\n      {{:ok, value, []}} ->\n        {{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
+            "{result_head}    case {decode}(a0{arity}) do\n      {{:ok, value, []}} ->\n        {mark}{{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {mark}{{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
             decode_reason = binary("decode"),
         ));
         out.push_str(&self.emit_structs());
         out.push_str("  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n");
         out.push_str(HTTP);
         out.push_str(&format!(
-            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n\n      unknown_keys =\n        case @parent.{decode}(bytes) do\n          {{:ok, _, keys}} -> keys\n          _ -> []\n        end\n\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 1,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        body_base64: Base.encode64(bytes),\n        body_length: byte_size(bytes),\n        body_sha256: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),\n        unknown_keys: unknown_keys,\n        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
+            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n\n{unknown}\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 1,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        body_base64: Base.encode64(bytes),\n        body_length: byte_size(bytes),\n        body_sha256: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),\n        unknown_keys: unknown_keys,\n{fields_key}        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
             operation = binary(name),
+            // Step 7 (notes.md S4): the RESPONSE RECORD key `unknown_fields` holds field names only.
+            unknown = if literal_fields.is_empty() {
+                format!("      unknown_keys =\n        case @parent.{decode}(bytes) do\n          {{:ok, _, keys}} -> keys\n          _ -> []\n        end\n")
+            } else {
+                format!("      {{unknown_keys, unknown_fields}} =\n        case @parent.{decode}(bytes) do\n          {{:ok, value, keys}} -> {{keys, @parent.{unknown_fields}(value)}}\n          _ -> {{[], []}}\n        end\n")
+            },
+            fields_key = if literal_fields.is_empty() { "" } else { "        unknown_fields: unknown_fields,\n" },
             retired = self.emit_retired(),
             type_version = self.emit_type_version(&effect.output),
             chain = self.emit_chain(&self.body_type(flow).1, Some(flow), service, "      ", Step::Replay),
@@ -3094,6 +3195,41 @@ struct Snapshot {
     operations: BTreeSet<String>,
     // The oldest stored version per EFFECT output TYPE, from records of operations with an `effect` (W2).
     oldest: BTreeMap<String, u32>,
+    // DL-103: the `note:` lines of stored values that a literal maps now (counts, never values).
+    notes: Vec<String>,
+}
+
+// (TYPE, operation, field, enum) of a literal enum field in the `--stored` check.
+type FieldKey = (String, String, String, String);
+
+// Standard base64 (with padding) of a RESPONSE RECORD body; None for any other text.
+fn base64(text: &str) -> Option<Vec<u8>> {
+    let digit = |c: u8| match c {
+        b'A'..=b'Z' => Some(c - b'A'),
+        b'a'..=b'z' => Some(c - b'a' + 26),
+        b'0'..=b'9' => Some(c - b'0' + 52),
+        b'+' => Some(62),
+        b'/' => Some(63),
+        _ => None,
+    };
+    let bytes = text.as_bytes();
+    if !bytes.len().is_multiple_of(4) {
+        return None;
+    }
+    let mut out = Vec::new();
+    for chunk in bytes.chunks(4) {
+        let pad = chunk.iter().rev().take_while(|c| **c == b'=').count();
+        if pad > 2 {
+            return None;
+        }
+        let mut n = 0u32;
+        for c in &chunk[..4 - pad] {
+            n = n << 6 | u32::from(digit(*c)?);
+        }
+        n <<= 6 * pad as u32;
+        out.extend_from_slice(&n.to_be_bytes()[1..4 - pad]);
+    }
+    Some(out)
 }
 
 // A DEAD LINE: its byte range in the source, its form (`retire ...` or `migrate T a -> b`) and why it is dead.
@@ -3189,6 +3325,9 @@ impl Checker<'_> {
         let mut snapshot = Snapshot::default();
         // Operation -> (record count, first line) of records with no `effect` and no RETIRE LINE.
         let mut orphans: BTreeMap<String, (usize, usize)> = BTreeMap::new();
+        // DL-102, DL-103: per (TYPE, operation, field, enum) of a literal enum field: (failed records, first
+        // failed line, resolved records). The body is mapped by the current literals (one file, one environment).
+        let mut mapped: BTreeMap<FieldKey, (usize, usize, usize)> = BTreeMap::new();
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             if line.trim().is_empty() {
@@ -3205,6 +3344,45 @@ impl Checker<'_> {
                     .entry(effect.output.clone())
                     .or_insert(stored.version);
                 *oldest = (*oldest).min(stored.version);
+                let literal_fields = self.literal_fields(&effect.output);
+                if stored.name == effect.output && !literal_fields.is_empty() {
+                    let body = record
+                        .get("body_base64")
+                        .and_then(Json::text)
+                        .and_then(base64)
+                        .and_then(|bytes| String::from_utf8(bytes).ok())
+                        .and_then(|text| parse_json(&text));
+                    // A record without the key `unknown_fields` (written before step 7) kept nothing.
+                    let kept = |field: &str| match record.get("unknown_fields") {
+                        Some(Json::List(names)) => names.iter().any(|n| n.text() == Some(field)),
+                        _ => false,
+                    };
+                    for (field, enum_name) in literal_fields {
+                        let value = body.as_ref().and_then(|b| b.get(&field));
+                        let literal = value.and_then(Json::text).is_some_and(|text| {
+                            self.program.literals[&enum_name]
+                                .iter()
+                                .any(|(_, l)| l == text)
+                        });
+                        let resolved = literal && kept(&field);
+                        let entry = mapped
+                            .entry((
+                                effect.output.clone(),
+                                stored.operation.clone(),
+                                field,
+                                enum_name,
+                            ))
+                            .or_insert((0, 0, 0));
+                        // A String always has a variant (D6B-36); any other value has none.
+                        if value.and_then(Json::text).is_none() {
+                            entry.0 += 1;
+                            if entry.1 == 0 {
+                                entry.1 = number;
+                            }
+                        }
+                        entry.2 += usize::from(resolved);
+                    }
+                }
                 groups.entry(stored).or_insert((0, number)).0 += 1;
             } else if self.retire(&stored.operation).is_none() {
                 orphans.entry(stored.operation).or_insert((0, number)).0 += 1;
@@ -3221,10 +3399,27 @@ impl Checker<'_> {
                 .collect::<Vec<_>>()
                 .join("\n"));
         }
-        let errors: Vec<String> = groups
+        let mut errors: Vec<String> = groups
             .iter()
             .filter_map(|(stored, (count, line))| self.no_path(source, stored, *count, *line))
             .collect();
+        if errors.is_empty() {
+            let plural = |n: usize| if n == 1 { "" } else { "S" };
+            for ((ty, op, field, enum_name), (failed, line, resolved)) in &mapped {
+                if *failed > 0 {
+                    errors.push(format!(
+                        "error: TYPE {ty}: {failed} stored RESPONSE RECORD{} of operation {op} {} no variant of {enum_name} for field {field}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of {ty} (DL-102)",
+                        plural(*failed),
+                        if *failed == 1 { "has" } else { "have" }
+                    ));
+                } else if *resolved > 0 {
+                    snapshot.notes.push(format!(
+                        "note: TYPE {ty}: {resolved} stored RESPONSE RECORD{} of operation {op} kept a value of field {field} that a literal of {enum_name} maps now (DL-103)",
+                        plural(*resolved)
+                    ));
+                }
+            }
+        }
         if errors.is_empty() {
             Ok(snapshot)
         } else {
@@ -3536,6 +3731,8 @@ pub fn compile_stored(
 struct Build {
     code: String,
     dead: Vec<Dead>,
+    // DL-103 `note:` lines for stderr.
+    notes: Vec<String>,
 }
 
 fn build(source: &str, service: Option<&str>, stored: Option<&std::path::Path>) -> Checked<Build> {
@@ -3587,7 +3784,7 @@ fn build_with_refusals(
         }
         _ => "",
     };
-    let (dead, refusals) = match stored {
+    let (dead, refusals, notes) = match stored {
         Some(path) => {
             let text = std::fs::read_to_string(path)
                 .map_err(|e| format!("cannot read --stored input: {}", e.kind()))?;
@@ -3596,12 +3793,13 @@ fn build_with_refusals(
             (
                 checker.dead_lines(&snapshot),
                 checker.refusals(&snapshot, &label),
+                snapshot.notes,
             )
         }
         None if !program.effects.is_empty() || !program.retires.is_empty() => {
             return Err("error: stored TYPE VERSIONS unknown: a source with an effect or a RETIRE LINE needs --stored SNAPSHOT.jsonl (an unknown store is not an empty store)".into());
         }
-        None => (Vec::new(), BTreeMap::new()),
+        None => (Vec::new(), BTreeMap::new(), Vec::new()),
     };
     let types = Types {
         newest: program
@@ -3618,6 +3816,7 @@ fn build_with_refusals(
         Build {
             code: checker.emit(service),
             dead,
+            notes,
         },
         refusals,
         types,
@@ -4048,6 +4247,9 @@ fn main() {
         std::io::stdout()
             .write_all(built.code.as_bytes())
             .map_err(|e| format!("cannot write output: {}", e.kind()))?;
+        for note in &built.notes {
+            eprintln!("{note}");
+        }
         if let Some(stored) = stored {
             let stored = stored.display().to_string();
             for dead in &built.dead {
@@ -4229,6 +4431,7 @@ mod tests {
         let still_dead = |_: &str| -> Checked<Build> {
             Ok(Build {
                 code: String::new(),
+                notes: Vec::new(),
                 dead: vec![Dead {
                     range: 0..1,
                     form: "retire forced.line keep 1 days".into(),
