@@ -27,8 +27,10 @@ The generated decode reads an EFFECT output field whose TYPE has a constructor. 
 | Signature 1, last clause | `{"status":"refunded","decline_reason":""}` | `Unknown("refunded")`, `unknown_fields = ["state"]` (span attribute and record key) |
 | Signature 2 (one parameter) | `"state": "ok"` | `Authorized` |
 | No match | wrong TYPE, missing key, Int | typed reject `decode` |
+| Two object signatures share a key (DL-085) | `{status, decline_reason, code}` | the variant of signature 1 (`SHARED` source) |
+| Same source, signature 2 only | `{status, code}` | the variant of signature 2 |
 | Record constructor accepts | `"amount": {"value":"12.50","currency":"EUR"}` | the Amount value |
-| Record constructor fails | `{"value":"1","currency":""}` | typed reject `constructor` (S6, open) |
+| Record constructor fails | `{"value":"1","currency":""}` | typed reject `constructor` (S6, Repair, R4) |
 | Record constructor, missing key | `{"value":"1"}` | typed reject `decode` |
 | Stray key | `state` with keys `code` and `extra` | `unknown_keys = ["state.extra"]` (S8) |
 | REPLAY RUN | stored records 2 and 3 | `Declined(...)`, `Pending` |
@@ -40,7 +42,7 @@ The generated decode reads an EFFECT output field whose TYPE has a constructor. 
 ## Exclusions
 
 - A constructor on the EFFECT output TYPE itself (the flat body of DL-099), on the input TYPE and on a failure TYPE. D6B-19 stays there (S3).
-- Int parameters in a decode signature. EFFECT outputs decode String fields only (S4).
+- Int parameters in a decode signature. EFFECT outputs decode String fields only (S4). A constructor TYPE with an Int parameter in an output field gets the slice 1 text `slice 1 decodes String fields only, not T.F` (R3).
 - DL-103 counts for a constructor clause that maps a kept value now (S11).
 - MIGRATE STEP forms `quarantine` and `retire` (DL-102 sketch).
 - Lists as an external return TYPE (DL-084 "later").
@@ -49,4 +51,6 @@ The generated decode reads an EFFECT output field whose TYPE has a constructor. 
 
 - Fixture: `experiments/0004-generated-replay/slice6/decode-ctor/orders.beaml`.
 - RECORD SNAPSHOTS: `slice6/decode-ctor/stored.jsonl`, `stored-fail.jsonl`, `stored-nomatch.jsonl` (hand-built, fingerprint by D6B-38).
-- Test: `experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py`.
+- Test: `experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py`. 7 tests (RED repair: 7 of 7 FAIL).
+- Changed step 3 test: `tests/slice6_constructor_test.py` `test_constructor_type_in_an_effect_output_field` expects `effect payments.authorize: slice 1 decodes String fields only, not P.n` (notes.md R3). Every other step 3 test stays.
+- Depends on: [../slice6b-struct-order/](../slice6b-struct-order/) GREEN (notes.md R5).

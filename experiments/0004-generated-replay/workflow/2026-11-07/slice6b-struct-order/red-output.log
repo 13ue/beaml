@@ -1,0 +1,27 @@
+compiler: /private/tmp/claude-502/-Users-lennart-Projects-beaml/5a9e3a40-d152-4a88-a91b-9ddd9a8f3732/scratchpad/basecd37/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+.F
+======================================================================
+FAIL: test_effect_module_with_pure_record_failure_compiles (__main__.Slice6StructOrder.test_effect_module_with_pure_record_failure_compiles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_struct_order_test.py", line 47, in test_effect_module_with_pure_record_failure_compiles
+    self.assertEqual(0, beam.returncode, "elixirc failed:\n" + beam.stdout + beam.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : elixirc failed:
+    error: BeamlSpike.Bad.__struct__/1 is undefined, cannot expand struct BeamlSpike.Bad. Make sure the struct name is correct. If the struct name exists and is correct but it still cannot be found, you likely have cyclic module usage in your code
+    │
+ 24 │   defp __beaml_check(<<>>), do: {:error, %__MODULE__.Bad{}}
+    │                                          ^
+    │
+    └─ /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6fail-x3s_1x0z/beam/generated.ex:24:42: BeamlSpike.__beaml_check/1
+
+
+== Compilation error in file /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6fail-x3s_1x0z/beam/generated.ex ==
+** (CompileError) /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6fail-x3s_1x0z/beam/generated.ex: cannot compile module BeamlSpike (errors have been logged)
+
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.637s
+
+FAILED (failures=1)

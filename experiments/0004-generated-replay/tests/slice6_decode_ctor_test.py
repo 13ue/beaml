@@ -107,6 +107,33 @@ DROPS = ('type Order { order_id: String }\n'
          'type PaymentError { reason: String }\n'
          'effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")\n'
          'fn place order: Order -> Payment ! PaymentError = order |> payments.authorize\n')
+# DL-085 between signatures (RED review objection 3): two object signatures share the key status.
+SHARED = ('type Order { order_id: String }\n'
+          'enum Pick { ByReason  ByCode  Unknown(String) }\n'
+          'fn Pick status: String, decline_reason: String -> Pick\n'
+          'fn Pick "ok", _ -> Pick = ByReason\n'
+          'fn Pick other, _ -> Pick = Unknown(other)\n'
+          'fn Pick status: String, code: String -> Pick\n'
+          'fn Pick "ok", _ -> Pick = ByCode\n'
+          'fn Pick other, _ -> Pick = Unknown(other)\n'
+          'type Payment { order_id: String state: Pick }\n'
+          'type PaymentError { reason: String }\n'
+          'effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")\n'
+          'fn place order: Order -> Payment ! PaymentError = order |> payments.authorize\n')
+SHARED_HELPERS = r'''
+pick = fn state ->
+  body = :json.encode(%{"order_id" => "order-1", "state" => state}) |> IO.iodata_to_binary()
+  BeamlSpike.__beaml_attempt__(fn -> BeamlSpike.__beaml_result_payments_authorize(body) end)
+end
+'''
+PICKED = '{:ok, %%{"order_id" => "order-1", "state" => {"Pick", "%s", []}}}'
+SHARED_CASES = {
+    # A value with the keys of both signatures: the first signature in source order wins (DL-085).
+    "both_signatures_match_first_wins": ('pick.(%%{"status" => "ok", "decline_reason" => "", "code" => "x"}) == %s'
+                                         % (PICKED % "ByReason")),
+    # Signature 2 is reachable: its keys only.
+    "second_signature_alone": 'pick.(%%{"status" => "ok", "code" => "x"}) == %s' % (PICKED % "ByCode"),
+}
 HELP_MIGRATE = "  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Payment (DL-102)"
 
 
@@ -114,11 +141,17 @@ class Slice6DecodeCtor(unittest.TestCase):
     maxDiff = None
     setUp = sf.Slice6Failure.setUp
     compile = sf.Slice6Failure.compile
-    build = sd.Slice6Decode.build
     assert_rejected = sd.Slice6Decode.assert_rejected
 
-    def run_runtime(self, cases):
-        stdout, _ = self.build(STORED)
+    def build(self, stored, source=ORDERS):
+        # RED review objection 1: the step 8 fixture, not the step 7 ORDERS of slice6_decode_test.py.
+        code, stdout, stderr = self.compile(source, ["--stored", str(stored)])
+        self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+                         "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+        return stdout, stderr
+
+    def run_runtime(self, cases, source=ORDERS, stored=STORED, helpers=HELPERS):
+        stdout, _ = self.build(stored, source)
         out = self.work / "beam"
         out.mkdir()
         (out / "generated.ex").write_text(stdout)
@@ -127,7 +160,7 @@ class Slice6DecodeCtor(unittest.TestCase):
                                str(out / "generated.ex")], capture_output=True, text=True)
         self.assertEqual(0, beam.returncode, "elixirc failed:\n" + beam.stdout + beam.stderr)
         listed = ",\n".join('  {"%s", fn -> %s end}' % item for item in cases.items())
-        (out / "checks.exs").write_text(sf.RUNTIME_HEAD + HELPERS + "\ncases = [\n" + listed + "\n]\n" + sf.RUNTIME_TAIL)
+        (out / "checks.exs").write_text(sf.RUNTIME_HEAD + helpers + "\ncases = [\n" + listed + "\n]\n" + sf.RUNTIME_TAIL)
         run = subprocess.run(["elixir", "-pa", str(out), str(out / "checks.exs")], capture_output=True, text=True)
         results = dict(line.rsplit(" ", 1) for line in run.stdout.splitlines() if line.endswith((" PASS", " FAIL")))
         for name in cases:
@@ -146,6 +179,9 @@ class Slice6DecodeCtor(unittest.TestCase):
 
     def test_runtime_replay(self):
         self.run_runtime(REPLAY_CASES)
+
+    def test_runtime_first_signature_wins(self):
+        self.run_runtime(SHARED_CASES, SHARED, sf.EMPTY_STORED, SHARED_HELPERS)
 
     # Reject cases.
 

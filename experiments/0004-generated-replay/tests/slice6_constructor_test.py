@@ -235,7 +235,10 @@ class Slice6Constructor(unittest.TestCase):
 
     def test_constructor_type_in_an_effect_output_field(self):
         self.assert_rejected(HEAD + "type O { reason: String }\ntype I { id: String }\ntype P { n: NonZeroInt }\n"
-                             + EFFECT % ("I", "P", "O"), effect_reject("output field P.n"))
+                             + EFFECT % ("I", "P", "O"),
+                             # Step 8 lifts D6B-19 for output fields (slice6b-decode-constructor S3); an Int
+                             # parameter stays out (S4), so the slice 1 field rule names the field (RED repair R3).
+                             "effect payments.authorize: slice 1 decodes String fields only, not P.n")
 
     def test_constructor_type_as_effect_failure(self):
         self.assert_rejected("type F { reason: String }\nfn F r: String -> F = F { reason: r }\n"
