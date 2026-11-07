@@ -217,7 +217,7 @@ class RecordV3(unittest.TestCase):
 
     def test_V8_guard_live_status_reason(self):
         # Guard: the live non-200 branch fails with reason "status", the reason V5 writes into the record.
-        stdout, _ = self.built(ORDERS, EMPTY)
+        stdout, _ = self.built(ORDERS, EMPTY, "BeamlSpike")  # arms/gen has no ENTRY LINE (Q6E-1 C)
         self.assertIn("else: __beaml_fail_payments_authorize(%s)" % sr.b(b"status"), stdout)
 
     # V11: the ENTRY RECORD writer `Replay.entry_record/2` and the RESPONSE RECORD of the same flow (6d harness).

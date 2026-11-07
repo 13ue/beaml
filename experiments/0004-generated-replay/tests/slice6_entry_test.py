@@ -3,8 +3,9 @@
 Ledger: workflow/2026-11-07/slice6d-inbound-effect/ (plan.md with "Plan repair", decisions.md, red-plan.md). The
 OWNER answers DL-130 to DL-134 override the plan defaults; red-plan.md maps each plan N-test onto them.
 Line form (DL-130): `effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> place`; the head TYPEs
-equal the TYPEs of the target fn (drift rule). Host call (DL-131): `BeamlSpike.ui_place(params)`. Reject (DL-133):
-`{:error, %BeamlSpike.Rejected{reason: "decode" | "constructor"}}`. Stored ENTRY RECORDS (DL-134): `--stored S` also
+equal the TYPEs of the target fn (drift rule). Host call (DL-131): `Orders.ui_place(params)`. Reject (DL-133):
+`{:error, %Orders.Rejected{reason: "decode" | "constructor"}}`. Slice 6e (Q6E-1 C, Q6E-2 A): the module of an ENTRY
+LINE source is named from the stem (orders -> Orders, echo -> Echo, count -> Count; a text source case.beaml -> Case). Stored ENTRY RECORDS (DL-134): `--stored S` also
 reads `entries.jsonl` beside S and runs the field constructors and literals of the input TYPE (DL-102, DL-122, DL-124).
 Fixtures: slice6/entry/ (orders, echo, count, stored/, bad/). Expected values come from the plan, the decision log and
 red-plan.md, never from the new compiler. Guards pass before and after: H2, N13, the elixirc probe.
@@ -70,7 +71,6 @@ BAD_CASES = {
     "drift_failure": drift("ui.place", "failure", "Declined", "PaymentError", "place"),
     "drift_failure_head_none": drift("ui.place", "failure", "none", "PaymentError", "place"),
     "drift_failure_fn_none": drift("ui.echo", "failure", "NoCurrency", "none", "echo"),
-    "two_entries": "error: effect ui.again: slice 6d supports one ENTRY LINE per source (D6B-147)",
     "transport_route": ("error: effect ui.place: slice 6d supports the inbound transport ui.event only "
                         "(HTTP route entries come later)"),
     "constructor_target": "error: effect ui.amount: Amount is a constructor; an ENTRY LINE calls a fn (DL-120)",
@@ -164,8 +164,8 @@ end
 rt = fn term -> term |> :json.encode() |> IO.iodata_to_binary() |> :json.decode() end
 entries = fn caps -> for {"entries", r} <- caps, do: rt.(r) end
 responses = fn caps -> for {"responses", r} <- caps, do: rt.(r) end
-rej = fn reason -> {:error, struct(BeamlSpike.Rejected, reason: reason)} end
-amount = fn -> struct(BeamlSpike.Amount, value: "12.50", currency: "EUR") end
+rej = fn reason -> {:error, struct(Module.concat(mod, Rejected), reason: reason)} end
+amount = fn -> struct(Module.concat(mod, Amount), value: "12.50", currency: "EUR") end
 closed = fn f ->
   {:ok, l} = :gen_tcp.listen(0, [])
   {:ok, p} = :inet.port(l)
@@ -186,52 +186,52 @@ ECHO_OK = '{:ok, %%{"order_id" => "order-1", "amount" => amount.(), "channel" =>
 
 ECHO_CASES = {
     # N2: the DL-101 decode through the field constructor and the ENUM LITERAL.
-    "N2_decode_through_the_constructor": "BeamlSpike.ui_echo(good) == %s" % (ECHO_OK % ("Web", "")),
-    "N3_literal": 'BeamlSpike.ui_echo(Map.put(good, "channel", "app-channel")) == %s' % (ECHO_OK % ("App", "")),
-    "N3_unknown_keeps_the_value": ('BeamlSpike.ui_echo(Map.put(good, "channel", "phone")) == %s'
+    "N2_decode_through_the_constructor": "Echo.ui_echo(good) == %s" % (ECHO_OK % ("Web", "")),
+    "N3_literal": 'Echo.ui_echo(Map.put(good, "channel", "app-channel")) == %s' % (ECHO_OK % ("App", "")),
+    "N3_unknown_keeps_the_value": ('Echo.ui_echo(Map.put(good, "channel", "phone")) == %s'
                                    % (ECHO_OK % ("Unknown", '"phone"'))),
-    "N4_extra_key_passes": 'BeamlSpike.ui_echo(Map.put(good, "_csrf_token", "x")) == %s' % (ECHO_OK % ("Web", "")),
+    "N4_extra_key_passes": 'Echo.ui_echo(Map.put(good, "_csrf_token", "x")) == %s' % (ECHO_OK % ("Web", "")),
     # N4, D6B-132, D6B-143: a typed reject, never a raise.
-    "N4_constructor": 'BeamlSpike.ui_echo(put_in(good, ["amount", "currency"], "")) == %s' % CTOR,
-    "N4_missing_key": 'BeamlSpike.ui_echo(Map.delete(good, "order_id")) == %s' % DECODE,
-    "N4_wrong_shape": 'BeamlSpike.ui_echo(Map.put(good, "order_id", 7)) == %s' % DECODE,
-    "N4_nil": "BeamlSpike.ui_echo(nil) == %s" % DECODE,
-    "N4_list": "BeamlSpike.ui_echo([good]) == %s" % DECODE,
-    "N4_atom_keys": ('BeamlSpike.ui_echo(%%{order_id: "order-1", amount: %%{"value" => "12.50", "currency" => "EUR"}, '
+    "N4_constructor": 'Echo.ui_echo(put_in(good, ["amount", "currency"], "")) == %s' % CTOR,
+    "N4_missing_key": 'Echo.ui_echo(Map.delete(good, "order_id")) == %s' % DECODE,
+    "N4_wrong_shape": 'Echo.ui_echo(Map.put(good, "order_id", 7)) == %s' % DECODE,
+    "N4_nil": "Echo.ui_echo(nil) == %s" % DECODE,
+    "N4_list": "Echo.ui_echo([good]) == %s" % DECODE,
+    "N4_atom_keys": ('Echo.ui_echo(%%{order_id: "order-1", amount: %%{"value" => "12.50", "currency" => "EUR"}, '
                      'channel: "web"}) == %s' % DECODE),
-    "N4_tuple_value": 'BeamlSpike.ui_echo(Map.put(good, "order_id", {:a})) == %s' % DECODE,
-    "N4_nested_nil": 'BeamlSpike.ui_echo(put_in(good, ["amount", "currency"], nil)) == %s' % DECODE,
-    "N4_nested_atom_value": 'BeamlSpike.ui_echo(Map.put(good, "channel", :web)) == %s' % DECODE,
-    "N4_nested_atom_key": ('BeamlSpike.ui_echo(Map.put(good, "amount", %%{value: "12.50", currency: "EUR"})) == %s'
+    "N4_tuple_value": 'Echo.ui_echo(Map.put(good, "order_id", {:a})) == %s' % DECODE,
+    "N4_nested_nil": 'Echo.ui_echo(put_in(good, ["amount", "currency"], nil)) == %s' % DECODE,
+    "N4_nested_atom_value": 'Echo.ui_echo(Map.put(good, "channel", :web)) == %s' % DECODE,
+    "N4_nested_atom_key": ('Echo.ui_echo(Map.put(good, "amount", %%{value: "12.50", currency: "EUR"})) == %s'
                            % DECODE),
-    "N4_struct_value": 'BeamlSpike.ui_echo(Map.put(good, "amount", amount.())) == %s' % DECODE,
-    "N4_pid_ref_fun": ("Enum.map([self(), make_ref(), fn -> 1 end], &BeamlSpike.ui_echo/1) == [%s, %s, %s]"
+    "N4_struct_value": 'Echo.ui_echo(Map.put(good, "amount", amount.())) == %s' % DECODE,
+    "N4_pid_ref_fun": ("Enum.map([self(), make_ref(), fn -> 1 end], &Echo.ui_echo/1) == [%s, %s, %s]"
                        % (DECODE, DECODE, DECODE)),
     # DL-133: one generated struct with the key reason only, also in a source without a failure TYPE.
-    "DL133_rejected_shape": "Map.keys(struct(BeamlSpike.Rejected)) |> Enum.sort() == [:__struct__, :reason]",
+    "DL133_rejected_shape": "Map.keys(struct(Echo.Rejected)) |> Enum.sort() == [:__struct__, :reason]",
     # N5 (D6B-133, D6B-134): a pure target gives the root span only; N8 (D6B-136): no record.
-    "N5_echo_root_span_only": ('run.(fn -> BeamlSpike.ui_echo(good) end) |> elem(1) == '
+    "N5_echo_root_span_only": ('run.(fn -> Echo.ui_echo(good) end) |> elem(1) == '
                                '[{:span, "echo.ui.echo", :server, nil, nil}]'),
-    "N8_echo_writes_no_record": "run.(fn -> BeamlSpike.ui_echo(good) end) |> elem(2) == []",
+    "N8_echo_writes_no_record": "run.(fn -> Echo.ui_echo(good) end) |> elem(2) == []",
 }
 COUNT_CASES = {
-    "N4_string_in_int_field": 'BeamlSpike.ui_count(%%{"qty" => "500"}) == %s' % DECODE,  # D6B-144
-    "N4_int_control": 'BeamlSpike.ui_count(%{"qty" => 500}) == {:ok, %{"qty" => 500}}',
+    "N4_string_in_int_field": 'Count.ui_count(%%{"qty" => "500"}) == %s' % DECODE,  # D6B-144
+    "N4_int_control": 'Count.ui_count(%{"qty" => 500}) == {:ok, %{"qty" => 500}}',
 }
 PAID = ex({"order_id": "order-1", "status": "authorized"})
-CSRF = 'run.(fn -> BeamlSpike.ui_place(Map.put(good, "_csrf_token", %s)) end)' % ex(TOKEN)
+CSRF = 'run.(fn -> Orders.ui_place(Map.put(good, "_csrf_token", %s)) end)' % ex(TOKEN)
 ORDERS_CASES = {
     # N5: the root span is the parent of the prepared event and of the EFFECT span.
-    "N5_root_span_and_children": ('run.(fn -> BeamlSpike.ui_place(good) end) |> Tuple.delete_at(2) == {{:ok, %s}, '
+    "N5_root_span_and_children": ('run.(fn -> Orders.ui_place(good) end) |> Tuple.delete_at(2) == {{:ok, %s}, '
                                   '[%s, {:event, "payment_request_prepared", "to_order", "orders.ui.place"}, '
                                   '{:span, "orders.payments.authorize", :client, "order-1", "orders.ui.place"}]}'
                                   % (PAID, ROOT)),
     # N6: a reject stays inside the root span and sets reason there.
-    "N6_reject_inside_the_root_span": ('run.(fn -> BeamlSpike.ui_place(nil) end) |> Tuple.delete_at(2) == '
+    "N6_reject_inside_the_root_span": ('run.(fn -> Orders.ui_place(nil) end) |> Tuple.delete_at(2) == '
                                        '{%s, [%s, {:attr, :reason, "decode", "orders.ui.place"}]}' % (DECODE, ROOT)),
     # N7: a domain failure passes as the failure TYPE of the fn, not as Rejected.
-    "N7_domain_failure_passes": ('closed.(fn -> BeamlSpike.ui_place(good) end) == '
-                                 '{:error, struct(BeamlSpike.PaymentError, reason: "transport")}'),
+    "N7_domain_failure_passes": ('closed.(fn -> Orders.ui_place(good) end) == '
+                                 '{:error, struct(Orders.PaymentError, reason: "transport")}'),
     # N8 (D6B-135): one ENTRY RECORD with the projection, before the RESPONSE RECORD.
     "N8_record_kinds": '%s |> elem(2) |> Enum.map(&elem(&1, 0)) == ["entries", "responses"]' % CSRF,
     "N8_entry_keys": "(%s |> elem(2) |> entries.() |> hd() |> Map.keys() |> Enum.sort()) == %s" % (CSRF, ex(ENTRY_KEYS)),
@@ -246,41 +246,43 @@ ORDERS_CASES = {
                                   '|> IO.iodata_to_binary(), %s)' % (CSRF, ex(TOKEN))),
     "N8_unknown_keys_root_attribute": ('Enum.member?(%s |> elem(1), {:attr, :unknown_keys, ["_csrf_token"], '
                                        '"orders.ui.place"})' % CSRF),
-    "N8_kept_value_names_the_field": ('run.(fn -> BeamlSpike.ui_place(Map.put(good, "channel", "phone")) end) |> elem(2) '
+    "N8_kept_value_names_the_field": ('run.(fn -> Orders.ui_place(Map.put(good, "channel", "phone")) end) |> elem(2) '
                                       '|> entries.() |> hd() |> Map.get("unknown_fields") == ["channel"]'),
     # N9 (D6B-137): the REPLAY RUN from the ENTRY RECORD, through JSON as read from JSONL.
-    "N9_replay_from_the_entry": ('(fn -> {_, _, caps} = run.(fn -> BeamlSpike.ui_place(good) end); '
-                                 'BeamlSpike.Replay.entry(hd(entries.(caps)), responses.(caps)) end).() == {:ok, %s}'
+    "N9_replay_from_the_entry": ('(fn -> {_, _, caps} = run.(fn -> Orders.ui_place(good) end); '
+                                 'Orders.Replay.entry(hd(entries.(caps)), responses.(caps)) end).() == {:ok, %s}'
                                  % PAID),
     "N9_changed_value_is_digest_mismatch": (
-        '(fn -> {_, _, caps} = run.(fn -> BeamlSpike.ui_place(good) end); e = hd(entries.(caps)); '
-        'BeamlSpike.Replay.entry(put_in(e, ["value", "order_id"], "order-2"), responses.(caps)) end).() '
+        '(fn -> {_, _, caps} = run.(fn -> Orders.ui_place(good) end); e = hd(entries.(caps)); '
+        'Orders.Replay.entry(put_in(e, ["value", "order_id"], "order-2"), responses.(caps)) end).() '
         '== {:error, :body_digest_mismatch}'),
     "N9_other_operation_is_operation_mismatch": (
-        '(fn -> {_, _, caps} = run.(fn -> BeamlSpike.ui_place(good) end); '
-        'BeamlSpike.Replay.entry(Map.put(hd(entries.(caps)), "operation", "ui.other"), responses.(caps)) end).() '
+        '(fn -> {_, _, caps} = run.(fn -> Orders.ui_place(good) end); '
+        'Orders.Replay.entry(Map.put(hd(entries.(caps)), "operation", "ui.other"), responses.(caps)) end).() '
         '== {:error, :operation_mismatch}'),
     "N9_constructor_reject_replays_as_reject": (
-        '(fn -> {r, _, caps} = run.(fn -> BeamlSpike.ui_place(put_in(good, ["amount", "currency"], "")) end); '
-        '{r, length(responses.(caps)), BeamlSpike.Replay.entry(hd(entries.(caps)), [])} end).() == {%s, 0, %s}'
+        '(fn -> {r, _, caps} = run.(fn -> Orders.ui_place(put_in(good, ["amount", "currency"], "")) end); '
+        '{r, length(responses.(caps)), Orders.Replay.entry(hd(entries.(caps)), [])} end).() == {%s, 0, %s}'
         % (CTOR, CTOR)),
     # DL-138: a reject record names its capture outcome.
     "DL138_constructor_reject_outcome": (
-        'run.(fn -> BeamlSpike.ui_place(put_in(good, ["amount", "currency"], "")) end) |> elem(2) |> entries.() |> hd() '
+        'run.(fn -> Orders.ui_place(put_in(good, ["amount", "currency"], "")) end) |> elem(2) |> entries.() |> hd() '
         '|> Map.take(["outcome", "reason"]) == %s' % ex({"outcome": "rejected", "reason": "constructor"})),
     # D6B-145: a term check reject writes value null; the REPLAY RUN gives the live outcome.
     "N9_nested_nil_record_holds_null_and_replays_as_decode": (
-        '(fn -> {_, _, caps} = run.(fn -> BeamlSpike.ui_place(put_in(good, ["amount", "currency"], nil)) end); '
+        '(fn -> {_, _, caps} = run.(fn -> Orders.ui_place(put_in(good, ["amount", "currency"], nil)) end); '
         'e = hd(entries.(caps)); {Map.take(e, ["value", "unknown_keys", "value_sha256", "outcome", "reason"]), '
-        'BeamlSpike.Replay.entry(e, [])} end).() == {%s, %s}'
+        'Orders.Replay.entry(e, [])} end).() == {%s, %s}'
         % (ex({"value": None, "unknown_keys": [], "value_sha256": st.value_sha256(None), "outcome": "rejected",
                "reason": "decode"}), DECODE)),
 }
 HOST = '''defmodule Host do
-  def handle_event("place", params, socket), do: {BeamlSpike.ui_place(params), socket}
+  def handle_event("place", params, socket), do: {Orders.ui_place(params), socket}
 end
 '''
-UNDEFINED = "BeamlSpike.ui_place/1 is undefined or private"
+# Slice 6e (Q6E-1 C): without its ENTRY LINE the source is BeamlSpike, so the host sees "module Orders is not available";
+# with it, "is undefined or private". The common prefix covers both.
+UNDEFINED = "Orders.ui_place/1 is undefined"
 
 
 class Slice6Entry(unittest.TestCase):
@@ -309,9 +311,9 @@ class Slice6Entry(unittest.TestCase):
                 self.assertNotIn(word, text, "action events must not record source text or stored values")
         return result.returncode, result.stdout, result.stderr
 
-    def built(self, source, extra=()):
+    def built(self, source, extra=(), module="Orders"):
         code, stdout, stderr = self.compile(source, extra)
-        self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+        self.assertEqual((0, True), (code, "defmodule %s do" % module in stdout),
                          "expected exit 0 and Elixir on stdout; stderr: " + stderr)
         return stdout, stderr
 
@@ -329,12 +331,12 @@ class Slice6Entry(unittest.TestCase):
                               capture_output=True, text=True, timeout=120)
         return out, beam
 
-    def runtime(self, source, cases, extra=()):
-        stdout, _ = self.built(source, extra)
+    def runtime(self, source, cases, extra=(), module="Orders"):
+        stdout, _ = self.built(source, extra, module)
         out, beam = self.elixirc(stdout)
         self.assertEqual(0, beam.returncode, "setup: elixirc failed:\n" + beam.stdout + beam.stderr)
         listed = ",\n".join('  {"%s", fn -> %s end, true}' % (name, check) for name, check in cases.items())
-        (out / "checks.exs").write_text(ser.RUNTIME_HEAD + HELPERS + "\ncases = [\n" + listed + "\n]\n"
+        (out / "checks.exs").write_text(ser.RUNTIME_HEAD + "mod = %s\n" % module + HELPERS + "\ncases = [\n" + listed + "\n]\n"
                                         + ser.RUNTIME_TAIL)
         run = subprocess.run(["elixir", "-pa", str(out), str(out / "checks.exs")], capture_output=True, text=True,
                              timeout=120)
@@ -347,22 +349,28 @@ class Slice6Entry(unittest.TestCase):
     # N1 (first RED): the ENTRY LINE parses and gives one host function per line (DL-130, DL-131).
 
     def test_n1_entry_line_gives_one_function(self):
-        for source, extra, name in ((ORDERS, EMPTY, "ui_place"), (ECHO, (), "ui_echo"), (COUNT, (), "ui_count")):
+        for source, extra, name, module in ((ORDERS, EMPTY, "ui_place", "Orders"), (ECHO, (), "ui_echo", "Echo"),
+                                            (COUNT, (), "ui_count", "Count")):
             with self.subTest(source.name):
-                stdout, stderr = self.built(source, extra)
+                stdout, stderr = self.built(source, extra, module)
                 self.assertEqual((True, ""), ("  def %s(" % name in stdout, stderr))
 
     def test_n1b_event_name_is_free_text(self):
         # R6D-02: names come from the head; the UI EVENT String may hold a dash.
-        self.built(ECHO.read_text().replace('ui.event("echo")', 'ui.event("echo-order")'))
+        self.built(ECHO.read_text().replace('ui.event("echo")', 'ui.event("echo-order")'), module="Case")
+
+    def test_n1c_two_entry_lines_to_one_flow_build(self):
+        # Slice 6e (D6B-197, D6B-207): the former D6B-147 reject compiles; each ENTRY LINE gives its function.
+        stdout, _ = self.built(EXPERIMENT / "slice6" / "entry" / "two_entries.beaml", EMPTY, "TwoEntries")
+        self.assertEqual((1, 1), (stdout.count("  def ui_place("), stdout.count("  def ui_again(")))
 
     # Runtime: decode, reject, root span, ENTRY RECORD, REPLAY RUN (N2 to N9, DL-133).
 
     def test_n2_to_n5_echo_runtime(self):
-        self.runtime(ECHO, ECHO_CASES)
+        self.runtime(ECHO, ECHO_CASES, module="Echo")
 
     def test_n4_count_runtime(self):
-        self.runtime(COUNT, COUNT_CASES)
+        self.runtime(COUNT, COUNT_CASES, module="Count")
 
     def test_n5_to_n9_orders_runtime(self):
         self.runtime(ORDERS, ORDERS_CASES, EMPTY)
@@ -378,7 +386,7 @@ class Slice6Entry(unittest.TestCase):
         # Guard: the probe sees the removed function (DL-131). elixirc exits 0 here; the warning text decides.
         source = ORDERS.read_text()
         self.assertIn(ENTRY_LINE, source, "setup: the fixture lost its ENTRY LINE")
-        stdout, _ = self.built(source.replace(ENTRY_LINE, ""), EMPTY)
+        stdout, _ = self.built(source.replace(ENTRY_LINE, ""), EMPTY, "BeamlSpike")
         _, beam = self.elixirc(stdout, ("host.ex", HOST))
         self.assertIn(UNDEFINED, beam.stderr)
 
@@ -398,8 +406,9 @@ class Slice6Entry(unittest.TestCase):
                                           "type PlaceOrder { line: Line order_id: String")
         self.assertIn("line: Line", source, "setup: the echo fixture lost its PlaceOrder TYPE")
         self.runtime(source, {"O1_control_good_event": (
-            'match?({:ok, %{"line" => %{"note" => "n"}, "amount" => %BeamlSpike.Amount{}, '
-            '"channel" => {"Channel", "Web", []}}}, BeamlSpike.ui_echo(Map.put(good, "line", %{"note" => "n"})))')})
+            'match?({:ok, %{"line" => %{"note" => "n"}, "amount" => %Case.Amount{}, '
+            '"channel" => {"Channel", "Web", []}}}, Case.ui_echo(Map.put(good, "line", %{"note" => "n"})))')},
+                     module="Case")
 
     # N11 (R6D-06): fmt treats the ENTRY LINE like an EFFECT line.
 

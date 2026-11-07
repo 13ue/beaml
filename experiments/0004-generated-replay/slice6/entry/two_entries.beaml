@@ -1,4 +1,4 @@
-// Slice 6d reject case: two ENTRY LINES (D6B-129, D6B-147).
+// Slice 6e (D6B-197, D6B-207): two ENTRY LINES to one flow compile; slice 6d rejected them (D6B-147).
 type NoCurrency {}
 type Amount { value: String currency: String }
 fn Amount value: String, currency: String -> Amount ! NoCurrency
