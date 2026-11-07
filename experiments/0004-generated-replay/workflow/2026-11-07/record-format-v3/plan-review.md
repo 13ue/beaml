@@ -62,3 +62,36 @@ Two high objections (O1, O2), one medium (O3). Both blocking fixes are plan-text
 **Undo**
 → Missing-key detection dropped as low. → By: Opus (plan check record-v3)
 → Overlay `client_span_id` dropped (not run, DL-110). → By: Opus (plan check record-v3)
+
+## Re-check after plan repair
+
+**[Observed]** 2026-11-07, one round, new evidence only (plan.md and decisions.md "Plan repair (after plan check)", plan.json `repair`, D035, owner-review.md lines 45-54, DL-136, DL-138). `main.rs` read in the working tree (`check_stored`, `dead_lines`, the decode emit at line ~3523).
+By: Opus (plan re-check record-v3) for every finding and decision in this section.
+
+### Verdict: PASS
+
+O1 and O2 closed. O3 closed with one medium note. No new default decides M8 or M9. Three medium notes, none blocking.
+
+### Checked
+
+- **[Verified] O1 closed.** RV3-14 and plan.json `pin_steps` name all five sites with the right target: sites 2-4 (`EFFECT_OUTPUTS`, `BYTE_GUARD`, `byte-guard.json`) move in GREEN; sites 1 (`PIN`) and 5 (N13 `BASE`) go to the P2 GREEN hash in the next commit (`acf12d75` pattern). The wrong row "BASE → P2 base" is replaced; N13 keeps the full source set. Both tests compare `compiler_at(pin)` with HEAD, so the pin commit (tests only) makes them equal; the P2 bytes are proven only by the V18 diff proof against the P2 base compiler, with an allowed-hunk list (`Replay.record/3`, `Replay.entry_record/2`). Sound.
+- **[Verified] O2 closed.** QV3-8 B skips value checks, the path check (`groups` → `no_path`) and the W2 count (`snapshot.oldest`); orphans and `held` read every record. A false pass needs one of: skip on every record (V24 catches), skip of `held` too (V25 catches), skip keyed on `status` instead of `outcome` (V23, a 200 record, catches). **[Verified]** Consistent with DL-136/DL-121: the REPLAY RUN decode maps an unknown TYPE VERSION to `version = 0` → `:error`, so the replay also rejects such a record; skip and replay agree. Orphan check asks for a RETIRE LINE, not a MIGRATE STEP, so keeping it does not touch the DL-136 Because; it matches 6d `check_entries`.
+- **[Verified] O3 closed.** Count text `M rejected at capture` (no false "not replayable" for a checked bad-digest record), second line `digest not verified (P2b)`, D035 registered (trigger before 0005 TEST, next check at P2 TEST), QV3-7 and QV3-8 marked big in owner-review.md, docs phase marks DL-136 half built. RV3-18 (no register row) is acceptable: D035 is the tracked item.
+- **[Verified] No D036 decision.** M8 (failure struct as value) untouched. M9 (per-record lines in a block): the count and digest lines are summary lines, valid under M9 A and B; V21 keeps every block text. D036 trigger "before the record format v3 step" stays with the main agent.
+
+### Notes (medium, not blocking)
+
+- **N1 · medium · QV3-7 A hides the digest marker on the common file.** The digest gap exists for every file, but with M = 0 neither line prints, so an all-accepted file never shows `digest not verified (P2b)`. Not a false pass: a bad-digest record is still checked (stricter, loud). Not silent: owner-review.md line 49 states "both lines only when M > 0". Resolving change: add to the QV3-7 challenge "with A, a file with M = 0 never shows the digest marker", or print the digest line always (independent of M).
+- **N2 · medium · The W2 skip has no test.** V22-V25 prove the path and held rules; nothing proves that a rejected record leaves `snapshot.oldest`. Wrong either way gives only a different DEAD LINE result (`--remove-dead`), no wrong block. Resolving test: one rejected v1 record beside a `migrate T v1 -> v2` gives the W2 dead line; the `accepted` twin does not.
+- **N3 · medium · Diff proof fixture side unclear.** "Must be equal: every stderr over a converted fixture" does not say that the pre-P2 side reads the v2 original and the P2 side reads the converted v3 file (pre-P2 rejects v3). V15 states it for one source only. Resolving change: one sentence in V18.
+
+### Decisions
+
+**Repair**
+→ PASS statt BLOCK, weil O1 and O2 closed with controls. → By: Opus (plan re-check record-v3)
+→ N1 medium statt high, weil conservative and stated in owner-review. → By: Opus (plan re-check record-v3)
+→ N2 medium statt high, weil no wrong block follows. → By: Opus (plan re-check record-v3)
+
+**Undo**
+→ N3 medium, one-sentence clarification. → By: Opus (plan re-check record-v3)
+→ RV3-18 (no register row) accepted. → By: Opus (plan re-check record-v3)
