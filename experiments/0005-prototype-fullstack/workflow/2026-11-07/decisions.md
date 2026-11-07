@@ -131,7 +131,7 @@ Chose: `run.py` seeds rows with committed writes (a submit in a non-sandbox test
 → By: Opus (PLAN exp0005)
 
 **P5-15 · Repair · N9 is blocked; its smallest form is `quarantine amount`.**
-Over: a `retire` or `redact` free (M5, M3) or a hand-built interim fate. Because: D026 keeps M3, M4, M5 parked until before the fate slice, and DL-102 gives no built MIGRATE STEP that frees a stricter constructor. Commits us to: 0005 shows the block, not the free, until P6. The N8 control (old source passes) is the only release shown.
+Over: a `retire` or `redact` free (M5, M3) or a hand-built interim fate. Because: D036 keeps M3, M4, M5 parked until before the fate slice, and DL-102 gives no built MIGRATE STEP that frees a stricter constructor. Commits us to: 0005 shows the block, not the free, until P6. The N8 control (old source passes) is the only release shown.
 → By: Opus (PLAN exp0005)
 
 **P5-16 · Undo · Entry input fields are Strings, constructor TYPES or enums only.**
@@ -156,7 +156,7 @@ Chose: the first behaviour RED is N2 on the missing `/orders/new` route. Over: a
 ### Repair and Undo
 
 **P5-18 · Repair · P2 changes record keys only.**
-Chose: P2 builds the DL-143 core and extras; no failure struct as an input value (M8), the DL-124 block text keeps its line shape (M9). Over: P2 waits for D026. Because: P2 then decides neither parked item. Commits us to: a P2 worker that must change M8 or M9 stops and reports a blocker.
+Chose: P2 builds the DL-143 core and extras; no failure struct as an input value (M8), the DL-124 block text keeps its line shape (M9). Over: P2 waits for D036. Because: P2 then decides neither parked item. Commits us to: a P2 worker that must change M8 or M9 stops and reports a blocker.
 → By: Fable
 
 **P5-19 · Repair · N8b and N8c; every snapshot writes `snapshot-meta.json`.**

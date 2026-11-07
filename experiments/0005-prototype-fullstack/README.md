@@ -51,7 +51,7 @@ By: Opus (PLAN exp0005) for every proposal on this page.
 ## Exclusions
 
 - `db.get`, filters in `OrderQuery`, pagination (Q5-1, Q5-2 defaults only).
-- FATE OPERATIONS. N9 is BLOCKED until the fate slice (DL-125); D026 keeps M3, M4, M5 parked before that slice.
+- FATE OPERATIONS. N9 is BLOCKED until the fate slice (DL-125); D036 keeps M3, M4, M5 parked before that slice.
 - `redact`, `retire` and `redacted` fields (M3, M5 untouched).
 - The host passes no failure struct back into generated code (M8 untouched).
 - No assertion on the number of record lines in a block text (M9 untouched). No assertion on the DL-102 help wording (M4 untouched).
@@ -83,6 +83,6 @@ All are separate implement-step tasks with their own ledgers. 0005 Solve/RED sta
 | P3 | Several ENTRY LINES and several EFFECTS per source (D6B-147; today `slice 1 supports one effect`) | not started |
 | P4 | `db.*` transport step: `db.put`, `db.list` on `effect` lines, host module call, row decode with MIGRATE CHAIN on read, `--stored` over rows, List TYPE (Q5-3) | not started |
 | P5 | Module name per source (Q5-6): generated module `Orders`, not `BeamlSpike` | not started |
-| P6 | Fate slice with `quarantine` (DL-125): only for N9 | blocked by D026 (M3, M4, M5) |
+| P6 | Fate slice with `quarantine` (DL-125): only for N9 | blocked by D036 (M3, M4, M5) |
 
 **[Verified]** Local tools seen on 2026-11-07: Elixir 1.18.1 / OTP 27, `phx_new` 1.8.5 archive, Postgres.app 17.11 (`initdb`, `pg_ctl`, `psql`), Docker, cargo. **[Unknown]** Network access for `mix deps.get` (hex.pm).

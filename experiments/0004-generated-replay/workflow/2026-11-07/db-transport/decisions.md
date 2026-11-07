@@ -3,7 +3,7 @@
 **[Proposal]** PLAN phase, 2026-11-07. Decisions that DL-127, DL-129, DL-137, DL-143 and the 0005 defaults (Q5-1 to Q5-10) do not settle.
 Classes follow Decision4. DL-144 (free run): every Migrate question has a built default, pinned by a test in RED and GREEN, and stays open until the OWNER signs it off (DL-139 rule). "Big" marks a default that touches syntax, a record format or a host-called name; those are appended to the 0005 [owner-review.md](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) under "Database transports (P4)".
 Every entry carries a `By:` line (DL-107). Workers record each taken default again in their `notes.md`.
-ID check: no `PDB-` or `QDB-` ID exists in `experiments/` or `wiki/` at this plan (grep). Parked D026 items (M3, M4, M5, M8, M9) are not decided here.
+ID check: no `PDB-` or `QDB-` ID exists in `experiments/` or `wiki/` at this plan (grep). Parked D036 items (M3, M4, M5, M8, M9) are not decided here.
 
 ## OWNER questions (Migrate, default built)
 

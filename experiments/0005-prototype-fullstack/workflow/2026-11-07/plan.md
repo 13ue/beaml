@@ -1,7 +1,7 @@
 # Plan: EXPERIMENT 0005, the first full-stack PROTOTYPE (Postgres, BEAML, LiveView)
 
 **[Proposal]** PLAN phase, 2026-11-07. Task records only. No production file, no test, no commit, no run.
-Decisions: DL-126, DL-127, DL-128, DL-129, DL-130 to DL-134, DL-137, DL-139, DL-141 to DL-143 and DL-144 (free run) in [the decision log](../../../../wiki/planning/decision-log.md). Also read: the slice 6d [plan](../../../0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/plan.md) and its fixture `experiments/0004-generated-replay/slice6/entry/orders.beaml`; D026 in [decisions to be made](../../../../wiki/planning/decisions-to-be-made.md); the [later candidate](../../../../wiki/planning/research-and-development.md#later-candidate--ecto-and-liveview) in the register; `experiments/0001-syntax-to-beam/src/main.rs` (CLI, `--stored`, generated module) at HEAD 5b7feb92; `experiments/0002-http-correlation/apps/probe_support`.
+Decisions: DL-126, DL-127, DL-128, DL-129, DL-130 to DL-134, DL-137, DL-139, DL-141 to DL-143 and DL-144 (free run) in [the decision log](../../../../wiki/planning/decision-log.md). Also read: the slice 6d [plan](../../../0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/plan.md) and its fixture `experiments/0004-generated-replay/slice6/entry/orders.beaml`; D036 in [decisions to be made](../../../../wiki/planning/decisions-to-be-made.md); the [later candidate](../../../../wiki/planning/research-and-development.md#later-candidate--ecto-and-liveview) in the register; `experiments/0001-syntax-to-beam/src/main.rs` (CLI, `--stored`, generated module) at HEAD 5b7feb92; `experiments/0002-http-correlation/apps/probe_support`.
 Design decisions and OWNER questions: [decisions.md](decisions.md) (P5-01 to P5-17, Q5-1 to Q5-9). Walk-through list: [owner-review.md](owner-review.md).
 By: Opus (PLAN exp0005) for every proposal in this file. Every Migrate question has a built default under DL-144: `By: Opus (PLAN exp0005, default, open)`.
 
@@ -27,7 +27,7 @@ Proposed terms (glossary entry in the docs phase before GREEN prose uses them): 
 | P3 | Several ENTRY LINES and EFFECTS per source (D6B-147) | two entries, two db EFFECTS in one source; `Replay` selects by operation | new, 0004 |
 | P4 | DB TRANSPORT step (DL-129) | see below | new, 0005 `workflow/<date>/db-transport/` |
 | P5 | Module name per source (Q5-6 default A) | `defmodule Orders`; `Orders.Rejected` | new, 0004 |
-| P6 | Fate slice, `quarantine` only (DL-125) | N9 only | **blocked**: D026 trigger says M3, M4, M5 come before the fate slice |
+| P6 | Fate slice, `quarantine` only (DL-125) | N9 only | **blocked**: D036 trigger says M3, M4, M5 come before the fate slice |
 
 **P4 content (planned in its own PLAN, listed here so nothing is lost).**
 - `db.put("records")`, `db.list("records")` and `db.get("records")` parse as transport kinds on `effect` lines.
@@ -118,7 +118,7 @@ Host tests in `app/test/prototype_test.exs` (`Phoenix.LiveViewTest`, `Ecto.Adapt
 - **N7 (MIGRATE CHAIN on read).** Seed one v1 row by SQL. Generate from `variants/order_v2.beaml`. `--stored` exits 0 (the `add` maps v1). `/orders` lists the row with `note` `""`. The row in the table still has `version = 1` (lazy, on read).
 - **N8 (stricter `Amount` blocks against live rows).** Submit `order-zero` with value `"0"` under `orders.beaml`. Build `variants/stricter.beaml` with `--stored` over the live table: exit non-zero; stderr names `Order`, the field `amount` and the constructor; stderr contains neither `order-zero` nor the stored value (DL-124). The Ecto migration directory is unchanged (hash). No assertion on the help line (M4) or on the number of record lines (M9).
   - **Control.** The same build with `orders.beaml` exits 0 (the block comes from the TYPE change, not from the data).
-- **N9 (a MIGRATE STEP frees N8). BLOCKED.** Smallest form: `migrate Order v1 -> v2 { quarantine amount }` (DL-125 form 1), then `--stored` exits 0 and `/orders` omits `order-zero`. Needs P6, and P6 waits for M3, M4, M5 (D026). `run.py` reports `blocked: fate slice (D026)`, never `pass`. `quarantine` itself touches no parked question; `retire` (M5) and `redact` (M3) are not offered.
+- **N9 (a MIGRATE STEP frees N8). BLOCKED.** Smallest form: `migrate Order v1 -> v2 { quarantine amount }` (DL-125 form 1), then `--stored` exits 0 and `/orders` omits `order-zero`. Needs P6, and P6 waits for M3, M4, M5 (D036). `run.py` reports `blocked: fate slice (D036)`, never `pass`. `quarantine` itself touches no parked question; `retire` (M5) and `redact` (M3) are not offered.
 - **N10 (removed entry stops the host build).** Generate from `variants/no_place.beaml`; `mix compile --warnings-as-errors` exits non-zero and names `Orders.ui_place/1` (DL-131). **[Unknown]** until the slice 6d RED probe result for Elixir 1.18.1; if the compiler only warns, `--warnings-as-errors` still fails, which is the assertion.
 - **N11 (no DDL from a TYPE change).** Across N7 and N8, `priv/repo/migrations/` and the `records` columns (`information_schema.columns`) stay equal to the N1 state.
 - **N12 (action events).** After N2 and N4, `.beaml/actions.jsonl` has one event per action with `result` `ok` and `rejected:constructor`; no line contains `order-1`, `12.50`, `EUR`, a path or source text. Compiler events follow the existing harness check.
@@ -139,7 +139,7 @@ Host tests in `app/test/prototype_test.exs` (`Phoenix.LiveViewTest`, `Ecto.Adapt
 2. 0005 Solve/RED: host skeleton (generator, secret edit, deps, migration) is setup, not behaviour; then RED N2 on the missing route.
 3. 0005 GREEN, TEST, review, docs. N9 stays blocked until P6.
 
-## Where 0005 touches the parked D026 items
+## Where 0005 touches the parked D036 items
 
 | Item | Touch | Plan |
 |---|---|---|
@@ -152,7 +152,7 @@ Host tests in `app/test/prototype_test.exs` (`Phoenix.LiveViewTest`, `Ecto.Adapt
 ## Register row draft (do not edit the register in PLAN)
 
 ```
-| [0005: PROTOTYPE full stack](../../experiments/0005-prototype-fullstack/README.md) | Can one BEAML source own the TYPES, the UI EVENT entry, the flow and the rows of a LiveView page in one JSONB table, so that a TYPE change blocks the build against the live rows with no second migration system? | LANGUAGE/COMPILATION, EXECUTION (host: Phoenix, Repo, LiveView) | **[Proposal]** PLAN 2026-11-07, free run (DL-144); prerequisites P1 to P5 open, N9 blocked by D026. [Plan](../../experiments/0005-prototype-fullstack/workflow/2026-11-07/plan.md). |
+| [0005: PROTOTYPE full stack](../../experiments/0005-prototype-fullstack/README.md) | Can one BEAML source own the TYPES, the UI EVENT entry, the flow and the rows of a LiveView page in one JSONB table, so that a TYPE change blocks the build against the live rows with no second migration system? | LANGUAGE/COMPILATION, EXECUTION (host: Phoenix, Repo, LiveView) | **[Proposal]** PLAN 2026-11-07, free run (DL-144); prerequisites P1 to P5 open, N9 blocked by D036. [Plan](../../experiments/0005-prototype-fullstack/workflow/2026-11-07/plan.md). |
 ```
 
 ## Exclusions
@@ -176,10 +176,10 @@ As in the [README](../../README.md#exclusions). Also: no Docker image, no TCP da
 - **P2 (record format v3) scope.** P2 changes the keys of the records only: the common core of DL-143 (head keys, `value` + `value_sha256`, `outcome` + `reason`, `unknown_keys` + `unknown_fields`, `redacted`, span id) and the transport extras.
 - **P2 does not touch M8.** Generated code accepts no failure struct as an input value. The host value rule stays as built.
 - **P2 does not touch M9.** The DL-124 block text keeps its current line shape. P2 adds no per-record line and no new line count.
-- P2 meets the D026 trigger "before the record format v3 step (M8, M9)". Because P2 avoids both, P2 does not wait. M8 and M9 stay open and parked. A P2 worker that finds it must change either one stops and reports a blocker.
+- P2 meets the D036 trigger "before the record format v3 step (M8, M9)". Because P2 avoids both, P2 does not wait. M8 and M9 stay open and parked. A P2 worker that finds it must change either one stops and reports a blocker.
 - → By: Fable · class Repair
 
-Replacement row for the D026 table:
+Replacement row for the D036 table:
 
 | Item | Touch | Plan |
 |---|---|---|

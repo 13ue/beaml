@@ -2,7 +2,7 @@
 
 **Verdict: BLOCK** (two high objections; both have a small resolving change in the PLAN, no code).
 Phase: plan check per `skills/implement-step/SKILL.md`. Fresh context, normal check, not a Devil's Advocate.
-Inputs: [README](../../README.md), [plan.md](plan.md), [decisions.md](decisions.md), [owner-review.md](owner-review.md), DL-126 to DL-144 and D026 in the [decision log](../../../../wiki/planning/decision-log.md) and [decisions to be made](../../../../wiki/planning/decisions-to-be-made.md).
+Inputs: [README](../../README.md), [plan.md](plan.md), [decisions.md](decisions.md), [owner-review.md](owner-review.md), DL-126 to DL-144 and D036 in the [decision log](../../../../wiki/planning/decision-log.md) and [decisions to be made](../../../../wiki/planning/decisions-to-be-made.md).
 By: Opus (plan check exp0005) for every line of this file.
 
 ## Observed facts (2026-11-07)
@@ -14,12 +14,12 @@ By: Opus (plan check exp0005) for every line of this file.
 
 ## Objections
 
-### O1 · high · P2 (record format v3) is gated by D026, not only P6
+### O1 · high · P2 (record format v3) is gated by D036, not only P6
 
-- **Evidence.** D026 trigger: "Before the fate slice starts (M3, M4, M5) and before the record format v3 step (M8, M9). The main agent opens each as its own question." The plan marks only P6 as blocked by D026 and puts P2 second in the order. Its D026 table covers only how 0005 tests avoid M8 and M9, not how P2 does.
+- **Evidence.** D036 trigger: "Before the fate slice starts (M3, M4, M5) and before the record format v3 step (M8, M9). The main agent opens each as its own question." The plan marks only P6 as blocked by D036 and puts P2 second in the order. Its D036 table covers only how 0005 tests avoid M8 and M9, not how P2 does.
 - **Consequence.** Either P2 starts and silently passes the OWNER trigger (a parked item decided by the build), or the free run stops at P2 and 0005 waits on an OWNER answer that the plan says it does not need.
-- **Resolving change.** In the P2 row and the D026 table: name the trigger. State that P2 under DL-144 builds the form that avoids both (M8: generated code never accepts a failure struct as an input value; M9: the DL-124 block text keeps its current line shape, no new per-record lines). Add "D026 trigger reached at P2 (M8, M9), not decided" to `owner-review.md` under "Blocked, not decided". If P2 cannot avoid either one, mark P2 blocked like P6.
-- → By: Opus (plan check exp0005) · class Migrate (OWNER owns D026)
+- **Resolving change.** In the P2 row and the D036 table: name the trigger. State that P2 under DL-144 builds the form that avoids both (M8: generated code never accepts a failure struct as an input value; M9: the DL-124 block text keeps its current line shape, no new per-record lines). Add "D036 trigger reached at P2 (M8, M9), not decided" to `owner-review.md` under "Blocked, not decided". If P2 cannot avoid either one, mark P2 blocked like P6.
+- → By: Opus (plan check exp0005) · class Migrate (OWNER owns D036)
 
 ### O2 · high · N8 can pass without a live Postgres read (Q5-4 option B)
 
@@ -38,7 +38,7 @@ By: Opus (plan check exp0005) for every line of this file.
 ## Answers to the check questions
 
 **(1) Built without an OWNER answer? Parked items?**
-→ Not as written: O1 (P2 meets the D026 trigger)
+→ Not as written: O1 (P2 meets the D036 trigger)
 → No 0005 default decides M3, M4, M5, M8, M9
 ⠀⠀↳ N8 avoids M4 and M9
 ⠀⠀↳ N9 blocked, `quarantine` only
@@ -79,7 +79,7 @@ By: Opus (plan check exp0005) for every line of this file.
 → Worker may run `db-up` (proposal, class Undo) · By: Opus (plan check exp0005)
 
 **Migrate (OWNER chooses)**
-→ O1: P2 avoids M8 and M9, or P2 waits for D026 · By: Opus (plan check exp0005), decided nothing
+→ O1: P2 avoids M8 and M9, or P2 waits for D036 · By: Opus (plan check exp0005), decided nothing
 → Q5-10 row value shape: A projection only · B v3 core in the row · By: Opus (plan check exp0005), decided nothing
 
 ## Re-check after plan repair (2026-11-07)
@@ -91,7 +91,7 @@ By: Opus (plan re-check exp0005) for every line of this section.
 ### Evidence read
 
 - **[Verified]** M8 and M9 option texts, [red team report](../../../0004-generated-replay/workflow/2026-11-07/red-team-01/report.md) lines 148 and 149: M8 is whether a failure struct is accepted as an input value of its TYPE (B4, the host value rule); M9 is whether a build block prints per-record lines or caps them (B6, DL-032 against DL-124).
-- **[Verified]** DL-144 Effect: "a step that needs one of them builds the smallest form that avoids it or marks the test as blocked". D026 trigger: the main agent opens M8 and M9 before the record format v3 step.
+- **[Verified]** DL-144 Effect: "a step that needs one of them builds the smallest form that avoids it or marks the test as blocked". D036 trigger: the main agent opens M8 and M9 before the record format v3 step.
 - **[Verified]** DL-127 option J: "every row a record as in the JSONL store today". DL-143 Effect: "The database stream gets the format from the start." DL-144 lifts the DL-139 record-format limit for 0005 and wants such defaults marked big.
 
 ### Answers
@@ -102,7 +102,7 @@ By: Opus (plan re-check exp0005) for every line of this section.
 → Record keys touch neither one
 → Stop rule for a P2 worker: present (P5-18)
 → Avoidance matches DL-144; listed in owner-review.md
-⠀⠀↳ The D026 question itself is still open
+⠀⠀↳ The D036 question itself is still open
 
 **(2) O2 closed.**
 → New file per build: no reused file
@@ -150,4 +150,4 @@ By: Opus (plan re-check exp0005) for every line of this section.
 → Read only; no file changed except this section · By: Opus (plan re-check exp0005)
 
 **Migrate (OWNER chooses)**
-→ D026 M8 and M9 stay open; P2 avoids them under DL-144 · By: Opus (plan re-check exp0005), decided nothing
+→ D036 M8 and M9 stay open; P2 avoids them under DL-144 · By: Opus (plan re-check exp0005), decided nothing

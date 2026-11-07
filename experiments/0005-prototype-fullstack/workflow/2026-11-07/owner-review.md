@@ -21,11 +21,11 @@ By: Opus (PLAN exp0005, default, open) for every line.
 
 ## Blocked, not decided
 
-- **N9** MIGRATE STEP that frees the stricter `Amount`: smallest form `quarantine amount`; waits for the fate slice and D026 (M3, M4, M5).
+- **N9** MIGRATE STEP that frees the stricter `Amount`: smallest form `quarantine amount`; waits for the fate slice and D036 (M3, M4, M5).
 
 ## Parked items touched, not decided
 
-- **M8, M9** (D026): the trigger "before the record format v3 step" is reached at P2. P2 changes record keys only and avoids both (P5-18, By: Fable). M8 and M9 stay open.
+- **M8, M9** (D036): the trigger "before the record format v3 step" is reached at P2. P2 changes record keys only and avoids both (P5-18, By: Fable). M8 and M9 stay open.
 
 ## Record format v3 (P2)
 

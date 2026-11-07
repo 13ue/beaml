@@ -1,7 +1,7 @@
 # Plan: RECORD FORMAT v3, one record core for every EFFECT stream (EXPERIMENT 0005 prerequisite P2)
 
 **[Proposal]** PLAN phase, 2026-11-07. Task records only. No production file, no test, no commit, no `run.py` run.
-Decision: DL-143 (option A) in [the decision log](../../../../../wiki/planning/decision-log.md). Also binding: DL-105, DL-136, DL-138, DL-141, DL-142, DL-124, DL-144 (free run), D026 with P5-18 in [the 0005 plan](../../../../0005-prototype-fullstack/workflow/2026-11-07/plan.md#o1--p2-changes-record-keys-only-m8-m9-avoided).
+Decision: DL-143 (option A) in [the decision log](../../../../../wiki/planning/decision-log.md). Also binding: DL-105, DL-136, DL-138, DL-141, DL-142, DL-124, DL-144 (free run), D036 with P5-18 in [the 0005 plan](../../../../0005-prototype-fullstack/workflow/2026-11-07/plan.md#o1--p2-changes-record-keys-only-m8-m9-avoided).
 Read: `experiments/0001-syntax-to-beam/src/main.rs` at HEAD 35c7e3bf (`git show HEAD:`; the slice 6d GREEN worker edits the working copy), the 6d working copy only for `entry_record/2` and `check_entries`, `tests/slice6_entry_test.py` (expected 6d behaviour), `tests/slice6_record_test.py`, `tests/drift_test.py`, `run.py`, the record contract of [slice6b-records-v2/spec.md](../slice6b-records-v2/spec.md) and its [repin.md](../slice6b-records-v2/repin.md).
 Design decisions: [decisions.md](decisions.md) (RV3-01 to RV3-13, Migrate questions QV3-1 to QV3-8, all `(default, open)` under DL-144). OWNER list: [owner-review.md](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md#record-format-v3-p2). Machine form: [plan.json](plan.json).
 By: Opus (PLAN record-v3) for every proposal in this file.
@@ -155,9 +155,9 @@ Five sites move together (the four of the byte-pin note plus the 6d N13 base, RV
 
 - The DL-136 digest half: `--stored` does not yet skip bad-digest records (P2b, RV3-07).
 - The db stream extras and writer (P4). P2 fixes the core only.
-- M8 and M9 (D026, P5-18): no failure struct as an input value; no new per-record line in a block text. A worker that must change either one stops and reports a blocker.
+- M8 and M9 (D036, P5-18): no failure struct as an input value; no new per-record line in a block text. A worker that must change either one stops and reports a blocker.
 - A version check in the REPLAY RUN (RV3-04).
-- Retention, RETIRE LINE semantics, fate forms (DL-125, D026 M3 to M5).
+- Retention, RETIRE LINE semantics, fate forms (DL-125, D036 M3 to M5).
 - Wiki and README contract text: the docs phase.
 
 ## Limits

@@ -1,7 +1,7 @@
 # Plan: DB TRANSPORTS `db.put`, `db.get`, `db.list` and `--stored` over STORED ROWS (EXPERIMENT 0005 prerequisite P4)
 
 **[Proposal]** PLAN phase, 2026-11-07. Task records only. No production file, no test, no commit, no `run.py` run.
-Decisions: DL-127, DL-129, DL-137, DL-143, DL-144 (free run) in [the decision log](../../../../../wiki/planning/decision-log.md). Also read: DL-043, DL-054, DL-101, DL-102, DL-105, DL-122, DL-124, DL-134, DL-136, DL-138, DL-140 (literal swap), DL-141, DL-142; D026 (M3, M4, M5, M8, M9 parked); the 0005 [plan](../../../../0005-prototype-fullstack/workflow/2026-11-07/plan.md) and [decisions](../../../../0005-prototype-fullstack/workflow/2026-11-07/decisions.md) (Q5-1 to Q5-10, P5-18 to P5-25); the slice 6d [plan](../slice6d-inbound-effect/plan.md); `experiments/0001-syntax-to-beam/src/main.rs` at HEAD 35c7e3bf (read only: `effects()` line 1470, `emit_effect` line 3403, `emit_entry` line 3852, `check_stored` line 4685, `build_with_refusals` line 5280).
+Decisions: DL-127, DL-129, DL-137, DL-143, DL-144 (free run) in [the decision log](../../../../../wiki/planning/decision-log.md). Also read: DL-043, DL-054, DL-101, DL-102, DL-105, DL-122, DL-124, DL-134, DL-136, DL-138, DL-140 (literal swap), DL-141, DL-142; D036 (M3, M4, M5, M8, M9 parked); the 0005 [plan](../../../../0005-prototype-fullstack/workflow/2026-11-07/plan.md) and [decisions](../../../../0005-prototype-fullstack/workflow/2026-11-07/decisions.md) (Q5-1 to Q5-10, P5-18 to P5-25); the slice 6d [plan](../slice6d-inbound-effect/plan.md); `experiments/0001-syntax-to-beam/src/main.rs` at HEAD 35c7e3bf (read only: `effects()` line 1470, `emit_effect` line 3403, `emit_entry` line 3852, `check_stored` line 4685, `build_with_refusals` line 5280).
 Design decisions and OWNER questions: [decisions.md](decisions.md) (PDB-01 to PDB-24, QDB-1 to QDB-7). Big ones: appended to the 0005 [owner-review.md](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) under "Database transports (P4)".
 By: Opus (PLAN db-transport) for every proposal in this file. Every Migrate question has a built default under DL-144: `By: Opus (PLAN db-transport, default, open)`.
 
@@ -228,7 +228,7 @@ Expected values come from this plan, DL-127, DL-129, DL-143 and the test's own d
 - A LIST TYPE anywhere but the one field of a `db.list` output; generics; list literals, patterns, operations; a list of String or Int.
 - A ROW TYPE with its own constructor, a redacted field (M3), or a LIST TYPE field. A MIGRATE CHANGE on a constructor or enum field of a ROW TYPE (D6B-39 kept).
 - An eager rewrite of old rows. Rows stay at their version (DL-127 lazy read).
-- Fate forms for rows (`quarantine`, `retire`, `map`, DL-125, DL-137): the fate slice P6, blocked by D026.
+- Fate forms for rows (`quarantine`, `retire`, `map`, DL-125, DL-137): the fate slice P6, blocked by D036.
 - A DL-136 count line for RESPONSE RECORDS (its own RED TEAM step). P4 skips failed db call records without a line in `responses.jsonl`.
 - The real Postgres, `BeamlDb`, `mix beaml.stored` and `snapshot-meta.json` writing: EXPERIMENT 0005.
 - `with` (redacted wire fields) on a db EFFECT: an error (no redacted ROW field).

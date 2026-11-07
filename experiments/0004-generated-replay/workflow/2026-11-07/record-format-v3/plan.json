@@ -15,7 +15,7 @@
     "DL-142",
     "DL-143",
     "DL-144",
-    "D026",
+    "D036",
     "P5-18"
   ],
   "base": {
@@ -228,7 +228,7 @@
   "exclusions": [
     "DL-136 digest half (P2b, D035)",
     "db stream writer and extras (P4)",
-    "M8, M9 (D026)",
+    "M8, M9 (D036)",
     "version check in the REPLAY RUN",
     "fate forms, retention",
     "docs"
