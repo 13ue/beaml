@@ -541,6 +541,20 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Next check: under A, a stored ENTRY RECORD with currency `""` gives build exit 1; under B, the exclusion label stays. By: Opus (PLAN REPAIR, slice6d-inbound-effect).
 
+## D025 — A second declaration form with `=` and `|` for `enum` and `type`
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** LANGUAGE/COMPILATION, grammar, formatter, DL-126
+- **Decision trigger** Later; a pure syntax question with no slice behind it. Raised by the OWNER on 2026-11-07 after a main-agent sketch used `enum Channel = Web | App` and `type PlaceForm = { amount: Amount, channel: Channel }`.
+
+**[Verified]** Today the grammar has one form: `enum Channel { Web  App  Unknown(String) }` and `type Amount { value: Int }`; whitespace separates variants and fields, commas are optional. The `=` and `|` forms came from the sketch, not from the language. DL-132 settled comments the same way.
+
+**[Proposal]** Options: A, keep one form (today); B, allow the `=` and `|` form as a second spelling that `fmt` rewrites to the brace form; C, replace the brace form with the `=` and `|` form. A second spelling adds a grammar rule, a formatter rule and a second way to read every source; the OWNER weighs that against readability.
+
+**[Unknown]** Not built, not asked in a slice. By: Fable (note for the OWNER).
+
 ## Answered 2026-11-07
 
 - [DL-133](decision-log.md): Q6D-3, a decode reject is a generated `Rejected` struct (A).
