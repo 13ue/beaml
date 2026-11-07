@@ -774,6 +774,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: every later record stream copies this answer. B keeps the build green while stored events break at the REPLAY RUN, which breaks the vertical line at the first inbound stream.
 → Effect: D024 closed. Slice 6d adds the `--stored` case for ENTRY RECORDS and an N-test; the DL-124 text rule applies (no stored value is printed). The MIGRATE STEP forms of DL-125 apply to entry fields.
 
+**DL-135 · Migrate · The DRIFT status pins the outcome classes; a crash, a build failure or an open repair is `fail` (RED TEAM 01 M7, option A)**
+→ Question: what does `DRIFT: pass` mean in a full `run.py` run? Today only the freeze hash of the LIB modules decides it; a retained run with `untyped_crash` on R, N and Q was `pass` (C3). No slice 6 test runs in the full run (C4).
+→ Options: A, pin the expected class per derivative in `drift_test.py`, make `run.py drift` fail on a build failure, a crash class or `repaired_all` false, add the slice 6 test files to `run.py`; B, keep "recorded, not asserted" and put a limit line beside every "14 of 14".
+→ Chose: A.
+→ By: 13ue
+→ Because: a green crash run is a false pass, the thing the vertical line must prevent. The pin cost is known from the byte pins.
+→ Effect: C3 and C4 go to GREEN (`redteam_c3_test.py`, D6B-189, D6B-190 unblocked). D10 limit lines become unnecessary once the slice 6 files run in `run.py`. A wanted class change moves the pin with a diff proof, as the byte pins do.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
