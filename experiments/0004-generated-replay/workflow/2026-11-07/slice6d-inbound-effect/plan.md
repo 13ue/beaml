@@ -23,6 +23,7 @@ Proposed terms (D6B-141, glossary entry in the docs phase before GREEN prose use
 - **A (default).** `on ui "place" PlaceOrder -> place`. Keyword `on`, transport `ui`, the UI EVENT name as a string, the input TYPE, the target fn.
 - **B.** `effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> place`.
 - **C.** `entry ui.place PlaceOrder -> place`.
+- **D (added at the plan repair).** `effect in ui "place" PlaceOrder -> place`. The `effect` keyword with a direction word. See [Plan repair](#plan-repair).
 - Reason for A: it is the DL-128 sketch. One line holds shape and policy (DL-126). The output and the failure TYPE come from the fn, so no second place can drift. Details: [decisions.md](decisions.md#q6d-1--migrate--the-form-of-the-entry-line).
 
 ## Change (defaults, each in decisions.md)
@@ -30,7 +31,7 @@ Proposed terms (D6B-141, glossary entry in the docs phase before GREEN prose use
 1. **Parse** (D6B-128). `on <transport> "<event>" <Type> -> <fn>` becomes an `Entry` in `Program.entries`, apart from `effects`. The "one effect" check does not count it.
 2. **Checks** (D6B-129, D6B-130). One ENTRY LINE per source. Transport `ui` only. Event `[a-z][a-z0-9_]*`. The target is a lower-case fn with one parameter of the declared TYPE, never a constructor (DL-120). With an outbound EFFECT the target must be its flow. The input TYPE is a plain record: no own constructor, no MIGRATE CHAIN. Its fields may hold constructor TYPES and enums. An ENTRY LINE alone needs no `--stored` (D6B-139).
 3. **Generated entry function** (D6B-131, Q6D-2). `def ui_place(params)` in `BeamlSpike` (`ui_<event>`, like `payments_authorize`). The host calls `Orders.ui_place(params)` from `handle_event("place", params, socket)`. It never raises for outside data. It returns `{:ok, result}` or `{:error, failure}`; a fn without `!` gives `{:ok, result}` too.
-4. **Decode** (D6B-132). The DL-101 decode of the input TYPE, the same code path as the outbound decode, run on `:json.encode(params)`. Constructors run; a keep-value variant (`Unknown`) takes another String. Reject reasons: `decode` (not a map, a non-String top-level key, a value that JSON cannot encode, a wrong shape) and `constructor`. The reject is `{:error, %BeamlSpike.Rejected{reason: r}}` (Q6D-3).
+4. **Decode** (D6B-132). The DL-101 decode of the input TYPE, the same code path as the outbound decode, run on `:json.encode(params)`. Constructors run; a keep-value variant (`Unknown`) takes another String. Reject reasons: `decode` (not a map, a non-String top-level key, a value that JSON cannot encode, a wrong shape) and `constructor`. **Repaired:** a strict term check runs first at every level (D6B-143); no String-to-Int coercion (D6B-144). See [Plan repair](#plan-repair). The reject is `{:error, %BeamlSpike.Rejected{reason: r}}` (Q6D-3).
 5. **Root span** (D6B-133). `ProbeSupport.span("<service>.ui.<event>", :server, nil, nil, fn -> ... end)`. The decode, the record write and the fn call run inside it. So the prepared event and the EFFECT span have the root as parent (closes the D6B-127 follow-up for a declared entry). A reject raises inside the span (outcome `error`, attribute `reason`) and returns outside it.
 6. **Reach** (D6B-134, DL-119). The entry is a root, not a pipe step. The target fn has no span of its own. Its steps follow S unchanged. A pure target gives one span, the root.
 7. **ENTRY RECORD** (D6B-135). Before the decode, inside the root span: `ProbeSupport.Capture.write("entries", %{version: 2, trace_id, server_span_id, artifact_id, operation: "ui.place", attempt: 1, value, redacted: [], unknown_keys, value_sha256, type})`. `value` is the DL-105 projection of the params under the declared keys of the input TYPE (nested by DL-099, D6B-49); `unknown_keys` the other names, dotted. Never the raw params. Also for a reject. Only in a source with an outbound EFFECT (D6B-136).
@@ -52,7 +53,7 @@ Harness: the step 12 runtime harness (`slice6_effect_reach_test.py`: span stack 
 - **N1 (first RED).** `orders.beaml` compiles (exit 0) and the output has `def ui_place(`. Today: exit 1 with the fallback text. The new declaration is the behaviour, so this parse reject is a genuine RED.
 - **N2 (decode through the constructor).** `BeamlSpike.ui_echo(good) == {:ok, %{"order_id" => "order-1", "amount" => %BeamlSpike.Amount{value: "12.50", currency: "EUR"}, "channel" => {"Channel", "Web", []}}}`.
 - **N3 (`Unknown` applies).** `"channel" => "app"` gives `{"Channel", "Unknown", ["app"]}` in the result.
-- **N4 (typed reject, never a raise).** Each gives `{:error, %BeamlSpike.Rejected{reason: R}}`: currency `""` gives `"constructor"`; no `order_id`, `nil`, a list, `%{order_id: "order-1", ...}` (atom keys) and `"order_id" => {:a}` give `"decode"`.
+- **N4 (typed reject, never a raise).** Each gives `{:error, %BeamlSpike.Rejected{reason: R}}`: currency `""` gives `"constructor"`; no `order_id`, `nil`, a list, `%{order_id: "order-1", ...}` (atom keys) and `"order_id" => {:a}` give `"decode"`. **Repaired:** three more cases (D6B-143, D6B-144), see [Plan repair](#plan-repair).
 - **N5 (root span).** `ui_place(good)` returns `{:ok, %{"order_id" => "order-1", "status" => "authorized"}}`. The log is exactly `[{:span, "orders.ui.place", :server, nil, nil}, {:event, "payment_request_prepared", "to_order", "orders.ui.place"}, {:span, "orders.payments.authorize", :client, "order-1", "orders.ui.place"}]`. `ui_echo(good)` logs only the root span.
 - **N6 (reject inside the root span).** `ui_place(nil)` logs the root span and no child, and sets the attribute `reason` to `"decode"`.
 - **N7 (domain failure passes).** With `:payments_port` on a closed port: `ui_place(good) == {:error, %BeamlSpike.PaymentError{reason: "transport"}}`.
@@ -93,15 +94,65 @@ Harness: the step 12 runtime harness (`slice6_effect_reach_test.py`: span stack 
 - HTTP route entries (`on http ...`). They follow later in the same form (DL-128).
 - LiveView itself and any Phoenix code. That is EXPERIMENT 0005. 0004 calls the generated function from `elixir`.
 - More than one ENTRY LINE per source; a target that reaches the EFFECT but is not its flow.
+- **Repaired:** several ENTRY LINES and several EFFECTS per source are the first EXPERIMENT 0005 precondition (D6B-147). String-to-Int coercion of form params (D6B-144).
 - An input TYPE with its own constructor, with a MIGRATE CHAIN, or with `redacted` fields (not in the 0001 compiler).
 - An ENTRY RECORD and a REPLAY RUN for a source without an outbound EFFECT (D6B-136).
-- `--stored` reads no ENTRY RECORD (D6B-139). No retention or RETIRE LINE for an entry.
+- `--stored` reads no ENTRY RECORD (D6B-139). **Repaired:** this is an interim DL-102 gap (D6B-146, Q6D-4 default B). No retention or RETIRE LINE for an entry.
 - The OBSERVATORY settings of D018. The root span gives the tree its level 0 only.
 
 ## Limits
 
-- **[Inference]** Nested atom keys (`"amount" => %{value: ...}`) pass the JSON round trip as String keys. Only the top level is checked (N4). Host code, not outside data, writes atom keys.
+- **[Inference]** Nested atom keys (`"amount" => %{value: ...}`) pass the JSON round trip as String keys. Only the top level is checked (N4). Host code, not outside data, writes atom keys. **Superseded by D6B-143:** the term check rejects atom keys at every level.
 - **[Inference]** One JSON encode per event (D6B-132). Fine for UI events; a value-level decode can follow when a measure shows a need.
 - **[Unknown]** Whether Elixir 1.18.1 with `--warnings-as-errors` reports a host call to a deleted `ui_<event>` as an error. Q6D-2 option A relies on it; the RED worker probes it once and records the result.
 - **[Inference]** `on` becomes a keyword in tree-sitter, so a parameter named `on` no longer highlights as an identifier. The 0001 parser reads `on` only as a top-level word.
 - **[Inference]** The test stubs do not run the real `ProbeSupport` and OTel exporter. `run.py` has no ENTRY LINE source.
+
+## Plan repair
+
+**[Proposal]** PLAN REPAIR, 2026-11-07, after the [plan check](plan-review.md) (BLOCK: O1 high, O2 high, O3 medium). Base: git HEAD f05a4b5d.
+The text above stays as written at the PLAN; this section overrides it where the two differ. Decisions: [decisions.md](decisions.md#plan-repair) (D6B-143 to D6B-147, Q6D-1 option D, Q6D-4). Register: D021 to D024 in [decisions to be made](../../../../../wiki/planning/decisions-to-be-made.md).
+By: Opus (PLAN REPAIR, slice6d-inbound-effect) for every proposal in this section.
+
+### O1: the param decode rule (D6B-143, D6B-144, D6B-145)
+
+- **Term check (D6B-143).** Before `:json.encode(params)`, the entry function walks the params term at every level. Allowed: maps whose keys are all binaries (Strings), lists, binaries, integers, floats, `true`, `false`. Every other term gives the typed reject `decode`: `nil`, every other atom (also as a map key), tuples, structs (a struct is a map with the atom key `__struct__`), pids, refs, functions. The encode then gets only terms that JSON encodes without a change of meaning.
+- **No coercion (D6B-144).** A String in an `Int` field gives `decode`. 6d never turns `"500"` into `500`.
+- **ENTRY RECORD after a term check reject (D6B-145).** The record is still written (D6B-135), with `value: null`, `unknown_keys: []` and the digest of that `value`. The projection never sees a rejected term, so `nil` never becomes the String `"nil"` in a record.
+- **New fixture.** `slice6/inbound/count.beaml`: `type Count { qty: Int }`, `fn count c: Count -> Count = c`, `on ui "count" Count -> count`. Pure, no outbound EFFECT. It keeps the expected values of N2, N5 and N8 unchanged.
+- **N4, three more cases**, each `{:error, %BeamlSpike.Rejected{reason: "decode"}}`:
+  - nested `nil`: `ui_echo(put_in(good, ["amount", "currency"], nil))`;
+  - nested atom value: `ui_echo(Map.put(good, "channel", :web))`;
+  - String in an `Int` field: `ui_count(%{"qty" => "500"})`.
+  - Control: `ui_count(%{"qty" => 500}) == {:ok, %{"qty" => 500}}`.
+- **N9, one more case.** The ENTRY RECORD of the nested `nil` call via `ui_place` replays to `{:error, %BeamlSpike.Rejected{reason: "decode"}}`, not to `{:ok, ...}`. **[Inference]** Without D6B-145 the record would hold `"nil"` and replay to a different outcome than the live call.
+- **[Unknown]** Whether `body/1` and `digest/3` accept a `null` `value`. The RED worker checks it against the D6B-58 rule; if not, the GREEN adds the case to the shared check, never a second digest rule.
+
+### O2: stored ENTRY RECORDS and DL-102 (Q6D-4, D6B-146)
+
+- D6B-139 is no longer an Undo default. It becomes the OWNER question Q6D-4 (Migrate).
+- **A.** `--stored` also reads `entries.jsonl` and runs the field constructors and literals of the input TYPE over the stored `value` (DL-102 covers ENTRY RECORDS).
+- **B (default for this slice).** No build check over ENTRY RECORDS in 6d. The gap stays recorded as interim until the OWNER answers (D020 context).
+- **Interim label (D6B-146).** The exclusions name the gap: "DL-102 interim gap: a changed constructor or a lost literal of an input field does not block the build; stored ENTRY RECORDS fail at REPLAY RUN only". Evidence: the N9 constructor case (an ENTRY RECORD with currency `""` replays to `Rejected{reason: "constructor"}`; the build does not see it).
+
+### O3: one entry and one EFFECT per source (D6B-147)
+
+- **EXPERIMENT 0005 precondition.** "Several ENTRY LINES and several EFFECTS per source." The PROTOTYPE page needs a second action (for example list orders, a `db` EFFECT under DL-127). A follow-up slice lifts the limit before 0005 starts.
+
+### Open list (for EXPERIMENT 0005)
+
+- **Form Strings into `Int` fields.** LiveView form and `phx-value-*` params are Strings. Options: coercion per `ui` transport; or an `Int` field in an entry input TYPE is a compile error. Open, owner `13ue`. Source: plan check O1.
+- **Several ENTRY LINES and EFFECTS per source.** D6B-147. Open.
+- **Stored ENTRY RECORDS under DL-102.** Q6D-4 (D024). Open.
+
+### Changed test list
+
+| Test | Change |
+|---|---|
+| N4 | + nested `nil`, nested atom value, `"qty" => "500"` on `count.beaml`; + control `qty` 500 |
+| N9 | + ENTRY RECORD of a nested `nil` call replays to `Rejected{reason: "decode"}` |
+| N12, N13 | `count.beaml` joins the compile set; N13 unchanged (it has an ENTRY LINE) |
+
+### Changed files
+
+- New: `experiments/0004-generated-replay/slice6/inbound/count.beaml`.

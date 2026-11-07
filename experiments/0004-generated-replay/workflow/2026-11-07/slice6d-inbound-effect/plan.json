@@ -47,7 +47,8 @@
       "options": [
         "A: on ui \"place\" PlaceOrder -> place (default)",
         "B: effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event(\"place\") |> place",
-        "C: entry ui.place PlaceOrder -> place"
+        "C: entry ui.place PlaceOrder -> place",
+        "D: effect in ui \"place\" PlaceOrder -> place (added at the plan repair)"
       ],
       "default": "A",
       "blocks": [],
@@ -77,6 +78,18 @@
       "default": "A",
       "blocks": [],
       "by": "open (13ue)"
+    },
+    {
+      "id": "Q6D-4",
+      "class": "Migrate",
+      "topic": "stored ENTRY RECORDS under the DL-102 build check",
+      "options": [
+        "A: --stored also reads entries.jsonl and runs the input TYPE field constructors and literals",
+        "B: no build check in 6d; the DL-102 gap recorded as interim (default)"
+      ],
+      "default": "B",
+      "blocks": [],
+      "by": "open (13ue)"
     }
   ],
   "defaults": [
@@ -94,7 +107,12 @@
     "D6B-139",
     "D6B-140",
     "D6B-141",
-    "D6B-142"
+    "D6B-142",
+    "D6B-143",
+    "D6B-144",
+    "D6B-145",
+    "D6B-146",
+    "D6B-147"
   ],
   "record": {
     "stream": "entries",
@@ -129,7 +147,8 @@
     "integrations/zed-beaml/src/ (generated)",
     "integrations/zed-beaml/languages/beaml/highlights.scm",
     "integrations/zed-beaml/test/corpus/entry.txt",
-    "integrations/zed-beaml/test/highlight/forms.beaml"
+    "integrations/zed-beaml/test/highlight/forms.beaml",
+    "experiments/0004-generated-replay/slice6/inbound/count.beaml"
   ],
   "first_red": {
     "test": "N1",
@@ -141,12 +160,12 @@
     "N1": "the ENTRY LINE compiles; def ui_place( exists",
     "N2": "ui_echo(good): Amount struct through the constructor, Channel Web",
     "N3": "channel app gives Unknown(app)",
-    "N4": "typed reject, never a raise: constructor; decode for missing key, nil, list, atom keys, non-JSON value",
+    "N4": "typed reject, never a raise: constructor; decode for missing key, nil, list, atom keys, non-JSON value; repair: nested nil, nested atom value, qty \"500\" on an Int field (count.beaml) give decode; control qty 500 ok",
     "N5": "root span orders.ui.place (:server, parent nil); event and EFFECT span have the root as parent",
     "N6": "reject inside the root span, attribute reason, no child",
     "N7": "domain failure passes: transport PaymentError",
     "N8": "ENTRY RECORD key set, projection, unknown_keys, digest; no record for the pure source",
-    "N9": "Replay.entry ok, body_digest_mismatch, operation_mismatch, reject replays to the same Rejected",
+    "N9": "Replay.entry ok, body_digest_mismatch, operation_mismatch, reject replays to the same Rejected; repair: ENTRY RECORD of a nested nil call replays to Rejected decode",
     "N10": "compile rejects of D6B-129, D6B-130, D6B-138",
     "N11": "fmt keeps the ENTRY LINE",
     "N12": "no source text or path in compiler events",
@@ -191,7 +210,71 @@
     "a reaching target that is not the EFFECT flow",
     "input TYPE with own constructor, MIGRATE CHAIN or redacted fields",
     "ENTRY RECORD and REPLAY RUN without an outbound EFFECT",
-    "--stored over ENTRY RECORDS",
-    "OBSERVATORY settings (D018)"
-  ]
+    "--stored over ENTRY RECORDS (interim DL-102 gap, D6B-146, Q6D-4 default B)",
+    "OBSERVATORY settings (D018)",
+    "String-to-Int coercion of form params (D6B-144)",
+    "several ENTRY LINES and EFFECTS per source (EXPERIMENT 0005 precondition, D6B-147)"
+  ],
+  "repair": {
+    "date": "2026-11-07",
+    "base": "f05a4b5d",
+    "by": "Opus (PLAN REPAIR, slice6d-inbound-effect)",
+    "review": "plan-review.md",
+    "verdict_before": "BLOCK (O1 high, O2 high, O3 medium)",
+    "O1": {
+      "rule": "D6B-143",
+      "term_check": {
+        "allowed": [
+          "maps with binary keys only",
+          "lists",
+          "binaries",
+          "integers",
+          "floats",
+          "true",
+          "false"
+        ],
+        "reject": "decode",
+        "rejected_examples": [
+          "nil",
+          "other atoms (value or key)",
+          "tuples",
+          "structs",
+          "pids",
+          "refs",
+          "functions"
+        ],
+        "levels": "every level",
+        "when": "before :json.encode(params)",
+        "replaces": "D6B-132 top-level guard"
+      },
+      "no_coercion": "D6B-144",
+      "record_after_reject": "D6B-145: value null, unknown_keys [], digest of null",
+      "fixture": "slice6/inbound/count.beaml (qty: Int)"
+    },
+    "O2": {
+      "D6B-139": "raised to Migrate, now Q6D-4",
+      "default": "B for this slice",
+      "interim": "D6B-146",
+      "evidence": "N9 constructor case"
+    },
+    "O3": {
+      "precondition": "several ENTRY LINES and several EFFECTS per source before EXPERIMENT 0005",
+      "rule": "D6B-147"
+    },
+    "Q6D-1": "option D added",
+    "open_for_0005": [
+      "form Strings into Int fields: coercion per ui transport, or Int field in an entry input TYPE is a compile error",
+      "several ENTRY LINES and EFFECTS per source",
+      "stored ENTRY RECORDS under DL-102 (Q6D-4)"
+    ],
+    "register": {
+      "Q6D-1": "D021",
+      "Q6D-2": "D022",
+      "Q6D-3": "D023",
+      "Q6D-4": "D024"
+    },
+    "unknown": [
+      "body/1 and digest/3 with a null value (RED checks)"
+    ]
+  }
 }

@@ -13,6 +13,7 @@ ID check: the highest D6B number in `experiments/` and `wiki/` was D6B-127 at th
 - **Option A (default).** `on ui "place" PlaceOrder -> place`. The event name is a string, as LiveView sends it. The input TYPE is the shape that the decode checks. Output and failure TYPE come from the fn. Challenge: a new keyword `on`; the record `operation` (`ui.place`) is derived, not written.
 - **Option B.** `effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> place`. It reuses the `effect` keyword and its `kind("path")` parser. Challenges: output and failure TYPE stand twice (in the line and in the fn), so they can drift; `effect` then has two directions with two body meanings; `|> place` in an EFFECT body is a new form.
 - **Option C.** `entry ui.place PlaceOrder -> place`. The dotted name is the operation, as in `effect` and `retire` lines. Challenge: the event name comes from the dotted name, so a UI EVENT such as `place-order` cannot be written.
+- **Option D (added at the plan repair).** `effect in ui "place" PlaceOrder -> place`. One keyword `effect` for both directions, with the direction word `in`. Output and failure TYPE come from the fn, as in A. Challenge: `effect` then has two line forms; `in` becomes a keyword word in tree-sitter. By: Opus (PLAN REPAIR, slice6d-inbound-effect), from plan check O3 note.
 - **Why Migrate.** Every source and the grammar carry the form. A change later rewrites every ENTRY LINE.
 - **Interim.** RED and GREEN build A. B or C change the parser, the grammar cases and N10; the generated code stays.
 - By: open, decided later by `13ue`. Question by Opus (PLAN, slice6d-inbound-effect).
@@ -55,6 +56,7 @@ By: Opus (PLAN, slice6d-inbound-effect)
 **D6B-132 · Repair · The decode is the DL-101 decode of the input TYPE on `:json.encode(params)`.**
 Chose: the same emit path as the outbound decode, for the input TYPE; a guard before it: not a map, a non-String top-level key, or a JSON encode raise give `decode`. Constructor failure gives `constructor`. Over: a second, value-level decode. Because: one decode for the live call and the REPLAY RUN, which reads JSON-encoded `value` (D6B-137); outside data stays on the String-key path (DL-117). Commits us to: one encode round trip per event (ponytail: value-level decode when a measure needs it); nested atom keys are not rejected (limit).
 By: Opus (PLAN, slice6d-inbound-effect)
+**Repaired (plan check O1):** the guard is replaced by the strict term check D6B-143, and D6B-144 forbids String-to-Int coercion. The limit "nested atom keys are not rejected" no longer holds. See [Plan repair](#plan-repair).
 
 **D6B-133 · Repair · The entry opens the root span.**
 Chose: `ProbeSupport.span("<service>.ui.<event>", :server, nil, nil, fn -> ... end)` around record write, decode and call. Span input `nil`: no attribute from undecoded data. `function` `nil`: no source file read. `unknown_keys` and `reason` as root attributes, as on the EFFECT span. A reject raises `BeamlFailure` inside, `__beaml_attempt__` returns it outside (outcome `error`). A domain failure returns through the span. Over: the decoded value as span input; a root span around the call only. Because: the root must also show a rejected event; D6B-127 `"none"` then stays only for an undeclared host call. Commits us to: a root span with outcome `ok` for a failed flow (the failing child span carries `error`).
@@ -83,6 +85,7 @@ By: Opus (PLAN, slice6d-inbound-effect)
 **D6B-139 · Undo · An ENTRY LINE needs no `--stored`; `--stored` reads no ENTRY RECORD.**
 Chose: the `--stored` rule keeps its trigger (an outbound EFFECT or a RETIRE LINE). Over: `--stored` for entries. Because: the ENTRY RECORD has no build check yet; a build check of stored params against a changed input TYPE is a later step (D020).
 By: Opus (PLAN, slice6d-inbound-effect)
+**Repaired (plan check O2):** class raised to Migrate. The question goes to the OWNER as Q6D-4. Until the answer, D6B-146 keeps this behaviour as an interim DL-102 gap. See [Plan repair](#plan-repair).
 
 **D6B-140 · Undo · `fmt` keeps the ENTRY LINE bytes.**
 Chose: the entry is not a row of the column alignment. Over: aligning `->` with clauses. Because: one line with no peer; nothing to align.
@@ -95,3 +98,40 @@ By: Opus (PLAN, slice6d-inbound-effect)
 **D6B-142 · Repair · Grammar rule `entry_declaration`.**
 Chose: `seq("on", field("transport", $.identifier), field("event", $.string), field("input", $.type), "->", field("target", $.identifier))` in `source_file`; `"on"` in the keyword list of `highlights.scm`; `(entry_declaration target: (_) @function)`; regenerate `src/` with `tree-sitter generate`. Over: a generic rule for B and C. Because: Q6D-1 default A; B or C replace this one rule. Commits us to: `on` is a keyword word in tree-sitter.
 By: Opus (PLAN, slice6d-inbound-effect)
+
+## Plan repair
+
+**[Proposal]** PLAN REPAIR, 2026-11-07, after the [plan check](plan-review.md) (O1 high, O2 high, O3 medium). Base: git HEAD f05a4b5d.
+Entries above stay as written; the repair markers on D6B-132 and D6B-139 point here.
+ID check: the highest D6B number in `experiments/` and `wiki/` was D6B-142 at this repair.
+
+### Q6D-4 · Migrate · Stored ENTRY RECORDS and the DL-102 build check
+
+- **Context.** **[Verified]** D6B-130 allows constructor TYPES and enums in the fields of the input TYPE. DL-102: a stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate. DL-122: a lost ENUM LITERAL with stored values blocks the build. **[Inference]** A later change to the `Amount` constructor or a lost `Channel` literal makes a stored ENTRY RECORD fail `Replay.entry` (a `Rejected`) or replay as `Unknown`, and `--stored` does not see it.
+- **Option A.** `--stored` also reads `entries.jsonl` and runs the field constructors and literals of the input TYPE over the stored `value`. DL-102 covers ENTRY RECORDS. Challenge: a new input to the build; the `--stored` trigger gains the ENTRY LINE; more GREEN work in 6d.
+- **Option B (default for this slice).** No build check over ENTRY RECORDS in 6d. The gap stays recorded as interim (D6B-146). Challenge: a changed input TYPE can make stored entries fail at REPLAY RUN only, against DL-102.
+- **Why Migrate.** Whether DL-102 covers a new record stream is a rule of the OWNER (plan check O2). Every later record stream copies the answer.
+- **Interim.** RED and GREEN build B. A adds a `--stored` case and an N-test; the generated entry code stays.
+- By: open, decided later by `13ue`. Question by Opus (PLAN REPAIR, slice6d-inbound-effect).
+
+### New defaults
+
+**D6B-143 · Repair · A strict term check runs before the JSON encode, at every level.**
+Chose: the entry function walks the params term before `:json.encode/1`. Allowed: maps whose keys are all binaries, lists, binaries, integers, floats, `true`, `false`. Every other term gives `{:error, %BeamlSpike.Rejected{reason: "decode"}}`: `nil`, every other atom (value or map key), tuples, structs, pids, refs, functions. It replaces the top-level guard of D6B-132. Over: the D6B-132 guard (top level only; `nil` encodes to `"nil"` and passes). Because: plan check O1, observed with OTP `json`: `nil` and atoms encode to Strings, so a wrong value passes with no reject. Commits us to: one more walk over the params per event; host code that passes atoms gets `decode`.
+By: Opus (PLAN REPAIR, slice6d-inbound-effect)
+
+**D6B-144 · Undo · No String-to-Int coercion in 6d.**
+Chose: a String in an `Int` field (`"qty" => "500"`) gives `decode`. Over: coercion per `ui` transport. Because: coercion is a language rule for form params; the OWNER decides it with EXPERIMENT 0005 (open list in plan.md). Fixture `count.beaml` with `qty: Int` tests it.
+By: Opus (PLAN REPAIR, slice6d-inbound-effect)
+
+**D6B-145 · Repair · An ENTRY RECORD after a term check reject holds `value: null`.**
+Chose: the record is written as D6B-135 says, with `value: null`, `unknown_keys: []` and the D6B-58 digest of that `value`. `Replay.entry` then gives the same `Rejected{reason: "decode"}` (not a map). Over: the projection of the raw params (nested `nil` becomes `"nil"` in the record and replays to `{:ok, ...}`); no record for this reject. Because: the REPLAY RUN must give the outcome of the live call; D6B-135 writes a record also for a reject. Commits us to: a `null` `value` in `body/1` and `digest/3` ([Unknown] today, RED checks it); N9 gets the nested `nil` case.
+By: Opus (PLAN REPAIR, slice6d-inbound-effect)
+
+**D6B-146 · Undo · D6B-139 stays in 6d as an interim DL-102 gap (Q6D-4 default B).**
+Chose: the exclusions name "DL-102 interim gap: stored ENTRY RECORDS have no build check; a changed constructor or a lost literal of an input field fails at REPLAY RUN only". Evidence: the N9 constructor case. Over: building Q6D-4 A before the OWNER answers. Because: plan check O2; the OWNER decides the class of the rule. Undo: the label goes when Q6D-4 closes.
+By: Opus (PLAN REPAIR, slice6d-inbound-effect)
+
+**D6B-147 · Undo · "Several ENTRY LINES and several EFFECTS per source" is an EXPERIMENT 0005 precondition.**
+Chose: the plan names it in the open list and the exclusions as the first precondition of 0005; a follow-up slice lifts D6B-129 and the slice 1 one-EFFECT check. Over: lifting it in 6d. Because: plan check O3; the PROTOTYPE page needs a second action (for example a `db` EFFECT under DL-127). 6d keeps its scope.
+By: Opus (PLAN REPAIR, slice6d-inbound-effect)

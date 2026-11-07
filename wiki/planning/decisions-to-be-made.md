@@ -454,6 +454,93 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Verified]** DL-127 (2026-11-07): the PROTOTYPE stores BEAML records in one JSONB table that BEAML owns. For those rows a MIGRATE STEP governs stored state. The question stays open for any other persistence form.
 
+## D021 — The form of the ENTRY LINE (Q6D-1)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** LANGUAGE/COMPILATION, grammar, DL-126, DL-128
+- **Decision trigger** Before slice 6d closes, or before the first ENTRY LINE outside EXPERIMENT 0004.
+
+**[Verified]** DL-128 gives a sketch, not grammar: `on ui "place" Order -> place`. DL-126: a declaration carries shape and policy; the COMPILER derives the rest. Every source and the grammar carry the form. [Q6D-1](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/decisions.md#q6d-1--migrate--the-form-of-the-entry-line)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| A, `on` (slice default) | `on ui "place" PlaceOrder -> place`. Output and failure TYPE come from the fn. | New keyword `on`; the record `operation` is derived. |
+| B, `effect` with body | `effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") \|> place`. | Output and failure TYPE stand twice and can drift; `effect` gets two body meanings. |
+| C, `entry` | `entry ui.place PlaceOrder -> place`. | The event name comes from the dotted name; `place-order` cannot be written. |
+| D, `effect in` | `effect in ui "place" PlaceOrder -> place`. One keyword for both directions. | `effect` gets two line forms; `in` becomes a keyword word. By: Opus (PLAN REPAIR, slice6d-inbound-effect). |
+
+**[Unknown]** Not built. RED and GREEN build A. By: Opus (PLAN, slice6d-inbound-effect).
+
+**[Proposal]** Next check: N1 and N14 of slice 6d under the chosen form. By: Opus (PLAN REPAIR, slice6d-inbound-effect).
+
+## D022 — The generated function that the host calls (Q6D-2)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** host call boundary, EXPERIMENT 0005, DL-128
+- **Decision trigger** Before EXPERIMENT 0005 writes host code that calls an entry.
+
+**[Verified]** Generated EFFECT functions follow `<kind>_<name>` today (`payments_authorize`). The host calls the entry from `handle_event/3` in EXPERIMENT 0005. [Q6D-2](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/decisions.md#q6d-2--migrate--the-generated-function-that-the-host-calls)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| A, one function per entry (slice default) | `Orders.ui_place(params)`; one host clause per event. | A deleted entry fails the host build only if the probe holds. |
+| B, one dispatch | `Orders.entry("place", params)`; unknown event gives `Rejected{reason: "unknown_event"}`. | A renamed event fails at runtime only. |
+
+**[Unknown]** Whether Elixir 1.18.1 with `--warnings-as-errors` reports a call to a deleted `ui_<event>` as an error. The RED worker of slice 6d probes it. By: Opus (PLAN, slice6d-inbound-effect).
+
+**[Proposal]** Next check: that probe result. By: Opus (PLAN REPAIR, slice6d-inbound-effect).
+
+## D023 — The form of a decode reject at the host (Q6D-3)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** host call boundary, DL-101, DL-128
+- **Decision trigger** Before EXPERIMENT 0005 matches on an entry result.
+
+**[Verified]** The outbound EFFECT gives a decode reject as the failure TYPE with `reason` (`%PaymentError{reason: "decode"}`). A fn without `!` has no failure TYPE. [Q6D-3](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/decisions.md#q6d-3--migrate--the-form-of-a-decode-reject-at-the-host)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| A, `Rejected` struct (slice default) | `{:error, %BeamlSpike.Rejected{reason: "decode" \| "constructor"}}`. | A generated TYPE name is reserved next to an entry (D6B-138). |
+| B, failure TYPE of the fn | `%PaymentError{reason: "decode"}`. | The UI cannot tell a bad event from a bad response; fails for a fn without `!`. |
+| C, plain tuple | `{:error, {:rejected, "decode"}}`. | Not a TYPE; a host pattern on structs misses it. |
+
+**[Unknown]** Not built. RED and GREEN build A. By: Opus (PLAN, slice6d-inbound-effect).
+
+**[Proposal]** Next check: N4 and N6 of slice 6d under the chosen form. By: Opus (PLAN REPAIR, slice6d-inbound-effect).
+
+## D024 — Stored ENTRY RECORDS and the DL-102 build check (Q6D-4)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** LANGUAGE/COMPILATION, `--stored`, DL-102, DL-122, D020
+- **Decision trigger** Before slice 6d closes, or before an input TYPE of an ENTRY LINE changes a constructor or an ENUM LITERAL while ENTRY RECORDS are stored.
+
+**[Verified]** D6B-130 allows constructor TYPES and enums in the fields of the input TYPE. DL-102 and DL-122: a stored record that fails a new rule, or loses its literal, blocks the build. `--stored` reads only RESPONSE RECORDS. **[Inference]** A changed `Amount` constructor or a lost `Channel` literal makes a stored ENTRY RECORD fail at REPLAY RUN only; the build does not block (plan check O2). [Q6D-4](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/decisions.md#q6d-4--migrate--stored-entry-records-and-the-dl-102-build-check), [plan check](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/plan-review.md)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| A, `--stored` reads entries | `--stored` also reads `entries.jsonl` and runs the field constructors and literals of the input TYPE. DL-102 covers ENTRY RECORDS. | New build input; more GREEN work in 6d. |
+| B, interim gap (slice default) | No build check over ENTRY RECORDS in 6d; the gap is labelled interim (D6B-146). | Against DL-102 until the answer; failures show at REPLAY RUN only. |
+
+**[Unknown]** Not built. Evidence for the gap: the N9 constructor case of slice 6d. By: Opus (PLAN REPAIR, slice6d-inbound-effect).
+
+**[Proposal]** Next check: under A, a stored ENTRY RECORD with currency `""` gives build exit 1; under B, the exclusion label stays. By: Opus (PLAN REPAIR, slice6d-inbound-effect).
+
 ## Answered 2026-11-07
 
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.
