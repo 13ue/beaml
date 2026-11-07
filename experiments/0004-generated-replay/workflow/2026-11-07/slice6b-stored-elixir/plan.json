@@ -4,6 +4,15 @@
   "date": "2026-11-07",
   "phase": "plan",
   "by": "Opus (PLAN, slice6b-stored-elixir)",
+  "repair": {
+    "after": "plan-review.md (O1 high, O2, O3 medium, Q1, Q4)",
+    "by": "Opus (PLAN REPAIR, slice6b-stored-elixir); D6B-124 By: Fable (main agent)",
+    "section": "plan.md, Plan repair",
+    "time_limit_s": 60,
+    "time_limit_env": "BEAML_STORED_ELIXIR_LIMIT_S (E8 only; bad value is a build error)",
+    "run_error_why": ["exit N", "signal N", "time limit N s", "result lines"],
+    "dl122_text": "names enum, TYPE VERSION, count, one record source line per record, help; never the stored String; no DL-032 exception"
+  },
   "decisions": "decisions.md",
   "decision": ["DL-121", "DL-122"],
   "closes": ["D017", "P11", "D007"],
@@ -15,10 +24,13 @@
     "input": "stdin JSON {module: emit output, calls: [[new_T_k, [inputs]], ...]}",
     "compile": "Code.compile_string/1 in memory, no scratch dir, no file holds values",
     "output": "one line per call: ok | error <FailureType>; child stdout/stderr never forwarded",
+    "calls": "[fun, type, [args]]; driver without rescue/catch/try; first line # beaml-stored-check",
+    "spawn": "process_group(0), env ERL_CRASH_DUMP=/dev/null; worker thread writes stdin, closes it, wait_with_output; main recv_timeout(limit), kill -KILL -pid on expiry",
+    "protocol": "status.success() and exactly K lines, each ok or error F with F in self.failures[&key]",
     "measured": "0.41 s wall, Elixir 1.18.1, OTP 27 (scratch probe)"
   },
   "owner_questions": [],
-  "defaults": ["D6B-102", "D6B-103", "D6B-104", "D6B-105", "D6B-106", "D6B-107", "D6B-108", "D6B-109", "D6B-110", "D6B-111"],
+  "defaults": ["D6B-102", "D6B-103", "D6B-104", "D6B-105", "D6B-106", "D6B-107", "D6B-108", "D6B-109", "D6B-110", "D6B-111", "D6B-119", "D6B-120", "D6B-121", "D6B-122", "D6B-123", "D6B-124", "D6B-125", "D6B-126"],
   "files": [
     "experiments/0001-syntax-to-beam/src/main.rs",
     "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py",
@@ -26,6 +38,10 @@
     "experiments/0004-generated-replay/slice6/stored-elixir/nested.beaml",
     "experiments/0004-generated-replay/slice6/stored-elixir/pipe-fail.jsonl",
     "experiments/0004-generated-replay/slice6/stored-elixir/nested-fail.jsonl",
+    "experiments/0004-generated-replay/slice6/stored-elixir/rec.beaml",
+    "experiments/0004-generated-replay/slice6/stored-elixir/rec-loop.jsonl",
+    "experiments/0004-generated-replay/slice6/stored-elixir/order.beaml",
+    "experiments/0004-generated-replay/slice6/stored-elixir/order.jsonl",
     "experiments/0004-generated-replay/tests/slice6_decode_test.py"
   ],
   "first_red": {
@@ -38,12 +54,15 @@
     "E1": "RED: review probe 6, failure in a pipe step",
     "E2": "RED: failure only in a nested constructor step",
     "E3": "guard plus RED event part: passing records exit 0, empty stderr, stored-elixir event ok",
-    "E4": "RED: PATH=/usr/bin:/bin gives the D6B-106 toolchain error",
+    "E4": "RED: PATH is an empty scratch dir; gives the D6B-106 toolchain error (D6B-126)",
     "E5": "RED: stored-elixir event has Int ms, calls 4, no other keys",
-    "E6": "guard: static error without Elixir on PATH gives the static text",
-    "E7": "guard: no record value in stderr or events",
-    "L1": "RED: DL-122 removed ENUM LITERAL blocks",
-    "L1b": "RED: DL-122 changed literal String blocks",
+    "E6": "guard: static error with an empty scratch dir as PATH gives the static text (D6B-126)",
+    "E7": "guard: no record value in stderr or events; L1/L1b stderr hold no pending or wait",
+    "E8": "RED: rec.beaml loop constructor, BEAML_STORED_ELIXIR_LIMIT_S=2: exit 1, run error (time limit 2 s), wall < 12 s, event error, no beaml-stored-check process 1 s later (D6B-119)",
+    "E9": "part a RED: order.beaml, first signature without ! skipped on line 1, second fails: E1 text count 1 line 1; part b guard: run_runtime gives constructor error for line 1, ok for line 2 (D6B-125)",
+    "U1": "RED: Rust unit test of parse_elixir_results: good lines, short, extra, okay, error without F, unknown F, exit 1, signal 9 (D6B-121)",
+    "L1": "RED: DL-122 removed ENUM LITERAL blocks; D6B-124 text, TYPE Payment v1, count 1, S:2, no String",
+    "L1b": "RED: DL-122 changed literal String blocks; same text as L1",
     "L2": "guard: unchanged literal and kept Unknown value do not block",
     "L3": "guard: DL-103 note stays"
   },
@@ -64,7 +83,7 @@
     "run.py once at TEST, serialized",
     "record stored-elixir ms in notes.md"
   ],
-  "test_first": "applies; E1, E2, E4, E5, L1, L1b are RED; E3 event part RED; E6, E7, L2, L3 guards",
+  "test_first": "applies; E1, E2, E4, E5, E8, E9 part a, U1, L1, L1b are RED; E3 event part RED; E6, E7, E9 part b, L2, L3 guards",
   "exclusions": [
     "Rust NIF or second backend (D019)",
     "compiler evaluator (DL-121 option a)",

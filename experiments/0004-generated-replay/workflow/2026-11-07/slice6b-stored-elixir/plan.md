@@ -112,3 +112,69 @@ Applies. E1, E2, E4, E5, L1 and L1b are behaviour RED. E3, E6, E7, L2 and L3 are
 - **[Inference]** A record without the key `unknown_fields` counts as "kept nothing" (today's `kept` closure). A non-literal String in it then blocks under DL-122. Version 2 records of literal outputs always have the key.
 - **[Inference]** DL-122 asks for the lost literal in the text. It is a value of the record. It is printed because the record says it was an ENUM LITERAL at capture time (not in `unknown_fields`). A hand-edited record can put other text there.
 - **[Unknown]** Very large RECORD SNAPSHOTS: one JSON document on stdin, no streaming. Not measured.
+
+## Plan repair (2026-11-07, after [plan-review.md](plan-review.md))
+
+**[Proposal]** PLAN REPAIR. The text above stays as written; this section changes it where it says so. Where the two differ, this section holds.
+Repairs O1 (high), O2 and O3 (medium) and the notes Q1 and Q4 of the plan check. New decisions D6B-119 to D6B-126 in [decisions.md](decisions.md).
+By: Opus (PLAN REPAIR, slice6b-stored-elixir), except D6B-124: By: Fable (main agent).
+
+### Contract 3, repaired: the child process and the driver (O1, O2, O3)
+
+- **Spawn** (D6B-119, D6B-120, D6B-123). `Command::new("elixir").arg("-e").arg(DRIVER)`, stdin, stdout and stderr piped, `process_group(0)`, env `ERL_CRASH_DUMP=/dev/null`. Std only, no new crate.
+- **Pipes** (D6B-120). One worker thread writes the full stdin JSON, closes stdin (drop), then calls `wait_with_output()`. It sends the result on an `mpsc` channel. The driver reads all of stdin before it compiles, so the stdin write cannot block on a full stdout or stderr pipe.
+- **Time limit** (D6B-119). The main thread calls `recv_timeout(limit)`. Default limit: **60 s**. On expiry, the compiler kills the process group (`kill -KILL -<pid>` through `/bin/kill`), does not wait for the worker thread, and gives the run error with `(time limit 60 s)`. The env value `BEAML_STORED_ELIXIR_LIMIT_S` sets the limit in whole seconds, for E8 only. A value that is not a whole number from 1 gives a build error; there is no silent default.
+- **Driver** (D6B-122). The DRIVER reads stdin with `IO.read(:stdio, :eof)` and decodes it with `JSON.decode!/1`. Each call is `[fun, type, [args]]`. The driver uses `case apply(BeamlSpike, String.to_atom(fun), args)`: `{:ok, %{__struct__: m}}` with `m == Module.concat(BeamlSpike, type)` prints `ok`; `{:error, %{__struct__: m}}` prints `error <F>`, where F is `m` without the prefix `BeamlSpike.`. Any other result raises `CaseClauseError`. The driver has no `rescue`, `catch` or `try`. The first line of DRIVER is the comment `# beaml-stored-check` (E8 uses it).
+
+### Contract 5, repaired: the result protocol (O2)
+
+`parse_elixir_results(status, stdout, expected)` (D6B-121) gives the per-call verdicts or the run error. Success needs all of:
+1. `status.success()`. A signal exit (`status.code()` is `None`) is an error, never exit 0.
+2. Exactly K lines on stdout, K = count of calls.
+3. Each line is exactly `ok` or `error <F>`, with F in `self.failures[&key]` of the signature of that call.
+
+The run error text, exit 1, `help: compile the generated module with elixirc to see the error`:
+
+```
+error: the --stored check: the Elixir run of the generated constructors failed (<why>)
+```
+
+`<why>` is one of `exit N`, `signal N`, `time limit N s`, `result lines`. The `stored-elixir` event has `result: "error"` in each case. Child stdout and stderr are never forwarded (D6B-106 stays).
+
+### Contract 2, repaired: the DL-122 text never prints the stored String (O3, D6B-124, By: Fable)
+
+The message names the enum, the TYPE VERSION, the count of records and the record source lines, plus the help line. One message per (TYPE VERSION, operation, field, enum). One `record source` line per record, in file order:
+
+```
+error: TYPE Payment v1: 1 stored RESPONSE RECORD of operation payments.authorize has a value of field state that is no ENUM LITERAL of PaymentState now (DL-122)
+  record source: S:2 (line 2)
+  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of PaymentState
+```
+
+Plural: `RECORDS ... have values of field state that are no ENUM LITERAL`. The version is the `type.version` of the record. No exception to DL-032 is recorded: no stored value reaches stderr, events or result files. The variant "print the literal only when `unknown_fields` exists" is dropped. A record without `unknown_fields` still counts as "kept nothing" and blocks, but its String does not appear.
+**[Inference]** DL-122 (OWNER) says the error "names ... the lost literal". This text names the enum and the record lines, not the String. The main agent took this choice (D6B-124); the OWNER did not.
+
+### Test cases, repaired
+
+- **E1, E2.** Unchanged text. E2 unchanged.
+- **E4 (RED), E6 (guard).** `PATH` is an empty scratch directory, not `/usr/bin:/bin` (Q4, D6B-126). The rest is unchanged.
+- **E7 (guard).** Also: L1 and L1b stderr do not contain `pending` or `wait` in lower case, quoted or not.
+- **E8 (RED, time limit, O1).** Fixture `slice6/stored-elixir/rec.beaml`: review probe `rec.beaml` (`fn loop "" -> String ! NoCurrency = NoCurrency {}`, `fn loop t -> String ! NoCurrency = t |> loop`, `fn Amount value, c -> Amount ! NoCurrency = c |> loop |> Amount`). Store `rec-loop.jsonl`: line 1 of `decode-ctor/stored.jsonl` with `currency: "EUR"`, new `trace_id` and `value_sha256`. Run with `BEAML_STORED_ELIXIR_LIMIT_S=2`. Expect exit 1, no stdout, stderr exactly the run error with `(time limit 2 s)` and the help line, wall time below 12 s, the last `stored-elixir` event `result: "error"`. One second after exit, no process with `beaml-stored-check` in its command line runs (`pgrep -f`; the TEST phase runs serialized). Today: the build never reads the loop and gives exit 0 (static pass). RED.
+- **E9 (guard, signature order, Q1, D6B-125).** Fixture `slice6/stored-elixir/order.beaml`: the `pipe.beaml` Amount block with a new first signature `fn Amount value: String, currency: String, note: String -> Amount` (no `!`, gives `Amount { value: value, currency: currency }`) before `fn Amount value: String, currency: String -> Amount ! NoCurrency`. Store `order.jsonl`: line 1 `amount: {"value":"","currency":"EUR"}` (signature 1 does not match, signature 2 fails), line 2 `amount: {"value":"","note":"n","currency":"EUR"}` (signature 1 matches first; signature 2 also matches and would fail). Part a: `--stored order.jsonl` gives exit 1 with the E1 text, count 1, `record source: <path>:1 (line 1)`. Part b: `run_runtime` (step 8 harness) with `sf.EMPTY_STORED` decodes the two `amount` maps through the runtime decode (`__beaml_decode_T` of Payment): line 1 gives the `constructor` error, line 2 gives ok. Part b passes before and after. Part a is RED today (exit 0, static body TYPE of signature 2 is `Amount`). It fails on a GREEN whose Rust pick differs from the generated `cond` in either direction.
+- **U1 (RED, Rust unit test, O2, D6B-121).** `parse_elixir_results` in `main.rs` `#[cfg(test)]`: good lines give the verdicts; one line short, one line extra, a line `okay`, `error` with no F, `error Other` with F not in the list, exit code 1, and a signal exit (`ExitStatusExt::from_raw(9)`) each give the run error with the right `<why>`. RED: the function does not exist.
+- **L1, L1b (RED).** The repaired contract 2 text, count 1, `record source: S:2 (line 2)`. L1 and L1b give the same text.
+- **E3, E5, L2, L3.** Unchanged.
+
+### Test-first rule, repaired
+
+E1, E2, E4, E5, E8, E9 part a, U1, L1 and L1b are behaviour RED. E3 (event part RED), E6, E7, E9 part b, L2 and L3 are guards.
+
+### Files, repaired
+
+Add `slice6/stored-elixir/rec.beaml`, `rec-loop.jsonl`, `order.beaml`, `order.jsonl`. U1 lives in `experiments/0001-syntax-to-beam/src/main.rs`.
+
+### Limits, repaired
+
+- **[Inference]** 60 s is about 150 times the observed 0.41 s. A very large store can reach the limit before the check ends; the error then says `time limit`, never a pass.
+- **[Unknown]** Whether `elixir` keeps one process group on every host. The process-group kill covers a child that forks; E8 checks it on this host only.
+- **[Inference]** The limit "record without `unknown_fields`" and the limit "a hand-edited record can put other text there" no longer leak values: the text holds no String.

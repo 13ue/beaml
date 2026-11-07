@@ -685,6 +685,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: no one outside the team is affected yet; a later change of the error shape is a Repair inside the generated code and its tests.
 → Commits us to: the README names the five rules; a later change raises its own entry.
 
+**DL-124 · Repair · The DL-122 block names the field, enum, TYPE VERSION, count and record lines, never the stored String**
+→ Question: DL-122 says the compile error "names the enum, the lost literal, the count of records". The lost literal exists at that point only inside stored records, so printing it prints a stored value. DL-032 forbids stored values in compiler output.
+→ Chose: the message names the TYPE VERSION, the operation, the field, the enum, the record count and the record source lines (`S:N`), plus the help line. It never prints the stored String (step 13 D6B-124). The error stays a build block.
+→ Over: printing the literal (DL-122 wording), or printing it only when `unknown_fields` exists.
+→ By: Fable (step 13 plan repair, 2026-11-07)
+→ Because: DL-032 gets no exception; a stored String can be outside data. The OWNER asked for a loud compile error, which this keeps.
+→ Commits us to: DL-122 reads with this narrowing; the README states the text.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
