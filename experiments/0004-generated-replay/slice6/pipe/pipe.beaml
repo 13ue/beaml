@@ -1,0 +1,34 @@
+// EXPERIMENT 0004 slice 6b step 5 (DL-086, D6B-25 to D6B-28): a pipe in any expression position. A pure module.
+type P { id: String }
+type R { id: String tag: String }
+type Pair { a: String b: String }
+type IsZero {}
+type NonZeroInt { value: Int }
+enum Outcome { Approved()  Declined(String) }
+type Box { note: String state: Outcome }
+
+fn prepare P { id } -> P = P { id: id + "!" }
+fn build P { id }, x: String -> R = R { id: id, tag: x }
+fn paren s: String -> String = "(" + s + ")"
+fn join a: String, b: String -> String = a + "-" + b
+
+// D6B-25: a pipe in an argument ends at `,` and at `)`.
+fn g p: P, x: String -> R = build(p |> prepare, x)
+fn last a: String, c: String -> String = join(c, a |> paren)
+// D6B-25: `|>` binds weaker than `+`, so `a + b |> paren` is `paren(a + b)`.
+fn cat a: String, b: String, c: String -> String = join(a + b |> paren, c)
+
+// A pipe as a record field value inside a constructor clause. It ends at `,`.
+fn Pair x: String, y: String -> Pair = Pair { a: x |> paren, b: y }
+
+// D6B-26: a variant with one payload as a pipe step, in a record field value. It ends at `}`.
+fn box r: String -> Box = Box { note: r, state: r |> paren |> Declined }
+
+// D6B-28: a failing step in a pure whole-body pipe of a several-clause fn compiles to a `with`, no spans.
+fn NonZeroInt n: Int -> NonZeroInt ! IsZero
+fn NonZeroInt 0 -> NonZeroInt ! IsZero = IsZero {}
+fn NonZeroInt n -> NonZeroInt ! IsZero = NonZeroInt { value: n }
+fn keep x: NonZeroInt -> NonZeroInt = x
+fn pick s: String, n: Int -> NonZeroInt ! IsZero
+fn pick "a", n -> NonZeroInt ! IsZero = n |> NonZeroInt
+fn pick _, n -> NonZeroInt ! IsZero = n |> NonZeroInt |> keep

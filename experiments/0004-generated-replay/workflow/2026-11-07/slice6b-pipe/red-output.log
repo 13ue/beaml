@@ -1,0 +1,243 @@
+# Command (repository root): BEAML_SPIKE=<scratch>/base80bd/experiments/0001-syntax-to-beam/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py
+# Baseline compiler: git archive of commit 80bd33cd (experiments/0001-syntax-to-beam), cargo build --offline. Exit 1. 11 tests, 9 FAIL, 2 pass (guards S12, S13).
+test_bad_fixtures_keep_their_texts (__main__.Slice6Pipe.test_bad_fixtures_keep_their_texts) ... compiler: /private/tmp/claude-502/-Users-lennart-Projects-beaml/5a9e3a40-d152-4a88-a91b-9ddd9a8f3732/scratchpad/base80bd/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_effect_fixture_outputs_stay_byte_equal (__main__.Slice6Pipe.test_effect_fixture_outputs_stay_byte_equal) ... ok
+test_effect_step_in_an_argument_pipe (__main__.Slice6Pipe.test_effect_step_in_an_argument_pipe) ... FAIL
+test_failing_step_in_an_argument_pipe (__main__.Slice6Pipe.test_failing_step_in_an_argument_pipe) ... FAIL
+test_failing_step_without_a_matching_failure (__main__.Slice6Pipe.test_failing_step_without_a_matching_failure) ... FAIL
+test_lowercase_non_fn_step_in_an_argument_pipe (__main__.Slice6Pipe.test_lowercase_non_fn_step_in_an_argument_pipe) ... FAIL
+test_pipe_fixture_compiles_to_plain_calls (__main__.Slice6Pipe.test_pipe_fixture_compiles_to_plain_calls) ... FAIL
+test_runtime_pipe (__main__.Slice6Pipe.test_runtime_pipe) ... FAIL
+test_variant_step_with_a_wrong_payload_type (__main__.Slice6Pipe.test_variant_step_with_a_wrong_payload_type) ... FAIL
+test_variant_step_with_two_payloads (__main__.Slice6Pipe.test_variant_step_with_two_payloads) ... FAIL
+test_variant_step_without_a_payload (__main__.Slice6Pipe.test_variant_step_without_a_payload) ... FAIL
+
+======================================================================
+FAIL: test_effect_step_in_an_argument_pipe (__main__.Slice6Pipe.test_effect_step_in_an_argument_pipe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_pipe_test.py", line 86, in test_effect_step_in_an_argument_pipe
+    self.assert_rejected(ORDERS.read_text()
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+                         + "fn wrap o: Order -> Payment ! PaymentError = finish(o |> payments.authorize)\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "error: fn wrap: a nested pipe has the EFFECT step payments.authorize\n" + NESTED_HELP)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn wrap: a nested pipe has the EF[63 chars]ody') != (1, '', "expected ',' at byte 944")
+
+First differing element 2:
+'error: fn wrap: a nested pipe has the EF[62 chars]body'
+"expected ',' at byte 944"
+
++ (1, '', "expected ',' at byte 944")
+- (1,
+-  '',
+-  'error: fn wrap: a nested pipe has the EFFECT step payments.authorize\n'
+-  '  help: make the pipe the whole body') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_failing_step_in_an_argument_pipe (__main__.Slice6Pipe.test_failing_step_in_an_argument_pipe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_pipe_test.py", line 92, in test_failing_step_in_an_argument_pipe
+    self.assert_rejected(HEAD + "fn keep x: NonZeroInt -> NonZeroInt = x\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn w n: Int -> NonZeroInt ! IsZero = keep(n |> NonZeroInt)\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "error: fn w: a nested pipe has the failing step NonZeroInt\n" + NESTED_HELP)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn w: a nested pipe has the faili[53 chars]ody') != (1, '', "expected ',' at byte 290")
+
+First differing element 2:
+'error: fn w: a nested pipe has the faili[52 chars]body'
+"expected ',' at byte 290"
+
++ (1, '', "expected ',' at byte 290")
+- (1,
+-  '',
+-  'error: fn w: a nested pipe has the failing step NonZeroInt\n'
+-  '  help: make the pipe the whole body') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_failing_step_without_a_matching_failure (__main__.Slice6Pipe.test_failing_step_without_a_matching_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_pipe_test.py", line 100, in test_failing_step_without_a_matching_failure
+    self.assert_rejected(HEAD + "type Other { reason: String }\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn pick s: String, n: Int -> NonZeroInt ! Other\n"
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         'fn pick "a", n -> NonZeroInt ! Other = n |> NonZeroInt\n'
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn pick _, n -> NonZeroInt ! Other = n |> NonZeroInt\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "pipe step NonZeroInt can fail with IsZero, which is not in the ! list of pick")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'pipe step NonZeroInt can fail with IsZero[33 chars]ick') != (1, '', 'a function with a pipe body has one claus[15 chars]ick')
+
+First differing element 2:
+'pipe step NonZeroInt can fail with IsZero, which is not in the ! list of pick'
+'a function with a pipe body has one clause in slice 1: pick'
+
++ (1, '', 'a function with a pipe body has one clause in slice 1: pick')
+- (1,
+-  '',
+-  'pipe step NonZeroInt can fail with IsZero, which is not in the ! list of '
+-  'pick') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_lowercase_non_fn_step_in_an_argument_pipe (__main__.Slice6Pipe.test_lowercase_non_fn_step_in_an_argument_pipe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_pipe_test.py", line 108, in test_lowercase_non_fn_step_in_an_argument_pipe
+    self.assert_rejected(SMALL + "fn g p: P, x: String -> R = build(p |> x, x)\n", "unknown pipe step: x")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'unknown pipe step: x') != (1, '', "expected ',' at byte 189")
+
+First differing element 2:
+'unknown pipe step: x'
+"expected ',' at byte 189"
+
+- (1, '', 'unknown pipe step: x')
++ (1, '', "expected ',' at byte 189") : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_pipe_fixture_compiles_to_plain_calls (__main__.Slice6Pipe.test_pipe_fixture_compiles_to_plain_calls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_pipe_test.py", line 74, in test_pipe_fixture_compiles_to_plain_calls
+    self.assert_lines(self.assert_built(PIPE), [
+                      ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected ',' at byte 632
+
+
+======================================================================
+FAIL: test_runtime_pipe (__main__.Slice6Pipe.test_runtime_pipe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_pipe_test.py", line 81, in test_runtime_pipe
+    self.run_runtime(PIPE, PIPE_CASES)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 73, in run_runtime
+    stdout = self.assert_built(fixture)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected ',' at byte 632
+
+
+======================================================================
+FAIL: test_variant_step_with_a_wrong_payload_type (__main__.Slice6Pipe.test_variant_step_with_a_wrong_payload_type)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_pipe_test.py", line 119, in test_variant_step_with_a_wrong_payload_type
+    self.assert_rejected(OUTCOME + "fn z n: Int -> Outcome = n |> Declined\n",
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "type mismatch in pipe step Declined: expected String, got Int")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'type mismatch in pipe step Declined: expected String, got Int') != (1, '', 'unknown pipe step: Declined')
+
+First differing element 2:
+'type mismatch in pipe step Declined: expected String, got Int'
+'unknown pipe step: Declined'
+
+- (1, '', 'type mismatch in pipe step Declined: expected String, got Int')
++ (1, '', 'unknown pipe step: Declined') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_variant_step_with_two_payloads (__main__.Slice6Pipe.test_variant_step_with_two_payloads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_pipe_test.py", line 115, in test_variant_step_with_two_payloads
+    self.assert_rejected(OUTCOME + "fn z s: String -> Outcome = s |> Two\n",
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "pipe step Two must take one argument")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'pipe step Two must take one argument') != (1, '', 'unknown pipe step: Two')
+
+First differing element 2:
+'pipe step Two must take one argument'
+'unknown pipe step: Two'
+
+- (1, '', 'pipe step Two must take one argument')
++ (1, '', 'unknown pipe step: Two') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_variant_step_without_a_payload (__main__.Slice6Pipe.test_variant_step_without_a_payload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_pipe_test.py", line 111, in test_variant_step_without_a_payload
+    self.assert_rejected(OUTCOME + "fn z s: String -> Outcome = s |> Approved\n",
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "pipe step Approved must take one argument")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'pipe step Approved must take one argument') != (1, '', 'unknown pipe step: Approved')
+
+First differing element 2:
+'pipe step Approved must take one argument'
+'unknown pipe step: Approved'
+
+- (1, '', 'pipe step Approved must take one argument')
++ (1, '', 'unknown pipe step: Approved') : expected exit 1, no stdout and the exact message
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.210s
+
+FAILED (failures=9)
