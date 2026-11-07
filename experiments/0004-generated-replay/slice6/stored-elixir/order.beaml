@@ -1,0 +1,46 @@
+// Slice 6b step 13: the --stored check runs the generated Elixir constructor (DL-121, D6B-102 to D6B-126).
+type Order { order_id: String }
+type DeclineReason { text: String }
+fn DeclineReason text: String -> DeclineReason = DeclineReason { text: text }
+
+enum PaymentState { Authorized  Pending  Declined(DeclineReason)  Unknown(String) }
+
+// Signature 1: the keys status and decline_reason inside the field value (DL-084 K1, DL-099 B).
+// Signatures are tried top to bottom; the first match wins (DL-085).
+fn PaymentState status: String, decline_reason: String -> PaymentState
+fn PaymentState "ok", _ -> PaymentState = Authorized
+fn PaymentState "declined", reason -> PaymentState = reason |> DeclineReason |> Declined
+fn PaymentState other, _ -> PaymentState = Unknown(other)
+
+// Signature 2: one parameter reads a scalar field value directly, like an ENUM LITERAL (DL-099).
+fn PaymentState code: String -> PaymentState
+fn PaymentState "ok" -> PaymentState = Authorized
+fn PaymentState "pending" -> PaymentState = Pending
+fn PaymentState other -> PaymentState = Unknown(other)
+
+// A record constructor (DL-092). The decode of outside data calls it (DL-101).
+type NoCurrency {}
+type Amount { value: String currency: String }
+fn cur v: String -> String ! NoCurrency
+fn cur "" -> String ! NoCurrency = NoCurrency {}
+fn cur v -> String ! NoCurrency = v
+// D6B-125: signature 1 has no failure TYPE; signature 2 fails through cur.
+fn Amount value: String, currency: String, note: String -> Amount
+fn Amount value, currency, note -> Amount = Amount { value: value, currency: currency }
+fn Amount value: String, currency: String -> Amount ! NoCurrency
+fn Amount value, c -> Amount ! NoCurrency = value |> cur |> Amount
+fn Amount value: String -> Amount
+fn Amount value -> Amount = Amount { value: value, currency: "EUR" }
+
+type Payment { order_id: String state: PaymentState amount: Amount }
+type PaymentError { reason: String }
+
+// Leaves the module. Recorded live, substituted in a REPLAY RUN.
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
