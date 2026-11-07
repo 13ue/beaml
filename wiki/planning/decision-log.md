@@ -487,6 +487,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: every `tree-sitter test` runs with `--rebuild`. Over: the shared cache, which gave a false pass in RED.
 → Because: smallest grammar that parses the decided forms. Details: [slice 6a ledger](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/notes.md), [review](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/review.md).
 
+**DL-099 · Migrate · Enum constructor inputs come from the field's own value (Q6B-1, B)**
+→ Question: a field `state: PaymentState` has a constructor with parameters `status` and `decline_reason` (DL-084). From which JSON object does the decode read these keys?
+→ Options: A, the keys of the object that holds the field (flat body, `state` is not a wire key); B, the keys inside the field's own value (`"state": {"status": …, "decline_reason": …}`); a one-parameter constructor reads the field's value directly, like an ENUM LITERAL.
+→ Chose: B. The wire shape follows the TYPE structure. A flat body is declared with a constructor on the parent record, whose parameters are the flat wire keys (DL-092: the constructor is the way in).
+→ Because: OWNER choice after analysis. Under A the field list no longer describes the wire shape, so the fingerprint, the derived old TYPE VERSIONS and `unknown_keys` need extra rules; under B the per-level rule of today holds, and literal and constructor read the same place. B can express A, A cannot express B.
+→ Unblocks: slice 6b step 8 (decode through an enum constructor). The call form of a constructor with several arguments inside a record constructor is a sketch, not decided.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
