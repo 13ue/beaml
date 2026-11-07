@@ -438,6 +438,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 **DL-091 · Undo · DL-090 withdrawn**
 → The main agent recorded T1 as a decision after the OWNER said only that T1 looks good. The OWNER wants to walk through the whole example first. T1 is the leading option; the decision is open.
 
+**DL-092 · Migrate · One type form; a constructor makes itself the only way in** (replaces the T1/T2 question of DL-090)
+→ Question: do wrapper types need a form of their own (`type NonZeroInt(Int)`)?
+→ Options: a separate wrapper form with a constructor (T1); a condition in the type (T2); one form `type X { … }` for every type, with an optional constructor.
+→ Chose: one form. `type NonZeroInt { value: Int }` is a record; a constructor function named like the type (`fn NonZeroInt …`) is optional. When a type has a constructor, the record literal `NonZeroInt { … }` is allowed only inside the constructor's own clauses; everywhere else the constructor is the only way in. The constructor may fail with a failure TYPE after `!`.
+→ Because: OWNER choice; one syntax, and every type (records, wrappers, enums via DL-082) gets the same checked-constructor pattern.
+→ Clarified: `!` marks a position in a signature, not a kind of type. Any type can stand on the failure side.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
