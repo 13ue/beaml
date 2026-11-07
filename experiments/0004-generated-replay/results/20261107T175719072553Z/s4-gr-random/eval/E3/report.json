@@ -1,0 +1,24 @@
+{
+  "result": {
+    "error": "%OrdersBeamlSpike.Replay.Retired{operation: \"nsruwlzz.oplfmplp\", keep_days: 4294967295}"
+  },
+  "unwatched": [
+    "{OrdersBeamlSpike, :payments_authorize, 1}",
+    "{OrdersBeamlSpike, :payments_charge, 1}",
+    "{OrdersBeamlSpike, :nsruwlzz_oplfmplp, 1}"
+  ],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 0,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 0,
+    "OrdersBeamlSpike.nsruwlzz_oplfmplp/1": "nil",
+    "OrdersBeamlSpike.payments_authorize/1": "nil",
+    "OrdersBeamlSpike.payments_charge/1": "nil",
+    "OrdersBeamlSpike.payments_oqnvntxq/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "bc0a81080f2921ccdefb8ce8421854a7264ac6552ce8757a96406c03fa60d471"
+}

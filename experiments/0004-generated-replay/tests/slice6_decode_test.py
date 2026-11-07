@@ -198,7 +198,9 @@ class Slice6Decode(unittest.TestCase):
 
     def test_written_record_reports_the_count(self):
         # RED review N2: writer and --stored check agree on the JSON key unknown_fields (DL-103 note, count 1).
-        self.run_runtime({"record_written": "true"}, ORDERS.read_text().replace('Pending = "pending"  ', ""), WRITE)
+        # D6B-111 (step 13): the runtime build needs no stored records; line 2 of STORED now blocks under DL-122.
+        self.run_runtime({"record_written": "true"}, ORDERS.read_text().replace('Pending = "pending"  ', ""), WRITE,
+                         sf.EMPTY_STORED)
         _, stderr = self.build(self.work / "written.jsonl")
         self.assertEqual("note: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize kept a value "
                          "of field state that a literal of PaymentState maps now (DL-103)", stderr.strip())

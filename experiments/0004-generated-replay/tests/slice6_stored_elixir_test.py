@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import threading
 import time
 import unittest
 
@@ -139,11 +140,12 @@ class Slice6StoredElixir(unittest.TestCase):
         self.assertEqual(("error", 0), (event.get("result"), event.get("ms")))
 
     def test_e5_event_has_time_and_count_only(self):
-        # D6B-107: Int ms, one Amount call per record of stored.jsonl, no other key.
+        # D6B-107: Int ms, one Amount call per record of stored.jsonl, no other key. RED review O2: a real run
+        # takes time, so ms > 0.
         self.build(CTOR_STORED)
         event = self.last_event()
         self.assertEqual((True, True, 4, set()),
-                         (isinstance(event.get("ms"), int), event.get("ms", -1) >= 0, event.get("calls"),
+                         (isinstance(event.get("ms"), int), event.get("ms", -1) > 0, event.get("calls"),
                           set(event) - EVENT_KEYS), event)
 
     def test_e6_static_error_needs_no_elixir(self):
@@ -175,9 +177,16 @@ class Slice6StoredElixir(unittest.TestCase):
         # D6B-119 (plan check O1): the run error, inside the limit plus a margin; no driver process stays.
         env = dict(os.environ, BEAML_STORED_ELIXIR_LIMIT_S="2")
         st.compiler()  # build outside the measured time
+        # RED review O1: the marker is in the args of the running child, so the no-leftover check below sees it.
+        during = []
+        probe = threading.Timer(1, lambda: during.append(
+            subprocess.run(["pgrep", "-f", "beaml-stored-check"], capture_output=True).returncode))
         start = time.monotonic()
+        probe.start()
         code, stdout, stderr = self.compile(REC, ["--stored", str(REC_LOOP)], env)
         wall = time.monotonic() - start
+        probe.join()
+        self.assertEqual([0], during, "pgrep must find the driver while it runs")
         self.assertEqual((1, "", RUN_ERROR % "time limit 2 s"), (code, stdout, stderr.strip()),
                          "expected exit 1, no stdout and the exact message")
         self.assertLess(wall, 12)
@@ -204,9 +213,11 @@ class Slice6StoredElixir(unittest.TestCase):
                              ["--stored", str(sd.STORED)])
 
     def test_l2_current_literal_and_kept_value_build(self):
-        # Guard: line 3 ("refunded", kept in unknown_fields) does not block.
-        _, stderr = self.build(sd.STORED, sd.ORDERS)
-        self.assertEqual("", stderr)
+        # Guard: line 3 ("refunded", kept in unknown_fields) does not block. RED review O3: no constructor with a
+        # failure TYPE gives zero calls, so Elixir does not start: no elixir on PATH, no event.
+        code, stdout, stderr = self.compile(sd.ORDERS, ["--stored", str(sd.STORED)], self.no_path())
+        self.assertEqual((0, True, ""), (code, "defmodule BeamlSpike do" in stdout, stderr))
+        self.assertEqual([], self.events())
 
     def test_l3_resolved_note_stays(self):
         # Guard: the DL-103 note, no block.

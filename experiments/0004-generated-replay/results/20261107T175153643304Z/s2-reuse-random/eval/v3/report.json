@@ -1,0 +1,20 @@
+{
+  "result": {
+    "ok": {
+      "p_uitoei": "X-v3",
+      "s_xxafri": "Y-v3"
+    }
+  },
+  "unwatched": [],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "26915753a7801fb483a687a10942cacebdf02ec09abd746d218d046ca493d6fd"
+}

@@ -3783,7 +3783,9 @@ impl Checker<'_> {
     // Slice 4 (DL-055): a record of an operation with a RETIRE LINE is a RETIRED RECORD. It must parse with its
     // `type` key (C7), but the path check does not run for it. A record of an operation with neither an
     // `effect` nor a RETIRE LINE is error R1, one message per operation with the count of its records.
-    fn check_stored(&self, source: &str, text: &str) -> Checked<Snapshot> {
+    // Slice 6b step 13 (DL-121): `code` is the generated module. When the static pass is clean, one Elixir run calls
+    // the constructors with a failure TYPE over the stored values (D6B-102 to D6B-105).
+    fn check_stored(&self, source: &str, text: &str, code: &str) -> Checked<Snapshot> {
         let mut groups: BTreeMap<StoredVersion, (usize, usize)> = BTreeMap::new();
         let mut snapshot = Snapshot::default();
         // Operation -> (record count, first line) of records with no `effect` and no RETIRE LINE.
@@ -3794,6 +3796,10 @@ impl Checker<'_> {
         // Step 8 (DL-102, S9): per (TYPE, operation, field, constructor, failure TYPE or None for no signature):
         // (failed records, first failed line).
         let mut faults: BTreeMap<(FieldKey, Option<String>), (usize, usize)> = BTreeMap::new();
+        // DL-122, DL-124: per (TYPE, TYPE VERSION, operation, field, enum): the lines of records with a lost ENUM LITERAL.
+        let mut lost: BTreeMap<(String, u32, String, String, String), Vec<usize>> = BTreeMap::new();
+        // D6B-102: the constructor calls for the Elixir run: (field key, line, signature key, inputs).
+        let mut calls: Vec<(FieldKey, usize, String, Vec<String>)> = Vec::new();
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             if line.trim().is_empty() {
@@ -3842,6 +3848,18 @@ impl Checker<'_> {
                                 .any(|(_, l)| l == text)
                         });
                         let resolved = literal && kept(&field);
+                        // DL-122: a String that is no current literal and was not kept was an ENUM LITERAL at capture.
+                        if value.and_then(Json::text).is_some() && !literal && !kept(&field) {
+                            lost.entry((
+                                effect.output.clone(),
+                                stored.version,
+                                stored.operation.clone(),
+                                field.clone(),
+                                enum_name.clone(),
+                            ))
+                            .or_default()
+                            .push(number);
+                        }
                         let entry = mapped
                             .entry((
                                 effect.output.clone(),
@@ -3861,9 +3879,14 @@ impl Checker<'_> {
                     }
                     for (field, ty) in ctor_fields {
                         let value = body.and_then(|b| b.get(&field));
-                        if let Some(reason) = self.ctor_fault(&ty, value) {
-                            let key = (effect.output.clone(), stored.operation.clone(), field, ty);
-                            faults.entry((key, reason)).or_insert((0, number)).0 += 1;
+                        let key = (effect.output.clone(), stored.operation.clone(), field, ty);
+                        match self.ctor_pick(&key.3, value) {
+                            None => faults.entry((key, None)).or_insert((0, number)).0 += 1,
+                            // D6B-104: a constructor without a failure TYPE cannot reject; no call.
+                            Some((sig, inputs)) if !self.failures[&sig].is_empty() => {
+                                calls.push((key, number, sig, inputs))
+                            }
+                            Some(_) => {}
                         }
                     }
                 }
@@ -3903,6 +3926,56 @@ impl Checker<'_> {
                     ));
                 }
             }
+            for ((ty, version, op, field, enum_name), lines) in &lost {
+                let one = lines.len() == 1;
+                errors.push(format!(
+                    "error: TYPE {ty} v{version}: {} stored RESPONSE RECORD{} of operation {op} {} of field {field} that {} no ENUM LITERAL of {enum_name} now (DL-122)\n{}\n  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of {enum_name}",
+                    lines.len(),
+                    plural(lines.len()),
+                    if one { "has a value" } else { "have values" },
+                    if one { "is" } else { "are" },
+                    lines
+                        .iter()
+                        .map(|n| format!("  record source: {source}:{n} (line {n})"))
+                        .collect::<Vec<_>>()
+                        .join("\n")
+                ));
+            }
+            // D6B-105: Elixir starts only when the static pass gives no error.
+            if errors.is_empty() && !faults.keys().any(|(_, r)| r.is_none()) && !calls.is_empty() {
+                let failures: Vec<&[String]> = calls
+                    .iter()
+                    .map(|c| self.failures[&c.2].as_slice())
+                    .collect();
+                let stdin = format!(
+                    "{{\"module\":{},\"calls\":[{}]}}",
+                    json_string(code),
+                    calls
+                        .iter()
+                        .map(|(key, _, sig, inputs)| format!(
+                            "[{},{},[{}]]",
+                            json_string(&elixir_name(sig)),
+                            json_string(&key.3),
+                            inputs
+                                .iter()
+                                .map(|i| json_string(i))
+                                .collect::<Vec<_>>()
+                                .join(",")
+                        ))
+                        .collect::<Vec<_>>()
+                        .join(",")
+                );
+                for ((key, number, _, _), verdict) in
+                    calls.iter().zip(run_elixir(&stdin, &failures)?)
+                {
+                    if let Some(failure) = verdict {
+                        faults
+                            .entry((key.clone(), Some(failure)))
+                            .or_insert((0, *number))
+                            .0 += 1;
+                    }
+                }
+            }
             for (((ty, op, field, ctor), reason), (failed, line)) in &faults {
                 let one = *failed == 1;
                 let what = match reason {
@@ -3927,38 +4000,29 @@ impl Checker<'_> {
             Err(errors.join("\n"))
         }
     }
-    // Step 8 (D6B-48, DL-101): runs the constructor `fn T` over a stored field value. None: it passes. Some(None): no
-    // signature matches. Some(Some(E)): the first matching clause fails with E.
-    fn ctor_fault(&self, ty: &str, value: Option<&Json>) -> Option<Option<String>> {
-        fn matches(arg: &Node, input: &str) -> bool {
-            match arg {
-                Node::Text(t) => t == input,
-                Node::Name(_) => true,
-                Node::Annotated(inner, _) => matches(inner, input),
-                _ => false,
-            }
-        }
-        for (key, names) in self.ctor_signatures(ty).expect("checked signatures") {
-            let inputs: Option<Vec<&str>> = match names.as_slice() {
-                [_] => value.and_then(Json::text).map(|t| vec![t]),
-                _ => names
-                    .iter()
-                    .map(|n| value.and_then(|v| v.get(n)).and_then(Json::text))
-                    .collect(),
-            };
-            let Some(inputs) = inputs else { continue };
-            // ponytail: the static body TYPE of the first matching clause decides; a body that fails only in a pipe
-            // step counts as passing. Evaluate the body when such a constructor stands in a decode.
-            return self
-                .program
-                .clauses
-                .iter()
-                .filter(|c| c.key == key)
-                .find(|c| c.args.iter().zip(&inputs).all(|(a, i)| matches(a, i)))
-                .and_then(|c| self.failure_of(c, &self.body_type(c).0))
-                .map(|f| Some(f.clone()));
-        }
-        Some(None)
+    // Step 8 (D6B-48, DL-101): the first signature of `fn T` whose keys all hold Strings (one parameter: the field
+    // value is the String), with its inputs. None: no signature matches.
+    // ponytail: a Rust mirror of the `cond` in `__beaml_from_T` (D6B-103); a new signature rule must change both
+    // (guard E9). Upgrade path: emit a public `__beaml_from_T` and call it in the Elixir run.
+    fn ctor_pick(&self, ty: &str, value: Option<&Json>) -> Option<(String, Vec<String>)> {
+        self.ctor_signatures(ty)
+            .expect("checked signatures")
+            .into_iter()
+            .find_map(|(key, names)| {
+                let inputs: Option<Vec<String>> = match names.as_slice() {
+                    [_] => value.and_then(Json::text).map(|t| vec![t.to_string()]),
+                    _ => names
+                        .iter()
+                        .map(|n| {
+                            value
+                                .and_then(|v| v.get(n))
+                                .and_then(Json::text)
+                                .map(str::to_string)
+                        })
+                        .collect(),
+                };
+                inputs.map(|i| (key, i))
+            })
     }
     // DEAD LINES (slice 4, DL-056), in source order. W1: a RETIRE LINE whose operation has no record in the
     // RECORD SNAPSHOT. W2: a MIGRATE STEP `T a -> b` when no record of an operation whose `effect` outputs T
@@ -4318,12 +4382,14 @@ fn build_with_refusals(
         }
         _ => "",
     };
+    // Step 13 (contract 8): the same module goes to the --stored check and to the build output.
+    let code = checker.emit(service);
     let (dead, refusals, notes) = match stored {
         Some(path) => {
             let text = std::fs::read_to_string(path)
                 .map_err(|e| format!("cannot read --stored input: {}", e.kind()))?;
             let label = path.display().to_string();
-            let snapshot = checker.check_stored(&label, &text)?;
+            let snapshot = checker.check_stored(&label, &text, &code)?;
             (
                 checker.dead_lines(&snapshot),
                 checker.refusals(&snapshot, &label),
@@ -4346,15 +4412,7 @@ fn build_with_refusals(
         name_ends: program.name_ends.clone(),
     };
     LAST_TYPES.with(|last| *last.borrow_mut() = Some(types.clone()));
-    Ok((
-        Build {
-            code: checker.emit(service),
-            dead,
-            notes,
-        },
-        refusals,
-        types,
-    ))
+    Ok((Build { code, dead, notes }, refusals, types))
 }
 
 // Python `str.splitlines(keepends=True)`: the line boundaries of the difflib reference (README slice 4).
@@ -4918,6 +4976,137 @@ fn warning(source: &str, label: &str, stored: &str, dead: &Dead) -> String {
     )
 }
 
+// Slice 6b step 13 (D6B-102, D6B-122): the Elixir side of the --stored check. It reads the module and the calls from
+// stdin, compiles the module in memory and prints one line per call. No `rescue`, `catch` or `try`: any other result
+// raises, and the run error follows. The first line is the process marker (E8).
+const DRIVER: &str = r#"# beaml-stored-check
+%{"module" => module, "calls" => calls} = JSON.decode!(IO.binread(:stdio, :eof))
+Code.compile_string(module)
+
+for [fun, type, args] <- calls do
+  ok = Module.concat(BeamlSpike, type)
+
+  case apply(BeamlSpike, String.to_atom(fun), args) do
+    {:ok, %{__struct__: ^ok}} ->
+      IO.puts("ok")
+
+    {:error, %{__struct__: failure}} ->
+      ["BeamlSpike", name] = Module.split(failure)
+      IO.puts("error " <> name)
+  end
+end
+"#;
+
+const ELIXIR_RUN_HELP: &str = "  help: compile the generated module with elixirc to see the error";
+
+// D6B-119, D6B-120, D6B-123: one `elixir -e DRIVER` child with a time limit. The verdict per call: None passes,
+// Some(F) fails with F. Child stdout and stderr are never forwarded (D6B-106). One `stored-elixir` event (D6B-107).
+fn run_elixir(stdin: &str, failures: &[&[String]]) -> Checked<Vec<Option<String>>> {
+    use std::os::unix::process::CommandExt;
+    let calls = failures.len();
+    let limit =
+        match std::env::var("BEAML_STORED_ELIXIR_LIMIT_S") {
+            Err(_) => 60,
+            Ok(text) => match text.parse::<u64>() {
+                Ok(n) if n >= 1 => n,
+                _ => return Err(
+                    "error: BEAML_STORED_ELIXIR_LIMIT_S must be a whole number of seconds from 1"
+                        .into(),
+                ),
+            },
+        };
+    let started = std::time::Instant::now();
+    let spawned = std::process::Command::new("elixir")
+        .arg("-e")
+        .arg(DRIVER)
+        .env("ERL_CRASH_DUMP", "/dev/null")
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .process_group(0)
+        .spawn();
+    let mut child = match spawned {
+        Ok(child) => child,
+        Err(e) => {
+            action("stored-elixir", "error", &[("ms", 0), ("calls", calls)]);
+            return Err(if e.kind() == std::io::ErrorKind::NotFound {
+                "error: the --stored check runs the constructors over the stored values in Elixir (DL-121): elixir is not on PATH\n  help: install Elixir 1.18 with Erlang/OTP 27 and put elixir on PATH".into()
+            } else {
+                format!(
+                    "error: the --stored check: the Elixir run of the generated constructors failed (start: {})\n{ELIXIR_RUN_HELP}",
+                    e.kind()
+                )
+            });
+        }
+    };
+    let pid = child.id();
+    let input = stdin.to_string();
+    let mut pipe = child.stdin.take().expect("piped stdin");
+    let (send, receive) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        // The driver reads all of stdin before it writes, so this write cannot block on a full output pipe.
+        let _ = pipe.write_all(input.as_bytes());
+        drop(pipe);
+        let _ = send.send(child.wait_with_output());
+    });
+    let outcome = receive.recv_timeout(std::time::Duration::from_secs(limit));
+    let ms = started.elapsed().as_millis() as usize;
+    let verdicts = match outcome {
+        Ok(Ok(output)) => parse_elixir_results(
+            output.status,
+            &String::from_utf8_lossy(&output.stdout),
+            failures,
+        ),
+        Ok(Err(e)) => Err(format!("wait: {}", e.kind())),
+        Err(_) => {
+            // The whole process group: `elixir` is a launcher script for the VM.
+            let _ = std::process::Command::new("/bin/kill")
+                .args(["-KILL", "--", &format!("-{pid}")])
+                .status();
+            Err(format!("time limit {limit} s"))
+        }
+    };
+    let result = match &verdicts {
+        Ok(v) if v.iter().any(Option::is_some) => "blocked",
+        Ok(_) => "ok",
+        Err(_) => "error",
+    };
+    action("stored-elixir", result, &[("ms", ms), ("calls", calls)]);
+    verdicts.map_err(|why| {
+        format!("error: the --stored check: the Elixir run of the generated constructors failed ({why})\n{ELIXIR_RUN_HELP}")
+    })
+}
+
+// D6B-121: success needs a clean exit and exactly one line per call, each `ok` or `error F` with F in the failure
+// list of that call. Else the reason for the run error.
+fn parse_elixir_results(
+    status: std::process::ExitStatus,
+    stdout: &str,
+    failures: &[&[String]],
+) -> Result<Vec<Option<String>>, String> {
+    use std::os::unix::process::ExitStatusExt;
+    if !status.success() {
+        return Err(match (status.code(), status.signal()) {
+            (Some(code), _) => format!("exit {code}"),
+            (None, Some(signal)) => format!("signal {signal}"),
+            (None, None) => "exit unknown".into(),
+        });
+    }
+    let lines: Vec<&str> = stdout.lines().collect();
+    if lines.len() != failures.len() {
+        return Err("result lines".into());
+    }
+    lines
+        .iter()
+        .zip(failures)
+        .map(|(line, allowed)| match line.strip_prefix("error ") {
+            None if *line == "ok" => Ok(None),
+            Some(f) if allowed.iter().any(|a| a == f) => Ok(Some(f.to_string())),
+            _ => Err("result lines".to_string()),
+        })
+        .collect()
+}
+
 fn action(action: &str, result: &str, counts: &[(&str, usize)]) {
     // Logging must never prevent compilation. Source text, line text and file paths are not recorded.
     let _ = (|| -> std::io::Result<()> {
@@ -5450,6 +5639,49 @@ mod tests {
             ))
             .unwrap_err()
             .starts_with("error: fn w: a nested pipe has the failing step N\n")
+        );
+    }
+
+    // U1 (D6B-121): the strict result protocol of the Elixir run.
+    #[test]
+    fn elixir_results_are_strict() {
+        use std::os::unix::process::ExitStatusExt;
+        let ok = std::process::ExitStatus::from_raw(0);
+        let fails = vec!["NoCurrency".to_string()];
+        let two: Vec<&[String]> = vec![&fails, &fails];
+        assert_eq!(
+            Ok(vec![None, Some("NoCurrency".to_string())]),
+            parse_elixir_results(ok, "ok\nerror NoCurrency\n", &two)
+        );
+        for (stdout, why) in [
+            ("ok\n", "result lines"),
+            ("ok\nok\nok\n", "result lines"),
+            ("ok\nokay\n", "result lines"),
+            ("ok\nerror\n", "result lines"),
+            ("ok\nerror Other\n", "result lines"),
+        ] {
+            assert_eq!(
+                Err(why.to_string()),
+                parse_elixir_results(ok, stdout, &two),
+                "{stdout:?}"
+            );
+        }
+        let exit1 = std::process::ExitStatus::from_raw(1 << 8);
+        let signal9 = std::process::ExitStatus::from_raw(9);
+        assert_eq!(
+            Err("exit 1".to_string()),
+            parse_elixir_results(exit1, "ok\nok\n", &two)
+        );
+        assert_eq!(
+            Err("signal 9".to_string()),
+            parse_elixir_results(signal9, "ok\nok\n", &two)
+        );
+        // O1 (RED review): the kill check of E8 finds the child by the marker in its args.
+        assert!(DRIVER.starts_with("# beaml-stored-check\n"));
+        assert!(
+            !["rescue", "catch", "try"]
+                .iter()
+                .any(|w| DRIVER.contains(w))
         );
     }
 
