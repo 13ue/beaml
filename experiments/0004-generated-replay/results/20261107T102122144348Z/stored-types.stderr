@@ -1,0 +1,39 @@
+test_C10_slice_1_source_compiles_with_v1 (__main__.Fixture.test_C10_slice_1_source_compiles_with_v1) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_C14_second_rename_chain_compiles_and_decode_reads_old_name (__main__.Fixture.test_C14_second_rename_chain_compiles_and_decode_reads_old_name) ... ok
+test_C15_second_rename_without_chain_is_compile_error (__main__.Fixture.test_C15_second_rename_without_chain_is_compile_error) ... ok
+test_C17_fingerprint_not_fields_decides_the_path (__main__.Fixture.test_C17_fingerprint_not_fields_decides_the_path) ... ok
+test_C18_help_line_names_stored_and_next_version (__main__.Fixture.test_C18_help_line_names_stored_and_next_version) ... ok
+test_C19_name_reuse_chain_compiles_with_v1_v4_and_all_versions (__main__.Fixture.test_C19_name_reuse_chain_compiles_with_v1_v4_and_all_versions) ... ok
+test_C1_rename_without_chain_is_compile_error (__main__.Fixture.test_C1_rename_without_chain_is_compile_error) ... ok
+test_C1b_bad_type_version_after_a_good_one_is_compile_error (__main__.Fixture.test_C1b_bad_type_version_after_a_good_one_is_compile_error) ... ok
+test_C20_rotation_chain_compiles_with_v1_v4_and_all_versions (__main__.Fixture.test_C20_rotation_chain_compiles_with_v1_v4_and_all_versions) ... ok
+test_C2_chain_compiles_and_decode_reads_old_name (__main__.Fixture.test_C2_chain_compiles_and_decode_reads_old_name) ... ok
+test_C3_chain_compiles_with_two_stored_versions (__main__.Fixture.test_C3_chain_compiles_with_two_stored_versions) ... ok
+test_C4_rename_of_unknown_old_field_is_compile_error (__main__.Fixture.test_C4_rename_of_unknown_old_field_is_compile_error) ... ok
+test_C5_added_field_without_step_is_compile_error (__main__.Fixture.test_C5_added_field_without_step_is_compile_error) ... ok
+test_C6_same_source_with_empty_snapshot_compiles (__main__.Fixture.test_C6_same_source_with_empty_snapshot_compiles) ... ok
+test_C7_record_without_type_version_is_compile_error (__main__.Fixture.test_C7_record_without_type_version_is_compile_error) ... ok
+test_C8_effect_source_without_stored_input_is_compile_error (__main__.Fixture.test_C8_effect_source_without_stored_input_is_compile_error) ... ok
+test_fixtures_match_the_template_rule (__main__.Fixture.test_fixtures_match_the_template_rule) ... ok
+test_C10_slice_1_source_compiles_with_v1 (__main__.Template.test_C10_slice_1_source_compiles_with_v1) ... ok
+test_C14_second_rename_chain_compiles_and_decode_reads_old_name (__main__.Template.test_C14_second_rename_chain_compiles_and_decode_reads_old_name) ... ok
+test_C15_second_rename_without_chain_is_compile_error (__main__.Template.test_C15_second_rename_without_chain_is_compile_error) ... ok
+test_C17_fingerprint_not_fields_decides_the_path (__main__.Template.test_C17_fingerprint_not_fields_decides_the_path) ... ok
+test_C18_help_line_names_stored_and_next_version (__main__.Template.test_C18_help_line_names_stored_and_next_version) ... ok
+test_C19_name_reuse_chain_compiles_with_v1_v4_and_all_versions (__main__.Template.test_C19_name_reuse_chain_compiles_with_v1_v4_and_all_versions) ... ok
+test_C1_rename_without_chain_is_compile_error (__main__.Template.test_C1_rename_without_chain_is_compile_error) ... ok
+test_C1b_bad_type_version_after_a_good_one_is_compile_error (__main__.Template.test_C1b_bad_type_version_after_a_good_one_is_compile_error) ... ok
+test_C20_rotation_chain_compiles_with_v1_v4_and_all_versions (__main__.Template.test_C20_rotation_chain_compiles_with_v1_v4_and_all_versions) ... ok
+test_C2_chain_compiles_and_decode_reads_old_name (__main__.Template.test_C2_chain_compiles_and_decode_reads_old_name) ... ok
+test_C3_chain_compiles_with_two_stored_versions (__main__.Template.test_C3_chain_compiles_with_two_stored_versions) ... ok
+test_C4_rename_of_unknown_old_field_is_compile_error (__main__.Template.test_C4_rename_of_unknown_old_field_is_compile_error) ... ok
+test_C5_added_field_without_step_is_compile_error (__main__.Template.test_C5_added_field_without_step_is_compile_error) ... ok
+test_C6_same_source_with_empty_snapshot_compiles (__main__.Template.test_C6_same_source_with_empty_snapshot_compiles) ... ok
+test_C7_record_without_type_version_is_compile_error (__main__.Template.test_C7_record_without_type_version_is_compile_error) ... ok
+test_C8_effect_source_without_stored_input_is_compile_error (__main__.Template.test_C8_effect_source_without_stored_input_is_compile_error) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 1.025s
+
+OK

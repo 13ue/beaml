@@ -1,0 +1,71 @@
+{
+  "reply": [
+    502,
+    {
+      "error": "downstream_failure"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "sent": 1,
+  "spans": [
+    {
+      "attributes": {
+        "function": "prepare",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "2d37b4acd0b4ae6fbb46262c2cef4115441293929944c8632289c68acd43fcd8",
+        "outcome": "ok"
+      },
+      "name": "orders.prepare",
+      "service": "orders",
+      "start_time": -576460751725461375,
+      "kind": "internal",
+      "trace_id": "473539fd0a894a41950cad081613ad63",
+      "span_id": "dd36296a4128ae0f",
+      "end_time": -576460751725231541,
+      "end_time_unix_nano": 1794045965810062459,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "6a412ea3b9adde58",
+      "start_time_unix_nano": 1794045965809832625
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "error"
+      },
+      "name": "orders.payment_http",
+      "service": "orders",
+      "start_time": -576460751725049000,
+      "kind": "client",
+      "trace_id": "473539fd0a894a41950cad081613ad63",
+      "span_id": "034f43a4cc89aca2",
+      "end_time": -576460751724670625,
+      "end_time_unix_nano": 1794045965810623375,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "6a412ea3b9adde58",
+      "start_time_unix_nano": 1794045965810245000
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460751725584000,
+      "kind": "server",
+      "trace_id": "473539fd0a894a41950cad081613ad63",
+      "span_id": "6a412ea3b9adde58",
+      "end_time": -576460751724537708,
+      "end_time_unix_nano": 1794045965810756292,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1794045965809710000
+    }
+  ],
+  "records": []
+}

@@ -1,0 +1,423 @@
+{
+  "exit_code": 0,
+  "result": {
+    "command": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "experiments/0003-source-linked-replay/run.py"
+    ],
+    "started_at": "2026-11-07T10:03:36.068483+00:00",
+    "finished_at": "2026-11-07T10:04:38.110676+00:00",
+    "toolchain": {
+      "python": "3.13.12",
+      "trace-lookup": {
+        "elixir": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nElixir 1.18.1 (compiled with Erlang/OTP 27)\n",
+        "mix": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nMix 1.18.1 (compiled with Erlang/OTP 27)\n",
+        "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)\n",
+        "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)\n",
+        "python3": "Python 3.13.12\n"
+      },
+      "trace-lookup-repair": {
+        "python": "3.13.12"
+      },
+      "response-capture": {
+        "elixir": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nElixir 1.18.1 (compiled with Erlang/OTP 27)\n",
+        "mix": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nMix 1.18.1 (compiled with Erlang/OTP 27)\n",
+        "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)\n",
+        "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)\n",
+        "python3": "Python 3.13.12\n"
+      },
+      "replay-run": {
+        "elixir": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nElixir 1.18.1 (compiled with Erlang/OTP 27)\n",
+        "mix": "Erlang/OTP 27 [erts-15.2.7] [source] [64-bit] [smp:14:14] [ds:14:14:10] [async-threads:1] [jit]\n\nMix 1.18.1 (compiled with Erlang/OTP 27)\n",
+        "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)\n",
+        "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)\n",
+        "python3": "Python 3.13.12\n"
+      }
+    },
+    "steps": [
+      {
+        "name": "compiler-reference",
+        "command": [
+          "cargo",
+          "test",
+          "--manifest-path",
+          "experiments/0001-syntax-to-beam/Cargo.toml",
+          "--test",
+          "cli",
+          "payments_cli_emits_checked_authorize_reference",
+          "--",
+          "--exact",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "result_dir": null,
+        "status": "pass"
+      },
+      {
+        "name": "trace-lookup",
+        "command": [
+          "python3",
+          "-B",
+          "experiments/0003-source-linked-replay/tests/trace_lookup_test.py"
+        ],
+        "exit_code": 0,
+        "result_dir": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-6gjluy_k/experiments/0003-source-linked-replay/results/20261107T100337682925Z",
+        "status": "pass"
+      },
+      {
+        "name": "trace-lookup-repair",
+        "command": [
+          "python3",
+          "-B",
+          "experiments/0003-source-linked-replay/tests/trace_lookup_repair_test.py",
+          "--source-run",
+          "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-6gjluy_k/experiments/0003-source-linked-replay/results/20261107T100337682925Z"
+        ],
+        "exit_code": 0,
+        "result_dir": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-6gjluy_k/experiments/0003-source-linked-replay/results/20261107T100357455036Z",
+        "status": "pass"
+      },
+      {
+        "name": "response-capture",
+        "command": [
+          "python3",
+          "-B",
+          "experiments/0003-source-linked-replay/tests/response_capture_test.py"
+        ],
+        "exit_code": 0,
+        "result_dir": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-6gjluy_k/experiments/0003-source-linked-replay/results/20261107T100357632006Z",
+        "status": "pass"
+      },
+      {
+        "name": "replay-run",
+        "command": [
+          "python3",
+          "-B",
+          "experiments/0003-source-linked-replay/tests/replay_run_test.py"
+        ],
+        "exit_code": 0,
+        "result_dir": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-6gjluy_k/experiments/0003-source-linked-replay/results/20261107T100415998686Z",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "replay": {
+    "test": "test_separate_runner_replays_first_call_and_rejects_invalid_records",
+    "command": [
+      "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+      "experiments/0003-source-linked-replay/tests/replay_run_test.py"
+    ],
+    "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-6gjluy_k",
+    "status": "pass",
+    "steps": [
+      {
+        "ts": "2026-11-07T10:04:15.999116+00:00",
+        "action": "start",
+        "result": "running"
+      },
+      {
+        "ts": "2026-11-07T10:04:31.226269+00:00",
+        "action": "step",
+        "result": "fresh_releases_match_archived_beams"
+      },
+      {
+        "ts": "2026-11-07T10:04:31.441569+00:00",
+        "action": "step",
+        "result": "receipt_1_verified"
+      },
+      {
+        "ts": "2026-11-07T10:04:31.495185+00:00",
+        "action": "step",
+        "result": "receipt_2_verified"
+      },
+      {
+        "ts": "2026-11-07T10:04:33.568342+00:00",
+        "action": "step",
+        "result": "live_baseline_and_records_verified"
+      },
+      {
+        "ts": "2026-11-07T10:04:34.987842+00:00",
+        "action": "step",
+        "result": "a1_stub_record_retained"
+      },
+      {
+        "ts": "2026-11-07T10:04:35.311261+00:00",
+        "action": "step",
+        "result": "replay_vm_observer_control_counted_transport"
+      },
+      {
+        "ts": "2026-11-07T10:04:37.502590+00:00",
+        "action": "step",
+        "result": "replay_cases_ran"
+      },
+      {
+        "ts": "2026-11-07T10:04:38.097687+00:00",
+        "action": "pass",
+        "result": "replay_verified"
+      }
+    ],
+    "release_exits": {
+      "payments": 0,
+      "orders": 0
+    },
+    "baseline": {
+      "receipts": [
+        {
+          "call": 1,
+          "status": 200,
+          "body": {
+            "order_id": "order-1",
+            "status": "authorized"
+          },
+          "trace_id": "f28423d2211f11ad0aaa8a548c4a3f43"
+        },
+        {
+          "call": 2,
+          "status": 200,
+          "body": {
+            "order_id": "order-1",
+            "status": "authorized"
+          },
+          "trace_id": "e117190c3070c93ae4326fb9fd00cee2"
+        }
+      ],
+      "live_transport_attempts": [
+        1,
+        2
+      ],
+      "response_records": 2,
+      "responses_sha256": "10819eabe6c542f6f17dfceaa7b58211014b0a6675737e1d08a1ccd0aaaae69e"
+    },
+    "assertions": {
+      "a1_record_bytes_equal_sent_bytes": {
+        "expected": "eyAic3RhdHVzIiA6ICJhdXRob3JpemVkIiwKICAib3JkZXJfaWQiIDogIm9yZGVyLTEiIH0=",
+        "actual": "eyAic3RhdHVzIiA6ICJhdXRob3JpemVkIiwKICAib3JkZXJfaWQiIDogIm9yZGVyLTEiIH0="
+      },
+      "replay_first_call": {
+        "expected": {
+          "result": {
+            "ok": {
+              "order_id": "order-1",
+              "status": "authorized"
+            }
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 1,
+          "OrdersBeamlSpike.finish/1": 1,
+          "ProbeSupport.valid_payment!/2": 1,
+          "OrdersBeamlSpike.prepare/1": 1
+        },
+        "actual": {
+          "result": {
+            "ok": {
+              "order_id": "order-1",
+              "status": "authorized"
+            }
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          "OrdersBeamlSpike.prepare/1": 1,
+          ":json.decode/1": 1,
+          "OrdersBeamlSpike.finish/1": 1,
+          "ProbeSupport.valid_payment!/2": 1
+        }
+      },
+      "replay_a1_noncanonical_body": {
+        "expected": {
+          "result": {
+            "ok": {
+              "order_id": "order-1",
+              "status": "authorized"
+            }
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 1,
+          "OrdersBeamlSpike.finish/1": 1,
+          "ProbeSupport.valid_payment!/2": 1,
+          "OrdersBeamlSpike.prepare/1": 1
+        },
+        "actual": {
+          "result": {
+            "ok": {
+              "order_id": "order-1",
+              "status": "authorized"
+            }
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          "OrdersBeamlSpike.prepare/1": 1,
+          ":json.decode/1": 1,
+          "OrdersBeamlSpike.finish/1": 1,
+          "ProbeSupport.valid_payment!/2": 1
+        }
+      },
+      "replay_missing_response": {
+        "expected": {
+          "result": {
+            "error": "missing_response"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        },
+        "actual": {
+          "result": {
+            "error": "missing_response"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        }
+      },
+      "replay_operation_mismatch": {
+        "expected": {
+          "result": {
+            "error": "operation_mismatch"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        },
+        "actual": {
+          "result": {
+            "error": "operation_mismatch"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        }
+      },
+      "replay_attempt_mismatch": {
+        "expected": {
+          "result": {
+            "error": "attempt_mismatch"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        },
+        "actual": {
+          "result": {
+            "error": "attempt_mismatch"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        }
+      },
+      "replay_body_digest_mismatch": {
+        "expected": {
+          "result": {
+            "error": "body_digest_mismatch"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        },
+        "actual": {
+          "result": {
+            "error": "body_digest_mismatch"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        }
+      },
+      "replay_status_mismatch": {
+        "expected": {
+          "result": {
+            "error": "status_mismatch"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        },
+        "actual": {
+          "result": {
+            "error": "status_mismatch"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        }
+      },
+      "replay_request_mismatch": {
+        "expected": {
+          "result": {
+            "error": "request_mismatch"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        },
+        "actual": {
+          "result": {
+            "error": "request_mismatch"
+          },
+          "transport": 0,
+          "OrdersApi.Router.call/2": 0,
+          "OrdersBeamlSpike.payments_authorize/1": 0,
+          ":gen_tcp.connect/4": 0,
+          ":json.decode/1": 0,
+          "OrdersBeamlSpike.finish/1": 0,
+          "ProbeSupport.valid_payment!/2": 0
+        }
+      }
+    }
+  }
+}

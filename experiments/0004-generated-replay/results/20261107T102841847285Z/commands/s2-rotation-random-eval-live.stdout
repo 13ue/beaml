@@ -1,0 +1,5 @@
+
+11:29:42.097 [info] Exporter ProbeSupport.Exporter successfully initialized
+
+11:29:42.111 [info] probe observation
+REPLAY {"result":{"ok":{"a_rpbxmh":"X-live","b_bluysn":"Y-live"}},"unwatched":[],"calls":{":gen_tcp.connect/4":1,":json.decode/1":2,"OrdersApi.Router.call/2":0,"OrdersBeamlSpike.finish/1":1,"OrdersBeamlSpike.payments_authorize/1":1,"OrdersBeamlSpike.prepare/1":1,"ProbeSupport.valid_payment!/2":0},"transport":1,"artifact":"57403d321d6508639bcd43cce825ffffd8f4f0c788ffa016ca4fd1f84848dffc"}

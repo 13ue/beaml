@@ -209,10 +209,15 @@ fn version_word(word: &str) -> Result<u32, String> {
         return Err(format!("{word}: versions start at v1"));
     }
     if trimmed.len() != digits.len() {
-        return Err(format!("{word}: a VERSION has no leading zero; write v{trimmed}"));
+        return Err(format!(
+            "{word}: a VERSION has no leading zero; write v{trimmed}"
+        ));
     }
     digits.parse::<u32>().map_err(|_| {
-        format!("{word}: version number too large; the largest is v{}", u32::MAX)
+        format!(
+            "{word}: version number too large; the largest is v{}",
+            u32::MAX
+        )
     })
 }
 
@@ -265,7 +270,8 @@ impl Parser {
     fn version(&mut self, context: &str) -> Checked<Result<u32, u32>> {
         match self.peek().clone() {
             Token::Word(word) => {
-                let version = version_word(&word).map_err(|e| self.error(&format!("{context} {e}")))?;
+                let version =
+                    version_word(&word).map_err(|e| self.error(&format!("{context} {e}")))?;
                 self.at += 1;
                 Ok(Ok(version))
             }
@@ -3036,9 +3042,9 @@ fn matching_blocks(a: &[&str], b: &[&str]) -> Vec<(usize, usize, usize)> {
     let longest = |alo: usize, ahi: usize, blo: usize, bhi: usize| {
         let (mut besti, mut bestj, mut bestsize) = (alo, blo, 0);
         let mut j2len: std::collections::HashMap<usize, usize> = std::collections::HashMap::new();
-        for i in alo..ahi {
+        for (i, line) in a.iter().enumerate().take(ahi).skip(alo) {
             let mut next = std::collections::HashMap::new();
-            for &j in b2j.get(a[i]).map_or(&[][..], |v| v.as_slice()) {
+            for &j in b2j.get(line).map_or(&[][..], |v| v.as_slice()) {
                 if j < blo {
                     continue;
                 }
@@ -3537,10 +3543,14 @@ mod tests {
     #[test]
     fn interfaces_are_structural_and_exact() {
         assert!(
-            compile("type A { text: String } type B { text: String } fn f a: A -> B = a")
-                .is_ok()
+            compile("type A { text: String } type B { text: String } fn f a: A -> B = a").is_ok()
         );
-        assert!(compile("type A { text: String } type B { text: String, extra: String } fn f a: A -> B = a").is_err());
+        assert!(
+            compile(
+                "type A { text: String } type B { text: String, extra: String } fn f a: A -> B = a"
+            )
+            .is_err()
+        );
     }
     #[test]
     fn coverage_handles_multiple_arguments_and_empty_shapes() {
@@ -3607,7 +3617,8 @@ mod tests {
                 }],
             })
         };
-        let cases: [(&dyn Fn(&str) -> Checked<Build>, &str); 2] = [
+        type Recheck<'a> = &'a dyn Fn(&str) -> Checked<Build>;
+        let cases: [(Recheck, &str); 2] = [
             (&failed, "error: forced recheck failure"),
             (&still_dead, "still has 1 DEAD LINES"),
         ];
@@ -3659,7 +3670,8 @@ mod tests {
     // through the recheck seam of U1: the forced recheck builds a text without mark and chain (newest v1).
     #[test]
     fn removal_writes_nothing_when_the_newest_version_changes() {
-        const HEAD: &str = "type Order { order_id: String }\ntype Payment { order_id: String state: String }\n";
+        const HEAD: &str =
+            "type Order { order_id: String }\ntype Payment { order_id: String state: String }\n";
         const CHAIN: &str = "migrate Payment v1 -> v2 { rename status -> state }\n";
         const TAIL: &str = "type PaymentError { reason: String }\n\neffect payments.authorize Order -> Payment ! PaymentError = http.post(\"payments/authorize\")\n\nfn prepare Order { order_id } -> Order = Order { order_id: order_id + \"\" }\nfn finish Payment { order_id, state } -> Payment = Payment { order_id: order_id + \"\", state: state }\n\nfn place order: Order -> Payment ! PaymentError =\n  order\n  |> prepare\n  |> payments.authorize\n  |> finish\n";
         use std::os::unix::fs::MetadataExt;

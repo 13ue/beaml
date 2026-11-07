@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "name": "format",
+      "command": "cargo fmt --manifest-path experiments/0001-syntax-to-beam/Cargo.toml -- --check",
+      "status": "pass"
+    },
+    {
+      "name": "lint",
+      "command": "cargo clippy --offline --manifest-path experiments/0001-syntax-to-beam/Cargo.toml --all-targets -- -D warnings",
+      "status": "pass"
+    },
+    {
+      "name": "compiler tests (25: 11 + 14, equal to baseline)",
+      "command": "cargo test --offline --no-fail-fast --manifest-path experiments/0001-syntax-to-beam/Cargo.toml",
+      "status": "pass"
+    },
+    {
+      "name": "0001 run.py (results/20261107T102112778254Z)",
+      "command": "python3 -B experiments/0001-syntax-to-beam/run.py",
+      "status": "pass"
+    },
+    {
+      "name": "0004 run.py (results/20261107T102122144348Z; suite counts equal to baseline 20261107T100323345706Z)",
+      "command": "python3 -B experiments/0004-generated-replay/run.py",
+      "status": "pass"
+    },
+    {
+      "name": "compiler output byte-equal before and after (129 cases, incl. --remove-dead DIFFLIB, DL-067)",
+      "command": "python3 -B experiments/0004-generated-replay/workflow/2026-11-07/slice6b-hygiene/capture.py BINARY; compare the capture section of before.log and after.log",
+      "status": "pass"
+    }
+  ],
+  "pass": true
+}

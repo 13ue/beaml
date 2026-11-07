@@ -1,0 +1,5 @@
+
+11:38:09.543 [info] Exporter ProbeSupport.Exporter successfully initialized
+
+11:38:09.789 [info] probe observation
+REPLAY {"result":{"ok":{"k_qhbukz":"order-1","t_gmvhzr":"settled","x_rlpgaw":"r-9"}},"unwatched":["{OrdersBeamlSpike, :payments_authorize, 1}"],"calls":{":gen_tcp.connect/4":1,":json.decode/1":2,"OrdersApi.Router.call/2":0,"OrdersBeamlSpike.finish/1":1,"OrdersBeamlSpike.payments_authorize/1":"nil","OrdersBeamlSpike.payments_oqqyucbu/1":1,"OrdersBeamlSpike.prepare/1":1,"ProbeSupport.valid_payment!/2":0},"transport":1,"artifact":"6c0a306e5e04a5b4b8cd09e32bb1629a25c99ce0b0f58ec44bf29a23315bde53"}

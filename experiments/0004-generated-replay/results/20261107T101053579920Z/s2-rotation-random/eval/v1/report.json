@@ -1,0 +1,20 @@
+{
+  "result": {
+    "ok": {
+      "a_mjdzbn": "X-v1",
+      "b_iaapyv": "Y-v1"
+    }
+  },
+  "unwatched": [],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "d6e86e31f7e050cefc7160be7d60f5ef75faa5a98a7482ae82aaf9688f3c234e"
+}
