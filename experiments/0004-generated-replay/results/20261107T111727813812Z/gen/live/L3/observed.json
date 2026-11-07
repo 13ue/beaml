@@ -1,0 +1,104 @@
+{
+  "reply": [
+    502,
+    {
+      "error": "downstream_failure"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "sent": 1,
+  "spans": [
+    {
+      "attributes": {
+        "function": "prepare",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "e22dbc86e8848339ea9067497149ffc8e045ef311942d891b56b0361c21ef753",
+        "outcome": "ok"
+      },
+      "name": "orders.prepare",
+      "service": "orders",
+      "start_time": -576460751701360000,
+      "kind": "internal",
+      "trace_id": "162a7719954d53e8a57ff692daf04a08",
+      "span_id": "b242dfee1199c547",
+      "end_time": -576460751701079041,
+      "end_time_unix_nano": 1794050354723301959,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "09572dd80cf13c96",
+      "start_time_unix_nano": 1794050354723021000
+    },
+    {
+      "attributes": {
+        "reason": "decode",
+        "order_id": "order-1",
+        "outcome": "error"
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "start_time": -576460751700860250,
+      "kind": "client",
+      "trace_id": "162a7719954d53e8a57ff692daf04a08",
+      "span_id": "ccba6c1ea3bdc0ea",
+      "end_time": -576460751699928750,
+      "end_time_unix_nano": 1794050354724452250,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "09572dd80cf13c96",
+      "start_time_unix_nano": 1794050354723520750
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460751701553416,
+      "kind": "server",
+      "trace_id": "162a7719954d53e8a57ff692daf04a08",
+      "span_id": "09572dd80cf13c96",
+      "end_time": -576460751699666666,
+      "end_time_unix_nano": 1794050354724714334,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1794050354722827584
+    }
+  ],
+  "records": [
+    {
+      "status": 200,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "status",
+            "String"
+          ]
+        ],
+        "fingerprint": "35a7a9d23ad4d4c63d3d1dd9de660161952b8b6fbf263967f4fd802661143747"
+      },
+      "version": 1,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "162a7719954d53e8a57ff692daf04a08",
+      "body_length": 22,
+      "unknown_keys": [],
+      "artifact_id": "d89b3d8cf9659a02bb9df915e70375d3748ae5fd754c726e0919bc64437ca0bc",
+      "attempt": 1,
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEifQ==",
+      "body_sha256": "4e08302d9f0c3cc716f9bb1c8e4013a4dec28434aa701bf01b317831f70b19fd",
+      "client_span_id": "ccba6c1ea3bdc0ea"
+    }
+  ]
+}

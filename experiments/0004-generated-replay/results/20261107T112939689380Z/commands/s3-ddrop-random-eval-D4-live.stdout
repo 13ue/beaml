@@ -1,0 +1,5 @@
+
+12:34:10.372 [info] Exporter ProbeSupport.Exporter successfully initialized
+
+12:34:10.700 [info] probe observation
+REPLAY {"result":{"ok":{"k_zbfsam":"order-1"}},"unwatched":[],"calls":{":gen_tcp.connect/4":1,":json.decode/1":2,"OrdersApi.Router.call/2":0,"OrdersBeamlSpike.finish/1":1,"OrdersBeamlSpike.payments_authorize/1":1,"OrdersBeamlSpike.prepare/1":1,"ProbeSupport.valid_payment!/2":0},"transport":1,"artifact":"b6e9f31bf62215d399c19c8888996b6ab6cb124d75c3b41463bd55fe2318ac62"}

@@ -1,0 +1,23 @@
+{
+  "result": {
+    "ok": {
+      "v234024012375": "order-1",
+      "v325124542087": "settled"
+    }
+  },
+  "unwatched": [
+    "{OrdersBeamlSpike, :payments_authorize, 1}"
+  ],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": "nil",
+    "OrdersBeamlSpike.payments_oqhoipqb/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "cd32de3dd6c08ab7a1b4667b6d3d4b8a69590c79203c5961fb50a5a65438c8ec"
+}

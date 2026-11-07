@@ -1,0 +1,159 @@
+{
+  "fixtures": {
+    "payments": {
+      "source": "apps/payments_api/priv/payments.beaml",
+      "source_hash": "f82a0d33853fa0f6a0955a09d803606f76498b1769fa8ca0d66c494eff49f125"
+    },
+    "orders": {
+      "source": "apps/orders_api/priv/orders.beaml",
+      "source_hash": "2d37b4acd0b4ae6fbb46262c2cef4115441293929944c8632289c68acd43fcd8"
+    }
+  },
+  "capture": {
+    "payments": {
+      "bytes": {
+        "logs": 350,
+        "spans": 2112
+      },
+      "loss": []
+    },
+    "orders": {
+      "bytes": {
+        "logs": 348,
+        "responses": 886,
+        "spans": 3822
+      },
+      "loss": []
+    }
+  },
+  "processes": {
+    "payments": {
+      "capture": {
+        "bytes": {},
+        "loss": []
+      },
+      "count": 0,
+      "node": "nonode@nohost",
+      "pid": "45012",
+      "applications": [
+        "payments_api",
+        "probe_support",
+        "plug_cowboy",
+        "plug",
+        "plug_crypto",
+        "mime",
+        "eex",
+        "cowboy_telemetry",
+        "telemetry",
+        "cowboy",
+        "ranch",
+        "ssl",
+        "public_key",
+        "asn1",
+        "cowlib",
+        "opentelemetry",
+        "opentelemetry_api",
+        "crypto",
+        "logger",
+        "sasl",
+        "elixir",
+        "compiler",
+        "stdlib",
+        "kernel"
+      ],
+      "beam_hash": "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31",
+      "listener": "127.0.0.1",
+      "own_loaded": true,
+      "sibling": "orders_api",
+      "sibling_available": false,
+      "sibling_loaded": false
+    },
+    "orders": {
+      "capture": {
+        "bytes": {},
+        "loss": []
+      },
+      "count": 0,
+      "node": "nonode@nohost",
+      "pid": "45223",
+      "applications": [
+        "orders_api",
+        "probe_support",
+        "plug_cowboy",
+        "plug",
+        "plug_crypto",
+        "mime",
+        "eex",
+        "cowboy_telemetry",
+        "telemetry",
+        "cowboy",
+        "ranch",
+        "ssl",
+        "public_key",
+        "asn1",
+        "cowlib",
+        "opentelemetry",
+        "opentelemetry_api",
+        "crypto",
+        "logger",
+        "sasl",
+        "elixir",
+        "compiler",
+        "stdlib",
+        "kernel"
+      ],
+      "beam_hash": "9b5ec850c5e6d8f0d71f58f5cb71e956916ff9e2f2fa657d83533234f0fd43b5",
+      "listener": "127.0.0.1",
+      "own_loaded": true,
+      "sibling": "payments_api",
+      "sibling_available": false,
+      "sibling_loaded": false
+    }
+  },
+  "artifacts": {
+    "payments": {
+      "generated_hash": "c1f1b877ec1d434cd29b9ed8f01190b2475041e7f9160c534b15147af03df42e",
+      "beam_hash": "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31"
+    },
+    "orders": {
+      "generated_hash": "387eac48d8f1fd624f39a45b020f33cb199e459f5de83c146fcab6dd596dcf95",
+      "beam_hash": "9b5ec850c5e6d8f0d71f58f5cb71e956916ff9e2f2fa657d83533234f0fd43b5"
+    }
+  },
+  "window": {
+    "start_utc": "2000-01-01T00:00:00+00:00",
+    "end_utc": "2000-01-01T01:00:00+00:00"
+  },
+  "receipts": [
+    {
+      "call": 1,
+      "status": 200,
+      "body": {
+        "order_id": "order-1",
+        "status": "authorized"
+      },
+      "trace_id": "402f1f0c02892df8960563c6374899f0"
+    },
+    {
+      "call": 2,
+      "status": 200,
+      "body": {
+        "order_id": "order-1",
+        "status": "authorized"
+      },
+      "trace_id": "c86dd84b62e7ceb0f1092001f6a6a2c0"
+    }
+  ],
+  "function_lookup": {
+    "artifact_id": "51c22421ac859dbd4577b0fa2ecd2aa602f2ea95e9fa23de6e723958c8780c31",
+    "source_id": {
+      "qualified_name": "payments.authorize",
+      "source_sha256": "f82a0d33853fa0f6a0955a09d803606f76498b1769fa8ca0d66c494eff49f125"
+    },
+    "byte_range": [
+      81,
+      183
+    ]
+  },
+  "current_revision": "../current-revision"
+}

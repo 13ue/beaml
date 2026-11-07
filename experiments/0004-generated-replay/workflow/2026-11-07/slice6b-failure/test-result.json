@@ -1,0 +1,16 @@
+{
+  "step": "slice6b-failure",
+  "head": "c3e97430",
+  "checks": [
+    {"name": "fmt", "command": "cargo fmt --check", "status": "pass", "detail": "exit 0"},
+    {"name": "clippy", "command": "cargo clippy --offline --all-targets -- -D warnings", "status": "pass", "detail": "exit 0"},
+    {"name": "cargo-test", "command": "cargo test --no-fail-fast", "status": "pass", "detail": "28 pass: 14 unit, 14 CLI"},
+    {"name": "0004-suite", "command": "python3 experiments/0004-generated-replay/run.py", "status": "pass", "detail": "15 of 15 steps pass, 22 min 44 s, results/20261107T111726668617Z (plus sub-run dirs of the same run)"},
+    {"name": "0001-run", "command": "python3 experiments/0001-syntax-to-beam/run.py", "status": "pass", "detail": "results/20261107T111800449174Z"},
+    {"name": "slice6-failure", "command": "python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py", "status": "pass", "detail": "22 of 22 OK; not part of run.py"},
+    {"name": "slice6-int", "command": "python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py", "status": "pass", "detail": "16 of 16 OK; not part of run.py"},
+    {"name": "compile-level-files", "command": "python3 -B experiments/0004-generated-replay/tests/{stored_types,slice3_types,slice4_retire,slice5_syntax,slice5_squash,slice5_rewrite}_test.py", "status": "pass", "detail": "33, 69, 87, 60, 24, 5 OK"},
+    {"name": "lint-wiki", "command": "python3 scripts/lint_wiki.py", "status": "pass", "detail": "81 files, 0 errors"}
+  ],
+  "pass": true
+}

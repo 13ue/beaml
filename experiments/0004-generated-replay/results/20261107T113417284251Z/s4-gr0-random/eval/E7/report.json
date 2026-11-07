@@ -1,0 +1,24 @@
+{
+  "result": {
+    "error": "%OrdersBeamlSpike.Replay.Retired{operation: \"nskpmync.opdombzn\", keep_days: 0}"
+  },
+  "unwatched": [
+    "{OrdersBeamlSpike, :payments_authorize, 1}",
+    "{OrdersBeamlSpike, :payments_charge, 1}",
+    "{OrdersBeamlSpike, :nskpmync_opdombzn, 1}"
+  ],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 0,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 0,
+    "OrdersBeamlSpike.nskpmync_opdombzn/1": "nil",
+    "OrdersBeamlSpike.payments_authorize/1": "nil",
+    "OrdersBeamlSpike.payments_charge/1": "nil",
+    "OrdersBeamlSpike.payments_oqbjxxjg/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "23bd3a1773ac01b15a3609b4b2781d6f24fa324080fe0ba50d7f7c66b8c4d443"
+}
