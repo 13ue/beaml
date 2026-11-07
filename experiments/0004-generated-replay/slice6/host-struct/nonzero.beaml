@@ -1,0 +1,35 @@
+// EXPERIMENT 0004 slice 6b step 11 (DL-106, DL-117): constructor TYPES are structs at the host. A pure module.
+type IsZero {}
+type NonZeroInt { value: Int }
+
+// DL-092: the constructor is the only way in. DL-117: the host calls NonZeroInt.new(%{n: 3}).
+fn NonZeroInt n: Int -> NonZeroInt ! IsZero
+fn NonZeroInt 0 -> NonZeroInt ! IsZero = IsZero {}
+fn NonZeroInt n -> NonZeroInt ! IsZero = NonZeroInt { value: n }
+
+fn wrap n: Int -> NonZeroInt ! IsZero = n |> NonZeroInt
+fn keep x: NonZeroInt -> NonZeroInt = x
+
+// DL-106: a plain record without a constructor keeps the String-key map form.
+type Plain { value: Int }
+fn same p: Plain -> Plain = p
+
+// D6B-76: the struct is required in a nested field and in an enum payload.
+type Box { n: NonZeroInt }
+fn unbox Box { n } -> NonZeroInt = n
+enum Wrap { Has(NonZeroInt) }
+fn wrapped w: Wrap -> Wrap = w
+
+// D6B-77: a constructor TYPE as a failure through a pipe keeps its fields.
+fn twice n: Int -> String ! NonZeroInt | IsZero = n |> NonZeroInt
+
+// DL-117: two parameters; the keys of the map pick the signature.
+type Pair { a: String b: String }
+fn Pair x: String, y: String -> Pair = Pair { a: x, b: y }
+
+// DL-117: two signatures; the key set of the map picks one.
+type Label { text: String }
+fn Label text: String -> Label
+fn Label t -> Label = Label { text: t }
+fn Label first: String, last: String -> Label
+fn Label f, l -> Label = Label { text: f + " " + l }

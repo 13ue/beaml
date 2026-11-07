@@ -1,0 +1,988 @@
+# RED run, slice 6b step 11 (host structs, T.new/1). 2026-11-07.
+# Compiler: scratch build of HEAD 52550d4f (git archive experiments/0001-syntax-to-beam), BEAML_SPIKE=<scratch>/beaml-spike
+# Elixir 1.18.1 (compiled with Erlang/OTP 27); Python 3.13.12; cargo 1.94.0 (85eff7c80 2026-01-15)
+# fixture sha256 eb2b52fa248e6565032c676db8c3c0028ec0ee153f069c52080d2c0eba6ed6d7
+# test sha256 e505c285d3b150abcdcf2aad4469855c1837964c3a56072c014839593dd9e25a
+$ BEAML_SPIKE=<scratch> python3 -B experiments/0004-generated-replay/tests/slice6_host_struct_test.py
+test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) ... compiler: <scratch>/beaml-spike
+
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h1_string_key_map_rejected] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h1_struct_passes] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_ok] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_constructor_failure] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_wrong_value_type] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_naked_value_is_not_a_form] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_string_keys_help] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_unknown_atom_key] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_extra_atom_key] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h3_nested_map_rejected] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h3_nested_struct_passes] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h3e_payload_map_rejected] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h3e_payload_struct_passes] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h4_wrap_gives_struct] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h9_pair_new] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h9_pair_missing_key] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h9_label_first_signature] ... FAIL
+  test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h9_label_second_signature] ... FAIL
+test_limit_deliberate_struct_literal_is_not_caught (__main__.Slice6HostStruct.test_limit_deliberate_struct_literal_is_not_caught)
+H7 records the DL-106 limit, not a wanted outcome: Elixir has no private constructors, so a host can write ... 
+  test_limit_deliberate_struct_literal_is_not_caught (__main__.Slice6HostStruct.test_limit_deliberate_struct_literal_is_not_caught) [h7_deliberate_struct_literal]
+H7 records the DL-106 limit, not a wanted outcome: Elixir has no private constructors, so a host can write ... FAIL
+test_sources_without_a_record_constructor_stay_byte_equal (__main__.Slice6HostStruct.test_sources_without_a_record_constructor_stay_byte_equal) ... ok
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h1_string_key_map_rejected]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h1_struct_passes]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_ok]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_constructor_failure]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_wrong_value_type]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_naked_value_is_not_a_form]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_string_keys_help]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_unknown_atom_key]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h2_new_extra_atom_key]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h3_nested_map_rejected]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h3_nested_struct_passes]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h3e_payload_map_rejected]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h3e_payload_struct_passes]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h4_wrap_gives_struct]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h9_pair_new]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h9_pair_missing_key]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h9_label_first_signature]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) [h9_label_second_signature]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h1_string_key_map_rejected FAIL
+  reason h1_string_key_map_rejected: false
+h1g_atom_key_map_rejected PASS
+h1_struct_passes FAIL
+  reason h1_struct_passes: ** (ArgumentError) invalid BEAML input
+h2_new_ok FAIL
+  reason h2_new_ok: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_constructor_failure FAIL
+  reason h2_new_constructor_failure: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_wrong_value_type FAIL
+  reason h2_new_wrong_value_type: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_naked_value_is_not_a_form FAIL
+  reason h2_new_naked_value_is_not_a_form: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_string_keys_help FAIL
+  reason h2_new_string_keys_help: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_unknown_atom_key FAIL
+  reason h2_new_unknown_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h2_new_extra_atom_key FAIL
+  reason h2_new_extra_atom_key: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3_nested_map_rejected FAIL
+  reason h3_nested_map_rejected: false
+h3_nested_struct_passes FAIL
+  reason h3_nested_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h3e_payload_map_rejected FAIL
+  reason h3e_payload_map_rejected: false
+h3e_payload_struct_passes FAIL
+  reason h3e_payload_struct_passes: ** (UndefinedFunctionError) function BeamlSpike.NonZeroInt.new/1 is undefined or private
+h4_wrap_gives_struct FAIL
+  reason h4_wrap_gives_struct: false
+h5_plain_record_keeps_map PASS
+h6_pipe_failure_keeps_fields PASS
+h6_pipe_failure_constructor_error PASS
+h9_pair_new FAIL
+  reason h9_pair_new: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_pair_missing_key FAIL
+  reason h9_pair_missing_key: ** (UndefinedFunctionError) function BeamlSpike.Pair.new/1 is undefined (module BeamlSpike.Pair is not available)
+h9_label_first_signature FAIL
+  reason h9_label_first_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+h9_label_second_signature FAIL
+  reason h9_label_second_signature: ** (UndefinedFunctionError) function BeamlSpike.Label.new/1 is undefined (module BeamlSpike.Label is not available)
+
+
+======================================================================
+FAIL: test_limit_deliberate_struct_literal_is_not_caught (__main__.Slice6HostStruct.test_limit_deliberate_struct_literal_is_not_caught) [h7_deliberate_struct_literal]
+H7 records the DL-106 limit, not a wanted outcome: Elixir has no private constructors, so a host can write
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_host_struct_test.py", line 205, in run_runtime
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : h7_deliberate_struct_literal FAIL
+  reason h7_deliberate_struct_literal: ** (ArgumentError) invalid BEAML input
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.380s
+
+FAILED (failures=19)
+# exit 1
