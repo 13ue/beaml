@@ -1,0 +1,24 @@
+{
+  "step": "slice6b-type-constructor",
+  "phase": "TEST",
+  "commit": "08706fa607e814cf099275e28e1312c08e8e2b21",
+  "clean_tree_at_start": true,
+  "toolchain": {"cargo": "1.94.0", "rustc": "1.94.0", "python": "3.13.12", "elixir": "1.18.1", "otp": "27"},
+  "status": "pass",
+  "commands": [
+    {"command": "cargo fmt --check", "cwd": "experiments/0001-syntax-to-beam", "exit": 0, "status": "pass"},
+    {"command": "cargo clippy --offline --all-targets -- -D warnings", "cwd": "experiments/0001-syntax-to-beam", "exit": 0, "status": "pass"},
+    {"command": "cargo test --no-fail-fast", "cwd": "experiments/0001-syntax-to-beam", "exit": 0, "status": "pass", "passed": 29, "detail": "15 unit, 14 CLI"},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py", "exit": 0, "status": "pass", "tests": 16},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py", "exit": 0, "status": "pass", "tests": 22},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py", "exit": 0, "status": "pass", "tests": 25},
+    {"command": "python3 experiments/0001-syntax-to-beam/run.py", "exit": 0, "status": "pass", "result_dir": "experiments/0001-syntax-to-beam/results/20261107T114844188443Z"},
+    {"command": "python3 experiments/0004-generated-replay/run.py", "exit": 0, "status": "pass", "steps_passed": 15, "steps_total": 15,
+     "result_dir": "experiments/0004-generated-replay/results/20261107T114816931475Z",
+     "sub_run_dirs": ["20261107T114818091516Z", "20261107T115155150027Z", "20261107T115811844229Z", "20261107T120038906432Z", "20261107T120511977369Z", "20261107T120826684280Z"],
+     "start": "2026-11-07T11:48:16Z", "end": "2026-11-07T12:11:02Z"},
+    {"command": "python3 scripts/lint_wiki.py", "exit": 0, "status": "pass", "errors": 0}
+  ],
+  "not_run": [],
+  "log": "test-output.log"
+}

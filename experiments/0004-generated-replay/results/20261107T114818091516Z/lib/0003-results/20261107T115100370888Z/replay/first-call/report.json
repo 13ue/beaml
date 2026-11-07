@@ -1,0 +1,26 @@
+{
+  "started": [
+    "logger",
+    "elixir",
+    "compiler",
+    "stdlib",
+    "kernel"
+  ],
+  "result": {
+    "ok": {
+      "order_id": "order-1",
+      "status": "authorized"
+    }
+  },
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.PaymentHttp.authorize/2": 0,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 1
+  },
+  "transport": 0,
+  "artifact_id": "9b5ec850c5e6d8f0d71f58f5cb71e956916ff9e2f2fa657d83533234f0fd43b5"
+}

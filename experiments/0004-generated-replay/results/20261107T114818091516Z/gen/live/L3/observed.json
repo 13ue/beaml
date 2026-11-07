@@ -1,0 +1,104 @@
+{
+  "reply": [
+    502,
+    {
+      "error": "downstream_failure"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "sent": 1,
+  "spans": [
+    {
+      "attributes": {
+        "function": "prepare",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "e22dbc86e8848339ea9067497149ffc8e045ef311942d891b56b0361c21ef753",
+        "outcome": "ok"
+      },
+      "name": "orders.prepare",
+      "service": "orders",
+      "start_time": -576460751620845666,
+      "kind": "internal",
+      "span_id": "d09073f938f09066",
+      "trace_id": "68df3401b3b3dd693fb9dd593f2a4ec1",
+      "end_time": -576460751620548375,
+      "end_time_unix_nano": 1794052206629148625,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "02d03f23458a3093",
+      "start_time_unix_nano": 1794052206628851334
+    },
+    {
+      "attributes": {
+        "reason": "decode",
+        "order_id": "order-1",
+        "outcome": "error"
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "start_time": -576460751620299666,
+      "kind": "client",
+      "span_id": "2d8da4fad41b8b27",
+      "trace_id": "68df3401b3b3dd693fb9dd593f2a4ec1",
+      "end_time": -576460751619519958,
+      "end_time_unix_nano": 1794052206630177042,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "02d03f23458a3093",
+      "start_time_unix_nano": 1794052206629397334
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460751621022000,
+      "kind": "server",
+      "span_id": "02d03f23458a3093",
+      "trace_id": "68df3401b3b3dd693fb9dd593f2a4ec1",
+      "end_time": -576460751619303666,
+      "end_time_unix_nano": 1794052206630393334,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1794052206628675000
+    }
+  ],
+  "records": [
+    {
+      "status": 200,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "status",
+            "String"
+          ]
+        ],
+        "fingerprint": "35a7a9d23ad4d4c63d3d1dd9de660161952b8b6fbf263967f4fd802661143747"
+      },
+      "version": 1,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "68df3401b3b3dd693fb9dd593f2a4ec1",
+      "body_length": 22,
+      "unknown_keys": [],
+      "artifact_id": "d89b3d8cf9659a02bb9df915e70375d3748ae5fd754c726e0919bc64437ca0bc",
+      "attempt": 1,
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEifQ==",
+      "body_sha256": "4e08302d9f0c3cc716f9bb1c8e4013a4dec28434aa701bf01b317831f70b19fd",
+      "client_span_id": "2d8da4fad41b8b27"
+    }
+  ]
+}

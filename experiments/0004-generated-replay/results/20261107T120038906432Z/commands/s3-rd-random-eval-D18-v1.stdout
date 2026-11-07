@@ -1,0 +1,3 @@
+
+13:04:45.519 [info] Exporter ProbeSupport.Exporter successfully initialized
+REPLAY {"result":{"ok":{"k_gryfmd":"order-1"}},"unwatched":[],"calls":{":gen_tcp.connect/4":0,":json.decode/1":1,"OrdersApi.Router.call/2":0,"OrdersBeamlSpike.finish/1":1,"OrdersBeamlSpike.payments_authorize/1":0,"OrdersBeamlSpike.prepare/1":1,"ProbeSupport.valid_payment!/2":0},"transport":0,"artifact":"c1d4b91cb0cca960e2e23eed7090ab6c2a8e860bc4cac6fa9288403d6a158d2b"}

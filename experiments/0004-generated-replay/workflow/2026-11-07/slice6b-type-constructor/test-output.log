@@ -1,0 +1,281 @@
+# Slice 6b step 3 TEST output (commit 08706fa6, clean tree at start)
+# cargo 1.94.0 (85eff7c80 2026-01-15), rustc 1.94.0 (4a4ef493e 2026-03-02), Python 3.13.12, Elixir 1.18.1 (compiled with Erlang/OTP 27)
+
+$ cd experiments/0001-syntax-to-beam && cargo fmt --check
+fmt exit=0
+
+$ cargo clippy --offline --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.40s
+clippy exit=0
+
+$ cargo test --no-fail-fast
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+test exit=0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py
+test_equal_literals_are_unreachable (__main__.Slice6Int.test_equal_literals_are_unreachable) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_fixture_compiles_to_the_planned_shape (__main__.Slice6Int.test_fixture_compiles_to_the_planned_shape) ... ok
+test_int_body_for_string_output (__main__.Slice6Int.test_int_body_for_string_output) ... ok
+test_int_is_not_a_declared_type_name (__main__.Slice6Int.test_int_is_not_a_declared_type_name) ... ok
+test_int_literal_against_string_parameter (__main__.Slice6Int.test_int_literal_against_string_parameter) ... ok
+test_int_output_and_literal_expression_compile (__main__.Slice6Int.test_int_output_and_literal_expression_compile) ... ok
+test_is_integer_is_a_reserved_function_name (__main__.Slice6Int.test_is_integer_is_a_reserved_function_name) ... ok
+test_literal_after_catch_all_is_unreachable (__main__.Slice6Int.test_literal_after_catch_all_is_unreachable) ... ok
+test_literal_alone_is_non_exhaustive (__main__.Slice6Int.test_literal_alone_is_non_exhaustive) ... ok
+test_literal_clause_and_int_parameter_compile (__main__.Slice6Int.test_literal_clause_and_int_parameter_compile) ... ok
+test_no_int_in_effect_input (__main__.Slice6Int.test_no_int_in_effect_input) ... ok
+test_no_int_in_effect_output (__main__.Slice6Int.test_no_int_in_effect_output) ... ok
+test_no_negative_literal (__main__.Slice6Int.test_no_negative_literal) ... ok
+test_no_plus_on_int (__main__.Slice6Int.test_no_plus_on_int) ... ok
+test_runtime (__main__.Slice6Int.test_runtime) ... ok
+test_string_body_for_int_output (__main__.Slice6Int.test_string_body_for_int_output) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.597s
+
+OK
+exit=0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py
+test_body_fixture_compiles_to_the_planned_shape (__main__.Slice6Failure.test_body_fixture_compiles_to_the_planned_shape) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_body_of_neither_type (__main__.Slice6Failure.test_body_of_neither_type) ... ok
+test_body_of_neither_type_record_failure (__main__.Slice6Failure.test_body_of_neither_type_record_failure) ... ok
+test_duplicate_failure_keeps_its_text (__main__.Slice6Failure.test_duplicate_failure_keeps_its_text) ... ok
+test_effect_beside_int_failure_compiles (__main__.Slice6Failure.test_effect_beside_int_failure_compiles) ... ok
+test_effect_overlap (__main__.Slice6Failure.test_effect_overlap) ... ok
+test_effect_structural_overlap (__main__.Slice6Failure.test_effect_structural_overlap) ... ok
+test_equal_record_failures_in_a_list (__main__.Slice6Failure.test_equal_record_failures_in_a_list) ... ok
+test_no_int_in_effect_failure (__main__.Slice6Failure.test_no_int_in_effect_failure) ... ok
+test_overlap_fixture_compiles (__main__.Slice6Failure.test_overlap_fixture_compiles) ... ok
+test_overlap_in_a_list (__main__.Slice6Failure.test_overlap_in_a_list) ... ok
+test_pipe_ends_in_neither_type (__main__.Slice6Failure.test_pipe_ends_in_neither_type) ... ok
+test_plan_source_with_int_failure_compiles (__main__.Slice6Failure.test_plan_source_with_int_failure_compiles) ... ok
+test_runtime_body (__main__.Slice6Failure.test_runtime_body) ... ok
+test_runtime_overlap (__main__.Slice6Failure.test_runtime_overlap) ... ok
+test_runtime_pipe_ends_in_record_failure (__main__.Slice6Failure.test_runtime_pipe_ends_in_record_failure) ... ok
+test_same_enum_both_sides (__main__.Slice6Failure.test_same_enum_both_sides) ... ok
+test_same_int_both_sides (__main__.Slice6Failure.test_same_int_both_sides) ... ok
+test_same_record_both_sides (__main__.Slice6Failure.test_same_record_both_sides) ... ok
+test_same_type_both_sides (__main__.Slice6Failure.test_same_type_both_sides) ... ok
+test_structural_records_overlap (__main__.Slice6Failure.test_structural_records_overlap) ... ok
+test_variant_is_no_failure_type (__main__.Slice6Failure.test_variant_is_no_failure_type) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 2.547s
+
+OK
+exit=0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py
+test_clause_annotation_differs_from_the_signature (__main__.Slice6Constructor.test_clause_annotation_differs_from_the_signature) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_clause_before_the_signature_line (__main__.Slice6Constructor.test_clause_before_the_signature_line) ... ok
+test_constructor_returns_another_type (__main__.Slice6Constructor.test_constructor_returns_another_type) ... ok
+test_constructor_type_as_effect_failure (__main__.Slice6Constructor.test_constructor_type_as_effect_failure) ... ok
+test_constructor_type_as_effect_input (__main__.Slice6Constructor.test_constructor_type_as_effect_input) ... ok
+test_constructor_type_as_effect_output (__main__.Slice6Constructor.test_constructor_type_as_effect_output) ... ok
+test_constructor_type_in_an_effect_output_field (__main__.Slice6Constructor.test_constructor_type_in_an_effect_output_field) ... ok
+test_effect_pipe_keeps_its_spans (__main__.Slice6Constructor.test_effect_pipe_keeps_its_spans) ... ok
+test_nested_literal_in_a_lowercase_fn (__main__.Slice6Constructor.test_nested_literal_in_a_lowercase_fn) ... ok
+test_nested_literal_in_another_constructor (__main__.Slice6Constructor.test_nested_literal_in_another_constructor) ... ok
+test_nominal_type_is_not_its_structural_twin (__main__.Slice6Constructor.test_nominal_type_is_not_its_structural_twin) ... ok
+test_nonzero_fixture_compiles_to_the_planned_shape (__main__.Slice6Constructor.test_nonzero_fixture_compiles_to_the_planned_shape) ... ok
+test_plain_fixture_compiles (__main__.Slice6Constructor.test_plain_fixture_compiles) ... ok
+test_pure_module_has_no_span (__main__.Slice6Constructor.test_pure_module_has_no_span) ... ok
+test_pure_pipe_beside_an_effect_has_no_span (__main__.Slice6Constructor.test_pure_pipe_beside_an_effect_has_no_span) ... ok
+test_record_literal_outside_the_constructor (__main__.Slice6Constructor.test_record_literal_outside_the_constructor) ... ok
+test_runtime_constructor_call_form (__main__.Slice6Constructor.test_runtime_constructor_call_form) ... ok
+test_runtime_nonzero (__main__.Slice6Constructor.test_runtime_nonzero) ... ok
+test_runtime_plain (__main__.Slice6Constructor.test_runtime_plain) ... ok
+test_runtime_pure_pipe_without_stub (__main__.Slice6Constructor.test_runtime_pure_pipe_without_stub) ... ok
+test_second_signature_line (__main__.Slice6Constructor.test_second_signature_line) ... ok
+test_structural_twin_at_the_failing_body (__main__.Slice6Constructor.test_structural_twin_at_the_failing_body) ... ok
+test_structural_twin_into_a_pipe_step (__main__.Slice6Constructor.test_structural_twin_into_a_pipe_step) ... ok
+test_structural_twin_is_not_the_nominal_type (__main__.Slice6Constructor.test_structural_twin_is_not_the_nominal_type) ... ok
+test_uppercase_fn_without_its_type (__main__.Slice6Constructor.test_uppercase_fn_without_its_type) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 3.475s
+
+OK
+exit=0
+
+$ python3 experiments/0001-syntax-to-beam/run.py
+EXPERIMENT 0001: pass (experiments/0001-syntax-to-beam/results/20261107T114844188443Z/result.json)
+exit=0
+
+$ python3 experiments/0004-generated-replay/run.py
+start 2026-11-07T11:48:16Z end 2026-11-07T12:11:02Z
+{"run": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T114816931475Z", "status": "pass"}
+exit=0
+  compiler pass
+  overlay-diff pass
+  lib-freeze pass
+  arms pass
+  drift pass
+  stored-types pass
+  slice2-replay pass
+  slice3-types pass
+  slice3-replay pass
+  slice4-retire pass
+  slice4-replay pass
+  slice5-syntax pass
+  slice5-squash pass
+  slice5-replay pass
+  slice5-rewrite pass
+
+$ python3 scripts/lint_wiki.py
+Checked 81 maintained Markdown files; 0 error(s). PDF hash, bytes, page count and per-page text rechecked.
+Parsed raw JSON records; verified 6 explicitly retained capture hashes.
+Limits: inline Markdown links/headings only; original raw documents not linted; no external URL, semantic truth, security proof or runtime checks.
+exit=0
+
+## Review probes (scratch, not retained; compiler target/debug/beaml-spike, scratch cwd)
+HEAD = the 5 lines of the nonzero constructor (HEAD in slice6_constructor_test.py); shown as 'HEAD +'.
+--- a1_help_no_bang.beaml
+  | type F { reason: String }
+  | fn F r: String -> F = F { reason: r }
+  | fn mk r: String -> F = F { reason: r }
+  exit 1, stdout 0 bytes
+  > error: fn mk: the record literal F { ... } is legal only in the clauses of the constructor fn F
+  >   help: call the constructor fn F (as a call F(...))
+--- a2_dup.beaml
+  | HEAD +
+  | fn new_NonZeroInt_1 n: Int -> Int = n
+  exit 1, stdout 0 bytes
+  > duplicate name: new_NonZeroInt_1
+--- a2b_dup_before.beaml
+  | type F { reason: String }
+  | fn new_F_1 r: String -> String = r
+  | fn F r: String -> F = F { reason: r }
+  exit 1, stdout 0 bytes
+  > duplicate name: new_F_1
+--- a3_effect_input_field.beaml
+  | HEAD +
+  | type Req { n: NonZeroInt }
+  | type Ok { s: String }
+  | type Err { reason: String }
+  | effect payments.authorize Req -> Ok ! Err = http.post("payments/authorize")
+  | fn go r: Req -> Ok ! Err = r |> payments.authorize
+  exit 1, stdout 0 bytes
+  > error: effect payments.authorize: the TYPE NonZeroInt has a constructor and cannot stand in an EFFECT input field Req.n (interim D6B-19, Q6B-3)
+  >   help: use a TYPE without a constructor at the EFFECT, then pipe it into fn NonZeroInt
+--- a3b_effect_input_deep.beaml
+  | HEAD +
+  | type Inner { n: NonZeroInt }
+  | type Req { i: Inner }
+  | type Ok { s: String }
+  | type Err { reason: String }
+  | effect payments.authorize Req -> Ok ! Err = http.post("payments/authorize")
+  | fn go r: Req -> Ok ! Err = r |> payments.authorize
+  exit 1, stdout 0 bytes
+  > error: effect payments.authorize: the TYPE NonZeroInt has a constructor and cannot stand in an EFFECT input field Inner.n (interim D6B-19, Q6B-3)
+  >   help: use a TYPE without a constructor at the EFFECT, then pipe it into fn NonZeroInt
+--- s1_field_var.beaml
+  | HEAD +
+  | type Plain { value: Int }
+  | type Box { a: NonZeroInt }
+  | fn mk p: Plain -> Box = Box { a: p }
+  exit 1, stdout 0 bytes
+  > type mismatch: expected NonZeroInt, got Plain
+--- s2_field_literal.beaml
+  | HEAD +
+  | type Plain { value: Int }
+  | type Box { a: NonZeroInt }
+  | fn mk x: Int -> Box = Box { a: Plain { value: x } }
+  exit 1, stdout 0 bytes
+  > type mismatch: expected NonZeroInt, got Plain
+--- s3_twin_box.beaml
+  | HEAD +
+  | type Plain { value: Int }
+  | type Box { a: NonZeroInt }
+  | type PBox { a: Plain }
+  | fn mk b: PBox -> Box = b
+  exit 1, stdout 0 bytes
+  > type mismatch: expected Box, got PBox
+--- s4_pattern_sig.beaml
+  | HEAD +
+  | type Plain { value: Int }
+  | fn conv p: Plain -> Int
+  | fn conv NonZeroInt { value } -> Int = value
+  exit 1, stdout 0 bytes
+  > type mismatch: expected Plain, got NonZeroInt
+--- s5_pattern_annot.beaml
+  | HEAD +
+  | type Plain { value: Int }
+  | fn conv NonZeroInt { value }: Plain -> Int = value
+  exit 1, stdout 0 bytes
+  > type mismatch: expected Plain, got NonZeroInt
+--- s6_nested_pattern.beaml
+  | HEAD +
+  | type Plain { value: Int }
+  | type Box { a: NonZeroInt }
+  | fn unbox Box { a: Plain { value } } -> Int = value
+  exit 1, stdout 0 bytes
+  > type mismatch: expected NonZeroInt, got Plain
+--- s7_enum_payload.beaml
+  | HEAD +
+  | type Plain { value: Int }
+  | enum Wrap { W(NonZeroInt) }
+  | fn mk p: Plain -> Wrap = W(p)
+  exit 1, stdout 0 bytes
+  > type mismatch: expected NonZeroInt, got Plain
+--- s8_call_arg.beaml
+  | HEAD +
+  | type Plain { value: Int }
+  | fn keep x: NonZeroInt -> NonZeroInt = x
+  | fn mk p: Plain -> NonZeroInt = keep(p)
+  exit 1, stdout 0 bytes
+  > type mismatch: expected NonZeroInt, got Plain
+--- span compare: old compiler = scratch build of main.rs at bf4fc161, same source, --stored stored/empty.jsonl
+  source g13aeffectmodule.beaml:
+  | type Order { order_id: String }
+  | type Payment { phase: String status: String }
+  | type PaymentError { reason: String }
+  | effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+  | fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+  | fn finish Payment { phase, status } -> Payment = Payment { phase: phase + "", status: status }
+  | fn place order: Order -> Payment ! PaymentError =
+  |   order
+  |   |> prepare
+  |   |> payments.authorize
+  |   |> finish
+  | fn twice o: Order -> Order = o |> prepare |> prepare
+  | fn indirect order: Order -> Payment ! PaymentError = order |> place
+  old spans 7, new spans 4, byte-equal: no
+  source g13beffectonlystep.beaml:
+  | type Order { order_id: String }
+  | type Payment { phase: String status: String }
+  | type PaymentError { reason: String }
+  | effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+  | fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+  | fn finish Payment { phase, status } -> Payment = Payment { phase: phase + "", status: status }
+  | fn place order: Order -> Payment ! PaymentError = order |> payments.authorize
+  old spans 2, new spans 2, byte-equal: yes
+  source g13cordersonly.beaml:
+  | type Order { order_id: String }
+  | type Payment { phase: String status: String }
+  | type PaymentError { reason: String }
+  | effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+  | fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+  | fn finish Payment { phase, status } -> Payment = Payment { phase: phase + "", status: status }
+  | fn place order: Order -> Payment ! PaymentError =
+  |   order
+  |   |> prepare
+  |   |> payments.authorize
+  |   |> finish
+  old spans 4, new spans 4, byte-equal: yes
+  g13aeffectmodule diff (old < > new), span arguments cut:
+    35c35
+    <     with {:ok, p1} <- ProbeSupport.span(..., fn -> __MODULE__.place(p0) end) do
+    ---
+    >     with {:ok, p1} <- __MODULE__.place(p0) do
+    82,83c82,83
+    <     p1 = ProbeSupport.span(..., fn -> __MODULE__.prepare(p0) end)
+    <     p2 = ProbeSupport.span(..., fn -> __MODULE__.prepare(p1) end)
+    ---
+    >     p1 = __MODULE__.prepare(p0)
+    >     p2 = __MODULE__.prepare(p1)
