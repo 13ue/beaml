@@ -742,6 +742,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Drift rule (By: Fable, Repair): the head TYPEs must equal the target fn's input, output and failure TYPE; a difference is a compile error. This closes the register's trade-off "stand twice and can drift". The slice 6d RED tests this.
 → Effect: D021 closed. Slice 6d plan D6B-128 and the tree-sitter rule move from A to E'; the RED builds E'. `ui.event("…")` is the inbound transport call; the event name is a String as in `http.post("…")`.
 
+**DL-131 · Migrate · The host calls one generated function per ENTRY LINE (Q6D-2, option A)**
+→ Question: which generated function does the host (LiveView `handle_event`) call for a UI event?
+→ Options: A, one function per ENTRY LINE, `Orders.ui_place(params)`, the host writes one `handle_event("place", params, socket)` clause per event; B, one dispatch function `Orders.entry(event, params)` with one host clause for every event and a runtime `unknown_event` reject.
+→ Chose: A.
+→ By: 13ue
+→ Because: a renamed or deleted ENTRY LINE is an undefined remote call in the host build, not a runtime surprise. The vertical line stops at build time.
+→ Effect: D022 closed. Slice 6d generates `ui_<event>/1` per ENTRY LINE; the RED probes the host build with `--warnings-as-errors` for a removed entry.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
