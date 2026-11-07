@@ -99,9 +99,10 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>Pipes in any expression (DL-086, step 5)</li>
       <li>Constructor types are structs at the host, built through <code>T.new/1</code> (DL-106, DL-117, step 11). Limit: a struct update or a forged <code>__struct__</code> map passes the check</li>
       <li>A constructor is pure: a constructor that reaches an effect is a compile error (DL-120, step 12b)</li>
+      <li>RED TEAM 01 repairs: the stored check accepts a valid enum record, the action log writes whole lines, and the DRIFT status fails on a crash, with slice 6 in the full run (C1, B3, C3, C4, DL-135)</li>
     </ul></div>
     <div class="col"><h3>Decided, next</h3><ul>
-      <li>Repair of the RED TEAM 01 findings on enum constructors and enum literals in the stored check (C1, D1)</li>
+      <li>A stored value that moves to another known enum literal blocks the build (RED TEAM 01 D1, DL-140)</li>
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
       <li>Compile-time budget against Go</li>
@@ -213,7 +214,7 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
     <div class="col"><h3>Verified</h3><ul>
       <li>Tree-sitter grammar, Zed extension, highlighting</li>
       <li>Compiler errors with a help line that names the fix</li>
-      <li>Action log of compiler runs. Limit: parallel runs can lose lines (RED TEAM 01, B3)</li>
+      <li>Action log of compiler runs, one whole line per event, also under parallel runs (RED TEAM 01 B3 repaired)</li>
       <li>Grammar for the decided forms (slice 6a, 12 of 12 checks)</li>
       <li><code>beaml fmt</code>: one canonical form, aligned clauses, version mark form (DL-081, DL-083, DL-104, slice 6b step 10)</li>
     </ul></div>

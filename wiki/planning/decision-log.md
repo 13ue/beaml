@@ -765,6 +765,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: the UI must tell "the form is broken" from "the flow failed"; B merges both into one struct and fails for a fn without `!`; C is no TYPE, a host pattern on structs misses it.
 → Effect: D023 closed. Slice 6d generates the `Rejected` struct once per build; reasons are `"decode"` and `"constructor"` (D6B-132, D6B-143).
+→ Note (docs, 2026-11-07): `BeamlSpike.Rejected` named the shape; with several modules per build the name is `<Module>.Rejected` (Q6E-2, default, open)
 
 **DL-134 · Migrate · `--stored` also checks stored ENTRY RECORDS; DL-102 covers every record stream (Q6D-4, option A)**
 → Question: when the input TYPE of an ENTRY LINE gets a stricter constructor or loses an ENUM LITERAL, does the build see the stored UI events?

@@ -135,6 +135,7 @@ fn place order: Order -> Payment ! PaymentError =
    - **DRIFT-Q.** Add a field with a literal value to the request TYPE that `prepare` returns, and the matching Payments input.
    For each derivative and arm, record the outcome at build, on a new live record and on the pre-change record. Outcome classes: compile error with a clear message, typed reject, correct accept, false reject, wrong accept, crash without a typed reason. Then repair each arm until (d) or (e) passes again. Count manual change sites per arm.
    **[Verified]** After slice 6b step 6a (DL-118, D6B-96): GEN rows only. The repair check is the GEN REPLAY RUN of the repaired tree, after a rebuild of every release that the repair touches. Each row needs a version 2 record with status 200, `ok` and host validation `ok`. See [slice 6b step 6a](#slice-6b-step-6a-response-record-version-2).
+   **[Verified]** Since 2026-11-07 (DL-135, D6B-189): the outcome classes are asserted, not only recorded. The DRIFT status is `pass` only with a freeze `pass`, `repaired_all` true and each GEN row equal to the pin. See [DRIFT status](#drift-status-dl-135).
 
 ### Case (d2): TYPE mismatch cases
 
@@ -1558,7 +1559,7 @@ error: stored RESPONSE RECORD has record version V; this build reads record vers
 
 **Limits (step 6a).**
 
-- **[Verified]** RV6A-2 and RC1 (medium, open): `run.py` runs no `slice6_*_test.py` and not `drift_test.py`. Its `drift` step does not read `repaired_all`. A full-suite `pass` thus holds no 6a acceptance. The evidence is the separate runs above.
+- **[Verified]** RV6A-2 and RC1 (medium, open): `run.py` runs no `slice6_*_test.py` and not `drift_test.py`. Its `drift` step does not read `repaired_all`. A full-suite `pass` thus holds no 6a acceptance. The evidence is the separate runs above. **[Verified]** Closed 2026-11-07 ([RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4), DL-135): the full run now runs every slice 6 file and `drift_test.py`. `drift_status` reads `repaired_all`.
 - **[Inference]** An edit of the umbrella `config/*.exs` or `mix.exs` rebuilds no release (`repair_releases`). No repair spec edits these files today.
 - **[Verified]** The `:json` encoder limit for exponent floats in `digest/3` is marked `ponytail:` in the generated code.
 - **[Verified]** `run.py` `proxy` still writes `body_base64` into the proxy exchange. That is a DRIFT diagnostic, not a RESPONSE RECORD.
@@ -1614,7 +1615,7 @@ The five rules of `T.new/1` (D6B-97 to D6B-101, class Repair by DL-123):
   - **[Verified]** Correction 2026-11-07 (RED TEAM 01, finding B5): the sentence above is too wide. The check requires the struct TYPE. A struct built by `new/1` carries validated fields. A struct update (`%{s | value: 0}`, the normal Elixir edit) and a forged `__struct__` map pass the check, also inside a nested field. The check does not run the constructor again. This is the DL-106 limit. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md).
 - **[Verified]** A forged map `%{__struct__: BeamlSpike.NonZeroInt, value: 4, x: 1}` with an extra key also passes the input check. It is the same class as the DL-106 limit (review probe).
 - **[Inference]** A struct from an older build with another field set is untested.
-- **[Verified]** N1 (medium): `run.py` runs no slice 6 test file. The full-suite run holds no step 11 evidence; unittest keeps no result directory. The evidence for 149 of 149 is the [review](workflow/2026-11-07/slice6b-host-structs/review.md).
+- **[Verified]** N1 (medium): `run.py` runs no slice 6 test file. The full-suite run holds no step 11 evidence; unittest keeps no result directory. The evidence for 149 of 149 is the [review](workflow/2026-11-07/slice6b-host-structs/review.md). **[Verified]** Closed 2026-11-07 ([RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4), DL-135): the full run now runs every slice 6 file and `drift_test.py`.
 - **[Verified]** The reject of a constructor that reaches an EFFECT is not in this step (DL-120). Step 12b adds it: [steps 12 and 12b](#slice-6b-steps-12-and-12b-spans-on-the-effect-path-and-a-pure-constructor).
 
 ### Decisions (Decision4, slice 6b DOCS 6a and 11)
@@ -1686,7 +1687,7 @@ error: fn T: a constructor cannot reach an EFFECT: T -> f -> ... -> effect.name 
 - **[Verified]** N1 (medium): no 0002 test calls `event/2` without a span. Only `arms_test` covers D6B-127, indirectly. A consumer that joins on `span_id` drops a `"none"` row.
 - **[Inference]** The real OTel exporter runs only for the GEN orders source, which has no indirect pipe. The indirect pipes run with stubs.
 - **[Verified]** Spans for call forms and nested pipes, the REPLAY RUN of an indirect caller and a `check --json` reach output are out of scope (D6B-85, D6B-93, D6B-94).
-- **[Verified]** Limit of the full suite (added 2026-11-07, RED TEAM 01, finding D10): the full `run.py` run covers slices 1 to 5. It runs no `slice6_*_test.py` file and not `drift_test.py`, and its `drift` step does not read `repaired_all`. The 13 slice 6 files (172 of 172) and `drift_test.py` (5 of 5) ran apart and keep no `results/` directory. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md).
+- **[Verified]** Limit of the full suite (added 2026-11-07, RED TEAM 01, finding D10): the full `run.py` run covers slices 1 to 5. It runs no `slice6_*_test.py` file and not `drift_test.py`, and its `drift` step does not read `repaired_all`. The 13 slice 6 files (172 of 172) and `drift_test.py` (5 of 5) ran apart and keep no `results/` directory. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md). **[Verified]** Closed 2026-11-07 ([RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4), DL-135): the full run now runs every slice 6 file and `drift_test.py`.
 
 ### Slice 6b step 13: stored check through Elixir
 
@@ -1700,6 +1701,7 @@ error: fn T: a constructor cannot reach an EFFECT: T -> f -> ... -> effect.name 
 2. **Elixir pass.** For each record and each constructor field, the compiler picks the first matching signature (the Rust mirror of the `cond` in `__beaml_from_T`, D6B-103). Only a signature with a failure TYPE gives a call (D6B-104). When the list is not empty, one `elixir -e DRIVER` process runs (D6B-102). Stdin holds `{"module": <generated code>, "calls": [[new_T_k, T, [inputs]], ...]}`. The driver compiles the module in memory and prints one line per call: `ok` or `error F`. No file holds a record value.
 
 - **Strict protocol (D6B-121, D6B-122).** Success needs exit 0, exactly one line per call, and each line `ok` or `error F` with F in the failure list of that signature. The driver has no `rescue`, `catch` or `try`. Any other result is a run error. The unit test `elixir_results_are_strict` pins this.
+- **Stored driver enum clause (D6B-187, 2026-11-07).** Success is `{:ok, %{__struct__: BeamlSpike.<type>}}` or, for an enum constructor, `{:ok, {<type>, variant, payload}}` with `<type>` equal to the call TYPE, `variant` a binary and `payload` a list. Every other shape still raises. Before this clause a valid enum record gave the run error (RED TEAM 01 C1). See [RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4).
 - **Time limit (D6B-119).** 60 s by default. `BEAML_STORED_ELIXIR_LIMIT_S` sets whole seconds from 1. On expiry the compiler kills the process group and gives the run error.
 - **Child env (D6B-123).** `ERL_CRASH_DUMP=/dev/null`, so a crash writes no dump with record values.
 - **No values out (DL-032, D6B-106).** The compiler reads and drops the child stdout and stderr; it never forwards them.
@@ -1739,6 +1741,7 @@ error: the --stored check: the Elixir run of the generated constructors failed (
 - A bad limit value: `error: BEAML_STORED_ELIXIR_LIMIT_S must be a whole number of seconds from 1`. Exit 1 for every text above.
 
 **Event [Verified].** Each Elixir run appends one event `stored-elixir` to `.beaml/actions.jsonl` with `result` (`ok`, `blocked` or `error`), Int `ms` and `calls` (D6B-107). The keys are `ts`, `source`, `action`, `target`, `result`, `ms`, `calls`; no path, no source text, no value. No Elixir on `PATH` gives `result: "error"`, `ms: 0`. A build with 0 calls or a static error writes no `stored-elixir` event.
+**[Verified]** Since 2026-11-07 (D6B-188): `fn action` writes each event as one full line with one `write_all` on the `O_APPEND` file. Parallel runs no longer split a line (RED TEAM 01 B3).
 
 **Timings observed [Verified]** (macOS, Elixir 1.18.1, OTP 27):
 
@@ -1770,7 +1773,7 @@ error: the --stored check: the Elixir run of the generated constructors failed (
 - **[Inference]** The process-group kill is shown on this host only.
 - **[Inference]** The signature pick is a Rust mirror of the generated `cond` (D6B-103). The guards E9a and E9b catch a drift of the order. A new signature rule must change both.
 - **[Verified]** Lost mappings of constructor enums are not checked (D6B-109).
-- **[Verified]** Limit of the full suite (added 2026-11-07, RED TEAM 01, finding D10): the full `run.py` run (14 of 14) covers slices 1 to 5. `slice6_stored_elixir` (15 of 15), the other slice 6 files (172 of 172 in total) and `drift_test.py` ran apart. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md).
+- **[Verified]** Limit of the full suite (added 2026-11-07, RED TEAM 01, finding D10): the full `run.py` run (14 of 14) covers slices 1 to 5. `slice6_stored_elixir` (15 of 15), the other slice 6 files (172 of 172 in total) and `drift_test.py` ran apart. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md). **[Verified]** Closed 2026-11-07 ([RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4), DL-135): the full run now runs every slice 6 file and `drift_test.py`.
 - **[Inference]** `elixir` from asdf reads `~/.tool-versions` in a temporary cwd. A machine with only a project-local `.tool-versions` gets the run error, not a pass.
 
 ### Decisions (Decision4, slice 6b DOCS 12, 12b and 13)
@@ -1836,7 +1839,7 @@ error: effect E: the redacted field T.F must be a String or Int field of a TYPE 
 - **[Verified]** The slice 5 PIN: the D6B-172 re-pin moved three pins and missed `PIN` in `tests/slice5_syntax_test.py`. The review repair moved it from `237a4578` to `461d024e` (review O1). The re-pin changed 80 pinned hashes; EFFECT sources without `redacted` are no longer byte-equal to the step 6a output.
 - **[Verified]** O3 (medium, open): the stored-value block reads no `status`.
 - **[Verified]** Release path (real `ProbeSupport`, Logger handler, OTel exporter): not run (plan L1). The marker scan of the test does not cover upper-case hex or JSON `\u` escapes.
-- **[Verified]** The full suite covers slices 1 to 5. The slice 6 files ran apart (RED TEAM 01, finding D10).
+- **[Verified]** The full suite covers slices 1 to 5. The slice 6 files ran apart (RED TEAM 01, finding D10). **[Verified]** Closed 2026-11-07 ([RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4), DL-135): the full run now runs every slice 6 file and `drift_test.py`.
 
 ### Slice 6b step 6c: redacted copies
 
@@ -1888,3 +1891,60 @@ error: fn receipt copies the redacted field card_holder of Order into holder of 
 | The TEST docs defects go into the ledger as dated additions, not as edits of the RED text | Repair | Chose: append. Over: rewrite `spec.md`. Because: the ledger is a phase record. Commits us to: a reader reads the addition after the contract | Opus (docs slice6b/6c) |
 | O1, O2 of 6c and the D6B-184 wording stated as open limits | Undo | No code change in DOCS; a fix is a separate step or an OWNER choice | Opus (docs slice6b/6c) |
 | No new glossary term for "direct value", "identity fn" or "accessor" | Undo | Scoped to step 6c; the ledger defines them | Opus (docs slice6b/6c) |
+
+## RED TEAM 01 repairs (C1, B3, C3, C4)
+
+**[Verified]** 2026-11-07. Commits `0397d62e` (C1, B3) and `1ec666a7` (C3, C4), TEST `45c97bfb`: PASS. Ledger: [red-team-01-repairs](workflow/2026-11-07/red-team-01-repairs/) ([spec](workflow/2026-11-07/red-team-01-repairs/spec.md), [TEST](workflow/2026-11-07/red-team-01-repairs/test-review.md)). Findings: [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md), round 4 in [roasting rounds](../../wiki/planning/roasting-rounds.md).
+
+| Step | Owner | Repair |
+|---|---|---|
+| `--stored` Elixir pass, DRIVER text | BEAML (COMPILER, `main.rs`) | C1, D6B-187 |
+| action event write | BEAML (COMPILER, `fn action`) | B3, D6B-188 |
+| DRIFT status, full-run steps | HARNESS (`run.py`) | C3, C4, D6B-189, D6B-190 |
+| Elixir on `PATH`, parallel test runs | host | none |
+
+### DRIFT status (DL-135)
+
+**[Verified]** `run.py` `drift_status(summary)` gives `pass` only when all hold, else `fail`:
+
+1. the freeze status is `pass`;
+2. `repaired_all` is `true`;
+3. each GEN row (`build`, `new_live`, `pre_change`) equals the pin. A missing row is `fail`.
+
+| Derivative | build | new_live | pre_change |
+|---|---|---|---|
+| R | correct_accept | false_reject | typed_reject |
+| N | correct_accept | false_reject | typed_reject |
+| Q | correct_accept | typed_reject | typed_reject |
+
+- **[Verified]** Crash class = fail: `untyped_crash` in any cell of any row gives `fail` (TEST probe, 9 cases). `run.py drift` exits 1 on `fail`.
+- **[Verified]** The pin is literal in `run.py` (`DRIFT_PIN`) and in `tests/drift_test.py` (`PIN`); `test_f_drift_pin_matches_run_py` ties both. A wanted class change moves both in one commit with a diff proof.
+- **[Verified]** The `drift-test` step runs `tests/drift_test.py` last in the full run. The `drift` step stays; the full run thus starts two DRIFT runs (N1, medium, accepted).
+- **[Verified]** Over the retained `results/*/drift.json` before GREEN: 60 of 63 `pass`; the 3 `fail` are the crash run `20261107T171545190446Z` and two runs with `repaired_all` false.
+- **[Verified]** This replaces the slice 1 Undo D12 "recorded, not asserted" for the DRIFT status (DL-135).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| Full `run.py`, [`results/20261107T220212948306Z`](results/20261107T220212948306Z/result.json) | pass, 34 of 34 steps (16 `slice6-*`, `redteam-c1`, `redteam-b3`, `redteam-c3`, `drift-test`), 1058 s |
+| `drift` step, [`results/20261107T220254343850Z`](results/20261107T220254343850Z/drift.json) | pass; rows equal the pin, `repaired_all` true |
+| `drift-test` | 7 tests, 107.6 s |
+| `redteam_c1_test.py` | 8 of 8 (C1g 3 accepted shapes, C1h 7 wrong shapes raise) |
+| `redteam_b3_test.py` | 1 of 1 (parallel runs write whole JSON lines) |
+| 0001 `run.py`, `cargo test`, `fmt --check`, `clippy -D warnings` | pass; 21 + 14; clean |
+
+### Limits
+
+- **[Inference]** One `write(2)` to an `O_APPEND` file keeps a short line whole on a local file system; it is no POSIX promise for every size. A network file system needs a lock (`ponytail:` comment in `fn action`).
+- **[Verified]** The repo-root `.beaml/actions.jsonl` keeps its 396 old invalid lines; B3 stops new ones only.
+- **[Unknown]** The cause of the first `drift_test.py` crash in the C3/C4 GREEN run (`20261107T205750509480Z`, no `drift.json`). It did not recur in TEST.
+- **[Verified]** C2, C5 (DL-136) and D1 (DL-140) are answered but not built. A full-run `pass` holds no evidence for them.
+- **[Proposal]** Smallest next test: the DL-136 mixed snapshot (200, 503, bad digest) under `--stored`, in D035 (P2b).
+
+### Decisions (Decision4, DOCS RED TEAM 01 repairs)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| Old "14 of 14" and D10 limit lines kept, with a dated closing note | Repair | Chose: append. Over: delete. Because: each line is true for the run it names. Commits us to: a reader reads the note after the limit | Opus (docs red-team-01-repairs) |
+| One new section for the four repairs, plus short pointers in step 13 and the (f) DRIFT case | Undo | One place for the pin; the step text keeps its history | Opus (docs red-team-01-repairs) |

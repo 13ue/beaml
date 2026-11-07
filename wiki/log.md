@@ -413,3 +413,15 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - Two [register](planning/research-and-development.md) rows, one line in [vertical integration](concepts/vertical-integration.md), the [glossary](../GLOSSARY.md) row REDACTED FIELD, the root README roadmap row 6 and [the roadmap page](../docs/index.html): 6b and 6c move to "Verified"; the sample has a REDACTED FIELD and compiles at git `5b7feb92`.
 - Dated additions in the ledgers: D6B-184 wording limit, D6B-31 parse-error form, the missed slice 5 PIN (D6B-172, `461d024e`), O1, O2, the `o |> holder |> Holder` limit, D6B-191.
 - **[Verified]** Limits: a derived copy reaches the store in plain form inside the DL-112 limit (6c O1, DL-029 target); the check reaches one-parameter fns only (6c O2); the full suite covers slices 1 to 5 only (RED TEAM 01, D10). `results/20261107T200257991414Z` has no `result.json` and is no complete run.
+
+## 2026-11-07: docs | RED TEAM 01 repairs C1, B3, C3, C4 (DRIFT status pinned)
+
+**[Verified]** The repairs passed TEST at `45c97bfb` (commits `0397d62e`, `1ec666a7`): [full run](../experiments/0004-generated-replay/results/20261107T220212948306Z/result.json) 34 of 34 steps in 1058 s, with every slice 6 file, the three `redteam_*` files and `drift-test`. DRIFT rows equal the DL-135 pin ([ledger](../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01-repairs/), [TEST](../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01-repairs/test-review.md)). No code change in this docs pass. By: Opus (docs red-team-01-repairs)
+
+- [Roasting rounds](planning/roasting-rounds.md) round 4: dispositions per finding. Repaired C1, B3, C3, C4; D10 closed; M1, M2, M6, M7 answered (DL-136, DL-140, DL-139, DL-135); M3, M4, M5, M8, M9, D2, D3 parked (D036); C2, C5, D1 answered, code pending. The rest stays pending.
+- [Register](planning/research-and-development.md): dated update on the six 0004 slice 6b rows with a D10 limit.
+- [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#red-team-01-repairs-c1-b3-c3-c4): new section with the DRIFT status rule, the pin and the crash class; stored driver enum clause (D6B-187) and full-line write (D6B-188) in step 13; dated closing notes on the old D10 and RV6A-2 limit lines.
+- [Decision log](planning/decision-log.md): one note under DL-133 on the `<Module>.Rejected` name (Q6E-2, open). No new entry.
+- [Roadmap page](../docs/index.html): the repairs in "Verified"; the B3 limit removed; "Decided, next" keeps D1 only.
+- **[Verified]** Limits: C2, C5 and D1 are answered, not built. **[Unknown]** The cause of the first `drift_test.py` crash in the GREEN run.
+
