@@ -1,0 +1,91 @@
+{
+  "reply": [
+    200,
+    {
+      "order_id": "order-1",
+      "status": "authorized"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "sent": 1,
+  "spans": [
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok",
+        "unknown_keys": [
+          "fraud_score"
+        ]
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "start_time": -576460751734634583,
+      "kind": "client",
+      "span_id": "d67ceb2023f11744",
+      "trace_id": "390015ed574f9e2bb4c657d0e98c06d9",
+      "end_time": -576460751733922042,
+      "end_time_unix_nano": 1794071737409591958,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "83477d7fcfdd8eed",
+      "start_time_unix_nano": 1794071737408879417
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460751734873292,
+      "kind": "server",
+      "span_id": "83477d7fcfdd8eed",
+      "trace_id": "390015ed574f9e2bb4c657d0e98c06d9",
+      "end_time": -576460751733716125,
+      "end_time_unix_nano": 1794071737409797875,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1794071737408640708
+    }
+  ],
+  "records": [
+    {
+      "status": 200,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "status",
+            "String"
+          ]
+        ],
+        "fingerprint": "35a7a9d23ad4d4c63d3d1dd9de660161952b8b6fbf263967f4fd802661143747"
+      },
+      "value": {
+        "order_id": "order-1",
+        "status": "authorized"
+      },
+      "version": 2,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "390015ed574f9e2bb4c657d0e98c06d9",
+      "artifact_id": "cce5751792911c740ec3a6a7baf87ef9038c0ef9a9e67d5b9d74518f73572dfa",
+      "attempt": 1,
+      "client_span_id": "d67ceb2023f11744",
+      "redacted": [],
+      "unknown_keys": [
+        "fraud_score"
+      ],
+      "value_sha256": "fa132f1b3c429106fc9aeed4808c010689aa4e6a6fde8229d442eea2771a7197"
+    }
+  ]
+}

@@ -202,6 +202,11 @@ REACH = {
                     "Settled", "Settled -> payments.authorize"),
     "enum_through_helper": (WITH_PLACE + "fn Settled order: Order -> Settled ! PaymentError = order |> place |> Done\n",
                             "Settled", "Settled -> place -> payments.authorize"),
+    # O3 (RED review): two paths of length 3; D6B-113 takes h1, the first step in source order.
+    "enum_equal_paths": (WITH_PLACE + "fn h1 o: Order -> Order ! PaymentError = o |> place |> to_order\n"
+                         "fn h2 o: Order -> Payment ! PaymentError = o |> place\n"
+                         "fn Settled order: Order -> Settled ! PaymentError = order |> h1 |> h2 |> Done\n",
+                         "Settled", "Settled -> h1 -> place -> payments.authorize"),
 }
 # DL-120: a fn may call the EFFECT and pipe its result into a pure constructor.
 PURE_CONSTRUCTOR = (HEAD + "type Receipt { status: String }\nfn Receipt s: String -> Receipt = Receipt { status: s }\n"
@@ -324,7 +329,12 @@ class Slice6EffectReach(unittest.TestCase):
     def test_sources_keep_their_bytes_except_pure_step_spans(self):
         # E8 under DL-119: the pre-step output with every pure-step span removed (D6B-114, D6B-117). Unchanged rows
         # are guards; the 40 rows with "changed" fail today.
-        for relative, row in json.loads(BYTE_GUARD.read_text()).items():
+        table = json.loads(BYTE_GUARD.read_text())
+        # O2 (RED review): the table of the pre-step base has 71 rows and 40 changed ones. A table regenerated with a
+        # GREEN build has 0 changed rows and fails here.
+        self.assertEqual((71, 40), (len(table), sum(row["changed"] for row in table.values())),
+                         "setup: byte-guard.json is not the table of the pre-step base")
+        for relative, row in table.items():
             with self.subTest(relative):
                 code, stdout, stderr = self.build(REPO / relative)
                 self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),

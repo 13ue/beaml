@@ -1,0 +1,101 @@
+{
+  "reply": [
+    200,
+    {
+      "order_id": "order-1",
+      "state": "authorized"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "exchanges": [
+    {
+      "path": "/payments/authorize",
+      "request": "{\"order_id\":\"order-1\"}",
+      "status": 200,
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0ZSI6ImF1dGhvcml6ZWQifQ=="
+    }
+  ],
+  "records": [
+    {
+      "status": 200,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "state",
+            "String"
+          ]
+        ],
+        "fingerprint": "3b3f668244c9beb39e9142421a34cfd5cc52e5299ecd9970e802ddd919496324"
+      },
+      "value": {
+        "order_id": "order-1",
+        "state": "authorized"
+      },
+      "version": 2,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "58206d20ddcd6de93790ace5d8874e01",
+      "unknown_keys": [],
+      "artifact_id": "63c4d4b5ddc0c57240f269fea5bf61a9ae91ef6de6d15b6af4d0cea6d9aef36b",
+      "attempt": 1,
+      "client_span_id": "197a791fdfd9c87f",
+      "redacted": [],
+      "value_sha256": "6c7b19e371cce9dc76cc4e7fcaa623c5d0bbdb224dd21c4d1d1386bf60c27294"
+    }
+  ],
+  "spans": [
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "start_time": -576460751315593000,
+      "kind": "client",
+      "span_id": "197a791fdfd9c87f",
+      "trace_id": "58206d20ddcd6de93790ace5d8874e01",
+      "end_time": -576460751313630791,
+      "end_time_unix_nano": 1794071817206568209,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "003713f162c552a0",
+      "start_time_unix_nano": 1794071817204606000
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460751315844541,
+      "kind": "server",
+      "span_id": "003713f162c552a0",
+      "trace_id": "58206d20ddcd6de93790ace5d8874e01",
+      "end_time": -576460751313393958,
+      "end_time_unix_nano": 1794071817206805042,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1794071817204354459
+    }
+  ],
+  "flow_probe": {
+    "result": {
+      "raised": "FunctionClauseError"
+    },
+    "host_validation": "nil",
+    "transport": 0,
+    "eval_exit_code": 0
+  }
+}

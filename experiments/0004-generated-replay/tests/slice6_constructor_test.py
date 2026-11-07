@@ -142,7 +142,8 @@ class Slice6Constructor(unittest.TestCase):
         # Guard: the orders flow keeps ProbeSupport.span (byte-equal output, D6B-07). Passes today.
         code, stdout, stderr = self.compile(ORDERS, extra=["--stored", str(EMPTY_STORED)])
         self.assertEqual(0, code, stderr)
-        self.assertIn("ProbeSupport.span(%s, :internal, p0, %s" % (b("orders.prepare"), b("prepare")), stdout)
+        self.assertIn("_ = ProbeSupport.event(%s, %s)," % (b("payment_request_prepared"), b("prepare")), stdout)
+        self.assertNotIn("ProbeSupport.span(%s" % b("orders.prepare"), stdout)
 
     # Reject cases: the constructor is the only way in (DL-092, D6B-17, D6B-18).
 

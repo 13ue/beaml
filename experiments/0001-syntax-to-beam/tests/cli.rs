@@ -290,11 +290,9 @@ fn orders_cli_emits_flow_effect_decode_and_replay() {
             missing.push(text.to_string());
         }
     }
-    // Spans `<service>.<step>` and the kept Orders log under orders.prepare.
+    // The EFFECT span `<service>.<step>` and the kept Orders log under orders.request (DL-119: pure steps have no span).
     for text in [
-        "orders.prepare",
         "orders.payments.authorize",
-        "orders.finish",
         "payment_request_prepared",
         "payments/authorize",
     ] {

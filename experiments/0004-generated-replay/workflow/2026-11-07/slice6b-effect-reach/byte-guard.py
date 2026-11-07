@@ -55,6 +55,8 @@ def main():
         text = expected(run.stdout) if run.returncode == 0 else run.stdout
         table[str(path.relative_to(REPO))] = {"code": run.returncode, "changed": text != run.stdout,
                                               "sha256": hashlib.sha256(text.encode()).hexdigest()}
+    # O2 (RED review): only a pre-step-12 build gives 40 changed rows; a GREEN build gives 0 and must not write.
+    assert sum(r["changed"] for r in table.values()) == 40, "BEAML_SPIKE is not a pre-step-12 build"
     target = EXPERIMENT / "slice6" / "effect-reach" / "byte-guard.json"
     target.write_text(json.dumps(table, indent=1, sort_keys=True) + "\n")
     print(sum(r["changed"] for r in table.values()), "of", len(table), "change")

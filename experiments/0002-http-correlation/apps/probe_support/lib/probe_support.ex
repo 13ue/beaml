@@ -83,8 +83,14 @@ defmodule ProbeSupport do
     )
   end
 
+  # Slice 6b step 12 in 0004 (DL-119, D6B-127): generated code may call this with no open span (a host that calls `place`
+  # directly). Then trace_id and span_id are "none": no fresh span, no crash.
   def event(event, operation) do
-    ctx = OpenTelemetry.Tracer.current_span_ctx()
+    {trace_id, span_id} =
+      case OpenTelemetry.Tracer.current_span_ctx() do
+        :undefined -> {"none", "none"}
+        ctx -> {OpenTelemetry.Span.hex_trace_id(ctx), OpenTelemetry.Span.hex_span_id(ctx)}
+      end
 
     Logger.info("probe observation",
       probe_record: %{
@@ -92,8 +98,8 @@ defmodule ProbeSupport do
         operation: operation,
         service: config(:service),
         order_id: "order-1",
-        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),
-        span_id: OpenTelemetry.Span.hex_span_id(ctx)
+        trace_id: trace_id,
+        span_id: span_id
       }
     )
   end

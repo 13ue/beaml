@@ -762,6 +762,8 @@ struct Checker<'a> {
     versions: Versions,
     // TYPES with a constructor `fn T` (DL-092): nominal TYPES (D6B-17).
     constructors: BTreeSet<String>,
+    // DL-108, D6B-84: the EFFECTS that each signature key reaches through call edges, transitively. Set by `validate`.
+    reach: BTreeMap<String, BTreeSet<String>>,
 }
 // The Elixir name of a signature key: signature k of a constructor `fn T` (`T#k`) is `new_T_k` (D6B-15).
 fn elixir_name(key: &str) -> String {
@@ -1002,6 +1004,7 @@ impl<'a> Checker<'a> {
                 .filter(|n| upper(n))
                 .cloned()
                 .collect(),
+            reach: BTreeMap::new(),
         };
         for (name, def) in &program.types {
             if !upper(name) || name == "String" || name == "Int" {
@@ -2111,7 +2114,7 @@ impl Checker<'_> {
         }
         Ok(false)
     }
-    fn validate(&self) -> Checked<()> {
+    fn validate(&mut self) -> Checked<()> {
         for (key, (types, _)) in &self.signatures {
             let name = display(key);
             let mut rows = Vec::new();
@@ -2153,6 +2156,125 @@ impl Checker<'_> {
         // After the pipe checks, so that a pipe error names its step first.
         for effect in &self.program.effects {
             self.flow(effect)?;
+        }
+        self.reach = self.reach_map();
+        self.pure_constructors()
+    }
+    // The call edges of each signature key, in source order (clause order, then step order): signature keys,
+    // variant names and EFFECT names (D6B-85: call forms, nested pipes and whole-body pipe steps).
+    fn edges(&self) -> BTreeMap<String, Vec<String>> {
+        let mut edges: BTreeMap<String, Vec<String>> = BTreeMap::new();
+        for clause in &self.program.clauses {
+            let vars = self.vars(clause);
+            let targets = edges.entry(clause.key.clone()).or_default();
+            if let Node::Pipe(head, _) = &clause.body {
+                self.callees(head, &vars, targets);
+                targets.extend(self.body_type(clause).1);
+            } else {
+                self.callees(&clause.body, &vars, targets);
+            }
+        }
+        edges
+    }
+    fn callees(&self, node: &Node, vars: &BTreeMap<String, String>, out: &mut Vec<String>) {
+        match node {
+            Node::Call(name, args) => {
+                if self.variants.contains_key(name) {
+                    out.push(name.clone());
+                } else {
+                    let given: Vec<_> = args
+                        .iter()
+                        .map(|a| self.expression(a, vars).expect("checked call"))
+                        .collect();
+                    out.push(self.pick(name, &given));
+                }
+                for arg in args {
+                    self.callees(arg, vars, out);
+                }
+            }
+            Node::Record(_, fields) => {
+                for (_, value) in fields {
+                    self.callees(value, vars, out);
+                }
+            }
+            Node::Plus(a, b) => {
+                self.callees(a, vars, out);
+                self.callees(b, vars, out);
+            }
+            Node::Pipe(head, steps) => {
+                self.callees(head, vars, out);
+                let ty = self.expression(head, vars).expect("checked pipe head");
+                out.extend(self.steps(ty, steps, None).expect("checked pipe").1);
+            }
+            _ => (),
+        }
+    }
+    // D6B-84: a fixpoint, so a cycle gives the same set in every order (E4, E5).
+    // ponytail: O(n x e) per compile; Tarjan SCC if a source grows large.
+    fn reach_map(&self) -> BTreeMap<String, BTreeSet<String>> {
+        let edges = self.edges();
+        let mut reach: BTreeMap<String, BTreeSet<String>> = self
+            .signatures
+            .keys()
+            .map(|k| (k.clone(), BTreeSet::new()))
+            .collect();
+        loop {
+            let mut changed = false;
+            for (key, targets) in &edges {
+                let mut found = reach[key].clone();
+                for target in targets {
+                    if self.effect(target).is_some() {
+                        found.insert(target.clone());
+                    } else if let Some(more) = reach.get(target) {
+                        found.extend(more.iter().cloned());
+                    }
+                }
+                if found != reach[key] {
+                    reach.insert(key.clone(), found);
+                    changed = true;
+                }
+            }
+            if !changed {
+                return reach;
+            }
+        }
+    }
+    fn reaches(&self, key: &str) -> bool {
+        self.reach.get(key).is_some_and(|r| !r.is_empty())
+    }
+    // DL-120: a constructor is pure. D6B-112 text; D6B-113 path: the shortest, ties to the first edge in source
+    // order (a breadth-first search over the edges in source order).
+    fn pure_constructors(&self) -> Checked<()> {
+        let edges = self.edges();
+        for clause in &self.program.clauses {
+            if !upper(&clause.name) || !self.reaches(&clause.key) {
+                continue;
+            }
+            let mut before: BTreeMap<&str, &str> = BTreeMap::new();
+            let mut queue = std::collections::VecDeque::from([clause.key.as_str()]);
+            let mut end = None;
+            while let Some(node) = queue.pop_front() {
+                if self.effect(node).is_some() {
+                    end = Some(node);
+                    break;
+                }
+                for target in edges.get(node).into_iter().flatten() {
+                    if target != &clause.key && !before.contains_key(target.as_str()) {
+                        before.insert(target, node);
+                        queue.push_back(target);
+                    }
+                }
+            }
+            let mut path = vec![end.expect("a reaching constructor has a path")];
+            while let Some(node) = before.get(path.last().unwrap()) {
+                path.push(node);
+            }
+            let path: Vec<_> = path.iter().rev().map(|k| display(k)).collect();
+            let name = &clause.name;
+            return Err(format!(
+                "error: fn {name}: a constructor cannot reach an EFFECT: {} (DL-120)\n  help: call the EFFECT in a lowercase fn, then pipe its result into fn {name}",
+                path.join(" -> ")
+            ));
         }
         Ok(())
     }
@@ -2384,6 +2506,9 @@ impl Checker<'_> {
                     .join(", ");
                 let vars = self.vars(clause);
                 if let Node::Pipe(head, _) = &clause.body {
+                    // D6B-88: a plain record head is the span input; any other head gives `nil`.
+                    let ty = self.expression(head, &vars).expect("checked pipe head");
+                    let plain = self.record(&ty).is_ok() && !self.ctor_record(&ty);
                     out.push_str(&format!(
                         "  defp __beaml_{fun}({params}) do\n    p0 = {}\n{}  end\n",
                         self.emit_node(head, &vars),
@@ -2392,7 +2517,8 @@ impl Checker<'_> {
                             fails.then_some(clause),
                             service,
                             "    ",
-                            Step::Live
+                            Step::Live,
+                            if plain { "p0" } else { "nil" }
                         )
                     ));
                 } else if fails {
@@ -2670,7 +2796,8 @@ impl Checker<'_> {
         }
         Ok(flow)
     }
-    // The pipe after `p0 = head`: one `with` clause per step; a failed step stops the pipe.
+    // The pipe after `p0 = head`: one `with` clause per step; a failed step stops the pipe. `head` is the span
+    // input of a reaching step (D6B-88).
     fn emit_chain(
         &self,
         steps: &[String],
@@ -2678,14 +2805,13 @@ impl Checker<'_> {
         service: &str,
         indent: &str,
         mode: Step,
+        head: &str,
     ) -> String {
         let owner = if mode == Step::Live {
             "__MODULE__"
         } else {
             "@parent"
         };
-        // D6B-28: only a pipe with an EFFECT step has spans; every other pipe is plain calls.
-        let spans = steps.iter().any(|s| self.effect(s).is_some());
         let mut clauses = Vec::new();
         let mut matched = false;
         for (index, step) in steps.iter().enumerate() {
@@ -2736,35 +2862,38 @@ impl Checker<'_> {
                 }
                 None => format!("{owner}.{}({input})", elixir_name(step)),
             };
+            let reaches = self.reaches(step);
             let step = display(step);
-            let expression = match (mode, steps.get(index + 1).and_then(|s| self.effect(s))) {
-                (Step::Replay, _) => call,
-                (Step::Live, _) if !spans => call,
-                (Step::Live, next) => {
-                    // The Orders log: inside the span of the pure step directly before an EFFECT.
-                    let inner = match next {
-                        Some(effect) if !failing => format!(
-                            "result = {call}; ProbeSupport.event({}, {}); result",
-                            binary(&format!(
-                                "{}_request_prepared",
-                                effect.output.to_ascii_lowercase()
-                            )),
-                            binary(step)
-                        ),
-                        _ => call,
-                    };
-                    format!(
-                        "ProbeSupport.span({}, :internal, p0, {}, fn -> {inner} end)",
-                        binary(&format!("{service}.{step}")),
-                        binary(step)
-                    )
-                }
+            // DL-119 S: only a step that reaches an EFFECT through a fn has a span; a pure step is a plain call.
+            let expression = if mode == Step::Live && reaches {
+                format!(
+                    "ProbeSupport.span({}, :internal, {head}, {}, fn -> {call} end)",
+                    binary(&format!("{service}.{step}")),
+                    binary(step)
+                )
+            } else {
+                call
             };
             if failing {
                 clauses.push(format!("{{:ok, {output}}} <- {expression}"));
                 matched = true;
             } else {
                 clauses.push(format!("{output} = {expression}"));
+            }
+            // D6B-89, D6B-114: the Orders log is the next `with` clause after the step before a direct EFFECT.
+            if let (Step::Live, Some(effect), false) = (
+                mode,
+                steps.get(index + 1).and_then(|s| self.effect(s)),
+                failing,
+            ) {
+                clauses.push(format!(
+                    "_ = ProbeSupport.event({}, {})",
+                    binary(&format!(
+                        "{}_request_prepared",
+                        effect.output.to_ascii_lowercase()
+                    )),
+                    binary(step)
+                ));
             }
         }
         let last = format!("p{}", steps.len());
@@ -3094,7 +3223,7 @@ impl Checker<'_> {
             fields_key = if keeps.is_empty() { "" } else { "        unknown_fields: unknown_fields,\n" },
             retired = self.emit_retired(),
             type_version = self.emit_type_version(&effect.output),
-            chain = self.emit_chain(&self.body_type(flow).1, Some(flow), service, "      ", Step::Replay),
+            chain = self.emit_chain(&self.body_type(flow).1, Some(flow), service, "      ", Step::Replay, "p0"),
         ));
         out
     }
@@ -4171,7 +4300,7 @@ fn build_with_refusals(
         at: 0,
     }
     .program()?;
-    let checker = Checker::new(&program)?;
+    let mut checker = Checker::new(&program)?;
     checker.validate()?;
     // D6B-28: only an EFFECT pipe names spans.
     let spans = !program.effects.is_empty();
@@ -4618,7 +4747,7 @@ fn formatted(source: &str) -> Checked<String> {
         at: 0,
     }
     .program()?;
-    let checker = Checker::new(&program)?;
+    let mut checker = Checker::new(&program)?;
     checker.validate()?;
     let mut edits: Vec<(Range<usize>, String)> = Vec::new();
     for (name, &end) in &program.name_ends {
@@ -5322,5 +5451,29 @@ mod tests {
             .unwrap_err()
             .starts_with("error: fn w: a nested pipe has the failing step N\n")
         );
+    }
+
+    #[test]
+    fn effect_reach_is_transitive() {
+        // E9, D6B-84, D6B-115: the reach map through a chain, a reaching cycle and a pure cycle.
+        let source = "type O { id: String }\ntype E { reason: String }\n\
+            effect pay.go O -> O ! E = http.post(\"pay/go\")\n\
+            fn place o: O -> O ! E = o |> pay.go\n\
+            fn c1 o: O -> O ! E = o |> c2\nfn c2 o: O -> O ! E = o |> place\n\
+            fn ping o: O -> O ! E = o |> pong\nfn pong o: O -> O ! E = o |> ping |> place\n\
+            fn a o: O -> O = o |> b\nfn b o: O -> O = o |> a\n";
+        let program = Parser {
+            tokens: lex(source).unwrap(),
+            at: 0,
+        }
+        .program()
+        .unwrap();
+        let mut checker = Checker::new(&program).unwrap();
+        checker.validate().unwrap();
+        let go = BTreeSet::from(["pay.go".to_string()]);
+        for name in ["place", "c1", "c2", "ping", "pong"] {
+            assert_eq!(checker.reach[name], go, "{name}");
+        }
+        assert!(checker.reach["a"].is_empty() && checker.reach["b"].is_empty());
     }
 }

@@ -71,3 +71,85 @@ Not applied. GREEN applies them after its own change, then re-runs the named tes
 - **[Unknown]** The parallel step `slice6b-stored-elixir` (DL-121) may change outputs of sources with constructors before step 12 GREEN. Then `byte-guard.py` must run again on that base.
 - **[Inference]** The runtime check runs the stubs, not the real `ProbeSupport` and OTel exporter. `run.py` (TEST phase) covers the GEN release path, which has no indirect pipe.
 - 12b: a constructor that reaches an EFFECT only through a recursion through another constructor is not tested.
+
+## GREEN
+
+Phase: GREEN, 2026-11-07. Base: git HEAD a42a701c. No commit. `run.py` not run.
+By: Opus (GREEN, slice6b-effect-reach) for every entry in this section.
+
+### Changes in `experiments/0001-syntax-to-beam/src/main.rs`, by function
+
+- `Checker` (struct, `new`): new field `reach: BTreeMap<signature key, BTreeSet<EFFECT name>>` (D6B-84).
+- `validate`: now `&mut self`. After the flow checks it sets `reach` and runs `pure_constructors`. The two callers (`build_with_refusals`, `formatted`) take `let mut checker`.
+- `edges` (new): the call edges of each signature key in source order: whole-body pipe step targets, call forms, nested pipe steps, record field values (D6B-85).
+- `callees` (new): the recursive walk over `Node` for `edges`.
+- `reach_map` (new): the fixpoint over `edges` (D6B-84). A `ponytail:` comment names the O(n x e) ceiling.
+- `reaches` (new): true when a key reaches an EFFECT.
+- `pure_constructors` (new, DL-120): the D6B-112 text with a breadth-first path over `edges` (D6B-113).
+- `emit_chain`: new parameter `head` (the span input). The D6B-28 `spans` flag is gone. A live step has a span only when it reaches an EFFECT (DL-119 S). A pure step is a plain call. After the step before a direct EFFECT step (not failing), the next `with` clause is `_ = ProbeSupport.event(...)` (D6B-89, D6B-114).
+- `emit`: computes the span input: `p0` for a plain record head, else `nil` (D6B-88). The REPLAY RUN call passes `p0` (not used there).
+- Tests: new unit test `effect_reach_is_transitive` (E9, D6B-115): a chain, a reaching cycle, a pure cycle.
+
+### Deferred edits applied
+
+1. GEN `query.py`: `orders.prepare` and `orders.finish` rows removed from `CONTRACT`; `LOGS` with three columns; loop and `operation` check and `expected` as in the list.
+2. `arms_test.py` L0 and L1: `"finish": 0` with the DL-119 comment.
+3. `slice6_constructor_test.py` `test_effect_pipe_keeps_its_spans`: the `_ = ProbeSupport.event(...)` assert and the `assertNotIn` of `orders.prepare`.
+4. `slice6_pipe_test.py` `EFFECT_OUTPUTS`: the two new hashes; the re-pin comment names step 12.
+5. `slice6_host_struct_test.py` `BYTE_GUARD`: 36 rows take the `byte-guard.json` sha256; 9 rows unchanged; a comment line names the re-pin.
+6. O1: `tests/cli.rs` no longer requires `orders.prepare` and `orders.finish`; the comment names `orders.request` and DL-119.
+
+### Test tightening (RED review O2, O3)
+
+- O2: E8 asserts `(71, 40)` = (rows, changed rows) of `byte-guard.json` before the row checks. `byte-guard.py` asserts 40 changed rows before it writes. Observed: run with the GREEN build, it stops with `BEAML_SPIKE is not a pre-step-12 build` and writes nothing.
+- O3: new 12b case `enum_equal_paths` (`h1`, `h2`, two paths of length 3). Expected path: `Settled -> h1 -> place -> payments.authorize`.
+
+### Results (observed)
+
+- `cargo fmt --check`, `cargo clippy -- -D warnings`: clean. `cargo test`: unit 20 of 20, `cli.rs` 14 of 14.
+- Pass: `slice6_effect_reach_test` 8 of 8, `slice6_constructor` 25, `slice6_decode_ctor` 8, `slice6_decode` 10, `slice6_enum` 20, `slice6_failure` 22, `slice6_fmt` 25, `slice6_host_struct` 3, `slice6_int` 16, `slice6_pipe` 12, `slice6_record` 5, `slice6_struct_order` 3, `drift_test` 5, `slice3_types` 69, `slice4_retire` 87, `slice5_rewrite` 5, `slice5_squash` 24.
+- Fail, expected: `slice6_stored_elixir_test` 9 of 15 (step 13 RED, commit b0802087; not this step).
+- Fail, cause A (19 tests): `arms_test` 2 of 11 (L2, P1), `slice2_replay` 5 of 21, `slice3_replay` 6 of 31, `slice4_replay` 2 of 27, `slice5_replay` 4 of 12. Every one is an eval VM `place` call that raises `FunctionClauseError`.
+  - **[Observed]** The `arms_test` HARNESS calls `OrdersBeamlSpike.place(order)` with no open span (no router). The real `ProbeSupport.event/2` (0002 `probe_support.ex` line 86) calls `OpenTelemetry.Span.hex_trace_id(current_span_ctx())`. `otel_span:hex_trace_id/1` matches only a `#span_ctx{}`, so `:undefined` raises.
+  - **[Inference]** Before step 12 the event stood inside the `orders.prepare` span, so a span context was always there. D6B-114 moves it out. The RED runtime stubs hid this (notes.md, "Open points").
+  - Not changed. Fixes need a host or harness change outside the deferred list: see the decisions below.
+- Fail, cause B (33 subtests): `slice5_syntax_test` F01 (2) and A2 (31) compare the output with the output of the PIN compiler `0747c315`. The only differences are the DL-119 span lines. A re-pin of these guards is not in the deferred list. Not changed.
+
+### Decisions
+
+Undo:
+- `reach` is a `Checker` field, set in `validate` (the default of decisions.md).
+- The 12b check runs last in `validate`, so every earlier error text stays first.
+- The prepared event keeps the old condition: only when the step before the EFFECT cannot fail (same bytes as `byte-guard.py`).
+- `fmt` also runs the 12b check, because it calls `validate`.
+
+Repair:
+- D6B-113 path: chose a breadth-first search over the source-ordered edges, over a depth-first walk, because it gives the shortest path and the first one in source order. Commits us to: a second `edges` pass per compile.
+- O2: chose a count assert in the test and in `byte-guard.py`, over a recorded base hash, because it is one line in each and a GREEN build gives 0 changed rows.
+
+Migrate (stop, for the main agent and the OWNER):
+- Cause A, the event outside any span. Options: (1) `ProbeSupport.event/2` accepts no span context (`trace_id`/`span_id` nil) in 0002 `probe_support.ex`; (2) the eval HARNESS opens an outer span around `place`; (3) change D6B-114 back to an event inside a span. Each option changes a file outside this step, or a decision.
+- Cause B, `slice5_syntax_test` F01 and A2: re-pin PIN to the step 12 compiler, or apply the `byte-guard.py` transform to the PIN output.
+
+## GREEN follow-up (main agent decisions on cause A and cause B)
+
+By: Opus (GREEN, slice6b-effect-reach) for every entry in this section, unless a line says otherwise.
+
+### Cause A: the event with no open span
+
+- **D6B-127 · Repair · `ProbeSupport.event/2` does not raise when no span is open.** Chose: with no current span context (`:undefined`), the event records `trace_id` and `span_id` as the literal `"none"`. No fresh span, no crash. Over: the eval HARNESS opens a span around `place`; the event back inside a span. Because: a host that calls `place` without an open span is a real production situation until an entry point is declared (D018). Generated code must not crash at the host boundary. The harness must not fake a span that the host does not have. Commits us to: a log row with `"none"` has no span link; the GEN `query.py` does not see it (it reads only router runs). Decision by: Fable (main agent, GREEN follow-up); edit by: Opus (GREEN, slice6b-effect-reach).
+- File: `experiments/0002-http-correlation/apps/probe_support/lib/probe_support.ex` (`event/2`). **[Observed]** It is the only tracked copy outside `results/`. The copies under `results/` are retained run evidence and stay unchanged.
+- **[Observed]** The DRIFT repair JSONs (`arms/gen/repair/*.json`, `arms/lib/repair/*.json`) replace only the `valid_payment!` line of this file. `event/2` is not in them. `drift_test.py` re-run: see the counts below.
+- ID check: D6B-127 was free at this edit (highest found: D6B-126). The main agent checks for a collision again before the commit.
+- Prototype follow-up (**[Proposal]**): a declared entry point gives the root span. Then the event always has a span, and `"none"` stays only for an undeclared host call.
+
+### Cause B: the slice 5 byte pin
+
+- Rule (main agent): as in [the 6a re-pin](../slice6b-records-v2/repin.md). R-EQ stays BASE `f29e3f12` against PRE 6A `4a7cffba`. The byte pin moves from `0747c315` to the step 12 compiler.
+- **Diff proof [Observed].** PIN `0747c315` (scratch `git archive` build) against the step 12 working tree build. Sources: the 47 A2 sources (`rewrite_sources()`) and 21 B5 texts (fixture and 20 random draws). `--stored stored/empty.jsonl` for a source with `effect` or `retire`. `difflib` per line; each changed line is a removed `ProbeSupport.span(..., :internal, p0, ...)` step line or an added plain step call or `_ = ProbeSupport.event(...)` clause.
+  - Exit code and stderr: equal for all 68.
+  - 52 change (31 A2, 21 B5), 16 A2 do not change. 104 hunks, 0 elsewhere.
+  - Hunk locations, the same in each of the 52 (PIN lines / step 12 lines), in `__beaml_place`: `35/35-36` (the `prepare` span becomes the call and the `_ =` event clause) and `37/38` (the `finish` span becomes the call). Exception: `drift/Q/orders.beaml` is one line later (`36/36-37`, `38/39`).
+- **The pin line is not changed yet.** `PIN` in `tests/slice5_syntax_test.py` is a commit for `git archive`. The step 12 compiler has no commit (workers do not commit). The main agent commits `experiments/0001-syntax-to-beam` first, then sets `PIN` to that commit, as in commit `1bd1217b` after `0747c315`. Comment update for line 36: "PIN, the step 12 compiler (DL-119), pins the bytes; before: 0747c315 (step 6a)."
+- **[Observed]** Check without a commit: `slice5_syntax_test` run with `PIN` mapped to the working tree build in memory (scratch runner, no file change): 60 of 60 OK. R-EQ passes unchanged.
+- **[Observed] Re-run after D6B-127** (test files unchanged except as listed above): `arms_test` 11/11, `drift_test` 5/5, `slice2_replay` 21/21, `slice3_replay` 31/31, `slice4_replay` 27/27, `slice5_replay` 12/12. slice6: constructor 25, decode_ctor 8, decode 10, effect_reach 8, enum 20, failure 22, fmt 25, host_struct 3, int 16, pipe 12, record 5, struct_order 3, all OK. `slice6_stored_elixir_test` not run (step 13 RED). `slice5_syntax_test` with the file as is: 33 fail until `PIN` moves; with `PIN` mapped in memory: 60/60.

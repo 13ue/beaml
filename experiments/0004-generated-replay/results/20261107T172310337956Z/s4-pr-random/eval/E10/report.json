@@ -1,0 +1,26 @@
+{
+  "result": {
+    "error": "%OrdersBeamlSpike.Replay.Retired{operation: \"nsrcqdzm.opgworxu\", keep_days: 0}"
+  },
+  "unwatched": [
+    "{OrdersBeamlSpike, :payments_authorize, 1}",
+    "{OrdersBeamlSpike, :prepare, 1}",
+    "{OrdersBeamlSpike, :payments_charge, 1}",
+    "{OrdersBeamlSpike, :nsrcqdzm_opgworxu, 1}",
+    "{OrdersBeamlSpike, :payments_oqaefpot, 1}"
+  ],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 0,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 0,
+    "OrdersBeamlSpike.nsrcqdzm_opgworxu/1": "nil",
+    "OrdersBeamlSpike.payments_authorize/1": "nil",
+    "OrdersBeamlSpike.payments_charge/1": "nil",
+    "OrdersBeamlSpike.payments_oqaefpot/1": "nil",
+    "OrdersBeamlSpike.prepare/1": "nil",
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "58f2b25b31820340fb339a9b521fe2cc766e61e82e3bc45e4a98ba33010c1aa7"
+}

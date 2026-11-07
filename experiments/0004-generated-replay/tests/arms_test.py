@@ -357,7 +357,8 @@ class GenTypeMismatch(Case):
     def test_d2_L0_live_valid_body_baseline(self):
         # Review round 2: the generated EFFECT must serve L0, not the host transport (span `orders.payment_http`).
         seen = self.observed("L0")
-        self.assertEqual({"reply": [200, PAYMENT], "transport": 1, "sent": 1, "records": 1, "finish": 1,
+        # DL-119: finish is pure and has no span; the reply shows its result.
+        self.assertEqual({"reply": [200, PAYMENT], "transport": 1, "sent": 1, "records": 1, "finish": 0,
                           "effect_spans": 1, "host_transport_spans": 0},
                          {"reply": seen["reply"], "transport": seen["transport"], "sent": seen["sent"],
                           "records": len(seen["records"]), "finish": len(self.spans(seen, "orders.finish")),
@@ -371,7 +372,7 @@ class GenTypeMismatch(Case):
         self.assertEqual(
             {"reply": [200, PAYMENT], "transport": 1, "records": 1, "status": 200, "version": 2,
              "value": PAYMENT, "record_hint": ["fraud_score"], "unknown_value_in_record": False,
-             "client": [("ok", True)], "finish": 1},
+             "client": [("ok", True)], "finish": 0},  # DL-119: finish is pure and has no span; the reply shows its result.
             {"reply": seen["reply"], "transport": seen["transport"], "records": len(seen["records"]),
              "status": record.get("status"), "version": record.get("version"), "value": record.get("value"),
              "record_hint": record.get("unknown_keys"), "unknown_value_in_record": "low" in json.dumps(record),

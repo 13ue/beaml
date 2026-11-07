@@ -8,13 +8,11 @@ import datetime
 
 CONTRACT = {
     'orders.request': ('orders', 'server', None),
-    'orders.prepare': ('orders', 'internal', 'orders.request'),
     'orders.payments.authorize': ('orders', 'client', 'orders.request'),
     'payments.request': ('payments', 'server', 'orders.payments.authorize'),
     'payments.authorize': ('payments', 'internal', 'payments.request'),
-    'orders.finish': ('orders', 'internal', 'orders.request'),
 }
-LOGS = [('payment_request_prepared', 'orders.prepare'), ('payment_stub_returned', 'payments.authorize')]
+LOGS = [('payment_request_prepared', 'orders.request', 'prepare'), ('payment_stub_returned', 'payments.authorize', 'authorize')]
 
 def summarize_payments(run, manifest, spans, order_id, source, generated, gap):
     selected = manifest['function_lookup']
@@ -187,13 +185,13 @@ def check_run(run, order_id='order-1', *, context_drop=False):
                 attrs=row.get('attributes',{})
                 expected=dict(manifest['fixtures'][service],function=name.split('.')[1])
                 if any(attrs.get(k)!=v for k,v in expected.items()): gap('fixture_descriptor',trace_id=trace,span_id=row.get('span_id'))
-        for eventname,spanname in LOGS:
+        for eventname,spanname,operation in LOGS:
             row=byname.get(spanname)
             if row:
-                matches=[log for log in logs if log.get('event')==eventname and log.get('trace_id')==trace and log.get('span_id')==row.get('span_id') and log.get('service')==row.get('service') and log.get('operation')==spanname.split('.')[1]]
+                matches=[log for log in logs if log.get('event')==eventname and log.get('trace_id')==trace and log.get('span_id')==row.get('span_id') and log.get('service')==row.get('service') and log.get('operation')==operation]
                 if len(matches)!=1: gap('missing_log',trace_id=trace,span_id=row.get('span_id'),event=eventname)
     for log in logs:
-        expected=dict(LOGS).get(log.get('event'))
+        expected={e: s for e, s, _ in LOGS}.get(log.get('event'))
         if not any(s.get('trace_id')==log.get('trace_id') and s.get('span_id')==log.get('span_id') and s.get('name')==expected for s in spans): gap('unlinked_log',event=log.get('event'))
     summary = None
     if lookup and not gaps:

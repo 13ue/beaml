@@ -1,0 +1,20 @@
+{
+  "result": {
+    "ok": {
+      "p_trcdhr": "X-v1",
+      "s_tmdlop": "Y-v1"
+    }
+  },
+  "unwatched": [],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "a2eb1b0cf90dd905147a6431f087aa37c375398d3be7ad3ca57716739dd0fceb"
+}
