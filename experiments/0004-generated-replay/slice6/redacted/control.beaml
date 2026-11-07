@@ -1,0 +1,14 @@
+// EXPERIMENT 0004 slice 6b step 6b, harness control: card_holder is a plain field, so nothing is redacted.
+// The echo test runs this source to show that the scan finds a MARKER that does leak (D6B-155).
+type Order { order_id: String card_holder: String }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
+
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare order: Order -> Order = order
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize

@@ -1,0 +1,7 @@
+// DL-116: a redacted record field in an EFFECT output.
+type Order { order_id: String }
+type Holder { name: String }
+type Payment { order_id: String holder: redacted Holder }
+type PaymentError { reason: String }
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+fn place order: Order -> Payment ! PaymentError = order |> payments.authorize

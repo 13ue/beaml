@@ -1,0 +1,14 @@
+// slice 6b step 6b R2, R3 (DL-089, D6B-32): with card_holder sends it on the wire, never into a record, span or event.
+// R4 also runs this source as the echo case whose output TYPE does not declare card_holder.
+type Order { order_id: String card_holder: redacted String }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
+
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize") with card_holder
+
+fn prepare order: Order -> Order = order
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize

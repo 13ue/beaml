@@ -1,0 +1,3 @@
+// D6B-64: redacted in an enum payload.
+enum Why { Short(redacted String)  Long }
+fn f x: String -> String = x

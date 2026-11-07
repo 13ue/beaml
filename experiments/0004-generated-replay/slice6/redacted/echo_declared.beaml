@@ -1,0 +1,13 @@
+// slice 6b step 6b R4, R5 (DL-105, DL-115): the output TYPE declares card_holder as redacted; the service echoes it.
+type Order { order_id: String card_holder: redacted String }
+type Payment { order_id: String status: String card_holder: redacted String }
+type PaymentError { reason: String }
+
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize") with card_holder
+
+fn prepare order: Order -> Order = order
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize

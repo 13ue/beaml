@@ -1,0 +1,7 @@
+// DL-116: a redacted enum field in an EFFECT output.
+type Order { order_id: String }
+enum PaymentState { Authorized = "ok"  Unknown(String) }
+type Payment { order_id: String state: redacted PaymentState }
+type PaymentError { reason: String }
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+fn place order: Order -> Payment ! PaymentError = order |> payments.authorize

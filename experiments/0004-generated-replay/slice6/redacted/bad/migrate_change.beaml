@@ -1,0 +1,4 @@
+// D6B-64: redacted in a MIGRATE CHANGE (the grammar corpus line, forms.txt).
+type Payment v2 { order_id: String status: String }
+migrate Payment v1 -> v2 { drop secret: redacted String }
+fn f x: String -> String = x

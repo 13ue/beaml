@@ -1,0 +1,13 @@
+// slice 6b step 6b R1 (DL-059, DL-089): card_holder is redacted; the EFFECT has no with, so it is never sent.
+type Order { order_id: String card_holder: redacted String }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
+
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare order: Order -> Order = order
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize

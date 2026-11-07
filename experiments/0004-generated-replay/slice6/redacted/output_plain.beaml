@@ -1,0 +1,13 @@
+// slice 6b step 6b R7 control: the output field card_holder is plain; the stored records hold its value.
+type Order { order_id: String }
+type Payment { order_id: String status: String card_holder: String }
+type PaymentError { reason: String }
+
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare order: Order -> Order = order
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize

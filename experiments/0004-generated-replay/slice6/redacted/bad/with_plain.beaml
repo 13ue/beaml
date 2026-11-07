@@ -1,0 +1,6 @@
+// D6B-65: with names a field that is not redacted.
+type Order { order_id: String card_holder: redacted String }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize") with order_id
+fn place order: Order -> Payment ! PaymentError = order |> payments.authorize
