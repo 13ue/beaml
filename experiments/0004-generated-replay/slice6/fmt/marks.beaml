@@ -1,0 +1,30 @@
+// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` VERSION MARK form (b) by DL-104 (D6B-43).
+// Chain from v1 that ends at the mark: the chain implies v3, so the mark goes.
+type Chained v3 { id: String state: String channel: String }
+migrate Chained v1 -> v2 { rename status -> state }
+migrate Chained v2 -> v3 { add channel: String = "web" }
+
+// Mark without a chain (a SQUASH): the mark is the only source of v3, so it stays.
+type Squashed v3 { id: String }
+
+// Chain that starts above v1, no mark: the mark v5 is written after the name.
+type Shortened { id: String note: String }
+migrate Shortened v4 -> v5 { add note: String = "" }
+
+// Chain that starts above v1, with its mark: the mark stays.
+type Kept v5 { id: String note: String }
+migrate Kept v4 -> v5 { add note: String = "" }
+
+// Chain from v1, no mark: nothing changes.
+type Plain { id: String state: String }
+migrate Plain v1 -> v2 { rename status -> state }
+
+// v1 without a chain, as the EFFECT output: the mark selects the versioned decode, so it stays (O3).
+type Order { order_id: String }
+type Payment v1 { order_id: String state: String }
+type PaymentError { reason: String }
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> payments.authorize

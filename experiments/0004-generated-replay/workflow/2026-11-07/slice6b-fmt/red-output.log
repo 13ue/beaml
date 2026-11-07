@@ -1,0 +1,882 @@
+# command (repository root): BEAML_SPIKE=<scratch>/basecd37/experiments/0001-syntax-to-beam/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_fmt_test.py -v
+# baseline: commit cd379ff0, git archive + cargo build --offline; cargo 1.94.0 (85eff7c80 2026-01-15); rustc 1.94.0 (4a4ef493e 2026-03-02); Python 3.13.12
+test_action_event_counts_changed_lines (__main__.Slice6Fmt.test_action_event_counts_changed_lines) ... compiler: <scratch>/basecd37/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+FAIL
+test_action_event_counts_changed_lines_of_marks (__main__.Slice6Fmt.test_action_event_counts_changed_lines_of_marks) ... FAIL
+test_blank_line_breaks_a_group (__main__.Slice6Fmt.test_blank_line_breaks_a_group) ... FAIL
+test_clause_group_aligns_argument_columns_arrow_and_equals (__main__.Slice6Fmt.test_clause_group_aligns_argument_columns_arrow_and_equals) ... FAIL
+test_comment_line_breaks_a_group (__main__.Slice6Fmt.test_comment_line_breaks_a_group) ... FAIL
+test_comments_stay_byte_for_byte (__main__.Slice6Fmt.test_comments_stay_byte_for_byte) ... FAIL
+test_compiled_output_equal_except_declaration_offsets (__main__.Slice6Fmt.test_compiled_output_equal_except_declaration_offsets) ... 
+  test_compiled_output_equal_except_declaration_offsets (__main__.Slice6Fmt.test_compiled_output_equal_except_declaration_offsets) [clauses] ... FAIL
+  test_compiled_output_equal_except_declaration_offsets (__main__.Slice6Fmt.test_compiled_output_equal_except_declaration_offsets) [marks] ... FAIL
+test_crlf_line_ends_stay (__main__.Slice6Fmt.test_crlf_line_ends_stay) ... 
+  test_crlf_line_ends_stay (__main__.Slice6Fmt.test_crlf_line_ends_stay) [clauses] ... FAIL
+  test_crlf_line_ends_stay (__main__.Slice6Fmt.test_crlf_line_ends_stay) [marks] ... FAIL
+test_effect_line_aligns_arrow_and_equals (__main__.Slice6Fmt.test_effect_line_aligns_arrow_and_equals) ... FAIL
+test_extra_spaces_before_equals_become_one_column (__main__.Slice6Fmt.test_extra_spaces_before_equals_become_one_column) ... FAIL
+test_fmt_is_idempotent (__main__.Slice6Fmt.test_fmt_is_idempotent) ... 
+  test_fmt_is_idempotent (__main__.Slice6Fmt.test_fmt_is_idempotent) [clauses] ... FAIL
+  test_fmt_is_idempotent (__main__.Slice6Fmt.test_fmt_is_idempotent) [marks] ... FAIL
+test_fmt_needs_no_stored_snapshot (__main__.Slice6Fmt.test_fmt_needs_no_stored_snapshot) ... FAIL
+test_fmt_rewrites_the_file_and_prints_the_diff (__main__.Slice6Fmt.test_fmt_rewrites_the_file_and_prints_the_diff) ... 
+  test_fmt_rewrites_the_file_and_prints_the_diff (__main__.Slice6Fmt.test_fmt_rewrites_the_file_and_prints_the_diff) [clauses] ... FAIL
+  test_fmt_rewrites_the_file_and_prints_the_diff (__main__.Slice6Fmt.test_fmt_rewrites_the_file_and_prints_the_diff) [marks] ... FAIL
+test_guard_expected_fixtures_compile_like_their_sources (__main__.Slice6Fmt.test_guard_expected_fixtures_compile_like_their_sources) ... ok
+test_invalid_source_writes_nothing (__main__.Slice6Fmt.test_invalid_source_writes_nothing) ... 
+  test_invalid_source_writes_nothing (__main__.Slice6Fmt.test_invalid_source_writes_nothing) [syntax] ... FAIL
+  test_invalid_source_writes_nothing (__main__.Slice6Fmt.test_invalid_source_writes_nothing) [m1] ... FAIL
+test_lone_clause_is_a_group_of_one (__main__.Slice6Fmt.test_lone_clause_is_a_group_of_one) ... FAIL
+test_mark_kept_beside_a_chain_above_v1_and_chain_from_v1_unchanged (__main__.Slice6Fmt.test_mark_kept_beside_a_chain_above_v1_and_chain_from_v1_unchanged) ... FAIL
+test_mark_removed_when_a_chain_from_v1_implies_it (__main__.Slice6Fmt.test_mark_removed_when_a_chain_from_v1_implies_it) ... FAIL
+test_mark_written_when_the_chain_starts_above_v1 (__main__.Slice6Fmt.test_mark_written_when_the_chain_starts_above_v1) ... FAIL
+test_multi_line_clause_breaks_a_group (__main__.Slice6Fmt.test_multi_line_clause_breaks_a_group) ... FAIL
+test_squash_mark_without_chain_is_kept (__main__.Slice6Fmt.test_squash_mark_without_chain_is_kept) ... FAIL
+test_v1_mark_without_chain_is_kept (__main__.Slice6Fmt.test_v1_mark_without_chain_is_kept) ... FAIL
+
+======================================================================
+FAIL: test_action_event_counts_changed_lines (__main__.Slice6Fmt.test_action_event_counts_changed_lines)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 282, in test_action_event_counts_changed_lines
+    self.assertEqual([("cli", "ok", CHANGED["clauses"]), ("cli", "ok", 0), ("cli", "error", 0)], events)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('cli', 'ok', 7), ('cli', 'ok', 0), ('cli', 'error', 0)] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+('cli', 'ok', 7)
+
+- [('cli', 'ok', 7), ('cli', 'ok', 0), ('cli', 'error', 0)]
++ []
+
+======================================================================
+FAIL: test_action_event_counts_changed_lines_of_marks (__main__.Slice6Fmt.test_action_event_counts_changed_lines_of_marks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 286, in test_action_event_counts_changed_lines_of_marks
+    self.assertEqual([CHANGED["marks"]], [e.get("changed") for e in self.fmt_events()])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [2] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+2
+
+- [2]
+?  -
+
++ []
+
+======================================================================
+FAIL: test_blank_line_breaks_a_group (__main__.Slice6Fmt.test_blank_line_breaks_a_group)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 142, in test_blank_line_breaks_a_group
+    after = self.formatted("clauses")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_clause_group_aligns_argument_columns_arrow_and_equals (__main__.Slice6Fmt.test_clause_group_aligns_argument_columns_arrow_and_equals)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 128, in test_clause_group_aligns_argument_columns_arrow_and_equals
+    after = self.formatted("clauses")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_comment_line_breaks_a_group (__main__.Slice6Fmt.test_comment_line_breaks_a_group)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 147, in test_comment_line_breaks_a_group
+    after = self.formatted("clauses")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_comments_stay_byte_for_byte (__main__.Slice6Fmt.test_comments_stay_byte_for_byte)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 171, in test_comments_stay_byte_for_byte
+    after = self.formatted("clauses")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_compiled_output_equal_except_declaration_offsets (__main__.Slice6Fmt.test_compiled_output_equal_except_declaration_offsets) [clauses]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 229, in test_compiled_output_equal_except_declaration_offsets
+    self.assertEqual(0, run["code"], run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_compiled_output_equal_except_declaration_offsets (__main__.Slice6Fmt.test_compiled_output_equal_except_declaration_offsets) [marks]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 229, in test_compiled_output_equal_except_declaration_offsets
+    self.assertEqual(0, run["code"], run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_crlf_line_ends_stay (__main__.Slice6Fmt.test_crlf_line_ends_stay) [clauses]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 272, in test_crlf_line_ends_stay
+    self.assert_formatted(name, crlf(source(name)), crlf(expected(name)))
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 103, in assert_formatted
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        {"code": 0, "file": want, "renamed": True, "temp_left": False, "error": False},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        {"code": run["code"], "file": run["after"], "renamed": not run["same_inode"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         "temp_left": not run["listing_same"], "error": "error" in run["stderr"]},
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "fmt contract for %s; stderr: %s" % (name, run["stderr"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'code': 0, 'file': b'// EXPERIMENT 0004 slice 6b [1928 chars]alse} != {'code': 1, 'file': b'// EXPERIMENT 0004 slice 6b [1911 chars]alse}
+- {'code': 0,
+?          ^
+
++ {'code': 1,
+?          ^
+
+   'error': False,
+   'file': b'// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` aligns clause colum'
+           b'ns (DL-083, D6B-44) and EFFECT lines (DL-013).\r\n// This comment '
+           b'keeps its spacing:   a  ->   b  =  c   \r\ntype DeclineReason { te'
+           b'xt: String }\r\nfn DeclineReason text: String -> DeclineReason = D'
+           b'eclineReason { text: text }\r\n\r\nenum PaymentState { Authorized  P'
+           b'ending  Declined(DeclineReason)  Unknown(String) }\r\n\r\n// Group A'
+           b': three single-line clauses of one fn. Arguments, `->` and `=` align'
+           b'.\r\nfn PaymentState status: String, decline_reason: String -> Pay'
+-          b'mentState\r\nfn PaymentState "ok",       _      -> PaymentState = '
+?                                               ------ -----
+
++          b'mentState\r\nfn PaymentState "ok", _ -> PaymentState = Authorized\r'
+?                                                                   ++++++++++++
+
+-          b'Authorized\r\nfn PaymentState "declined", reason -> PaymentState ='
+?            ------------
+
++          b'\nfn PaymentState "declined", reason -> PaymentState = reason |> '
+?                                                                  +++++++++++
+
+-          b' reason |> DeclineReason |> Declined\r\nfn PaymentState other,    '
+?            -----------                                                    ^^^
+
++          b'DeclineReason |> Declined\r\nfn PaymentState other, _ -> PaymentSt'
+?                                                                ^^^^^^^^^^^^^^
+
+-          b'  _      -> PaymentState = Unknown(other)\r\n\r\n// Group break by a'
+-          b' blank line: the two parts do not align with each other.\r\nfn tag'
+-          b' key: String, x: String -> String\r\nfn tag "a = b",       x -> St'
+-          b'ring = x\r\nfn tag "long -> key", x -> String = "k"\r\n\r\nfn tag '
+-          b'"m", x -> String = x\r\n// Group break by a comment line:   x  -> '
+-          b'  y\r\nfn tag other, y -> String = other\r\n\r\n// Group break by '
+-          b'a multi-line clause. A trailing comment stays.\r\nfn label Authori'
+-          b'zed -> String = "ok" // keep   this  -> text\r\nfn label Pending -'
+-          b'> String =\r\n  "a//b"\r\nfn label Unknown(text) -> String = tex'
+-          b't\r\nfn label Declined(r)   -> String = "declined"\r\n\r\n// A lon'
+-          b'e single-line clause is a group of one.\r\nfn lone x: String -> St'
+-          b'ring = x\r\n\r\ntype Order { order_id: String }\r\ntype Payment { '
+-          b'order_id: String state: String }\r\ntype PaymentError { reason: St'
+-          b'ring }\r\n\r\n// An EFFECT line is a group of one (slice 1 supports '
+-          b'one EFFECT): `->` and `=` get one space before them.\r\neffect pay'
+-          b'ments.authorize Order -> Payment ! PaymentError = http.post("payment'
+-          b's/authorize")\r\n\r\nfn place order: Order -> Payment ! PaymentError'
+-          b' =\r\n  order\r\n  |> payments.authorize\r\n',
++          b'ate = Unknown(other)\r\n\r\n// Group break by a blank line: the two '
++          b'parts do not align with each other.\r\nfn tag key: String, x: Stri'
++          b'ng -> String\r\nfn tag "a = b", x -> String = x\r\nfn tag "long -> k'
++          b'ey", x -> String   = "k"\r\n\r\nfn tag "m", x -> String = x\r\n// '
++          b'Group break by a comment line:   x  ->   y\r\nfn tag other, y -> S'
++          b'tring = other\r\n\r\n// Group break by a multi-line clause. A traili'
++          b'ng comment stays.\r\nfn label Authorized -> String = "ok" // keep '
++          b'  this  -> text\r\nfn label Pending -> String =\r\n  "a//b"\r\nfn '
++          b'label Unknown(text) -> String = text\r\nfn label Declined(r) -> St'
++          b'ring = "declined"\r\n\r\n// A lone single-line clause is a group of '
++          b'one.\r\nfn lone x: String   ->  String  = x\r\n\r\ntype Order { or'
++          b'der_id: String }\r\ntype Payment { order_id: String state: String '
++          b'}\r\ntype PaymentError { reason: String }\r\n\r\n// An EFFECT line'
++          b' is a group of one (slice 1 supports one EFFECT): `->` and `=` get o'
++          b'ne space before them.\r\neffect payments.authorize Order   -> Paym'
++          b'ent ! PaymentError    = http.post("payments/authorize")\r\n\r\nfn pl'
++          b'ace order: Order -> Payment ! PaymentError =\r\n  order\r\n  |> paym'
++          b'ents.authorize\r\n',
+-  'renamed': True,
+?             ^^^
+
++  'renamed': False,
+?             ^^^^
+
+   'temp_left': False} : fmt contract for clauses; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_crlf_line_ends_stay (__main__.Slice6Fmt.test_crlf_line_ends_stay) [marks]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 272, in test_crlf_line_ends_stay
+    self.assert_formatted(name, crlf(source(name)), crlf(expected(name)))
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 103, in assert_formatted
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        {"code": 0, "file": want, "renamed": True, "temp_left": False, "error": False},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        {"code": run["code"], "file": run["after"], "renamed": not run["same_inode"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         "temp_left": not run["listing_same"], "error": "error" in run["stderr"]},
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "fmt contract for %s; stderr: %s" % (name, run["stderr"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'code': 0, 'file': b'// EXPERIMENT 0004 slice 6b [1431 chars]alse} != {'code': 1, 'file': b'// EXPERIMENT 0004 slice 6b [1432 chars]alse}
+- {'code': 0,
+?          ^
+
++ {'code': 1,
+?          ^
+
+   'error': False,
+   'file': b'// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` VERSION MARK form ('
+           b'b) by DL-104 (D6B-43).\r\n// Chain from v1 that ends at the mark: '
+-          b'the chain implies v3, so the mark goes.\r\ntype Chained { id: Stri'
+?                                                                           ---
+
++          b'the chain implies v3, so the mark goes.\r\ntype Chained v3 { id: S'
+?                                                                    +++
+
+-          b'ng state: String channel: String }\r\nmigrate Chained v1 -> v2 { r'
+?                                                                           ---
+
++          b'tring state: String channel: String }\r\nmigrate Chained v1 -> v2 '
+?            +++
+
+-          b'ename status -> state }\r\nmigrate Chained v2 -> v3 { add channel:'
+?                                                                           ---
+
++          b'{ rename status -> state }\r\nmigrate Chained v2 -> v3 { add chann'
+?            +++
+
+-          b' String = "web" }\r\n\r\n// Mark without a chain (a SQUASH): the mar'
+?                                                                             ---
+
++          b'el: String = "web" }\r\n\r\n// Mark without a chain (a SQUASH): the '
+?            +++
+
+-          b'k is the only source of v3, so it stays.\r\ntype Squashed v3 { id:'
+?                                                                           ---
+
++          b'mark is the only source of v3, so it stays.\r\ntype Squashed v3 { '
+?            +++
+
+-          b' String }\r\n\r\n// Chain that starts above v1, no mark: the mark v5'
+?                                                                             ---
+
++          b'id: String }\r\n\r\n// Chain that starts above v1, no mark: the mark'
+?            +++
+
+-          b' is written after the name.\r\ntype Shortened v5 { id: String note'
+?                                                          ---
+
++          b' v5 is written after the name.\r\ntype Shortened { id: String note'
+?             +++
+
+           b': String }\r\nmigrate Shortened v4 -> v5 { add note: String = "" }'
+           b'\r\n\r\n// Chain that starts above v1, with its mark: the mark stays'
+           b'.\r\ntype Kept v5 { id: String note: String }\r\nmigrate Kept v4 -> '
+           b'v5 { add note: String = "" }\r\n\r\n// Chain from v1, no mark: nothi'
+           b'ng changes.\r\ntype Plain { id: String state: String }\r\nmigrate Pl'
+           b'ain v1 -> v2 { rename status -> state }\r\n\r\n// v1 without a chain'
+           b', as the EFFECT output: the mark selects the versioned decode, so it'
+           b' stays (O3).\r\ntype Order { order_id: String }\r\ntype Payment v1 {'
+           b' order_id: String state: String }\r\ntype PaymentError { reason: S'
+           b'tring }\r\neffect payments.authorize Order -> Payment ! PaymentErr'
+           b'or = http.post("payments/authorize")\r\n\r\nfn place order: Order ->'
+           b' Payment ! PaymentError =\r\n  order\r\n  |> payments.authorize\r\n',
+-  'renamed': True,
+?             ^^^
+
++  'renamed': False,
+?             ^^^^
+
+   'temp_left': False} : fmt contract for marks; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_effect_line_aligns_arrow_and_equals (__main__.Slice6Fmt.test_effect_line_aligns_arrow_and_equals)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 165, in test_effect_line_aligns_arrow_and_equals
+    after = self.formatted("clauses")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_extra_spaces_before_equals_become_one_column (__main__.Slice6Fmt.test_extra_spaces_before_equals_become_one_column)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 137, in test_extra_spaces_before_equals_become_one_column
+    after = self.formatted("clauses")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_fmt_is_idempotent (__main__.Slice6Fmt.test_fmt_is_idempotent) [clauses]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 213, in test_fmt_is_idempotent
+    self.assertEqual((0, 0, "", first["after"], True, True),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (first["code"], second["code"], second["stdout"], second["after"],
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      second["same_inode"], second["listing_same"]),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "fmt(fmt(s)) == fmt(s); an unchanged file is not rewritten")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, 0, '', b'// EXPERIMENT 0004 slice 6b s[1784 chars]True) != (1, 1, '', b'// EXPERIMENT 0004 slice 6b s[1784 chars]True)
+
+First differing element 0:
+0
+1
+
+- (0,
+-  0,
++ (1,
++  1,
+   '',
+   b'// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` aligns clause columns (DL-0'
+   b'83, D6B-44) and EFFECT lines (DL-013).\n// This comment keeps its spacing'
+   b':   a  ->   b  =  c   \ntype DeclineReason { text: String }\nfn DeclineRea'
+   b'son text: String -> DeclineReason = DeclineReason { text: text }\n\nenum P'
+   b'aymentState { Authorized  Pending  Declined(DeclineReason)  Unknown(String) '
+   b'}\n\n// Group A: three single-line clauses of one fn. Arguments, `->` and '
+   b'`=` align.\nfn PaymentState status: String, decline_reason: String -> Pay'
+   b'mentState\nfn PaymentState "ok", _ -> PaymentState = Authorized\nfn Paymen'
+   b'tState "declined", reason -> PaymentState = reason |> DeclineReason |> Decli'
+   b'ned\nfn PaymentState other, _ -> PaymentState = Unknown(other)\n\n// Group '
+   b'break by a blank line: the two parts do not align with each other.\nfn ta'
+   b'g key: String, x: String -> String\nfn tag "a = b", x -> String = x\nfn ta'
+   b'g "long -> key", x -> String   = "k"\n\nfn tag "m", x -> String = x\n// Gro'
+   b'up break by a comment line:   x  ->   y\nfn tag other, y -> String = othe'
+   b'r\n\n// Group break by a multi-line clause. A trailing comment stays.\nfn l'
+   b'abel Authorized -> String = "ok" // keep   this  -> text\nfn label Pendin'
+   b'g -> String =\n  "a//b"\nfn label Unknown(text) -> String = text\nfn label '
+   b'Declined(r) -> String = "declined"\n\n// A lone single-line clause is a gr'
+   b'oup of one.\nfn lone x: String   ->  String  = x\n\ntype Order { order_id: '
+   b'String }\ntype Payment { order_id: String state: String }\ntype PaymentErr'
+   b'or { reason: String }\n\n// An EFFECT line is a group of one (slice 1 supp'
+   b'orts one EFFECT): `->` and `=` get one space before them.\neffect payment'
+   b's.authorize Order   -> Payment ! PaymentError    = http.post("payments/autho'
+   b'rize")\n\nfn place order: Order -> Payment ! PaymentError =\n  order\n  |> p'
+   b'ayments.authorize\n',
+   True,
+   True) : fmt(fmt(s)) == fmt(s); an unchanged file is not rewritten
+
+======================================================================
+FAIL: test_fmt_is_idempotent (__main__.Slice6Fmt.test_fmt_is_idempotent) [marks]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 213, in test_fmt_is_idempotent
+    self.assertEqual((0, 0, "", first["after"], True, True),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (first["code"], second["code"], second["stdout"], second["after"],
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      second["same_inode"], second["listing_same"]),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "fmt(fmt(s)) == fmt(s); an unchanged file is not rewritten")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, 0, '', b'// EXPERIMENT 0004 slice 6b s[1329 chars]True) != (1, 1, '', b'// EXPERIMENT 0004 slice 6b s[1329 chars]True)
+
+First differing element 0:
+0
+1
+
+- (0,
+-  0,
++ (1,
++  1,
+   '',
+   b'// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` VERSION MARK form (b) by DL'
+   b'-104 (D6B-43).\n// Chain from v1 that ends at the mark: the chain implies'
+   b' v3, so the mark goes.\ntype Chained v3 { id: String state: String channe'
+   b'l: String }\nmigrate Chained v1 -> v2 { rename status -> state }\nmigrate '
+   b'Chained v2 -> v3 { add channel: String = "web" }\n\n// Mark without a chai'
+   b'n (a SQUASH): the mark is the only source of v3, so it stays.\ntype Squas'
+   b'hed v3 { id: String }\n\n// Chain that starts above v1, no mark: the mark '
+   b'v5 is written after the name.\ntype Shortened { id: String note: String }'
+   b'\nmigrate Shortened v4 -> v5 { add note: String = "" }\n\n// Chain that sta'
+   b'rts above v1, with its mark: the mark stays.\ntype Kept v5 { id: String n'
+   b'ote: String }\nmigrate Kept v4 -> v5 { add note: String = "" }\n\n// Chain '
+   b'from v1, no mark: nothing changes.\ntype Plain { id: String state: String'
+   b' }\nmigrate Plain v1 -> v2 { rename status -> state }\n\n// v1 without a ch'
+   b'ain, as the EFFECT output: the mark selects the versioned decode, so it stay'
+   b's (O3).\ntype Order { order_id: String }\ntype Payment v1 { order_id: Stri'
+   b'ng state: String }\ntype PaymentError { reason: String }\neffect payments.'
+   b'authorize Order -> Payment ! PaymentError = http.post("payments/authoriz'
+   b'e")\n\nfn place order: Order -> Payment ! PaymentError =\n  order\n  |> paym'
+   b'ents.authorize\n',
+   True,
+   True) : fmt(fmt(s)) == fmt(s); an unchanged file is not rewritten
+
+======================================================================
+FAIL: test_fmt_needs_no_stored_snapshot (__main__.Slice6Fmt.test_fmt_needs_no_stored_snapshot)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 123, in test_fmt_needs_no_stored_snapshot
+    self.assertEqual((0, expected("clauses")), (run["code"], run["after"]), run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, b'// EXPERIMENT 0004 slice 6b step 10:[1783 chars]e\n') != (1, b'// EXPERIMENT 0004 slice 6b step 10:[1765 chars]e\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   b'// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` aligns clause columns (DL-0'
+   b'83, D6B-44) and EFFECT lines (DL-013).\n// This comment keeps its spacing'
+   b':   a  ->   b  =  c   \ntype DeclineReason { text: String }\nfn DeclineRea'
+   b'son text: String -> DeclineReason = DeclineReason { text: text }\n\nenum P'
+   b'aymentState { Authorized  Pending  Declined(DeclineReason)  Unknown(String) '
+   b'}\n\n// Group A: three single-line clauses of one fn. Arguments, `->` and '
+   b'`=` align.\nfn PaymentState status: String, decline_reason: String -> Pay'
+-  b'mentState\nfn PaymentState "ok",       _      -> PaymentState = Authorize'
+?                                     ------ -----
+
++  b'mentState\nfn PaymentState "ok", _ -> PaymentState = Authorized\nfn Paymen'
+?                                                                  ++++++++++++
+
+-  b'd\nfn PaymentState "declined", reason -> PaymentState = reason |> Decline'
+-  b'Reason |> Declined\nfn PaymentState other,      _      -> PaymentState = '
+-  b'Unknown(other)\n\n// Group break by a blank line: the two parts do not ali'
+-  b'gn with each other.\nfn tag key: String, x: String -> String\nfn tag "a = '
+-  b'b",       x -> String = x\nfn tag "long -> key", x -> String = "k"\n\nfn ta'
+-  b'g "m", x -> String = x\n// Group break by a comment line:   x  ->   y\nfn '
+-  b'tag other, y -> String = other\n\n// Group break by a multi-line clause. A'
+-  b' trailing comment stays.\nfn label Authorized -> String = "ok" // keep   '
+-  b'this  -> text\nfn label Pending -> String =\n  "a//b"\nfn label Unknown(tex'
+-  b't) -> String = text\nfn label Declined(r)   -> String = "declined"\n\n// A '
+-  b'lone single-line clause is a group of one.\nfn lone x: String -> String ='
+-  b' x\n\ntype Order { order_id: String }\ntype Payment { order_id: String stat'
+-  b'e: String }\ntype PaymentError { reason: String }\n\n// An EFFECT line is a'
+-  b' group of one (slice 1 supports one EFFECT): `->` and `=` get one space befo'
+-  b're them.\neffect payments.authorize Order -> Payment ! PaymentError = htt'
+-  b'p.post("payments/authorize")\n\nfn place order: Order -> Payment ! Payment'
+-  b'Error =\n  order\n  |> payments.authorize\n')
++  b'tState "declined", reason -> PaymentState = reason |> DeclineReason |> Decli'
++  b'ned\nfn PaymentState other, _ -> PaymentState = Unknown(other)\n\n// Group '
++  b'break by a blank line: the two parts do not align with each other.\nfn ta'
++  b'g key: String, x: String -> String\nfn tag "a = b", x -> String = x\nfn ta'
++  b'g "long -> key", x -> String   = "k"\n\nfn tag "m", x -> String = x\n// Gro'
++  b'up break by a comment line:   x  ->   y\nfn tag other, y -> String = othe'
++  b'r\n\n// Group break by a multi-line clause. A trailing comment stays.\nfn l'
++  b'abel Authorized -> String = "ok" // keep   this  -> text\nfn label Pendin'
++  b'g -> String =\n  "a//b"\nfn label Unknown(text) -> String = text\nfn label '
++  b'Declined(r) -> String = "declined"\n\n// A lone single-line clause is a gr'
++  b'oup of one.\nfn lone x: String   ->  String  = x\n\ntype Order { order_id: '
++  b'String }\ntype Payment { order_id: String state: String }\ntype PaymentErr'
++  b'or { reason: String }\n\n// An EFFECT line is a group of one (slice 1 supp'
++  b'orts one EFFECT): `->` and `=` get one space before them.\neffect payment'
++  b's.authorize Order   -> Payment ! PaymentError    = http.post("payments/autho'
++  b'rize")\n\nfn place order: Order -> Payment ! PaymentError =\n  order\n  |> p'
++  b'ayments.authorize\n') : usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_fmt_rewrites_the_file_and_prints_the_diff (__main__.Slice6Fmt.test_fmt_rewrites_the_file_and_prints_the_diff) [clauses]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 117, in test_fmt_rewrites_the_file_and_prints_the_diff
+    self.assert_formatted(name)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 103, in assert_formatted
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        {"code": 0, "file": want, "renamed": True, "temp_left": False, "error": False},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        {"code": run["code"], "file": run["after"], "renamed": not run["same_inode"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         "temp_left": not run["listing_same"], "error": "error" in run["stderr"]},
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "fmt contract for %s; stderr: %s" % (name, run["stderr"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'code': 0, 'file': b'// EXPERIMENT 0004 slice 6b [1844 chars]alse} != {'code': 1, 'file': b'// EXPERIMENT 0004 slice 6b [1827 chars]alse}
+- {'code': 0,
+?          ^
+
++ {'code': 1,
+?          ^
+
+   'error': False,
+   'file': b'// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` aligns clause colum'
+           b'ns (DL-083, D6B-44) and EFFECT lines (DL-013).\n// This comment k'
+           b'eeps its spacing:   a  ->   b  =  c   \ntype DeclineReason { text'
+           b': String }\nfn DeclineReason text: String -> DeclineReason = Decl'
+           b'ineReason { text: text }\n\nenum PaymentState { Authorized  Pendin'
+           b'g  Declined(DeclineReason)  Unknown(String) }\n\n// Group A: three'
+           b' single-line clauses of one fn. Arguments, `->` and `=` align.\nf'
+           b'n PaymentState status: String, decline_reason: String -> PaymentStat'
+-          b'e\nfn PaymentState "ok",       _      -> PaymentState = Authorize'
+?                                     ------ -----
+
++          b'e\nfn PaymentState "ok", _ -> PaymentState = Authorized\nfn Paymen'
+?                                                                  ++++++++++++
+
+-          b'd\nfn PaymentState "declined", reason -> PaymentState = reason |>'
+-          b' DeclineReason |> Declined\nfn PaymentState other,      _      ->'
+-          b' PaymentState = Unknown(other)\n\n// Group break by a blank line: '
+-          b'the two parts do not align with each other.\nfn tag key: String, '
+-          b'x: String -> String\nfn tag "a = b",       x -> String = x\nfn tag'
+-          b' "long -> key", x -> String = "k"\n\nfn tag "m", x -> String = x\n/'
+-          b'/ Group break by a comment line:   x  ->   y\nfn tag other, y -> '
+-          b'String = other\n\n// Group break by a multi-line clause. A trailin'
+-          b'g comment stays.\nfn label Authorized -> String = "ok" // keep   '
+-          b'this  -> text\nfn label Pending -> String =\n  "a//b"\nfn label Unk'
+-          b'nown(text) -> String = text\nfn label Declined(r)   -> String = "'
+-          b'declined"\n\n// A lone single-line clause is a group of one.\nfn lo'
+-          b'ne x: String -> String = x\n\ntype Order { order_id: String }\ntype'
+-          b' Payment { order_id: String state: String }\ntype PaymentError { '
+-          b'reason: String }\n\n// An EFFECT line is a group of one (slice 1 s'
+-          b'upports one EFFECT): `->` and `=` get one space before them.\neff'
+-          b'ect payments.authorize Order -> Payment ! PaymentError = http.post("'
+-          b'payments/authorize")\n\nfn place order: Order -> Payment ! Payment'
+-          b'Error =\n  order\n  |> payments.authorize\n',
++          b'tState "declined", reason -> PaymentState = reason |> DeclineReason '
++          b'|> Declined\nfn PaymentState other, _ -> PaymentState = Unknown(o'
++          b'ther)\n\n// Group break by a blank line: the two parts do not alig'
++          b'n with each other.\nfn tag key: String, x: String -> String\nfn ta'
++          b'g "a = b", x -> String = x\nfn tag "long -> key", x -> String   ='
++          b' "k"\n\nfn tag "m", x -> String = x\n// Group break by a comment li'
++          b'ne:   x  ->   y\nfn tag other, y -> String = other\n\n// Group brea'
++          b'k by a multi-line clause. A trailing comment stays.\nfn label Aut'
++          b'horized -> String = "ok" // keep   this  -> text\nfn label Pendin'
++          b'g -> String =\n  "a//b"\nfn label Unknown(text) -> String = text\nf'
++          b'n label Declined(r) -> String = "declined"\n\n// A lone single-lin'
++          b'e clause is a group of one.\nfn lone x: String   ->  String  = x\n'
++          b'\ntype Order { order_id: String }\ntype Payment { order_id: String'
++          b' state: String }\ntype PaymentError { reason: String }\n\n// An EFF'
++          b'ECT line is a group of one (slice 1 supports one EFFECT): `->` and `'
++          b'=` get one space before them.\neffect payments.authorize Order   '
++          b'-> Payment ! PaymentError    = http.post("payments/authorize")\n\n'
++          b'fn place order: Order -> Payment ! PaymentError =\n  order\n  |> p'
++          b'ayments.authorize\n',
+-  'renamed': True,
+?             ^^^
+
++  'renamed': False,
+?             ^^^^
+
+   'temp_left': False} : fmt contract for clauses; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_fmt_rewrites_the_file_and_prints_the_diff (__main__.Slice6Fmt.test_fmt_rewrites_the_file_and_prints_the_diff) [marks]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 117, in test_fmt_rewrites_the_file_and_prints_the_diff
+    self.assert_formatted(name)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 103, in assert_formatted
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        {"code": 0, "file": want, "renamed": True, "temp_left": False, "error": False},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        {"code": run["code"], "file": run["after"], "renamed": not run["same_inode"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         "temp_left": not run["listing_same"], "error": "error" in run["stderr"]},
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "fmt contract for %s; stderr: %s" % (name, run["stderr"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'code': 0, 'file': b'// EXPERIMENT 0004 slice 6b [1371 chars]alse} != {'code': 1, 'file': b'// EXPERIMENT 0004 slice 6b [1372 chars]alse}
+- {'code': 0,
+?          ^
+
++ {'code': 1,
+?          ^
+
+   'error': False,
+   'file': b'// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` VERSION MARK form ('
+           b'b) by DL-104 (D6B-43).\n// Chain from v1 that ends at the mark: t'
+-          b'he chain implies v3, so the mark goes.\ntype Chained { id: String'
+?                                                                          ---
+
++          b'he chain implies v3, so the mark goes.\ntype Chained v3 { id: Str'
+?                                                                 +++
+
+-          b' state: String channel: String }\nmigrate Chained v1 -> v2 { rena'
+?                                                                          ---
+
++          b'ing state: String channel: String }\nmigrate Chained v1 -> v2 { r'
+?            +++
+
+-          b'me status -> state }\nmigrate Chained v2 -> v3 { add channel: Str'
+?                                                                          ---
+
++          b'ename status -> state }\nmigrate Chained v2 -> v3 { add channel: '
+?            +++
+
+-          b'ing = "web" }\n\n// Mark without a chain (a SQUASH): the mark is t'
+?                                                                           ---
+
++          b'String = "web" }\n\n// Mark without a chain (a SQUASH): the mark i'
+?            +++
+
+-          b'he only source of v3, so it stays.\ntype Squashed v3 { id: String'
+?                                                                          ---
+
++          b's the only source of v3, so it stays.\ntype Squashed v3 { id: Str'
+?            +++
+
+-          b' }\n\n// Chain that starts above v1, no mark: the mark v5 is writt'
+?                                                                           ---
+
++          b'ing }\n\n// Chain that starts above v1, no mark: the mark v5 is wr'
+?            +++
+
+-          b'en after the name.\ntype Shortened v5 { id: String note: String }'
+?                                               ---
+
++          b'itten after the name.\ntype Shortened { id: String note: String }'
+?            +++
+
+           b'\nmigrate Shortened v4 -> v5 { add note: String = "" }\n\n// Chain '
+           b'that starts above v1, with its mark: the mark stays.\ntype Kept v'
+           b'5 { id: String note: String }\nmigrate Kept v4 -> v5 { add note: '
+           b'String = "" }\n\n// Chain from v1, no mark: nothing changes.\ntype '
+           b'Plain { id: String state: String }\nmigrate Plain v1 -> v2 { rena'
+           b'me status -> state }\n\n// v1 without a chain, as the EFFECT outpu'
+           b't: the mark selects the versioned decode, so it stays (O3).\ntype'
+           b' Order { order_id: String }\ntype Payment v1 { order_id: String s'
+           b'tate: String }\ntype PaymentError { reason: String }\neffect payme'
+           b'nts.authorize Order -> Payment ! PaymentError = http.post("payments/'
+           b'authorize")\n\nfn place order: Order -> Payment ! PaymentError =\n '
+           b' order\n  |> payments.authorize\n',
+-  'renamed': True,
+?             ^^^
+
++  'renamed': False,
+?             ^^^^
+
+   'temp_left': False} : fmt contract for marks; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_invalid_source_writes_nothing (__main__.Slice6Fmt.test_invalid_source_writes_nothing) [syntax]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 257, in test_invalid_source_writes_nothing
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        {"code": 1, "stdout": "", "file": data, "same_inode": True, "listing_same": True,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+         "reason": error.strip().splitlines()[0] in run["stderr"]},
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "fmt gives the source error; stderr: %s" % run["stderr"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'cod[1818 chars]\n', 'same_inode': True, 'listing_same': True, 'reason': True} != {'cod[1818 chars]\n', 'same_inode': True, 'listing_same': True, 'reason': False}
+  {'code': 1,
+   'file': b'// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` aligns clause colum'
+           b'ns (DL-083, D6B-44) and EFFECT lines (DL-013).\n// This comment k'
+           b'eeps its spacing:   a  ->   b  =  c   \ntype DeclineReason { text'
+           b': String }\nfn DeclineReason text: String -> DeclineReason = Decl'
+           b'ineReason { text: text }\n\nenum PaymentState { Authorized  Pendin'
+           b'g  Declined(DeclineReason)  Unknown(String) }\n\n// Group A: three'
+           b' single-line clauses of one fn. Arguments, `->` and `=` align.\nf'
+           b'n PaymentState status: String, decline_reason: String -> PaymentStat'
+           b'e\nfn PaymentState "ok", _ -> PaymentState = Authorized\nfn Paymen'
+           b'tState "declined", reason -> PaymentState = reason |> DeclineReason '
+           b'|> Declined\nfn PaymentState other, _ -> PaymentState = Unknown(o'
+           b'ther)\n\n// Group break by a blank line: the two parts do not alig'
+           b'n with each other.\nfn tag key: String, x: String -> String\nfn ta'
+           b'g "a = b", x -> String = x\nfn tag "long -> key", x -> String   ='
+           b' "k"\n\nfn tag "m", x -> String = x\n// Group break by a comment li'
+           b'ne:   x  ->   y\nfn tag other, y -> String = other\n\n// Group brea'
+           b'k by a multi-line clause. A trailing comment stays.\nfn label Aut'
+           b'horized -> String = "ok" // keep   this  -> text\nfn label Pendin'
+           b'g -> String =\n  "a//b"\nfn label Unknown(text) -> String = text\nf'
+           b'n label Declined(r) -> String = "declined"\n\n// A lone single-lin'
+           b'e clause is a group of one.\nfn lone x: String ->\n\ntype Order { o'
+           b'rder_id: String }\ntype Payment { order_id: String state: String '
+           b'}\ntype PaymentError { reason: String }\n\n// An EFFECT line is a g'
+           b'roup of one (slice 1 supports one EFFECT): `->` and `=` get one spac'
+           b'e before them.\neffect payments.authorize Order   -> Payment ! Pa'
+           b'ymentError    = http.post("payments/authorize")\n\nfn place order:'
+           b' Order -> Payment ! PaymentError =\n  order\n  |> payments.authori'
+           b'ze\n',
+   'listing_same': True,
+-  'reason': True,
+?            ^^^
+
++  'reason': False,
+?            ^^^^
+
+   'same_inode': True,
+   'stdout': ''} : fmt gives the source error; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_invalid_source_writes_nothing (__main__.Slice6Fmt.test_invalid_source_writes_nothing) [m1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 257, in test_invalid_source_writes_nothing
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        {"code": 1, "stdout": "", "file": data, "same_inode": True, "listing_same": True,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+         "reason": error.strip().splitlines()[0] in run["stderr"]},
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "fmt gives the source error; stderr: %s" % run["stderr"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'cod[1378 chars]\n', 'same_inode': True, 'listing_same': True, 'reason': True} != {'cod[1378 chars]\n', 'same_inode': True, 'listing_same': True, 'reason': False}
+  {'code': 1,
+   'file': b'// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` VERSION MARK form ('
+           b'b) by DL-104 (D6B-43).\n// Chain from v1 that ends at the mark: t'
+           b'he chain implies v3, so the mark goes.\ntype Chained v4 { id: Str'
+           b'ing state: String channel: String }\nmigrate Chained v1 -> v2 { r'
+           b'ename status -> state }\nmigrate Chained v2 -> v3 { add channel: '
+           b'String = "web" }\n\n// Mark without a chain (a SQUASH): the mark i'
+           b's the only source of v3, so it stays.\ntype Squashed v3 { id: Str'
+           b'ing }\n\n// Chain that starts above v1, no mark: the mark v5 is wr'
+           b'itten after the name.\ntype Shortened { id: String note: String }'
+           b'\nmigrate Shortened v4 -> v5 { add note: String = "" }\n\n// Chain '
+           b'that starts above v1, with its mark: the mark stays.\ntype Kept v'
+           b'5 { id: String note: String }\nmigrate Kept v4 -> v5 { add note: '
+           b'String = "" }\n\n// Chain from v1, no mark: nothing changes.\ntype '
+           b'Plain { id: String state: String }\nmigrate Plain v1 -> v2 { rena'
+           b'me status -> state }\n\n// v1 without a chain, as the EFFECT outpu'
+           b't: the mark selects the versioned decode, so it stays (O3).\ntype'
+           b' Order { order_id: String }\ntype Payment v1 { order_id: String s'
+           b'tate: String }\ntype PaymentError { reason: String }\neffect payme'
+           b'nts.authorize Order -> Payment ! PaymentError = http.post("payments/'
+           b'authorize")\n\nfn place order: Order -> Payment ! PaymentError =\n '
+           b' order\n  |> payments.authorize\n',
+   'listing_same': True,
+-  'reason': True,
+?            ^^^
+
++  'reason': False,
+?            ^^^^
+
+   'same_inode': True,
+   'stdout': ''} : fmt gives the source error; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_lone_clause_is_a_group_of_one (__main__.Slice6Fmt.test_lone_clause_is_a_group_of_one)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 160, in test_lone_clause_is_a_group_of_one
+    after = self.formatted("clauses")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_mark_kept_beside_a_chain_above_v1_and_chain_from_v1_unchanged (__main__.Slice6Fmt.test_mark_kept_beside_a_chain_above_v1_and_chain_from_v1_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 201, in test_mark_kept_beside_a_chain_above_v1_and_chain_from_v1_unchanged
+    after = self.formatted("marks")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_mark_removed_when_a_chain_from_v1_implies_it (__main__.Slice6Fmt.test_mark_removed_when_a_chain_from_v1_implies_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 184, in test_mark_removed_when_a_chain_from_v1_implies_it
+    after = self.formatted("marks")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_mark_written_when_the_chain_starts_above_v1 (__main__.Slice6Fmt.test_mark_written_when_the_chain_starts_above_v1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 197, in test_mark_written_when_the_chain_starts_above_v1
+    after = self.formatted("marks")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_multi_line_clause_breaks_a_group (__main__.Slice6Fmt.test_multi_line_clause_breaks_a_group)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 153, in test_multi_line_clause_breaks_a_group
+    after = self.formatted("clauses")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_squash_mark_without_chain_is_kept (__main__.Slice6Fmt.test_squash_mark_without_chain_is_kept)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 188, in test_squash_mark_without_chain_is_kept
+    after = self.formatted("marks")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+======================================================================
+FAIL: test_v1_mark_without_chain_is_kept (__main__.Slice6Fmt.test_v1_mark_without_chain_is_kept)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 193, in test_v1_mark_without_chain_is_kept
+    after = self.formatted("marks")
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 91, in formatted
+    self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : fmt must succeed; stderr: usage: beaml-spike SOURCE.beaml [--stored SNAPSHOT.jsonl [--remove-dead [--assume-complete]]] (Elixir source goes to stdout; --remove-dead removes the DEAD LINES from SOURCE and prints the diff; --assume-complete trusts an empty or partial SNAPSHOT)
+
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.375s
+
+FAILED (failures=26)
+# exit: 1

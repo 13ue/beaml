@@ -1,0 +1,42 @@
+// EXPERIMENT 0004 slice 6b step 10: `beaml fmt` aligns clause columns (DL-083, D6B-44) and EFFECT lines (DL-013).
+// This comment keeps its spacing:   a  ->   b  =  c   
+type DeclineReason { text: String }
+fn DeclineReason text: String -> DeclineReason = DeclineReason { text: text }
+
+enum PaymentState { Authorized  Pending  Declined(DeclineReason)  Unknown(String) }
+
+// Group A: three single-line clauses of one fn. Arguments, `->` and `=` align.
+fn PaymentState status: String, decline_reason: String -> PaymentState
+fn PaymentState "ok",       _      -> PaymentState = Authorized
+fn PaymentState "declined", reason -> PaymentState = reason |> DeclineReason |> Declined
+fn PaymentState other,      _      -> PaymentState = Unknown(other)
+
+// Group break by a blank line: the two parts do not align with each other.
+fn tag key: String, x: String -> String
+fn tag "a = b",       x -> String = x
+fn tag "long -> key", x -> String = "k"
+
+fn tag "m", x -> String = x
+// Group break by a comment line:   x  ->   y
+fn tag other, y -> String = other
+
+// Group break by a multi-line clause. A trailing comment stays.
+fn label Authorized -> String = "ok" // keep   this  -> text
+fn label Pending -> String =
+  "a//b"
+fn label Unknown(text) -> String = text
+fn label Declined(r)   -> String = "declined"
+
+// A lone single-line clause is a group of one.
+fn lone x: String -> String = x
+
+type Order { order_id: String }
+type Payment { order_id: String state: String }
+type PaymentError { reason: String }
+
+// An EFFECT line is a group of one (slice 1 supports one EFFECT): `->` and `=` get one space before them.
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> payments.authorize
