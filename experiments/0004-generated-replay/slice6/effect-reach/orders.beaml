@@ -1,0 +1,42 @@
+type Order { order_id: String }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
+
+// Slice 6b step 12 (DL-108, DL-119): spans follow the EFFECT reach. The GEN orders flow first.
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + "", status: status }
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
+  |> finish
+
+// E1, E2: reaches the EFFECT through place; prepare and tag stay pure.
+fn tag Payment { order_id, status } -> Payment = Payment { order_id: order_id, status: status + "" }
+fn checkout order: Order -> Payment ! PaymentError = order |> prepare |> place |> tag
+
+// E3: a pure pipe beside the EFFECT.
+fn status_of Payment { order_id, status } -> String = status
+fn label p: Payment -> String = p |> status_of
+
+// E4: recursion that reaches. ping stands before pong, so a memo of "in progress" as "no reach" is wrong for ping.
+fn ping o: Order -> Payment ! PaymentError = o |> pong
+fn pong o: Order -> Payment ! PaymentError
+fn pong Order { order_id: "loop" } -> Payment ! PaymentError = Order { order_id: "order-1" } |> ping
+fn pong o -> Payment ! PaymentError = o |> place
+
+// E5: pure recursion stays silent.
+fn a o: Order -> Order = o |> b
+fn b o: Order -> Order = o |> a
+
+// E6: a String head; the span input is nil (D6B-88).
+fn to_order id: String -> Order = Order { order_id: id }
+fn by_id id: String -> Payment ! PaymentError = id |> to_order |> place
+
+// E4c: a chain of three in this source order.
+fn c1 o: Order -> Payment ! PaymentError = o |> c2
+fn c2 o: Order -> Payment ! PaymentError = o |> c3
+fn c3 o: Order -> Payment ! PaymentError = o |> place

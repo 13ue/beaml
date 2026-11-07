@@ -1,0 +1,3086 @@
+# RED output, slice 6b step 12 and 12b. Phase: Solve/RED, 2026-11-07. By: Opus (RED, slice6b-effect-reach).
+# Base: git HEAD 5bfaf5df (same 0001 compiler tree as 1d32db0b; the commits between change docs only). Compiler: scratch 'git archive HEAD experiments/0001-syntax-to-beam' debug build.
+# Command: BEAML_SPIKE=<scratch>/experiments/0001-syntax-to-beam/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_effect_reach_test.py
+# Toolchain: rustc 1.94.0 (4a4ef493e 2026-03-02) | cargo 1.94.0 (85eff7c80 2026-01-15) | Python 3.13.12 | Elixir 1.18.1 (compiled with Erlang/OTP 27)
+# sha256 slice6/effect-reach/byte-guard.json: 1abe0d5b427c517ce9eafc4162a7906b71a8e9c381fbb1cffcd9032d32c116f7
+# sha256 slice6/effect-reach/orders.beaml: 8e614bd891dc9ec76bb7c90dcee8c888d1cecda843f429ae64b77caa22ffe93e
+# sha256 tests/slice6_effect_reach_test.py: 2c07a2f51b6a7ce43e15aac170dfb27fb9e114d33a06c2a6596c0f4360e2d30d
+# Result: 8 tests, 5 fail, 3 pass (guards); 64 failing subtests. Scratch path shortened to <scratch>.
+
+test_constructor_that_reaches_an_effect_is_rejected (__main__.Slice6EffectReach.test_constructor_that_reaches_an_effect_is_rejected) ... compiler: <scratch>/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+
+  test_constructor_that_reaches_an_effect_is_rejected (__main__.Slice6EffectReach.test_constructor_that_reaches_an_effect_is_rejected) [record_direct] ... FAIL
+  test_constructor_that_reaches_an_effect_is_rejected (__main__.Slice6EffectReach.test_constructor_that_reaches_an_effect_is_rejected) [record_through_helpers] ... FAIL
+  test_constructor_that_reaches_an_effect_is_rejected (__main__.Slice6EffectReach.test_constructor_that_reaches_an_effect_is_rejected) [enum_direct] ... FAIL
+  test_constructor_that_reaches_an_effect_is_rejected (__main__.Slice6EffectReach.test_constructor_that_reaches_an_effect_is_rejected) [enum_through_helper] ... FAIL
+test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) ... 
+  test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [checkout#1] ... FAIL
+  test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [place#1] ... FAIL
+  test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [by_id#1] ... FAIL
+  test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [pong#1] ... FAIL
+  test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [ping#1] ... FAIL
+  test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [c1#1] ... FAIL
+test_fn_may_pipe_an_effect_result_into_a_pure_constructor (__main__.Slice6EffectReach.test_fn_may_pipe_an_effect_result_into_a_pure_constructor) ... ok
+test_one_clause_rule_stays_for_a_direct_effect_step (__main__.Slice6EffectReach.test_one_clause_rule_stays_for_a_direct_effect_step) ... ok
+test_pure_pipes_stay_silent (__main__.Slice6EffectReach.test_pure_pipes_stay_silent) ... ok
+test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) ... 
+  test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) [place] ... FAIL
+  test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) [checkout] ... FAIL
+  test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) [by_id] ... FAIL
+  test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) [ping] ... FAIL
+  test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) [c1] ... FAIL
+test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) ... 
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/arms/gen/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/drift/N/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/drift/Q/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/drift/R/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/N-chain/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/N-statuz/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/N2-chain/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/N2/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/reuse/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/rotation/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/D-drop/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/D/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/D15/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/M/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/R-add/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/R2/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/RD/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/RR/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/SAR/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/Z/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/B/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/C2/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/G+r/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/G+r0/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/G/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4-crlf/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4-oneline/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4s-crlf/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4s/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/B5/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/C2/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/M3/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/Q4-crlf/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/Q4/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/Q4s/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/Q4z/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice6/decode-ctor/orders.beaml] ... FAIL
+  test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice6/decode/orders.beaml] ... FAIL
+test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) ... 
+  test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [place#1] ... FAIL
+  test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [checkout#1] ... FAIL
+  test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [ping#1] ... FAIL
+  test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [pong#1] ... FAIL
+  test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [pong#2] ... FAIL
+  test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [by_id#1] ... FAIL
+  test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [c1#1] ... FAIL
+  test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [c2#1] ... FAIL
+  test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [c3#1] ... FAIL
+
+======================================================================
+FAIL: test_constructor_that_reaches_an_effect_is_rejected (__main__.Slice6EffectReach.test_constructor_that_reaches_an_effect_is_rejected) [record_direct]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 360, in test_constructor_that_reaches_an_effect_is_rejected
+    self.assertEqual((1, "", reach_error(ctor, path)), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn Ticket: a constructor c[137 chars]ket') != (0, '# Generated by experiment 0001. Not a[13380 chars], '')
+
+First differing element 0:
+1
+0
+
+- (1,
++ (0,
++  '# Generated by experiment 0001. Not a stable ABI.\n'
++  'defmodule BeamlSpike do\n'
++  '  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, is_struct: 2, '
++  'map_size: 1, ==: 2, <>: 2, if: 2, raise: 2, def: 2, defp: 2, defmodule: 2]\n'
++  '  defmodule Ticket do\n'
++  '    import Kernel\n'
++  '    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> '
++  'Module.concat()\n'
++  '    defstruct [:id]\n'
++  '\n'
++  '    def new(%{o: a0} = m) when map_size(m) == 1, do: '
++  '@parent.new_Ticket_1(a0)\n'
++  '\n'
++  '    def new(m) when is_map(m) do\n'
++  '      text = "Ticket.new/1: no signature takes these keys"\n'
++  '      help = "\\n  help: keys must be atoms; decode outside data through the '
++  'EFFECT"\n'
++  '      {:error, {:no_signature, if(Enum.all?(Map.keys(m), &is_atom/1), do: '
++  'text, else: text <> help)}}\n'
++  '    end\n'
++  '\n'
++  '    def new(_), do: raise(ArgumentError, "invalid BEAML input")\n'
++  '  end\n'
++  '  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and '
++  'String.valid?(v)\n'
++  '  defp __beaml_valid__(v, <<79,114,100,101,114>>) when is_map(v) and '
++  'map_size(v) == 1, do: __beaml_valid__(Map.get(v, '
++  '<<111,114,100,101,114,95,105,100>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<80,97,121,109,101,110,116>>) when is_map(v) and '
++  'map_size(v) == 2, do: __beaml_valid__(Map.get(v, '
++  '<<111,114,100,101,114,95,105,100>>), <<83,116,114,105,110,103>>) and '
++  '__beaml_valid__(Map.get(v, <<115,116,97,116,117,115>>), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<80,97,121,109,101,110,116,69,114,114,111,114>>) '
++  'when is_map(v) and map_size(v) == 1, do: __beaml_valid__(Map.get(v, '
++  '<<114,101,97,115,111,110>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__({<<83,101,116,116,108,101,100>>, <<68,111,110,101>>, '
++  '[v0]}, <<83,101,116,116,108,101,100>>), do: __beaml_valid__(v0, '
++  '<<80,97,121,109,101,110,116>>)\n'
++  '  defp __beaml_valid__(v, <<84,105,99,107,101,116>>) when is_struct(v, '
++  '__MODULE__.Ticket), do: __beaml_valid__(Map.get(v, :id), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(_, _), do: false\n'
++  '  def new_Ticket_1(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      case __beaml_new_Ticket_1(a0) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<84,105,99,107,101,116>>), do: {:ok, '
++  'result}, else: raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 Ticket 347 438\n'
++  '  defp __beaml_new_Ticket_1(v_o) do\n'
++  '    p0 = v_o\n'
++  '    with {:ok, p1} <- __MODULE__.payments_authorize(p0),\n'
++  '         p2 = '
++  'ProbeSupport.span(<<99,97,115,101,46,116,111,95,111,114,100,101,114>>, '
++  ':internal, p0, <<116,111,95,111,114,100,101,114>>, fn -> '
++  '__MODULE__.to_order(p1) end),\n'
++  '         {:ok, p3} <- '
++  'ProbeSupport.span(<<99,97,115,101,46,84,105,99,107,101,116>>, :internal, p0, '
++  '<<84,105,99,107,101,116>>, fn -> __MODULE__.new_Ticket_1(p2) end) do\n'
++  '      {:ok, p3}\n'
++  '    end\n'
++  '  end\n'
++  '  def to_order(a0) do\n'
++  '    if __beaml_valid__(a0, <<80,97,121,109,101,110,116>>) do\n'
++  '      result = __beaml_to_order(a0)\n'
++  '      if __beaml_valid__(result, <<79,114,100,101,114>>), do: result, else: '
++  'raise(ArgumentError, "invalid BEAML output")\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 to_order 210 288\n'
++  '  defp __beaml_to_order(%{<<111,114,100,101,114,95,105,100>> => _, '
++  '<<115,116,97,116,117,115>> => _}), do: %{<<111,114,100,101,114,95,105,100>> '
++  '=> <<100,111,110,101>>}\n'
++  '  # beaml-declaration-v1 payments.authorize 118 209\n'
++  '  def payments_authorize(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      __beaml_attempt__(fn ->\n'
++  '        '
++  'ProbeSupport.span(<<99,97,115,101,46,112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':client, a0, nil, fn ->\n'
++  '          carrier = if ProbeSupport.config(:drop_context), do: [], else: '
++  ':otel_propagator_text_map.inject([])\n'
++  '\n'
++  '          case __MODULE__.Http.post(:payments_port, '
++  '<<112,97,121,109,101,110,116,115,47,97,117,116,104,111,114,105,122,101>>, '
++  'a0, carrier) do\n'
++  '            {:ok, status, bytes} ->\n'
++  '              __MODULE__.Replay.record(a0, status, bytes)\n'
++  '              if status == 200, do: '
++  '__beaml_result_payments_authorize(bytes), else: '
++  '__beaml_fail_payments_authorize(<<115,116,97,116,117,115>>)\n'
++  '\n'
++  '            :error ->\n'
++  '              '
++  '__beaml_fail_payments_authorize(<<116,114,97,110,115,112,111,114,116>>)\n'
++  '          end\n'
++  '        end)\n'
++  '      end)\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_decode_payment(a0) do\n'
++  '    declared = [<<111,114,100,101,114,95,105,100>>, '
++  '<<115,116,97,116,117,115>>]\n'
++  '\n'
++  '    value =\n'
++  '      try do\n'
++  '        :json.decode(a0)\n'
++  '      rescue\n'
++  '        _ -> nil\n'
++  '      end\n'
++  '\n'
++  '    shape = if is_map(value), do: Map.take(value, declared), else: nil\n'
++  '\n'
++  '    if __beaml_valid__(shape, <<80,97,121,109,101,110,116>>),\n'
++  '      do: {:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))},\n'
++  '      else: :error\n'
++  '  end\n'
++  '  def __beaml_project_payments_authorize(a0) do\n'
++  '    body =\n'
++  '      try do\n'
++  '        :json.decode(a0)\n'
++  '      rescue\n'
++  '        _ -> nil\n'
++  '      end\n'
++  '\n'
++  '    if is_map(body) do\n'
++  '      declared = [<<111,114,100,101,114,95,105,100>>, '
++  '<<115,116,97,116,117,115>>]\n'
++  '\n'
++  '      nested =\n'
++  '        Enum.flat_map([], fn {field, names} ->\n'
++  '          case Map.get(body, field) do\n'
++  '            v when is_map(v) -> [{field, Map.take(v, names), '
++  'Enum.map(Map.keys(Map.drop(v, names)), &(field <> <<46>> <> &1))}]\n'
++  '            _ -> []\n'
++  '          end\n'
++  '        end)\n'
++  '\n'
++  '      value = Enum.reduce(nested, Map.take(body, declared), fn {field, v, '
++  '_}, acc -> Map.put(acc, field, v) end)\n'
++  '      {value, Enum.sort(Enum.concat(Map.keys(Map.drop(body, declared)), '
++  'Enum.flat_map(nested, fn {_, _, keys} -> keys end)))}\n'
++  '    else\n'
++  '      {:null, []}\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_result_payments_authorize(a0), do: '
++  '__beaml_result_payments_authorize(a0, [])\n'
++  '  def __beaml_result_payments_authorize(a0, extra) do\n'
++  '    case __beaml_decode_payment(a0) do\n'
++  '      {:ok, value, keys} ->\n'
++  '        keys = Enum.sort(Enum.uniq(Enum.concat(extra, keys)))\n'
++  '        if keys == [], do: :ok, else: '
++  ':otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':unknown_keys, keys)\n'
++  '        {:ok, value}\n'
++  '\n'
++  '      :error ->\n'
++  '        __beaml_fail_payments_authorize(<<100,101,99,111,100,101>>)\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_fail_payments_authorize(a0) do\n'
++  '    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':reason, a0)\n'
++  '    raise(__MODULE__.BeamlFailure, error: '
++  'Kernel.struct!(__MODULE__.PaymentError, reason: a0))\n'
++  '  end\n'
++  '  def __beaml_attempt__(a0) do\n'
++  '    try do\n'
++  '      a0.()\n'
++  '    rescue\n'
++  '      failure in __MODULE__.BeamlFailure -> {:error, failure.error}\n'
++  '    end\n'
++  '  end\n'
++  '  defmodule PaymentError do\n'
++  '    import Kernel, only: [defstruct: 1]\n'
++  '    defstruct [:reason]\n'
++  '  end\n'
++  '  defmodule BeamlFailure do\n'
++  '    import Kernel\n'
++  '    defexception [:error]\n'
++  '\n'
++  '    @impl true\n'
++  '    def message(_), do: "BEAML failure"\n'
++  '  end\n'
++  '  defmodule Http do\n'
++  '    import Kernel\n'
++  '\n'
++  '    def post(port_key, path, request, carrier) do\n'
++  '      port = ProbeSupport.config(port_key)\n'
++  '      body = ProbeSupport.json(request)\n'
++  '      headers = Enum.map(carrier, fn {key, value} -> [key, ": ", value, '
++  '"\\r\\n"] end)\n'
++  '      ProbeSupport.increment()\n'
++  '\n'
++  '      # Any connect, send, framing or read failure is the typed transport '
++  'failure, never a raise.\n'
++  '      case :gen_tcp.connect(\n'
++  '             {127, 0, 0, 1},\n'
++  '             port,\n'
++  '             [:binary, active: false, packet: :http_bin, packet_size: 8192, '
++  'send_timeout: 1000],\n'
++  '             1000\n'
++  '           ) do\n'
++  '        {:ok, socket} ->\n'
++  '          try do\n'
++  '            exchange(socket, port, path, body, headers)\n'
++  '          catch\n'
++  '            _, _ -> :error\n'
++  '          after\n'
++  '            :gen_tcp.close(socket)\n'
++  '          end\n'
++  '\n'
++  '        {:error, _} ->\n'
++  '          :error\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp exchange(socket, port, path, body, headers) do\n'
++  '      :ok =\n'
++  '        :gen_tcp.send(socket, [\n'
++  '          "POST /", path, " HTTP/1.1\\r\\n",\n'
++  '          "Host: 127.0.0.1:#{port}\\r\\n",\n'
++  '          "Connection: close\\r\\n",\n'
++  '          "Content-Type: application/json\\r\\n",\n'
++  '          "Content-Length: #{byte_size(body)}\\r\\n",\n'
++  '          headers,\n'
++  '          "\\r\\n",\n'
++  '          body\n'
++  '        ])\n'
++  '\n'
++  '      deadline = System.monotonic_time(:millisecond) + 2000\n'
++  '      {:ok, {:http_response, {1, minor}, status, _}} = recv(socket, 0, '
++  'deadline)\n'
++  '      true = minor in [0, 1]\n'
++  '      :ok = :inet.setopts(socket, packet: :httph_bin)\n'
++  '      length = content_length(socket, deadline, 32, nil)\n'
++  '      :ok = :inet.setopts(socket, packet: :raw)\n'
++  '      {:ok, bytes} = recv(socket, length, deadline)\n'
++  '      {:ok, status, bytes}\n'
++  '    end\n'
++  '\n'
++  '    defp content_length(socket, deadline, remaining, length) when remaining '
++  '>= 0 do\n'
++  '      case recv(socket, 0, deadline) do\n'
++  '        {:ok, :http_eoh} when is_integer(length) ->\n'
++  '          length\n'
++  '\n'
++  '        {:ok, {:http_header, _, :"Content-Length", _, <<first, _::binary>> = '
++  'value}}\n'
++  '        when is_nil(length) and first in ?0..?9 ->\n'
++  '          {size, ""} = Integer.parse(value)\n'
++  '          true = size in 1..1024\n'
++  '          content_length(socket, deadline, remaining - 1, size)\n'
++  '\n'
++  '        {:ok, {:http_header, _, name, _, _}}\n'
++  '        when name not in [:"Content-Length", :"Transfer-Encoding"] ->\n'
++  '          content_length(socket, deadline, remaining - 1, length)\n'
++  '\n'
++  '        _ ->\n'
++  '          raise ArgumentError\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp recv(socket, length, deadline) do\n'
++  '      timeout = deadline - System.monotonic_time(:millisecond)\n'
++  '      true = timeout > 0\n'
++  '      :gen_tcp.recv(socket, length, timeout)\n'
++  '    end\n'
++  '  end\n'
++  '  defmodule Replay do\n'
++  '    import Kernel\n'
++  '    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> '
++  'Module.concat()\n'
++  '\n'
++  '    def record(request, status, bytes) do\n'
++  '      ctx = OpenTelemetry.Tracer.current_span_ctx()\n'
++  '      {value, unknown_keys} = '
++  '@parent.__beaml_project_payments_authorize(bytes)\n'
++  '\n'
++  '      ProbeSupport.Capture.write("responses", %{\n'
++  '        version: 2,\n'
++  '        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n'
++  '        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n'
++  '        artifact_id: ProbeSupport.beam_hash(@parent),\n'
++  '        operation: '
++  '<<112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>,\n'
++  '        attempt: 1,\n'
++  '        request: request,\n'
++  '        status: status,\n'
++  '        value: value,\n'
++  '        redacted: [],\n'
++  '        unknown_keys: unknown_keys,\n'
++  '        value_sha256: digest(value, unknown_keys, []),\n'
++  '        type: %{name: <<80,97,121,109,101,110,116>>, version: 1, fields: '
++  '[[<<111,114,100,101,114,95,105,100>>, <<83,116,114,105,110,103>>], '
++  '[<<115,116,97,116,117,115>>, <<83,116,114,105,110,103>>]], fingerprint: '
++  '<<51,53,97,55,97,57,100,50,51,97,100,52,100,52,99,54,51,100,51,100,49,100,100,57,100,101,54,54,48,49,54,49,57,53,50,98,56,98,54,102,98,102,50,54,51,57,54,55,102,52,102,100,56,48,50,54,54,49,49,52,51,55,52,55>>}\n'
++  '      })\n'
++  '    end\n'
++  '\n'
++  '    def run(a0, trace_id, records) do\n'
++  '      p0 = a0\n'
++  '      with {:ok, record} <- select(records, trace_id),\n'
++  '           :ok <- expect(record["operation"], '
++  '<<112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':operation_mismatch),\n'
++  '           :ok <- expect(record["attempt"], 1, :attempt_mismatch),\n'
++  '           :ok <- expect(record["request"], p0, :request_mismatch),\n'
++  '           :ok <- expect(record["status"], 200, :status_mismatch),\n'
++  '           {:ok, bytes, keys} <- body(record),\n'
++  '           {:ok, p1} <- @parent.__beaml_attempt__(fn -> '
++  'ProbeSupport.span(<<99,97,115,101,46,112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':internal, p0, nil, fn -> @parent.__beaml_result_payments_authorize(bytes, '
++  'keys) end) end),\n'
++  '           p2 = @parent.to_order(p1),\n'
++  '           {:ok, p3} <- @parent.new_Ticket_1(p2) do\n'
++  '        {:ok, p3}\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp select(records, trace_id) do\n'
++  '      case Enum.filter(records, &(&1["trace_id"] == trace_id)) do\n'
++  '        [record] -> {:ok, record}\n'
++  '        _ -> {:error, :missing_response}\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp expect(value, value, _reason), do: :ok\n'
++  '    defp expect(_value, _expected, reason), do: {:error, reason}\n'
++  '\n'
++  '    # Slice 6b step 6a (D6B-58, D6B-60): a version 2 record replays the '
++  're-encoded `value` when the digest of its\n'
++  '    # projection holds. A record without `value` (version 1) is '
++  '`:body_digest_mismatch`.\n'
++  '    defp body(%{"value" => value, "redacted" => redacted, "unknown_keys" => '
++  'keys, "value_sha256" => sha256})\n'
++  '         when is_list(keys) do\n'
++  '      if digest(value, keys, redacted) === sha256,\n'
++  '        do: {:ok, IO.iodata_to_binary(:json.encode(value)), keys},\n'
++  '        else: {:error, :body_digest_mismatch}\n'
++  '    end\n'
++  '\n'
++  '    defp body(_record), do: {:error, :body_digest_mismatch}\n'
++  '\n'
++  '    # D6B-58: lower-case hex SHA-256 of the compact JSON of the projection, '
++  'keys sorted at every level, UTF-8.\n'
++  '    # ponytail: :json float text (for example 1.0e100) can differ from other '
++  'encoders; the writer and the reader\n'
++  '    # share this function, so only a foreign digest of an exponent float '
++  'would differ.\n'
++  '    defp digest(value, keys, redacted) do\n'
++  '      sorted = fn\n'
++  '        map, encode when is_map(map) -> '
++  ':json.encode_key_value_list(Enum.sort(Map.to_list(map)), encode)\n'
++  '        other, encode -> :json.encode_value(other, encode)\n'
++  '      end\n'
++  '\n'
++  '      text = :json.encode(%{"redacted" => redacted, "unknown_keys" => keys, '
++  '"value" => value}, sorted)\n'
++  '      Base.encode16(:crypto.hash(:sha256, text), case: :lower)\n'
++  '    end\n'
++  '  end\n'
++  'end\n',
+-  '',
+?    ^
+
++  '')
+?    ^
+
+-  'error: fn Ticket: a constructor cannot reach an EFFECT: Ticket -> '
+-  'payments.authorize (DL-120)\n'
+-  '  help: call the EFFECT in a lowercase fn, then pipe its result into fn '
+-  'Ticket') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_constructor_that_reaches_an_effect_is_rejected (__main__.Slice6EffectReach.test_constructor_that_reaches_an_effect_is_rejected) [record_through_helpers]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 360, in test_constructor_that_reaches_an_effect_is_rejected
+    self.assertEqual((1, "", reach_error(ctor, path)), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn Ticket: a constructor c[156 chars]ket') != (0, '# Generated by experiment 0001. Not a[14400 chars], '')
+
+First differing element 0:
+1
+0
+
+- (1,
++ (0,
++  '# Generated by experiment 0001. Not a stable ABI.\n'
++  'defmodule BeamlSpike do\n'
++  '  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, is_struct: 2, '
++  'map_size: 1, ==: 2, <>: 2, if: 2, raise: 2, def: 2, defp: 2, defmodule: 2]\n'
++  '  defmodule Ticket do\n'
++  '    import Kernel\n'
++  '    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> '
++  'Module.concat()\n'
++  '    defstruct [:id]\n'
++  '\n'
++  '    def new(%{o: a0} = m) when map_size(m) == 1, do: '
++  '@parent.new_Ticket_1(a0)\n'
++  '\n'
++  '    def new(m) when is_map(m) do\n'
++  '      text = "Ticket.new/1: no signature takes these keys"\n'
++  '      help = "\\n  help: keys must be atoms; decode outside data through the '
++  'EFFECT"\n'
++  '      {:error, {:no_signature, if(Enum.all?(Map.keys(m), &is_atom/1), do: '
++  'text, else: text <> help)}}\n'
++  '    end\n'
++  '\n'
++  '    def new(_), do: raise(ArgumentError, "invalid BEAML input")\n'
++  '  end\n'
++  '  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and '
++  'String.valid?(v)\n'
++  '  defp __beaml_valid__(v, <<79,114,100,101,114>>) when is_map(v) and '
++  'map_size(v) == 1, do: __beaml_valid__(Map.get(v, '
++  '<<111,114,100,101,114,95,105,100>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<80,97,121,109,101,110,116>>) when is_map(v) and '
++  'map_size(v) == 2, do: __beaml_valid__(Map.get(v, '
++  '<<111,114,100,101,114,95,105,100>>), <<83,116,114,105,110,103>>) and '
++  '__beaml_valid__(Map.get(v, <<115,116,97,116,117,115>>), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<80,97,121,109,101,110,116,69,114,114,111,114>>) '
++  'when is_map(v) and map_size(v) == 1, do: __beaml_valid__(Map.get(v, '
++  '<<114,101,97,115,111,110>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__({<<83,101,116,116,108,101,100>>, <<68,111,110,101>>, '
++  '[v0]}, <<83,101,116,116,108,101,100>>), do: __beaml_valid__(v0, '
++  '<<80,97,121,109,101,110,116>>)\n'
++  '  defp __beaml_valid__(v, <<84,105,99,107,101,116>>) when is_struct(v, '
++  '__MODULE__.Ticket), do: __beaml_valid__(Map.get(v, :id), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(_, _), do: false\n'
++  '  def new_Ticket_1(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      case __beaml_new_Ticket_1(a0) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<84,105,99,107,101,116>>), do: {:ok, '
++  'result}, else: raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 Ticket 469 554\n'
++  '  defp __beaml_new_Ticket_1(%{<<111,114,100,101,114,95,105,100>> => '
++  '<<100,111,110,101>>}), do: {:ok, %__MODULE__.Ticket{id: '
++  '<<100,111,110,101>>}}\n'
++  '  # beaml-declaration-v1 Ticket 555 615\n'
++  '  defp __beaml_new_Ticket_1(v_o) do\n'
++  '    p0 = v_o\n'
++  '    with {:ok, p1} <- __MODULE__.settle(p0),\n'
++  '         {:ok, p2} <- __MODULE__.new_Ticket_1(p1) do\n'
++  '      {:ok, p2}\n'
++  '    end\n'
++  '  end\n'
++  '  def place(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      case __beaml_place(a0) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<80,97,121,109,101,110,116>>), do: '
++  '{:ok, result}, else: raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 place 347 424\n'
++  '  defp __beaml_place(v_order) do\n'
++  '    p0 = v_order\n'
++  '    with {:ok, p1} <- __MODULE__.payments_authorize(p0) do\n'
++  '      {:ok, p1}\n'
++  '    end\n'
++  '  end\n'
++  '  def settle(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      case __beaml_settle(a0) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<79,114,100,101,114>>), do: {:ok, '
++  'result}, else: raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 settle 616 683\n'
++  '  defp __beaml_settle(v_o) do\n'
++  '    p0 = v_o\n'
++  '    with {:ok, p1} <- __MODULE__.place(p0),\n'
++  '         p2 = __MODULE__.to_order(p1) do\n'
++  '      {:ok, p2}\n'
++  '    end\n'
++  '  end\n'
++  '  def to_order(a0) do\n'
++  '    if __beaml_valid__(a0, <<80,97,121,109,101,110,116>>) do\n'
++  '      result = __beaml_to_order(a0)\n'
++  '      if __beaml_valid__(result, <<79,114,100,101,114>>), do: result, else: '
++  'raise(ArgumentError, "invalid BEAML output")\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 to_order 210 288\n'
++  '  defp __beaml_to_order(%{<<111,114,100,101,114,95,105,100>> => _, '
++  '<<115,116,97,116,117,115>> => _}), do: %{<<111,114,100,101,114,95,105,100>> '
++  '=> <<100,111,110,101>>}\n'
++  '  # beaml-declaration-v1 payments.authorize 118 209\n'
++  '  def payments_authorize(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      __beaml_attempt__(fn ->\n'
++  '        '
++  'ProbeSupport.span(<<99,97,115,101,46,112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':client, a0, nil, fn ->\n'
++  '          carrier = if ProbeSupport.config(:drop_context), do: [], else: '
++  ':otel_propagator_text_map.inject([])\n'
++  '\n'
++  '          case __MODULE__.Http.post(:payments_port, '
++  '<<112,97,121,109,101,110,116,115,47,97,117,116,104,111,114,105,122,101>>, '
++  'a0, carrier) do\n'
++  '            {:ok, status, bytes} ->\n'
++  '              __MODULE__.Replay.record(a0, status, bytes)\n'
++  '              if status == 200, do: '
++  '__beaml_result_payments_authorize(bytes), else: '
++  '__beaml_fail_payments_authorize(<<115,116,97,116,117,115>>)\n'
++  '\n'
++  '            :error ->\n'
++  '              '
++  '__beaml_fail_payments_authorize(<<116,114,97,110,115,112,111,114,116>>)\n'
++  '          end\n'
++  '        end)\n'
++  '      end)\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_decode_payment(a0) do\n'
++  '    declared = [<<111,114,100,101,114,95,105,100>>, '
++  '<<115,116,97,116,117,115>>]\n'
++  '\n'
++  '    value =\n'
++  '      try do\n'
++  '        :json.decode(a0)\n'
++  '      rescue\n'
++  '        _ -> nil\n'
++  '      end\n'
++  '\n'
++  '    shape = if is_map(value), do: Map.take(value, declared), else: nil\n'
++  '\n'
++  '    if __beaml_valid__(shape, <<80,97,121,109,101,110,116>>),\n'
++  '      do: {:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))},\n'
++  '      else: :error\n'
++  '  end\n'
++  '  def __beaml_project_payments_authorize(a0) do\n'
++  '    body =\n'
++  '      try do\n'
++  '        :json.decode(a0)\n'
++  '      rescue\n'
++  '        _ -> nil\n'
++  '      end\n'
++  '\n'
++  '    if is_map(body) do\n'
++  '      declared = [<<111,114,100,101,114,95,105,100>>, '
++  '<<115,116,97,116,117,115>>]\n'
++  '\n'
++  '      nested =\n'
++  '        Enum.flat_map([], fn {field, names} ->\n'
++  '          case Map.get(body, field) do\n'
++  '            v when is_map(v) -> [{field, Map.take(v, names), '
++  'Enum.map(Map.keys(Map.drop(v, names)), &(field <> <<46>> <> &1))}]\n'
++  '            _ -> []\n'
++  '          end\n'
++  '        end)\n'
++  '\n'
++  '      value = Enum.reduce(nested, Map.take(body, declared), fn {field, v, '
++  '_}, acc -> Map.put(acc, field, v) end)\n'
++  '      {value, Enum.sort(Enum.concat(Map.keys(Map.drop(body, declared)), '
++  'Enum.flat_map(nested, fn {_, _, keys} -> keys end)))}\n'
++  '    else\n'
++  '      {:null, []}\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_result_payments_authorize(a0), do: '
++  '__beaml_result_payments_authorize(a0, [])\n'
++  '  def __beaml_result_payments_authorize(a0, extra) do\n'
++  '    case __beaml_decode_payment(a0) do\n'
++  '      {:ok, value, keys} ->\n'
++  '        keys = Enum.sort(Enum.uniq(Enum.concat(extra, keys)))\n'
++  '        if keys == [], do: :ok, else: '
++  ':otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':unknown_keys, keys)\n'
++  '        {:ok, value}\n'
++  '\n'
++  '      :error ->\n'
++  '        __beaml_fail_payments_authorize(<<100,101,99,111,100,101>>)\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_fail_payments_authorize(a0) do\n'
++  '    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':reason, a0)\n'
++  '    raise(__MODULE__.BeamlFailure, error: '
++  'Kernel.struct!(__MODULE__.PaymentError, reason: a0))\n'
++  '  end\n'
++  '  def __beaml_attempt__(a0) do\n'
++  '    try do\n'
++  '      a0.()\n'
++  '    rescue\n'
++  '      failure in __MODULE__.BeamlFailure -> {:error, failure.error}\n'
++  '    end\n'
++  '  end\n'
++  '  defmodule PaymentError do\n'
++  '    import Kernel, only: [defstruct: 1]\n'
++  '    defstruct [:reason]\n'
++  '  end\n'
++  '  defmodule BeamlFailure do\n'
++  '    import Kernel\n'
++  '    defexception [:error]\n'
++  '\n'
++  '    @impl true\n'
++  '    def message(_), do: "BEAML failure"\n'
++  '  end\n'
++  '  defmodule Http do\n'
++  '    import Kernel\n'
++  '\n'
++  '    def post(port_key, path, request, carrier) do\n'
++  '      port = ProbeSupport.config(port_key)\n'
++  '      body = ProbeSupport.json(request)\n'
++  '      headers = Enum.map(carrier, fn {key, value} -> [key, ": ", value, '
++  '"\\r\\n"] end)\n'
++  '      ProbeSupport.increment()\n'
++  '\n'
++  '      # Any connect, send, framing or read failure is the typed transport '
++  'failure, never a raise.\n'
++  '      case :gen_tcp.connect(\n'
++  '             {127, 0, 0, 1},\n'
++  '             port,\n'
++  '             [:binary, active: false, packet: :http_bin, packet_size: 8192, '
++  'send_timeout: 1000],\n'
++  '             1000\n'
++  '           ) do\n'
++  '        {:ok, socket} ->\n'
++  '          try do\n'
++  '            exchange(socket, port, path, body, headers)\n'
++  '          catch\n'
++  '            _, _ -> :error\n'
++  '          after\n'
++  '            :gen_tcp.close(socket)\n'
++  '          end\n'
++  '\n'
++  '        {:error, _} ->\n'
++  '          :error\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp exchange(socket, port, path, body, headers) do\n'
++  '      :ok =\n'
++  '        :gen_tcp.send(socket, [\n'
++  '          "POST /", path, " HTTP/1.1\\r\\n",\n'
++  '          "Host: 127.0.0.1:#{port}\\r\\n",\n'
++  '          "Connection: close\\r\\n",\n'
++  '          "Content-Type: application/json\\r\\n",\n'
++  '          "Content-Length: #{byte_size(body)}\\r\\n",\n'
++  '          headers,\n'
++  '          "\\r\\n",\n'
++  '          body\n'
++  '        ])\n'
++  '\n'
++  '      deadline = System.monotonic_time(:millisecond) + 2000\n'
++  '      {:ok, {:http_response, {1, minor}, status, _}} = recv(socket, 0, '
++  'deadline)\n'
++  '      true = minor in [0, 1]\n'
++  '      :ok = :inet.setopts(socket, packet: :httph_bin)\n'
++  '      length = content_length(socket, deadline, 32, nil)\n'
++  '      :ok = :inet.setopts(socket, packet: :raw)\n'
++  '      {:ok, bytes} = recv(socket, length, deadline)\n'
++  '      {:ok, status, bytes}\n'
++  '    end\n'
++  '\n'
++  '    defp content_length(socket, deadline, remaining, length) when remaining '
++  '>= 0 do\n'
++  '      case recv(socket, 0, deadline) do\n'
++  '        {:ok, :http_eoh} when is_integer(length) ->\n'
++  '          length\n'
++  '\n'
++  '        {:ok, {:http_header, _, :"Content-Length", _, <<first, _::binary>> = '
++  'value}}\n'
++  '        when is_nil(length) and first in ?0..?9 ->\n'
++  '          {size, ""} = Integer.parse(value)\n'
++  '          true = size in 1..1024\n'
++  '          content_length(socket, deadline, remaining - 1, size)\n'
++  '\n'
++  '        {:ok, {:http_header, _, name, _, _}}\n'
++  '        when name not in [:"Content-Length", :"Transfer-Encoding"] ->\n'
++  '          content_length(socket, deadline, remaining - 1, length)\n'
++  '\n'
++  '        _ ->\n'
++  '          raise ArgumentError\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp recv(socket, length, deadline) do\n'
++  '      timeout = deadline - System.monotonic_time(:millisecond)\n'
++  '      true = timeout > 0\n'
++  '      :gen_tcp.recv(socket, length, timeout)\n'
++  '    end\n'
++  '  end\n'
++  '  defmodule Replay do\n'
++  '    import Kernel\n'
++  '    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> '
++  'Module.concat()\n'
++  '\n'
++  '    def record(request, status, bytes) do\n'
++  '      ctx = OpenTelemetry.Tracer.current_span_ctx()\n'
++  '      {value, unknown_keys} = '
++  '@parent.__beaml_project_payments_authorize(bytes)\n'
++  '\n'
++  '      ProbeSupport.Capture.write("responses", %{\n'
++  '        version: 2,\n'
++  '        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n'
++  '        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n'
++  '        artifact_id: ProbeSupport.beam_hash(@parent),\n'
++  '        operation: '
++  '<<112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>,\n'
++  '        attempt: 1,\n'
++  '        request: request,\n'
++  '        status: status,\n'
++  '        value: value,\n'
++  '        redacted: [],\n'
++  '        unknown_keys: unknown_keys,\n'
++  '        value_sha256: digest(value, unknown_keys, []),\n'
++  '        type: %{name: <<80,97,121,109,101,110,116>>, version: 1, fields: '
++  '[[<<111,114,100,101,114,95,105,100>>, <<83,116,114,105,110,103>>], '
++  '[<<115,116,97,116,117,115>>, <<83,116,114,105,110,103>>]], fingerprint: '
++  '<<51,53,97,55,97,57,100,50,51,97,100,52,100,52,99,54,51,100,51,100,49,100,100,57,100,101,54,54,48,49,54,49,57,53,50,98,56,98,54,102,98,102,50,54,51,57,54,55,102,52,102,100,56,48,50,54,54,49,49,52,51,55,52,55>>}\n'
++  '      })\n'
++  '    end\n'
++  '\n'
++  '    def run(a0, trace_id, records) do\n'
++  '      p0 = a0\n'
++  '      with {:ok, record} <- select(records, trace_id),\n'
++  '           :ok <- expect(record["operation"], '
++  '<<112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':operation_mismatch),\n'
++  '           :ok <- expect(record["attempt"], 1, :attempt_mismatch),\n'
++  '           :ok <- expect(record["request"], p0, :request_mismatch),\n'
++  '           :ok <- expect(record["status"], 200, :status_mismatch),\n'
++  '           {:ok, bytes, keys} <- body(record),\n'
++  '           {:ok, p1} <- @parent.__beaml_attempt__(fn -> '
++  'ProbeSupport.span(<<99,97,115,101,46,112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':internal, p0, nil, fn -> @parent.__beaml_result_payments_authorize(bytes, '
++  'keys) end) end) do\n'
++  '        {:ok, p1}\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp select(records, trace_id) do\n'
++  '      case Enum.filter(records, &(&1["trace_id"] == trace_id)) do\n'
++  '        [record] -> {:ok, record}\n'
++  '        _ -> {:error, :missing_response}\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp expect(value, value, _reason), do: :ok\n'
++  '    defp expect(_value, _expected, reason), do: {:error, reason}\n'
++  '\n'
++  '    # Slice 6b step 6a (D6B-58, D6B-60): a version 2 record replays the '
++  're-encoded `value` when the digest of its\n'
++  '    # projection holds. A record without `value` (version 1) is '
++  '`:body_digest_mismatch`.\n'
++  '    defp body(%{"value" => value, "redacted" => redacted, "unknown_keys" => '
++  'keys, "value_sha256" => sha256})\n'
++  '         when is_list(keys) do\n'
++  '      if digest(value, keys, redacted) === sha256,\n'
++  '        do: {:ok, IO.iodata_to_binary(:json.encode(value)), keys},\n'
++  '        else: {:error, :body_digest_mismatch}\n'
++  '    end\n'
++  '\n'
++  '    defp body(_record), do: {:error, :body_digest_mismatch}\n'
++  '\n'
++  '    # D6B-58: lower-case hex SHA-256 of the compact JSON of the projection, '
++  'keys sorted at every level, UTF-8.\n'
++  '    # ponytail: :json float text (for example 1.0e100) can differ from other '
++  'encoders; the writer and the reader\n'
++  '    # share this function, so only a foreign digest of an exponent float '
++  'would differ.\n'
++  '    defp digest(value, keys, redacted) do\n'
++  '      sorted = fn\n'
++  '        map, encode when is_map(map) -> '
++  ':json.encode_key_value_list(Enum.sort(Map.to_list(map)), encode)\n'
++  '        other, encode -> :json.encode_value(other, encode)\n'
++  '      end\n'
++  '\n'
++  '      text = :json.encode(%{"redacted" => redacted, "unknown_keys" => keys, '
++  '"value" => value}, sorted)\n'
++  '      Base.encode16(:crypto.hash(:sha256, text), case: :lower)\n'
++  '    end\n'
++  '  end\n'
++  'end\n',
+-  '',
+?    ^
+
++  '')
+?    ^
+
+-  'error: fn Ticket: a constructor cannot reach an EFFECT: Ticket -> settle -> '
+-  'place -> payments.authorize (DL-120)\n'
+-  '  help: call the EFFECT in a lowercase fn, then pipe its result into fn '
+-  'Ticket') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_constructor_that_reaches_an_effect_is_rejected (__main__.Slice6EffectReach.test_constructor_that_reaches_an_effect_is_rejected) [enum_direct]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 360, in test_constructor_that_reaches_an_effect_is_rejected
+    self.assertEqual((1, "", reach_error(ctor, path)), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn Settled: a constructor [140 chars]led') != (0, '# Generated by experiment 0001. Not a[12623 chars], '')
+
+First differing element 0:
+1
+0
+
+- (1,
++ (0,
++  '# Generated by experiment 0001. Not a stable ABI.\n'
++  'defmodule BeamlSpike do\n'
++  '  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, map_size: 1, ==: 2, '
++  '<>: 2, if: 2, raise: 2, def: 2, defp: 2, defmodule: 2]\n'
++  '  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and '
++  'String.valid?(v)\n'
++  '  defp __beaml_valid__(v, <<79,114,100,101,114>>) when is_map(v) and '
++  'map_size(v) == 1, do: __beaml_valid__(Map.get(v, '
++  '<<111,114,100,101,114,95,105,100>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<80,97,121,109,101,110,116>>) when is_map(v) and '
++  'map_size(v) == 2, do: __beaml_valid__(Map.get(v, '
++  '<<111,114,100,101,114,95,105,100>>), <<83,116,114,105,110,103>>) and '
++  '__beaml_valid__(Map.get(v, <<115,116,97,116,117,115>>), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<80,97,121,109,101,110,116,69,114,114,111,114>>) '
++  'when is_map(v) and map_size(v) == 1, do: __beaml_valid__(Map.get(v, '
++  '<<114,101,97,115,111,110>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__({<<83,101,116,116,108,101,100>>, <<68,111,110,101>>, '
++  '[v0]}, <<83,101,116,116,108,101,100>>), do: __beaml_valid__(v0, '
++  '<<80,97,121,109,101,110,116>>)\n'
++  '  defp __beaml_valid__(v, <<84,105,99,107,101,116>>) when is_map(v) and '
++  'map_size(v) == 1, do: __beaml_valid__(Map.get(v, <<105,100>>), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(_, _), do: false\n'
++  '  def new_Settled_1(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      case __beaml_new_Settled_1(a0) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<83,101,116,116,108,101,100>>), do: '
++  '{:ok, result}, else: raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 Settled 347 434\n'
++  '  defp __beaml_new_Settled_1(v_order) do\n'
++  '    p0 = v_order\n'
++  '    with {:ok, p1} <- __MODULE__.payments_authorize(p0),\n'
++  '         p2 = ProbeSupport.span(<<99,97,115,101,46,68,111,110,101>>, '
++  ':internal, p0, <<68,111,110,101>>, fn -> {<<83,101,116,116,108,101,100>>, '
++  '<<68,111,110,101>>, [p1]} end) do\n'
++  '      {:ok, p2}\n'
++  '    end\n'
++  '  end\n'
++  '  def to_order(a0) do\n'
++  '    if __beaml_valid__(a0, <<80,97,121,109,101,110,116>>) do\n'
++  '      result = __beaml_to_order(a0)\n'
++  '      if __beaml_valid__(result, <<79,114,100,101,114>>), do: result, else: '
++  'raise(ArgumentError, "invalid BEAML output")\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 to_order 210 288\n'
++  '  defp __beaml_to_order(%{<<111,114,100,101,114,95,105,100>> => _, '
++  '<<115,116,97,116,117,115>> => _}), do: %{<<111,114,100,101,114,95,105,100>> '
++  '=> <<100,111,110,101>>}\n'
++  '  # beaml-declaration-v1 payments.authorize 118 209\n'
++  '  def payments_authorize(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      __beaml_attempt__(fn ->\n'
++  '        '
++  'ProbeSupport.span(<<99,97,115,101,46,112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':client, a0, nil, fn ->\n'
++  '          carrier = if ProbeSupport.config(:drop_context), do: [], else: '
++  ':otel_propagator_text_map.inject([])\n'
++  '\n'
++  '          case __MODULE__.Http.post(:payments_port, '
++  '<<112,97,121,109,101,110,116,115,47,97,117,116,104,111,114,105,122,101>>, '
++  'a0, carrier) do\n'
++  '            {:ok, status, bytes} ->\n'
++  '              __MODULE__.Replay.record(a0, status, bytes)\n'
++  '              if status == 200, do: '
++  '__beaml_result_payments_authorize(bytes), else: '
++  '__beaml_fail_payments_authorize(<<115,116,97,116,117,115>>)\n'
++  '\n'
++  '            :error ->\n'
++  '              '
++  '__beaml_fail_payments_authorize(<<116,114,97,110,115,112,111,114,116>>)\n'
++  '          end\n'
++  '        end)\n'
++  '      end)\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_decode_payment(a0) do\n'
++  '    declared = [<<111,114,100,101,114,95,105,100>>, '
++  '<<115,116,97,116,117,115>>]\n'
++  '\n'
++  '    value =\n'
++  '      try do\n'
++  '        :json.decode(a0)\n'
++  '      rescue\n'
++  '        _ -> nil\n'
++  '      end\n'
++  '\n'
++  '    shape = if is_map(value), do: Map.take(value, declared), else: nil\n'
++  '\n'
++  '    if __beaml_valid__(shape, <<80,97,121,109,101,110,116>>),\n'
++  '      do: {:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))},\n'
++  '      else: :error\n'
++  '  end\n'
++  '  def __beaml_project_payments_authorize(a0) do\n'
++  '    body =\n'
++  '      try do\n'
++  '        :json.decode(a0)\n'
++  '      rescue\n'
++  '        _ -> nil\n'
++  '      end\n'
++  '\n'
++  '    if is_map(body) do\n'
++  '      declared = [<<111,114,100,101,114,95,105,100>>, '
++  '<<115,116,97,116,117,115>>]\n'
++  '\n'
++  '      nested =\n'
++  '        Enum.flat_map([], fn {field, names} ->\n'
++  '          case Map.get(body, field) do\n'
++  '            v when is_map(v) -> [{field, Map.take(v, names), '
++  'Enum.map(Map.keys(Map.drop(v, names)), &(field <> <<46>> <> &1))}]\n'
++  '            _ -> []\n'
++  '          end\n'
++  '        end)\n'
++  '\n'
++  '      value = Enum.reduce(nested, Map.take(body, declared), fn {field, v, '
++  '_}, acc -> Map.put(acc, field, v) end)\n'
++  '      {value, Enum.sort(Enum.concat(Map.keys(Map.drop(body, declared)), '
++  'Enum.flat_map(nested, fn {_, _, keys} -> keys end)))}\n'
++  '    else\n'
++  '      {:null, []}\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_result_payments_authorize(a0), do: '
++  '__beaml_result_payments_authorize(a0, [])\n'
++  '  def __beaml_result_payments_authorize(a0, extra) do\n'
++  '    case __beaml_decode_payment(a0) do\n'
++  '      {:ok, value, keys} ->\n'
++  '        keys = Enum.sort(Enum.uniq(Enum.concat(extra, keys)))\n'
++  '        if keys == [], do: :ok, else: '
++  ':otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':unknown_keys, keys)\n'
++  '        {:ok, value}\n'
++  '\n'
++  '      :error ->\n'
++  '        __beaml_fail_payments_authorize(<<100,101,99,111,100,101>>)\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_fail_payments_authorize(a0) do\n'
++  '    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':reason, a0)\n'
++  '    raise(__MODULE__.BeamlFailure, error: '
++  'Kernel.struct!(__MODULE__.PaymentError, reason: a0))\n'
++  '  end\n'
++  '  def __beaml_attempt__(a0) do\n'
++  '    try do\n'
++  '      a0.()\n'
++  '    rescue\n'
++  '      failure in __MODULE__.BeamlFailure -> {:error, failure.error}\n'
++  '    end\n'
++  '  end\n'
++  '  defmodule PaymentError do\n'
++  '    import Kernel, only: [defstruct: 1]\n'
++  '    defstruct [:reason]\n'
++  '  end\n'
++  '  defmodule BeamlFailure do\n'
++  '    import Kernel\n'
++  '    defexception [:error]\n'
++  '\n'
++  '    @impl true\n'
++  '    def message(_), do: "BEAML failure"\n'
++  '  end\n'
++  '  defmodule Http do\n'
++  '    import Kernel\n'
++  '\n'
++  '    def post(port_key, path, request, carrier) do\n'
++  '      port = ProbeSupport.config(port_key)\n'
++  '      body = ProbeSupport.json(request)\n'
++  '      headers = Enum.map(carrier, fn {key, value} -> [key, ": ", value, '
++  '"\\r\\n"] end)\n'
++  '      ProbeSupport.increment()\n'
++  '\n'
++  '      # Any connect, send, framing or read failure is the typed transport '
++  'failure, never a raise.\n'
++  '      case :gen_tcp.connect(\n'
++  '             {127, 0, 0, 1},\n'
++  '             port,\n'
++  '             [:binary, active: false, packet: :http_bin, packet_size: 8192, '
++  'send_timeout: 1000],\n'
++  '             1000\n'
++  '           ) do\n'
++  '        {:ok, socket} ->\n'
++  '          try do\n'
++  '            exchange(socket, port, path, body, headers)\n'
++  '          catch\n'
++  '            _, _ -> :error\n'
++  '          after\n'
++  '            :gen_tcp.close(socket)\n'
++  '          end\n'
++  '\n'
++  '        {:error, _} ->\n'
++  '          :error\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp exchange(socket, port, path, body, headers) do\n'
++  '      :ok =\n'
++  '        :gen_tcp.send(socket, [\n'
++  '          "POST /", path, " HTTP/1.1\\r\\n",\n'
++  '          "Host: 127.0.0.1:#{port}\\r\\n",\n'
++  '          "Connection: close\\r\\n",\n'
++  '          "Content-Type: application/json\\r\\n",\n'
++  '          "Content-Length: #{byte_size(body)}\\r\\n",\n'
++  '          headers,\n'
++  '          "\\r\\n",\n'
++  '          body\n'
++  '        ])\n'
++  '\n'
++  '      deadline = System.monotonic_time(:millisecond) + 2000\n'
++  '      {:ok, {:http_response, {1, minor}, status, _}} = recv(socket, 0, '
++  'deadline)\n'
++  '      true = minor in [0, 1]\n'
++  '      :ok = :inet.setopts(socket, packet: :httph_bin)\n'
++  '      length = content_length(socket, deadline, 32, nil)\n'
++  '      :ok = :inet.setopts(socket, packet: :raw)\n'
++  '      {:ok, bytes} = recv(socket, length, deadline)\n'
++  '      {:ok, status, bytes}\n'
++  '    end\n'
++  '\n'
++  '    defp content_length(socket, deadline, remaining, length) when remaining '
++  '>= 0 do\n'
++  '      case recv(socket, 0, deadline) do\n'
++  '        {:ok, :http_eoh} when is_integer(length) ->\n'
++  '          length\n'
++  '\n'
++  '        {:ok, {:http_header, _, :"Content-Length", _, <<first, _::binary>> = '
++  'value}}\n'
++  '        when is_nil(length) and first in ?0..?9 ->\n'
++  '          {size, ""} = Integer.parse(value)\n'
++  '          true = size in 1..1024\n'
++  '          content_length(socket, deadline, remaining - 1, size)\n'
++  '\n'
++  '        {:ok, {:http_header, _, name, _, _}}\n'
++  '        when name not in [:"Content-Length", :"Transfer-Encoding"] ->\n'
++  '          content_length(socket, deadline, remaining - 1, length)\n'
++  '\n'
++  '        _ ->\n'
++  '          raise ArgumentError\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp recv(socket, length, deadline) do\n'
++  '      timeout = deadline - System.monotonic_time(:millisecond)\n'
++  '      true = timeout > 0\n'
++  '      :gen_tcp.recv(socket, length, timeout)\n'
++  '    end\n'
++  '  end\n'
++  '  defmodule Replay do\n'
++  '    import Kernel\n'
++  '    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> '
++  'Module.concat()\n'
++  '\n'
++  '    def record(request, status, bytes) do\n'
++  '      ctx = OpenTelemetry.Tracer.current_span_ctx()\n'
++  '      {value, unknown_keys} = '
++  '@parent.__beaml_project_payments_authorize(bytes)\n'
++  '\n'
++  '      ProbeSupport.Capture.write("responses", %{\n'
++  '        version: 2,\n'
++  '        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n'
++  '        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n'
++  '        artifact_id: ProbeSupport.beam_hash(@parent),\n'
++  '        operation: '
++  '<<112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>,\n'
++  '        attempt: 1,\n'
++  '        request: request,\n'
++  '        status: status,\n'
++  '        value: value,\n'
++  '        redacted: [],\n'
++  '        unknown_keys: unknown_keys,\n'
++  '        value_sha256: digest(value, unknown_keys, []),\n'
++  '        type: %{name: <<80,97,121,109,101,110,116>>, version: 1, fields: '
++  '[[<<111,114,100,101,114,95,105,100>>, <<83,116,114,105,110,103>>], '
++  '[<<115,116,97,116,117,115>>, <<83,116,114,105,110,103>>]], fingerprint: '
++  '<<51,53,97,55,97,57,100,50,51,97,100,52,100,52,99,54,51,100,51,100,49,100,100,57,100,101,54,54,48,49,54,49,57,53,50,98,56,98,54,102,98,102,50,54,51,57,54,55,102,52,102,100,56,48,50,54,54,49,49,52,51,55,52,55>>}\n'
++  '      })\n'
++  '    end\n'
++  '\n'
++  '    def run(a0, trace_id, records) do\n'
++  '      p0 = a0\n'
++  '      with {:ok, record} <- select(records, trace_id),\n'
++  '           :ok <- expect(record["operation"], '
++  '<<112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':operation_mismatch),\n'
++  '           :ok <- expect(record["attempt"], 1, :attempt_mismatch),\n'
++  '           :ok <- expect(record["request"], p0, :request_mismatch),\n'
++  '           :ok <- expect(record["status"], 200, :status_mismatch),\n'
++  '           {:ok, bytes, keys} <- body(record),\n'
++  '           {:ok, p1} <- @parent.__beaml_attempt__(fn -> '
++  'ProbeSupport.span(<<99,97,115,101,46,112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':internal, p0, nil, fn -> @parent.__beaml_result_payments_authorize(bytes, '
++  'keys) end) end),\n'
++  '           p2 = {<<83,101,116,116,108,101,100>>, <<68,111,110,101>>, [p1]} '
++  'do\n'
++  '        {:ok, p2}\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp select(records, trace_id) do\n'
++  '      case Enum.filter(records, &(&1["trace_id"] == trace_id)) do\n'
++  '        [record] -> {:ok, record}\n'
++  '        _ -> {:error, :missing_response}\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp expect(value, value, _reason), do: :ok\n'
++  '    defp expect(_value, _expected, reason), do: {:error, reason}\n'
++  '\n'
++  '    # Slice 6b step 6a (D6B-58, D6B-60): a version 2 record replays the '
++  're-encoded `value` when the digest of its\n'
++  '    # projection holds. A record without `value` (version 1) is '
++  '`:body_digest_mismatch`.\n'
++  '    defp body(%{"value" => value, "redacted" => redacted, "unknown_keys" => '
++  'keys, "value_sha256" => sha256})\n'
++  '         when is_list(keys) do\n'
++  '      if digest(value, keys, redacted) === sha256,\n'
++  '        do: {:ok, IO.iodata_to_binary(:json.encode(value)), keys},\n'
++  '        else: {:error, :body_digest_mismatch}\n'
++  '    end\n'
++  '\n'
++  '    defp body(_record), do: {:error, :body_digest_mismatch}\n'
++  '\n'
++  '    # D6B-58: lower-case hex SHA-256 of the compact JSON of the projection, '
++  'keys sorted at every level, UTF-8.\n'
++  '    # ponytail: :json float text (for example 1.0e100) can differ from other '
++  'encoders; the writer and the reader\n'
++  '    # share this function, so only a foreign digest of an exponent float '
++  'would differ.\n'
++  '    defp digest(value, keys, redacted) do\n'
++  '      sorted = fn\n'
++  '        map, encode when is_map(map) -> '
++  ':json.encode_key_value_list(Enum.sort(Map.to_list(map)), encode)\n'
++  '        other, encode -> :json.encode_value(other, encode)\n'
++  '      end\n'
++  '\n'
++  '      text = :json.encode(%{"redacted" => redacted, "unknown_keys" => keys, '
++  '"value" => value}, sorted)\n'
++  '      Base.encode16(:crypto.hash(:sha256, text), case: :lower)\n'
++  '    end\n'
++  '  end\n'
++  'end\n',
+-  '',
+?    ^
+
++  '')
+?    ^
+
+-  'error: fn Settled: a constructor cannot reach an EFFECT: Settled -> '
+-  'payments.authorize (DL-120)\n'
+-  '  help: call the EFFECT in a lowercase fn, then pipe its result into fn '
+-  'Settled') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_constructor_that_reaches_an_effect_is_rejected (__main__.Slice6EffectReach.test_constructor_that_reaches_an_effect_is_rejected) [enum_through_helper]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 360, in test_constructor_that_reaches_an_effect_is_rejected
+    self.assertEqual((1, "", reach_error(ctor, path)), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn Settled: a constructor [149 chars]led') != (0, '# Generated by experiment 0001. Not a[13035 chars], '')
+
+First differing element 0:
+1
+0
+
+- (1,
++ (0,
++  '# Generated by experiment 0001. Not a stable ABI.\n'
++  'defmodule BeamlSpike do\n'
++  '  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, map_size: 1, ==: 2, '
++  '<>: 2, if: 2, raise: 2, def: 2, defp: 2, defmodule: 2]\n'
++  '  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and '
++  'String.valid?(v)\n'
++  '  defp __beaml_valid__(v, <<79,114,100,101,114>>) when is_map(v) and '
++  'map_size(v) == 1, do: __beaml_valid__(Map.get(v, '
++  '<<111,114,100,101,114,95,105,100>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<80,97,121,109,101,110,116>>) when is_map(v) and '
++  'map_size(v) == 2, do: __beaml_valid__(Map.get(v, '
++  '<<111,114,100,101,114,95,105,100>>), <<83,116,114,105,110,103>>) and '
++  '__beaml_valid__(Map.get(v, <<115,116,97,116,117,115>>), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<80,97,121,109,101,110,116,69,114,114,111,114>>) '
++  'when is_map(v) and map_size(v) == 1, do: __beaml_valid__(Map.get(v, '
++  '<<114,101,97,115,111,110>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__({<<83,101,116,116,108,101,100>>, <<68,111,110,101>>, '
++  '[v0]}, <<83,101,116,116,108,101,100>>), do: __beaml_valid__(v0, '
++  '<<80,97,121,109,101,110,116>>)\n'
++  '  defp __beaml_valid__(v, <<84,105,99,107,101,116>>) when is_map(v) and '
++  'map_size(v) == 1, do: __beaml_valid__(Map.get(v, <<105,100>>), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(_, _), do: false\n'
++  '  def new_Settled_1(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      case __beaml_new_Settled_1(a0) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<83,101,116,116,108,101,100>>), do: '
++  '{:ok, result}, else: raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 Settled 425 499\n'
++  '  defp __beaml_new_Settled_1(v_order) do\n'
++  '    p0 = v_order\n'
++  '    with {:ok, p1} <- __MODULE__.place(p0),\n'
++  '         p2 = {<<83,101,116,116,108,101,100>>, <<68,111,110,101>>, [p1]} do\n'
++  '      {:ok, p2}\n'
++  '    end\n'
++  '  end\n'
++  '  def place(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      case __beaml_place(a0) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<80,97,121,109,101,110,116>>), do: '
++  '{:ok, result}, else: raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 place 347 424\n'
++  '  defp __beaml_place(v_order) do\n'
++  '    p0 = v_order\n'
++  '    with {:ok, p1} <- __MODULE__.payments_authorize(p0) do\n'
++  '      {:ok, p1}\n'
++  '    end\n'
++  '  end\n'
++  '  def to_order(a0) do\n'
++  '    if __beaml_valid__(a0, <<80,97,121,109,101,110,116>>) do\n'
++  '      result = __beaml_to_order(a0)\n'
++  '      if __beaml_valid__(result, <<79,114,100,101,114>>), do: result, else: '
++  'raise(ArgumentError, "invalid BEAML output")\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 to_order 210 288\n'
++  '  defp __beaml_to_order(%{<<111,114,100,101,114,95,105,100>> => _, '
++  '<<115,116,97,116,117,115>> => _}), do: %{<<111,114,100,101,114,95,105,100>> '
++  '=> <<100,111,110,101>>}\n'
++  '  # beaml-declaration-v1 payments.authorize 118 209\n'
++  '  def payments_authorize(a0) do\n'
++  '    if __beaml_valid__(a0, <<79,114,100,101,114>>) do\n'
++  '      __beaml_attempt__(fn ->\n'
++  '        '
++  'ProbeSupport.span(<<99,97,115,101,46,112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':client, a0, nil, fn ->\n'
++  '          carrier = if ProbeSupport.config(:drop_context), do: [], else: '
++  ':otel_propagator_text_map.inject([])\n'
++  '\n'
++  '          case __MODULE__.Http.post(:payments_port, '
++  '<<112,97,121,109,101,110,116,115,47,97,117,116,104,111,114,105,122,101>>, '
++  'a0, carrier) do\n'
++  '            {:ok, status, bytes} ->\n'
++  '              __MODULE__.Replay.record(a0, status, bytes)\n'
++  '              if status == 200, do: '
++  '__beaml_result_payments_authorize(bytes), else: '
++  '__beaml_fail_payments_authorize(<<115,116,97,116,117,115>>)\n'
++  '\n'
++  '            :error ->\n'
++  '              '
++  '__beaml_fail_payments_authorize(<<116,114,97,110,115,112,111,114,116>>)\n'
++  '          end\n'
++  '        end)\n'
++  '      end)\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_decode_payment(a0) do\n'
++  '    declared = [<<111,114,100,101,114,95,105,100>>, '
++  '<<115,116,97,116,117,115>>]\n'
++  '\n'
++  '    value =\n'
++  '      try do\n'
++  '        :json.decode(a0)\n'
++  '      rescue\n'
++  '        _ -> nil\n'
++  '      end\n'
++  '\n'
++  '    shape = if is_map(value), do: Map.take(value, declared), else: nil\n'
++  '\n'
++  '    if __beaml_valid__(shape, <<80,97,121,109,101,110,116>>),\n'
++  '      do: {:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))},\n'
++  '      else: :error\n'
++  '  end\n'
++  '  def __beaml_project_payments_authorize(a0) do\n'
++  '    body =\n'
++  '      try do\n'
++  '        :json.decode(a0)\n'
++  '      rescue\n'
++  '        _ -> nil\n'
++  '      end\n'
++  '\n'
++  '    if is_map(body) do\n'
++  '      declared = [<<111,114,100,101,114,95,105,100>>, '
++  '<<115,116,97,116,117,115>>]\n'
++  '\n'
++  '      nested =\n'
++  '        Enum.flat_map([], fn {field, names} ->\n'
++  '          case Map.get(body, field) do\n'
++  '            v when is_map(v) -> [{field, Map.take(v, names), '
++  'Enum.map(Map.keys(Map.drop(v, names)), &(field <> <<46>> <> &1))}]\n'
++  '            _ -> []\n'
++  '          end\n'
++  '        end)\n'
++  '\n'
++  '      value = Enum.reduce(nested, Map.take(body, declared), fn {field, v, '
++  '_}, acc -> Map.put(acc, field, v) end)\n'
++  '      {value, Enum.sort(Enum.concat(Map.keys(Map.drop(body, declared)), '
++  'Enum.flat_map(nested, fn {_, _, keys} -> keys end)))}\n'
++  '    else\n'
++  '      {:null, []}\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_result_payments_authorize(a0), do: '
++  '__beaml_result_payments_authorize(a0, [])\n'
++  '  def __beaml_result_payments_authorize(a0, extra) do\n'
++  '    case __beaml_decode_payment(a0) do\n'
++  '      {:ok, value, keys} ->\n'
++  '        keys = Enum.sort(Enum.uniq(Enum.concat(extra, keys)))\n'
++  '        if keys == [], do: :ok, else: '
++  ':otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':unknown_keys, keys)\n'
++  '        {:ok, value}\n'
++  '\n'
++  '      :error ->\n'
++  '        __beaml_fail_payments_authorize(<<100,101,99,111,100,101>>)\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_fail_payments_authorize(a0) do\n'
++  '    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':reason, a0)\n'
++  '    raise(__MODULE__.BeamlFailure, error: '
++  'Kernel.struct!(__MODULE__.PaymentError, reason: a0))\n'
++  '  end\n'
++  '  def __beaml_attempt__(a0) do\n'
++  '    try do\n'
++  '      a0.()\n'
++  '    rescue\n'
++  '      failure in __MODULE__.BeamlFailure -> {:error, failure.error}\n'
++  '    end\n'
++  '  end\n'
++  '  defmodule PaymentError do\n'
++  '    import Kernel, only: [defstruct: 1]\n'
++  '    defstruct [:reason]\n'
++  '  end\n'
++  '  defmodule BeamlFailure do\n'
++  '    import Kernel\n'
++  '    defexception [:error]\n'
++  '\n'
++  '    @impl true\n'
++  '    def message(_), do: "BEAML failure"\n'
++  '  end\n'
++  '  defmodule Http do\n'
++  '    import Kernel\n'
++  '\n'
++  '    def post(port_key, path, request, carrier) do\n'
++  '      port = ProbeSupport.config(port_key)\n'
++  '      body = ProbeSupport.json(request)\n'
++  '      headers = Enum.map(carrier, fn {key, value} -> [key, ": ", value, '
++  '"\\r\\n"] end)\n'
++  '      ProbeSupport.increment()\n'
++  '\n'
++  '      # Any connect, send, framing or read failure is the typed transport '
++  'failure, never a raise.\n'
++  '      case :gen_tcp.connect(\n'
++  '             {127, 0, 0, 1},\n'
++  '             port,\n'
++  '             [:binary, active: false, packet: :http_bin, packet_size: 8192, '
++  'send_timeout: 1000],\n'
++  '             1000\n'
++  '           ) do\n'
++  '        {:ok, socket} ->\n'
++  '          try do\n'
++  '            exchange(socket, port, path, body, headers)\n'
++  '          catch\n'
++  '            _, _ -> :error\n'
++  '          after\n'
++  '            :gen_tcp.close(socket)\n'
++  '          end\n'
++  '\n'
++  '        {:error, _} ->\n'
++  '          :error\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp exchange(socket, port, path, body, headers) do\n'
++  '      :ok =\n'
++  '        :gen_tcp.send(socket, [\n'
++  '          "POST /", path, " HTTP/1.1\\r\\n",\n'
++  '          "Host: 127.0.0.1:#{port}\\r\\n",\n'
++  '          "Connection: close\\r\\n",\n'
++  '          "Content-Type: application/json\\r\\n",\n'
++  '          "Content-Length: #{byte_size(body)}\\r\\n",\n'
++  '          headers,\n'
++  '          "\\r\\n",\n'
++  '          body\n'
++  '        ])\n'
++  '\n'
++  '      deadline = System.monotonic_time(:millisecond) + 2000\n'
++  '      {:ok, {:http_response, {1, minor}, status, _}} = recv(socket, 0, '
++  'deadline)\n'
++  '      true = minor in [0, 1]\n'
++  '      :ok = :inet.setopts(socket, packet: :httph_bin)\n'
++  '      length = content_length(socket, deadline, 32, nil)\n'
++  '      :ok = :inet.setopts(socket, packet: :raw)\n'
++  '      {:ok, bytes} = recv(socket, length, deadline)\n'
++  '      {:ok, status, bytes}\n'
++  '    end\n'
++  '\n'
++  '    defp content_length(socket, deadline, remaining, length) when remaining '
++  '>= 0 do\n'
++  '      case recv(socket, 0, deadline) do\n'
++  '        {:ok, :http_eoh} when is_integer(length) ->\n'
++  '          length\n'
++  '\n'
++  '        {:ok, {:http_header, _, :"Content-Length", _, <<first, _::binary>> = '
++  'value}}\n'
++  '        when is_nil(length) and first in ?0..?9 ->\n'
++  '          {size, ""} = Integer.parse(value)\n'
++  '          true = size in 1..1024\n'
++  '          content_length(socket, deadline, remaining - 1, size)\n'
++  '\n'
++  '        {:ok, {:http_header, _, name, _, _}}\n'
++  '        when name not in [:"Content-Length", :"Transfer-Encoding"] ->\n'
++  '          content_length(socket, deadline, remaining - 1, length)\n'
++  '\n'
++  '        _ ->\n'
++  '          raise ArgumentError\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp recv(socket, length, deadline) do\n'
++  '      timeout = deadline - System.monotonic_time(:millisecond)\n'
++  '      true = timeout > 0\n'
++  '      :gen_tcp.recv(socket, length, timeout)\n'
++  '    end\n'
++  '  end\n'
++  '  defmodule Replay do\n'
++  '    import Kernel\n'
++  '    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> '
++  'Module.concat()\n'
++  '\n'
++  '    def record(request, status, bytes) do\n'
++  '      ctx = OpenTelemetry.Tracer.current_span_ctx()\n'
++  '      {value, unknown_keys} = '
++  '@parent.__beaml_project_payments_authorize(bytes)\n'
++  '\n'
++  '      ProbeSupport.Capture.write("responses", %{\n'
++  '        version: 2,\n'
++  '        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n'
++  '        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n'
++  '        artifact_id: ProbeSupport.beam_hash(@parent),\n'
++  '        operation: '
++  '<<112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>,\n'
++  '        attempt: 1,\n'
++  '        request: request,\n'
++  '        status: status,\n'
++  '        value: value,\n'
++  '        redacted: [],\n'
++  '        unknown_keys: unknown_keys,\n'
++  '        value_sha256: digest(value, unknown_keys, []),\n'
++  '        type: %{name: <<80,97,121,109,101,110,116>>, version: 1, fields: '
++  '[[<<111,114,100,101,114,95,105,100>>, <<83,116,114,105,110,103>>], '
++  '[<<115,116,97,116,117,115>>, <<83,116,114,105,110,103>>]], fingerprint: '
++  '<<51,53,97,55,97,57,100,50,51,97,100,52,100,52,99,54,51,100,51,100,49,100,100,57,100,101,54,54,48,49,54,49,57,53,50,98,56,98,54,102,98,102,50,54,51,57,54,55,102,52,102,100,56,48,50,54,54,49,49,52,51,55,52,55>>}\n'
++  '      })\n'
++  '    end\n'
++  '\n'
++  '    def run(a0, trace_id, records) do\n'
++  '      p0 = a0\n'
++  '      with {:ok, record} <- select(records, trace_id),\n'
++  '           :ok <- expect(record["operation"], '
++  '<<112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':operation_mismatch),\n'
++  '           :ok <- expect(record["attempt"], 1, :attempt_mismatch),\n'
++  '           :ok <- expect(record["request"], p0, :request_mismatch),\n'
++  '           :ok <- expect(record["status"], 200, :status_mismatch),\n'
++  '           {:ok, bytes, keys} <- body(record),\n'
++  '           {:ok, p1} <- @parent.__beaml_attempt__(fn -> '
++  'ProbeSupport.span(<<99,97,115,101,46,112,97,121,109,101,110,116,115,46,97,117,116,104,111,114,105,122,101>>, '
++  ':internal, p0, nil, fn -> @parent.__beaml_result_payments_authorize(bytes, '
++  'keys) end) end) do\n'
++  '        {:ok, p1}\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp select(records, trace_id) do\n'
++  '      case Enum.filter(records, &(&1["trace_id"] == trace_id)) do\n'
++  '        [record] -> {:ok, record}\n'
++  '        _ -> {:error, :missing_response}\n'
++  '      end\n'
++  '    end\n'
++  '\n'
++  '    defp expect(value, value, _reason), do: :ok\n'
++  '    defp expect(_value, _expected, reason), do: {:error, reason}\n'
++  '\n'
++  '    # Slice 6b step 6a (D6B-58, D6B-60): a version 2 record replays the '
++  're-encoded `value` when the digest of its\n'
++  '    # projection holds. A record without `value` (version 1) is '
++  '`:body_digest_mismatch`.\n'
++  '    defp body(%{"value" => value, "redacted" => redacted, "unknown_keys" => '
++  'keys, "value_sha256" => sha256})\n'
++  '         when is_list(keys) do\n'
++  '      if digest(value, keys, redacted) === sha256,\n'
++  '        do: {:ok, IO.iodata_to_binary(:json.encode(value)), keys},\n'
++  '        else: {:error, :body_digest_mismatch}\n'
++  '    end\n'
++  '\n'
++  '    defp body(_record), do: {:error, :body_digest_mismatch}\n'
++  '\n'
++  '    # D6B-58: lower-case hex SHA-256 of the compact JSON of the projection, '
++  'keys sorted at every level, UTF-8.\n'
++  '    # ponytail: :json float text (for example 1.0e100) can differ from other '
++  'encoders; the writer and the reader\n'
++  '    # share this function, so only a foreign digest of an exponent float '
++  'would differ.\n'
++  '    defp digest(value, keys, redacted) do\n'
++  '      sorted = fn\n'
++  '        map, encode when is_map(map) -> '
++  ':json.encode_key_value_list(Enum.sort(Map.to_list(map)), encode)\n'
++  '        other, encode -> :json.encode_value(other, encode)\n'
++  '      end\n'
++  '\n'
++  '      text = :json.encode(%{"redacted" => redacted, "unknown_keys" => keys, '
++  '"value" => value}, sorted)\n'
++  '      Base.encode16(:crypto.hash(:sha256, text), case: :lower)\n'
++  '    end\n'
++  '  end\n'
++  'end\n',
+-  '',
+?    ^
+
++  '')
+?    ^
+
+-  'error: fn Settled: a constructor cannot reach an EFFECT: Settled -> place -> '
+-  'payments.authorize (DL-120)\n'
+-  '  help: call the EFFECT in a lowercase fn, then pipe its result into fn '
+-  'Settled') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [checkout#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 300, in test_exact_lines_per_clause
+    self.assertEqual([], [w for w in want if w not in lines], found.get(key))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['{:ok, p2} <- ProbeSupport.span(<<111,114[108 chars]d),']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'{:ok, p2} <- ProbeSupport.span(<<111,114,100,101,114,115,46,112,108,97,99,101>>, :internal, p0, <<112,108,97,99,101>>, fn -> __MODULE__.place(p1) end),'
+
+- []
++ ['{:ok, p2} <- '
++  'ProbeSupport.span(<<111,114,100,101,114,115,46,112,108,97,99,101>>, '
++  ':internal, p0, <<112,108,97,99,101>>, fn -> __MODULE__.place(p1) end),'] :   defp __beaml_checkout(v_order) do
+    p0 = v_order
+    with p1 = __MODULE__.prepare(p0),
+         {:ok, p2} <- __MODULE__.place(p1),
+         p3 = __MODULE__.tag(p2) do
+      {:ok, p3}
+    end
+  end
+
+======================================================================
+FAIL: test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [place#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 300, in test_exact_lines_per_clause
+    self.assertEqual([], [w for w in want if w not in lines], found.get(key))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['with p1 = __MODULE__.prepare(p0),', '_ =[179 chars] do']
+
+Second list contains 3 additional elements.
+First extra element 0:
+'with p1 = __MODULE__.prepare(p0),'
+
+- []
++ ['with p1 = __MODULE__.prepare(p0),',
++  '_ = '
++  'ProbeSupport.event(<<112,97,121,109,101,110,116,95,114,101,113,117,101,115,116,95,112,114,101,112,97,114,101,100>>, '
++  '<<112,114,101,112,97,114,101>>),',
++  'p3 = __MODULE__.finish(p2) do'] :   defp __beaml_place(v_order) do
+    p0 = v_order
+    with p1 = ProbeSupport.span(<<111,114,100,101,114,115,46,112,114,101,112,97,114,101>>, :internal, p0, <<112,114,101,112,97,114,101>>, fn -> result = __MODULE__.prepare(p0); ProbeSupport.event(<<112,97,121,109,101,110,116,95,114,101,113,117,101,115,116,95,112,114,101,112,97,114,101,100>>, <<112,114,101,112,97,114,101>>); result end),
+         {:ok, p2} <- __MODULE__.payments_authorize(p1),
+         p3 = ProbeSupport.span(<<111,114,100,101,114,115,46,102,105,110,105,115,104>>, :internal, p0, <<102,105,110,105,115,104>>, fn -> __MODULE__.finish(p2) end) do
+      {:ok, p3}
+    end
+  end
+
+======================================================================
+FAIL: test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [by_id#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 300, in test_exact_lines_per_clause
+    self.assertEqual([], [w for w in want if w not in lines], found.get(key))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['{:ok, p2} <- ProbeSupport.span(<<111,114[111 chars] do']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'{:ok, p2} <- ProbeSupport.span(<<111,114,100,101,114,115,46,112,108,97,99,101>>, :internal, nil, <<112,108,97,99,101>>, fn -> __MODULE__.place(p1) end) do'
+
+- []
++ ['{:ok, p2} <- '
++  'ProbeSupport.span(<<111,114,100,101,114,115,46,112,108,97,99,101>>, '
++  ':internal, nil, <<112,108,97,99,101>>, fn -> __MODULE__.place(p1) end) do'] :   defp __beaml_by_id(v_id) do
+    p0 = v_id
+    with p1 = __MODULE__.to_order(p0),
+         {:ok, p2} <- __MODULE__.place(p1) do
+      {:ok, p2}
+    end
+  end
+
+======================================================================
+FAIL: test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [pong#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 300, in test_exact_lines_per_clause
+    self.assertEqual([], [w for w in want if w not in lines], found.get(key))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['with {:ok, p1} <- ProbeSupport.span(<<11[110 chars] do']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'with {:ok, p1} <- ProbeSupport.span(<<111,114,100,101,114,115,46,112,105,110,103>>, :internal, p0, <<112,105,110,103>>, fn -> __MODULE__.ping(p0) end) do'
+
+- []
++ ['with {:ok, p1} <- '
++  'ProbeSupport.span(<<111,114,100,101,114,115,46,112,105,110,103>>, :internal, '
++  'p0, <<112,105,110,103>>, fn -> __MODULE__.ping(p0) end) do'] :   defp __beaml_pong(%{<<111,114,100,101,114,95,105,100>> => <<108,111,111,112>>}) do
+    p0 = %{<<111,114,100,101,114,95,105,100>> => <<111,114,100,101,114,45,49>>}
+    with {:ok, p1} <- __MODULE__.ping(p0) do
+      {:ok, p1}
+    end
+  end
+
+======================================================================
+FAIL: test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [ping#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 300, in test_exact_lines_per_clause
+    self.assertEqual([], [w for w in want if w not in lines], found.get(key))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['with {:ok, p1} <- ProbeSupport.span(<<11[110 chars] do']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'with {:ok, p1} <- ProbeSupport.span(<<111,114,100,101,114,115,46,112,111,110,103>>, :internal, p0, <<112,111,110,103>>, fn -> __MODULE__.pong(p0) end) do'
+
+- []
++ ['with {:ok, p1} <- '
++  'ProbeSupport.span(<<111,114,100,101,114,115,46,112,111,110,103>>, :internal, '
++  'p0, <<112,111,110,103>>, fn -> __MODULE__.pong(p0) end) do'] :   defp __beaml_ping(v_o) do
+    p0 = v_o
+    with {:ok, p1} <- __MODULE__.pong(p0) do
+      {:ok, p1}
+    end
+  end
+
+======================================================================
+FAIL: test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) [c1#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 300, in test_exact_lines_per_clause
+    self.assertEqual([], [w for w in want if w not in lines], found.get(key))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['with {:ok, p1} <- ProbeSupport.span(<<11[88 chars] do']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'with {:ok, p1} <- ProbeSupport.span(<<111,114,100,101,114,115,46,99,50>>, :internal, p0, <<99,50>>, fn -> __MODULE__.c2(p0) end) do'
+
+- []
++ ['with {:ok, p1} <- ProbeSupport.span(<<111,114,100,101,114,115,46,99,50>>, '
++  ':internal, p0, <<99,50>>, fn -> __MODULE__.c2(p0) end) do'] :   defp __beaml_c1(v_o) do
+    p0 = v_o
+    with {:ok, p1} <- __MODULE__.c2(p0) do
+      {:ok, p1}
+    end
+  end
+
+======================================================================
+FAIL: test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) [place]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 322, in test_runtime_spans_follow_the_reach
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : place FAIL
+  got place: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+checkout FAIL
+  got checkout: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+by_id FAIL
+  got by_id: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+ping FAIL
+  got ping: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+c1 FAIL
+  got c1: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+label PASS
+
+
+======================================================================
+FAIL: test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) [checkout]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 322, in test_runtime_spans_follow_the_reach
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : place FAIL
+  got place: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+checkout FAIL
+  got checkout: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+by_id FAIL
+  got by_id: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+ping FAIL
+  got ping: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+c1 FAIL
+  got c1: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+label PASS
+
+
+======================================================================
+FAIL: test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) [by_id]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 322, in test_runtime_spans_follow_the_reach
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : place FAIL
+  got place: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+checkout FAIL
+  got checkout: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+by_id FAIL
+  got by_id: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+ping FAIL
+  got ping: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+c1 FAIL
+  got c1: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+label PASS
+
+
+======================================================================
+FAIL: test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) [ping]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 322, in test_runtime_spans_follow_the_reach
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : place FAIL
+  got place: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+checkout FAIL
+  got checkout: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+by_id FAIL
+  got by_id: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+ping FAIL
+  got ping: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+c1 FAIL
+  got c1: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+label PASS
+
+
+======================================================================
+FAIL: test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) [c1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 322, in test_runtime_spans_follow_the_reach
+    self.assertEqual("PASS", results.get(name), run.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+ : place FAIL
+  got place: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+checkout FAIL
+  got checkout: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+by_id FAIL
+  got by_id: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+ping FAIL
+  got ping: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+c1 FAIL
+  got c1: {{:ok, %{"order_id" => "order-1", "status" => "authorized"}}, [{:span, "orders.prepare", "order-1", nil}, {:event, "payment_request_prepared", "prepare", "orders.prepare"}, {:span, "orders.payments.authorize", "order-1", nil}, {:span, "orders.finish", "order-1", nil}]}
+label PASS
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/arms/gen/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '2b8dc63670aa2a9a3bcd889ec680e5bbc5a66ea789676d98045964cf50909fed') != (0, '009d8ab3127b8734e14555d7c87cc337e438cda8ae583a7cbbb2c8d065c92343')
+
+First differing element 1:
+'2b8dc63670aa2a9a3bcd889ec680e5bbc5a66ea789676d98045964cf50909fed'
+'009d8ab3127b8734e14555d7c87cc337e438cda8ae583a7cbbb2c8d065c92343'
+
+- (0, '2b8dc63670aa2a9a3bcd889ec680e5bbc5a66ea789676d98045964cf50909fed')
++ (0, '009d8ab3127b8734e14555d7c87cc337e438cda8ae583a7cbbb2c8d065c92343') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/drift/N/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'a06dc6e246a1251bf0bf256db9ec797957e26b542d5fee08c583081bfb1cd327') != (0, '14e2df2f8ba5a4379762a09c6a002f2eca6387db0f9e64a74905e496508fdb42')
+
+First differing element 1:
+'a06dc6e246a1251bf0bf256db9ec797957e26b542d5fee08c583081bfb1cd327'
+'14e2df2f8ba5a4379762a09c6a002f2eca6387db0f9e64a74905e496508fdb42'
+
+- (0, 'a06dc6e246a1251bf0bf256db9ec797957e26b542d5fee08c583081bfb1cd327')
++ (0, '14e2df2f8ba5a4379762a09c6a002f2eca6387db0f9e64a74905e496508fdb42') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/drift/Q/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'fe122fbb436771017836b99a14b009dc3028a2245d3ec9c2f4b28f78bcab06e6') != (0, 'dc8dbff40577865948599bb09bf42fbebb302bf758cdf4c6dfd8788797bf127f')
+
+First differing element 1:
+'fe122fbb436771017836b99a14b009dc3028a2245d3ec9c2f4b28f78bcab06e6'
+'dc8dbff40577865948599bb09bf42fbebb302bf758cdf4c6dfd8788797bf127f'
+
+- (0, 'fe122fbb436771017836b99a14b009dc3028a2245d3ec9c2f4b28f78bcab06e6')
++ (0, 'dc8dbff40577865948599bb09bf42fbebb302bf758cdf4c6dfd8788797bf127f') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/drift/R/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'e4fe3f5a2c6e64b396a931d8a78f5be3f8c2db4da21395c068e687cb3523ce0f') != (0, 'c0d9ae1ca0b2b0832042c9fc7b2c59d683166317db8b2b16c6cf03db70c43bc1')
+
+First differing element 1:
+'e4fe3f5a2c6e64b396a931d8a78f5be3f8c2db4da21395c068e687cb3523ce0f'
+'c0d9ae1ca0b2b0832042c9fc7b2c59d683166317db8b2b16c6cf03db70c43bc1'
+
+- (0, 'e4fe3f5a2c6e64b396a931d8a78f5be3f8c2db4da21395c068e687cb3523ce0f')
++ (0, 'c0d9ae1ca0b2b0832042c9fc7b2c59d683166317db8b2b16c6cf03db70c43bc1') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/N-chain/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'bc0fed27b4ae292fe28244980d28e074e68f9cc7a58226cd8d30828c08830003') != (0, '43d16c8293010327c7e40a3edc210db24a9f55050656df5bfa6d031ac2cb068a')
+
+First differing element 1:
+'bc0fed27b4ae292fe28244980d28e074e68f9cc7a58226cd8d30828c08830003'
+'43d16c8293010327c7e40a3edc210db24a9f55050656df5bfa6d031ac2cb068a'
+
+- (0, 'bc0fed27b4ae292fe28244980d28e074e68f9cc7a58226cd8d30828c08830003')
++ (0, '43d16c8293010327c7e40a3edc210db24a9f55050656df5bfa6d031ac2cb068a') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/N-chain/orders.beaml:3
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/N-chain/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/N-statuz/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '649c94c907164c60406e844b54090ef4d75aea307b7f9225d25743a9e3e57baa') != (0, '65e6839964f18e873f65be4d48da12bb4ba186800d9f2e5603c56a135c37b791')
+
+First differing element 1:
+'649c94c907164c60406e844b54090ef4d75aea307b7f9225d25743a9e3e57baa'
+'65e6839964f18e873f65be4d48da12bb4ba186800d9f2e5603c56a135c37b791'
+
+- (0, '649c94c907164c60406e844b54090ef4d75aea307b7f9225d25743a9e3e57baa')
++ (0, '65e6839964f18e873f65be4d48da12bb4ba186800d9f2e5603c56a135c37b791') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/N-statuz/orders.beaml:3
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/N-statuz/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/N2-chain/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '32f9379f63bb1538c2aa7106869fa1e9c422c8abffcfc389c4401924824a64e2') != (0, 'aa9da6879c6095c715af618d40609871b2b7018c698e14409d5544c9563a4669')
+
+First differing element 1:
+'32f9379f63bb1538c2aa7106869fa1e9c422c8abffcfc389c4401924824a64e2'
+'aa9da6879c6095c715af618d40609871b2b7018c698e14409d5544c9563a4669'
+
+- (0, '32f9379f63bb1538c2aa7106869fa1e9c422c8abffcfc389c4401924824a64e2')
++ (0, 'aa9da6879c6095c715af618d40609871b2b7018c698e14409d5544c9563a4669') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/N2-chain/orders.beaml:3
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/N2-chain/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/N2/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '16ad1fd51ad647773dc52402e341f61a1440a64108ead7df89e8a8ec6e676578') != (0, 'b285e7e6d4f51f41c07e7c2d47c4829afab5fadc07465a8eecdaa9d90747bf9a')
+
+First differing element 1:
+'16ad1fd51ad647773dc52402e341f61a1440a64108ead7df89e8a8ec6e676578'
+'b285e7e6d4f51f41c07e7c2d47c4829afab5fadc07465a8eecdaa9d90747bf9a'
+
+- (0, '16ad1fd51ad647773dc52402e341f61a1440a64108ead7df89e8a8ec6e676578')
++ (0, 'b285e7e6d4f51f41c07e7c2d47c4829afab5fadc07465a8eecdaa9d90747bf9a') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/reuse/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '597ad5824fca31814599e47e2761d191fbe190c0e728962687d1a71e2d045ab8') != (0, 'e7899cc35816804ac7a1d5f26654a7c23558a33e1403daa2023a942567650d31')
+
+First differing element 1:
+'597ad5824fca31814599e47e2761d191fbe190c0e728962687d1a71e2d045ab8'
+'e7899cc35816804ac7a1d5f26654a7c23558a33e1403daa2023a942567650d31'
+
+- (0, '597ad5824fca31814599e47e2761d191fbe190c0e728962687d1a71e2d045ab8')
++ (0, 'e7899cc35816804ac7a1d5f26654a7c23558a33e1403daa2023a942567650d31') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/reuse/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/reuse/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/reuse/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/reuse/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/reuse/orders.beaml:6
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/reuse/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice2/rotation/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'afa2f40e351709ec1040edb89f33c369ca1af5db47956aae8a0852fcbdf4ac1e') != (0, 'dde976e98969edd769fbebf635677025e6c9c7c24ebbba37f1916202d0f030ee')
+
+First differing element 1:
+'afa2f40e351709ec1040edb89f33c369ca1af5db47956aae8a0852fcbdf4ac1e'
+'dde976e98969edd769fbebf635677025e6c9c7c24ebbba37f1916202d0f030ee'
+
+- (0, 'afa2f40e351709ec1040edb89f33c369ca1af5db47956aae8a0852fcbdf4ac1e')
++ (0, 'dde976e98969edd769fbebf635677025e6c9c7c24ebbba37f1916202d0f030ee') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/rotation/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/rotation/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/rotation/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/rotation/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/rotation/orders.beaml:6
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice2/rotation/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/D-drop/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '2e7b908277ce23a46652355fcb327d86b5215fdc7a71da70c857cbbd078aea43') != (0, 'c39267654b631bd0e9b728ee2fd17eeff5d05cfca4270ca36e297a9e6075d4fe')
+
+First differing element 1:
+'2e7b908277ce23a46652355fcb327d86b5215fdc7a71da70c857cbbd078aea43'
+'c39267654b631bd0e9b728ee2fd17eeff5d05cfca4270ca36e297a9e6075d4fe'
+
+- (0, '2e7b908277ce23a46652355fcb327d86b5215fdc7a71da70c857cbbd078aea43')
++ (0, 'c39267654b631bd0e9b728ee2fd17eeff5d05cfca4270ca36e297a9e6075d4fe') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/D-drop/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/D-drop/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/D/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '07e861253a1f3d4556f8715aa52e133f601c6e9a6b44e1bc41536bff3076a610') != (0, '804bfcb6b2e95d2684ae733ac3ba29a5eab5e27f3b00f451f7d045fbe90b0cc2')
+
+First differing element 1:
+'07e861253a1f3d4556f8715aa52e133f601c6e9a6b44e1bc41536bff3076a610'
+'804bfcb6b2e95d2684ae733ac3ba29a5eab5e27f3b00f451f7d045fbe90b0cc2'
+
+- (0, '07e861253a1f3d4556f8715aa52e133f601c6e9a6b44e1bc41536bff3076a610')
++ (0, '804bfcb6b2e95d2684ae733ac3ba29a5eab5e27f3b00f451f7d045fbe90b0cc2') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/D15/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '9b1b10fdc941d22148e3a1f510bf613adb1596478aad746283d9af3180735002') != (0, 'ffbc9670bcdf4839a7d1c8314af9b6687946fd863d023da39297aa829b44cc7e')
+
+First differing element 1:
+'9b1b10fdc941d22148e3a1f510bf613adb1596478aad746283d9af3180735002'
+'ffbc9670bcdf4839a7d1c8314af9b6687946fd863d023da39297aa829b44cc7e'
+
+- (0, '9b1b10fdc941d22148e3a1f510bf613adb1596478aad746283d9af3180735002')
++ (0, 'ffbc9670bcdf4839a7d1c8314af9b6687946fd863d023da39297aa829b44cc7e') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/D15/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/D15/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/M/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '64e3272933a422025f85ca2bef6192a6f0334b19b535890dd180056d5ce5123d') != (0, 'e639c3dbd1b7ad0faabe4070572e5cb196110001899fa440727376e564abd051')
+
+First differing element 1:
+'64e3272933a422025f85ca2bef6192a6f0334b19b535890dd180056d5ce5123d'
+'e639c3dbd1b7ad0faabe4070572e5cb196110001899fa440727376e564abd051'
+
+- (0, '64e3272933a422025f85ca2bef6192a6f0334b19b535890dd180056d5ce5123d')
++ (0, 'e639c3dbd1b7ad0faabe4070572e5cb196110001899fa440727376e564abd051') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/M/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/M/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/M/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/M/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/R-add/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'd6f98d5c03a24bcc3a716ce0b73b9feb6ed2ae39d8f2dfa0da792599f4a50f35') != (0, '686444d6e2ae7c627ae17c493b28973910d7ffd6f28f77e6cac5ea22d65a535b')
+
+First differing element 1:
+'d6f98d5c03a24bcc3a716ce0b73b9feb6ed2ae39d8f2dfa0da792599f4a50f35'
+'686444d6e2ae7c627ae17c493b28973910d7ffd6f28f77e6cac5ea22d65a535b'
+
+- (0, 'd6f98d5c03a24bcc3a716ce0b73b9feb6ed2ae39d8f2dfa0da792599f4a50f35')
++ (0, '686444d6e2ae7c627ae17c493b28973910d7ffd6f28f77e6cac5ea22d65a535b') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/R-add/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/R-add/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/R2/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'bc7e36a25386f6d944891c23ed3b351bb72f7128b1db7d76fac3dfa99f63775a') != (0, 'e4298672fbacd265969715bf4f730fa82fefdcc50531a1cc0a7d0f2dcb9912ba')
+
+First differing element 1:
+'bc7e36a25386f6d944891c23ed3b351bb72f7128b1db7d76fac3dfa99f63775a'
+'e4298672fbacd265969715bf4f730fa82fefdcc50531a1cc0a7d0f2dcb9912ba'
+
+- (0, 'bc7e36a25386f6d944891c23ed3b351bb72f7128b1db7d76fac3dfa99f63775a')
++ (0, 'e4298672fbacd265969715bf4f730fa82fefdcc50531a1cc0a7d0f2dcb9912ba') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/RD/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'd0556ebb709ba0238588c20712111e627839b3cf6cf66bfee9c586bd2fcc79e1') != (0, 'e7d8cb7ff3bc732e61be1f086e8480d903fc452cf5b288b1ce620a1fd8e39d6d')
+
+First differing element 1:
+'d0556ebb709ba0238588c20712111e627839b3cf6cf66bfee9c586bd2fcc79e1'
+'e7d8cb7ff3bc732e61be1f086e8480d903fc452cf5b288b1ce620a1fd8e39d6d'
+
+- (0, 'd0556ebb709ba0238588c20712111e627839b3cf6cf66bfee9c586bd2fcc79e1')
++ (0, 'e7d8cb7ff3bc732e61be1f086e8480d903fc452cf5b288b1ce620a1fd8e39d6d') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/RD/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/RD/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/RD/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/RD/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/RR/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '4118343ff120b48de43116112724da063e6159bda1d3a1aab22f98938c521a2c') != (0, '6183ff36e1366760a7f7270dd1f9aa080eab276f8790b48d522726dbd390b343')
+
+First differing element 1:
+'4118343ff120b48de43116112724da063e6159bda1d3a1aab22f98938c521a2c'
+'6183ff36e1366760a7f7270dd1f9aa080eab276f8790b48d522726dbd390b343'
+
+- (0, '4118343ff120b48de43116112724da063e6159bda1d3a1aab22f98938c521a2c')
++ (0, '6183ff36e1366760a7f7270dd1f9aa080eab276f8790b48d522726dbd390b343') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/RR/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/RR/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/RR/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/RR/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/SAR/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'af959bf7fb48b906bd97b7c6925a6a33b5d778f711cbb38e73b638c33c29c12d') != (0, 'ddc3f9ffe1990d7df870582b9b981344a69535e0855288b25811a0c43ab9f886')
+
+First differing element 1:
+'af959bf7fb48b906bd97b7c6925a6a33b5d778f711cbb38e73b638c33c29c12d'
+'ddc3f9ffe1990d7df870582b9b981344a69535e0855288b25811a0c43ab9f886'
+
+- (0, 'af959bf7fb48b906bd97b7c6925a6a33b5d778f711cbb38e73b638c33c29c12d')
++ (0, 'ddc3f9ffe1990d7df870582b9b981344a69535e0855288b25811a0c43ab9f886') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/SAR/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/SAR/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/SAR/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/SAR/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/SAR/orders.beaml:6
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/SAR/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice3/Z/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '8368a52714e7650a201d46d7d4f06b593f94259120c683267008cce7f6920788') != (0, 'a48dacbaf8dd4151b4a43dc0cd37f8aa5fec32afdae64c492df3d21a92e648a3')
+
+First differing element 1:
+'8368a52714e7650a201d46d7d4f06b593f94259120c683267008cce7f6920788'
+'a48dacbaf8dd4151b4a43dc0cd37f8aa5fec32afdae64c492df3d21a92e648a3'
+
+- (0, '8368a52714e7650a201d46d7d4f06b593f94259120c683267008cce7f6920788')
++ (0, 'a48dacbaf8dd4151b4a43dc0cd37f8aa5fec32afdae64c492df3d21a92e648a3') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/Z/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/Z/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/Z/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice3/Z/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/B/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '6c5ac80008c6d27cc26a8c83cd511040ecd62b32a3d739d0891d8151045e0ec6') != (0, '980c87e3e5a23eb49124ae1745844d229cde2030937d32f2d53ed51d1e4b1c6e')
+
+First differing element 1:
+'6c5ac80008c6d27cc26a8c83cd511040ecd62b32a3d739d0891d8151045e0ec6'
+'980c87e3e5a23eb49124ae1745844d229cde2030937d32f2d53ed51d1e4b1c6e'
+
+- (0, '6c5ac80008c6d27cc26a8c83cd511040ecd62b32a3d739d0891d8151045e0ec6')
++ (0, '980c87e3e5a23eb49124ae1745844d229cde2030937d32f2d53ed51d1e4b1c6e') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/C2/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'dc941f3f3cb45e357e9cc72f8400c684a6df179c5eece9be857b5b5830477e32') != (0, '9fb3a40a098c919c2db422831c8cf78f952e7e0b4abc5c4ec8bef0b79f21f21e')
+
+First differing element 1:
+'dc941f3f3cb45e357e9cc72f8400c684a6df179c5eece9be857b5b5830477e32'
+'9fb3a40a098c919c2db422831c8cf78f952e7e0b4abc5c4ec8bef0b79f21f21e'
+
+- (0, 'dc941f3f3cb45e357e9cc72f8400c684a6df179c5eece9be857b5b5830477e32')
++ (0, '9fb3a40a098c919c2db422831c8cf78f952e7e0b4abc5c4ec8bef0b79f21f21e') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/C2/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/C2/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/G+r/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'f7382715f8f5295dfa9852c11fb4dca2d9d57575ae8abef75beff161787f3874') != (0, '73a2fbf343c91d38df73c259c5547e989294f0f96005edd8da8f529e901fff1d')
+
+First differing element 1:
+'f7382715f8f5295dfa9852c11fb4dca2d9d57575ae8abef75beff161787f3874'
+'73a2fbf343c91d38df73c259c5547e989294f0f96005edd8da8f529e901fff1d'
+
+- (0, 'f7382715f8f5295dfa9852c11fb4dca2d9d57575ae8abef75beff161787f3874')
++ (0, '73a2fbf343c91d38df73c259c5547e989294f0f96005edd8da8f529e901fff1d') : warning: DEAD LINE: retire payments.authorize keep 30 days
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/G+r/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of operation payments.authorize
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/G+r/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/G+r0/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '9a57ae63450e5a8981c956f885f70972dca1852a363d7b87946a86b3e8f309c6') != (0, '0f7ab8d67a3e153bb4411da0d93db626eb211cbf64b176ed29c5895d59e1c610')
+
+First differing element 1:
+'9a57ae63450e5a8981c956f885f70972dca1852a363d7b87946a86b3e8f309c6'
+'0f7ab8d67a3e153bb4411da0d93db626eb211cbf64b176ed29c5895d59e1c610'
+
+- (0, '9a57ae63450e5a8981c956f885f70972dca1852a363d7b87946a86b3e8f309c6')
++ (0, '0f7ab8d67a3e153bb4411da0d93db626eb211cbf64b176ed29c5895d59e1c610') : warning: DEAD LINE: retire payments.authorize keep 0 days
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/G+r0/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of operation payments.authorize
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/G+r0/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/G/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'e56c6f3b55baeee0eef67363e0d6b41d7fe53fc005dc87e410b42b5ada6ddc58') != (0, 'b6ecaeee15c574d12d8cf9979515605937fc8d3d760633d67854f5375dc67de4')
+
+First differing element 1:
+'e56c6f3b55baeee0eef67363e0d6b41d7fe53fc005dc87e410b42b5ada6ddc58'
+'b6ecaeee15c574d12d8cf9979515605937fc8d3d760633d67854f5375dc67de4'
+
+- (0, 'e56c6f3b55baeee0eef67363e0d6b41d7fe53fc005dc87e410b42b5ada6ddc58')
++ (0, 'b6ecaeee15c574d12d8cf9979515605937fc8d3d760633d67854f5375dc67de4') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4-crlf/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '08b23ab21cdd00a4b8234dcf6ad3853562b8c58f1202cbfceba8e5a99f92cd59') != (0, '3f095d608f1694b422f1be0de412742eea95ab701c4a6b1c7c52d50333ab52aa')
+
+First differing element 1:
+'08b23ab21cdd00a4b8234dcf6ad3853562b8c58f1202cbfceba8e5a99f92cd59'
+'3f095d608f1694b422f1be0de412742eea95ab701c4a6b1c7c52d50333ab52aa'
+
+- (0, '08b23ab21cdd00a4b8234dcf6ad3853562b8c58f1202cbfceba8e5a99f92cd59')
++ (0, '3f095d608f1694b422f1be0de412742eea95ab701c4a6b1c7c52d50333ab52aa') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-crlf/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-crlf/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-crlf/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-crlf/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-crlf/orders.beaml:11
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-crlf/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4-oneline/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'ed4cf364eff87c16604225680b587d05505683cba59afc1d6a5e295175a738df') != (0, '0bd1437e360942e01a49a335943a4d235caac61179299fa33f1f74bc6d59ce4f')
+
+First differing element 1:
+'ed4cf364eff87c16604225680b587d05505683cba59afc1d6a5e295175a738df'
+'0bd1437e360942e01a49a335943a4d235caac61179299fa33f1f74bc6d59ce4f'
+
+- (0, 'ed4cf364eff87c16604225680b587d05505683cba59afc1d6a5e295175a738df')
++ (0, '0bd1437e360942e01a49a335943a4d235caac61179299fa33f1f74bc6d59ce4f') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-oneline/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-oneline/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-oneline/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-oneline/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-oneline/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4-oneline/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '914ef6f951f1bbcd7eb2a8a39affe6f9826af66a29dbdff5e436f53aea52384d') != (0, 'b5ff2e0526078f7407d36014196da56740211028c7cd6504b7119d48b1389d13')
+
+First differing element 1:
+'914ef6f951f1bbcd7eb2a8a39affe6f9826af66a29dbdff5e436f53aea52384d'
+'b5ff2e0526078f7407d36014196da56740211028c7cd6504b7119d48b1389d13'
+
+- (0, '914ef6f951f1bbcd7eb2a8a39affe6f9826af66a29dbdff5e436f53aea52384d')
++ (0, 'b5ff2e0526078f7407d36014196da56740211028c7cd6504b7119d48b1389d13') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4/orders.beaml:11
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '4d9e109c6b0b1e9ceca8f9cbcfe8a9afe947f50f16902fdd8dc17907032ea8e2') != (0, 'cf8aa6034c24c4927e84a48e27c6e69c21696586fc9e7eeb66ab1624d0985143')
+
+First differing element 1:
+'4d9e109c6b0b1e9ceca8f9cbcfe8a9afe947f50f16902fdd8dc17907032ea8e2'
+'cf8aa6034c24c4927e84a48e27c6e69c21696586fc9e7eeb66ab1624d0985143'
+
+- (0, '4d9e109c6b0b1e9ceca8f9cbcfe8a9afe947f50f16902fdd8dc17907032ea8e2')
++ (0, 'cf8aa6034c24c4927e84a48e27c6e69c21696586fc9e7eeb66ab1624d0985143') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml:11
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: retire payments.authorize keep 30 days
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml:15
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of operation payments.authorize
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4s-crlf/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '3060300e1204b5f283f9665afa4d5378e857ebb57d149531c5cc3a92517c22c2') != (0, '6598527e7218fd0c2c4589c8a7cbb4f797fcaf730abf96f788cb5aea0f7e1b54')
+
+First differing element 1:
+'3060300e1204b5f283f9665afa4d5378e857ebb57d149531c5cc3a92517c22c2'
+'6598527e7218fd0c2c4589c8a7cbb4f797fcaf730abf96f788cb5aea0f7e1b54'
+
+- (0, '3060300e1204b5f283f9665afa4d5378e857ebb57d149531c5cc3a92517c22c2')
++ (0, '6598527e7218fd0c2c4589c8a7cbb4f797fcaf730abf96f788cb5aea0f7e1b54') : warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4s-crlf/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4s-crlf/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice4/Q4s/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '5311067f2d648f1c62fe4f44f308b431dee9bcda779b9a22860fc802b4222bac') != (0, '75916d515e06ef5ff08a18dda1c8723e5c057e809318d39a29a186043c37be8e')
+
+First differing element 1:
+'5311067f2d648f1c62fe4f44f308b431dee9bcda779b9a22860fc802b4222bac'
+'75916d515e06ef5ff08a18dda1c8723e5c057e809318d39a29a186043c37be8e'
+
+- (0, '5311067f2d648f1c62fe4f44f308b431dee9bcda779b9a22860fc802b4222bac')
++ (0, '75916d515e06ef5ff08a18dda1c8723e5c057e809318d39a29a186043c37be8e') : warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4s/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice4/Q4s/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/B5/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '2b8dc63670aa2a9a3bcd889ec680e5bbc5a66ea789676d98045964cf50909fed') != (0, '009d8ab3127b8734e14555d7c87cc337e438cda8ae583a7cbbb2c8d065c92343')
+
+First differing element 1:
+'2b8dc63670aa2a9a3bcd889ec680e5bbc5a66ea789676d98045964cf50909fed'
+'009d8ab3127b8734e14555d7c87cc337e438cda8ae583a7cbbb2c8d065c92343'
+
+- (0, '2b8dc63670aa2a9a3bcd889ec680e5bbc5a66ea789676d98045964cf50909fed')
++ (0, '009d8ab3127b8734e14555d7c87cc337e438cda8ae583a7cbbb2c8d065c92343') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/C2/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '46396760cf6a58d8f1f344be11939b9779bf3beb91bd65c7f8ea66af476dfcd5') != (0, '622ba2fb5301eb04ecbad935efdee2134017d61f0cca030d5966c1a2e8641bf6')
+
+First differing element 1:
+'46396760cf6a58d8f1f344be11939b9779bf3beb91bd65c7f8ea66af476dfcd5'
+'622ba2fb5301eb04ecbad935efdee2134017d61f0cca030d5966c1a2e8641bf6'
+
+- (0, '46396760cf6a58d8f1f344be11939b9779bf3beb91bd65c7f8ea66af476dfcd5')
++ (0, '622ba2fb5301eb04ecbad935efdee2134017d61f0cca030d5966c1a2e8641bf6') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/C2/orders.beaml:4
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/C2/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/M3/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '912a8a39dd1d275c56587d82140f3e723b2fdea9b3cec112fdb6d5c28cf98335') != (0, 'eee561811c32291beef2a194cd5110e503dae475039f31d041c8f726d8010531')
+
+First differing element 1:
+'912a8a39dd1d275c56587d82140f3e723b2fdea9b3cec112fdb6d5c28cf98335'
+'eee561811c32291beef2a194cd5110e503dae475039f31d041c8f726d8010531'
+
+- (0, '912a8a39dd1d275c56587d82140f3e723b2fdea9b3cec112fdb6d5c28cf98335')
++ (0, 'eee561811c32291beef2a194cd5110e503dae475039f31d041c8f726d8010531') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/Q4-crlf/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '301dedf429f995d51a49b29f853212b9422f84278d683769f24cb361e6efa7f0') != (0, '50c08c945c007df7fb58b00d4ee9c559d1f5b20b37adff7b3a4e93cd06740e34')
+
+First differing element 1:
+'301dedf429f995d51a49b29f853212b9422f84278d683769f24cb361e6efa7f0'
+'50c08c945c007df7fb58b00d4ee9c559d1f5b20b37adff7b3a4e93cd06740e34'
+
+- (0, '301dedf429f995d51a49b29f853212b9422f84278d683769f24cb361e6efa7f0')
++ (0, '50c08c945c007df7fb58b00d4ee9c559d1f5b20b37adff7b3a4e93cd06740e34') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4-crlf/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4-crlf/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4-crlf/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4-crlf/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4-crlf/orders.beaml:11
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4-crlf/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/Q4/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'b06c03acea202e331a7700e25ec760f2e1950dcbe1173c650d5ccc14f3da66ed') != (0, '3808c72d2ac438f28491e63a03f347e2c637cf46df16c06890b9b4e4216d245a')
+
+First differing element 1:
+'b06c03acea202e331a7700e25ec760f2e1950dcbe1173c650d5ccc14f3da66ed'
+'3808c72d2ac438f28491e63a03f347e2c637cf46df16c06890b9b4e4216d245a'
+
+- (0, 'b06c03acea202e331a7700e25ec760f2e1950dcbe1173c650d5ccc14f3da66ed')
++ (0, '3808c72d2ac438f28491e63a03f347e2c637cf46df16c06890b9b4e4216d245a') : warning: DEAD LINE: migrate Payment v1 -> v2
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4/orders.beaml:5
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4/orders.beaml:11
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/Q4s/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '4905217c957a60bd14ef3f326966c6bc0e8df0ed12202f7f6b5b1302f7c8dad6') != (0, 'bd559de91a7462bdc890cfae1e1dd899395d16a2bc56cf725c70b12a3f04cf04')
+
+First differing element 1:
+'4905217c957a60bd14ef3f326966c6bc0e8df0ed12202f7f6b5b1302f7c8dad6'
+'bd559de91a7462bdc890cfae1e1dd899395d16a2bc56cf725c70b12a3f04cf04'
+
+- (0, '4905217c957a60bd14ef3f326966c6bc0e8df0ed12202f7f6b5b1302f7c8dad6')
++ (0, 'bd559de91a7462bdc890cfae1e1dd899395d16a2bc56cf725c70b12a3f04cf04') : warning: DEAD LINE: migrate Payment v3 -> v4
+  at /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4s/orders.beaml:7
+  record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl: no stored RESPONSE RECORD of TYPE Payment has v3 or older
+  help: remove DEAD LINES with: beaml-spike /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice5/Q4s/orders.beaml --stored /Users/lennart/Projects/beaml/experiments/0004-generated-replay/stored/empty.jsonl --remove-dead
+
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice5/Q4z/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'f2456bb9a1c283d3bd7e3cc44b9766e0ce28c9c2ec7a3a5d979b4d0887395471') != (0, '74a92fe6f6fcaadf4326465cb976486d35f40089f99ea257751f228411851bd4')
+
+First differing element 1:
+'f2456bb9a1c283d3bd7e3cc44b9766e0ce28c9c2ec7a3a5d979b4d0887395471'
+'74a92fe6f6fcaadf4326465cb976486d35f40089f99ea257751f228411851bd4'
+
+- (0, 'f2456bb9a1c283d3bd7e3cc44b9766e0ce28c9c2ec7a3a5d979b4d0887395471')
++ (0, '74a92fe6f6fcaadf4326465cb976486d35f40089f99ea257751f228411851bd4') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice6/decode-ctor/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, 'af40eb697538f38ef87204bc527f0f468283d6ad093a21636cb7d399491528b5') != (0, '425aa47b2edec744926818c42b4bbb92645d76a9c7cff495c5751b376fcf6cd8')
+
+First differing element 1:
+'af40eb697538f38ef87204bc527f0f468283d6ad093a21636cb7d399491528b5'
+'425aa47b2edec744926818c42b4bbb92645d76a9c7cff495c5751b376fcf6cd8'
+
+- (0, 'af40eb697538f38ef87204bc527f0f468283d6ad093a21636cb7d399491528b5')
++ (0, '425aa47b2edec744926818c42b4bbb92645d76a9c7cff495c5751b376fcf6cd8') : 
+
+======================================================================
+FAIL: test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) [experiments/0004-generated-replay/slice6/decode/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 330, in test_sources_keep_their_bytes_except_pure_step_spans
+    self.assertEqual((row["code"], row["sha256"]), (code, hashlib.sha256(stdout.encode()).hexdigest()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stderr)
+                     ^^^^^^^
+AssertionError: Tuples differ: (0, '9ce8c077a261102c95b8add89347408173acbe3ede8a194b188b11a6af691f92') != (0, '5f3cb9e25beba00ca66d8ac3487f1d61dc70c471dfc18ba592e1493ff9a2e035')
+
+First differing element 1:
+'9ce8c077a261102c95b8add89347408173acbe3ede8a194b188b11a6af691f92'
+'5f3cb9e25beba00ca66d8ac3487f1d61dc70c471dfc18ba592e1493ff9a2e035'
+
+- (0, '9ce8c077a261102c95b8add89347408173acbe3ede8a194b188b11a6af691f92')
++ (0, '5f3cb9e25beba00ca66d8ac3487f1d61dc70c471dfc18ba592e1493ff9a2e035') : 
+
+======================================================================
+FAIL: test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [place#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 292, in test_span_names_per_clause
+    self.assertEqual(names, span_names(found[key]), found[key])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['orders.prepare', 'orders.finish']
+
+Second list contains 2 additional elements.
+First extra element 0:
+'orders.prepare'
+
+- []
++ ['orders.prepare', 'orders.finish'] :   defp __beaml_place(v_order) do
+    p0 = v_order
+    with p1 = ProbeSupport.span(<<111,114,100,101,114,115,46,112,114,101,112,97,114,101>>, :internal, p0, <<112,114,101,112,97,114,101>>, fn -> result = __MODULE__.prepare(p0); ProbeSupport.event(<<112,97,121,109,101,110,116,95,114,101,113,117,101,115,116,95,112,114,101,112,97,114,101,100>>, <<112,114,101,112,97,114,101>>); result end),
+         {:ok, p2} <- __MODULE__.payments_authorize(p1),
+         p3 = ProbeSupport.span(<<111,114,100,101,114,115,46,102,105,110,105,115,104>>, :internal, p0, <<102,105,110,105,115,104>>, fn -> __MODULE__.finish(p2) end) do
+      {:ok, p3}
+    end
+  end
+
+======================================================================
+FAIL: test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [checkout#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 292, in test_span_names_per_clause
+    self.assertEqual(names, span_names(found[key]), found[key])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['orders.place'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'orders.place'
+
+- ['orders.place']
++ [] :   defp __beaml_checkout(v_order) do
+    p0 = v_order
+    with p1 = __MODULE__.prepare(p0),
+         {:ok, p2} <- __MODULE__.place(p1),
+         p3 = __MODULE__.tag(p2) do
+      {:ok, p3}
+    end
+  end
+
+======================================================================
+FAIL: test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [ping#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 292, in test_span_names_per_clause
+    self.assertEqual(names, span_names(found[key]), found[key])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['orders.pong'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'orders.pong'
+
+- ['orders.pong']
++ [] :   defp __beaml_ping(v_o) do
+    p0 = v_o
+    with {:ok, p1} <- __MODULE__.pong(p0) do
+      {:ok, p1}
+    end
+  end
+
+======================================================================
+FAIL: test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [pong#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 292, in test_span_names_per_clause
+    self.assertEqual(names, span_names(found[key]), found[key])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['orders.ping'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'orders.ping'
+
+- ['orders.ping']
++ [] :   defp __beaml_pong(%{<<111,114,100,101,114,95,105,100>> => <<108,111,111,112>>}) do
+    p0 = %{<<111,114,100,101,114,95,105,100>> => <<111,114,100,101,114,45,49>>}
+    with {:ok, p1} <- __MODULE__.ping(p0) do
+      {:ok, p1}
+    end
+  end
+
+======================================================================
+FAIL: test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [pong#2]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 292, in test_span_names_per_clause
+    self.assertEqual(names, span_names(found[key]), found[key])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['orders.place'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'orders.place'
+
+- ['orders.place']
++ [] :   defp __beaml_pong(v_o) do
+    p0 = v_o
+    with {:ok, p1} <- __MODULE__.place(p0) do
+      {:ok, p1}
+    end
+  end
+
+======================================================================
+FAIL: test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [by_id#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 292, in test_span_names_per_clause
+    self.assertEqual(names, span_names(found[key]), found[key])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['orders.place'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'orders.place'
+
+- ['orders.place']
++ [] :   defp __beaml_by_id(v_id) do
+    p0 = v_id
+    with p1 = __MODULE__.to_order(p0),
+         {:ok, p2} <- __MODULE__.place(p1) do
+      {:ok, p2}
+    end
+  end
+
+======================================================================
+FAIL: test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [c1#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 292, in test_span_names_per_clause
+    self.assertEqual(names, span_names(found[key]), found[key])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['orders.c2'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'orders.c2'
+
+- ['orders.c2']
++ [] :   defp __beaml_c1(v_o) do
+    p0 = v_o
+    with {:ok, p1} <- __MODULE__.c2(p0) do
+      {:ok, p1}
+    end
+  end
+
+======================================================================
+FAIL: test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [c2#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 292, in test_span_names_per_clause
+    self.assertEqual(names, span_names(found[key]), found[key])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['orders.c3'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'orders.c3'
+
+- ['orders.c3']
++ [] :   defp __beaml_c2(v_o) do
+    p0 = v_o
+    with {:ok, p1} <- __MODULE__.c3(p0) do
+      {:ok, p1}
+    end
+  end
+
+======================================================================
+FAIL: test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) [c3#1]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_effect_reach_test.py", line 292, in test_span_names_per_clause
+    self.assertEqual(names, span_names(found[key]), found[key])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['orders.place'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'orders.place'
+
+- ['orders.place']
++ [] :   defp __beaml_c3(v_o) do
+    p0 = v_o
+    with {:ok, p1} <- __MODULE__.place(p0) do
+      {:ok, p1}
+    end
+  end
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.160s
+
+FAILED (failures=64)
