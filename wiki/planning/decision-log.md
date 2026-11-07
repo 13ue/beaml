@@ -654,6 +654,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: a default must not be opinionated; the EFFECT path is the smallest set that still shows every contact with the world. The OWNER wants full resolution on demand, per part of an application and for a limited time, and an opt-out that writes no data. DL-108 looked only outward (calls an EFFECT); seen inward, every live function in a web application lies on a path from an inbound EFFECT, so a fixed "pure steps stay silent" rule would hide live code. That rule now holds for the default only.
 → Effect: step 12 E2 builds S; the GEN query and the fixtures change as the plan says. D015 closes. D018 opens with the OBSERVATORY notes.
 
+**DL-120 · Migrate · A constructor is pure: a constructor that reaches an EFFECT is a compile error (Q6B-18, a)**
+→ Question: a constructor clause can call an EFFECT today, directly or through a called function. The COMPILER calls constructors itself: in the decode of outside data (DL-101), in the `--stored` check at build time and behind the host `T.new/1` (DL-106, DL-117). What holds?
+→ Options: a, every constructor that reaches an EFFECT is a compile error; b, reject only where the COMPILER calls it (decode field, `--stored`, `new/1`); c, allow, with spans and a REPLAY RUN that substitutes the inner EFFECT.
+→ Chose: a. A constructor is pure, transitively (the DL-108 reach analysis gives the answer). A function may call an EFFECT and pass its result into a constructor; the constructor itself never touches the world. The error names the constructor, the EFFECT and the path.
+→ By: 13ue
+→ Because: a constructor is the only way into a TYPE (DL-092); when the COMPILER walks that way in a decode or a build, it must not make a network call. One rule for every call site is simpler than two faces of one constructor (b). c would make a decode a side effect.
+→ Effect: step 12b RED builds the reject. Closes D016. Open and noted: where outside callers enter BEAML (an inbound EFFECT or entry point) is not defined yet; today the host calls an exported `fn`. That question joins D018 (inward view).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

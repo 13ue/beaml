@@ -356,7 +356,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D016 — A constructor that reaches an EFFECT (Q6B-18)
 
-- **Status** OPEN
+- **Status** CLOSED by [DL-120](decision-log.md): a, a constructor is pure; reaching an EFFECT is a compile error.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** LANGUAGE/COMPILATION, DL-092, DL-101, DL-108
@@ -413,6 +413,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - Three settings are needed: a default resolution for the whole application; an opt-out per part ("write no data here"); an opt-in to full resolution per part, limited in time (for example one day, to measure one question in production).
 - The default is the EFFECT path per step (DL-119, option S). P (every step of a reaching pipe), H (hybrid) and E (every call, also pure functions) are candidate settings, not defaults.
 - Seen inward, every live function in a web application lies on a path from an inbound EFFECT (request, message, timer). A function on no such path is dead code. "Pure steps stay silent" (DL-108) therefore holds for the default only.
+- Where outside callers enter BEAML (an inbound EFFECT, an entry point) is not defined yet; today the host calls an exported `fn`. The inward view needs that definition (OWNER, Q6B-18 walk-through, DL-120).
 - A span carries name, duration, parent, result TYPE and failure TYPE. Never values, source text, paths or PII (DL-105 projection applies).
 
 **[Proposal]** Open questions for that slice: the address of a setting (module, function, or subtree from an entry); the cost of one flag check per call when a part is off (`persistent_term` or a compile-time variant); hot pure loops under E (one span per call versus per recursion step, or sampling); how a time-limited opt-in expires; where the setting lives (BEAML source, deploy config, or a live command). By: Fable (walk-through, 2026-11-07).
@@ -427,5 +428,6 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - [DL-102](decision-log.md): replay rule, a stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate.
 - [DL-103](decision-log.md): replay rule, a mapping change that only resolves Unknown values needs no MIGRATE STEP.
 - [DL-117](decision-log.md): Q6B-16, `T.new/1` takes one map with atom keys, also for one parameter.
+- [DL-120](decision-log.md): Q6B-18, a constructor is pure; reaching an EFFECT is a compile error.
 - [DL-119](decision-log.md): Q6B-17, span default is the EFFECT path per step (S); the resolution becomes an OBSERVATORY setting (D018).
 - [DL-104](decision-log.md): Q6B-5, `beaml fmt` never changes the TYPE VERSION.
