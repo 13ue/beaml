@@ -14,7 +14,7 @@ The [current typed replay target](wiki/sources/typed-replay-requirement.md) expa
 
 ## Roadmap
 
-BEAML owns the whole path from source to production, so that agents make fewer errors. The roadmap follows the seven parts of that goal. Details and evidence: the [roadmap page](docs/index.html), the [vertical integration concept](wiki/concepts/vertical-integration.md) and the [decision log](wiki/planning/decision-log.md).
+BEAML owns the whole path from source to production, so that agents make fewer errors. The roadmap follows the seven parts of that goal. Details and evidence: the [roadmap page](https://13ue.github.io/beaml/) (source: `docs/index.html`), the [vertical integration concept](wiki/concepts/vertical-integration.md) and the [decision log](wiki/planning/decision-log.md).
 
 | Part | State | Next step |
 |---|---|---|
