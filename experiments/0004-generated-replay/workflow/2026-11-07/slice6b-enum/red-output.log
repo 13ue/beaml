@@ -1,0 +1,323 @@
+$ python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py   # cwd: repository root, exit 1
+test_constructor_enum_compiles_to_one_function_per_signature (__main__.Slice6Enum.test_constructor_enum_compiles_to_one_function_per_signature) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+FAIL
+test_duplicate_literal (__main__.Slice6Enum.test_duplicate_literal) ... FAIL
+test_equal_types_with_other_names_is_reachable (__main__.Slice6Enum.test_equal_types_with_other_names_is_reachable) ... FAIL
+test_literal_enum_compiles (__main__.Slice6Enum.test_literal_enum_compiles) ... FAIL
+test_literal_on_a_payload_variant (__main__.Slice6Enum.test_literal_on_a_payload_variant) ... FAIL
+test_literals_and_constructor_on_one_enum (__main__.Slice6Enum.test_literals_and_constructor_on_one_enum) ... FAIL
+test_lowercase_fn_keeps_one_signature_line (__main__.Slice6Enum.test_lowercase_fn_keeps_one_signature_line) ... ok
+test_runtime_constructor_enum (__main__.Slice6Enum.test_runtime_constructor_enum) ... FAIL
+test_runtime_literal_enum (__main__.Slice6Enum.test_runtime_literal_enum) ... FAIL
+test_unreachable_clause_after_a_catch_all (__main__.Slice6Enum.test_unreachable_clause_after_a_catch_all) ... FAIL
+test_unreachable_signature_with_equal_parameters (__main__.Slice6Enum.test_unreachable_signature_with_equal_parameters) ... FAIL
+test_unreachable_signature_with_more_parameters (__main__.Slice6Enum.test_unreachable_signature_with_more_parameters) ... FAIL
+
+======================================================================
+FAIL: test_constructor_enum_compiles_to_one_function_per_signature (__main__.Slice6Enum.test_constructor_enum_compiles_to_one_function_per_signature)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 81, in test_constructor_enum_compiles_to_one_function_per_signature
+    stdout = self.assert_built(CONSTRUCTOR)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected '(' at byte 240
+
+
+======================================================================
+FAIL: test_duplicate_literal (__main__.Slice6Enum.test_duplicate_literal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 150, in test_duplicate_literal
+    self.assert_rejected('enum PaymentState { Authorized = "ok"  Pending = "ok"  Unknown(String) }\n' + ANY_FN,
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         'error: enum PaymentState: the literal "ok" of Pending is unreachable, Authorized has it '
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "first\n  help: give each variant a literal of its own")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: enum PaymentState: the literal "o[98 chars]own') != (1, '', "expected '(' at byte 31")
+
+First differing element 2:
+'error: enum PaymentState: the literal "o[97 chars] own'
+"expected '(' at byte 31"
+
++ (1, '', "expected '(' at byte 31")
+- (1,
+-  '',
+-  'error: enum PaymentState: the literal "ok" of Pending is unreachable, '
+-  'Authorized has it first\n'
+-  '  help: give each variant a literal of its own') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_equal_types_with_other_names_is_reachable (__main__.Slice6Enum.test_equal_types_with_other_names_is_reachable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 104, in test_equal_types_with_other_names_is_reachable
+    self.assert_built(OUTCOME + OUTCOME_CODE + "fn Outcome status: String -> Outcome\n"
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "fn Outcome s -> Outcome = Other(s)\n")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: fn Outcome: a constructor needs a type Outcome
+  help: declare type Outcome { ... }, or write the fn name in lowercase
+
+
+======================================================================
+FAIL: test_literal_enum_compiles (__main__.Slice6Enum.test_literal_enum_compiles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 72, in test_literal_enum_compiles
+    stdout = self.assert_built(LITERALS)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected '(' at byte 145
+
+
+======================================================================
+FAIL: test_literal_on_a_payload_variant (__main__.Slice6Enum.test_literal_on_a_payload_variant)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 142, in test_literal_on_a_payload_variant
+    self.assert_rejected("type DeclineReason { text: String }\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         'enum PaymentState { Authorized = "ok"  Declined(DeclineReason) = "x"  Unknown(String) }\n'
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         + ANY_FN,
+                         ^^^^^^^^^
+                         "error: enum PaymentState: the variant Declined has a payload and a literal\n"
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "  help: a variant has a payload or a literal, not both")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: enum PaymentState: the variant De[87 chars]oth') != (1, '', "expected '(' at byte 67")
+
+First differing element 2:
+'error: enum PaymentState: the variant De[86 chars]both'
+"expected '(' at byte 67"
+
++ (1, '', "expected '(' at byte 67")
+- (1,
+-  '',
+-  'error: enum PaymentState: the variant Declined has a payload and a literal\n'
+-  '  help: a variant has a payload or a literal, not both') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_literals_and_constructor_on_one_enum (__main__.Slice6Enum.test_literals_and_constructor_on_one_enum)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 111, in test_literals_and_constructor_on_one_enum
+    self.assert_rejected('enum PaymentState { Authorized = "ok"  Unknown(String) }\n'
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn PaymentState status: String -> PaymentState\n"
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+                         "error: enum PaymentState has literals and a constructor\n"
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "  help: keep the literals for a 1:1 mapping or the constructor fn PaymentState, not both")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: enum PaymentState has literals an[102 chars]oth') != (1, '', "expected '(' at byte 31")
+
+First differing element 2:
+'error: enum PaymentState has literals an[101 chars]both'
+"expected '(' at byte 31"
+
++ (1, '', "expected '(' at byte 31")
+- (1,
+-  '',
+-  'error: enum PaymentState has literals and a constructor\n'
+-  '  help: keep the literals for a 1:1 mapping or the constructor fn '
+-  'PaymentState, not both') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_runtime_constructor_enum (__main__.Slice6Enum.test_runtime_constructor_enum)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 100, in test_runtime_constructor_enum
+    self.run_runtime(CONSTRUCTOR, CONSTRUCTOR_CASES)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 73, in run_runtime
+    stdout = self.assert_built(fixture)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected '(' at byte 240
+
+
+======================================================================
+FAIL: test_runtime_literal_enum (__main__.Slice6Enum.test_runtime_literal_enum)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 97, in test_runtime_literal_enum
+    self.run_runtime(LITERALS, LITERAL_CASES)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 73, in run_runtime
+    stdout = self.assert_built(fixture)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected '(' at byte 145
+
+
+======================================================================
+FAIL: test_unreachable_clause_after_a_catch_all (__main__.Slice6Enum.test_unreachable_clause_after_a_catch_all)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 120, in test_unreachable_clause_after_a_catch_all
+    self.assert_rejected(OUTCOME + "fn Outcome code: String -> Outcome\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn Outcome other -> Outcome = Other(other)\n"
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         'fn Outcome "ok" -> Outcome = Approved()\n',
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "unreachable clause: Outcome")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'unreachable clause: Outcome') != (1, '', 'error: fn Outcome: a constructor needs a [82 chars]ase')
+
+First differing element 2:
+'unreachable clause: Outcome'
+'error: fn Outcome: a constructor needs a [81 chars]case'
+
+- (1, '', 'unreachable clause: Outcome')
++ (1,
++  '',
++  'error: fn Outcome: a constructor needs a type Outcome\n'
++  '  help: declare type Outcome { ... }, or write the fn name in lowercase') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_unreachable_signature_with_equal_parameters (__main__.Slice6Enum.test_unreachable_signature_with_equal_parameters)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 127, in test_unreachable_signature_with_equal_parameters
+    self.assert_rejected(OUTCOME + OUTCOME_CODE + "fn Outcome code: String -> Outcome\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn Outcome x -> Outcome = Other(x)\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "unreachable signature: Outcome\n"
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "  help: an earlier signature line of fn Outcome has the same parameters; remove this one")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'unreachable signature: Outcome\n  help: a[76 chars]one') != (1, '', 'error: fn Outcome: a constructor needs a [82 chars]ase')
+
+First differing element 2:
+'unreachable signature: Outcome\n  help: a[75 chars] one'
+'error: fn Outcome: a constructor needs a [81 chars]case'
+
+  (1,
+   '',
++  'error: fn Outcome: a constructor needs a type Outcome\n'
++  '  help: declare type Outcome { ... }, or write the fn name in lowercase')
+-  'unreachable signature: Outcome\n'
+-  '  help: an earlier signature line of fn Outcome has the same parameters; '
+-  'remove this one') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_unreachable_signature_with_more_parameters (__main__.Slice6Enum.test_unreachable_signature_with_more_parameters)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_enum_test.py", line 134, in test_unreachable_signature_with_more_parameters
+    self.assert_rejected(OUTCOME + OUTCOME_CODE + "fn Outcome code: String, extra: String -> Outcome\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn Outcome c, _ -> Outcome = Other(c)\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "unreachable signature: Outcome\n"
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "  help: an earlier signature line of fn Outcome has a part of these parameters and "
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "matches first; remove this one")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'unreachable signature: Outcome\n  help: a[101 chars]one') != (1, '', 'error: fn Outcome: a constructor needs a [82 chars]ase')
+
+First differing element 2:
+'unreachable signature: Outcome\n  help: a[100 chars] one'
+'error: fn Outcome: a constructor needs a [81 chars]case'
+
+  (1,
+   '',
++  'error: fn Outcome: a constructor needs a type Outcome\n'
++  '  help: declare type Outcome { ... }, or write the fn name in lowercase')
+-  'unreachable signature: Outcome\n'
+-  '  help: an earlier signature line of fn Outcome has a part of these '
+-  'parameters and matches first; remove this one') : expected exit 1, no stdout and the exact message
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.784s
+
+FAILED (failures=11)

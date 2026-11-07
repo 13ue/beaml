@@ -1,0 +1,10 @@
+// DL-082 L: ENUM LITERALS for a 1:1 mapping. Unknown(String) is the keep-value variant (D6B-21, found by shape).
+enum PaymentState { Authorized = "ok"  Pending = "pending"  Unknown(String) }
+
+// A bare variant is a pattern (D6B-20).
+fn label Authorized -> String = "ok"
+fn label Pending -> String = "pending"
+fn label Unknown(s) -> String = s
+
+// A bare variant is an expression in any fn (DL-100, D6B-20).
+fn pending -> PaymentState = Pending

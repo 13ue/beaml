@@ -1,0 +1,29 @@
+// DL-082 C2: an enum constructor. One decode path per enum (DL-088): no ENUM LITERALS here.
+type DeclineReason { text: String }
+fn DeclineReason text: String -> DeclineReason = DeclineReason { text: text }
+
+enum PaymentState { Authorized  Pending  Declined(DeclineReason)  Unknown(String) }
+
+// Signature 1 (DL-084 K1: the parameter names are the keys). Clauses in source order, first match wins (DL-085).
+fn PaymentState status: String, decline_reason: String -> PaymentState
+fn PaymentState "ok", _ -> PaymentState = Authorized
+fn PaymentState "declined", reason -> PaymentState = reason |> DeclineReason |> Declined
+fn PaymentState other, _ -> PaymentState = Unknown(other)
+
+// Signature 2: one parameter.
+fn PaymentState code: String -> PaymentState
+fn PaymentState "ok" -> PaymentState = Authorized
+fn PaymentState other -> PaymentState = Unknown(other)
+
+// Signature 3: one Int parameter. Its clauses must not mix with signature 2 (D6B-15).
+fn PaymentState n: Int -> PaymentState
+fn PaymentState 0 -> PaymentState = Pending
+fn PaymentState n -> PaymentState = Unknown("int")
+
+// Code calls choose a signature statically by arity and TYPE (D6B-16).
+fn from_pair s: String, r: String -> PaymentState = PaymentState(s, r)
+fn from_code c: String -> PaymentState = PaymentState(c)
+fn from_int n: Int -> PaymentState = PaymentState(n)
+
+// Code builds a variant directly, outside the constructor (DL-100).
+fn pending -> PaymentState = Pending
