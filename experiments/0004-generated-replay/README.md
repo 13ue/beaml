@@ -1922,6 +1922,7 @@ error: fn receipt copies the redacted field card_holder of Order into holder of 
 - **[Verified]** The `drift-test` step runs `tests/drift_test.py` last in the full run. The `drift` step stays; the full run thus starts two DRIFT runs (N1, medium, accepted).
 - **[Verified]** Over the retained `results/*/drift.json` before GREEN: 60 of 63 `pass`; the 3 `fail` are the crash run `20261107T171545190446Z` and two runs with `repaired_all` false.
 - **[Verified]** This replaces the slice 1 Undo D12 "recorded, not asserted" for the DRIFT status (DL-135).
+- **[Verified]** DL-147 (2026-11-08, Repair, By: Fable): a RED test file joins `run.py` `SLICE_TESTS` in its GREEN commit, not before. Until then it runs by hand in RED, RED review and GREEN. Because: a listed open RED turns the full run `fail` and hides a regression (TEST v3/multi O2). **[Verified]** At `0311306a` the two db RED files (`slice6_db`, `slice6_db_stored`) are still listed (multi-effect GREEN); the P4 GREEN closes that and checks the C4 wording ("every slice 6 file that has a GREEN").
 
 ### Tested flow and results
 
@@ -2039,3 +2040,171 @@ effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> plac
 | One section for slice 6d, after the RED TEAM 01 repairs | Undo | Order of the build | Opus (docs slice6d) |
 | The ENTRY RECORD example uses placeholders only | Undo | No stored value or test MARKER in docs | Opus (docs slice6d) |
 | The full run of `35c7e3bf` stays the full-run evidence, labelled "before the TEST repair" | Repair | Chose: label it. Over: start a new full run. Because: docs phase runs no tests; the re-check covers the repair. Commits us to: the next full run confirms 19 entry tests | Opus (docs slice6d) |
+
+## Record format v3: one record core for every EFFECT stream
+
+**[Verified]** 2026-11-08. EXPERIMENT 0005 prerequisite P2 (DL-143). GREEN `ca09d361`, pin commit `b1879fa8`, TEST `0311306a`: PASS. Ledger: [record-format-v3](workflow/2026-11-07/record-format-v3/) ([plan with repair](workflow/2026-11-07/record-format-v3/plan.md), [decisions](workflow/2026-11-07/record-format-v3/decisions.md), [RED plan](workflow/2026-11-07/record-format-v3/red-plan.md), [RED review](workflow/2026-11-07/record-format-v3/red-review.md), [GREEN](workflow/2026-11-07/record-format-v3/green-output.md), [TEST and review](workflow/2026-11-07/record-format-v3/review.md)). Tests: [`tests/record_v3_test.py`](tests/record_v3_test.py), fixtures [`slice6/record-v3/`](slice6/record-v3/).
+
+| Step | Owner |
+|---|---|
+| RESPONSE RECORD write, `outcome`/`reason` at capture (`Replay.record/3`) | BEAML (generated Elixir) |
+| ENTRY RECORD write (`Replay.entry_record`) | BEAML (generated Elixir) |
+| `--stored` version check, skip rule, count lines | BEAML (COMPILER) |
+| REPLAY RUN (`Replay.run/3`, `Replay.entry/2`) | BEAML (generated Elixir), unchanged |
+| `Capture.write/2`, the store of the lines | host |
+| One-time rewrite of the fixtures (`convert_v3.py`) | HARNESS (ledger script, run once) |
+
+### RECORD CORE (14 keys)
+
+**[Verified]** Every record of every EFFECT stream holds the same 14 keys (`test_V1_to_V10_response_record`, `test_V11_entry_record`, `test_V17_tracked_fixtures_are_v3`). Every value below is a placeholder:
+
+```json
+{"version": 3, "trace_id": "<id>", "span_id": "<id>", "artifact_id": "<id>",
+ "operation": "<namespace.operation>", "attempt": 1,
+ "type": {"name": "<TYPE>", "version": 1, "fields": [["<field>", "<TYPE>"]], "fingerprint": "<sha256>"},
+ "value": {"<field>": "<value>"}, "value_sha256": "<sha256>", "redacted": [],
+ "unknown_keys": [], "unknown_fields": [], "outcome": "accepted", "reason": null}
+```
+
+- **[Verified]** `version` is the record format version (3), not a TYPE VERSION; that stays `type.version` (QV3-1).
+- **[Verified]** `span_id` is the client span for HTTP and the root server span for UI. `client_span_id` and `server_span_id` are gone (QV3-2).
+- **[Verified]** `unknown_fields` is always written; `[]` when the TYPE has no KEEP-VALUE VARIANT (RV3-03).
+- **[Verified]** HTTP extras (RESPONSE RECORD only): `request` and `status`, flat at the top level (QV3-3). So a RESPONSE RECORD has 16 keys. The ENTRY RECORD has no extras. The db extras come in P4.
+- **[Verified]** `value_sha256` keeps the D6B-58 rule over `redacted`, `unknown_keys` and `value` (QV3-6). No stored digest changed.
+
+### `outcome` and `reason` of a RESPONSE RECORD (QV3-4)
+
+**[Verified]** `Replay.record/3` writes them at capture from the live call facts (`test_V1_to_V10_response_record`, `test_V4_V7_V8_constructor_outcome`, `test_V8_guard_live_status_reason`):
+
+| Capture fact | `outcome` | `reason` |
+|---|---|---|
+| `status` other than 200 | `rejected` | `status` |
+| 200, decode fails | `rejected` | `decode` |
+| 200, constructor fails | `rejected` | `constructor` |
+| 200, decode passes | `accepted` | `null` |
+
+- **[Verified]** The record `reason` equals the `reason` of the failure that the live call returns (V8). A transport failure writes no record, as before.
+
+### `--stored` over v3 records
+
+- **[Verified]** Version check, both streams (`test_V12_*`, `test_V13_entry_record_version_2_blocks`). Exit 1, empty stdout, stderr:
+  - `error: stored RESPONSE RECORD has record version 2; this build reads record version 3 only (DL-143)` with `  record source: <file>:1 (line 1)`. A version 1 record gives `1`; a record without `version` gives `none`.
+  - `error: stored ENTRY RECORD has record version 2; this build reads record version 3 only (DL-143)` (new for the ENTRY stream, RV3-06).
+- **[Verified]** A missing or unknown `outcome` blocks: `error: stored RESPONSE RECORD has no capture outcome accepted or rejected (DL-138)` (`test_O2_missing_or_unknown_outcome_blocks`).
+- **[Verified]** Skip rule, QV3-8 default B (`test_V22_*`, `test_V23_*`, controls `test_V24_*`, `test_V25_*`, `test_O1_*`, `test_N2_*`):
+
+| Check | `accepted` | `rejected` |
+|---|---|---|
+| DL-102 constructors, DL-122 literals | run | skip |
+| TYPE path check, W2 version count | run | skip |
+| Orphan count (DL-040) | run | run |
+| Redacted-held check (D6B-72) | run | run |
+
+- **[Verified]** Count lines (QV3-7), on stderr after a green check, only when M > 0 (`test_V14_count_lines`, `test_V15_no_count_lines_when_nothing_is_rejected`):
+  - `N records, K checked, M rejected at capture`
+  - `digest not verified (P2b)`
+  - Both lines print together or not at all. One form `N records`, no singular (RV3-16). They come before the ENTRY count line (`test_V14c_*`). A block prints no count line.
+- **[Verified]** No count line or block text names a stored value (DL-124, `test_V16_no_stored_value_in_stderr`).
+- **[Verified]** DL-136 is half built: the `outcome` half is in P2. The digest half (a bad `value_sha256` is counted, not checked) is open as P2b, [D035](../../wiki/planning/decisions-to-be-made.md#d035--p2b-the-dl-136-digest-half-for-stored-records). The second count line marks it until P2b lands.
+
+### One-time rewrite of 15 fixtures (QV3-5)
+
+- **[Verified]** [`convert_v3.py`](workflow/2026-11-07/record-format-v3/convert_v3.py) ran once over the 15 tracked v2 fixtures (`stored/v1.jsonl`, `stored/v1-v2.jsonl`, the `slice6/decode`, `decode-ctor`, `redacted`, `stored-elixir` stored files, `slice6/entry/stored/entries.jsonl`). Per record: `version` 3, `span_id`, `unknown_fields` `[]` when absent, RESPONSE `outcome`/`reason` from `status` only (RV3-12). It asserts the digest. A rerun at `545dded0` gives byte-equal files (TEST probe, `test_V17b_tracked_fixtures_equal_the_converter_output`).
+- **[Verified]** Not converted: `slice6/record/stored-v1.jsonl` (the version 1 reject fixture) and every `results/*` run (retained evidence).
+
+### Six pin sites and the two-commit rule (RV3-14)
+
+- **[Verified]** Byte pins, moved in GREEN `ca09d361` with the diff proof (only hunk owner `def record(request, status, bytes)`; `def entry_record` in ENTRY LINE sources):
+  1. `tests/slice6_pipe_test.py` `EFFECT_OUTPUTS` (2 digests);
+  2. `tests/slice6_host_struct_test.py` `BYTE_GUARD` (36 digests);
+  3. `slice6/effect-reach/byte-guard.json` (42 digests, `(71, 40)` invariant kept).
+- **[Verified]** Commit pins, set to the GREEN hash in the next commit `b1879fa8` (RV3-14, the `acf12d75` pattern):
+  4. `tests/slice5_syntax_test.py` `PIN`;
+  5. `tests/slice6_entry_test.py` `BASE` (6d N13);
+  6. `tests/slice6_multi_test.py` `BASE` (6e N13, found in GREEN).
+- **[Verified]** `payments.generated.snapshot` is unchanged (no EFFECT).
+- **[Verified]** V18 (`test_V18_only_the_two_writers_change`) is retired with `@unittest.skip` and a reason: a one-time P2 diff proof, passed at `ca09d361`. ENTRY LINE sources change by design after `ce190054`. Successor proof: the TEST comparison of the `ca09d361` and HEAD compilers over 2092 sources without an ENTRY LINE (equal stdout, stderr and exit).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| Full `run.py`, [`results/20261107T230714580577Z`](results/20261107T230714580577Z/result.json) | status `fail`: 36 of 38 steps pass; only `slice6-db` and `slice6-db-stored` fail, equal to their open P4 RED counts (40 and 43 failures); `record-v3` 26 tests OK (1 skipped: V18); 976.6 s |
+| 0001 `run.py`, `cargo test`, `fmt --check`, `clippy -D warnings` | pass; 22 + 14 |
+| TEST probes | accepted, rejected (`constructor`, `status`), held, missing `outcome`, v2 file, orphan: the texts above |
+
+### Limits
+
+- **[Inference]** The digest does not cover `outcome`, `reason`, `status`, `span_id` or `unknown_fields` (QV3-6). A hand-edited `outcome` is not detected.
+- **[Inference]** A converted v2 RESPONSE RECORD with status 200 is `accepted`, even if its body failed at capture (RV3-12).
+- **[Inference]** A rejected record of a TYPE VERSION without a path is not seen by the path check (QV3-8 B); only the orphan and held checks read it.
+- **[Inference]** The REPLAY RUN reads no `version`: a v2 record still replays. Only `--stored` enforces v3 (RV3-04).
+- **[Verified]** The full run status is `fail` while the db RED files are listed; see DL-147 in [DRIFT status](#drift-status-dl-135).
+
+### Built defaults (DL-144)
+
+- QV3-1 A `version` key (default, open). QV3-2 A one `span_id` (default, open). QV3-3 A flat extras (default, open). QV3-4 A `outcome` at capture from status and decode (default, open). QV3-5 A one-time rewrite, v3 only (default, open). QV3-6 A digest unchanged (default, open). QV3-7 A count lines only when M > 0 (default, open). QV3-8 B rejected skips value, path and W2 checks (default, open).
+- All are listed in the [0005 OWNER review](../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md#record-format-v3-p2).
+
+## Several EFFECTS per source and the module name
+
+**[Verified]** 2026-11-08. EXPERIMENT 0005 prerequisites P3 and P5 (D6B-147, Q5-6). GREEN `ce190054`, pin commit `b3e75b6e`, TEST `0311306a`: PASS. Ledger: [multi-effect-module](workflow/2026-11-07/multi-effect-module/) ([plan with repair](workflow/2026-11-07/multi-effect-module/plan.md), [decisions](workflow/2026-11-07/multi-effect-module/decisions.md), [RED review](workflow/2026-11-07/multi-effect-module/red-review.md), [GREEN](workflow/2026-11-07/multi-effect-module/green-output.md), [TEST and review](workflow/2026-11-07/multi-effect-module/review.md)). Tests: [`tests/slice6_multi_test.py`](tests/slice6_multi_test.py), fixtures [`slice6/multi/`](slice6/multi/).
+
+| Step | Owner |
+|---|---|
+| Lift the one-EFFECT and one-ENTRY-LINE checks, one EFFECT per flow | BEAML (COMPILER) |
+| Module name from the stem, reserved names | BEAML (COMPILER) |
+| Shared defs once, one `Replay` with clauses by operation | BEAML (generated Elixir) |
+| DRIVER with the module `"name"` | BEAML (COMPILER, `--stored`) |
+| `Orders.ui_place(params)` from `handle_event` | host |
+
+### Several EFFECTS and ENTRY LINES (D6B-197)
+
+- **[Verified]** `slice 1 supports one effect` and the D6B-147 one-ENTRY-LINE check are gone. `slice6/multi/orders.beaml` builds with two http EFFECTS and two ENTRY LINES (`test_n1_two_effects_and_two_entry_lines_build`); its output compiles under `elixirc --warnings-as-errors` (`test_n2_output_compiles_without_warnings`).
+- **[Verified]** Shared defs are written once (D6B-198): `__beaml_attempt__`, `BeamlFailure`, `Http`, `__beaml_redact__`, the failure structs and each decode helper. A one-EFFECT source writes nothing twice, so its bytes stay.
+- **[Verified]** One EFFECT per flow (Q6E-4 A): `error: fn <f> calls the effects <a> and <b>; slice 6e replays a flow with one effect` (`test_n10_rejects`).
+- **[Verified]** Duplicate operation: two ENTRY LINES with one operation give `duplicate name: ui_<op>` (D6B-201); two EFFECT lines with one operation give `duplicate name: <ns>_<op>` (TEST probe). Two ENTRY LINES may target one flow (D6B-207, `slice6/entry/two_entries.beaml`).
+
+### REPLAY RUN by operation (Q6E-3, D6B-199, D6B-200)
+
+- **[Verified]** One EFFECT: `Replay.record/3` and `run/3`, byte-equal to before. Two or more: `Replay.record(operation, request, status, bytes)` and `Replay.run(operation, a0, trace_id, records)`, one clause per EFFECT; an unknown or other-flow operation gives `{:error, :operation_mismatch}` (`test_n3_to_n6_runtime`).
+- **[Verified]** Every ENTRY LINE source: `entry_record(operation, bytes, decoded)` and `entry/2` with one clause per ENTRY LINE on `%{"operation" => op}`, then a last `{:error, :operation_mismatch}` clause.
+- **[Verified]** `--stored` needs no code change (D6B-206): orphans, DEAD LINES and the W2 count are per operation (`test_n7_*`, `test_n8_orphan_block_per_operation`, `test_n9_dead_line_per_operation`).
+
+### Module name (Q6E-1 C, Q6E-2 A, D6B-203)
+
+- **[Verified]** Only a source with an ENTRY LINE takes its module from the stem, one capital per `_` segment: `orders` gives `Orders`, `order_flow` gives `OrderFlow` (`test_n14_entry_line_sources_take_the_stem`, `test_n15_module_name_from_stem`). Every other source stays `BeamlSpike` (`test_n14b_*`), so no byte pin moved.
+- **[Verified]** Reserved names: a stem whose module the generated code calls is a compile error: `error: the source file name <stem> gives the module <M>, which the generated code calls; rename the file` (13 names, `bad/enum.beaml`).
+- **[Verified]** Gap (TEST O1, medium): `System` is not in the list; `system.beaml` builds `defmodule System do` and the host build redefines Elixir's `System`. **[Proposal]** The P4 GREEN closes it (the stem `system` gives the D6B-203 text). Not built at `0311306a`.
+- **[Verified]** `Rejected` stays nested, so it is `<Module>.Rejected` (`Orders.Rejected`). The DL-133 note explains the name.
+- **[Verified]** The DRIVER of `--stored` reads the key `"name"` beside `"module"` and uses `Module.concat([name])` (D6B-204). No generated byte changes.
+- **[Verified]** Variant sources keep the stem `orders` in their own directory (`slice6/multi/no_hold/`, `no_hold_retired/`, `copy/`; D6B-210).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| Full `run.py`, [`results/20261107T230714580577Z`](results/20261107T230714580577Z/result.json) | 36 of 38 steps; `slice6-multi` 14 and `slice6-entry` 20 tests OK; the two db REDs fail as expected |
+| TEST probe `shop_flow.beaml` | `defmodule ShopFlow do`; shared modules once; live, `run/4` and `entry/2` values equal |
+| `ca09d361` against HEAD over 2092 sources without an ENTRY LINE | stdout, stderr and exit equal |
+
+### Limits
+
+- **[Inference]** The dedupe keys on text: two defs with one name and other text still reach `elixirc` (N2 covers the fixture only).
+- **[Inference]** `Replay` has two shapes (one EFFECT; two or more), with a `ponytail:` comment at `emit_replay`.
+- **[Inference]** A source that gains its first ENTRY LINE renames its module; the host build shows every old call.
+- **[Inference]** The reserved list is hand-kept; another host module name (for example `Task`) is reported by the host build, not by BEAML.
+- **[Unknown]** The host error when two generated sources with one stem meet in one host build.
+
+### Built defaults (DL-144)
+
+- Q6E-1 C stem only for ENTRY LINE sources (default, open). Q6E-2 A `<Module>.Rejected` (default, open). Q6E-3 A `run/4` and `record/4` by operation (default, open). Q6E-4 A one EFFECT per flow (default, open).
+- All are listed in the [0005 OWNER review](../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md#several-effects-and-module-name-p3-p5).
+
+### Decisions (Decision4, DOCS record format v3 and several EFFECTS)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| Two sections after slice 6d | Undo | Order of the build | Opus (docs v3/multi) |
+| The record example uses placeholders only | Undo | No stored value or test MARKER in docs | Opus (docs v3/multi) |
+| `System` gap written as a P4 proposal, not as closed | Repair | Chose: state it open at `0311306a`. Over: "closed". Because: not in the reserved list at HEAD or in the working copy. Commits us to: the P4 docs mark it closed | Opus (docs v3/multi) |

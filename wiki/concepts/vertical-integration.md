@@ -3,7 +3,7 @@ id: concept-vertical-integration
 title: Vertical integration, the owner goal
 kind: synthesis
 status: owner-requirement
-updated: 2026-11-07
+updated: 2026-11-08
 ---
 
 # Vertical integration
@@ -30,6 +30,10 @@ updated: 2026-11-07
 ## The inbound side (2026-11-07)
 
 **[Verified]** Slice 6d closes the vertical line on the inward side ([EXPERIMENT 0004 slice 6d](../../experiments/0004-generated-replay/README.md#slice-6d-the-entry-line-inbound-effect), DL-128, DL-130 to DL-134, DL-138). A UI EVENT enters through an ENTRY LINE written like an outbound EFFECT; the head TYPES must equal those of the target fn (`test_n10_rejects`). The COMPILER generates one host function `ui_<event>/1` with the root span, the decode and a `Rejected` struct for a bad form (`test_n1_entry_line_gives_one_function`, `test_n5_to_n9_orders_runtime`); a removed ENTRY LINE warns in the host build (`test_h2_host_build_without_the_entry_warns`). Each call of a flow target writes an ENTRY RECORD with its capture outcome, and `--stored` checks the accepted ones against a stricter constructor or a lost ENUM LITERAL (`test_s2_stricter_constructor_blocks`, `test_s3_removed_literal_blocks`); a removed ENTRY LINE with stored records blocks until a RETIRE LINE (`test_s5_removed_entry_line_with_stored_entries_blocks`, `test_s5b_retire_line_frees_the_removed_entry_line`). Limits: one ENTRY LINE per source, `ui.event` only, no enum or constructor field below the top level of the form TYPE, no full run after the TEST repair.
+
+## One record format for every EFFECT stream (2026-11-08)
+
+**[Verified]** Record format v3 gives the outbound and the inbound EFFECT STREAM one RECORD CORE of 14 keys, with `request` and `status` as HTTP extras ([EXPERIMENT 0004 record format v3](../../experiments/0004-generated-replay/README.md#record-format-v3-one-record-core-for-every-effect-stream), DL-143). Both writers emit `version: 3`, one `span_id` and `outcome`/`reason` at capture (`test_V1_to_V10_response_record`, `test_V11_entry_record`); the RESPONSE RECORD `reason` equals the live failure reason (`test_V8_guard_live_status_reason`). `--stored` reads version 3 only on both streams (`test_V12_response_record_version_2_blocks`, `test_V13_entry_record_version_2_blocks`) and skips the value and path checks for records rejected at capture, while the orphan and held checks still read them (`test_V22_status_record_without_a_path_builds`, `test_V24_control_accepted_record_without_a_path_blocks`, `test_V25_held_check_reads_a_rejected_record`). One source may now hold several EFFECTS and ENTRY LINES, with a REPLAY RUN by operation (`test_n3_to_n6_runtime`). Limits: the digest half of DL-136 is open (D035); the db stream gets the core in P4, not built yet.
 
 ## Type changes against deployed data
 

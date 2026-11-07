@@ -2,7 +2,7 @@
 id: planning-decision-log
 kind: planning
 status: active
-updated: 2026-11-07
+updated: 2026-11-08
 ---
 
 # Decision log
@@ -865,6 +865,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because (OWNER): BEAML shall support any number of EFFECT transports; a transport is an interface against the language and must be implementable generically later. One record format is part of that interface. C gives slice 6d two goals.
 → Effect: a new step "record format v3" after slice 6d TEST: common core, transport extras, `--stored` and the REPLAY RUN read one shape, the four byte-pin sites move with a diff proof. The database stream gets the format from the start. Roadmap note: "EFFECT transport as an interface" (DL-126 candidate, later).
+→ Note (docs, 2026-11-08): built as record format v3 at ca09d361; the RESPONSE RECORD alignment step is done.
 
 **DL-144 · Migrate · Free run for the PROTOTYPE: EXPERIMENT 0005 is built without further OWNER answers; every decision is recorded and walked through the next day**
 → Question: the OWNER wants the Phoenix PROTOTYPE (DL-127 to DL-129) built now. Who answers the open Migrate questions of 0005 (get key, list order and limit, List TYPE, `--stored` connection, code placement, and whatever the build raises)?

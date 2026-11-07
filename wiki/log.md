@@ -435,3 +435,13 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [Vertical integration](concepts/vertical-integration.md): new section on the inbound side.
 - [Roadmap page](../docs/index.html) and [root README](../README.md): slice 6d in Verified, with a compiled sample; next: record format v3, several EFFECTS, `db.*` transports.
 - **[Verified]** Limits: no full run after the TEST repair; `elixirc --warnings-as-errors` is no gate (R6D-11). **[Unknown]** The cause of one failed entry-test run of 12.
+
+## 2026-11-08: docs | record format v3 and several EFFECTS per source (0005 P2, P3, P5)
+
+**[Verified]** Both steps passed TEST at `0311306a`: record format v3 (GREEN `ca09d361`, pin `b1879fa8`) and several EFFECTS with the module name (GREEN `ce190054`, pin `b3e75b6e`). [Full run](../experiments/0004-generated-replay/results/20261107T230714580577Z/result.json) 36 of 38 steps; the two failing steps are the open db REDs, equal to their RED counts ([v3 review](../experiments/0004-generated-replay/workflow/2026-11-07/record-format-v3/review.md), [multi review](../experiments/0004-generated-replay/workflow/2026-11-07/multi-effect-module/review.md)).
+
+- [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#record-format-v3-one-record-core-for-every-effect-stream): two new sections (RECORD CORE with a placeholder example, `outcome`/`reason`, version texts, QV3-8 B skip rule, count lines, rewrite of 15 fixtures, six pin sites, V18 retired; several EFFECTS, `run/4`, module from the stem, reserved names); DL-147 in the DRIFT status section.
+- [Register](planning/research-and-development.md): two rows. [Glossary](../GLOSSARY.md): EFFECT STREAM, RECORD CORE, ROW SNAPSHOT; RESPONSE RECORD names version 3.
+- [Vertical integration](concepts/vertical-integration.md): one record format for every EFFECT stream. [Decision log](planning/decision-log.md): one note under DL-143.
+- [Roadmap page](../docs/index.html) and [root README](../README.md): both steps in Verified; next: db transports (P4 GREEN running), EXPERIMENT 0005 RED.
+- **[Verified]** Limits: DL-136 digest half open (D035); `System` missing from the reserved names (TEST O1, assigned to P4 GREEN); the full-run status stays `fail` until the db REDs pass (DL-147).
