@@ -445,6 +445,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice; one syntax, and every type (records, wrappers, enums via DL-082) gets the same checked-constructor pattern.
 → Clarified: `!` marks a position in a signature, not a kind of type. Any type can stand on the failure side.
 
+**DL-093 · Migrate · Success and failure types never overlap (E1)**
+→ Question: how does a clause tell success from failure when both sides could have the same TYPE?
+→ Options: E1, the TYPE decides and the same TYPE on both sides is forbidden; E2, a failure is always marked with `fail`; both.
+→ Chose: E1. No `fail` keyword. The success TYPE must not appear in the failure list: `-> String ! String` and `-> String ! Int | String` are compile errors; `-> String ! Int` is legal. The help line names the overlapping TYPE and suggests a TYPE of its own for the failure or no `!`.
+→ Because: OWNER reasoning: a value of the same TYPE as the result is no failure, only another result; a real failure means something else and deserves its own TYPE. Generic functions (`-> T ! E`) need the same check at the call; that is for later.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
