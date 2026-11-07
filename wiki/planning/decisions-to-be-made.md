@@ -92,7 +92,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D004 — Redacted fields in an EFFECT output and the stored body (Q6B-4)
 
-- **Status** OPEN
+- **Status** CLOSED 2026-11-07: option O2, the RESPONSE RECORD holds the typed projection, never the raw body. See [DL-105](decision-log.md); step 6 replan in [slice6b-redacted](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/plan.md).
 - **Decision owner** OWNER
 - **Class** Answer: a stored PII value cannot be taken back.
 - **Scope** LANGUAGE/COMPILATION and EXECUTION/REPLAY RUN

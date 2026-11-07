@@ -1,0 +1,215 @@
+{
+  "slice": "6b",
+  "step": 6,
+  "date": "2026-11-07",
+  "phase": "plan",
+  "by": "Opus (PLAN, slice6b-redacted)",
+  "decisions": "decisions.md",
+  "supersedes": [
+    "D6B-30",
+    "D6B-34"
+  ],
+  "inputs": [
+    "DL-029",
+    "DL-032",
+    "DL-033",
+    "DL-059",
+    "DL-089",
+    "DL-102",
+    "DL-103",
+    "DL-105",
+    "DL-106",
+    "DL-107"
+  ],
+  "owner_questions": [
+    {
+      "id": "Q6B-10",
+      "class": "Migrate",
+      "topic": "GEN arm and the 0003 RESPONSE RECORD contract",
+      "options": [
+        "A: GEN copies get projection rows, LIB stays frozen raw",
+        "B: arm comparison stops at 6a, results stay evidence"
+      ],
+      "blocks": [
+        "6a",
+        "6b",
+        "6c"
+      ],
+      "by": "open (13ue)"
+    },
+    {
+      "id": "Q6B-11",
+      "class": "Migrate",
+      "topic": "field that becomes redacted while stored records hold its value",
+      "options": [
+        "A: MIGRATE CHANGE redact f",
+        "B: only DL-102 fates retire or quarantine"
+      ],
+      "blocks": [],
+      "interim": "D6B-66 fingerprint blocks",
+      "by": "open (13ue)"
+    },
+    {
+      "id": "Q6B-12",
+      "class": "Answer",
+      "topic": "direct copy of a redacted value into a non-redacted field of a non-failure TYPE",
+      "options": [
+        "A: compile error for every record literal and payload",
+        "B: failure TYPES only now"
+      ],
+      "blocks": [],
+      "interim": "6c builds failure TYPES only (DL-105 text)",
+      "by": "open (13ue)"
+    }
+  ],
+  "substeps": [
+    {
+      "id": "6a",
+      "name": "RESPONSE RECORD = projection for every record, no redacted yet, all old tests adapted",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-record/",
+      "depends_on": [
+        "decode-literals GREEN",
+        "decode-constructor GREEN"
+      ],
+      "blocked_by_owner_question": "Q6B-10",
+      "decisions": [
+        "D6B-52",
+        "D6B-53",
+        "D6B-54",
+        "D6B-55",
+        "D6B-56",
+        "D6B-57",
+        "D6B-58",
+        "D6B-59",
+        "D6B-60",
+        "D6B-61",
+        "D6B-68",
+        "D6B-69"
+      ],
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/tests/slice6_record_test.py",
+        "experiments/0004-generated-replay/tests/stored_types_test.py",
+        "experiments/0004-generated-replay/tests/arms_test.py",
+        "experiments/0004-generated-replay/tests/slice2_replay_test.py",
+        "experiments/0004-generated-replay/tests/slice3_replay_test.py",
+        "experiments/0004-generated-replay/tests/slice4_retire_test.py",
+        "experiments/0004-generated-replay/tests/slice5_syntax_test.py",
+        "experiments/0004-generated-replay/tests/slice6_decode_test.py",
+        "experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py",
+        "experiments/0004-generated-replay/run.py",
+        "experiments/0004-generated-replay/stored/",
+        "experiments/0004-generated-replay/slice6/decode/",
+        "experiments/0004-generated-replay/slice6/decode-ctor/",
+        "experiments/0004-generated-replay/arms/gen/ (per Q6B-10)",
+        "experiments/0004-generated-replay/tests/overlay_diff_test.py (per Q6B-10)"
+      ],
+      "first_red_test": {
+        "test": "slice6_record_test.py P1",
+        "expect": "Replay.record/3 writes version 2 with value, redacted [], unknown_keys [fraud_score], value_sha256; no body_base64, body_length, body_sha256; 'low' in no record byte",
+        "today": "version 1 with body_base64"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_*_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "payments.generated.snapshot byte-equal",
+        "slice6_record_test.py P5 digest parity Elixir and Python"
+      ]
+    },
+    {
+      "id": "6b",
+      "name": "redacted on fields, with on EFFECTS, wire and record projections, marked output fields, echo test",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/",
+      "depends_on": [
+        "6a"
+      ],
+      "blocked_by_owner_question": null,
+      "decisions": [
+        "D6B-29",
+        "D6B-31",
+        "D6B-32",
+        "D6B-33",
+        "D6B-62",
+        "D6B-63",
+        "D6B-64",
+        "D6B-65",
+        "D6B-66",
+        "D6B-70",
+        "D6B-71"
+      ],
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/redacted/",
+        "experiments/0004-generated-replay/tests/slice6_redacted_test.py"
+      ],
+      "first_red_test": {
+        "test": "slice6_redacted_test.py R1",
+        "expect": "loopback stub receives a body without card_holder",
+        "today": "parse error at redacted"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_*_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "payments.generated.snapshot byte-equal",
+        "R4 echo: MARKER in no file of the RUN DIRECTORY and not in .beaml/actions.jsonl, with positive controls",
+        "sources without redacted and with: byte-equal output against 6a"
+      ]
+    },
+    {
+      "id": "6c",
+      "name": "failure TYPE rule: no non-redacted copy of a redacted field",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted-failure/",
+      "depends_on": [
+        "6b"
+      ],
+      "blocked_by_owner_question": null,
+      "decisions": [
+        "D6B-67"
+      ],
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/redacted-failure/",
+        "experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py"
+      ],
+      "first_red_test": {
+        "test": "slice6_redacted_failure_test.py F1",
+        "expect": "Bad { reason: card_holder } with non-redacted reason is a compile error with the D6B-67 text",
+        "today": "compiles (after 6b)"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_*_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "payments.generated.snapshot byte-equal"
+      ]
+    }
+  ],
+  "exclusions": [
+    "derived values and implicit flow (DL-029 target)",
+    "dotted with paths",
+    "redacted in enum payloads, signature lines, MIGRATE CHANGES",
+    "redacted on non-String or constructor-TYPE output fields",
+    "release path of the echo test (limit L1)",
+    "run.py proxy raw exchanges (limit L2)",
+    "MIGRATE CHANGE for a newly redacted field (Q6B-11)",
+    "LIB arm record format (Q6B-10)",
+    "fmt alignment of a with tail (step 10)"
+  ],
+  "limits": [
+    "L1",
+    "L2",
+    "L3",
+    "L4"
+  ]
+}
