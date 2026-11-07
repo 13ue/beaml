@@ -87,3 +87,56 @@ Result: 22 tests, 21 FAIL (26 failures with subtests), 1 pass (guard F14). Exit 
 
 - **[Observed]** Every failure has the usage text as its cause; no setup failure. The CRLF copies build on the baseline (fixture check inside the test passed before the `fmt` call).
 - **[Inference]** The RED is genuine: each case needs the `fmt` command, and F13 stops a no-op from passing.
+
+## RED repair
+
+Trigger: [red-review.md](red-review.md) R1 (high), R2 and R3 (medium), the `=` column note. The production file was not changed. Same scratch baseline `cd379ff0` as in RED.
+
+### Changes
+
+- **R1.** `clauses.beaml` lines 44 to 46: `fn one` and `fn other_name`, adjacent one-line fns of different names. Each is a group of one with one-space gaps, so both lines stay. Test `test_one_line_fns_of_different_names_do_not_align`.
+- **`=` column.** `clauses.beaml` lines 48 to 51: `fn check` clauses with equal argument and `->` columns. The return text of line 51 has one more space after `!` (not a column, U4). Only `=` aligns: line 50 gets two spaces before `=`. Test `test_equals_column_aligns_when_only_the_return_text_differs`.
+- **R2.** `test_fmt_is_idempotent` and `test_compiled_output_equal_except_declaration_offsets` assert that the first `fmt` result is `expected(name)`.
+- **R3 isolation.** In `clauses.beaml`, the signature lines and the comment lines above group A (lines 8, 9) and the `tag` group (lines 14, 15) changed places. A comment line now ends each group under both readings of F4. The new fixture `slice6/fmt/header` holds the only signature line directly above clauses. Test `test_signature_line_ends_a_group` compares it with `header.formatted.beaml`. `header` is in `NAMES`, so the guard, idempotence, compile-equivalence and CRLF cases include it.
+- `CHANGED["clauses"]` is 8 (was 7): line 50 is the new changed line.
+
+### Decisions
+
+| # | Class | Choice | Alternative | Reason |
+|---|---|---|---|---|
+| F17 | Undo | R1 and the `=` case go at the end of `clauses.beaml`; earlier line numbers stay. | A new fixture per case | Fewest files; no test line number changes. |
+| F18 | Repair | **Chose:** the `=` case uses a different gap inside the `!` list. **Over:** two EFFECT lines (F3). **Because:** the baseline rejects clauses whose return text differs by tokens (`inconsistent function signature`), and one EFFECT per source is the limit. A gap inside the return text is the only observed way. **Commits us to:** GREEN measures the `=` cell by its bytes, with inner gaps. | Two EFFECT lines; no `=` case | Observed on the baseline. |
+| F19 | Repair | **Chose:** isolate F4 in `slice6/fmt/header`; move a comment line between each signature line and its clauses in `clauses.beaml`. **Over:** keep the signature lines directly above groups in `clauses.beaml`. **Because:** an OWNER answer to Q6B-9 then changes one file, `header.formatted.beaml`. **Commits us to:** `clauses.beaml` does not test F4. | Leave F4 in `clauses` | Task R3. |
+| F20 | Undo | R2 asserts `(code, file) == (0, expected)` with stderr in the message. | Assert the file only | The failure cause shows the usage text. |
+| F21 | Undo | The two event tests keep the cause "no `fmt` event"; the usage text is not in their output. | Assert the stderr in event tests | Same as in RED; the event has no stderr. |
+
+### Q6B-9 [Open, OWNER] Signature line above clauses (F4, R3)
+
+- Option A (current fixtures): a signature line (no `=`) stays byte-equal and ends the group. Only the clauses align.
+- Option B: the signature line is the header row of the group. Its cells widen each column of the clauses below it.
+- Effect of an answer B: only `slice6/fmt/header.formatted.beaml` changes (and the test name). Class Repair: a new `fmt` run reverses it.
+
+### Rerun (RED repair)
+
+Command: same as RED. Full output: [red-output.log](red-output.log). Toolchain the same.
+Inputs (sha256):
+- `slice6/fmt/clauses.beaml` `fbbe51b5900a35c618d722d6f537e89989d26837d7cbecfb3be25eed421ff134`
+- `slice6/fmt/clauses.formatted.beaml` `1760f06a087310bbe47909eb87b70d89a81207591ef2bb7455e23cb791c85f52`
+- `slice6/fmt/header.beaml` `c2e0afbe5dd9da98f0106cfb48e6327c387d8fb72cee8f799f108edcee7a8de0`
+- `slice6/fmt/header.formatted.beaml` `253f289083d37c293092f52cc868621503a35ef1f16b518a1e91720e2d0af15b`
+- `slice6/fmt/marks.beaml`, `marks.formatted.beaml`: unchanged.
+- `tests/slice6_fmt_test.py` `977d335d96824fdf4db19abb2fcf54aac811f62dfde20f99e271f1a8f9f346ac`
+
+- **[Observed]** 25 tests, 24 FAIL (33 failures with subtests), 1 pass (guard F14, now with `header`). Exit 1.
+- **[Observed]** The 3 new tests and the new `header` subtests fail with the usage text. Of 33 failures, 31 show the usage text; the 2 event tests fail with "no `fmt` event".
+- **[Observed]** Scratch fake `fmt` (the review fake, wrapper over the baseline) probes:
+
+| Fake `fmt` | Result |
+|---|---|
+| Writes the expected file | 25 of 25 pass |
+| No-op, exit 0 | idempotence and compile-equivalence now fail (R2) |
+| Pads `fn one` to `fn other_name` (adjacency-only) | R1 test fails |
+| One space before `=` on line 50 | `=` test fails |
+| Header row in `header` (option B) | `test_signature_line_ends_a_group` fails |
+
+- **[Inference]** R1, R2, R3 and the `=` note are closed for RED. U5 and U9 stay untested (low).

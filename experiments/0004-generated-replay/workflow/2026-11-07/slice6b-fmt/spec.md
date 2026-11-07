@@ -11,13 +11,13 @@ Decision log: DL-013, DL-080, DL-081, DL-083, DL-104 in [decision-log.md](../../
 - An invalid source writes nothing: exit 1, empty stdout, the source error on stderr, no temporary file (D6B-41, F8).
 - Edits by token ranges only: the VERSION MARK tokens and the spaces before argument columns, `->` and `=`. Comments, strings and every other byte stay (D6B-42). CRLF line ends stay (F9).
 - VERSION MARK form (b) by DL-104 (D6B-43): remove a mark only when a chain from v1 ends at it; keep a mark without a chain (`v3` and `v1` alike); write ` v<end>` after the TYPE name when the chain starts above v1 and has no mark; keep every other mark.
-- Alignment groups (D6B-44): consecutive single-line clauses (`fn` lines with `=`) of one `fn` name, with no blank line and no comment line between. A multi-line clause and a signature line (no `=`) end a group (F4). Each column (argument k, `->`, `=`) starts one space after the longest previous cell of the group (F5, F6). An EFFECT line aligns `->` and `=` the same way (DL-013, F3).
+- Alignment groups (D6B-44): consecutive single-line clauses (`fn` lines with `=`) of one `fn` name, with no blank line and no comment line between. A multi-line clause and a signature line (no `=`) end a group (F4; OWNER question Q6B-9, only `slice6/fmt/header.formatted.beaml` encodes it). Each column (argument k, `->`, `=`) starts one space after the longest previous cell of the group (F5, F6). An EFFECT line aligns `->` and `=` the same way (DL-013, F3).
 - Invariants (D6B-45): `fmt(fmt(s)) == fmt(s)`; the compiled output of `s` and `fmt(s)` is equal except the `beaml-declaration-v1` byte offsets.
 - Event (D6B-46): `{"action":"fmt","result":"ok"|"error","changed":N}` in `.beaml/actions.jsonl`; N is the count of changed lines; an error gives 0. No source text, no path (F11).
 
 ## Pass rule
 
-- `python3 -B experiments/0004-generated-replay/tests/slice6_fmt_test.py` (repository root): 22 of 22 pass, all subtests pass.
+- `python3 -B experiments/0004-generated-replay/tests/slice6_fmt_test.py` (repository root): 25 of 25 pass, all subtests pass (RED repair: 22 + R1, the `=` column, Q6B-9 header case).
 - `cargo test --offline --no-fail-fast`, `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings` pass.
 - The slice 3 to 6 compile-level tests stay green; `--remove-dead` behaviour stays.
 

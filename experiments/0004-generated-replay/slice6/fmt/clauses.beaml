@@ -5,14 +5,14 @@ fn DeclineReason text: String -> DeclineReason = DeclineReason { text: text }
 
 enum PaymentState { Authorized  Pending  Declined(DeclineReason)  Unknown(String) }
 
-// Group A: three single-line clauses of one fn. Arguments, `->` and `=` align.
 fn PaymentState status: String, decline_reason: String -> PaymentState
+// Group A: three single-line clauses of one fn. Arguments, `->` and `=` align.
 fn PaymentState "ok", _ -> PaymentState = Authorized
 fn PaymentState "declined", reason -> PaymentState = reason |> DeclineReason |> Declined
 fn PaymentState other, _ -> PaymentState = Unknown(other)
 
-// Group break by a blank line: the two parts do not align with each other.
 fn tag key: String, x: String -> String
+// Group break by a blank line: the two parts do not align with each other.
 fn tag "a = b", x -> String = x
 fn tag "long -> key", x -> String   = "k"
 
@@ -40,3 +40,12 @@ effect payments.authorize Order   -> Payment ! PaymentError    = http.post("paym
 fn place order: Order -> Payment ! PaymentError =
   order
   |> payments.authorize
+
+// Two adjacent one-line fns of different names: two groups of one, no padding between them (DL-083).
+fn one a: String -> String = a
+fn other_name bb: String -> String = bb
+
+fn check key: String -> String ! PaymentError
+// Only the `=` column differs: the return text of line 51 is one byte longer (`!` gap stays, U4).
+fn check "abc" -> String ! PaymentError = "x"
+fn check other -> String !  PaymentError = other

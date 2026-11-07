@@ -23,9 +23,10 @@ import stored_types_test as st  # noqa: E402
 FMT = EXPERIMENT / "slice6" / "fmt"
 EMPTY_STORED = EXPERIMENT / "stored" / "empty.jsonl"
 OFFSETS = re.compile(r"(# beaml-declaration-v1 \S+) \d+ \d+")
-NAMES = ("clauses", "marks")
+# header holds the only signature line directly above clauses (OWNER question Q6B-9, notes.md F4).
+NAMES = ("clauses", "marks", "header")
 # The number of lines that fmt changes in each fixture (D6B-46 event count).
-CHANGED = {"clauses": 7, "marks": 2}
+CHANGED = {"clauses": 8, "marks": 2}
 
 
 def source(name):
@@ -127,11 +128,27 @@ class Slice6Fmt(unittest.TestCase):
     def test_clause_group_aligns_argument_columns_arrow_and_equals(self):
         after = self.formatted("clauses")
         self.assertEqual([
-            b"fn PaymentState status: String, decline_reason: String -> PaymentState",
             b'fn PaymentState "ok",       _      -> PaymentState = Authorized',
             b'fn PaymentState "declined", reason -> PaymentState = reason |> DeclineReason |> Declined',
             b"fn PaymentState other,      _      -> PaymentState = Unknown(other)",
-        ], [line(after, n) for n in range(9, 13)], "group A; the signature line (no `=`) is not in the group")
+        ], [line(after, n) for n in range(10, 13)], "group A; a comment line separates it from its signature line")
+
+    def test_signature_line_ends_a_group(self):
+        # OWNER question Q6B-9 (notes.md F4): the current reading lives only in header.formatted.beaml.
+        self.assertEqual(expected("header"), self.formatted("header"))
+
+    def test_one_line_fns_of_different_names_do_not_align(self):
+        # R1, DL-083: a group holds clauses of one fn name. An adjacency-only rule would pad line 45.
+        after = self.formatted("clauses")
+        self.assertEqual([b"fn one a: String -> String = a", b"fn other_name bb: String -> String = bb"],
+                         [line(after, 45), line(after, 46)])
+
+    def test_equals_column_aligns_when_only_the_return_text_differs(self):
+        # The `=` column has test power: arguments and `->` already align; one space before `=` is not enough.
+        after = self.formatted("clauses")
+        self.assertEqual([b'fn check "abc" -> String ! PaymentError  = "x"',
+                          b"fn check other -> String !  PaymentError = other"],
+                         [line(after, 50), line(after, 51)])
 
     def test_extra_spaces_before_equals_become_one_column(self):
         after = self.formatted("clauses")
@@ -209,6 +226,8 @@ class Slice6Fmt(unittest.TestCase):
             with self.subTest(name):
                 path = self.place(name, source(name))
                 first = self.fmt(path)
+                self.assertEqual((0, expected(name)), (first["code"], first["after"]),
+                                 "R2: a no-op fmt must not pass; stderr: " + first["stderr"])
                 second = self.fmt(path)
                 self.assertEqual((0, 0, "", first["after"], True, True),
                                  (first["code"], second["code"], second["stdout"], second["after"],
@@ -226,7 +245,7 @@ class Slice6Fmt(unittest.TestCase):
                 self.assertEqual(0, code, stderr)
                 path = self.place(name, source(name))
                 run = self.fmt(path)
-                self.assertEqual(0, run["code"], run["stderr"])
+                self.assertEqual((0, expected(name)), (run["code"], run["after"]), "R2: " + run["stderr"])
                 code, got, stderr = self.compile(path)
                 self.assertEqual((0, OFFSETS.sub(r"\1 N N", want)), (code, OFFSETS.sub(r"\1 N N", got)), stderr)
 
