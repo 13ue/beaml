@@ -1,0 +1,5 @@
+// D6 (DL-112): a pattern that binds the redacted field to another name.
+type Order { order_id: String  card_holder: redacted String }
+type Receipt { holder: String }
+
+fn receipt Order { card_holder: h } -> Receipt = Receipt { holder: h }

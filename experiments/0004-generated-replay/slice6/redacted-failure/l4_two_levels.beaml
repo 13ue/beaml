@@ -1,0 +1,7 @@
+// L4 (limit, D6B-174): the reach follows one fn that returns its parameter, not two.
+type Order { order_id: String  card_holder: redacted String }
+type Receipt { holder: String }
+
+fn same s: String -> String = s
+fn again s: String -> String = same(s)
+fn receipt Order { card_holder } -> Receipt = Receipt { holder: again(card_holder) }

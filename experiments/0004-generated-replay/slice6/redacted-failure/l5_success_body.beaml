@@ -1,0 +1,4 @@
+// L5 (limit, D6B-67 c): a redacted value as the success value is not a field. Not checked.
+type Order { order_id: String  card_holder: redacted String }
+
+fn holder Order { card_holder } -> String = card_holder
