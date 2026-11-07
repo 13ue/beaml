@@ -64,3 +64,47 @@ Undo:
 Repair:
 → O2 high statt medium, weil a Migrate question goes to GREEN without the OWNER or a record. By: Opus (RED review, red-team-01-repairs)
 → B3 content check dropped statt kept, weil D6B-188 does not change the event content. By: Opus (RED review, red-team-01-repairs)
+
+## Re-check after repair (98608459)
+
+Fresh-context agent re-check, 2026-11-07, git HEAD `98608459`. By: Opus (RED re-check, red-team-01-repairs) on every entry. One round.
+Inputs: this review, [spec.md](spec.md), [notes.md](notes.md), the last section of [red-output.log](red-output.log), `git show 98608459 -- tests/redteam_c1_test.py`, the HEAD DRIVER in `main.rs`, D6B-121 and D6B-122 in [slice6b-stored-elixir/decisions.md](../slice6b-stored-elixir/decisions.md).
+
+**Verdict: PASS.** O1 and O2 are resolved. O3 is recorded. C1 and B3 can go to GREEN. C3 and C4 GREEN wait for the OWNER answer to M7. No new high or critical objection.
+
+### Re-run (observed)
+
+- Compiler: scratch `git archive HEAD experiments/0001-syntax-to-beam`, `cargo build`, `BEAML_SPIKE` to that binary. The working tree was not built. `run.py` was not run.
+- `redteam_c1_test.py`: 8 tests, 6 failures. C1a to C1d FAIL (as before). C1e, C1f ok. C1g: `enum_ok` FAIL and `enum_payload` FAIL, each `(1, [])` (exit 1, no `ok` line); `struct_ok` ok `(0, ["ok"])`. C1h ok: each of the 7 wrong shapes gives `(1, [])`. Same as the RED repair log.
+- `redteam_c3_test.py`: 10 failures, as before. No DRIFT run starts. `redteam_c3_test.py` and `run.py` have no working-tree change against HEAD.
+
+### Answers to the checks
+
+1. C1g fails today for the two enum shapes and passes for the struct guard. C1h holds 7 guards that pass today (observed, above).
+2. The test does not copy the DRIVER. `driver_text()` reads the `const DRIVER` raw string from the `main.rs` beside `BEAML_SPIKE` (`parents[2]/src/main.rs`), else the repo `main.rs`. A raw string has no escapes, so the text equals the const value. **[Observed]** The extracted 447-byte text occurs byte for byte in the scratch binary. The COMPILER passes the same const to `elixir -e` (`.arg(DRIVER)`). So a GREEN that changes the DRIVER is tested by this file. Limits: the test writes the stdin JSON (`module`, `calls` of `[fun, type, args]`) itself. If GREEN changes that protocol, every call raises; C1h then passes for the wrong reason, but the `struct_ok` guard in C1g fails loudly. A change of the const form (`include_str!`, `r##"`) gives "no DRIVER const", also loud. A `BEAML_SPIKE` outside a `<tree>/target/<profile>/` layout reads the wrong `main.rs`. **[Inference]** Acceptable: every drift is a loud failure, not a false pass.
+3. A GREEN clause `{:ok, {^type, variant, payload}} when is_binary(variant) and is_list(payload)` (the D6B-187 shape) does not match `two_tuple` (2-tuple) or `other_enum` (`"Other"` against the pinned `"PaymentState"`). Both raise `CaseClauseError`; C1h catches them. A loose GREEN `{:ok, {_, _, _}}` fails `other_enum`, `atom_variant` and `payload_not_list`. `{:ok, _}` fails all 7. `bare_value` catches a clause without `{:ok, _}`. A GREEN that maps a wrong shape to an `error` line with exit 0 fails the exit check.
+4. O2: spec.md marks D6B-189 and D6B-190 "Migrate (was Repair)", names M7, says GREEN of C3/C4 waits for the OWNER, cites the slice 1 Undo D12 and records who raised the class. notes.md marks both entries "(now Migrate, M7, waits for the OWNER)" with D12, and "Left for GREEN" puts `run.py` behind the OWNER answer. The repair changes no C3 or C4 test and no `run.py`. The C3 tests stay RED and wait. Nothing forces the pin.
+5. O3: spec.md records under D6B-190 that the full run fails while any slice 6 file holds an open RED, and that step 6c is GREEN at `51fd79b2`. Noted. The time estimate of O3 stays an inference.
+
+### Objections
+
+#### R1 · medium · C1 · no guard for an unknown variant or a wrong payload content
+
+- Evidence: the D6B-187 clause checks the TYPE name, a binary variant and a list payload. No case returns `{:ok, {"PaymentState", "Bogus", []}}` or a payload of the wrong length or element TYPE. The DRIVER gets only the TYPE name, not the variant set.
+- Consequence: a compiler defect that emits a variant that the enum does not declare gives `ok`. The struct clause has the same limit (it checks the module, not the fields), so this is parity with D6B-122, not a new hole.
+- Smallest resolving test (if wanted): pass the variant names per call and add `{:ok, {"PaymentState", "Bogus", []}}` to `RAISES`. Not blocking.
+
+### Counts
+
+- C1 tests: 8 (6 before, plus C1g and C1h). Failures 6: C1a to C1d, C1g `enum_ok`, C1g `enum_payload`. Guards: C1e, C1f, C1g `struct_ok`, C1h (7 subtests).
+- C3 and C4: 10 failures, unchanged.
+- Objections: 1 (medium 1). Blocking: none.
+
+### Decisions
+
+Undo:
+→ Re-ran C1 and C3 with a scratch build of HEAD; did not run `run.py`, B3 or `drift_test.py`. By: Opus (RED re-check, red-team-01-repairs)
+→ Checked the extracted DRIVER bytes against the scratch binary. By: Opus (RED re-check, red-team-01-repairs)
+
+Repair:
+→ R1 medium statt high, weil the struct clause has the same field limit (D6B-122 parity). By: Opus (RED re-check, red-team-01-repairs)
