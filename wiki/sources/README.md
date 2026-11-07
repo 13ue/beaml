@@ -21,6 +21,7 @@ This registry indexes evidence, not implementation dependencies. Most research w
 | [BEAM/OTP/Phoenix](beam-otp-phoenix.md) | OTP 29.1.2, Elixir 1.20.x observed; LiveView source v1.2.13; Phoenix.HTML 4.3.0 | Runtime/Mix/HEEx feasibility | Selected source/docs, mixed cached doc versions; no compatibility tuple validated |
 | [Information-flow security](information-flow-security.md) | Cornell Jif 3.3.0; Myers/Liskov; Hirsch/Cecchetti arXiv v2; EEF guidance | Label/pc/authority/effect and runtime-threat grounding | Selected docs and paper abstracts; no proof audit or BEAML theorem |
 | [Observability/storage](observability-platforms.md) | OTel displayed spec 1.62.0 +mutable guides; Postgres 18; ClickHouse/AWS S3 docs | Context/privacy/queue/tenant/retention mechanisms | Selected paraphrases; no deployment benchmark, backend deletion test or signal package pin |
+| [PL syntax sentiment](pl-syntax-sentiment-2026.md) | Claude research workers, 2026-11-07; 94 upstream URLs listed per page | Industry sentiment on syntax features; BEAML lens | Selected excerpts and researcher notes; researcher ranking; Reddit and Lobste.rs blocked; some survey numbers from snippets |
 
 ## Mechanism-level additions
 

@@ -541,6 +541,118 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Next check: under A, a stored ENTRY RECORD with currency `""` gives build exit 1; under B, the exclusion label stays. By: Opus (PLAN REPAIR, slice6d-inbound-effect).
 
+## D025 — Absent-value form: `Option`-like TYPE, optional field or enum idiom
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Scope** LANGUAGE/COMPILATION
+- **Decision trigger** After the first example applications are built.
+- **Next check** When the first example application is planned.
+
+**[Proposal]** Question: Does BEAML need an absent-value form, and how does it meet the historical S06 "missing vs explicit null" requirement? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-130](decision-log.md)). No option is recommended.
+
+**[Verified]** Evidence: [hated row 1](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (null references), [loved row 4](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (ergonomic null handling).
+
+**[Verified]** BEAML today: no `Option`, `nil` or optional field; `Unknown(String)` is the keep-value idiom ([checklist](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-syntax-profile.md#5-feature-checklist), DL-062).
+
+## D026 — Failure-list ripple: a new failure TYPE on a deep `effect`
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Scope** LANGUAGE/COMPILATION
+- **Decision trigger** After the first example applications are built.
+- **Next check** When the first example application is planned.
+
+**[Proposal]** Question: When a deep `effect` gains a failure TYPE, must every caller's `!` list change? Is that ripple accepted or softened (generic `-> T ! E`, failure groups)? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-130](decision-log.md)). No option is recommended.
+
+**[Verified]** Evidence: [hated row 11](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (checked exceptions, versionability), [loved row 3](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (errors as values).
+
+**[Verified]** BEAML today: a failure not in the enclosing `!` list is a compile error (DL-015, DL-093); generic `-> T ! E` is "for later" (DL-093).
+
+## D027 — String interpolation: `#{...}` stays literal text, or a checked form
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Scope** LANGUAGE/COMPILATION
+- **Decision trigger** After the first example applications are built.
+- **Next check** When the first example application is planned.
+
+**[Proposal]** Question: Does `#{...}` stay literal text permanently, or does BEAML get a checked interpolation form? What is the recorded reason either way? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-130](decision-log.md)). No option is recommended.
+
+**[Verified]** Evidence: [loved row 16](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (string interpolation).
+
+**[Verified]** BEAML today: `#{...}` stays data; concatenation with `+`, the only operator ([checklist](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-syntax-profile.md#5-feature-checklist), EXPERIMENT 0001 acceptance 6). The reason is not recorded as a decision.
+
+## D028 — Collection TYPES and literals: list, map
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Scope** LANGUAGE/COMPILATION
+- **Decision trigger** After the first example applications are built.
+- **Next check** When the first example application is planned.
+
+**[Proposal]** Question: Which collection TYPES and literals does BEAML get, and in what form, given DL-129 already needs a `List` TYPE? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-130](decision-log.md)). No option is recommended.
+
+**[Verified]** Evidence: [loved row 11](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (comprehensions), [hated row 21](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (missing sum types and `Option` in Go).
+
+**[Verified]** BEAML today: no list or map TYPE or literal; DL-084 "lists later"; DL-129 needs a `List` for `Orders` ([checklist](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-syntax-profile.md#5-feature-checklist)).
+
+## D029 — Anonymous-function form
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Scope** LANGUAGE/COMPILATION
+- **Decision trigger** After the first example applications are built.
+- **Next check** When the first example application is planned.
+
+**[Proposal]** Question: Does BEAML get an anonymous-function form, or do top-level clauses remain the only functions? How are `map` and `filter` then written? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-130](decision-log.md)). No option is recommended.
+
+**[Verified]** Evidence: [loved row 10](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (closures, lambdas, first-class functions).
+
+**[Verified]** BEAML today: functions exist only as top-level clauses ([checklist](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-syntax-profile.md#5-feature-checklist)). Depends on D028.
+
+## D030 — BEAM concurrency in syntax: spawn, receive, task
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Scope** LANGUAGE/COMPILATION
+- **Decision trigger** After the first example applications are built.
+- **Next check** When the first example application is planned.
+
+**[Proposal]** Question: Does BEAML expose BEAM concurrency in syntax, and would such a form stay uncolored? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-130](decision-log.md)). No option is recommended.
+
+**[Verified]** Evidence: [loved row 13](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (lightweight concurrency), [hated row 5](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (async function coloring).
+
+**[Verified]** BEAML today: no spawn, receive or task form; BEAM processes named only for termination (DL-025) ([checklist](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-syntax-profile.md#5-feature-checklist)). The `!` and `effect` split is a deliberate two-color system (DL-120).
+
+## D031 — Optional separators and zero-argument variant spelling
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Scope** LANGUAGE/COMPILATION
+- **Decision trigger** After the first example applications are built.
+- **Next check** When the first example application is planned.
+
+**[Proposal]** Question: Do optional separators between fields and variants stay? Is bare `Pending` next to `Approved()` one spelling or two? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-130](decision-log.md)). No option is recommended.
+
+**[Verified]** Evidence: [hated row 25](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (silent adjacent concatenation), [profile gap list](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-syntax-profile.md#6-gaps-noticed-in-the-kb-for-the-synthesis-worker).
+
+**[Verified]** BEAML today: commas between fields and variants are optional; slice 6 fixtures write `Pending` and `Approved()` side by side with no decision ([profile 1.1, 1.3](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-syntax-profile.md#1-what-beaml-looks-like-today)). **[Unknown]** whether a silent misparse exists.
+
+## D032 — Budget for top-level forms: keywords, modifiers, mark kinds
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Scope** LANGUAGE/COMPILATION
+- **Decision trigger** After the first example applications are built.
+- **Next check** When the first example application is planned.
+
+**[Proposal]** Question: Is there a budget for top-level forms, and who counts against it when `on`, the FATE OPERATIONS and `effect` policies arrive? Set the budget before these forms land? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-130](decision-log.md)). No option is recommended.
+
+**[Verified]** Evidence: [hated row 4](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (complexity creep, 28 % of Rust respondents), [loved row 22](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (small language, one way).
+
+**[Verified]** BEAML today: six top-level keyword forms (`type`, `enum`, `fn`, `effect`, `migrate`, `retire`) plus `redacted`, `with` release, `with ... do`, VERSION MARK; sketched: `on`, four FATE OPERATIONS, policy on `effect` lines, `where` rules (DL-125, DL-126, DL-128). No budget is recorded ([scorecard](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#2-scorecard)).
+
 ## Answered 2026-11-07
 
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.

@@ -2,7 +2,7 @@
 id: planning-decision-log
 kind: planning
 status: active
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Decision log
@@ -732,6 +732,15 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: input and output of every database call are TYPES, so the type check, spans, RESPONSE RECORDS, REPLAY RUN and `--stored` apply as for any EFFECT. `Query` is a BEAML TYPE, not a query language: a new filter is a field, and a TYPE change runs through `migrate`. S would put column names into a String that no check sees and would break the vertical line at the database. S can come later as a fourth transport when a real case needs it.
 → Effect: EXPERIMENT 0005 host module (`BeamlDb` or a better name) with `put`, `get`, `list`; one Ecto migration for the table; the compiler needs the three transport names (a small slice or part of 0005 setup: transport names are strings today, so `db.put` may already parse; the RED decides). Open for 0005: the `get` key (id field of the TYPE), `list` order and limit, a `List` TYPE for `Orders`.
+
+**DL-130 · Repair · Ingest the PL syntax sentiment research; decide its tensions after the first example applications**
+→ Question: ingest the PL syntax sentiment research (loved and hated features, BEAML lens) into the wiki, and when to decide its tensions and gaps?
+→ Options: ingest now and decide the tensions now; ingest now and decide them after the first example applications; keep it as temporary research outside the wiki.
+→ Chose: ingest now, decide the tensions after the first example applications.
+→ By: 13ue
+→ Because: not too late, not too early. BEAML wants the best syntax ever built and wants to innovate, so the research must stay present in the design process. An example application gives the evidence that a decision today lacks.
+→ Trigger: research handed back 2026-11-07.
+→ Effect: capture under `raw/research/2026-11-07-pl-syntax-sentiment/`, [source page](../sources/pl-syntax-sentiment-2026.md), [concept page](../concepts/syntax-sentiment.md); eight open items D025 to D032 in [decisions to be made](decisions-to-be-made.md), each with trigger "after the first example applications".
 
 ### Process
 

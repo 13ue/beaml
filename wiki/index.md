@@ -20,6 +20,7 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Distributed order requirement](sources/distributed-order-requirement.md): owner target and selected propagation/deployment evidence.
 - [Roasting sources](sources/roasting-rounds.md): selected conversation capture and review-method provenance.
 - [Syntax spike requirement](sources/syntax-spike-requirement.md): accepted experimental syntax, R&D request and adopted initial Elixir backend.
+- [PL syntax sentiment research](sources/pl-syntax-sentiment-2026.md): captured 2026 research on loved and hated syntax features; researcher ranking, snippet-only numbers and blocked forums as limits.
 - [Working glossary](../GLOSSARY.md): scoped terms, proposed owners and German aliases; no universal runtime model.
 - [Candidate context map](planning/context-map.md): language/compilation, execution and Observatory models with explicit translation boundaries.
 - [Local strategy-wiki source](sources/agentic-strategy-wiki.md): selected local glossary/context patterns and provenance; no imported business model or policy.
@@ -39,6 +40,7 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Pinned replay source validation](sources/replay-source-validation.md): missing workflow identity, sink isolation, compatible commands and crash uncertainty.
 - [Vertical integration](concepts/vertical-integration.md): owner goal, one language from source to typed production data.
 - [MIGRATE STEP fates](concepts/migrate-fates.md): DL-125 FATE OPERATIONS `redact`, `quarantine`, `retire`, `map`; proposed semantics and open questions.
+- [Syntax sentiment](concepts/syntax-sentiment.md): loved and hated themes, BEAML scorecard (20 aligned, 5 tension, 7 gap), open items D025 to D032, decided after the first example applications (DL-130).
 - [Typed errors and replay](concepts/typed-errors-and-replay.md): compiler/runtime capture profiles, GROUND TRUTH, typed-invalid fixtures, completeness, isolated reproduction and per-context acceptance.
 
 ## Types and formal reasoning

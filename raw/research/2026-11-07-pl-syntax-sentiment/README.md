@@ -51,8 +51,8 @@ Each bullet links to the row or section it rests on. Loved and hated rows that m
 
 Not done here; the OWNER decides whether and when. [Proposal]
 
-- Two new source pages under `wiki/sources/` (one per research table), each with origin, access date, coverage, snippet-only caveats and the capture path, following the convention in [wiki/sources/README.md](../../wiki/sources/README.md).
+- Two new source pages under `wiki/sources/` (one per research table), each with origin, access date, coverage, snippet-only caveats and the capture path, following the convention in [wiki/sources/README.md](../../../wiki/sources/README.md).
 - The raw captures would move or be copied to `raw/` as dated, immutable research captures with "selected excerpts and researcher notes" coverage labels.
-- One concept page, either new (for example `wiki/concepts/language-sentiment.md`) or a section in [compiler-and-tooling.md](../../wiki/concepts/compiler-and-tooling.md) or [typed-errors-and-replay.md](../../wiki/concepts/typed-errors-and-replay.md), carrying the scorecard with [Inference] tags.
-- The candidate open decisions in [beaml-lens.md](beaml-lens.md#8-candidate-open-decisions) would go to [decisions-to-be-made.md](../../wiki/planning/decisions-to-be-made.md) only if the OWNER accepts them as questions; none is a decision.
-- `wiki/index.md` and `wiki/log.md` would get entries; the [GLOSSARY](../../GLOSSARY.md) needs no new term from this research as far as the synthesizer can see [Inference].
+- One concept page, either new (for example `wiki/concepts/language-sentiment.md`) or a section in [compiler-and-tooling.md](../../../wiki/concepts/compiler-and-tooling.md) or [typed-errors-and-replay.md](../../../wiki/concepts/typed-errors-and-replay.md), carrying the scorecard with [Inference] tags.
+- The candidate open decisions in [beaml-lens.md](beaml-lens.md#8-candidate-open-decisions) would go to [decisions-to-be-made.md](../../../wiki/planning/decisions-to-be-made.md) only if the OWNER accepts them as questions; none is a decision.
+- `wiki/index.md` and `wiki/log.md` would get entries; the [GLOSSARY](../../../GLOSSARY.md) needs no new term from this research as far as the synthesizer can see [Inference].

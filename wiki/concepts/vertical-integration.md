@@ -98,3 +98,5 @@ updated: 2026-11-07
 - Large stores: migration runs in batches or as a stream of batches.
 - Rollback: a lossy step (`drop`) needs a declared rollback window, or a statement that rollback past that version is not possible.
 - Novelty against schema registries, Ecto migrations and lens-based migration. Not checked.
+
+See also [syntax sentiment](syntax-sentiment.md): what programmers love and hate in syntax, the BEAML scorecard and the open items D025 to D032.
