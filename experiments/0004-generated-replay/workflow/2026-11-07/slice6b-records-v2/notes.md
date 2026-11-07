@@ -178,3 +178,46 @@ By: Opus (GREEN, slice6b-records-v2) for every entry in this section.
 - → **Chose:** the span union inside `__beaml_result_E` (new parameter `extra`). **Over:** a second decode in the REPLAY RUN. **Because:** `arms_test.py` R2 counts one `:json.decode/1` per replay. **Commits us to:** `__beaml_result_E/2` (`/3` with a chain) takes `extra`. By: Opus (GREEN, slice6b-records-v2)
 - → **Chose:** rebuild only the Orders release after the repair. **Over:** rebuild both releases. **Because:** the repair changes `probe_support.ex`, and only Orders runs the host validation. **Commits us to:** a Payments repair needs a Payments rebuild. By: Opus (GREEN, slice6b-records-v2)
 - → **Chose:** one `digest/3` for writer and reader with `:json.encode`. **Over:** a hand-written canonical encoder. **Because:** fewer lines; the digest parity with Python passes for ASCII and non-ASCII. **Commits us to:** a `ponytail:` limit for exponent floats. By: Opus (GREEN, slice6b-records-v2)
+
+## RED RV6A-1
+
+Target: review objection RV6A-1 (the DRIFT-Q repair check passes without the repair). Option A (Repair, Fable).
+
+**Test change** (`tests/drift_test.py`, `repaired_problems`, case `test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree`):
+- → Removed: "a non-200 record must give `error`". A 400 record no longer passes.
+- → Added per row R, N, Q: request fits the drifted `type Order`; status 200; result `ok`; host validation `ok`.
+- → New helper `order_fields`: reads the field names of `type Order` in `drift/<row>/payments.beaml`.
+- → RC6A-1 and RC6A-2 checks are unchanged.
+
+**Run** (one DRIFT run, 96 s): `python3 -B experiments/0004-generated-replay/tests/drift_test.py`, Python 3.13.12.
+Result dir: `experiments/0004-generated-replay/results/20261107T161111078093Z`. 4 OK, 1 FAIL:
+
+```
+FAIL: test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree
++ ['Q gen: repaired record status 400, not 200',
++  "Q gen: repaired replay result {'error': 'status_mismatch'}, not ok",
++  "Q gen: repaired host validation 'nil', not ok"]
+```
+
+| Row | Repaired request | Status | Replay result | Host validation |
+|---|---|---|---|---|
+| R | `{order_id}` | 200 | `ok` | `ok` |
+| N | `{order_id}` | 200 | `ok` | `ok` |
+| Q | `{order_id, channel}` | 400 | `error: status_mismatch` | `nil` |
+
+- **[Observed]** `repaired_all` is still `true` in this run. The `run.py` check reads only `exit_code` (RV6A-2).
+- **[Observed]** The same checks on the reviewed run `results/20261107T155426933490Z` give the same three Q problems; R and N give none.
+- **[Observed]** The Q request already has `channel`. The new failure is the status, not the request shape.
+- **[Inference]** Cause: `payments_api/router.ex` calls `ProbeSupport.valid_order!/1`. The Q repair adds the `channel` clause there, but `repaired_replay` rebuilds only the Orders release. The old Payments release raises on the channel order and replies 400. The GREEN decision "rebuild only the Orders release" did not hold for Q.
+- **[Proposal]** GREEN: rebuild the Payments release too after a repair that changes `probe_support.ex`.
+
+### Decisions
+
+**Undo**
+- → Read the drifted TYPE from `drift/<row>/payments.beaml`, not a fixed key list per row. By: Opus (RED RV6A-1, slice6b-records-v2)
+- → Checked the new rules first on the reviewed run dir, then ran one new DRIFT run. By: Opus (RED RV6A-1, slice6b-records-v2)
+- → Did not add a check on `repaired_all` semantics in `run.py`; RV6A-2 covers it. By: Opus (RED RV6A-1, slice6b-records-v2)
+
+**Repair**
+- → **Chose:** tighten the existing D6B-96 case. **Over:** a new case. **Because:** one DRIFT run feeds all cases; the old rule was the gap. **Commits us to:** a non-200 repaired record fails for every row. By: Opus (RED RV6A-1, slice6b-records-v2)
+- → **Chose:** check the request against the payments `type Order`. **Over:** the Orders input order. **Because:** in Q only the Payments TYPE gets `channel`; Orders adds it in `prepare`. **Commits us to:** a derivative that changes `type Order` in payments sets the expected request. By: Opus (RED RV6A-1, slice6b-records-v2)

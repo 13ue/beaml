@@ -36,6 +36,8 @@ RESULTS_ROOT = EXPERIMENT / "results"
 #                      "report": <eval report.json of the GEN runner over that record>}
 #   The command is the eval of the Orders release of the repaired tree. No command of the row runs the
 #   0003 copy replay_run_test.py. summary["repaired_all"] is true. drift, baseline and sites have no "lib".
+#   RV6A-1 (option A): record["request"] has the fields of the drifted payments TYPE Order, record status
+#   is 200, report result is {"ok": ...} and report host_validation is "ok", for each of R, N and Q.
 REPLAY_0003_TEST = REPLAY_PATH + "/tests/replay_run_test.py"
 ORDERS_RELEASE = HTTP_PATH + "/_build/prod/rel/orders/bin/orders"
 
@@ -192,13 +194,30 @@ def repaired_problems(derivative, row, run_dir):
     if not trace or trace in old or trace not in written:
         problems.append("%s: record trace_id %r is not new or not in a responses.jsonl of the row" % (where, trace))
     result = report.get("result") or {}
-    # The replay gives what the recorded call gave: a 200 record accepts, any other status rejects typed.
-    expected = "ok" if record.get("status") == 200 else "error"
-    if expected not in result:
-        problems.append("%s: record status %r, replay result %r" % (where, record.get("status"), result))
-    if "ok" in result and report.get("host_validation") != "ok":
-        problems.append("%s: host validation %r after the repair" % (where, report.get("host_validation")))
+    # RV6A-1 (option A): the repair evidence must prove the repair. The repaired live call sends an order
+    # that fits the drifted payments TYPE Order, gets status 200, and its GEN replay gives `ok` with host
+    # validation `ok`. A 400 record that stops at `status_mismatch` runs no repaired line.
+    fields = order_fields(derivative)
+    request = record.get("request")
+    if not isinstance(request, dict) or set(request) != fields:
+        problems.append("%s: repaired request %r does not fit the drifted TYPE Order %r"
+                        % (where, request, sorted(fields)))
+    if record.get("status") != 200:
+        problems.append("%s: repaired record status %r, not 200" % (where, record.get("status")))
+    if "ok" not in result or result.get("error") == "status_mismatch":
+        problems.append("%s: repaired replay result %r, not ok" % (where, result))
+    if report.get("host_validation") != "ok":
+        problems.append("%s: repaired host validation %r, not ok" % (where, report.get("host_validation")))
     return problems
+
+
+def order_fields(derivative):
+    """Field names of `type Order { ... }` in the drifted payments.beaml of one derivative."""
+    for line in (EXPERIMENT / "drift" / derivative / "payments.beaml").read_text().splitlines():
+        if line.startswith("type Order {"):
+            return {part.split(":")[0].strip() for part in line.split("{", 1)[1].rstrip("} ").split(" ")
+                    if part.endswith(":")}
+    return set()
 
 
 def evidence_file(where, row, key, run_dir, problems):

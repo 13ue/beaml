@@ -33,6 +33,12 @@ The GEN against LIB comparison ends with 6a. The 0003 copy run and `overlay_diff
   - `report`: a file in the run dir. It holds the GEN runner result over that record. A 200 record gives `ok` and host validation `ok`; another status gives `error`.
   - `exit_code` is `0`. No command of the row runs the 0003 copy `experiments/0003-source-linked-replay/tests/replay_run_test.py`.
 - `repaired_all` reads this GEN replay and is `true`.
+- D6B-96 addition (RED RV6A-1, option A): the repair evidence of every row must prove the repair. For each of R, N and Q:
+  - `record.request` has the fields of `type Order` in `drift/<row>/payments.beaml` (Q: `order_id` and `channel`).
+  - `record.status` is `200`.
+  - `report.result` is `{"ok": ...}`, not `{"error": "status_mismatch"}`.
+  - `report.host_validation` is `"ok"`, not `nil`.
+  - This replaces "another status gives `error`" above. A Q row with `error` is no repair evidence (RV6A-1).
 - Default mechanism (GREEN may choose another one with the same evidence): rebuild the Orders release after the repair, because the repair changes `probe_support.ex`.
 
 ## Tests
