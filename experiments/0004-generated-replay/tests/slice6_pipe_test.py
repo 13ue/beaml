@@ -41,10 +41,11 @@ SMALL = ("type P { id: String }\ntype R { id: String tag: String }\n"
          "fn build P { id }, x: String -> R = R { id: id, tag: x }\n")
 OUTCOME = "enum Outcome { Approved()  Declined(String)  Two(String, String) }\n"
 
-# Guard S12: stdout sha256 of the baseline compiler (commit 80bd33cd), --stored stored/empty.jsonl.
+# Guard S12: stdout sha256, --stored stored/empty.jsonl. Re-pinned to the step 6a compiler (commit 0747c315), see
+# slice6b-records-v2/repin.md; before: the baseline compiler (commit 80bd33cd).
 EFFECT_OUTPUTS = {
-    "arms/gen/orders.beaml": "25ecec1b54fc4949871b7485c9fe8243b06bfda637fa943ab2867adb0a2eb752",
-    "slice2/reuse/orders.beaml": "ba63e1e87474e8c435fa1b9eadbcb4bc050628ae07b12475e6e57b2b1f62e529",
+    "arms/gen/orders.beaml": "009d8ab3127b8734e14555d7c87cc337e438cda8ae583a7cbbb2c8d065c92343",
+    "slice2/reuse/orders.beaml": "e7899cc35816804ac7a1d5f26654a7c23558a33e1403daa2023a942567650d31",
 }
 PAYMENTS = REPO / "experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml"
 PAYMENTS_SNAPSHOT = EXPERIMENT / "tests" / "payments.generated.snapshot"

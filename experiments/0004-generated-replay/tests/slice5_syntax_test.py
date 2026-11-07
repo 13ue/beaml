@@ -32,6 +32,10 @@ from arm_tree import COMPILER_PATH, EXPERIMENT, REPO  # noqa: E402
 import stored_types_test as st  # noqa: E402
 
 BASE = "f29e3f12"
+# Slice 6b step 6a changes the record writer of every EFFECT by contract (repin.md in slice6b-records-v2).
+# R-EQ now compares BASE with PRE_6A, the last compiler before step 6a. PIN, the step 6a compiler, pins the bytes.
+PRE_6A = "4a7cffba"
+PIN = "0747c315"
 U32_MAX = 4294967295
 NO_PATH = "no path from the stored TYPE VERSION"
 FALLBACK = "expected type, enum, effect, migrate, retire or fn"
@@ -365,10 +369,13 @@ class Slice5Syntax(Slice5):
         old = self.write_source(old_text, "B5-base")
         stored = EXPERIMENT / "stored" / "empty.jsonl"
         base = run_base([old.name, "--stored", stored], old.parent)
+        pre = run_at(PRE_6A, [source.name, "--stored", stored], source.parent)
         new = run_new([source.name, "--stored", stored], source.parent)
-        self.assertEqual((0, 0), (base[0], new[0]), self.ctx("F1 exit codes (base, new); new stderr:", new[2]))
-        self.assertEqual((shift_offsets(base[1], old_text, new_text), base[2]), (new[1], new[2]),
-                         self.ctx("F1: stdout equal after the offset shift, stderr equal"))
+        self.assertEqual((0, 0, 0), (base[0], pre[0], new[0]), self.ctx("F1 exit codes (base, pre 6a, new):", new[2]))
+        self.assertEqual((shift_offsets(base[1], old_text, new_text), base[2]), (pre[1], pre[2]),
+                         self.ctx("F1: pre 6a stdout equal after the offset shift, stderr equal"))
+        self.assertEqual(run_at(PIN, [source.name, "--stored", stored], source.parent), new,
+                         self.ctx("F1: the output equals the PIN compiler output"))
         self.assertIn("type %s {" % N.T, new_text.decode(), "B5 uses type")
 
     # F2: `interface` is a hard error with a help line, at each declaration position.
@@ -627,22 +634,26 @@ class Template(Slice5Syntax, unittest.TestCase):
 
 
 # Base compiler and R-EQ helpers (README, "Rewrite equivalence R-EQ (A2, revision 9.1)").
-_BASE_BINARY = []
+_BINARIES = {}
 
 
-def base_compiler():
-    """The compiler of the base commit, built from `git archive` in a scratch directory (no checkout)."""
-    if not _BASE_BINARY:
-        holder = tempfile.mkdtemp(prefix="beaml-0004-s5-base-")
-        archive = subprocess.run(["git", "-C", str(REPO), "archive", BASE, COMPILER_PATH], capture_output=True,
+def compiler_at(commit):
+    """The compiler of `commit`, built from `git archive` in a scratch directory (no checkout)."""
+    if commit not in _BINARIES:
+        holder = tempfile.mkdtemp(prefix="beaml-0004-s5-%s-" % commit)
+        archive = subprocess.run(["git", "-C", str(REPO), "archive", commit, COMPILER_PATH], capture_output=True,
                                  check=True).stdout
         subprocess.run(["tar", "-x", "-C", holder], input=archive, check=True)
         manifest = Path(holder) / COMPILER_PATH / "Cargo.toml"
         subprocess.run(["cargo", "build", "--offline", "--quiet", "--manifest-path", str(manifest),
                         "--target-dir", str(Path(holder) / "target")], check=True)
-        _BASE_BINARY.append(str(Path(holder) / "target/debug/beaml-spike"))
-        print("base compiler:", _BASE_BINARY[0], file=sys.stderr)
-    return _BASE_BINARY[0]
+        _BINARIES[commit] = str(Path(holder) / "target/debug/beaml-spike")
+        print("compiler %s:" % commit, _BINARIES[commit], file=sys.stderr)
+    return _BINARIES[commit]
+
+
+def base_compiler():
+    return compiler_at(BASE)
 
 
 def run_binary(binary, argv, cwd):
@@ -652,6 +663,10 @@ def run_binary(binary, argv, cwd):
 
 def run_base(argv, cwd):
     return run_binary(base_compiler(), argv, cwd)
+
+
+def run_at(commit, argv, cwd):
+    return run_binary(compiler_at(commit), argv, cwd)
 
 
 def run_new(argv, cwd):
@@ -770,16 +785,19 @@ class Rewrite(unittest.TestCase):
                     target.write_bytes(data)
                 stored = ["--stored", empty] if re.search(rb"(?m)^[ \t]*(effect|retire)[ \t]", old) else []
                 base = run_base([relative] + stored, holder / "old")
+                pre = run_at(PRE_6A, [relative] + stored, holder / "new")
                 now = run_new([relative] + stored, holder / "new")
                 if base[0] == 0:
                     self.assertEqual(
                         (0, shift_offsets(base[1], old.decode(), new.decode()), normalise(base[2])),
-                        (now[0], now[1], without_last_step_warnings(now[2], new.decode())),
-                        "A2 %s: exit, stdout after the offset shift, stderr after S and DL-070" % relative)
+                        (pre[0], pre[1], without_last_step_warnings(pre[2], new.decode())),
+                        "A2 %s: pre 6a exit, stdout after the offset shift, stderr after S and DL-070" % relative)
                 else:
                     first = lambda text: (text.splitlines() or [""])[0]  # noqa: E731
-                    self.assertEqual((base[0], normalise(first(base[2]))), (now[0], first(now[2])),
-                                     "A2 %s: the same error class (exit, first line after S)" % relative)
+                    self.assertEqual((base[0], normalise(first(base[2]))), (pre[0], first(pre[2])),
+                                     "A2 %s: pre 6a, the same error class (exit, first line after S)" % relative)
+                self.assertEqual(run_at(PIN, [relative] + stored, holder / "new"), now,
+                                 "A2 %s: exit, stdout and stderr equal the PIN compiler" % relative)
 
     def test_A3_stored_fixtures_are_unchanged(self):
         # Guard, not RED: every stored fixture keeps its records. Slice 6b step 6a (D6B-69) converts each record to
