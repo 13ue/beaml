@@ -423,6 +423,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: an `enum` with literals and a constructor function at the same time is a compile error. Over: the constructor wins; literals first, then the constructor.
 → Because: OWNER choice; exactly one way to build each enum from outside data.
 
+**DL-089 · Migrate · Effects get redacted fields only when they name them (R3)**
+→ Question: a `redacted` field must reach Payments but not an audit queue. How?
+→ Options: R1, every effect may carry it, only telemetry is cleaned; R2, an effect must declare `carries redacted`, else a compile error; R3, the compiler strips redacted fields from every effect input unless the effect names the field.
+→ Chose: R3, in the form `effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize") with card_holder`. Spans, logs and records never hold the value (DL-029).
+→ Because: OWNER choice; the safe default needs no extra work, and every release of a redacted value is visible at the effect.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
