@@ -863,6 +863,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because (OWNER): BEAML shall support any number of EFFECT transports; a transport is an interface against the language and must be implementable generically later. One record format is part of that interface. C gives slice 6d two goals.
 → Effect: a new step "record format v3" after slice 6d TEST: common core, transport extras, `--stored` and the REPLAY RUN read one shape, the four byte-pin sites move with a diff proof. The database stream gets the format from the start. Roadmap note: "EFFECT transport as an interface" (DL-126 candidate, later).
 
+**DL-144 · Migrate · Free run for the PROTOTYPE: EXPERIMENT 0005 is built without further OWNER answers; every decision is recorded and walked through the next day**
+→ Question: the OWNER wants the Phoenix PROTOTYPE (DL-127 to DL-129) built now. Who answers the open Migrate questions of 0005 (get key, list order and limit, List TYPE, `--stored` connection, code placement, and whatever the build raises)?
+→ Chose: the workers and the main agent build a default for every question, pin it with a test, and record it in the 0005 ledger with class and author (`By: Opus (default, open)` or `By: Fable (default, open)`). The DL-139 limit (syntax, record formats, host-called names) is lifted for 0005 on this run only; such defaults are marked "big" and listed first in an OWNER review file `experiments/0005-prototype-fullstack/workflow/<date>/owner-review.md`. The OWNER walks through every default the next day (DL-139 sign-off rule: each one explicit, with a picture, repeated until signed off). Nothing is lowered in class silently.
+→ By: 13ue
+→ Because (OWNER, 2026-11-07 evening): "free run, record every decision, we go through it tomorrow in detail; tell me the bigger ones explicitly."
+→ Effect: the pipeline runs PLAN → plan check → RED → RED review → GREEN → TEST → docs for 0005 and its prerequisites (slice 6d GREEN/TEST, record format v3, the `db.*` transport step) without a stop at Migrate. Answer-class questions still stop (nothing in 0005 reaches people outside the team: the PROTOTYPE runs locally, no deploy, no real data). Parked D026 items stay parked; a step that needs one of them builds the smallest form that avoids it or marks the test as blocked.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
