@@ -462,7 +462,7 @@ The tests assert these tokens, not the full text: `Payment`, the old field, the 
 - **O2. Answered 2026-11-06.** A source with an `effect` and no RECORD SNAPSHOT is a compile error. An unknown store is not an empty store.
 - **O3. Answered 2026-11-06.** A `rename` whose old field is in no stored and no derived version is a compile error.
 - **O4. Answered 2026-11-06.** DRIFT R with old records and no `add` step is a compile error (no path). With `migrate ... { add <field>: <TYPE> = <constant> }` it compiles. Slice 2 implements only `rename`.
-- **O5 (Migrate), open.** Production source of truth for stored TYPE VERSIONS: RECORD SNAPSHOT, lock file or live query of the deployed nodes?
+- **O5. Answered 2026-11-07 (DL-094).** Start with a live query of the deployed nodes; a registry service and exports follow later.
 
 ## Slice 3
 

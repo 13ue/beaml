@@ -451,6 +451,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: E1. No `fail` keyword. The success TYPE must not appear in the failure list: `-> String ! String` and `-> String ! Int | String` are compile errors; `-> String ! Int` is legal. The help line names the overlapping TYPE and suggests a TYPE of its own for the failure or no `!`.
 → Because: OWNER reasoning: a value of the same TYPE as the result is no failure, only another result; a real failure means something else and deserves its own TYPE. Generic functions (`-> T ! E`) need the same check at the call; that is for later.
 
+**DL-094 · Migrate · Production TYPE VERSIONS come from a live query first (O5)**
+→ Question: where does the compiler get the stored TYPE VERSIONS of a production store?
+→ Options: P1, an export file per environment; P2, a live query of the deployed BEAM nodes; P3, a type registry service that collects all environments.
+→ Chose: all three over time, in this order. Start with P2. P2 can grow into P3 later, for optimization. Exports (P1) follow after that. A later option: a dev machine registers itself, and production sends it a notice when its stored TYPE VERSIONS change.
+→ Because: OWNER choice; P2 is the simplest start and always current. The other forms are optimizations of the same data.
+→ Kept: every form reports only TYPE VERSIONS, fingerprints and counts, never values (DL-032). `--stored PATH` stays for tests and offline builds.
+→ Open: how the build gets access to the nodes (network, credentials, which environments).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
@@ -463,5 +471,5 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 ### Open research (not decided)
 
 → Lazy migration on read or eager rewrite; batches or a stream of batches; rollback windows for lossy steps.
-→ Where production stores report their TYPE VERSIONS (O5).
+→ Access of the build to the deployed nodes for the live query (DL-094).
 → Novelty against schema registries, Ecto migrations and lens-based migration.
