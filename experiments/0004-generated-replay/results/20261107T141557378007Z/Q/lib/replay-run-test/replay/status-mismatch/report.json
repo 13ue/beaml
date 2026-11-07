@@ -1,0 +1,23 @@
+{
+  "started": [
+    "logger",
+    "elixir",
+    "compiler",
+    "stdlib",
+    "kernel"
+  ],
+  "result": {
+    "error": "status_mismatch"
+  },
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 0,
+    "OrdersApi.PaymentHttp.authorize/2": 0,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact_id": "49a862e3036653bd88add839c24b1b28b134eb31a597c26019b0fb201222de57"
+}

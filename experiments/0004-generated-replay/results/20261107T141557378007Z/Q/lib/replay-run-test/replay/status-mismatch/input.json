@@ -1,0 +1,41 @@
+{
+  "order": {
+    "order_id": "order-1"
+  },
+  "mode": "replay",
+  "trace_id": "b2392a3128f69a11905b616958b284ba",
+  "responses": [
+    {
+      "status": 503,
+      "version": 1,
+      "request": {
+        "channel": "web",
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "b2392a3128f69a11905b616958b284ba",
+      "body_length": 44,
+      "attempt": 1,
+      "artifact_id": "49a862e3036653bd88add839c24b1b28b134eb31a597c26019b0fb201222de57",
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0dXMiOiJhdXRob3JpemVkIn0=",
+      "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba",
+      "client_span_id": "54e2673b41630450"
+    },
+    {
+      "status": 200,
+      "version": 1,
+      "request": {
+        "channel": "web",
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "742ca0f65ca3d7fea6948a48e1ec40a9",
+      "body_length": 44,
+      "attempt": 1,
+      "artifact_id": "49a862e3036653bd88add839c24b1b28b134eb31a597c26019b0fb201222de57",
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0dXMiOiJhdXRob3JpemVkIn0=",
+      "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba",
+      "client_span_id": "42ebb3c7cafd2efb"
+    }
+  ]
+}

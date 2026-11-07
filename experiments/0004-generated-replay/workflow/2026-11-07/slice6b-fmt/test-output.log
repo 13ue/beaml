@@ -1,0 +1,197 @@
+# Slice 6b steps 8 and 10 TEST output (commit 8924cb3f, clean tree at start)
+# cargo 1.94.0 (85eff7c80 2026-01-15), rustc 1.94.0 (4a4ef493e 2026-03-02), Python 3.13.12, Elixir 1.18.1 (compiled with Erlang/OTP 27)
+
+$ cargo fmt --check
+fmt exit=0
+
+$ cargo clippy --offline --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.34s
+clippy exit=0
+
+$ cargo test --offline --no-fail-fast
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+test exit=0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py
+test_equal_literals_are_unreachable (__main__.Slice6Int.test_equal_literals_are_unreachable) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_fixture_compiles_to_the_planned_shape (__main__.Slice6Int.test_fixture_compiles_to_the_planned_shape) ... ok
+test_int_body_for_string_output (__main__.Slice6Int.test_int_body_for_string_output) ... ok
+test_int_is_not_a_declared_type_name (__main__.Slice6Int.test_int_is_not_a_declared_type_name) ... ok
+test_int_literal_against_string_parameter (__main__.Slice6Int.test_int_literal_against_string_parameter) ... ok
+test_int_output_and_literal_expression_compile (__main__.Slice6Int.test_int_output_and_literal_expression_compile) ... ok
+test_is_integer_is_a_reserved_function_name (__main__.Slice6Int.test_is_integer_is_a_reserved_function_name) ... ok
+test_literal_after_catch_all_is_unreachable (__main__.Slice6Int.test_literal_after_catch_all_is_unreachable) ... ok
+test_literal_alone_is_non_exhaustive (__main__.Slice6Int.test_literal_alone_is_non_exhaustive) ... ok
+test_literal_clause_and_int_parameter_compile (__main__.Slice6Int.test_literal_clause_and_int_parameter_compile) ... ok
+test_no_int_in_effect_input (__main__.Slice6Int.test_no_int_in_effect_input) ... ok
+test_no_int_in_effect_output (__main__.Slice6Int.test_no_int_in_effect_output) ... ok
+test_no_negative_literal (__main__.Slice6Int.test_no_negative_literal) ... ok
+test_no_plus_on_int (__main__.Slice6Int.test_no_plus_on_int) ... ok
+test_runtime (__main__.Slice6Int.test_runtime) ... ok
+test_string_body_for_int_output (__main__.Slice6Int.test_string_body_for_int_output) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.158s
+
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py
+test_body_fixture_compiles_to_the_planned_shape (__main__.Slice6Failure.test_body_fixture_compiles_to_the_planned_shape) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_body_of_neither_type (__main__.Slice6Failure.test_body_of_neither_type) ... ok
+test_body_of_neither_type_record_failure (__main__.Slice6Failure.test_body_of_neither_type_record_failure) ... ok
+test_duplicate_failure_keeps_its_text (__main__.Slice6Failure.test_duplicate_failure_keeps_its_text) ... ok
+test_effect_beside_int_failure_compiles (__main__.Slice6Failure.test_effect_beside_int_failure_compiles) ... ok
+test_effect_overlap (__main__.Slice6Failure.test_effect_overlap) ... ok
+test_effect_structural_overlap (__main__.Slice6Failure.test_effect_structural_overlap) ... ok
+test_equal_record_failures_in_a_list (__main__.Slice6Failure.test_equal_record_failures_in_a_list) ... ok
+test_no_int_in_effect_failure (__main__.Slice6Failure.test_no_int_in_effect_failure) ... ok
+test_overlap_fixture_compiles (__main__.Slice6Failure.test_overlap_fixture_compiles) ... ok
+test_overlap_in_a_list (__main__.Slice6Failure.test_overlap_in_a_list) ... ok
+test_pipe_ends_in_neither_type (__main__.Slice6Failure.test_pipe_ends_in_neither_type) ... ok
+test_plan_source_with_int_failure_compiles (__main__.Slice6Failure.test_plan_source_with_int_failure_compiles) ... ok
+test_runtime_body (__main__.Slice6Failure.test_runtime_body) ... ok
+test_runtime_overlap (__main__.Slice6Failure.test_runtime_overlap) ... ok
+test_runtime_pipe_ends_in_record_failure (__main__.Slice6Failure.test_runtime_pipe_ends_in_record_failure) ... ok
+test_same_enum_both_sides (__main__.Slice6Failure.test_same_enum_both_sides) ... ok
+test_same_int_both_sides (__main__.Slice6Failure.test_same_int_both_sides) ... ok
+test_same_record_both_sides (__main__.Slice6Failure.test_same_record_both_sides) ... ok
+test_same_type_both_sides (__main__.Slice6Failure.test_same_type_both_sides) ... ok
+test_structural_records_overlap (__main__.Slice6Failure.test_structural_records_overlap) ... ok
+test_variant_is_no_failure_type (__main__.Slice6Failure.test_variant_is_no_failure_type) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 2.804s
+
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py
+test_clause_annotation_differs_from_the_signature (__main__.Slice6Constructor.test_clause_annotation_differs_from_the_signature) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_clause_before_the_signature_line (__main__.Slice6Constructor.test_clause_before_the_signature_line) ... ok
+test_constructor_returns_another_type (__main__.Slice6Constructor.test_constructor_returns_another_type) ... ok
+test_constructor_type_as_effect_failure (__main__.Slice6Constructor.test_constructor_type_as_effect_failure) ... ok
+test_constructor_type_as_effect_input (__main__.Slice6Constructor.test_constructor_type_as_effect_input) ... ok
+test_constructor_type_as_effect_output (__main__.Slice6Constructor.test_constructor_type_as_effect_output) ... ok
+test_constructor_type_in_an_effect_output_field (__main__.Slice6Constructor.test_constructor_type_in_an_effect_output_field) ... ok
+test_effect_pipe_keeps_its_spans (__main__.Slice6Constructor.test_effect_pipe_keeps_its_spans) ... ok
+test_nested_literal_in_a_lowercase_fn (__main__.Slice6Constructor.test_nested_literal_in_a_lowercase_fn) ... ok
+test_nested_literal_in_another_constructor (__main__.Slice6Constructor.test_nested_literal_in_another_constructor) ... ok
+test_nominal_type_is_not_its_structural_twin (__main__.Slice6Constructor.test_nominal_type_is_not_its_structural_twin) ... ok
+test_nonzero_fixture_compiles_to_the_planned_shape (__main__.Slice6Constructor.test_nonzero_fixture_compiles_to_the_planned_shape) ... ok
+test_plain_fixture_compiles (__main__.Slice6Constructor.test_plain_fixture_compiles) ... ok
+test_pure_module_has_no_span (__main__.Slice6Constructor.test_pure_module_has_no_span) ... ok
+test_pure_pipe_beside_an_effect_has_no_span (__main__.Slice6Constructor.test_pure_pipe_beside_an_effect_has_no_span) ... ok
+test_record_literal_outside_the_constructor (__main__.Slice6Constructor.test_record_literal_outside_the_constructor) ... ok
+test_runtime_constructor_call_form (__main__.Slice6Constructor.test_runtime_constructor_call_form) ... ok
+test_runtime_nonzero (__main__.Slice6Constructor.test_runtime_nonzero) ... ok
+test_runtime_plain (__main__.Slice6Constructor.test_runtime_plain) ... ok
+test_runtime_pure_pipe_without_stub (__main__.Slice6Constructor.test_runtime_pure_pipe_without_stub) ... ok
+test_second_signature_line (__main__.Slice6Constructor.test_second_signature_line) ... ok
+test_structural_twin_at_the_failing_body (__main__.Slice6Constructor.test_structural_twin_at_the_failing_body) ... ok
+test_structural_twin_into_a_pipe_step (__main__.Slice6Constructor.test_structural_twin_into_a_pipe_step) ... ok
+test_structural_twin_is_not_the_nominal_type (__main__.Slice6Constructor.test_structural_twin_is_not_the_nominal_type) ... ok
+test_uppercase_fn_without_its_type (__main__.Slice6Constructor.test_uppercase_fn_without_its_type) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 4.050s
+
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py
+test_constructor_enum_compiles_to_one_function_per_signature (__main__.Slice6Enum.test_constructor_enum_compiles_to_one_function_per_signature) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_duplicate_literal (__main__.Slice6Enum.test_duplicate_literal) ... ok
+test_effect_pipe_keeps_one_clause (__main__.Slice6Enum.test_effect_pipe_keeps_one_clause) ... ok
+test_equal_types_with_other_names_is_reachable (__main__.Slice6Enum.test_equal_types_with_other_names_is_reachable) ... ok
+test_generated_constructor_name_clash (__main__.Slice6Enum.test_generated_constructor_name_clash) ... ok
+test_literal_enum_compiles (__main__.Slice6Enum.test_literal_enum_compiles) ... ok
+test_literal_on_a_payload_variant (__main__.Slice6Enum.test_literal_on_a_payload_variant) ... ok
+test_literal_on_the_keep_value_variant (__main__.Slice6Enum.test_literal_on_the_keep_value_variant) ... ok
+test_literals_and_constructor_on_one_enum (__main__.Slice6Enum.test_literals_and_constructor_on_one_enum) ... ok
+test_lowercase_fn_keeps_one_signature_line (__main__.Slice6Enum.test_lowercase_fn_keeps_one_signature_line) ... ok
+test_runtime_constructor_enum (__main__.Slice6Enum.test_runtime_constructor_enum) ... ok
+test_runtime_equal_types_call_takes_the_first_signature (__main__.Slice6Enum.test_runtime_equal_types_call_takes_the_first_signature) ... ok
+test_runtime_literal_enum (__main__.Slice6Enum.test_runtime_literal_enum) ... ok
+test_second_keep_value_variant (__main__.Slice6Enum.test_second_keep_value_variant) ... ok
+test_superset_with_other_names_is_reachable (__main__.Slice6Enum.test_superset_with_other_names_is_reachable) ... ok
+test_unreachable_clause_after_a_catch_all (__main__.Slice6Enum.test_unreachable_clause_after_a_catch_all) ... ok
+test_unreachable_clause_in_the_second_signature (__main__.Slice6Enum.test_unreachable_clause_in_the_second_signature) ... ok
+test_unreachable_signature_with_equal_parameters (__main__.Slice6Enum.test_unreachable_signature_with_equal_parameters) ... ok
+test_unreachable_signature_with_more_parameters (__main__.Slice6Enum.test_unreachable_signature_with_more_parameters) ... ok
+test_unreachable_signature_with_more_parameters_in_other_order (__main__.Slice6Enum.test_unreachable_signature_with_more_parameters_in_other_order) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 2.774s
+
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py
+test_bad_fixtures_keep_their_texts (__main__.Slice6Pipe.test_bad_fixtures_keep_their_texts) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_effect_fixture_outputs_stay_byte_equal (__main__.Slice6Pipe.test_effect_fixture_outputs_stay_byte_equal) ... ok
+test_effect_step_in_an_argument_pipe (__main__.Slice6Pipe.test_effect_step_in_an_argument_pipe) ... ok
+test_failing_step_in_a_record_field_pipe (__main__.Slice6Pipe.test_failing_step_in_a_record_field_pipe) ... ok
+test_failing_step_in_an_argument_pipe (__main__.Slice6Pipe.test_failing_step_in_an_argument_pipe) ... ok
+test_failing_step_without_a_matching_failure (__main__.Slice6Pipe.test_failing_step_without_a_matching_failure) ... ok
+test_lowercase_non_fn_step_in_an_argument_pipe (__main__.Slice6Pipe.test_lowercase_non_fn_step_in_an_argument_pipe) ... ok
+test_pipe_fixture_compiles_to_plain_calls (__main__.Slice6Pipe.test_pipe_fixture_compiles_to_plain_calls) ... ok
+test_runtime_pipe (__main__.Slice6Pipe.test_runtime_pipe) ... ok
+test_variant_step_with_a_wrong_payload_type (__main__.Slice6Pipe.test_variant_step_with_a_wrong_payload_type) ... ok
+test_variant_step_with_two_payloads (__main__.Slice6Pipe.test_variant_step_with_two_payloads) ... ok
+test_variant_step_without_a_payload (__main__.Slice6Pipe.test_variant_step_without_a_payload) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 1.063s
+
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_test.py
+compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+..........
+----------------------------------------------------------------------
+Ran 10 tests in 3.904s
+
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py
+compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+........
+----------------------------------------------------------------------
+Ran 8 tests in 3.186s
+
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_struct_order_test.py
+compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+...
+----------------------------------------------------------------------
+Ran 3 tests in 1.286s
+
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_fmt_test.py
+compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+.........................
+----------------------------------------------------------------------
+Ran 25 tests in 0.761s
+
+OK
+
+$ python3 experiments/0001-syntax-to-beam/run.py
+EXPERIMENT 0001: pass (experiments/0001-syntax-to-beam/results/20261107T141325517440Z/result.json)
+exit=0
+
+$ python3 experiments/0004-generated-replay/run.py (start 2026-11-07T14:12:20Z)
+{"run": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T141221496996Z", "status": "pass"}
+exit=0
+2026-11-07T14:34:22Z
+sub run dirs: 20261107T141222658594Z 20261107T141557378007Z 20261107T142209713542Z 20261107T142437341192Z 20261107T142931403345Z 20261107T143217150413Z 
+
+$ python3 scripts/lint_wiki.py
+Checked 81 maintained Markdown files; 0 error(s). PDF hash, bytes, page count and per-page text rechecked.
+Parsed raw JSON records; verified 6 explicitly retained capture hashes.
+Limits: inline Markdown links/headings only; original raw documents not linted; no external URL, semantic truth, security proof or runtime checks.
+exit=0

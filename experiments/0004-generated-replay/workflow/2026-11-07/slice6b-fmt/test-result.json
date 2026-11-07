@@ -1,0 +1,30 @@
+{
+  "step": "slice6b-fmt",
+  "phase": "TEST",
+  "commit": "c97939c48db65ff364f9abf776b8f55f49bb1b41",
+  "clean_tree_at_start": true,
+  "toolchain": {"cargo": "1.94.0", "rustc": "1.94.0", "python": "3.13.12", "elixir": "1.18.1", "otp": "27"},
+  "status": "pass",
+  "commands": [
+    {"command": "cargo fmt --check", "cwd": "experiments/0001-syntax-to-beam", "exit": 0, "status": "pass"},
+    {"command": "cargo clippy --offline --all-targets -- -D warnings", "cwd": "experiments/0001-syntax-to-beam", "exit": 0, "status": "pass"},
+    {"command": "cargo test --offline --no-fail-fast", "cwd": "experiments/0001-syntax-to-beam", "exit": 0, "status": "pass", "passed": 32, "detail": "18 unit, 14 CLI"},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py", "exit": 0, "status": "pass", "tests": 16},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py", "exit": 0, "status": "pass", "tests": 22},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py", "exit": 0, "status": "pass", "tests": 25},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py", "exit": 0, "status": "pass", "tests": 20},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py", "exit": 0, "status": "pass", "tests": 12},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_decode_test.py", "exit": 0, "status": "pass", "tests": 10},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py", "exit": 0, "status": "pass", "tests": 8},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_struct_order_test.py", "exit": 0, "status": "pass", "tests": 3},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_fmt_test.py", "exit": 0, "status": "pass", "tests": 25},
+    {"command": "python3 experiments/0001-syntax-to-beam/run.py", "exit": 0, "status": "pass", "result_dir": "experiments/0001-syntax-to-beam/results/20261107T141325517440Z"},
+    {"command": "python3 experiments/0004-generated-replay/run.py", "exit": 0, "status": "pass", "steps_passed": 15, "steps_total": 15,
+     "result_dir": "experiments/0004-generated-replay/results/20261107T141221496996Z",
+     "sub_run_dirs": ["20261107T141222658594Z", "20261107T141557378007Z", "20261107T142209713542Z", "20261107T142437341192Z", "20261107T142931403345Z", "20261107T143217150413Z"],
+     "start": "2026-11-07T14:12:21Z", "end": "2026-11-07T14:34:22Z"},
+    {"command": "python3 scripts/lint_wiki.py", "exit": 0, "status": "pass", "errors": 0}
+  ],
+  "not_run": [],
+  "log": "test-output.log"
+}
