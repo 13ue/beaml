@@ -75,3 +75,58 @@ Three high objections (O1, O2, O3). Two medium notes. The fixes are plan-text ch
 **Undo**
 → M-a and M-b medium, not blocking. → By: Opus (plan check P3/P4)
 → Map key order after `jsonb` dropped as low (small maps sort). → By: Opus (plan check P3/P4)
+
+## Re-check after plan repair
+
+**[Observed]** 2026-11-07, one round, new evidence only. Fresh context, read only. Read: the "Plan repair (after plan check)" sections of [plan.md](plan.md) and [decisions.md](decisions.md) (QDB-6b, QDB-8, PDB-25 to PDB-33), the dated corrections in [the 0005 plan](../../../../0005-prototype-fullstack/workflow/2026-11-07/plan.md#corrections-after-the-p3p5-and-p4-plan-checks-2026-11-07), the QDB-8 ruling in the [0005 decisions](../../../../0005-prototype-fullstack/workflow/2026-11-07/decisions.md#qdb-8-ruling-main-agent-2026-11-07) and [owner-review.md](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md).
+By: Opus (plan re-check P3/P4) for every finding and decision in this section.
+
+### Verdict: BLOCK
+
+One high objection (R1). Two medium notes (R2, R3). R1 is a plan-text fix plus one P4 test case; no design restart.
+
+### Checked and holding
+
+- **[Verified] O1 v3 words.** QDB-6 withdrawn; every db record and ROW CORE uses `accepted`/`rejected` with the reasons in the table; the 0005 N3 correction follows. QDB-6b carries the http difference as big and open.
+- **[Observed] O1 ENTRY LINE with an empty input TYPE.** A scratch build of HEAD `main.rs` (56b705df, built in the session scratchpad) compiled a source with `type OrderQuery {}`, `effect orders.list OrderQuery -> ... = http.post(...)` and `effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> list_orders` with `--stored` over an empty file: exit 0. `elixirc` gave only undefined-module warnings (ProbeSupport, OpenTelemetry). At runtime `__beaml_decode_orderquery("{}")` gives `{:ok, %{}, []}`, `"{\"x\":1}"` gives `{:ok, %{}, ["x"]}`, `"[]"` gives `:error`. The `entries()` checks loop over zero fields and pass. No change is needed; the PDB-27 **[Unknown]** can become **[Verified]**. Limits: the probe used a String output TYPE, because `items: [Order]` is P4 syntax (`unsupported token` at HEAD); the module was `BeamlSpike`, because P5 is not built.
+- **[Verified] O1 `run(operation, …)`** (PDB-29, N11 with an `:operation_mismatch` case) and **put/3** (0005 correction line, owner-review QDB-2 line).
+- **[Verified] O2 closed.** One encoder: the generated code passes the `:json.encode` binary; the host stores `$3::jsonb` and never encodes a core; the fake stores and returns binaries; `:null`, never `nil` (PDB-30). 0005 N2c ties the fake to `jsonb` (`jsonb_typeof(value->'reason') = 'null'`).
+- **[Verified] O3, P4 part.** PDB-09 withdrawn; D6B-39 holds for ROW TYPES with the built texts (HEAD lines 1593 and 1605 hold them, off by one or two lines); N5 and N20 move to String-only `plain/` and `plain_v2/`; `order_v2/` is an N12 reject case.
+- **[Verified] No new item decides a parked D036 question.** QDB-6b, PDB-30 and N25b touch no M item. PDB-32 pins today's built help text and adds no wording (see R2).
+
+### R1 · high · The QDB-8 ruling B is not in the plans: 0005 has no test that a TYPE change travels from the source to a row
+
+- **Evidence.** The 0005 decisions QDB-8 ruling (By: Fable) chose **B**: the MIGRATE CHAIN proof over rows (N7, N7b) runs on a second, String-only ROW TYPE (for example `Note`). Owner-review line 98 says default B. But:
+  - the 0005 plan correction (line 242) says "Default (QDB-8 A): N7 and N7b are `blocked: D036 M4` ... the acceptance line drops N7 and N7b to `blocked`";
+  - the P4 decisions QDB-8 says "Option A (default)";
+  - owner-review line 90 says "A blocked by D036 M4 (default)", and line 94 "0005 N7/N7b wait on M4 under QDB-8 A".
+- No 0005 N, fixture or host part implements B: no named second ROW TYPE, no variant directory for its v2, no db EFFECT pair or ENTRY LINE for it, no page or route, no N8c line for its snapshots, no acceptance line.
+- B also needs one P4 fact that no P4 case tests: two ROW TYPES (`Order` without a chain, `Note` with a chain) in one source and one `records` table, read by one `--stored` build with each row checked against its own TYPE. N21 counts a row of an unknown TYPE (`Invoice`) as not decodable; no case shows that a row of a second declared TYPE is checked, not dropped.
+- **Consequence.** A RED worker follows the plan text (A): N7 and N7b go `blocked`, and 0005 passes its acceptance line with no test of its thesis. The only chain-on-read proof is then P4 N5 and N20 over a fake, not the live table through the page. Under B as ruled, a `--stored` reader that skips the second TYPE gives a false pass on N7.
+- **Resolving change.**
+  - 0005 plan: one dated correction that replaces line 242 with B. Name the ROW TYPE (`Note { text: String }`), its db EFFECTS and ENTRY LINES (P3 allows several), the v2 variant `src/variants/note_v2/orders.beaml` (`add` of a String field with a default), the page part, N7/N7b on `Note`, N8c over their snapshots, and restore N7 and N7b in the acceptance line.
+  - P4 decisions QDB-8 and owner-review lines 90 and 94: default B.
+  - P4: one new case (N20b): a source with `Order` and `Note`, rows of both in `rows.jsonl`, `Note` v1 rows under `Note` v2: exit 0 with `rows: N rows, N checked, 0 not decodable`; control: a `Note` row with a fingerprint on no chain version exits 1 with the `stored ROW` path text for `Note`.
+
+### R2 · medium · N18 pins a help line that 0005 does not pin
+
+- **Evidence.** PDB-32: N18 asserts the built text `help: declare the fate of these records in a MIGRATE STEP ... (DL-102)` on the new ROW error. The 0005 correction (line 243) keeps "no assertion on the help line (M4)". Red team D2 calls this help an agent trap.
+- **Consequence.** M4 does not get decided, but its help-text option now moves one more exact-text pin site. Not blocking.
+- **Suggested change.** N18 asserts the help line prefix `help:` only, or the main agent records the pin as accepted in the M4 entry.
+
+### R3 · medium · The four big items are not in the "Big" section of owner-review.md
+
+- **Evidence.** QDB-6b, QDB-8, PDB-18 and PDB-24 carry "(big)" in the "Database transports (P4)" section, not in "## Big" at the top. "## Big" still names Q5-8 as `BeamlDb.put/4` (line 11); the put/3 correction stands only further down.
+- **Consequence.** An OWNER who reads only "## Big" misses four big defaults and reads a stale put/4. Not blocking: each item is flagged where it stands.
+- **Suggested change.** One line per item in "## Big" with a link; correct the Q5-8 line to put/3.
+
+### Decisions
+
+**Repair**
+→ R1 high statt medium, weil the plan text drops the thesis test silently. → By: Opus (plan re-check P3/P4) · Repair
+→ R1 fix: carry B into the plans statt reopen QDB-8, weil the main agent ruled B. → By: Opus (plan re-check P3/P4) · Repair
+→ Empty input TYPE ENTRY LINE needs no change statt a compiler change, weil the HEAD probe passed. → By: Opus (plan re-check P3/P4) · Repair
+
+**Undo**
+→ R2 and R3 medium, not blocking. → By: Opus (plan re-check P3/P4) · Undo
+→ O2 and the O3 P4 part closed. → By: Opus (plan re-check P3/P4) · Undo

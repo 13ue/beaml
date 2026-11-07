@@ -53,3 +53,24 @@ Two high objections (O1, O2), one medium (O3). Both blocking fixes are plan-text
 **Undo**
 → O3 medium, not blocking. → By: Opus (plan check P3/P4)
 → `BeamlDb` not in the reserved list: dropped as low. → By: Opus (plan check P3/P4)
+
+## Re-check after plan repair
+
+**[Observed]** 2026-11-07, one round, new evidence only. Fresh context, read only. Read: the "Plan repair (after plan check)" sections of [plan.md](plan.md) and [decisions.md](decisions.md) (D6B-210 to D6B-213), the dated corrections in [the 0005 plan](../../../../0005-prototype-fullstack/workflow/2026-11-07/plan.md#corrections-after-the-p3p5-and-p4-plan-checks-2026-11-07), the QDB-8 ruling in the 0005 decisions and owner-review.md.
+By: Opus (plan re-check P3/P4) for every finding and decision in this section.
+
+### Verdict: PASS
+
+- **[Verified] O1 closed.** Every host-called or runtime-called variant is `<variant>/orders.beaml` (D6B-210), in this plan (`no_hold/`, `no_hold_retired/`, `copy/`) and in the 0005 corrections (`order_v2/`, `stricter/`, `no_place/`). The 0005 N10 control asserts `defmodule Orders do` and the error names `Orders.ui_place/1`, not `Orders.ui_orders/1`. So N10 cannot pass on a missing module. N14 pins the stem rule on a copy in another directory.
+- **[Verified] O2 closed.** N13 base = the P3 base commit (the P2 pin commit, RV3-14); the RED worker records the hash; a pin sub-step moves `BASE` to its GREEN hash (D6B-212). The 6d N13 `BASE` stays at the P2 GREEN hash, and its source set excludes ENTRY LINE sources.
+- **[Verified] O3 handled** as a docs-phase note under DL-133 (D6B-213).
+- **[Verified] No parked D036 item decided** by D6B-210 to D6B-213.
+
+### Decisions
+
+**Repair**
+→ O1 closed statt open, weil variant directories plus the N10 control remove the false pass. → By: Opus (plan re-check P3/P4) · Repair
+→ O2 closed statt open, weil the N13 base moves with the pins. → By: Opus (plan re-check P3/P4) · Repair
+
+**Undo**
+→ Verdict PASS. → By: Opus (plan re-check P3/P4) · Undo
