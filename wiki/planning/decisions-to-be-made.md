@@ -452,6 +452,8 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Unknown]** Not built. No persistence design exists.
 
+**[Verified]** DL-127 (2026-11-07): the PROTOTYPE stores BEAML records in one JSONB table that BEAML owns. For those rows a MIGRATE STEP governs stored state. The question stays open for any other persistence form.
+
 ## Answered 2026-11-07
 
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.
@@ -460,6 +462,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - [DL-102](decision-log.md): replay rule, a stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate.
 - [DL-103](decision-log.md): replay rule, a mapping change that only resolves Unknown values needs no MIGRATE STEP.
 - [DL-117](decision-log.md): Q6B-16, `T.new/1` takes one map with atom keys, also for one parameter.
+- [DL-127](decision-log.md): PROTOTYPE, Postgres holds BEAML records in one JSONB table, BEAML owns the rows (J).
 - [DL-125](decision-log.md): fate concept, declarative fate operations in the MIGRATE STEP; expressions only on a real case.
 - [DL-122](decision-log.md): Q6B-8, a removed or changed ENUM LITERAL with stored values blocks the build (interim).
 - [DL-121](decision-log.md): Q6B-19, the `--stored` check runs the generated Elixir constructor over the stored values.

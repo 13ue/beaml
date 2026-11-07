@@ -709,6 +709,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: policy as lines is diff-able and checkable by an agent; computation stays small. The three fate blocks and the span default showed that the line already exists in practice.
 → Effect: six roadmap candidates (concept, not decided): entry points declared (`route`/`on`, closes the inward view of D018); policy on EFFECT lines (retry, timeout, idempotent); simple rules on a TYPE field (`where`), the constructor stays for the complex case; examples in the source as tests and replay fixtures; retention per TYPE (`keep N days`); trace resolution per subtree, time-limited (D018). Recorded on the roadmap page and in the vertical-integration concept.
 
+**DL-127 · Migrate · Prototype: Postgres holds BEAML records in one JSONB table; BEAML owns the rows (option J)**
+→ Question: the first full-stack PROTOTYPE is Postgres at one end, LiveView at the other, BEAML between. Who owns the rows in Postgres?
+→ Options: J, one table `records(id, type, version, value jsonb, inserted_at)`, every row a record as in the JSONL store today, the MIGRATE CHAIN applies on read, `--stored` reads the table (DL-094 live query), no Ecto schema and no Ecto migration; E, classic Ecto tables per TYPE, Postgres only an EFFECT (`db.get`, `db.put`), schema migrations stay with the host.
+→ Chose: J.
+→ By: 13ue
+→ Because: the smallest build, and it shows the thesis: a TYPE change travels from the source to the table with no second migration system. E would break the vertical line at the place the PROTOTYPE should show. E can come later as a second arm when SQL over fields is needed.
+→ Effect: EXPERIMENT 0005 (register entry to come): one Phoenix project, one domain (Orders/Payments from 0004), one LiveView page, one table. BEAML owns TYPES and VERSIONS, constructors, `migrate`, EFFECTS and the flow; the host owns Phoenix setup, router, LiveView template, Repo and deploy. D020 moves: for records in this table, a MIGRATE STEP governs stored state. Open details follow in the walk-through.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
