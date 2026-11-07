@@ -5431,6 +5431,9 @@ for [fun, type, args] <- calls do
     {:ok, %{__struct__: ^ok}} ->
       IO.puts("ok")
 
+    {:ok, {^type, variant, payload}} when is_binary(variant) and is_list(payload) ->
+      IO.puts("ok")
+
     {:error, %{__struct__: failure}} ->
       ["BeamlSpike", name] = Module.split(failure)
       IO.puts("error " <> name)
@@ -5564,10 +5567,13 @@ fn action(action: &str, result: &str, counts: &[(&str, usize)]) {
             .iter()
             .map(|(key, n)| format!(",\"{key}\":{n}"))
             .collect();
-        writeln!(
-            file,
-            "{{\"ts\":{ts},\"source\":\"cli\",\"action\":\"{action}\",\"target\":\"experiment-0001\",\"result\":\"{result}\"{count}}}"
-        )
+        // D6B-188: one write of one full line, so parallel runs never interleave pieces of a line.
+        // ponytail: relies on one short O_APPEND write landing whole (local APFS, ext4); add a flock for a network
+        // file system or a much longer event.
+        let line = format!(
+            "{{\"ts\":{ts},\"source\":\"cli\",\"action\":\"{action}\",\"target\":\"experiment-0001\",\"result\":\"{result}\"{count}}}\n"
+        );
+        file.write_all(line.as_bytes())
     })();
 }
 fn main() {
