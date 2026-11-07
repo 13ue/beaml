@@ -1,0 +1,25 @@
+{
+  "result": {
+    "error": "body_digest_mismatch"
+  },
+  "unwatched": [
+    "{OrdersBeamlSpike, :payments_authorize, 1}",
+    "{OrdersBeamlSpike, :payments_charge, 1}",
+    "{OrdersBeamlSpike, :payments_oqkbxqus, 1}"
+  ],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 0,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 0,
+    "OrdersBeamlSpike.nsldtcib_opuklcwn/1": 0,
+    "OrdersBeamlSpike.payments_authorize/1": "nil",
+    "OrdersBeamlSpike.payments_charge/1": "nil",
+    "OrdersBeamlSpike.payments_oqkbxqus/1": "nil",
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "83f45281e0e7194335f48c83d655e31f3d3413f335f0ced20cb1240493ad9230",
+  "spans": []
+}
