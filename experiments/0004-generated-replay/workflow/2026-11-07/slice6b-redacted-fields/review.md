@@ -123,3 +123,53 @@ Each probe uses its own random MARKER. Output shows key names only. The scan (`s
 ### Repair
 
 - Chose: O2 at high, blocking. Over: medium. Because: a declared redacted value lies in the store, and only the DL-111 eager removal can take it out again. Commits us to: a GREEN repair with RED for the two fixtures before the slice closes. By: Opus (TEST/review, slice6b-redacted-fields)
+
+## Re-check after review repair (acf12d75)
+
+Phase: TEST and normal fresh review, 2026-11-07. Target: commit acf12d75 (review repair O1, O2). HEAD during the run: 51fd79b2 (step 6c GREEN), so the compiler under test also holds the 6c check. No source and no test changed. No commit. Probes ran in a scratch directory with a scratch `git archive` build of HEAD.
+By: Opus (TEST/review, slice6b-redacted-fields) for every judgement in this section.
+
+### Verdict
+
+**PASS.** O1 and O2 are closed. No new objection at critical or high. One docs limit (D6B-184) stays. By: Opus (TEST/review, slice6b-redacted-fields)
+
+### TEST results (observed)
+
+| Check | Result | Evidence |
+|---|---|---|
+| `python3 -B experiments/0004-generated-replay/run.py` | **pass**, 14 of 14 steps | `results/20261107T200526124175Z/result.json` |
+| run.py step counts | compiler pass, lib-freeze pass, arms 11, drift pass, stored-types 33, slice2-replay 21, slice3-types 69, slice3-replay 31, slice4-retire 87, slice4-replay 27, **slice5-syntax 60 OK**, slice5-squash 24, slice5-replay 12, slice5-rewrite 5 | same directory, `*.stderr` |
+| unittest, slice 6 | constructor 25, decode_ctor 8, decode 10, effect_reach 8, enum 20, failure 22, fmt 25, host_struct 3, int 16, pipe 12, record 5, redacted 20, redacted_failure 8, stored_elixir 15, struct_order 3: all OK | scratch logs |
+| unittest, `drift_test.py` | 5 OK | scratch log |
+| `redteam_b3`, `redteam_c1`, `redteam_c3` | RED, expected red, not counted: 1 test 1 failure; 8 tests 6 failures; 5 tests 10 failures | scratch logs |
+| `python3 -B experiments/0001-syntax-to-beam/run.py` | pass | `experiments/0001-syntax-to-beam/results/20261107T202140254071Z/result.json` |
+| `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test` | clean, clean, 21 and 14 passed | scratch log |
+| `python3 scripts/lint_wiki.py` | 82 files, 0 errors | scratch log |
+| `tree-sitter test --rebuild` (CLI present) | 23 of 23 parses, 4 highlight files pass | scratch log |
+
+### O1 (observed): closed
+
+- `slice5-syntax` passes in the full run: 60 tests, OK. The PIN at `461d024e` holds with the 6c compiler too: the 6c byte check changes the 13 RED fixtures only. By: Opus (TEST/review, slice6b-redacted-fields)
+
+### O2 (observed): closed
+
+- The two fixtures `bad/output_enum_payload.beaml` and `bad/output_constructor_above.beaml`: exit 1, empty stdout, the DL-116 head line with `Holder.name` and `Inner.s`.
+- Own probes, each with the DL-116 text, exit 1, no stdout: an enum payload two levels above (`enum Pay { Card(Wrapper) }`, `Wrapper { h: Holder }`); an enum field inside a plain record field of the output (`Box { pay: Pay }`); a constructor two TYPES above the field (`Amount` with a constructor, `Mid`, `Inner.s`).
+- No value reaches `responses.jsonl`: the build rejects, so no module exists and no live or REPLAY RUN can start. The runtime half of the O2 probe has no target now. By: Opus (TEST/review, slice6b-redacted-fields)
+
+### D6B-184 wording limit (observed)
+
+- The text says "must be a String or Int field of a TYPE without a constructor". For `Holder.name` below an enum payload this is false as written: `Holder.name` is a String field of a TYPE without a constructor. The text gives no reason for the reject. The help line ("remove redacted from Holder.name") is correct. For `Inner.s` below `Amount` the same holds: `Inner` has no constructor. Docs item, not an objection: D6B-184 records the limit and an OWNER-visible new text is a later choice. By: Opus (TEST/review, slice6b-redacted-fields)
+
+### Docs defects (list only)
+
+- `spec.md`, "Exclusions and limits": state the D6B-184 limit: the DL-116 text names the field, not the enum or the constructor TYPE above it, and its "TYPE without a constructor" clause does not describe these two cases.
+- `notes.md`, "Review repair": "Not run: the full `run.py`" can now point to `results/20261107T200526124175Z` (pass, `slice5-syntax` 60 OK).
+- Hygiene: commit 51fd79b2 holds the run directory `results/20261107T200257991414Z` without `result.json`; its files changed after the commit (dirty tree at the start of this phase). A run wrote while the commit ran. The register must not cite this directory as a complete run.
+
+### Decisions
+
+#### Undo
+
+- Counted the redteam files as RED, not as failures of this step. By: Opus (TEST/review, slice6b-redacted-fields)
+- Checked O2 at compile time only; a reject leaves no runtime channel to scan. By: Opus (TEST/review, slice6b-redacted-fields)

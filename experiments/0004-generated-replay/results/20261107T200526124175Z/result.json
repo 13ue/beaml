@@ -1,0 +1,285 @@
+{
+  "command": [
+    "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+    "experiments/0004-generated-replay/run.py"
+  ],
+  "started_at": "2026-11-07T20:05:26.124175+00:00",
+  "steps": [
+    {
+      "name": "compiler",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "experiments/0001-syntax-to-beam/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "lib-freeze",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/run.py",
+        "freeze"
+      ],
+      "exit_code": 0,
+      "status": "pass",
+      "summary": {
+        "status": "pass",
+        "action": "verified",
+        "sha256": {
+          "ReplayLib": "e5ad6e17b3a043496f160882866b8c31a2bdc8b8d2b3102d65db678adeb0bcbb",
+          "OrdersApi.ReplayDescriptor": "933566cd1565c9308847b3f95990905f21b6694d312364d8bf53ead2022e2c84"
+        },
+        "frozen": {
+          "ReplayLib": "e5ad6e17b3a043496f160882866b8c31a2bdc8b8d2b3102d65db678adeb0bcbb",
+          "OrdersApi.ReplayDescriptor": "933566cd1565c9308847b3f95990905f21b6694d312364d8bf53ead2022e2c84"
+        }
+      }
+    },
+    {
+      "name": "arms",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/arms_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "drift",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/run.py",
+        "drift"
+      ],
+      "exit_code": 0,
+      "status": "pass",
+      "summary": {
+        "run": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z",
+        "status": "pass",
+        "drift": {
+          "R": {
+            "gen": {
+              "evidence": {
+                "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/R/gen/build_output.txt",
+                "build_exit_code": 0,
+                "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/R/gen/new_live/observed.json",
+                "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/R/gen/pre_change/report.json"
+              },
+              "notes": {
+                "new_live": {
+                  "expected_accept": true,
+                  "cause": "host_validation ArgumentError"
+                },
+                "pre_change": {
+                  "expected_accept": false,
+                  "host_validation": "nil"
+                }
+              },
+              "build": "correct_accept",
+              "new_live": "false_reject",
+              "pre_change": "typed_reject",
+              "manual_change_sites": 0,
+              "domain_validation_sites": 1,
+              "test_expectation_sites": 2,
+              "repaired": {
+                "exit_code": 0,
+                "argv": [
+                  "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-e5dov653/R/gen/experiments/0002-http-correlation/_build/prod/rel/orders/bin/orders",
+                  "eval",
+                  "\ninput = :json.decode(File.read!(System.fetch_env!(\"PROBE_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\norder = input[\"order\"]\noutcome =\n  try do\n    case input[\"mode\"] do\n      \"flow\" -> OrdersBeamlSpike.place(order)\n      \"replay\" -> OrdersBeamlSpike.Replay.run(ProbeSupport.valid_order!(order), input[\"trace_id\"], input[\"responses\"])\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  catch\n    kind, _ -> {:raised, Atom.to_string(kind)}\n  end\nhost = case outcome do\n  {:ok, value} ->\n    try do\n      ProbeSupport.valid_payment!(value, order)\n      \"ok\"\n    rescue\n      error -> inspect(error.__struct__)\n    end\n  _ -> nil\nend\nresult = case outcome do\n  {:ok, value} -> %{ok: value}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\nIO.puts(\"PROBE \" <> IO.iodata_to_binary(:json.encode(%{result: result, host_validation: host,\n  transport: ProbeSupport.count()})))\n"
+                ],
+                "record": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/R/gen/repaired/record.json",
+                "report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/R/gen/repaired/replay/report.json"
+              }
+            }
+          },
+          "N": {
+            "gen": {
+              "evidence": {
+                "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/N/gen/build_output.txt",
+                "build_exit_code": 0,
+                "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/N/gen/new_live/observed.json",
+                "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/N/gen/pre_change/report.json"
+              },
+              "notes": {
+                "new_live": {
+                  "expected_accept": true,
+                  "cause": "host_validation ArgumentError"
+                },
+                "pre_change": {
+                  "expected_accept": false,
+                  "host_validation": "nil"
+                }
+              },
+              "build": "correct_accept",
+              "new_live": "false_reject",
+              "pre_change": "typed_reject",
+              "manual_change_sites": 0,
+              "domain_validation_sites": 1,
+              "test_expectation_sites": 2,
+              "repaired": {
+                "exit_code": 0,
+                "argv": [
+                  "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-e5dov653/N/gen/experiments/0002-http-correlation/_build/prod/rel/orders/bin/orders",
+                  "eval",
+                  "\ninput = :json.decode(File.read!(System.fetch_env!(\"PROBE_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\norder = input[\"order\"]\noutcome =\n  try do\n    case input[\"mode\"] do\n      \"flow\" -> OrdersBeamlSpike.place(order)\n      \"replay\" -> OrdersBeamlSpike.Replay.run(ProbeSupport.valid_order!(order), input[\"trace_id\"], input[\"responses\"])\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  catch\n    kind, _ -> {:raised, Atom.to_string(kind)}\n  end\nhost = case outcome do\n  {:ok, value} ->\n    try do\n      ProbeSupport.valid_payment!(value, order)\n      \"ok\"\n    rescue\n      error -> inspect(error.__struct__)\n    end\n  _ -> nil\nend\nresult = case outcome do\n  {:ok, value} -> %{ok: value}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\nIO.puts(\"PROBE \" <> IO.iodata_to_binary(:json.encode(%{result: result, host_validation: host,\n  transport: ProbeSupport.count()})))\n"
+                ],
+                "record": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/N/gen/repaired/record.json",
+                "report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/N/gen/repaired/replay/report.json"
+              }
+            }
+          },
+          "Q": {
+            "gen": {
+              "evidence": {
+                "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/Q/gen/build_output.txt",
+                "build_exit_code": 0,
+                "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/Q/gen/new_live/observed.json",
+                "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/Q/gen/pre_change/report.json"
+              },
+              "notes": {
+                "new_live": {
+                  "expected_accept": false,
+                  "cause": "flow error %OrdersBeamlSpike.PaymentError{reason: \"status\"}"
+                },
+                "pre_change": {
+                  "expected_accept": false,
+                  "host_validation": "nil"
+                }
+              },
+              "build": "correct_accept",
+              "new_live": "typed_reject",
+              "pre_change": "typed_reject",
+              "manual_change_sites": 0,
+              "domain_validation_sites": 1,
+              "test_expectation_sites": 1,
+              "repaired": {
+                "exit_code": 0,
+                "argv": [
+                  "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-e5dov653/Q/gen/experiments/0002-http-correlation/_build/prod/rel/orders/bin/orders",
+                  "eval",
+                  "\ninput = :json.decode(File.read!(System.fetch_env!(\"PROBE_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\norder = input[\"order\"]\noutcome =\n  try do\n    case input[\"mode\"] do\n      \"flow\" -> OrdersBeamlSpike.place(order)\n      \"replay\" -> OrdersBeamlSpike.Replay.run(ProbeSupport.valid_order!(order), input[\"trace_id\"], input[\"responses\"])\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  catch\n    kind, _ -> {:raised, Atom.to_string(kind)}\n  end\nhost = case outcome do\n  {:ok, value} ->\n    try do\n      ProbeSupport.valid_payment!(value, order)\n      \"ok\"\n    rescue\n      error -> inspect(error.__struct__)\n    end\n  _ -> nil\nend\nresult = case outcome do\n  {:ok, value} -> %{ok: value}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\nIO.puts(\"PROBE \" <> IO.iodata_to_binary(:json.encode(%{result: result, host_validation: host,\n  transport: ProbeSupport.count()})))\n"
+                ],
+                "record": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/Q/gen/repaired/record.json",
+                "report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T200554820398Z/Q/gen/repaired/replay/report.json"
+              }
+            }
+          }
+        },
+        "sites": {
+          "gen": 0
+        },
+        "repaired_all": true
+      }
+    },
+    {
+      "name": "stored-types",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/stored_types_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "slice2-replay",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/slice2_replay_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "slice3-types",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/slice3_types_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "slice3-replay",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/slice3_replay_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "slice4-retire",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/slice4_retire_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "slice4-replay",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/slice4_replay_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "slice5-syntax",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/slice5_syntax_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "slice5-squash",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/slice5_squash_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "slice5-replay",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/slice5_replay_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "slice5-rewrite",
+      "command": [
+        "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+        "-B",
+        "experiments/0004-generated-replay/tests/slice5_rewrite_test.py"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    }
+  ],
+  "status": "pass",
+  "finished_at": "2026-11-07T20:18:26.249257+00:00"
+}

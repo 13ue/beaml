@@ -14,3 +14,25 @@ Compiling 42 files (.ex)
 Generated plug app
 ===> Analyzing applications...
 ===> Compiling cowlib
+===> Analyzing applications...
+===> Compiling cowboy
+===> Analyzing applications...
+===> Compiling cowboy_telemetry
+==> plug_cowboy
+Compiling 5 files (.ex)
+Generated plug_cowboy app
+==> opentelemetry_api
+Compiling 19 files (.erl)
+Compiling 5 files (.ex)
+Generated opentelemetry_api app
+===> Analyzing applications...
+===> Compiling opentelemetry
+==> probe_support
+Compiling 4 files (.ex)
+Generated probe_support app
+==> payments_api
+Compiling 3 files (.ex)
+Generated payments_api app
+==> orders_api
+Compiling 3 files (.ex)
+Generated orders_api app
