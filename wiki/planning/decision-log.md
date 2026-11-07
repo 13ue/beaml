@@ -750,6 +750,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: a renamed or deleted ENTRY LINE is an undefined remote call in the host build, not a runtime surprise. The vertical line stops at build time.
 → Effect: D022 closed. Slice 6d generates `ui_<event>/1` per ENTRY LINE; the RED probes the host build with `--warnings-as-errors` for a removed entry.
 
+**DL-132 · Migrate · BEAML has one comment form: `//` to the end of the line**
+→ Question: sketches in this session used `//`, `#` and `--`; which comment form does BEAML have?
+→ Options: `//` (grammar `comment: token(seq("//", /[^\n]*/))`, 270 of 300 corpus sources, no `#` or `--` in any source); `#` or `--` as an addition.
+→ Chose: `//` only. The `#` and `--` forms came from main-agent sketches, not from the language.
+→ By: 13ue
+→ Because: one comment form, already in the grammar, the highlighter and every fixture. A second form adds nothing.
+→ Effect: every sketch, picture and fixture uses `//`. No compiler change.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
