@@ -678,6 +678,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: a lost meaning in stored data is the same case as a failed rule (DL-102): yesterday stored, today read differently. A loud compile error over a silent change, in line with DL-102, DL-112 and DL-116.
 → Effect: a small slice 6b step (RED: fixture with a stored value whose literal is removed, `--stored` exit 1 with the text; GREEN in the static pass of `--stored`, also reachable from step 13). Closes D007. The fate syntax concept (quarantine, redact, retire per TYPE VERSION) lifts the interim.
 
+**DL-123 · Repair · Host-facing details of `T.new/1` (D6B-97 to D6B-101) are a Repair, not a Migrate**
+→ Question: DL-117 (OWNER) fixes the input form of `T.new/1`. The step 11 RED chose the failure shape: no matching signature gives `{:error, {:no_signature, "T.new/1: no signature takes these keys"}}` (D6B-97); the help line "keys must be atoms; decode outside data through the EFFECT" appears only when a key is not an atom (D6B-98); keys must equal the parameter names exactly (D6B-99); a non-map argument raises `invalid BEAML input` (D6B-100); the first signature whose key set matches runs, with no fallback (D6B-101). The RED review (M1) and the TEST review (N2) asked for the class.
+→ Chose: Repair, By: Fable (step 11 RED, 2026-11-07). The defaults shape DL-117, they do not widen it. A host tells the cases apart by the error value and text. Recorded here so the choice is in the log, and in the README with the step 11 section.
+→ Over: Migrate (OWNER choice before GREEN).
+→ Because: no one outside the team is affected yet; a later change of the error shape is a Repair inside the generated code and its tests.
+→ Commits us to: the README names the five rules; a later change raises its own entry.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
