@@ -847,6 +847,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: every record has the same key set, `--stored` filters on one key, a later reason needs no format change. B puts a second grammar into a value. C cannot tell a reject from an accepted empty value.
 → Effect: R6D-13 closes as confirmed. Sign-off 2 (`unknown_fields`) and 3 (one format for both streams) follow.
 
+**DL-142 · Migrate · The ENTRY RECORD keeps `unknown_keys` and `unknown_fields` as two lists (slice 6d record format, sign-off 2 of 3)**
+→ Question: the RED worker gave the ENTRY RECORD both lists (R6D-05), as the RESPONSE RECORD has them. One list instead?
+→ Options: A, both lists: `unknown_keys` for data keys the TYPE does not declare, `unknown_fields` for fields whose value was kept as `Unknown(...)` at capture; B, one list.
+→ Chose: A. The built default is confirmed.
+→ By: 13ue
+→ Because: DL-122 tells "unknown already at capture" from "literal lost today" by `unknown_fields`; without it an old `Unknown` value blocks the build by mistake. Parity with the RESPONSE RECORD.
+→ Effect: R6D-05 closes as confirmed.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
