@@ -1,0 +1,221 @@
+==================
+Enum constructor with signatures and clauses
+==================
+
+enum PaymentState { Authorized = "ok"  Pending = "pending"  Unknown(String) }
+fn PaymentState status: String, decline_reason: String -> PaymentState
+fn PaymentState "ok", _ -> PaymentState = Authorized
+fn PaymentState "declined", reason -> PaymentState = reason |> DeclineReason |> Declined
+fn PaymentState other, _ -> PaymentState = Unknown(other)
+
+---
+
+(source_file
+  (enum_declaration
+    (type
+      (identifier))
+    (variant_declaration
+      (constructor
+        (identifier))
+      (string))
+    (variant_declaration
+      (constructor
+        (identifier))
+      (string))
+    (variant_declaration
+      (constructor
+        (identifier))
+      (type
+        (identifier))))
+  (function_clause
+    (identifier)
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (type
+      (identifier)))
+  (function_clause
+    (identifier)
+    (parameter
+      (string))
+    (parameter
+      (identifier))
+    (type
+      (identifier))
+    (identifier))
+  (function_clause
+    (identifier)
+    (parameter
+      (string))
+    (parameter
+      (identifier))
+    (type
+      (identifier))
+    (pipe
+      (pipe
+        (identifier)
+        (identifier))
+      (identifier)))
+  (function_clause
+    (identifier)
+    (parameter
+      (identifier))
+    (parameter
+      (identifier))
+    (type
+      (identifier))
+    (call
+      (identifier)
+      (identifier))))
+
+==================
+Record constructor with a failure TYPE
+==================
+
+type NonZeroInt { value: Int }
+fn NonZeroInt 0 -> NonZeroInt ! IsZero = IsZero {}
+fn NonZeroInt n: Int -> NonZeroInt ! IsZero = NonZeroInt { value: n }
+
+---
+
+(source_file
+  (type_declaration
+    (type
+      (identifier))
+    (field_declaration
+      (property
+        (identifier))
+      (type
+        (identifier))))
+  (function_clause
+    (identifier)
+    (parameter
+      (integer))
+    (type
+      (identifier))
+    (failures
+      (type
+        (identifier)))
+    (record
+      (type
+        (identifier))))
+  (function_clause
+    (identifier)
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (type
+      (identifier))
+    (failures
+      (type
+        (identifier)))
+    (record
+      (type
+        (identifier))
+      (record_field
+        (property
+          (identifier))
+        (identifier)))))
+
+==================
+Signature with several failure TYPES
+==================
+
+fn h x: String -> String ! Int | Timeout
+
+---
+
+(source_file
+  (function_clause
+    (identifier)
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (type
+      (identifier))
+    (failures
+      (type
+        (identifier))
+      (type
+        (identifier)))))
+
+==================
+Overlap is no grammar error
+==================
+
+fn f x: String -> String ! String = x
+
+---
+
+(source_file
+  (function_clause
+    (identifier)
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (type
+      (identifier))
+    (failures
+      (type
+        (identifier)))
+    (identifier)))
+
+==================
+Pipe inside an argument
+==================
+
+fn g p: P -> R = build(p |> prepare, x)
+
+---
+
+(source_file
+  (function_clause
+    (identifier)
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (type
+      (identifier))
+    (call
+      (identifier)
+      (pipe
+        (identifier)
+        (identifier))
+      (identifier))))
+
+==================
+Effect releases a redacted field
+==================
+
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize") with card_holder
+
+---
+
+(source_file
+  (effect_declaration
+    (qualified_name
+      (identifier)
+      (identifier))
+    (type
+      (identifier))
+    (type
+      (identifier))
+    (failures
+      (type
+        (identifier)))
+    (call
+      (qualified_name
+        (identifier)
+        (identifier))
+      (string))
+    (property
+      (identifier))))
