@@ -19,7 +19,7 @@ Review notes: [plan-review.md](../slice6b-plan/plan-review.md) (2) move D6B-28 t
 
 ## Pass rule
 
-- `python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py`: 20 of 20 pass, all runtime subtests pass, no ProbeSupport stub.
+- `python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py`: 25 of 25 pass (20 RED plus 5 RED repair), all runtime subtests pass, no ProbeSupport stub.
 - Every reject gives exit 1, no stdout and the exact text in the test.
 - `cargo test --no-fail-fast`, `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings` pass.
 - `slice6_int_test.py`, `slice6_failure_test.py` and the slice 3 to 5 compile-level tests pass. The `payments.beaml` and orders outputs stay byte-identical.

@@ -78,3 +78,42 @@ Result: 20 tests, 19 FAIL, 1 pass (the guard). Exit 1.
 - No runtime test of a constructor without `!` called as `T(args)`.
 - The struct module place and the `def` wrapper body are not asserted, only the `def` line.
 - The other compile-level tests (slice 3 to 5, stored types) were not run in this phase; `main.rs` did not change.
+
+## RED repair
+
+Input: [red-review.md](red-review.md), verdict Block (two high objections, one medium note). This section adds five tests to `slice6_constructor_test.py`. The earlier sections stay as recorded.
+
+### Decisions
+
+| # | Class | Choice | Alternative | Reason |
+|---|---|---|---|---|
+| R1 | Undo | Objection 1: two rejects with the review texts. `fn same p: Plain -> NonZeroInt ! IsZero = p` gives `type mismatch: expected NonZeroInt ! IsZero, got Plain`. `fn keep x: NonZeroInt -> NonZeroInt = x` plus `fn same p: Plain -> NonZeroInt = p \|> keep` gives `type mismatch in pipe step keep: expected NonZeroInt, got Plain`. | A rule in `require_type` only | A GREEN with the nominal rule in `require_type` only passes the first 20 tests. The texts are the current formats of the `!` body check and the pipe step check (observed with lowercase TYPES on the current compiler). |
+| R2 | Repair | **Chose (D6B-18 raised from Undo to Repair):** a record literal of TYPE A is legal only inside the OWN clauses of `fn A`, at any depth. A literal of A inside the constructor of B is rejected. **Over:** allow a nested literal inside any constructor clause. **Because:** otherwise any constructor becomes a way in for every TYPE, and DL-092 breaks. **Commits us to:** the check walks the whole body, not the top node, and compares the literal TYPE with the name of the enclosing constructor. | Allow nested | red-review.md objection 2. Replaces the Undo point "literal of A inside the constructor of B" in "Points the plan does not settle". |
+| R3 | Undo | Objection 2: two rejects with `type Box { n: NonZeroInt }` and `Box { n: NonZeroInt { value: x } }`, once in `fn Box`, once in `fn make`. Text: the S8 text with `fn Box` or `fn make`. | One case | The `fn Box` case catches "inside any constructor"; the `fn make` case catches "top body node only". |
+| R4 | Undo | Objection 3 (medium): one runtime accept case `test_runtime_constructor_call_form`. Source inline: `type F { reason: String }`, `fn F r: String -> F = F { reason: r }`, `fn mk r: String -> F = F(r)`. Check `BeamlSpike.mk("x") == %{"reason" => "x"}`, no ProbeSupport, `elixirc --warnings-as-errors`. | No test (earlier Undo point) | The plan code list names "a constructor as a call". Replaces the Undo point "constructor without `!` as `F(r)`". |
+| R5 | Undo | The spec pass rule changes from 20 of 20 to 25 of 25. | Keep 20 | The spec must name the full test set. |
+
+### Open point for the OWNER (Migrate, not decided here)
+
+- **Q6B-6.** A host can forge a constructor success value at the public wrapper: `BeamlSpike.keep(%{"value" => 0})` gives a NonZeroInt that never went through `fn NonZeroInt`. The wrapper checks the shape only. DL-092 ("the only way in") does not cover host calls yet.
+- **Option A:** accept the gap as out of scope. DL-092 binds generated BEAML code only.
+- **Option B:** make the generated constructor wrapper the only entry. A guard on every public wrapper rejects a nominal value that did not come from the constructor.
+- **Evidence:** [Inference] from the wrapper shape in red-review.md, S6. Not built. A struct success value alone does not close the gap (red-review.md).
+- Step 3 does not wait for this answer (red-review.md). Record Q6B-6 in decisions-to-be-made at the end of the phase.
+
+### RED repair run
+
+Command: `python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py` (repository root). Full output: [red-output.log](red-output.log) (replaced by this run).
+Result: 25 tests, 24 FAIL, 1 pass (the guard). Exit 1. The first 19 failures are the same as in the RED table.
+
+| New test | Expected | Actual today |
+|---|---|---|
+| `test_structural_twin_at_the_failing_body` | `type mismatch: expected NonZeroInt ! IsZero, got Plain` | `expected '=' at byte 90` |
+| `test_structural_twin_into_a_pipe_step` | `type mismatch in pipe step keep: expected NonZeroInt, got Plain` | `expected '=' at byte 90` |
+| `test_nested_literal_in_another_constructor` | S8 text, `fn Box` | `expected '=' at byte 90` |
+| `test_nested_literal_in_a_lowercase_fn` | S8 text, `fn make` | `expected '=' at byte 90` |
+| `test_runtime_constructor_call_form` | build, 1 subtest PASS | stops at build, `invalid function name: F` |
+
+- Production unchanged (`main.rs` not touched): `cargo test --offline --no-fail-fast` 28 pass (14 unit, 14 CLI). `slice6_int_test.py` 16 OK. `slice6_failure_test.py` 22 OK.
+- `run.py` was not run. No result directory was touched. No commit.
+- Limit: the four new rejects fail at the signature line today. They prove the rule only after GREEN parses the signature line. The bypass of objection 1 was not built.

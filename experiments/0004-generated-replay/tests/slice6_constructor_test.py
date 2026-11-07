@@ -52,6 +52,10 @@ PLAIN_CASES = {
     "plain_zero_fails": "BeamlSpike.new_NonZeroInt_1(0) == {:error, %BeamlSpike.IsZero{}}",
     "plain_ok": 'BeamlSpike.new_NonZeroInt_1(2) == {:ok, %{"value" => 2}}',
 }
+# RED repair, objection 3: a constructor without `!` called as `F(r)` (plan step 3 code list).
+CALL_SOURCE = ("type F { reason: String }\nfn F r: String -> F = F { reason: r }\n"
+               "fn mk r: String -> F = F(r)\n")
+CALL_CASES = {"call_form": 'BeamlSpike.mk("x") == %{"reason" => "x"}'}
 # D6B-28: the step 2 fixture keeps its values without spans and without a stub.
 BODY_PIPE_CASES = {k: v for k, v in sf.BODY_CASES.items() if k.startswith(("piped", "outer"))}
 
@@ -107,6 +111,10 @@ class Slice6Constructor(unittest.TestCase):
     def test_runtime_plain(self):
         self.run_runtime(PLAIN, PLAIN_CASES)
 
+    def test_runtime_constructor_call_form(self):
+        # RED repair, objection 3. Today: "invalid function name: F".
+        self.run_runtime(CALL_SOURCE, CALL_CASES)
+
     # D6B-28 (moved into step 3): spans only for a whole-body pipe with an EFFECT step.
 
     def test_pure_module_has_no_span(self):
@@ -151,6 +159,31 @@ class Slice6Constructor(unittest.TestCase):
         # D6B-17: "either side has a constructor".
         self.assert_rejected(HEAD + "type Plain { value: Int }\nfn back x: NonZeroInt -> Plain = x\n",
                              "type mismatch: expected Plain, got NonZeroInt")
+
+    # RED repair, objection 1: the nominal TYPE at the `!` body gate and at the pipe step gate (D6B-17).
+
+    def test_structural_twin_at_the_failing_body(self):
+        self.assert_rejected(HEAD + "type Plain { value: Int }\nfn same p: Plain -> NonZeroInt ! IsZero = p\n",
+                             "type mismatch: expected NonZeroInt ! IsZero, got Plain")
+
+    def test_structural_twin_into_a_pipe_step(self):
+        self.assert_rejected(HEAD + "type Plain { value: Int }\nfn keep x: NonZeroInt -> NonZeroInt = x\n"
+                             "fn same p: Plain -> NonZeroInt = p |> keep\n",
+                             "type mismatch in pipe step keep: expected NonZeroInt, got Plain")
+
+    # RED repair, objection 2: the literal is legal only in its OWN constructor, also nested (D6B-18).
+
+    def test_nested_literal_in_another_constructor(self):
+        self.assert_rejected(HEAD + "type Box { n: NonZeroInt }\n"
+                             "fn Box x: Int -> Box = Box { n: NonZeroInt { value: x } }\n",
+                             "error: fn Box: the record literal NonZeroInt { ... } is legal only in the clauses of "
+                             "the constructor fn NonZeroInt\n" + CONSTRUCTOR_HELP)
+
+    def test_nested_literal_in_a_lowercase_fn(self):
+        self.assert_rejected(HEAD + "type Box { n: NonZeroInt }\n"
+                             "fn make x: Int -> Box = Box { n: NonZeroInt { value: x } }\n",
+                             "error: fn make: the record literal NonZeroInt { ... } is legal only in the clauses of "
+                             "the constructor fn NonZeroInt\n" + CONSTRUCTOR_HELP)
 
     # Reject cases: the signature line and the constructor name (D6B-11 to D6B-14).
 

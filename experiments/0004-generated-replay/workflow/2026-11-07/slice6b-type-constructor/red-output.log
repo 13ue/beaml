@@ -1,7 +1,3 @@
-# Slice 6b step 3 RED, 2026-11-07
-Command (repository root): python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py
-Exit: 1
-
 test_clause_annotation_differs_from_the_signature (__main__.Slice6Constructor.test_clause_annotation_differs_from_the_signature) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
 FAIL
 test_clause_before_the_signature_line (__main__.Slice6Constructor.test_clause_before_the_signature_line) ... FAIL
@@ -11,16 +7,21 @@ test_constructor_type_as_effect_input (__main__.Slice6Constructor.test_construct
 test_constructor_type_as_effect_output (__main__.Slice6Constructor.test_constructor_type_as_effect_output) ... FAIL
 test_constructor_type_in_an_effect_output_field (__main__.Slice6Constructor.test_constructor_type_in_an_effect_output_field) ... FAIL
 test_effect_pipe_keeps_its_spans (__main__.Slice6Constructor.test_effect_pipe_keeps_its_spans) ... ok
+test_nested_literal_in_a_lowercase_fn (__main__.Slice6Constructor.test_nested_literal_in_a_lowercase_fn) ... FAIL
+test_nested_literal_in_another_constructor (__main__.Slice6Constructor.test_nested_literal_in_another_constructor) ... FAIL
 test_nominal_type_is_not_its_structural_twin (__main__.Slice6Constructor.test_nominal_type_is_not_its_structural_twin) ... FAIL
 test_nonzero_fixture_compiles_to_the_planned_shape (__main__.Slice6Constructor.test_nonzero_fixture_compiles_to_the_planned_shape) ... FAIL
 test_plain_fixture_compiles (__main__.Slice6Constructor.test_plain_fixture_compiles) ... FAIL
 test_pure_module_has_no_span (__main__.Slice6Constructor.test_pure_module_has_no_span) ... FAIL
 test_pure_pipe_beside_an_effect_has_no_span (__main__.Slice6Constructor.test_pure_pipe_beside_an_effect_has_no_span) ... FAIL
 test_record_literal_outside_the_constructor (__main__.Slice6Constructor.test_record_literal_outside_the_constructor) ... FAIL
+test_runtime_constructor_call_form (__main__.Slice6Constructor.test_runtime_constructor_call_form) ... FAIL
 test_runtime_nonzero (__main__.Slice6Constructor.test_runtime_nonzero) ... FAIL
 test_runtime_plain (__main__.Slice6Constructor.test_runtime_plain) ... FAIL
 test_runtime_pure_pipe_without_stub (__main__.Slice6Constructor.test_runtime_pure_pipe_without_stub) ... FAIL
 test_second_signature_line (__main__.Slice6Constructor.test_second_signature_line) ... FAIL
+test_structural_twin_at_the_failing_body (__main__.Slice6Constructor.test_structural_twin_at_the_failing_body) ... FAIL
+test_structural_twin_into_a_pipe_step (__main__.Slice6Constructor.test_structural_twin_into_a_pipe_step) ... FAIL
 test_structural_twin_is_not_the_nominal_type (__main__.Slice6Constructor.test_structural_twin_is_not_the_nominal_type) ... FAIL
 test_uppercase_fn_without_its_type (__main__.Slice6Constructor.test_uppercase_fn_without_its_type) ... FAIL
 
@@ -28,7 +29,7 @@ test_uppercase_fn_without_its_type (__main__.Slice6Constructor.test_uppercase_fn
 FAIL: test_clause_annotation_differs_from_the_signature (__main__.Slice6Constructor.test_clause_annotation_differs_from_the_signature)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 177, in test_clause_annotation_differs_from_the_signature
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 210, in test_clause_annotation_differs_from_the_signature
     self.assert_rejected("type IsZero {}\ntype NonZeroInt { value: Int }\n"
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "fn NonZeroInt n: Int -> NonZeroInt ! IsZero\n"
@@ -55,7 +56,7 @@ First differing element 2:
 FAIL: test_clause_before_the_signature_line (__main__.Slice6Constructor.test_clause_before_the_signature_line)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 168, in test_clause_before_the_signature_line
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 201, in test_clause_before_the_signature_line
     self.assert_rejected("type IsZero {}\ntype NonZeroInt { value: Int }\n"
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "fn NonZeroInt 0 -> NonZeroInt ! IsZero = IsZero {}\n"
@@ -86,7 +87,7 @@ First differing element 2:
 FAIL: test_constructor_returns_another_type (__main__.Slice6Constructor.test_constructor_returns_another_type)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 190, in test_constructor_returns_another_type
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 223, in test_constructor_returns_another_type
     self.assert_rejected("type NonZeroInt { value: Int }\nfn NonZeroInt n: Int -> Int = n\n",
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "error: fn NonZeroInt: a constructor returns its own TYPE NonZeroInt, not Int")
@@ -111,7 +112,7 @@ First differing element 2:
 FAIL: test_constructor_type_as_effect_failure (__main__.Slice6Constructor.test_constructor_type_as_effect_failure)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 208, in test_constructor_type_as_effect_failure
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 241, in test_constructor_type_as_effect_failure
     self.assert_rejected("type F { reason: String }\nfn F r: String -> F = F { reason: r }\n"
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "type I { id: String }\ntype P { id: String }\n"
@@ -141,7 +142,7 @@ First differing element 2:
 FAIL: test_constructor_type_as_effect_input (__main__.Slice6Constructor.test_constructor_type_as_effect_input)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 200, in test_constructor_type_as_effect_input
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 233, in test_constructor_type_as_effect_input
     self.assert_rejected(HEAD + "type O { reason: String }\ntype P { id: String }\n"
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          + EFFECT % ("NonZeroInt", "P", "O"), effect_reject("input"))
@@ -169,7 +170,7 @@ First differing element 2:
 FAIL: test_constructor_type_as_effect_output (__main__.Slice6Constructor.test_constructor_type_as_effect_output)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 196, in test_constructor_type_as_effect_output
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 229, in test_constructor_type_as_effect_output
     self.assert_rejected(HEAD + "type O { reason: String }\ntype I { id: String }\n"
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          + EFFECT % ("I", "NonZeroInt", "O"), effect_reject("output"))
@@ -197,7 +198,7 @@ First differing element 2:
 FAIL: test_constructor_type_in_an_effect_output_field (__main__.Slice6Constructor.test_constructor_type_in_an_effect_output_field)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 204, in test_constructor_type_in_an_effect_output_field
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 237, in test_constructor_type_in_an_effect_output_field
     self.assert_rejected(HEAD + "type O { reason: String }\ntype I { id: String }\ntype P { n: NonZeroInt }\n"
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          + EFFECT % ("I", "P", "O"), effect_reject("output field P.n"))
@@ -222,10 +223,74 @@ First differing element 2:
 -  'NonZeroInt') : expected exit 1, no stdout and the exact message
 
 ======================================================================
+FAIL: test_nested_literal_in_a_lowercase_fn (__main__.Slice6Constructor.test_nested_literal_in_a_lowercase_fn)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 183, in test_nested_literal_in_a_lowercase_fn
+    self.assert_rejected(HEAD + "type Box { n: NonZeroInt }\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn make x: Int -> Box = Box { n: NonZeroInt { value: x } }\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "error: fn make: the record literal NonZeroInt { ... } is legal only in the clauses of "
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "the constructor fn NonZeroInt\n" + CONSTRUCTOR_HELP)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn make: the record literal NonZe[154 chars]il)') != (1, '', "expected '=' at byte 90")
+
+First differing element 2:
+'error: fn make: the record literal NonZe[153 chars]ail)'
+"expected '=' at byte 90"
+
++ (1, '', "expected '=' at byte 90")
+- (1,
+-  '',
+-  'error: fn make: the record literal NonZeroInt { ... } is legal only in the '
+-  'clauses of the constructor fn NonZeroInt\n'
+-  '  help: call the constructor fn NonZeroInt (as a pipe step, because it can '
+-  'fail)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_nested_literal_in_another_constructor (__main__.Slice6Constructor.test_nested_literal_in_another_constructor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 177, in test_nested_literal_in_another_constructor
+    self.assert_rejected(HEAD + "type Box { n: NonZeroInt }\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn Box x: Int -> Box = Box { n: NonZeroInt { value: x } }\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "error: fn Box: the record literal NonZeroInt { ... } is legal only in the clauses of "
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "the constructor fn NonZeroInt\n" + CONSTRUCTOR_HELP)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn Box: the record literal NonZer[153 chars]il)') != (1, '', "expected '=' at byte 90")
+
+First differing element 2:
+'error: fn Box: the record literal NonZer[152 chars]ail)'
+"expected '=' at byte 90"
+
++ (1, '', "expected '=' at byte 90")
+- (1,
+-  '',
+-  'error: fn Box: the record literal NonZeroInt { ... } is legal only in the '
+-  'clauses of the constructor fn NonZeroInt\n'
+-  '  help: call the constructor fn NonZeroInt (as a pipe step, because it can '
+-  'fail)') : expected exit 1, no stdout and the exact message
+
+======================================================================
 FAIL: test_nominal_type_is_not_its_structural_twin (__main__.Slice6Constructor.test_nominal_type_is_not_its_structural_twin)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 152, in test_nominal_type_is_not_its_structural_twin
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 160, in test_nominal_type_is_not_its_structural_twin
     self.assert_rejected(HEAD + "type Plain { value: Int }\nfn back x: NonZeroInt -> Plain = x\n",
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "type mismatch: expected Plain, got NonZeroInt")
@@ -248,7 +313,7 @@ First differing element 2:
 FAIL: test_nonzero_fixture_compiles_to_the_planned_shape (__main__.Slice6Constructor.test_nonzero_fixture_compiles_to_the_planned_shape)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 89, in test_nonzero_fixture_compiles_to_the_planned_shape
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 93, in test_nonzero_fixture_compiles_to_the_planned_shape
     self.assert_lines(self.assert_built(NONZERO), [
                       ~~~~~~~~~~~~~~~~~^^^^^^^^^
   File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
@@ -270,7 +335,7 @@ First differing element 0:
 FAIL: test_plain_fixture_compiles (__main__.Slice6Constructor.test_plain_fixture_compiles)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 99, in test_plain_fixture_compiles
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 103, in test_plain_fixture_compiles
     self.assert_lines(self.assert_built(PLAIN), [
                       ~~~~~~~~~~~~~~~~~^^^^^^^
   File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
@@ -292,7 +357,7 @@ First differing element 0:
 FAIL: test_pure_module_has_no_span (__main__.Slice6Constructor.test_pure_module_has_no_span)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 114, in test_pure_module_has_no_span
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 122, in test_pure_module_has_no_span
     self.assert_lines(self.assert_built(BODY), [
     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
         "p1 = __MODULE__.seven(p0)",
@@ -438,7 +503,7 @@ end
 FAIL: test_pure_pipe_beside_an_effect_has_no_span (__main__.Slice6Constructor.test_pure_pipe_beside_an_effect_has_no_span)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 130, in test_pure_pipe_beside_an_effect_has_no_span
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 138, in test_pure_pipe_beside_an_effect_has_no_span
     self.assert_lines(stdout, ["p1 = __MODULE__.echo(p0)"])
     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 133, in assert_lines
@@ -807,7 +872,7 @@ end
 FAIL: test_record_literal_outside_the_constructor (__main__.Slice6Constructor.test_record_literal_outside_the_constructor)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 141, in test_record_literal_outside_the_constructor
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 149, in test_record_literal_outside_the_constructor
     self.assert_rejected(HEAD + "fn make n: Int -> NonZeroInt = NonZeroInt { value: n }\n",
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "error: fn make: the record literal NonZeroInt { ... } is legal only in the clauses of "
@@ -834,13 +899,37 @@ First differing element 2:
 -  'fail)') : expected exit 1, no stdout and the exact message
 
 ======================================================================
+FAIL: test_runtime_constructor_call_form (__main__.Slice6Constructor.test_runtime_constructor_call_form)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 116, in test_runtime_constructor_call_form
+    self.run_runtime(CALL_SOURCE, CALL_CASES)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 73, in run_runtime
+    stdout = self.assert_built(fixture)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: invalid function name: F
+
+
+======================================================================
 FAIL: test_runtime_nonzero (__main__.Slice6Constructor.test_runtime_nonzero)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 105, in test_runtime_nonzero
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 109, in test_runtime_nonzero
     self.run_runtime(NONZERO, NONZERO_CASES)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 69, in run_runtime
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 73, in run_runtime
     stdout = self.assert_built(fixture)
   File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
     self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
@@ -861,10 +950,10 @@ First differing element 0:
 FAIL: test_runtime_plain (__main__.Slice6Constructor.test_runtime_plain)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 108, in test_runtime_plain
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 112, in test_runtime_plain
     self.run_runtime(PLAIN, PLAIN_CASES)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 69, in run_runtime
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 73, in run_runtime
     stdout = self.assert_built(fixture)
   File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_built
     self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
@@ -885,10 +974,10 @@ First differing element 0:
 FAIL: test_runtime_pure_pipe_without_stub (__main__.Slice6Constructor.test_runtime_pure_pipe_without_stub)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 121, in test_runtime_pure_pipe_without_stub
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 129, in test_runtime_pure_pipe_without_stub
     self.run_runtime(BODY, BODY_PIPE_CASES)
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 70, in run_runtime
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 74, in run_runtime
     self.assertNotIn("ProbeSupport", stdout, "a module without an EFFECT must not call ProbeSupport (D6B-28)")
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AssertionError: 'ProbeSupport' unexpectedly found in '# Generated by experiment 0001. Not a stable ABI.\ndefmodule BeamlSpike do\n  import Kernel, only: [and: 2, is_binary: 1, is_integer: 1, is_map: 1, map_size: 1, ==: 2, <>: 2, if: 2, raise: 2, def: 2, defp: 2, defmodule: 2]\n  defmodule Bad do\n    import Kernel, only: [defstruct: 1]\n    defstruct [:reason]\n  end\n  defmodule Empty do\n    import Kernel, only: [defstruct: 1]\n    defstruct []\n  end\n  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and String.valid?(v)\n  defp __beaml_valid__(v, <<73,110,116>>), do: is_integer(v)\n  defp __beaml_valid__(v, <<66,97,100>>) when is_map(v) and map_size(v) == 1, do: __beaml_valid__(Map.get(v, <<114,101,97,115,111,110>>), <<83,116,114,105,110,103>>)\n  defp __beaml_valid__(v, <<69,109,112,116,121>>) when is_map(v) and map_size(v) == 0, do: true\n  defp __beaml_valid__({<<87,104,121>>, <<83,104,111,114,116>>, [v0]}, <<87,104,121>>), do: __beaml_valid__(v0, <<83,116,114,105,110,103>>)\n  defp __beaml_valid__(_, _), do: false\n  def check(a0) do\n    if __beaml_valid__(a0, <<83,116,114,105,110,103>>) do\n      case __beaml_check(a0) do\n        {:ok, result} ->\n          if __beaml_valid__(result, <<83,116,114,105,110,103>>), do: {:ok, result}, else: raise(ArgumentError, "invalid BEAML output")\n\n        {:error, error} ->\n          {:error, error}\n      end\n    else\n      raise ArgumentError, "invalid BEAML input"\n    end\n  end\n  # beaml-declaration-v1 check 72 112\n  defp __beaml_check(<<>>), do: {:error, %__MODULE__.Empty{}}\n  # beaml-declaration-v1 check 113 153\n  defp __beaml_check(v_x), do: {:ok, v_x}\n  def guard(a0) do\n    if __beaml_valid__(a0, <<83,116,114,105,110,103>>) do\n      case __beaml_guard(a0) do\n        {:ok, result} ->\n          if __beaml_valid__(result, <<83,116,114,105,110,103>>), do: {:ok, result}, else: raise(ArgumentError, "invalid BEAML output")\n\n        {:error, error} ->\n          {:error, error}\n      end\n    else\n      raise ArgumentError, "invalid BEAML input"\n    end\n  end\n  # beaml-declaration-v1 guard 155 208\n  defp __beaml_guard(<<120>>), do: {:error, %__MODULE__.Bad{reason: <<110,111,32,120>>}}\n  # beaml-declaration-v1 guard 209 247\n  defp __beaml_guard(v_s), do: {:ok, v_s}\n  def outer(a0) do\n    if __beaml_valid__(a0, <<83,116,114,105,110,103>>) do\n      case __beaml_outer(a0) do\n        {:ok, result} ->\n          if __beaml_valid__(result, <<83,116,114,105,110,103>>), do: {:ok, result}, else: raise(ArgumentError, "invalid BEAML output")\n\n        {:error, error} ->\n          {:error, error}\n      end\n    else\n      raise ArgumentError, "invalid BEAML input"\n    end\n  end\n  # beaml-declaration-v1 outer 409 458\n  defp __beaml_outer(v_x) do\n    p0 = v_x\n    with {:ok, p1} <- ProbeSupport.span(<<98,111,100,121,46,99,104,101,99,107>>, :internal, p0, <<99,104,101,99,107>>, fn -> __MODULE__.check(p0) end) do\n      {:ok, p1}\n    end\n  end\n  def piped(a0) do\n    if __beaml_valid__(a0, <<83,116,114,105,110,103>>) do\n      case __beaml_piped(a0) do\n        {:ok, result} ->\n          if __beaml_valid__(result, <<83,116,114,105,110,103>>), do: {:ok, result}, else: raise(ArgumentError, "invalid BEAML output")\n\n        {:error, error} ->\n          {:error, error}\n      end\n    else\n      raise ArgumentError, "invalid BEAML input"\n    end\n  end\n  # beaml-declaration-v1 piped 360 407\n  defp __beaml_piped(v_x) do\n    p0 = v_x\n    p1 = ProbeSupport.span(<<98,111,100,121,46,115,101,118,101,110>>, :internal, p0, <<115,101,118,101,110>>, fn -> __MODULE__.seven(p0) end)\n    {:error, p1}\n  end\n  def seven(a0) do\n    if __beaml_valid__(a0, <<83,116,114,105,110,103>>) do\n      result = __beaml_seven(a0)\n      if __beaml_valid__(result, <<73,110,116>>), do: result, else: raise(ArgumentError, "invalid BEAML output")\n    else\n      raise ArgumentError, "invalid BEAML input"\n    end\n  end\n  # beaml-declaration-v1 seven 330 359\n  defp __beaml_seven(_), do: 7\n  def why(a0) do\n    if __beaml_valid__(a0, <<83,116,114,105,110,103>>) do\n      case __beaml_why(a0) do\n        {:ok, result} ->\n          if __beaml_valid__(result, <<83,116,114,105,110,103>>), do: {:ok, result}, else: raise(ArgumentError, "invalid BEAML output")\n\n        {:error, error} ->\n          {:error, error}\n      end\n    else\n      raise ArgumentError, "invalid BEAML input"\n    end\n  end\n  # beaml-declaration-v1 why 249 291\n  defp __beaml_why(<<>>), do: {:error, {<<87,104,121>>, <<83,104,111,114,116>>, [<<101,109,112,116,121>>]}}\n  # beaml-declaration-v1 why 292 328\n  defp __beaml_why(v_s), do: {:ok, v_s}\nend\n' : a module without an EFFECT must not call ProbeSupport (D6B-28)
@@ -897,7 +986,7 @@ AssertionError: 'ProbeSupport' unexpectedly found in '# Generated by experiment 
 FAIL: test_second_signature_line (__main__.Slice6Constructor.test_second_signature_line)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 159, in test_second_signature_line
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 192, in test_second_signature_line
     self.assert_rejected("type IsZero {}\ntype NonZeroInt { value: Int }\n"
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "fn NonZeroInt n: Int -> NonZeroInt ! IsZero\n"
@@ -926,10 +1015,58 @@ First differing element 2:
 -  'remove this one') : expected exit 1, no stdout and the exact message
 
 ======================================================================
+FAIL: test_structural_twin_at_the_failing_body (__main__.Slice6Constructor.test_structural_twin_at_the_failing_body)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 166, in test_structural_twin_at_the_failing_body
+    self.assert_rejected(HEAD + "type Plain { value: Int }\nfn same p: Plain -> NonZeroInt ! IsZero = p\n",
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "type mismatch: expected NonZeroInt ! IsZero, got Plain")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'type mismatch: expected NonZeroInt ! IsZero, got Plain') != (1, '', "expected '=' at byte 90")
+
+First differing element 2:
+'type mismatch: expected NonZeroInt ! IsZero, got Plain'
+"expected '=' at byte 90"
+
+- (1, '', 'type mismatch: expected NonZeroInt ! IsZero, got Plain')
++ (1, '', "expected '=' at byte 90") : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_structural_twin_into_a_pipe_step (__main__.Slice6Constructor.test_structural_twin_into_a_pipe_step)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 170, in test_structural_twin_into_a_pipe_step
+    self.assert_rejected(HEAD + "type Plain { value: Int }\nfn keep x: NonZeroInt -> NonZeroInt = x\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn same p: Plain -> NonZeroInt = p |> keep\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "type mismatch in pipe step keep: expected NonZeroInt, got Plain")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 128, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'type mismatch in pipe step keep: expected NonZeroInt, got Plain') != (1, '', "expected '=' at byte 90")
+
+First differing element 2:
+'type mismatch in pipe step keep: expected NonZeroInt, got Plain'
+"expected '=' at byte 90"
+
+- (1, '', 'type mismatch in pipe step keep: expected NonZeroInt, got Plain')
++ (1, '', "expected '=' at byte 90") : expected exit 1, no stdout and the exact message
+
+======================================================================
 FAIL: test_structural_twin_is_not_the_nominal_type (__main__.Slice6Constructor.test_structural_twin_is_not_the_nominal_type)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 147, in test_structural_twin_is_not_the_nominal_type
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 155, in test_structural_twin_is_not_the_nominal_type
     self.assert_rejected(HEAD + "type Plain { value: Int }\nfn same p: Plain -> NonZeroInt = p\n",
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "type mismatch: expected NonZeroInt, got Plain")
@@ -952,7 +1089,7 @@ First differing element 2:
 FAIL: test_uppercase_fn_without_its_type (__main__.Slice6Constructor.test_uppercase_fn_without_its_type)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 184, in test_uppercase_fn_without_its_type
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_constructor_test.py", line 217, in test_uppercase_fn_without_its_type
     self.assert_rejected("fn Missing x: String -> String = x\n",
     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                          "error: fn Missing: a constructor needs a type Missing\n"
@@ -977,6 +1114,6 @@ First differing element 2:
 -  '  help: declare type Missing { ... }, or write the fn name in lowercase') : expected exit 1, no stdout and the exact message
 
 ----------------------------------------------------------------------
-Ran 20 tests in 0.943s
+Ran 25 tests in 0.377s
 
-FAILED (failures=19)
+FAILED (failures=24)
