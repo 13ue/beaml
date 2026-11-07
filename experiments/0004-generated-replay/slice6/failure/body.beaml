@@ -1,0 +1,19 @@
+type Empty {}
+type Bad { reason: String }
+enum Why {
+  Short(String)
+}
+
+fn check "" -> String ! Empty = Empty {}
+fn check x: String -> String ! Empty = x
+
+fn guard "x" -> String ! Bad = Bad { reason: "no x" }
+fn guard s: String -> String ! Bad = s
+
+fn why "" -> String ! Why = Short("empty")
+fn why s: String -> String ! Why = s
+
+fn seven x: String -> Int = 7
+fn piped x: String -> String ! Int = x |> seven
+
+fn outer x: String -> String ! Empty = x |> check

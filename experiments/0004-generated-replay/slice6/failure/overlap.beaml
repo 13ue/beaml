@@ -1,0 +1,9 @@
+type Done { id: String }
+type Bad { reason: String }
+
+fn f x: String -> String ! Int = 5
+
+fn g 0 -> Int ! String = "zero"
+fn g n: Int -> Int ! String = n
+
+fn h x: String -> Done ! Bad = Done { id: x }

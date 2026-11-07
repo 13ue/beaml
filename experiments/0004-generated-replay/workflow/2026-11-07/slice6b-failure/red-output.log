@@ -1,0 +1,552 @@
+# Command (repository root): python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py
+# Date: 2026-11-07. Compiler: experiments/0001-syntax-to-beam at commit 922389ab, production file unchanged.
+# Elixir 1.18.1 (compiled with Erlang/OTP 27)
+
+test_body_fixture_compiles_to_the_planned_shape (__main__.Slice6Failure.test_body_fixture_compiles_to_the_planned_shape) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+FAIL
+test_body_of_neither_type (__main__.Slice6Failure.test_body_of_neither_type) ... FAIL
+test_body_of_neither_type_record_failure (__main__.Slice6Failure.test_body_of_neither_type_record_failure) ... FAIL
+test_duplicate_failure_keeps_its_text (__main__.Slice6Failure.test_duplicate_failure_keeps_its_text) ... ok
+test_effect_overlap (__main__.Slice6Failure.test_effect_overlap) ... FAIL
+test_effect_structural_overlap (__main__.Slice6Failure.test_effect_structural_overlap) ... FAIL
+test_no_int_in_effect_failure (__main__.Slice6Failure.test_no_int_in_effect_failure) ... FAIL
+test_overlap_fixture_compiles (__main__.Slice6Failure.test_overlap_fixture_compiles) ... FAIL
+test_overlap_in_a_list (__main__.Slice6Failure.test_overlap_in_a_list) ... FAIL
+test_pipe_ends_in_neither_type (__main__.Slice6Failure.test_pipe_ends_in_neither_type) ... FAIL
+test_plan_source_with_int_failure_compiles (__main__.Slice6Failure.test_plan_source_with_int_failure_compiles) ... FAIL
+test_runtime_body (__main__.Slice6Failure.test_runtime_body) ... FAIL
+test_runtime_overlap (__main__.Slice6Failure.test_runtime_overlap) ... FAIL
+test_same_enum_both_sides (__main__.Slice6Failure.test_same_enum_both_sides) ... FAIL
+test_same_int_both_sides (__main__.Slice6Failure.test_same_int_both_sides) ... FAIL
+test_same_record_both_sides (__main__.Slice6Failure.test_same_record_both_sides) ... FAIL
+test_same_type_both_sides (__main__.Slice6Failure.test_same_type_both_sides) ... FAIL
+test_structural_records_overlap (__main__.Slice6Failure.test_structural_records_overlap) ... FAIL
+test_variant_is_no_failure_type (__main__.Slice6Failure.test_variant_is_no_failure_type) ... FAIL
+
+======================================================================
+FAIL: test_body_fixture_compiles_to_the_planned_shape (__main__.Slice6Failure.test_body_fixture_compiles_to_the_planned_shape)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 150, in test_body_fixture_compiles_to_the_planned_shape
+    self.assert_lines(self.assert_built(BODY), [
+                      ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 116, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: unknown type: Why
+
+
+======================================================================
+FAIL: test_body_of_neither_type (__main__.Slice6Failure.test_body_of_neither_type)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 225, in test_body_of_neither_type
+    self.assert_rejected("type E {}\nfn f x: String -> String ! Int = E {}\n",
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "type mismatch: expected String ! Int, got E")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'type mismatch: expected String ! Int, got E') != (1, '', 'unknown type: Int')
+
+First differing element 2:
+'type mismatch: expected String ! Int, got E'
+'unknown type: Int'
+
+- (1, '', 'type mismatch: expected String ! Int, got E')
++ (1, '', 'unknown type: Int') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_body_of_neither_type_record_failure (__main__.Slice6Failure.test_body_of_neither_type_record_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 230, in test_body_of_neither_type_record_failure
+    self.assert_rejected("type E {}\ntype Bad { reason: String }\nfn f x: String -> String ! Bad = E {}\n",
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "type mismatch: expected String ! Bad, got E")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'type mismatch: expected String ! Bad, got E') != (1, '', 'type mismatch: expected String, got E')
+
+First differing element 2:
+'type mismatch: expected String ! Bad, got E'
+'type mismatch: expected String, got E'
+
+- (1, '', 'type mismatch: expected String ! Bad, got E')
+?                                        ------
+
++ (1, '', 'type mismatch: expected String, got E') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_effect_overlap (__main__.Slice6Failure.test_effect_overlap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 208, in test_effect_overlap
+    self.assert_rejected("type O { reason: String }\ntype I { id: String }\n" + EFFECT_HEAD % "O ! O" + OTHER,
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         overlap("effect payments.authorize", "O", effect=True))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect payments.authorize: the suc[120 chars] })') != (1, '', 'slice 1 needs exactly one pipe that calls[27 chars]ize')
+
+First differing element 2:
+'error: effect payments.authorize: the suc[119 chars]g })'
+'slice 1 needs exactly one pipe that calls[26 chars]rize'
+
+  (1,
+   '',
++  'slice 1 needs exactly one pipe that calls the effect payments.authorize')
+-  'error: effect payments.authorize: the success TYPE O is also a failure TYPE\n'
+-  '  help: give the failure a TYPE of its own (for example type FError { '
+-  'reason: String })') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_effect_structural_overlap (__main__.Slice6Failure.test_effect_structural_overlap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 213, in test_effect_structural_overlap
+    self.assert_rejected("type O { reason: String }\ntype P { reason: String }\ntype I { id: String }\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         + EFFECT_HEAD % "P ! O" + OTHER,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         overlap("effect payments.authorize", "P", failure="O", effect=True))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect payments.authorize: the suc[143 chars] })') != (1, '', 'slice 1 needs exactly one pipe that calls[27 chars]ize')
+
+First differing element 2:
+'error: effect payments.authorize: the suc[142 chars]g })'
+'slice 1 needs exactly one pipe that calls[26 chars]rize'
+
+  (1,
+   '',
++  'slice 1 needs exactly one pipe that calls the effect payments.authorize')
+-  'error: effect payments.authorize: the success TYPE P is also a failure TYPE: '
+-  'O has the same fields\n'
+-  '  help: give the failure a TYPE of its own (for example type FError { '
+-  'reason: String })') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_no_int_in_effect_failure (__main__.Slice6Failure.test_no_int_in_effect_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 248, in test_no_int_in_effect_failure
+    self.assert_rejected("type O { reason: String, code: Int }\ntype P { id: String }\ntype I { id: String }\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         + EFFECT_HEAD % "P ! O" + "fn g i: I -> P ! O = i |> payments.authorize\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "effect payments.authorize: slice 6b fails with String fields only, not O.code")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'effect payments.authorize: slice 6b fails [32 chars]ode') != (1, '', 'error: stored TYPE VERSIONS unknown: a sou[103 chars]re)')
+
+First differing element 2:
+'effect payments.authorize: slice 6b fails [31 chars]code'
+'error: stored TYPE VERSIONS unknown: a sou[102 chars]ore)'
+
+  (1,
+   '',
+-  'effect payments.authorize: slice 6b fails with String fields only, not '
+-  'O.code')
++  'error: stored TYPE VERSIONS unknown: a source with an effect or a RETIRE '
++  'LINE needs --stored SNAPSHOT.jsonl (an unknown store is not an empty store)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_overlap_fixture_compiles (__main__.Slice6Failure.test_overlap_fixture_compiles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 164, in test_overlap_fixture_compiles
+    self.assert_lines(self.assert_built(OVERLAP), [
+                      ~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 116, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: unknown type: Int
+
+
+======================================================================
+FAIL: test_overlap_in_a_list (__main__.Slice6Failure.test_overlap_in_a_list)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 188, in test_overlap_in_a_list
+    self.assert_rejected("fn f x: String -> String ! Int | String = x\n", overlap("fn f", "String"))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn f: the success TYPE String is a[130 chars]r !') != (1, '', 'unknown type: Int')
+
+First differing element 2:
+'error: fn f: the success TYPE String is a[129 chars]er !'
+'unknown type: Int'
+
++ (1, '', 'unknown type: Int')
+- (1,
+-  '',
+-  'error: fn f: the success TYPE String is also a failure TYPE\n'
+-  '  help: give the failure a TYPE of its own (for example type FError { '
+-  'reason: String }), or remove String after !') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_pipe_ends_in_neither_type (__main__.Slice6Failure.test_pipe_ends_in_neither_type)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 235, in test_pipe_ends_in_neither_type
+    self.assert_rejected("type Bad { reason: String }\nfn seven x: String -> Int = 7\n"
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "fn p x: String -> String ! Bad = x |> seven\n",
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "type mismatch: expected String ! Bad, got Int")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'type mismatch: expected String ! Bad, got Int') != (1, '', 'type mismatch: expected String, got Int')
+
+First differing element 2:
+'type mismatch: expected String ! Bad, got Int'
+'type mismatch: expected String, got Int'
+
+- (1, '', 'type mismatch: expected String ! Bad, got Int')
+?                                        ------
+
++ (1, '', 'type mismatch: expected String, got Int') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_plan_source_with_int_failure_compiles (__main__.Slice6Failure.test_plan_source_with_int_failure_compiles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 172, in test_plan_source_with_int_failure_compiles
+    self.assert_built("fn f x: String -> String ! Int = 5\n")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 116, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: unknown type: Int
+
+
+======================================================================
+FAIL: test_runtime_body (__main__.Slice6Failure.test_runtime_body)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 175, in test_runtime_body
+    self.run_runtime(BODY, BODY_CASES)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 131, in run_runtime
+    stdout = self.assert_built(fixture)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 116, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: unknown type: Why
+
+
+======================================================================
+FAIL: test_runtime_overlap (__main__.Slice6Failure.test_runtime_overlap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 178, in test_runtime_overlap
+    self.run_runtime(OVERLAP, OVERLAP_CASES)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 131, in run_runtime
+    stdout = self.assert_built(fixture)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 116, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: unknown type: Int
+
+
+======================================================================
+FAIL: test_same_enum_both_sides (__main__.Slice6Failure.test_same_enum_both_sides)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 204, in test_same_enum_both_sides
+    self.assert_rejected("enum Why {\n  Short(String)\n}\nfn f x: Why -> Why ! Why = x\n", overlap("fn f", "Why"))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn f: the success TYPE Why is also[124 chars]r !') != (1, '', 'unknown type: Why')
+
+First differing element 2:
+'error: fn f: the success TYPE Why is also[123 chars]er !'
+'unknown type: Why'
+
++ (1, '', 'unknown type: Why')
+- (1,
+-  '',
+-  'error: fn f: the success TYPE Why is also a failure TYPE\n'
+-  '  help: give the failure a TYPE of its own (for example type FError { '
+-  'reason: String }), or remove Why after !') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_same_int_both_sides (__main__.Slice6Failure.test_same_int_both_sides)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 191, in test_same_int_both_sides
+    self.assert_rejected("fn f n: Int -> Int ! Int = n\n", overlap("fn f", "Int"))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn f: the success TYPE Int is also[124 chars]r !') != (1, '', 'unknown type: Int')
+
+First differing element 2:
+'error: fn f: the success TYPE Int is also[123 chars]er !'
+'unknown type: Int'
+
++ (1, '', 'unknown type: Int')
+- (1,
+-  '',
+-  'error: fn f: the success TYPE Int is also a failure TYPE\n'
+-  '  help: give the failure a TYPE of its own (for example type FError { '
+-  'reason: String }), or remove Int after !') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_same_record_both_sides (__main__.Slice6Failure.test_same_record_both_sides)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 195, in test_same_record_both_sides
+    self.assert_rejected("type R { id: String }\nfn f x: R -> R ! R = x\n", overlap("fn f", "R"))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn f: the success TYPE R i[128 chars]r !') != (0, '# Generated by experiment 0001. Not a[902 chars], '')
+
+First differing element 0:
+1
+0
+
+- (1,
++ (0,
++  '# Generated by experiment 0001. Not a stable ABI.\n'
++  'defmodule BeamlSpike do\n'
++  '  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, map_size: 1, ==: 2, '
++  '<>: 2, if: 2, raise: 2, def: 2, defp: 2, defmodule: 2]\n'
++  '  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and '
++  'String.valid?(v)\n'
++  '  defp __beaml_valid__(v, <<82>>) when is_map(v) and map_size(v) == 1, do: '
++  '__beaml_valid__(Map.get(v, <<105,100>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(_, _), do: false\n'
++  '  def f(a0) do\n'
++  '    if __beaml_valid__(a0, <<82>>) do\n'
++  '      case __beaml_f(a0) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<82>>), do: {:ok, result}, else: '
++  'raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 f 22 44\n'
++  '  defp __beaml_f(v_x), do: {:ok, v_x}\n'
++  'end\n',
+-  '',
+?    ^
+
++  '')
+?    ^
+
+-  'error: fn f: the success TYPE R is also a failure TYPE\n'
+-  '  help: give the failure a TYPE of its own (for example type FError { '
+-  'reason: String }), or remove R after !') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_same_type_both_sides (__main__.Slice6Failure.test_same_type_both_sides)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 184, in test_same_type_both_sides
+    self.assert_rejected("fn f x: String -> String ! String = x\n", overlap("fn f", "String"))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn f: the success TYPE String is a[130 chars]r !') != (1, '', 'unknown type: String')
+
+First differing element 2:
+'error: fn f: the success TYPE String is a[129 chars]er !'
+'unknown type: String'
+
++ (1, '', 'unknown type: String')
+- (1,
+-  '',
+-  'error: fn f: the success TYPE String is also a failure TYPE\n'
+-  '  help: give the failure a TYPE of its own (for example type FError { '
+-  'reason: String }), or remove String after !') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_structural_records_overlap (__main__.Slice6Failure.test_structural_records_overlap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 199, in test_structural_records_overlap
+    self.assert_rejected("type R { id: String }\ntype S { id: String }\nfn f x: R -> R ! S = x\n",
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         overlap("fn f", "R", failure="S"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn f: the success TYPE R i[151 chars]r !') != (0, '# Generated by experiment 0001. Not a[1047 chars], '')
+
+First differing element 0:
+1
+0
+
+- (1,
++ (0,
++  '# Generated by experiment 0001. Not a stable ABI.\n'
++  'defmodule BeamlSpike do\n'
++  '  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, map_size: 1, ==: 2, '
++  '<>: 2, if: 2, raise: 2, def: 2, defp: 2, defmodule: 2]\n'
++  '  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and '
++  'String.valid?(v)\n'
++  '  defp __beaml_valid__(v, <<82>>) when is_map(v) and map_size(v) == 1, do: '
++  '__beaml_valid__(Map.get(v, <<105,100>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<83>>) when is_map(v) and map_size(v) == 1, do: '
++  '__beaml_valid__(Map.get(v, <<105,100>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(_, _), do: false\n'
++  '  def f(a0) do\n'
++  '    if __beaml_valid__(a0, <<82>>) do\n'
++  '      case __beaml_f(a0) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<82>>), do: {:ok, result}, else: '
++  'raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 f 44 66\n'
++  '  defp __beaml_f(v_x), do: {:ok, v_x}\n'
++  'end\n',
+-  '',
+?    ^
+
++  '')
+?    ^
+
+-  'error: fn f: the success TYPE R is also a failure TYPE: S has the same '
+-  'fields\n'
+-  '  help: give the failure a TYPE of its own (for example type FError { '
+-  'reason: String }), or remove S after !') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_variant_is_no_failure_type (__main__.Slice6Failure.test_variant_is_no_failure_type)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 243, in test_variant_is_no_failure_type
+    self.assert_rejected("enum Why {\n  Short(String)\n}\nfn f x: String -> String ! Short = x\n",
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "unknown type: Short\n  help: Short is a variant of the enum Why, not a TYPE; write Why")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_failure_test.py", line 122, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[18 chars]Short\n  help: Short is a variant of the enum [23 chars]Why') != (1, '[18 chars]Short')
+
+First differing element 2:
+'unknown type: Short\n  help: Short is a variant of the enum [22 chars] Why'
+'unknown type: Short'
+
+- (1,
+-  '',
+-  'unknown type: Short\n'
+?                      --
+
++ (1, '', 'unknown type: Short')
+? +++++++                      +
+
+-  '  help: Short is a variant of the enum Why, not a TYPE; write Why') : expected exit 1, no stdout and the exact message
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.705s
+
+FAILED (failures=18)
+# exit 1
