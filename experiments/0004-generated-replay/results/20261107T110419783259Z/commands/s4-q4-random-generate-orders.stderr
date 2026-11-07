@@ -1,0 +1,8 @@
+warning: DEAD LINE: migrate Tqxypmcx v1 -> v2
+  at /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-random-3h3dpjog/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml:5
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-80yyr2st/stored.jsonl: no stored RESPONSE RECORD of TYPE Tqxypmcx has v1 or older
+  help: remove DEAD LINES with: beaml-spike /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-random-3h3dpjog/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml --stored /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-80yyr2st/stored.jsonl --remove-dead
+warning: DEAD LINE: migrate Tqxypmcx v2 -> v3
+  at /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-random-3h3dpjog/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml:7
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-80yyr2st/stored.jsonl: no stored RESPONSE RECORD of TYPE Tqxypmcx has v2 or older
+  help: remove DEAD LINES with: beaml-spike /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-random-3h3dpjog/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml --stored /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-80yyr2st/stored.jsonl --remove-dead

@@ -1,0 +1,163 @@
+{
+  "test": "test_live_orders_call_captures_predecode_response_and_one_transport_attempt",
+  "command": [
+    "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+    "experiments/0003-source-linked-replay/tests/response_capture_test.py"
+  ],
+  "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-gen-hb_nkgch",
+  "status": "pass",
+  "steps": [
+    {
+      "ts": "2026-11-07T10:51:58.506256+00:00",
+      "action": "start",
+      "result": "running"
+    },
+    {
+      "ts": "2026-11-07T10:52:13.236769+00:00",
+      "action": "step",
+      "result": "fresh_releases_match_archived_beams"
+    },
+    {
+      "ts": "2026-11-07T10:52:13.390141+00:00",
+      "action": "step",
+      "result": "receipt_1_verified"
+    },
+    {
+      "ts": "2026-11-07T10:52:13.494651+00:00",
+      "action": "step",
+      "result": "receipt_2_verified"
+    },
+    {
+      "ts": "2026-11-07T10:52:15.636056+00:00",
+      "action": "step",
+      "result": "live_releases_stopped"
+    },
+    {
+      "ts": "2026-11-07T10:52:17.073078+00:00",
+      "action": "step",
+      "result": "observer_control_reached_transport_failure"
+    },
+    {
+      "ts": "2026-11-07T10:52:17.265275+00:00",
+      "action": "pass",
+      "result": "capture_and_transport_verified"
+    }
+  ],
+  "baseline": {
+    "receipts": [
+      {
+        "call": 1,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "f678a973af85ba21fba5ba1638af3314"
+      },
+      {
+        "call": 2,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "05728f4cb048c94738b33c5fe8ab360b"
+      }
+    ],
+    "payments_count_delta": 2
+  },
+  "release_exits": {
+    "payments": 0,
+    "orders": 0
+  },
+  "assertions": {
+    "orders_transport_attempts_after_each_call": {
+      "expected": [
+        1,
+        2
+      ],
+      "actual": [
+        1,
+        2
+      ]
+    },
+    "response_record_traces": {
+      "expected": [
+        "f678a973af85ba21fba5ba1638af3314",
+        "05728f4cb048c94738b33c5fe8ab360b"
+      ],
+      "actual": [
+        "f678a973af85ba21fba5ba1638af3314",
+        "05728f4cb048c94738b33c5fe8ab360b"
+      ]
+    },
+    "first_response_record": {
+      "expected": {
+        "version": 1,
+        "trace_id": "f678a973af85ba21fba5ba1638af3314",
+        "client_span_id": "cd8ebcb8f9866a5b",
+        "artifact_id": "d89b3d8cf9659a02bb9df915e70375d3748ae5fd754c726e0919bc64437ca0bc",
+        "operation": "payments.authorize",
+        "attempt": 1,
+        "request": {
+          "order_id": "order-1"
+        },
+        "status": 200,
+        "body_length": 44,
+        "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba"
+      },
+      "actual": {
+        "version": 1,
+        "trace_id": "f678a973af85ba21fba5ba1638af3314",
+        "client_span_id": "cd8ebcb8f9866a5b",
+        "artifact_id": "d89b3d8cf9659a02bb9df915e70375d3748ae5fd754c726e0919bc64437ca0bc",
+        "operation": "payments.authorize",
+        "attempt": 1,
+        "request": {
+          "order_id": "order-1"
+        },
+        "status": 200,
+        "body_length": 44,
+        "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba"
+      }
+    },
+    "first_response_body": {
+      "expected": {
+        "bounded": true,
+        "json": {
+          "order_id": "order-1",
+          "status": "authorized"
+        }
+      },
+      "actual": {
+        "bounded": true,
+        "json": {
+          "order_id": "order-1",
+          "status": "authorized"
+        }
+      }
+    },
+    "observer_control_attempts_invalid_then_refused": {
+      "expected": [
+        0,
+        1
+      ],
+      "actual": [
+        0,
+        1
+      ]
+    },
+    "observer_control_response_records": {
+      "expected": 0,
+      "actual": 0
+    }
+  },
+  "observer_control": {
+    "refused_port": 55406,
+    "exit": 0,
+    "statuses": [
+      400,
+      502
+    ]
+  }
+}
