@@ -1,0 +1,14 @@
+type IsZero {}
+type NonZeroInt { value: Int }
+
+// DL-092: the constructor is the only way in. The signature line names the input; the clauses take its TYPE.
+fn NonZeroInt n: Int -> NonZeroInt ! IsZero
+fn NonZeroInt 0 -> NonZeroInt ! IsZero = IsZero {}
+fn NonZeroInt n -> NonZeroInt ! IsZero = NonZeroInt { value: n }
+
+// A caller pipes into the constructor. A pure module: no ProbeSupport span (D6B-28).
+fn wrap n: Int -> NonZeroInt ! IsZero = n |> NonZeroInt
+
+// Reading is free (D6B-18): a record pattern and a pass-through of the nominal TYPE.
+fn read NonZeroInt { value } -> Int = value
+fn keep x: NonZeroInt -> NonZeroInt = x

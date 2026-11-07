@@ -1,0 +1,6 @@
+type IsZero {}
+type NonZeroInt { value: Int }
+
+// The corpus form without a signature line: each clause types its own parameters (D6B-13).
+fn NonZeroInt 0 -> NonZeroInt ! IsZero = IsZero {}
+fn NonZeroInt n: Int -> NonZeroInt ! IsZero = NonZeroInt { value: n }
