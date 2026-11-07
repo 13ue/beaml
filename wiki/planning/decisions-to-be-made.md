@@ -456,7 +456,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D021 — The form of the ENTRY LINE (Q6D-1)
 
-- **Status** OPEN
+- **Status** CLOSED, [DL-130](decision-log.md): option E' (register option B, inbound like outbound), By: 13ue, 2026-11-07
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** LANGUAGE/COMPILATION, grammar, DL-126, DL-128
@@ -543,6 +543,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## Answered 2026-11-07
 
+- [DL-130](decision-log.md): Q6D-1, the ENTRY LINE is an `effect` line with head TYPEs, inbound like outbound (E').
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.
 - [DL-100](decision-log.md): Q6B-2, an enum constructor is the decode path only.
 - [DL-101](decision-log.md): Q6B-3, the decode of outside data calls the record constructor.

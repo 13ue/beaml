@@ -733,6 +733,15 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: input and output of every database call are TYPES, so the type check, spans, RESPONSE RECORDS, REPLAY RUN and `--stored` apply as for any EFFECT. `Query` is a BEAML TYPE, not a query language: a new filter is a field, and a TYPE change runs through `migrate`. S would put column names into a String that no check sees and would break the vertical line at the database. S can come later as a fourth transport when a real case needs it.
 → Effect: EXPERIMENT 0005 host module (`BeamlDb` or a better name) with `put`, `get`, `list`; one Ecto migration for the table; the compiler needs the three transport names (a small slice or part of 0005 setup: transport names are strings today, so `db.put` may already parse; the RED decides). Open for 0005: the `get` key (id field of the TYPE), `list` order and limit, a `List` TYPE for `Orders`.
 
+**DL-130 · Migrate · ENTRY LINE form: an inbound EFFECT is written like an outbound EFFECT (Q6D-1, option E', register option B)**
+→ Question: which line form declares the UI event entry (DL-128)?
+→ Options: A `on ui "place" PlaceOrder -> place` (slice default, new keyword); D `effect in ui "place" PlaceOrder -> place`; E `effect ui.place = ui.event("place") |> place` (no TYPE in the head); E' `effect ui.place PlaceForm -> Order ! PlaceError = ui.event("place") |> place` (the register's option B: head with input, output and failure TYPE, body with the inbound transport and the target fn).
+→ Chose: E'. Inbound like outbound.
+→ By: 13ue
+→ Because: every outbound EFFECT carries input TYPE, output TYPE and failure TYPE in its head. E would be the only EFFECT without a TYPE in the head; A and D add a second line form. One `effect` form for both directions keeps the grammar, the highlighter, the RESPONSE RECORD and the REPLAY RUN on one path.
+→ Drift rule (By: Fable, Repair): the head TYPEs must equal the target fn's input, output and failure TYPE; a difference is a compile error. This closes the register's trade-off "stand twice and can drift". The slice 6d RED tests this.
+→ Effect: D021 closed. Slice 6d plan D6B-128 and the tree-sitter rule move from A to E'; the RED builds E'. `ui.event("…")` is the inbound transport call; the event name is a String as in `http.post("…")`.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
