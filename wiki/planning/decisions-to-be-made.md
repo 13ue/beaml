@@ -378,7 +378,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D017 — The `--stored` check and a constructor that fails in a pipe step (Q6B-19)
 
-- **Status** OPEN
+- **Status** CLOSED by [DL-121](decision-log.md): b, the build runs the generated Elixir constructor over the stored values.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** LANGUAGE/COMPILATION, DL-101, DL-102
@@ -446,6 +446,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - [DL-102](decision-log.md): replay rule, a stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate.
 - [DL-103](decision-log.md): replay rule, a mapping change that only resolves Unknown values needs no MIGRATE STEP.
 - [DL-117](decision-log.md): Q6B-16, `T.new/1` takes one map with atom keys, also for one parameter.
+- [DL-121](decision-log.md): Q6B-19, the `--stored` check runs the generated Elixir constructor over the stored values.
 - [DL-120](decision-log.md): Q6B-18, a constructor is pure; reaching an EFFECT is a compile error.
 - [DL-119](decision-log.md): Q6B-17, span default is the EFFECT path per step (S); the resolution becomes an OBSERVATORY setting (D018).
 - [DL-104](decision-log.md): Q6B-5, `beaml fmt` never changes the TYPE VERSION.

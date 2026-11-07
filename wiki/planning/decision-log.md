@@ -662,6 +662,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: a constructor is the only way into a TYPE (DL-092); when the COMPILER walks that way in a decode or a build, it must not make a network call. One rule for every call site is simpler than two faces of one constructor (b). c would make a decode a side effect.
 → Effect: step 12b RED builds the reject. Closes D016. Open and noted: where outside callers enter BEAML (an inbound EFFECT or entry point) is not defined yet; today the host calls an exported `fn`. That question joins D018 (inward view).
 
+**DL-121 · Migrate · The `--stored` check runs the generated Elixir constructor over the stored values (Q6B-19, b)**
+→ Question: the `--stored` check (DL-102) reads only the static body TYPE of a constructor clause. A failure inside a called pipe step passes the build and fails at runtime (P11, review probe 6, observed). How does the build run constructor clauses?
+→ Options: a, the COMPILER interprets constructor bodies with its own evaluator; b, the build runs the generated Elixir constructor over the stored values; c, a constructor used by a decode may only use forms the static check understands, other forms are a compile error.
+→ Chose: b. The build compiles the generated decode code and calls it over every stored record; the check result equals the REPLAY RUN result. The static check stays as a fast first pass; the Elixir run decides. A build without an Elixir toolchain fails the `--stored` check with a clear error, it does not pass silently.
+→ By: 13ue
+→ Because: one semantics from source to production: the code that checks old data at build time is the code that runs in production. a would be a second evaluator that drifts with every new form; c would make the language grow at two speeds. The Elixir toolchain is already a build requirement of the EXPERIMENT. D019 (Rust NIF backend) stays open as an architecture question and does not change this contract.
+→ Effect: a new slice 6b step "stored check through Elixir" (plan, RED from review probe 6: exit 1 with the reject text, GREEN, TEST). Build time grows by one Elixir compile and one run over the records; the step measures it. Closes D017. P11 closes with that step.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
