@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>BEAML roadmap</title>
-<meta name="description" content="BEAML: one typed language and one compiler from source to production on the BEAM. Roadmap along the six parts of vertical integration.">
+<meta name="description" content="BEAML: one typed language and one compiler from source to production on the BEAM. Roadmap along the seven parts: six of vertical integration, plus developer and agent experience.">
 <style>
 :root{
   --bg:#f5f6f8; --surface:#ffffff; --fg:#18202b; --muted:#5a6573; --line:#d4d9e0;
@@ -59,7 +59,7 @@ li{font-size:14px}
 pre{margin:0;font-family:var(--mono);font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
 pre i{font-style:normal}
 .k{color:var(--hl-k);font-weight:600} .t{color:var(--hl-t)} .f{color:var(--hl-f)} .p{color:var(--hl-p)} .s{color:var(--hl-s)} .c{color:var(--hl-c)} .o,.b{color:var(--hl-o)} .m{color:var(--hl-m)}
-.bar{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.bar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .bar div{height:8px;border-radius:4px;background:var(--open-soft)}
 .bar .ok{background:var(--ok)} .bar .wait{background:var(--wait)} .bar .mix{background:linear-gradient(90deg,var(--ok) 50%,var(--wait) 50%)}
 footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
@@ -75,7 +75,7 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
 </header>
 
 <section style="display:grid;gap:10px">
-  <div class="bar" aria-hidden="true"><div class="mix"></div><div class="mix"></div><div class="wait"></div><div></div><div></div><div class="mix"></div></div>
+  <div class="bar" aria-hidden="true"><div class="mix"></div><div class="mix"></div><div class="wait"></div><div></div><div></div><div class="mix"></div><div class="mix"></div></div>
   <div class="legend">
     <span><span class="chip ok">verified</span> built, tests green, evidence retained</span>
     <span><span class="chip wait">decided</span> owner decision recorded, not built</span>
@@ -189,6 +189,28 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>Typed dashboards and alerts</li>
       <li>Feature flags</li>
       <li>Implicit PII flow in the compiler</li>
+    </ul></div>
+  </div>
+</article>
+
+<article class="part">
+  <header><h2><span class="num">7</span>Developer and agent experience</h2><span class="chip ok">verified · partly</span></header>
+  <p>The CLI and its JSON output are the agent interface. The editor shows the same facts to people. Maintained with every other part, not as a later phase.</p>
+  <div class="cols">
+    <div class="col"><h3>Verified</h3><ul>
+      <li>Tree-sitter grammar, Zed extension, highlighting</li>
+      <li>Compiler errors with a help line that names the fix</li>
+      <li>Action log of every compiler run</li>
+    </ul></div>
+    <div class="col"><h3>Decided, next</h3><ul>
+      <li>Grammar for the decided forms (slice 6a, in progress)</li>
+      <li><code>beaml fmt</code>: one canonical form, aligned clauses (DL-081, DL-083)</li>
+      <li><code>beaml check --json</code>: diagnostics with positions, for agents and editors</li>
+      <li>Language server on that JSON: diagnostics and hover first; Zed, then VS Code</li>
+    </ul></div>
+    <div class="col"><h3>Concept</h3><ul>
+      <li>Go to definition, rename</li>
+      <li>Migration checks and traces beside the source</li>
     </ul></div>
   </div>
 </article>

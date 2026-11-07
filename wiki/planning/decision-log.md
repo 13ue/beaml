@@ -465,6 +465,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: A. Each part shows its state (verified, decided, concept) and its next steps. The roadmap lives in README.md and on a small GitHub Pages site.
 → Because: OWNER choice; the six parts are the owner goal (see wiki/concepts/vertical-integration.md), and progress is visible per part.
 
+**DL-096 · Repair · Developer and agent experience is the seventh roadmap part**
+→ Question: where do the language server, formatter, editor integration and CLI sit on the roadmap?
+→ Options: under part 1 (type system and compiler); a seventh part of its own.
+→ Chose: a seventh part, "Developer and agent experience" (DX and AX). It is maintained with every other part, not as a later phase. The CLI and its JSON output are the agent interface; the editor shows the same facts to people.
+→ Because: OWNER choice; the agent interface is the core of the project, and DX cuts across all six parts (migration errors in the editor, traces beside the source).
+→ Order (proposal): grammar (slice 6a), compiler for the decided forms, `beaml fmt` and `beaml check --json`, then a language server on that JSON with diagnostics and hover first; Zed first, then VS Code.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
