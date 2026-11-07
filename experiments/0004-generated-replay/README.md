@@ -1780,3 +1780,111 @@ error: the --stored check: the Elixir run of the generated constructors failed (
 | No glossary term STORED CHECK; the text says "the `--stored` check" | Undo | One flag name is clearer than a second term | Opus (DOCS, slice6b 12+13) |
 | N1 and N2 of both reviews stated as open limits | Undo | No code change in DOCS; a fix is a separate step | Opus (DOCS, slice6b 12+13) |
 | Steps 12, 12b and 13 in one DOCS pass, with one shared TEST table | Undo | One TEST run covers both steps | Opus (DOCS, slice6b 12+13) |
+
+### Slice 6b step 6b: redacted fields
+
+**[Verified]** Pass after one review repair (O1, O2 closed in acf12d75), one medium note (O3). Ledger: [slice6b-redacted-fields](workflow/2026-11-07/slice6b-redacted-fields/). Contract: [spec.md](workflow/2026-11-07/slice6b-redacted-fields/spec.md). Review and re-check: [review.md](workflow/2026-11-07/slice6b-redacted-fields/review.md). Plan: [slice6b-redacted](workflow/2026-11-07/slice6b-redacted/plan.md). Decisions: DL-059, DL-089, DL-105, DL-111, DL-113, DL-115, DL-116, DL-125 in the [decision log](../../wiki/planning/decision-log.md); D6B-148 to D6B-173, D6B-184 to D6B-186 in the ledger.
+
+**[Requirement]** A field declared `redacted` stays out of logs, traces and records (DL-059). An EFFECT sends it only when the EFFECT names it with `with` (DL-089).
+
+```beaml
+type Order { order_id: String  card_holder: redacted String }
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize") with card_holder
+```
+
+**Forms [Verified].**
+
+- `name: redacted TYPE` stands only in a `type` field. In an enum payload, a signature line or a MIGRATE CHANGE it is the D6B-64 error.
+- `with f1, f2` stands after the `)` of the EFFECT target. Each name is a top-level redacted field of the input TYPE (D6B-65 texts: not a field, not a redacted field, named twice).
+- A dotted name (`with card.holder`) is a parse error, `expected identifier at byte N`, not a named rule text (D6B-31).
+
+**Projections [Verified].**
+
+| Channel | Holds a redacted input field |
+| --- | --- |
+| Wire body | only when `with` names it |
+| Record `request`, `:request_mismatch` compare, span input, `ProbeSupport.event` | never, also not a `with` name; the key is removed, no placeholder |
+| Record `value` (output) | never; the `redacted` list names the field when it was present and valid (D6B-55) |
+| Live flow (output) | yes, the real value |
+| REPLAY RUN (output) | the atom `:redacted` (DL-115) |
+
+- Record `unknown_keys` holds dotted names per level for every EFFECT source (D6B-56 amendment, D6B-172).
+- The record `type` key and the fingerprint write `redacted String` (D6B-148).
+- A same-named plain output field beside a redacted input field keeps its value (DL-113).
+
+**DL-116 walk [Verified].** A redacted EFFECT output field must be a String or Int field of a TYPE without a constructor. The walk goes to any depth of the output TYPE, before the slice 1 decode limit (D6B-157). Since the review repair, a field below an enum payload or below a TYPE with a constructor is also rejected (D6B-184).
+
+```text
+error: effect E: the redacted field T.F must be a String or Int field of a TYPE without a constructor in slice 6b (DL-116)
+  help: remove redacted from T.F; the limit holds until a rule over an absent value exists (DL-116)
+```
+
+**Stored-value block [Verified].** `--stored` blocks a stored value under a field that is now redacted, per TYPE, operation, dotted path and place (`request` or `value`). The help line names `redact F` (DL-111), which has no syntax yet (DL-125). No stored value byte reaches stderr (DL-032).
+
+| Step | Owner |
+| --- | --- |
+| Parse `redacted` and `with`, D6B-64, D6B-65, DL-116 walk, stored-value block | BEAML (COMPILER) |
+| Wire, record, span and event projections; `redacted` list; `:redacted` in a REPLAY RUN | BEAML (generated) |
+| `ProbeSupport` span, event and capture, HTTP service, RECORD SNAPSHOT file | host (file-backed stubs in the test) |
+
+**Result [Verified].** `slice6_redacted_test.py` 20 of 20 after the repair. Full suite [`results/20261107T200526124175Z`](results/20261107T200526124175Z/result.json): pass, 14 of 14 steps, `slice5-syntax` 60 OK. Other slice 6 files all OK (re-check table). Byte check of the repair: 0 of 2036 tracked `.beaml` sources differ.
+
+**Limits (step 6b).**
+
+- **[Verified]** D6B-184 wording: the DL-116 text names the field, not the enum or the constructor TYPE above it. For `Holder.name` below an enum payload and `Inner.s` below `Amount`, "a TYPE without a constructor" is true of the field TYPE, so the text gives no reason for the reject. The help line is correct.
+- **[Verified]** No accept case for a redacted Int output field or a redacted nested output field: the slice 1 decode limit rejects them first (D6B-156).
+- **[Verified]** The slice 5 PIN: the D6B-172 re-pin moved three pins and missed `PIN` in `tests/slice5_syntax_test.py`. The review repair moved it from `237a4578` to `461d024e` (review O1). The re-pin changed 80 pinned hashes; EFFECT sources without `redacted` are no longer byte-equal to the step 6a output.
+- **[Verified]** O3 (medium, open): the stored-value block reads no `status`.
+- **[Verified]** Release path (real `ProbeSupport`, Logger handler, OTel exporter): not run (plan L1). The marker scan of the test does not cover upper-case hex or JSON `\u` escapes.
+- **[Verified]** The full suite covers slices 1 to 5. The slice 6 files ran apart (RED TEAM 01, finding D10).
+
+### Slice 6b step 6c: redacted copies
+
+**[Verified]** Pass, three medium notes (O1 to O3), no block. Ledger: [slice6b-redacted-failure](workflow/2026-11-07/slice6b-redacted-failure/). Contract: [spec.md](workflow/2026-11-07/slice6b-redacted-failure/spec.md). Review: [review.md](workflow/2026-11-07/slice6b-redacted-failure/review.md). Decisions: DL-105, DL-112, DL-113 in the [decision log](../../wiki/planning/decision-log.md); D6B-174 to D6B-183, D6B-191 to D6B-196 in the ledger.
+
+**[Requirement]** A direct copy of a redacted value into a field that is not redacted is a compile error everywhere (DL-112). DL-105 names the failure TYPES; DL-112 widens the rule to every record literal and variant payload. Only the direct copy is caught; a derived value is the implicit flow, a later target (DL-029).
+
+**Direct value [Verified].** A variable that a record pattern binds to a redacted field, at any depth, also under another name. One call or pipe step keeps it direct: into an identity fn (every clause returns the parameter, D6B-174) or into an accessor (every clause returns a direct redacted value, D6B-182). Both fns have one parameter. One hop only.
+
+**Rejected places [Verified].** (a) A field of a record literal that is not `redacted`, also nested. (b) A variant payload, also a variant as a pipe step. (c) The whole clause body when its TYPE is the failure TYPE. The text says "failure TYPE" with `(DL-105)` for a failure TYPE of the fn, else "TYPE" with `(DL-112)` (D6B-175, D6B-192).
+
+```text
+error: fn receipt copies the redacted field card_holder of Order into holder of the TYPE Receipt, which is not redacted
+  help: mark holder as redacted in Receipt, or do not copy the value (DL-112)
+```
+
+**Cases [Verified].**
+
+| Group | Fixtures | Outcome |
+| --- | --- | --- |
+| Failure TYPE copies (DL-105) | `f1`, `f3`, `f4`, `f7` | rejected |
+| Copies everywhere (DL-112) | `d1` record field, `d2` pipe into identity, `d3` call of identity, `d4` enum payload, `d5` variant pipe, `d6` renamed binding, `d7` nested pattern, `d8` call of accessor, `d9` pipe into accessor | rejected |
+| g1 to g5 (guards) | `g1` redacted target, `g2` redacted failure field, `g3` same-named plain field with another value (DL-113), `g4` whole record into a field of its own TYPE, `g5` accessor result into a redacted target | build |
+| l1 to l8 (limits) | `l1` `+`, `l2` constructor of another TYPE, `l3` fn that builds a record, `l4` two identity levels, `l5` the accessor alone, `l6` accessor in the first clause only, `l7` identity in the last clause only, `l8` accessor in the last clause only | build (pinned limit) |
+
+| Step | Owner |
+| --- | --- |
+| Pattern binds, identity and accessor hop, copy walk, texts | BEAML (COMPILER), build only |
+| Every derived path (`l1` to `l8`, O1, O2) | nobody yet (DL-029 target) |
+
+**Result [Verified].** `slice6_redacted_failure_test.py` 8 tests OK (13 RED subtests, 5 guards, 8 limits). Full suite [`results/20261107T200526124175Z`](results/20261107T200526124175Z/result.json): pass, 14 of 14 steps. Byte check: of 2044 tracked `.beaml` sources, exactly the 13 RED fixtures differ.
+
+**Limits (step 6c).**
+
+- **[Verified]** The rule is syntactic. `l1` to `l8` build; a later flow check changes them.
+- **[Verified]** `o |> holder |> Holder` (an accessor step, then a constructor) builds, a limit like `l2`. `o |> holder |> Held` is the payload reject (D6B-193).
+- **[Verified]** O1 (medium): a derived copy reaches the store. An accessor, a fn that builds a record and an EFFECT (`o |> holder |> wrap |> payments.authorize`) build. The live run writes the value in plain form to `responses.jsonl` and the span, with no `with`. The stored-value block of step 6b does not see it, because the stored field is not redacted. This is inside the DL-112 limit; it is evidence for DL-029.
+- **[Verified]** O2 (medium): the check reaches one-parameter fns only. A two-parameter accessor and a one-parameter failure builder build. An unused second parameter bypasses the accessor rule.
+- **[Verified]** O3 (D6B-191): the check runs in the build, after `validate`, not in `fmt`. `fmt` gives exit 0 on a source that the build rejects. `fmt` is not a validity check.
+- **[Verified]** No field access form exists (`o.card_holder` does not parse) and no list TYPE exists, so no case for them.
+- **[Verified]** Compile only: no runtime harness checks the rejected cases, because a reject builds no module.
+- **[Inference]** The accessor itself builds because no redacted return form exists. A return form would let the check move into the accessor.
+
+### Decisions (Decision4, slice 6b DOCS 6b and 6c)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| Steps 6b and 6c in one DOCS pass, with the shared full-suite run `20261107T200526124175Z` | Undo | One TEST run covers both steps | Opus (docs slice6b/6c) |
+| The TEST docs defects go into the ledger as dated additions, not as edits of the RED text | Repair | Chose: append. Over: rewrite `spec.md`. Because: the ledger is a phase record. Commits us to: a reader reads the addition after the contract | Opus (docs slice6b/6c) |
+| O1, O2 of 6c and the D6B-184 wording stated as open limits | Undo | No code change in DOCS; a fix is a separate step or an OWNER choice | Opus (docs slice6b/6c) |
+| No new glossary term for "direct value", "identity fn" or "accessor" | Undo | Scoped to step 6c; the ledger defines them | Opus (docs slice6b/6c) |

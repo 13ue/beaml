@@ -86,6 +86,7 @@ updated: 2026-11-07
 - The pipe `|>` works in any expression; constructors and variants are steps (DL-086).
 - `beaml fmt` aligns the columns of consecutive clauses (DL-083).
 - An EFFECT gets a `redacted` field only with `with <field>` (DL-089).
+  - **[Verified]** Built 2026-11-07 in [EXPERIMENT 0004 slice 6b steps 6b and 6c](../../experiments/0004-generated-replay/README.md#slice-6b-step-6b-redacted-fields): `with` sends the field on the wire only; the record, the span and the event never hold it. A direct copy into a field that is not redacted is a compile error (DL-112). Limit: a derived copy (`+`, a constructor, a fn that builds a record, two hops) builds, and one such path reaches the store in plain form ([step 6c limits](../../experiments/0004-generated-replay/README.md#slice-6b-step-6c-redacted-copies), O1). The flow check stays a target (DL-029).
 - One type form `type X { … }`; a constructor makes itself the only way in (DL-092).
 - `!` marks a position in a signature, not a kind of type (DL-092).
 - Success and failure types never overlap: `-> String ! String` is an error (DL-093).

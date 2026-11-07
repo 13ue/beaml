@@ -262,3 +262,12 @@ By: Opus (REVIEW REPAIR, slice6b-redacted-fields) for every entry in this sectio
 #### Repair
 
 - D6B-184 · Repair · Chose: the existing DL-116 interim text for a redacted field below an enum payload or a TYPE with a constructor, with the TYPE that holds the field (`Holder.name`, `Inner.s`). Over: a new text that names the enum or the constructor TYPE above. Because: one DL-116 text; the help line names the field to change. Commits us to: the text says "a TYPE without a constructor" also for the enum payload case, where the constructor is on the enum; the docs phase states this limit in `spec.md`. By: Opus (REVIEW REPAIR, slice6b-redacted-fields)
+
+## Docs notes (2026-11-07)
+
+By: Opus (docs slice6b/6c). The sections above stay as written.
+
+- **[Verified]** GREEN re-pin (D6B-172): the re-pin moved three pins and missed a fourth, `PIN` in `tests/slice5_syntax_test.py`. The review repair moved it from `237a4578` to `461d024e` (review O1, D6B-186). The slice 2 to 5 tests ran again after that move: `slice5_syntax_test.py` 60 OK.
+- **[Verified]** GREEN results: "No existing assertion changed" holds for the first GREEN only. The re-pin changed 80 pinned hashes (2 + 36 + 42) and the review repair moved the slice 5 PIN.
+- **[Verified]** Review repair, "Not run: the full `run.py`": the TEST re-check ran it. [`results/20261107T200526124175Z`](../../../results/20261107T200526124175Z/result.json): pass, 14 of 14 steps, `slice5-syntax` 60 OK.
+- **[Verified]** Hygiene: commit 51fd79b2 holds the run directory `results/20261107T200257991414Z` without `result.json`. It is not a complete run; do not cite it.

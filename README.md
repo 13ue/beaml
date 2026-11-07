@@ -23,7 +23,7 @@ BEAML owns the whole path from source to production, so that agents make fewer e
 | 3. Typed errors | Verified in part: `-> T ! E1 \| E2`, no overlap (DL-093, slice 6b step 2) | Division form (DL-030) |
 | 4. Modules follow the file system | Concept | Decide the module form |
 | 5. Tests and evals for agents | Verified in part: source-linked REPLAY RUN (experiment 0003) | Decide the test syntax |
-| 6. Production | Verified in part: HTTP correlation (0002), isolated replay (0003), spans on the EFFECT path (DL-119, slice 6b step 12) | `redacted` across the stack (DL-059, DL-089; slice 6b step 6b in build) |
+| 6. Production | Verified in part: HTTP correlation (0002), isolated replay (0003), spans on the EFFECT path (DL-119, slice 6b step 12), `redacted` fields with `with` and the direct-copy check (DL-059, DL-089, DL-112; slice 6b steps 6b and 6c). Limit: a derived copy is not checked | Entry points as inbound EFFECTS (`on`, DL-128) |
 | 7. Developer and agent experience | Verified in part: grammar with the decided forms (slice 6a), Zed extension, help lines, `beaml fmt` (slice 6b step 10) | `beaml check --json`, then a language server (DL-096) |
 
 ## Local use

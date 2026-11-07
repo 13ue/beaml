@@ -189,10 +189,10 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>One order located across two HTTP services, spans and logs (experiment 0002)</li>
       <li>Captured responses replay in isolation (experiment 0003)</li>
       <li>A step gets a span when it is an effect or reaches one, transitively; the default span set is the effect path (DL-108, DL-119, slice 6b step 12)</li>
+      <li><code>redacted</code> fields stay out of records, spans and events; an effect sends one only with <code>with &lt;field&gt;</code> (DL-059, DL-089, slice 6b step 6b)</li>
+      <li>A direct copy of a redacted value into a plain field, a payload or a failure is a compile error (DL-105, DL-112, slice 6b step 6c). Limit: a derived copy is not checked</li>
     </ul></div>
     <div class="col"><h3>Decided, next</h3><ul>
-      <li><code>redacted</code> fields stay out of logs, traces and reports (DL-059; slice 6b step 6b, in build)</li>
-      <li>An effect gets a redacted field only with <code>with &lt;field&gt;</code> (DL-089)</li>
       <li>Migration checks report counts per environment, never values</li>
       <li>Entry points declared in the source as inbound effects (<code>on</code>), so every live function is reachable from a declaration and the entry opens the root span (DL-128)</li>
     </ul></div>
@@ -201,7 +201,7 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>Trace resolution per subtree, time-limited, as an observatory setting (DL-119, D018)</li>
       <li>Typed dashboards and alerts</li>
       <li>Feature flags</li>
-      <li>Implicit PII flow in the compiler</li>
+      <li>Implicit PII flow in the compiler: derived copies (DL-029)</li>
     </ul></div>
   </div>
 </article>
@@ -232,8 +232,10 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
 
 <section style="display:grid;gap:10px">
   <h2>What the source looks like today</h2>
-  <div class="code"><pre><i class=k>type</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+  <div class="code"><pre><i class=m>// card_holder is PII: it stays out of logs, traces and records (DL-059).</i>
+<i class=k>type</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i>  <i class=p>card_holder</i><i class=o>:</i> <i class=k>redacted</i> <i class=t>String</i> <i class=b>}</i>
 <i class=k>type</i> <i class=t>PaymentError</i> <i class=b>{</i> <i class=p>reason</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>Receipt</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i>  <i class=p>holder</i><i class=o>:</i> <i class=k>redacted</i> <i class=t>String</i> <i class=b>}</i>
 
 <i class=k>type</i> <i class=t>Payment</i> <i class=c>v3</i> <i class=b>{</i>
   <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i>
@@ -248,13 +250,17 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
 
 <i class=k>enum</i> <i class=t>PaymentState</i> <i class=b>{</i> <i class=c>Authorized</i> <i class=o>=</i> <i class=s>&quot;ok&quot;</i>  <i class=c>Pending</i> <i class=o>=</i> <i class=s>&quot;pending&quot;</i>  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i> <i class=b>}</i>
 
-<i class=k>effect</i> <i class=f>payments.authorize</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i> <i class=f>http.post</i><i class=b>(</i><i class=s>&quot;payments/authorize&quot;</i><i class=b>)</i>
+<i class=m>// with card_holder: the field goes on the wire, never into the record (DL-089).</i>
+<i class=k>effect</i> <i class=f>payments.authorize</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i> <i class=f>http.post</i><i class=b>(</i><i class=s>&quot;payments/authorize&quot;</i><i class=b>)</i> <i class=k>with</i> <i class=p>card_holder</i>
 <i class=k>retire</i> <i class=f>payments.refund</i> <i class=k>keep</i> <i class=c>30</i> <i class=k>days</i>
 
 <i class=k>fn</i> <i class=f>place</i> order<i class=o>:</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i>
   order
-  <i class=o>|&gt;</i> <i class=f>payments.authorize</i></pre></div>
-  <p class="note">Only the newest type is declared. The chain holds the history. This sample compiles with the compiler at git <code>1dd6ad62</code> (<code>--stored</code> with an empty snapshot: exit 0, three dead-line warnings). Highlighted with the project grammar. <code>redacted</code> fields (DL-059) are in build and not in this sample.</p>
+  <i class=o>|&gt;</i> <i class=f>payments.authorize</i>
+
+<i class=m>// A copy into a plain field is a compile error (DL-112); this target is redacted.</i>
+<i class=k>fn</i> <i class=f>receipt</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=b>,</i> <i class=p>card_holder</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Receipt</i> <i class=o>=</i> <i class=t>Receipt</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id<i class=b>,</i> <i class=p>holder</i><i class=o>:</i> card_holder <i class=b>}</i></pre></div>
+  <p class="note">Only the newest type is declared. The chain holds the history. <code>card_holder</code> is <code>redacted</code>: the effect sends it on the wire with <code>with</code>; the record, the span and the event never hold it. <code>receipt</code> copies it into a redacted field; a plain <code>holder</code> is a compile error (DL-112). This sample compiles with the compiler at git <code>5b7feb92</code> (<code>--stored</code> with an empty snapshot: exit 0, three dead-line warnings). Highlighted with the project grammar.</p>
 </section>
 
 <footer>
