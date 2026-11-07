@@ -693,6 +693,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: DL-032 gets no exception; a stored String can be outside data. The OWNER asked for a loud compile error, which this keeps.
 → Commits us to: DL-122 reads with this narrowing; the README states the text.
 
+**DL-125 · Migrate · The fate of a stored record is a declarative operation in the MIGRATE STEP; expressions only when a real case needs them**
+→ Question: three interim blocks wait for a fate syntax: a stored record that fails a new rule (DL-102), a redacted field without a constructor (DL-116), a lost ENUM LITERAL (DL-122). Which form does the fate take in `migrate T vN -> vM { … }`?
+→ Options: 1, fate operations beside `rename`, `add`, `drop`: `redact f` (DL-111), `quarantine f` (records whose field fails its rule are parked, no REPLAY RUN, listed by the build), `retire f keep N days` (such records leave the replay set after N days), `map f "old" -> Variant(...)` for a lost literal; 2, clauses per field with a pattern, an expression over the old value and a failure branch `! fate` (1 is a subset of 2); 3, expressions plus a separate `on fail` block.
+→ Chose: 1. The most declarative form: every line says what happens to a field, never how. No variables, no expressions, no order dependence. Expressions (form 2) come only when a real case needs a computed value; form 1 stays valid then, because it is a subset of 2.
+→ By: 13ue
+→ Because: declarative first: an agent derives the line from the error text and the decision; fewer places to make an error. The three interim blocks need nothing more than 1.
+→ Effect: a concept page for the fate operations, then grammar (slice 6c or 7) and a slice 6b follow-up that lifts the interim blocks. The REPLAY RUN rule stays DL-102: chain to vM, then today's code; a quarantined record does not run. Scope note: a MIGRATE STEP governs RESPONSE RECORDS today; whether it also governs BEAML-owned persistence later is open (D020).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

@@ -438,6 +438,20 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Options when the trigger fires: (1) keep the generated Elixir as the one backend and run the build check with it (D017 option b); (2) Rust NIF for the pure core as sketched; (3) a third form not yet named. The OWNER chooses.
 
+## D020 — Does a MIGRATE STEP govern BEAML-owned persistence, or only RESPONSE RECORDS
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate (roadmap part 3)
+- **Scope** EXECUTION, MIGRATE CHAIN, DL-102, DL-125
+- **Decision trigger** Before BEAML owns any persistent store (table, document store, state), or before the fate syntax (DL-125) is used for anything but RESPONSE RECORDS.
+
+**[Verified]** Today every stored record is a RESPONSE RECORD: one line per EFFECT call, written for the REPLAY RUN. A database is an EFFECT (`db.get(...)`), outside BEAML. BEAML owns no persistence, and data in a database is migrated by the host. The fate operations of DL-125 (`quarantine`, `retire`, `redact`, `map`) apply to RESPONSE RECORDS.
+
+**[Proposal]** When BEAML owns persistence, the same `migrate T vN -> vM` block could govern both: replay records and stored state, with the same fates (a quarantined row is parked, a retired row is deleted after the keep window). Options then: one syntax for both; separate syntax for state; no BEAML-owned persistence. Raised in the OWNER walk-through of the fate concept (2026-11-07). By: Fable.
+
+**[Unknown]** Not built. No persistence design exists.
+
 ## Answered 2026-11-07
 
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.
@@ -446,6 +460,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - [DL-102](decision-log.md): replay rule, a stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate.
 - [DL-103](decision-log.md): replay rule, a mapping change that only resolves Unknown values needs no MIGRATE STEP.
 - [DL-117](decision-log.md): Q6B-16, `T.new/1` takes one map with atom keys, also for one parameter.
+- [DL-125](decision-log.md): fate concept, declarative fate operations in the MIGRATE STEP; expressions only on a real case.
 - [DL-122](decision-log.md): Q6B-8, a removed or changed ENUM LITERAL with stored values blocks the build (interim).
 - [DL-121](decision-log.md): Q6B-19, the `--stored` check runs the generated Elixir constructor over the stored values.
 - [DL-120](decision-log.md): Q6B-18, a constructor is pure; reaching an EFFECT is a compile error.
