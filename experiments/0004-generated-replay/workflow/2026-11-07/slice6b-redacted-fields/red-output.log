@@ -392,3 +392,418 @@ Ran 17 tests in 1.834s
 
 FAILED (failures=21)
 # exit: 1
+
+# ==== RED repair (O1 nested input field, O2 masked messages), 2026-11-07 ====
+# git HEAD: a5e782b8; same scratch compiler build of HEAD
+# command: BEAML_SPIKE=<scratch> python3 -B experiments/0004-generated-replay/tests/slice6_redacted_test.py -v
+# test file sha256: 80208da2609661bc1e79849c4e9207d33775a285b66cc1fcb18b8252c47aea74
+# orders_nested.beaml sha256: 0f779d5da78734a98a2d7fa108702acc25b330f23f59b7a6b27c4275f0a60840
+
+test_N1_nested_redacted_input_field_reaches_no_channel (__main__.Slice6Redacted.test_N1_nested_redacted_input_field_reaches_no_channel) ... compiler: <scratch>/beaml-spike
+FAIL
+test_R1_no_with_never_sends_the_redacted_field (__main__.Slice6Redacted.test_R1_no_with_never_sends_the_redacted_field) ... FAIL
+test_R2_R3_with_sends_the_field_on_the_wire_only (__main__.Slice6Redacted.test_R2_R3_with_sends_the_field_on_the_wire_only) ... FAIL
+test_R4_R5_echo_into_a_declared_redacted_output_field (__main__.Slice6Redacted.test_R4_R5_echo_into_a_declared_redacted_output_field) ... FAIL
+test_R4_echo_into_an_output_type_without_the_field (__main__.Slice6Redacted.test_R4_echo_into_an_output_type_without_the_field) ... FAIL
+test_R4c_same_named_plain_output_field_keeps_the_value (__main__.Slice6Redacted.test_R4c_same_named_plain_output_field_keeps_the_value) ... FAIL
+test_R6_dl116_interim_limit (__main__.Slice6Redacted.test_R6_dl116_interim_limit) ... 
+  test_R6_dl116_interim_limit (__main__.Slice6Redacted.test_R6_dl116_interim_limit) [output_enum] ... FAIL
+  test_R6_dl116_interim_limit (__main__.Slice6Redacted.test_R6_dl116_interim_limit) [output_record] ... FAIL
+  test_R6_dl116_interim_limit (__main__.Slice6Redacted.test_R6_dl116_interim_limit) [output_constructor_field] ... FAIL
+  test_R6_dl116_interim_limit (__main__.Slice6Redacted.test_R6_dl116_interim_limit) [output_constructor_type] ... FAIL
+test_R6_fixtures_build_without_redacted_and_with (__main__.Slice6Redacted.test_R6_fixtures_build_without_redacted_and_with) ... ok
+test_R6_redacted_int_output_passes_dl116 (__main__.Slice6Redacted.test_R6_redacted_int_output_passes_dl116) ... FAIL
+test_R6_redacted_outside_a_type_field (__main__.Slice6Redacted.test_R6_redacted_outside_a_type_field) ... 
+  test_R6_redacted_outside_a_type_field (__main__.Slice6Redacted.test_R6_redacted_outside_a_type_field) [enum_payload] ... FAIL
+  test_R6_redacted_outside_a_type_field (__main__.Slice6Redacted.test_R6_redacted_outside_a_type_field) [signature] ... FAIL
+  test_R6_redacted_outside_a_type_field (__main__.Slice6Redacted.test_R6_redacted_outside_a_type_field) [migrate_change] ... FAIL
+test_R6_with_rejects (__main__.Slice6Redacted.test_R6_with_rejects) ... 
+  test_R6_with_rejects (__main__.Slice6Redacted.test_R6_with_rejects) [with_unknown] ... FAIL
+  test_R6_with_rejects (__main__.Slice6Redacted.test_R6_with_rejects) [with_plain] ... FAIL
+  test_R6_with_rejects (__main__.Slice6Redacted.test_R6_with_rejects) [with_twice] ... FAIL
+test_R7_R8_fixtures_build_without_redacted (__main__.Slice6Redacted.test_R7_R8_fixtures_build_without_redacted) ... ok
+test_R7_stored_output_value_under_a_field_that_is_now_redacted (__main__.Slice6Redacted.test_R7_stored_output_value_under_a_field_that_is_now_redacted) ... FAIL
+test_R7_stored_value_with_the_redacted_fingerprint_gets_the_exact_block (__main__.Slice6Redacted.test_R7_stored_value_with_the_redacted_fingerprint_gets_the_exact_block) ... FAIL
+test_R8_count_and_first_line (__main__.Slice6Redacted.test_R8_count_and_first_line) ... FAIL
+test_R8_nested_stored_request_value (__main__.Slice6Redacted.test_R8_nested_stored_request_value) ... FAIL
+test_R8_stored_request_value_of_a_now_redacted_input_field (__main__.Slice6Redacted.test_R8_stored_request_value_of_a_now_redacted_input_field) ... 
+  test_R8_stored_request_value_of_a_now_redacted_input_field (__main__.Slice6Redacted.test_R8_stored_request_value_of_a_now_redacted_input_field) [orders] ... FAIL
+  test_R8_stored_request_value_of_a_now_redacted_input_field (__main__.Slice6Redacted.test_R8_stored_request_value_of_a_now_redacted_input_field) [orders_with] ... FAIL
+test_control_plain_input_leaks_and_the_scan_finds_it (__main__.Slice6Redacted.test_control_plain_input_leaks_and_the_scan_finds_it) ... ok
+test_scan_finds_each_planted_form (__main__.Slice6Redacted.test_scan_finds_each_planted_form) ... ok
+
+======================================================================
+FAIL: test_N1_nested_redacted_input_field_reaches_no_channel (__main__.Slice6Redacted.test_N1_nested_redacted_input_field_reaches_no_channel)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 369, in test_N1_nested_redacted_input_field_reaches_no_channel
+    run, stub = self.flow(FIX / "orders_nested.beaml", NESTED_CASES, echo=False, order=NESTED_ORDER)
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 307, in flow
+    stdout = self.build(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 295, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected ':' at byte 271
+
+
+======================================================================
+FAIL: test_R1_no_with_never_sends_the_redacted_field (__main__.Slice6Redacted.test_R1_no_with_never_sends_the_redacted_field)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 362, in test_R1_no_with_never_sends_the_redacted_field
+    run, stub = self.flow(FIX / "orders.beaml", dict(R1_CASES, **R1_REPLAY_CASES), echo=False)
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 307, in flow
+    stdout = self.build(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 295, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected ':' at byte 170
+
+
+======================================================================
+FAIL: test_R2_R3_with_sends_the_field_on_the_wire_only (__main__.Slice6Redacted.test_R2_R3_with_sends_the_field_on_the_wire_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 375, in test_R2_R3_with_sends_the_field_on_the_wire_only
+    run, stub = self.flow(FIX / "orders_with.beaml", R2_CASES, echo=False)
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 307, in flow
+    stdout = self.build(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 295, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected ':' at byte 272
+
+
+======================================================================
+FAIL: test_R4_R5_echo_into_a_declared_redacted_output_field (__main__.Slice6Redacted.test_R4_R5_echo_into_a_declared_redacted_output_field)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 381, in test_R4_R5_echo_into_a_declared_redacted_output_field
+    run, stub = self.flow(FIX / "echo_declared.beaml", DECLARED_CASES, echo=True)
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 307, in flow
+    stdout = self.build(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 295, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected ':' at byte 177
+
+
+======================================================================
+FAIL: test_R4_echo_into_an_output_type_without_the_field (__main__.Slice6Redacted.test_R4_echo_into_an_output_type_without_the_field)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 387, in test_R4_echo_into_an_output_type_without_the_field
+    run, stub = self.flow(FIX / "orders_with.beaml", UNDECLARED_CASES, echo=True)
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 307, in flow
+    stdout = self.build(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 295, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected ':' at byte 272
+
+
+======================================================================
+FAIL: test_R4c_same_named_plain_output_field_keeps_the_value (__main__.Slice6Redacted.test_R4c_same_named_plain_output_field_keeps_the_value)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 393, in test_R4c_same_named_plain_output_field_keeps_the_value
+    run, stub = self.flow(FIX / "echo_plain.beaml", PLAIN_CASES, echo=True)
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 307, in flow
+    stdout = self.build(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 295, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected ':' at byte 162
+
+
+======================================================================
+FAIL: test_R6_dl116_interim_limit (__main__.Slice6Redacted.test_R6_dl116_interim_limit) [output_enum]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 442, in test_R6_dl116_interim_limit
+    self.assertEqual(dl_116(output, field), self.rejected(BAD / (name + ".beaml")))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: effect payments.authorize: the re[216 chars]116)' != "expected ':' at byte 204"
++ expected ':' at byte 204
+- error: effect payments.authorize: the redacted field Payment.state must be a String or Int field of a TYPE without a constructor in slice 6b (DL-116)
+-   help: remove redacted from Payment.state; the limit holds until a rule over an absent value exists (DL-116)
+
+
+======================================================================
+FAIL: test_R6_dl116_interim_limit (__main__.Slice6Redacted.test_R6_dl116_interim_limit) [output_record]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 442, in test_R6_dl116_interim_limit
+    self.assertEqual(dl_116(output, field), self.rejected(BAD / (name + ".beaml")))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: effect payments.authorize: the re[218 chars]116)' != "expected ':' at byte 173"
++ expected ':' at byte 173
+- error: effect payments.authorize: the redacted field Payment.holder must be a String or Int field of a TYPE without a constructor in slice 6b (DL-116)
+-   help: remove redacted from Payment.holder; the limit holds until a rule over an absent value exists (DL-116)
+
+
+======================================================================
+FAIL: test_R6_dl116_interim_limit (__main__.Slice6Redacted.test_R6_dl116_interim_limit) [output_constructor_field]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 442, in test_R6_dl116_interim_limit
+    self.assertEqual(dl_116(output, field), self.rejected(BAD / (name + ".beaml")))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: effect payments.authorize: the re[218 chars]116)' != "expected ':' at byte 448"
++ expected ':' at byte 448
+- error: effect payments.authorize: the redacted field Payment.amount must be a String or Int field of a TYPE without a constructor in slice 6b (DL-116)
+-   help: remove redacted from Payment.amount; the limit holds until a rule over an absent value exists (DL-116)
+
+
+======================================================================
+FAIL: test_R6_dl116_interim_limit (__main__.Slice6Redacted.test_R6_dl116_interim_limit) [output_constructor_type]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 442, in test_R6_dl116_interim_limit
+    self.assertEqual(dl_116(output, field), self.rejected(BAD / (name + ".beaml")))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: effect payments.authorize: the re[214 chars]116)' != "expected ':' at byte 205"
++ expected ':' at byte 205
+- error: effect payments.authorize: the redacted field Amount.value must be a String or Int field of a TYPE without a constructor in slice 6b (DL-116)
+-   help: remove redacted from Amount.value; the limit holds until a rule over an absent value exists (DL-116)
+
+
+======================================================================
+FAIL: test_R6_redacted_int_output_passes_dl116 (__main__.Slice6Redacted.test_R6_redacted_int_output_passes_dl116)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 446, in test_R6_redacted_int_output_passes_dl116
+    self.assertEqual("effect payments.authorize: slice 1 decodes String fields only, not Payment.attempts",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     self.rejected(BAD / "output_int.beaml"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'effect payments.authorize: slice 1 decod[39 chars]mpts' != "expected ':' at byte 193"
+- effect payments.authorize: slice 1 decodes String fields only, not Payment.attempts
++ expected ':' at byte 193
+
+
+======================================================================
+FAIL: test_R6_redacted_outside_a_type_field (__main__.Slice6Redacted.test_R6_redacted_outside_a_type_field) [enum_payload]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 428, in test_R6_redacted_outside_a_type_field
+    self.assertEqual(D6B_64, self.rejected(BAD / (name + ".beaml")).splitlines()[0])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: redacted stands only before a field TYPE in a type (D6B-29)' != "expected ',' at byte 66"
+- error: redacted stands only before a field TYPE in a type (D6B-29)
++ expected ',' at byte 66
+
+
+======================================================================
+FAIL: test_R6_redacted_outside_a_type_field (__main__.Slice6Redacted.test_R6_redacted_outside_a_type_field) [signature]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 428, in test_R6_redacted_outside_a_type_field
+    self.assertEqual(D6B_64, self.rejected(BAD / (name + ".beaml")).splitlines()[0])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: redacted stands only before a field TYPE in a type (D6B-29)' != "expected '->' at byte 58"
+- error: redacted stands only before a field TYPE in a type (D6B-29)
++ expected '->' at byte 58
+
+
+======================================================================
+FAIL: test_R6_redacted_outside_a_type_field (__main__.Slice6Redacted.test_R6_redacted_outside_a_type_field) [migrate_change]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 428, in test_R6_redacted_outside_a_type_field
+    self.assertEqual(D6B_64, self.rejected(BAD / (name + ".beaml")).splitlines()[0])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: redacted stands only before a field TYPE in a type (D6B-29)' != "expected ',' between two MIGRATE CHANGES or '}' after the last one at byte 179"
+- error: redacted stands only before a field TYPE in a type (D6B-29)
++ expected ',' between two MIGRATE CHANGES or '}' after the last one at byte 179
+
+
+======================================================================
+FAIL: test_R6_with_rejects (__main__.Slice6Redacted.test_R6_with_rejects) [with_unknown]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 435, in test_R6_with_rejects
+    self.assertEqual(line, self.rejected(BAD / (name + ".beaml")).splitlines()[0])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: with names holder, which is not a field of Order' != "expected ':' at byte 131"
+- error: with names holder, which is not a field of Order
++ expected ':' at byte 131
+
+
+======================================================================
+FAIL: test_R6_with_rejects (__main__.Slice6Redacted.test_R6_with_rejects) [with_plain]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 435, in test_R6_with_rejects
+    self.assertEqual(line, self.rejected(BAD / (name + ".beaml")).splitlines()[0])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: with names order_id, which is not a redacted field of Order' != "expected ':' at byte 111"
+- error: with names order_id, which is not a redacted field of Order
++ expected ':' at byte 111
+
+
+======================================================================
+FAIL: test_R6_with_rejects (__main__.Slice6Redacted.test_R6_with_rejects) [with_twice]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 435, in test_R6_with_rejects
+    self.assertEqual(line, self.rejected(BAD / (name + ".beaml")).splitlines()[0])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: with names card_holder twice' != "expected ':' at byte 96"
+- error: with names card_holder twice
++ expected ':' at byte 96
+
+
+======================================================================
+FAIL: test_R7_stored_output_value_under_a_field_that_is_now_redacted (__main__.Slice6Redacted.test_R7_stored_output_value_under_a_field_that_is_now_redacted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 468, in test_R7_stored_output_value_under_a_field_that_is_now_redacted
+    self.assertIn(d6b_72("Payment", 1, "card_holder", "value", stored, 1).splitlines()[0], stderr.splitlines())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize holds a value of the redacted field card_holder in value' not found in ["expected ':' at byte 195"]
+
+======================================================================
+FAIL: test_R7_stored_value_with_the_redacted_fingerprint_gets_the_exact_block (__main__.Slice6Redacted.test_R7_stored_value_with_the_redacted_fingerprint_gets_the_exact_block)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 477, in test_R7_stored_value_with_the_redacted_fingerprint_gets_the_exact_block
+    self.assertEqual(d6b_72("Payment", 1, "card_holder", "value", stored, 1),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     self.rejected(FIX / "output_redacted.beaml", ["--stored", str(stored)]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: TYPE Payment: 1 stored RESPONSE R[343 chars]125)' != "expected ':' at byte 195"
++ expected ':' at byte 195
+- error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize holds a value of the redacted field card_holder in value
+-   record source: <work>/stored-redacted-fingerprint.jsonl:1 (line 1)
+-   help: declare the fate in a MIGRATE STEP: redact card_holder (DL-111); slice 6b has no form for it yet (DL-125)
+
+
+======================================================================
+FAIL: test_R8_count_and_first_line (__main__.Slice6Redacted.test_R8_count_and_first_line)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 506, in test_R8_count_and_first_line
+    self.assertEqual(d6b_72("Order", 2, "card_holder", "request", stored, 2),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     self.rejected(FIX / "orders.beaml", ["--stored", str(stored)]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: TYPE Order: 2 stored RESPONSE REC[326 chars]125)' != "expected ':' at byte 170"
++ expected ':' at byte 170
+- error: TYPE Order: 2 stored RESPONSE RECORDS of operation payments.authorize hold a value of the redacted field card_holder in request
+-   record source: <work>/stored-two.jsonl:2 (line 2)
+-   help: declare the fate in a MIGRATE STEP: redact card_holder (DL-111); slice 6b has no form for it yet (DL-125)
+
+
+======================================================================
+FAIL: test_R8_nested_stored_request_value (__main__.Slice6Redacted.test_R8_nested_stored_request_value)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 497, in test_R8_nested_stored_request_value
+    self.assertEqual(d6b_72("Order", 1, "card.holder", "request", stored, 1),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     self.rejected(FIX / "orders_nested.beaml", ["--stored", str(stored)]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: TYPE Order: 1 stored RESPONSE REC[337 chars]125)' != "expected ':' at byte 271"
++ expected ':' at byte 271
+- error: TYPE Order: 1 stored RESPONSE RECORD of operation payments.authorize holds a value of the redacted field card.holder in request
+-   record source: <work>/stored-request-nested.jsonl:1 (line 1)
+-   help: declare the fate in a MIGRATE STEP: redact card.holder (DL-111); slice 6b has no form for it yet (DL-125)
+
+
+======================================================================
+FAIL: test_R8_stored_request_value_of_a_now_redacted_input_field (__main__.Slice6Redacted.test_R8_stored_request_value_of_a_now_redacted_input_field) [orders]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 484, in test_R8_stored_request_value_of_a_now_redacted_input_field
+    self.assertEqual(d6b_72("Order", 1, "card_holder", "request", stored, 1),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     self.rejected(FIX / (name + ".beaml"), ["--stored", str(stored)]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: TYPE Order: 1 stored RESPONSE REC[346 chars]125)' != "expected ':' at byte 170"
++ expected ':' at byte 170
+- error: TYPE Order: 1 stored RESPONSE RECORD of operation payments.authorize holds a value of the redacted field card_holder in request
+-   record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/redacted/stored-request-unredacted.jsonl:1 (line 1)
+-   help: declare the fate in a MIGRATE STEP: redact card_holder (DL-111); slice 6b has no form for it yet (DL-125)
+
+
+======================================================================
+FAIL: test_R8_stored_request_value_of_a_now_redacted_input_field (__main__.Slice6Redacted.test_R8_stored_request_value_of_a_now_redacted_input_field) [orders_with]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_test.py", line 484, in test_R8_stored_request_value_of_a_now_redacted_input_field
+    self.assertEqual(d6b_72("Order", 1, "card_holder", "request", stored, 1),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     self.rejected(FIX / (name + ".beaml"), ["--stored", str(stored)]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'error: TYPE Order: 1 stored RESPONSE REC[346 chars]125)' != "expected ':' at byte 272"
++ expected ':' at byte 272
+- error: TYPE Order: 1 stored RESPONSE RECORD of operation payments.authorize holds a value of the redacted field card_holder in request
+-   record source: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/redacted/stored-request-unredacted.jsonl:1 (line 1)
+-   help: declare the fate in a MIGRATE STEP: redact card_holder (DL-111); slice 6b has no form for it yet (DL-125)
+
+
+----------------------------------------------------------------------
+Ran 19 tests in 1.388s
+
+FAILED (failures=23)

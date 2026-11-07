@@ -58,3 +58,44 @@ Compiler: scratch build of HEAD (`git archive HEAD experiments/0001-syntax-to-be
 - The test imports `arm_tree`, `slice6_failure_test` (RUNTIME_HEAD, RUNTIME_TAIL, EMPTY_STORED), `slice6_record_test` (`ex`) and `stored_types_test` (`value_sha256`). It has its own `compiler()` and `build`.
 - The harness is release-free (plan L1). Trace and span ids are empty strings in the stubs.
 - The scan does not cover the ledger logs. They hold no MARKER (observed for this RED run).
+
+## RED repair
+
+Phase: RED repair, 2026-11-07, on the RED review (BLOCK on O1; O2 medium). Base: HEAD 050d6801. No production file changed. `run.py` not run. No commit.
+By: Opus (RED repair, slice6b-redacted-fields) for every item in this section.
+
+### Result
+
+- **[Observed]** 19 test methods. Exit 1, `FAILED (failures=23)` (subtests counted). 15 methods fail, the same 4 controls pass.
+- **[Observed]** New `test_N1_nested_redacted_input_field_reaches_no_channel` fails: the build stops at `redacted` inside `Card` (`expected ':' at byte 271`).
+- **[Observed]** New `test_R8_nested_stored_request_value` fails: the same parse error instead of the D6B-72 text.
+- **[Observed]** Setup: the plain form of `orders_nested.beaml` builds against the nested stored record (new subtest of `test_R7_R8_fixtures_build_without_redacted`, passes). A scratch run of the nested runtime cases against the plain nested source printed PASS or FAIL for each case, so the nested flow and `checks.exs` have no setup failure.
+- **[Observed]** No MARKER in `red-output.log`.
+
+### Changes
+
+- O1: fixture `slice6/redacted/orders_nested.beaml` (`type Card { holder: redacted String number: String }`, `type Order { order_id: String card: Card }`, no `with`). The N1 flow checks:
+  - the wire body `{"order_id", "card": {"number"}}`
+  - the record `request` without `holder`
+  - the replay of that record
+  - `:request_mismatch` for the full nested input
+  - no `holder` key in the span and event dumps
+  - a clean scan
+- O1: R8 nested. A stored `request` with `card.holder` against `orders_nested.beaml` gives the exact D6B-72 text with P = `request` and count 1. The record is built in the test from `stored-request-unredacted.jsonl`.
+- O2: failure messages print labels and key names, never values:
+  - `MARKER found in <file> (<form>)`
+  - `positive control: MARKER not found in <channel>`
+  - `wire body differs ...; keys: [...]`
+  - `key K found in <file>`
+  - The Elixir run output has every MARKER form replaced by `<M>` (`masked`).
+  - The scan itself is unchanged.
+
+### Decisions
+
+- D6B-163 · Repair · The D6B-72 text for a nested hit names the EFFECT input TYPE and the dotted path: `error: TYPE Order: 1 stored RESPONSE RECORD of operation payments.authorize holds a value of the redacted field card.holder in request`. The help says `redact card.holder`. Chose: TYPE of the record place and a dotted path. Over: `TYPE Card` and `holder`. Because: the record `request` belongs to the EFFECT input TYPE; dotted names per level are the D6B-56 form. Commits us to: GREEN walks the declared fields at any depth and builds the path. By: Opus (RED repair, slice6b-redacted-fields)
+- D6B-164 · Undo · N1 has no `with` case: a nested field cannot stand in `with` (D6B-31). The nested card number `4111` is a fixed test value, not a secret. By: Opus (RED repair, slice6b-redacted-fields)
+- D6B-165 · Undo · O2 masking: `assertTrue` with a label replaces `assertEqual`/`assertIn`/`assertNotIn` wherever the compared value can hold the MARKER. By: Opus (RED repair, slice6b-redacted-fields)
+
+### Deferred edits
+
+- None.

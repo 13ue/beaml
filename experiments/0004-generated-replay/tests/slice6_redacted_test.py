@@ -98,6 +98,13 @@ def scan(paths, marker):
     return sorted(hits)
 
 
+def dotted(value, prefix=""):
+    """Key names of a JSON object, dotted per level (labels for failure messages, never values)."""
+    if not isinstance(value, dict):
+        return []
+    return [n for k, v in value.items() for n in [prefix + k] + dotted(v, prefix + k + ".")]
+
+
 class Stub(ThreadingHTTPServer):
     """Loopback HTTP stub. `echo` answers with the request at the top level and under `echo` (plan R4)."""
 
@@ -165,7 +172,7 @@ end
 # One live call of `place`, then the captured record and the REPLAY RUN. Nothing prints a value (PASS/FAIL lines only).
 FLOW = r'''
 marker = System.fetch_env!("BEAML_MARKER")
-order = %{"order_id" => "order-1", "card_holder" => marker}
+order = ORDER
 live = BeamlSpike.place(order)
 record =
   Path.join(System.fetch_env!("RUN_DIR"), "responses.jsonl") |> File.read!() |> String.split("\n", trim: true)
@@ -173,6 +180,10 @@ record =
 replay = fn rec -> BeamlSpike.Replay.run(order, rec["trace_id"], [rec]) end
 '''
 PAYMENT_OK = "{:ok, %s}" % ex(PAYMENT)
+FLAT_ORDER = '%{"order_id" => "order-1", "card_holder" => marker}'
+# RED repair O1: the redacted field inside a nested input record (orders_nested.beaml).
+NESTED_ORDER = '%{"order_id" => "order-1", "card" => %{"holder" => marker, "number" => "4111"}}'
+NESTED_REQUEST = {"order_id": "order-1", "card": {"number": "4111"}}
 HOLDER_MAP = ex(PAYMENT)[:-1] + ', "card_holder" => marker}'  # the Payment map with the live value of the MARKER
 HOLDER_OK = "{:ok, %s}" % HOLDER_MAP
 
@@ -227,6 +238,13 @@ PLAIN_CASES = dict({
     "R4c_replay_gives_the_value": "replay.(record) == %s" % HOLDER_OK,
 }, **record_cases("R4c", HOLDER_MAP, ECHO_NAMES, []))
 CONTROL_CASES = {"control_live_result": "live == %s" % PAYMENT_OK}
+# RED repair O1: no value at any depth in the record `request`; the compare uses the nested projection (D6B-32).
+NESTED_CASES = {
+    "N1_live_result": "live == %s" % PAYMENT_OK,
+    "N1_record_request_has_no_holder": 'record["request"] == %s' % ex(NESTED_REQUEST),
+    "N1_record_replays": "replay.(record) == %s" % PAYMENT_OK,
+    "N1_request_with_holder_is_request_mismatch": 'replay.(Map.put(record, "request", order)) == {:error, :request_mismatch}',
+}
 
 D6B_64 = "error: redacted stands only before a field TYPE in a type (D6B-29)"
 
@@ -284,7 +302,7 @@ class Slice6Redacted(unittest.TestCase):
         self.assertNotIn(STORED_HOLDER, stderr, "DL-032: no stored value in compiler output")
         return stderr.strip()
 
-    def flow(self, source, cases, echo):
+    def flow(self, source, cases, echo, order=FLAT_ORDER):
         """Build, run one live call and its REPLAY RUN against the loopback stub; returns (run dir, stub)."""
         stdout = self.build(source)
         run = self.work / "run"
@@ -295,7 +313,7 @@ class Slice6Redacted(unittest.TestCase):
                                str(run / "generated.ex")], capture_output=True, text=True, cwd=run)
         self.assertEqual(0, beam.returncode, "elixirc failed:\n" + beam.stdout + beam.stderr)
         listed = ",\n".join('  {"%s", fn -> %s end}' % item for item in cases.items())
-        (run / "checks.exs").write_text(sf.RUNTIME_HEAD + FLOW + "\ncases = [\n" + listed + "\n]\n" + sf.RUNTIME_TAIL)
+        (run / "checks.exs").write_text(sf.RUNTIME_HEAD + FLOW.replace("ORDER", order) + "\ncases = [\n" + listed + "\n]\n" + sf.RUNTIME_TAIL)
         stub = Stub(echo)
         threading.Thread(target=stub.serve_forever, daemon=True).start()
         self.addCleanup(stub.server_close)
@@ -308,58 +326,78 @@ class Slice6Redacted(unittest.TestCase):
         results = dict(line.rsplit(" ", 1) for line in done.stdout.splitlines() if line.endswith((" PASS", " FAIL")))
         for name in cases:
             with self.subTest(name):
-                self.assertEqual("PASS", results.get(name), done.stdout + done.stderr.replace(self.marker, "<M>"))
+                self.assertEqual("PASS", results.get(name), self.masked(done.stdout + done.stderr))
         return run, stub
 
-    def wire(self, stub):
+    def masked(self, text):
+        """RED repair O2: no form of the MARKER in a failure message, so no ledger log holds it."""
+        for form in forms(self.marker).values():
+            text = text.replace(form.decode(), "<M>")
+        return text
+
+    def assert_wire(self, stub, expected):
+        """The one request body equals `expected`; a failure prints a label and key names, never values."""
         self.assertEqual(1, len(stub.requests), "the stub must receive one request")
-        return json.loads(stub.requests[0])
+        body = json.loads(stub.requests[0])
+        self.assertTrue(body == expected, "wire body differs from the expected projection; keys: %s"
+                        % sorted(dotted(body)))
+
+    def assert_marker_in(self, data, channel):
+        self.assertTrue(self.marker.encode() in data, "positive control: MARKER not found in " + channel)
 
     def assert_no_leak(self, run):
-        self.assertEqual([], scan([run, self.actions()], self.marker), "the MARKER leaked into the RUN DIRECTORY")
+        hits = scan([run, self.actions()], self.marker)
+        self.assertTrue(hits == [], "MARKER found in " + ", ".join("%s (%s)" % hit for hit in hits))
 
-    def assert_channels_clean(self, run):
-        """R2: the span and event dumps exist (the stubs ran) and hold no card_holder key."""
+    def assert_channels_clean(self, run, key="card_holder"):
+        """R2: the span and event dumps exist (the stubs ran) and hold no key of the redacted field."""
         for name in ("spans.txt", "events.txt"):
             with self.subTest(name):
                 self.assertTrue((run / name).is_file(), name + " was not written")
-                self.assertNotIn("card_holder", (run / name).read_text())
+                self.assertTrue(key not in (run / name).read_text(), "key %s found in %s" % (key, name))
 
     # Runtime cases.
 
     def test_R1_no_with_never_sends_the_redacted_field(self):
         run, stub = self.flow(FIX / "orders.beaml", dict(R1_CASES, **R1_REPLAY_CASES), echo=False)
-        self.assertEqual({"order_id": "order-1"}, self.wire(stub))
+        self.assert_wire(stub, {"order_id": "order-1"})
         self.assert_channels_clean(run)
+        self.assert_no_leak(run)
+
+    def test_N1_nested_redacted_input_field_reaches_no_channel(self):
+        # RED repair O1: DL-089 at any depth; a nested field is never sent (D6B-31), so no `with` is possible.
+        run, stub = self.flow(FIX / "orders_nested.beaml", NESTED_CASES, echo=False, order=NESTED_ORDER)
+        self.assert_wire(stub, NESTED_REQUEST)
+        self.assert_channels_clean(run, key="holder")
         self.assert_no_leak(run)
 
     def test_R2_R3_with_sends_the_field_on_the_wire_only(self):
         run, stub = self.flow(FIX / "orders_with.beaml", R2_CASES, echo=False)
-        self.assertEqual({"order_id": "order-1", "card_holder": self.marker}, self.wire(stub))
+        self.assert_wire(stub, {"order_id": "order-1", "card_holder": self.marker})
         self.assert_channels_clean(run)
         self.assert_no_leak(run)
 
     def test_R4_R5_echo_into_a_declared_redacted_output_field(self):
         run, stub = self.flow(FIX / "echo_declared.beaml", DECLARED_CASES, echo=True)
-        self.assertIn(self.marker.encode(), stub.requests[0], "positive control: the MARKER is on the wire")
-        self.assertIn(self.marker.encode(), stub.responses[0], "positive control: the stub echoes the MARKER")
+        self.assert_marker_in(stub.requests[0], "the wire request")
+        self.assert_marker_in(stub.responses[0], "the stub response")
         self.assert_no_leak(run)
 
     def test_R4_echo_into_an_output_type_without_the_field(self):
         run, stub = self.flow(FIX / "orders_with.beaml", UNDECLARED_CASES, echo=True)
-        self.assertIn(self.marker.encode(), stub.responses[0], "positive control: the stub echoes the MARKER")
+        self.assert_marker_in(stub.responses[0], "the stub response")
         self.assert_no_leak(run)
 
     def test_R4c_same_named_plain_output_field_keeps_the_value(self):
         # DL-113 (Q6B-13 C): allowed; the record `value` holds the echoed value, and no other file does.
         run, stub = self.flow(FIX / "echo_plain.beaml", PLAIN_CASES, echo=True)
-        self.assertIn(self.marker.encode(), stub.responses[0], "positive control: the stub echoes the MARKER")
+        self.assert_marker_in(stub.responses[0], "the stub response")
         self.assertEqual([("responses.jsonl", "plain")], scan([run, self.actions()], self.marker))
 
     def test_control_plain_input_leaks_and_the_scan_finds_it(self):
         # Harness control (passes today): a plain card_holder reaches the record and the span; the scan sees it.
         run, stub = self.flow(FIX / "control.beaml", CONTROL_CASES, echo=True)
-        self.assertEqual({"order_id": "order-1", "card_holder": self.marker}, self.wire(stub))
+        self.assert_wire(stub, {"order_id": "order-1", "card_holder": self.marker})
         files = {name for name, _ in scan([run], self.marker)}
         self.assertTrue({"responses.jsonl", "spans.txt"} <= files, files)
 
@@ -446,6 +484,19 @@ class Slice6Redacted(unittest.TestCase):
                 self.assertEqual(d6b_72("Order", 1, "card_holder", "request", stored, 1),
                                  self.rejected(FIX / (name + ".beaml"), ["--stored", str(stored)]))
 
+    def nested_stored(self):
+        record = json.loads((FIX / "stored-request-unredacted.jsonl").read_text())
+        record["request"] = {"order_id": "order-1", "card": {"holder": STORED_HOLDER, "number": "4111"}}
+        stored = self.work / "stored-request-nested.jsonl"
+        stored.write_text(json.dumps(record, separators=(",", ":")) + "\n")
+        return stored
+
+    def test_R8_nested_stored_request_value(self):
+        # RED repair O1: D6B-72 counts at any depth; D6B-163: T is the EFFECT input TYPE, F the dotted path.
+        stored = self.nested_stored()
+        self.assertEqual(d6b_72("Order", 1, "card.holder", "request", stored, 1),
+                         self.rejected(FIX / "orders_nested.beaml", ["--stored", str(stored)]))
+
     def test_R8_count_and_first_line(self):
         clean = (EXPERIMENT / "stored" / "v1.jsonl").read_text().splitlines()[0]
         hit = json.loads((FIX / "stored-request-unredacted.jsonl").read_text())
@@ -461,6 +512,11 @@ class Slice6Redacted(unittest.TestCase):
                                ("control", "stored-request-unredacted.jsonl")):
             with self.subTest(source):
                 self.build(FIX / (source + ".beaml"), ["--stored", str(FIX / stored)])
+        with self.subTest("orders_nested"):
+            plain = self.work / "plain" / "orders_nested.beaml"
+            plain.parent.mkdir()
+            plain.write_text((FIX / "orders_nested.beaml").read_text().replace("redacted ", ""))
+            self.build(plain, ["--stored", str(self.nested_stored())])
 
 
 if __name__ == "__main__":

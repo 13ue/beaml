@@ -1,0 +1,15 @@
+// slice 6b step 6b RED repair O1 (DL-089, D6B-32, D6B-72): the redacted field sits inside a nested input record.
+// The EFFECT has no with (a nested field is never sent, D6B-31), so card.holder reaches no wire, record, span or event.
+type Card { holder: redacted String number: String }
+type Order { order_id: String card: Card }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
+
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare order: Order -> Order = order
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
