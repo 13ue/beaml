@@ -31,7 +31,7 @@ Use PROPOSAL ULTRA.
 | File | Examples or assertions | SHA-256 |
 |---|---|---|
 | `integrations/zed-beaml/test/corpus/constructors.txt` | 6 examples | `7f23972e451961fc10699ddcac337f0650daade736102fd77f96527433d53001` |
-| `integrations/zed-beaml/test/highlight/constructors.beaml` | 10 assertions | `4e858a7d3d6271ebc49c4c0a5f2e8b9f1e1e1b0cc50c468f33db6d18c21df1c8` |
+| `integrations/zed-beaml/test/highlight/constructors.beaml` | 11 assertions | `940fadadae98aab6c3e1dee12820227b3c64bc17adc74990d143390ac19a9f58` (after RED repair; was `4e858a7d…21df1c8`) |
 
 - **[Verified]** Each caret column hits the intended token. A script compared each caret with the source line above it.
 - **[Verified]** `rg -n 'ERROR|MISSING' test/corpus/constructors.txt` prints nothing (plan-check note 1).
@@ -81,3 +81,58 @@ $TS test -e 'Enum constructor|Record constructor|Signature with|Effect releases'
 
 - **[Verified]** Each failure is an `ERROR` node or a wrong class for the form under test. No failure comes from a missing file, a broken CLI or an unrelated test.
 - The expected trees and captures are the GREEN target. Do not change them in GREEN to fit the parser.
+
+## RED repair
+
+**[Verified]** RED REPAIR, 2026-11-07. Fresh worker. Input: [red-review.md](red-review.md) objection 1 (high), notes 2 and 3 (medium). Output: [red-output.log](red-output.log) Runs 3 to 5. No change to `grammar.js`, `highlights.scm` or `src/`.
+
+### Change
+
+- `test/highlight/constructors.beaml`: add ` // anchor` after `Authorized` (row 3), `Declined` (row 7) and `card_holder` (row 13). Carets do not move.
+- **[Verified]** A trailing comment stops the borrowed class. Probe (Run 3): `= x` with `^ constructor` and `enum E { A }` on the next line passes. `= x // anchor` fails, `actual highlights: none`.
+- Corpus file: no change.
+
+### Mutation result (Run 4)
+
+Each assertion alone, current grammar, `test --rebuild`, scratch copy:
+
+| # | Target | Result |
+|---|---|---|
+| 1 | `Authorized` in the enum | pass (guard) |
+| 2 | `"ok"` | FAIL, none |
+| 3 | `fn` | pass (guard) |
+| 4 | `PaymentState` clause name | FAIL, `function` |
+| 5 | `Authorized` clause body | FAIL, none (row 1, column 42) |
+| 6 | `DeclineReason` | FAIL, `function` |
+| 7 | `Declined` pipe step | FAIL, `function` (row 2, column 80) |
+| 8 | `g` | pass (guard) |
+| 9 | `prepare` | pass (guard) |
+| 10 | `card_holder` | FAIL, none |
+| 11 | `Pending` | FAIL, none |
+
+- **[Verified]** 7 FAIL, 4 guards pass. No hang: no failing assertion is the last token of the file.
+- **[Verified]** Run 5 (repository, `--rebuild`, `-e`): old highlight files pass (19 + 48 + 2). `constructors.beaml` fails at row 0, column 33. Full `test --rebuild`: 17 old corpus examples and 2 guards pass, 4 new examples fail.
+- **[Unknown]** The GREEN grammar without the bare-variant capture was not probed. The anchor removes the mechanism (probe), so the borrowed class can only be `comment`.
+
+### Rules for GREEN, TEST and VERIFY
+
+- Use `--rebuild` in every `tree-sitter test` command, also in the highlight run. A command without `--rebuild` is no evidence.
+- Run `test --rebuild` directly before `preview.py`. Do not run probes in parallel with these phases.
+- Every new highlight assertion on the last token of a line gets a trailing ` // anchor`.
+- GREEN review check (red-review note 3). This command must print nothing:
+
+```sh
+rg -n '^\((function_clause|pipe right: \(identifier\))' languages/beaml/highlights.scm
+```
+
+- **[Verified]** Today it prints rows 20 and 23 (patterns without a predicate). A pattern with a predicate starts with `((`. The shared block lines start with a space.
+
+### Decisions
+
+| Class | Choice | Alternative | Reason |
+|---|---|---|---|
+| Undo | Trailing ` // anchor` comment | Move each target before another token | Smallest diff. Source forms stay as in the spec. Comment is in `extras`. |
+| Undo | Mutation per assertion in a scratch copy | Edit the repository file per run | Repository file stays unchanged. Shared cache rebuilt from the repository after (Run 5). |
+| Undo | Mutation on the current grammar only | Also probe a GREEN-like grammar | Task scope. Probe shows the mechanism is closed. |
+| Undo | `rg` check on bare `function_clause` and `pipe right: (identifier)` patterns | `rg` on every capture pattern | Most patterns (keywords, `string`) need no predicate. The review asks only for these two. |
+| Undo | Count fixed to 11, hash updated | Keep old row | The file has 11 assertions and changed. |

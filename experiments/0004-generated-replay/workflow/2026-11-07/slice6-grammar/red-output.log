@@ -293,3 +293,72 @@ syntax highlighting:
 Total parses: 19; successful parses: 19; failed parses: 0; success percentage: 100.00%; average speed: 7995 bytes/ms
 
 exit 1
+
+## RED REPAIR, 2026-11-07. Highlight file now has a trailing "// anchor" after rows 3, 7 and 13.
+## Run 3 (probe, scratch copy, current grammar): tree-sitter test --rebuild
+# a.beaml: "fn f x: String -> String = x", "^ constructor" on x, next line "enum E { A }".
+# b.beaml: same, with "x // anchor".
+syntax highlighting:
+      1. ✗ b.beaml
+    Failure - row: 0, column: 27, expected highlight 'constructor', actual highlights: none.
+      2. ✓ a.beaml (1 assertions)
+
+## Run 4 (mutation, scratch copy, current grammar): tree-sitter test --rebuild
+# aNN.beaml = constructors.beaml with only assertion NN. Corpus file constructors.txt removed in the copy.
+syntax highlighting:
+      1. ✗ a04.beaml
+    Failure - row: 1, column: 3, expected highlight 'constructor', actual highlights: 'function'
+      2. ✗ a06.beaml
+    Failure - row: 2, column: 63, expected highlight 'constructor', actual highlights: 'function'
+      3. ✗ a02.beaml
+    Failure - row: 0, column: 33, expected highlight 'string', actual highlights: none.
+      4. ✗ a07.beaml
+    Failure - row: 2, column: 80, expected highlight 'constructor', actual highlights: 'function'
+      5. ✗ a05.beaml
+    Failure - row: 1, column: 42, expected highlight 'constructor', actual highlights: none.
+      6. ✓ a01.beaml (1 assertions)
+      7. ✓ a03.beaml (1 assertions)
+      8. ✓ a09.beaml (1 assertions)
+      9. ✗ a10.beaml
+    Failure - row: 4, column: 82, expected highlight 'property', actual highlights: none.
+     10. ✓ a08.beaml (1 assertions)
+     11. ✗ a11.beaml
+    Failure - row: 5, column: 53, expected highlight 'constructor', actual highlights: none.
+Total parses: 17; successful parses: 17; failed parses: 0; success percentage: 100.00%; average speed: 5677 bytes/ms
+
+## Run 5 (repository): tree-sitter test --rebuild -e 'Enum constructor|Record constructor|Signature with|Effect releases'
+  constructors:
+      4. ✓ Overlap is no grammar error
+      5. ✓ Pipe inside an argument
+  errors:
+      7. ✓ Interface is no record keyword
+      8. ✓ Plain numbers in a MIGRATE STEP
+      9. ✓ Version v0 on the type line
+     10. ✓ Version with a leading zero in a MIGRATE STEP
+  forms:
+     11. ✓ Record type with version mark and redacted field
+     12. ✓ Enum with plain and payload variants
+     13. ✓ Effect with dotted name and failure list
+     14. ✓ Pipe in a function with a failure TYPE
+     15. ✓ MIGRATE CHAIN, several steps on one line
+     16. ✓ MIGRATE CHAIN with v numbers, multi-line, comments
+     17. ✓ Retire an operation
+     18. ✓ With expression
+     19. ✓ Keywords stay identifiers outside their forms
+  lexer:
+     20. ✓ Unicode whitespace
+     21. ✓ A line comment stops at LF
+  syntax:
+     22. ✓ Declarations
+     23. ✓ Function clauses and nested patterns
+
+syntax highlighting:
+      1. ✓ syntax.beaml (19 assertions)
+      2. ✓ forms.beaml (48 assertions)
+      3. ✓ lexer.beaml (2 assertions)
+      4. ✗ constructors.beaml
+    Failure - row: 0, column: 33, expected highlight 'string', actual highlights: none.
+Total parses: 19; successful parses: 19; failed parses: 0; success percentage: 100.00%; average speed: 13991 bytes/ms
+
+# exit code not recorded (output went through a pipe).
+# Then: tree-sitter test --rebuild (full). 19 pass (17 old + 2 guards), 4 new corpus examples fail, as Run 1. Shared cache now built from the repository.

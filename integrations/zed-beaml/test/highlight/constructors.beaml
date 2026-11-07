@@ -1,17 +1,17 @@
 enum PaymentState { Authorized = "ok"  Unknown(String) }
 //                  ^ constructor
 //                               ^ string
-fn PaymentState "ok", _ -> PaymentState = Authorized
+fn PaymentState "ok", _ -> PaymentState = Authorized // anchor
 // <- keyword
 // ^ constructor
 //                                        ^ constructor
-fn PaymentState "declined", reason -> PaymentState = reason |> DeclineReason |> Declined
+fn PaymentState "declined", reason -> PaymentState = reason |> DeclineReason |> Declined // anchor
 //                                                             ^ constructor
 //                                                                              ^ constructor
 fn g p: P -> R = build(p |> prepare, x)
 // ^ function
 //                          ^ function
-effect payments.authorize Order -> Payment = http.post("payments/authorize") with card_holder
+effect payments.authorize Order -> Payment = http.post("payments/authorize") with card_holder // anchor
 //                                                                                ^ property
 migrate Payment v3 -> v4 { add state: PaymentState = Pending }
 //                                                   ^ constructor
