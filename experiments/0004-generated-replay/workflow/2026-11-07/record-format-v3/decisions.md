@@ -117,3 +117,46 @@ Chose: 200 gives `accepted`/`null`; other gives `rejected`/`"status"`. Over: run
 **RV3-13 · Repair · `record/3` computes `outcome` itself from `status` and the decode.**
 Chose: one `case` inside `record/3` over `@parent.__beaml_decode_E(bytes)`. Over: passing the result of the live call into `record/3`. Because: the live EFFECT function then keeps its bytes; the decode is already called there for keep-value outputs. Commits us to: one more decode per 200 call for other outputs.
 → By: Opus (PLAN record-v3)
+
+## Plan repair (after plan check), 2026-11-07
+
+**[Proposal]** Answers to the [plan check](plan-review.md) BLOCK. One round (DL-144 free run). The [plan repair](plan.md#plan-repair-after-plan-check-2026-11-07) holds the changed plan.
+
+### QV3-7 · Migrate · big · RESPONSE count line (changed text)
+
+- Now big: the line narrows the OWNER wording of DL-136 ("prints one count line").
+- Text: `N records, K checked, M rejected at capture`, then `digest not verified (P2b)` until P2b (D035) lands.
+- **A (default).** Both lines only when M > 0. **B.** Always when the file has a record.
+- → By: Fable (ruling O3 under DL-144) for the text, the second line and "big"
+- → By: Opus (PLAN repair record-v3, default, open) for keeping A as the print rule
+
+### QV3-8 · Migrate · big · What a rejected RESPONSE RECORD skips (default changed to B)
+
+- **A.** Only the DL-102/DL-122 value checks.
+- **B (default).** The value checks and the TYPE path check and the W2 version count. The orphan count (DL-040) and the redacted-held check (D6B-72) still read every record.
+- **Because B.** DL-136 (OWNER): an outage is not a TYPE change and asks for no MIGRATE STEP. A rejected-at-capture 200 record is the same case (DL-138). The earlier "parity with 6d" claim was false (6d has no TYPE path check) and is dropped.
+- Proof: V22 (503) and V23 (200 rejected at capture), with controls V24 and V25.
+- Challenge: a rejected record of a TYPE VERSION without a path stays in the file unnoticed by the path check.
+- → By: Fable (ruling O2 under DL-144)
+
+### Repair and Undo
+
+**RV3-14 · Repair · Commit pins follow the P2 GREEN commit in the commit after GREEN.**
+Chose: sites 2 to 4 (byte pins) move in GREEN; sites 1 (`slice5_syntax_test.py` `PIN`) and 5 (`slice6_entry_test.py` `BASE`, N13) are set to the GREEN hash in the next commit, with the diff proof hunk list (`acf12d75` pattern). Over: N13 `BASE` at the P2 base commit (RV3-09 row). Because: N13 compares against `compiler_at(BASE)` and P2 changes every EFFECT `record/3`; a base before P2 fails N13 by construction. Commits us to: a two-commit GREEN; the diff proof runs against the P2 base compiler.
+→ By: Fable (ruling O1 under DL-144)
+
+**RV3-15 · Repair · P2b is open item D035, not D027.**
+Chose: the next free ID D035 in `decisions-to-be-made.md`. Over: D027 as the ruling named. Because: D027 already exists (failure-list ripple). Commits us to: the main agent confirms D035.
+→ By: Opus (PLAN repair record-v3)
+
+**RV3-16 · Undo · One count form `N records`, no singular.**
+Chose: `1 records` in V22/V23. Over: a singular branch. Because: the 6d ENTRY line uses one form too.
+→ By: Opus (PLAN repair record-v3)
+
+**RV3-17 · Repair · Controls V24 and V25 next to V22 and V23.**
+Chose: an `accepted` twin that blocks (V24) and a rejected record that the held check still blocks (V25). Over: the two ruling tests only. Because: an exit 0 alone also passes if the path check is gone for every record (false pass). Commits us to: two more fixtures in `slice6/record-v3/`.
+→ By: Opus (PLAN repair record-v3)
+
+**RV3-18 · Undo · P2b not added to the R&D register.**
+Chose: D035 only. Over: also a register row (O3 asked for both). Because: the ruling names only decisions-to-be-made; P2b is a step, not an EXPERIMENT. The docs phase may add it.
+→ By: Opus (PLAN repair record-v3)

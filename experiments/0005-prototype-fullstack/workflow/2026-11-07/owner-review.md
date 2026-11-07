@@ -42,12 +42,16 @@ By: Opus (PLAN exp0005, default, open) for every line.
 
 **Other**
 
-- **QV3-7** RESPONSE count line `N records, K checked, M not replayable`: A only when M > 0 · B always. Default A. Narrow reading of DL-136.
-- **QV3-8** A rejected RESPONSE RECORD skips: A the DL-102/DL-122 value checks only · B also the TYPE path check. Default A. Narrow reading of DL-136.
+- QV3-7 and QV3-8 moved to big after the plan check (see below).
+
+**Big, added after the plan check** ([plan repair](../../../0004-generated-replay/workflow/2026-11-07/record-format-v3/plan.md#plan-repair-after-plan-check-2026-11-07)) → By: Fable (rulings O2, O3 under DL-144)
+
+- **QV3-7** RESPONSE count line `N records, K checked, M rejected at capture`, then `digest not verified (P2b)` until P2b: A both lines only when M > 0 · B always. Default A (By: Opus, PLAN repair record-v3). Narrows the DL-136 wording "prints one count line".
+- **QV3-8** A rejected RESPONSE RECORD (non-200, or 200 rejected at capture) skips: A the DL-102/DL-122 value checks only · B also the TYPE path check and the W2 version count; orphan (DL-040) and held checks read every record. Default B, per the DL-136 Because (an outage is not a TYPE change). Tests V22 (503), V23 (200 rejected), controls V24, V25.
 
 **Deferred, not decided**
 
-- DL-136 digest half (bad-digest records counted, not checked): follow-up step P2b (RV3-07, Repair, By: Opus).
+- DL-136 digest half (bad-digest records counted, not checked): follow-up step P2b, open item D035 (RV3-07, RV3-15).
 
 ## Several EFFECTS and module name (P3, P5)
 

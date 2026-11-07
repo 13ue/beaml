@@ -702,6 +702,17 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Verified]** Options and evidence: [red team report](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/report.md), Migrate list. M3 needs a fresh explanation of DL-116 for the OWNER (asked for on 2026-11-07).
 
+## D035 — P2b: the DL-136 digest half for stored records
+
+- **Status** OPEN
+- **Decision owner** Fable and workers under DL-144 (free run)
+- **Class** Repair
+- **Scope** `--stored` over RESPONSE RECORDS and ENTRY RECORDS
+- **Decision trigger** Before EXPERIMENT 0005 TEST.
+- **Next check** At the record format v3 (P2) TEST commit.
+
+**[Proposal]** Question: Build the second half of [DL-136](decision-log.md): a stored record with a bad `value_sha256` is counted and not checked, for both streams. P2 (record format v3) builds only the `outcome` half. Until P2b lands, the P2 count line is followed by `digest not verified (P2b)`. Ledger: [record-format-v3 plan repair](../../experiments/0004-generated-replay/workflow/2026-11-07/record-format-v3/plan.md#plan-repair-after-plan-check-2026-11-07) (RV3-07, RV3-15). By: Fable (ruling O3 under DL-144).
+
 ## Answered 2026-11-07
 
 - [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).

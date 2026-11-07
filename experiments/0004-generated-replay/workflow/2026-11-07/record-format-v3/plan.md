@@ -173,3 +173,61 @@ Five sites move together (the four of the byte-pin note plus the 6d N13 base, RV
 ## Smallest next test
 
 - P2b: a `--stored` record with a wrong `value_sha256` is counted in `M not replayable` and not checked, for both streams (DL-136 second half).
+
+## Plan repair (after plan check), 2026-11-07
+
+**[Proposal]** PLAN repair after the [plan check](plan-review.md) BLOCK (O1 high, O2 high, O3 medium). Main-agent rulings under DL-144 applied as given. This section overrides the sections above where they differ.
+By: Fable (main agent, rulings under DL-144) for the O1, O2 and O3 changes; Opus (PLAN repair record-v3) for the details marked so in [decisions.md](decisions.md#plan-repair-after-plan-check-2026-11-07).
+
+### O1: GREEN sub-step "pin sites follow GREEN" (RV3-14)
+
+The table row "`BASE` (N13) → the P2 base commit" is wrong and is replaced. N13 keeps its full source set; no EFFECT source is excluded.
+
+1. **GREEN.** Write the P2 change. Run the diff proof (V18) against the **P2 base compiler** (the 6d TEST commit). Move the three byte pins to the P2 bytes in the GREEN commit:
+   - site 2: `tests/slice6_pipe_test.py` `EFFECT_OUTPUTS` (also read by `slice6_struct_order_test.py`);
+   - site 3: `tests/slice6_host_struct_test.py` `BYTE_GUARD`;
+   - site 4: `slice6/effect-reach/byte-guard.json` (keep the `(71, 40)` setup invariant).
+2. **Commit right after GREEN** (the `acf12d75` pattern). Set the two commit pins to the P2 GREEN commit hash:
+   - site 1: `tests/slice5_syntax_test.py` `PIN`;
+   - site 5: `tests/slice6_entry_test.py` `BASE` (N13).
+   The commit message names the GREEN hash. The ledger keeps the diff proof hunk list (allowed hunks only: `Replay.record/3`, `Replay.entry_record/2`).
+3. Run `slice5_syntax_test.py` first, then `slice6_entry_test.py` N13, at the pinned GREEN hash. Both pass with the full source set.
+
+### O2: QV3-8 default B (rejected RESPONSE RECORD skips the value and path checks)
+
+Replaces the reader row and the bullet "TYPE path check, redacted-held check (D6B-72) and the orphan count still read every record (QV3-8 A, parity ...)". The parity claim is withdrawn: 6d `check_entries` has no TYPE path check.
+
+| Check | `accepted` record | `rejected` record (non-200, or 200 with decode/constructor reject at capture) |
+|---|---|---|
+| DL-102 constructors, DL-122 literals | run | skip |
+| TYPE path check, W2 version count | run | skip |
+| Orphan count (DL-040) | run | run |
+| Redacted-held check (D6B-72) | run | run |
+
+- Because: DL-136 (OWNER) "a recorded outage is not a TYPE change and asks for no MIGRATE STEP". DL-137 carries it to database rows (P4).
+- Change step 3 of "Change": the skip covers the path check and the W2 count too.
+- Limit "a rejected record still counts in the TYPE path check" is withdrawn. New limit: a rejected record of a TYPE VERSION without a path is not seen by the path check; only its orphan and held checks run.
+
+### O3: count line text and the P2b marker (QV3-7 big)
+
+- Count line (stderr, when printed): `N records, K checked, M rejected at capture`. The word "not replayable" goes; it would state a false fact for a bad-digest record that P2 still checks.
+- Second line directly below it: `digest not verified (P2b)`. It stays until P2b lands; P2b removes it.
+- When it prints: QV3-7 default A unchanged (only when M > 0). Both lines print together or not at all.
+- P2b is open item [D035](../../../../../wiki/planning/decisions-to-be-made.md#d035--p2b-the-dl-136-digest-half-for-stored-records) (trigger: before 0005 TEST). The docs phase marks DL-136 "half built (P2), digest half open (P2b, D035)".
+
+### Changed and new tests
+
+- **V14 (changed).** stderr exactly `3 records, 1 checked, 2 rejected at capture` and `digest not verified (P2b)`, in this order.
+- **V14b (changed).** `blocked()` filters both lines. Otherwise unchanged.
+- **V15 (unchanged).** M = 0 gives no line, so neither line prints.
+- **V16 (changed).** Also covers V22 and V23 stderr.
+- **V22 (new, QV3-8 B, 503).** A one-record file: `rejected`/`status` (503) of a TYPE VERSION that has no path in the built source. `--stored` exit 0, stdout as the pre-P2 build over an empty file, stderr exactly the two count lines `1 records, 0 checked, 1 rejected at capture` and `digest not verified (P2b)`.
+- **V23 (new, QV3-8 B, 200 rejected at capture).** The same with `status: 200`, `rejected`/`constructor`. Same exit and stderr.
+- **V24 (new, control for V22 and V23).** The same file with the record `accepted`: exit 1 with the existing TYPE path block text (V21 text unchanged). Proves the skip, not a missing check.
+- **V25 (new, held still runs).** A `rejected`/`status` record with an unredacted secret field: exit 1 with the D6B-72 text. Proves the held check reads rejected records.
+- **Text of V22 count.** `1 records` follows the one format `N records`; no singular form (RV3-16).
+
+### Exclusions and limits (changed)
+
+- The DL-136 digest half stays out of P2 and is now tracked as D035 (not only in this ledger).
+- The REPLAY RUN still reads no `version` (unchanged).

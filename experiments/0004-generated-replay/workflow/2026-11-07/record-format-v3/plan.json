@@ -81,7 +81,7 @@
     }
   ],
   "readers": {
-    "stored_responses": "version 3 only; rejected skip DL-102/DL-122 value checks; count line only when M > 0",
+    "stored_responses": "version 3 only; rejected skip DL-102/DL-122 value checks, TYPE path check, W2 count; orphan and held checks read all; count lines only when M > 0",
     "stored_entries": "version 3 only (new); 6d count line unchanged",
     "replay_run": "unchanged",
     "driver": "unchanged",
@@ -141,19 +141,25 @@
     "V18",
     "V19",
     "V20",
-    "V21"
+    "V21",
+    "V22",
+    "V23",
+    "V24",
+    "V25"
   ],
   "texts": {
     "V12": "error: stored RESPONSE RECORD has record version 2; this build reads record version 3 only (DL-143)\n  record source: S:1 (line 1)",
     "V13": "error: stored ENTRY RECORD has record version 2; this build reads record version 3 only (DL-143)\n  record source: E:1 (line 1)",
-    "V14": "3 records, 1 checked, 2 not replayable"
+    "V14": "3 records, 1 checked, 2 rejected at capture\ndigest not verified (P2b)",
+    "V22": "1 records, 0 checked, 1 rejected at capture\ndigest not verified (P2b)",
+    "V23": "1 records, 0 checked, 1 rejected at capture\ndigest not verified (P2b)"
   },
   "pin_sites": [
-    "tests/slice5_syntax_test.py PIN",
+    "tests/slice5_syntax_test.py PIN, set to the P2 GREEN hash in the commit after GREEN",
     "tests/slice6_pipe_test.py EFFECT_OUTPUTS",
     "tests/slice6_host_struct_test.py BYTE_GUARD",
     "slice6/effect-reach/byte-guard.json",
-    "tests/slice6_entry_test.py BASE (N13)"
+    "tests/slice6_entry_test.py BASE (N13), set to the P2 GREEN hash in the commit after GREEN"
   ],
   "allowed_hunks": [
     "Replay.record/3",
@@ -181,7 +187,8 @@
     "tests/redteam_c1_test.py",
     "tests/drift_test.py",
     "tests/stored_types_test.py",
-    "the five pin sites"
+    "the five pin sites",
+    "experiments/0004-generated-replay/slice6/record-v3/ (V22 to V25 fixtures, new)"
   ],
   "migrate_open": [
     "QV3-1",
@@ -199,7 +206,9 @@
     "QV3-3",
     "QV3-4",
     "QV3-5",
-    "QV3-6"
+    "QV3-6",
+    "QV3-7",
+    "QV3-8"
   ],
   "repair_undo": [
     "RV3-01",
@@ -217,7 +226,7 @@
     "RV3-13"
   ],
   "exclusions": [
-    "DL-136 digest half (P2b)",
+    "DL-136 digest half (P2b, D035)",
     "db stream writer and extras (P4)",
     "M8, M9 (D026)",
     "version check in the REPLAY RUN",
@@ -235,5 +244,34 @@
     "tests/redteam_c1_test.py",
     "tests/arms_test.py",
     "run.py once at TEST"
-  ]
+  ],
+  "repair": {
+    "date": "2026-11-07",
+    "after": "plan-review.md BLOCK (O1, O2, O3)",
+    "by": "Fable (rulings under DL-144); Opus (PLAN repair record-v3) for RV3-15..RV3-18",
+    "pin_steps": {
+      "green": [
+        "tests/slice6_pipe_test.py EFFECT_OUTPUTS",
+        "tests/slice6_host_struct_test.py BYTE_GUARD",
+        "slice6/effect-reach/byte-guard.json"
+      ],
+      "commit_after_green": [
+        "tests/slice5_syntax_test.py PIN = P2 GREEN hash",
+        "tests/slice6_entry_test.py BASE (N13) = P2 GREEN hash"
+      ],
+      "diff_proof_against": "P2 base compiler (6d TEST commit)",
+      "n13_sources": "full set, no EFFECT source excluded"
+    },
+    "rejected_skips": [
+      "DL-102 constructors",
+      "DL-122 literals",
+      "TYPE path check",
+      "W2 version count"
+    ],
+    "rejected_still_checked": [
+      "orphan count (DL-040)",
+      "redacted-held check (D6B-72)"
+    ],
+    "open_item": "D035 (P2b, DL-136 digest half)"
+  }
 }
