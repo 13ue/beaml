@@ -2,8 +2,8 @@
 id: experiment-0004-generated-replay-plan
 kind: experiment
 status: proposed
-updated: 2026-11-06
-revision: 9.2 (slice 5 RED repair)
+updated: 2026-11-07
+revision: 9.3 (O7 answered)
 ---
 
 # EXPERIMENT 0004 — Generated REPLAY RUN
@@ -32,7 +32,8 @@ revision: 9.2 (slice 5 RED repair)
 - **Revision 8.2.** Hardens the removal command after the slice 4 final review (DL-069, Repair): the completeness rule with the flag `--assume-complete` (contract step 2a), a symlinked or read-only SOURCE (contract step 5), and a unit test for the recheck guard (step 4). New cases E21 to E22b and U1; E18 now passes `--assume-complete`. Only the slice 4 section changes.
 - **Revision 9.** Adds the [slice 5 plan](#slice-5): `type` replaces `interface` (DL-061), `v` on every version number (DL-072), the VERSION MARK on the type line and the SQUASH by `--remove-dead` (DL-070, DL-071; DL-058 superseded). Mechanical rewrite of the slice 1 to slice 4 sources and tests with an audit. OWNER question O7 is open. The slice 1 to slice 4 text stays unchanged.
 - **Revision 9.1.** Repairs the slice 5 plan after its fresh check: F12b uses `type Payment v3` with v4 records (no O7 dependence); two new T23 layouts (`type PaymentError {` above `type Payment {`, and a `// type Payment {` comment); the `help` line of a TYPE with a VERSION MARK also names the new mark (F11b); W3, W4 and the stderr normaliser S are closed lists of exact strings; A1 audits every changed file; an allowed row for the fallback text in `cli.rs`; the PENDING O7 list. Found while writing RED: E13 needs a tag on the C2 step, E21b gives three refusals, and random version numbers go only to sources with a VERSION MARK. Only the slice 5 section changes.
-- **Revision 9.2 (this page).** Repairs the slice 5 RED tests after their fresh check: A1 also audits the test code (base: the slice 5 RED commit; the `mod tests` block of `main.rs` against `721e7eea`) and requires that no test code keeps an old form, except a closed list of deliberate negatives; the slice 4 expectation changes are RED tests now, in the old syntax, so the allowed rows shrink to three; W1 also matches directly after a format placeholder; F2 asserts the exact `help` line; the N1 cases assert `TYPE VERSION v<n>` as a whole token. Only the slice 5 section changes.
+- **Revision 9.2.** Repairs the slice 5 RED tests after their fresh check: A1 also audits the test code (base: the slice 5 RED commit; the `mod tests` block of `main.rs` against `721e7eea`) and requires that no test code keeps an old form, except a closed list of deliberate negatives; the slice 4 expectation changes are RED tests now, in the old syntax, so the allowed rows shrink to three; W1 also matches directly after a format placeholder; F2 asserts the exact `help` line; the N1 cases assert `TYPE VERSION v<n>` as a whole token. Only the slice 5 section changes.
+- **Revision 9.3 (this page).** O7 is answered (DL-080): the compiler accepts option (a), every VERSION MARK that agrees with the MIGRATE CHAIN, and a chain without a mark. Option (b) is the default form; the formatter `beaml fmt` writes it, no warning (DL-081, not built). The PENDING O7 list becomes the O7 list: F6, F13 and F14 compile, F8c stays a gap error, and controls check M1 (F6) and N1 (F13). Only the slice 5 section changes.
 
 ## Slice 1 scope
 
@@ -1168,12 +1169,14 @@ Asserted tokens: `TYPE VERSION v<s>`, `newer than`, `v<n>`, `only grow`. Revisio
   help: if state is status renamed, declare: migrate Payment v3 -> v4 { rename status -> state }; write: type Payment v4
 ```
 
-**[Requirement] O7 is open (see OWNER questions). PENDING O7** (revision 9.1). The RED tests of these cases are written for option (b) and skipped with the reason `PENDING OWNER O7`, so they can neither pass nor fail silently:
+~~**[Requirement] O7 is open (see OWNER questions). PENDING O7** (revision 9.1).~~ **[Requirement] O7: (a) is accepted; (b) is the default form — the formatter `beaml fmt` writes it, no warning (DL-081, not built)** (DL-080, revision 9.3). The O7 list: these cases test option (a) and run with fixture and random names:
 
-- F6: a mark with a chain that starts at v1 (`type Payment v4` and `v1 -> ... -> v4`);
-- F13: a mark `v1` without a chain;
-- F14: a chain that starts above v1 without a mark (`migrate Payment v3 -> v4` only);
-- only under option (c): E20, because the slice 4 sources Q4s and Q4s-crlf after W1 and W2 are F14 sources (this breaks E17, the E17 control, E15b, E17b and the A2 rows of Q4s and Q4s-crlf); and F8c (a chain with a gap and no mark).
+- F6: a mark with a chain that starts at v1 (`type Payment v4` and `v1 -> ... -> v4`, v1 records): exit 0, no warning, the generated record writes `version: 4`. Control: the same chain with `type Payment v3` gives M1 (`must agree`, `write: type Payment v4`);
+- F13: a mark `v1` without a chain: exit 0, no warning, `version: 1`. Control: a v2 record gives N1;
+- F14: a chain that starts above v1 without a mark (`migrate Payment v3 -> v4` only, v3 records): exit 0, no warning, `version: 4`;
+- F8c (a chain with a gap and no mark): exit 1, `must count without gaps`, as in the case table. Option (a) does not change it.
+
+None of F6, F13 and F14 gives the option (b) or (c) help text (`remove the VERSION MARK`) or an M1 token. E20 keeps its slice 5 expectation.
 
 Every other rule and case does not depend on O7. F12b uses a mark above v1 without a chain, which every option allows.
 
@@ -1286,7 +1289,7 @@ Example (case F20, Q4 with records of v3 only; line 3 is the type line):
 
 ### Cases (slice 5)
 
-**[Proposal]** Fixture names follow slice 4: TYPE `Payment`, fields `order_id`, `status`, `state`, `channel`, `reference`, operation `payments.authorize`. Sources are in `slice5/<case>/orders.beaml`, built from segment templates (slice 4 template rule). Every compile and removal case also runs from a template with random names: random TYPE and field names (some draws use field names of the form `v<digits>`), random constants (slice 3 rule), and a random base b in 1 to 10^9 for every source with a VERSION MARK: M3 becomes `v(b+2)`, Q4s and Q4z `v(b+3)` with the step `v(b+2) -> v(b+3)`, and the stored versions move with them (F10 stores `v(b)`). **[Proposal] (revision 9.1)** A source without a mark keeps a chain from v1, so that no case outside the PENDING O7 list depends on O7. Removal layouts are random in F23 (LF and CRLF). Replay cases use the harness mode `replay_plain` and the eval VM of slices 2 to 4. The live operation keeps the namespace `payments` (DL-068).
+**[Proposal]** Fixture names follow slice 4: TYPE `Payment`, fields `order_id`, `status`, `state`, `channel`, `reference`, operation `payments.authorize`. Sources are in `slice5/<case>/orders.beaml`, built from segment templates (slice 4 template rule). Every compile and removal case also runs from a template with random names: random TYPE and field names (some draws use field names of the form `v<digits>`), random constants (slice 3 rule), and a random base b in 1 to 10^9 for every source with a VERSION MARK: M3 becomes `v(b+2)`, Q4s and Q4z `v(b+3)` with the step `v(b+2) -> v(b+3)`, and the stored versions move with them (F10 stores `v(b)`). **[Proposal] (revision 9.1)** A source without a mark keeps a chain from v1, so that no case outside the O7 list depends on O7. Removal layouts are random in F23 (LF and CRLF). Replay cases use the harness mode `replay_plain` and the eval VM of slices 2 to 4. The live operation keeps the namespace `payments` (DL-068).
 
 New sources:
 
@@ -1344,7 +1347,7 @@ New sources:
 - F20 against F24: a removal that writes a second mark, or none. F21 and F21b: the old DL-058 exception. F22 and F23: a mark insertion that changes the line end, a comment, white space, or the wrong line. F26: a mark only for the EFFECT output TYPE, or a mark without the refusal of step 2a. F27: a mark written before the refusal. F28: a squash that hides a version that a record needs again. F29: a squash that changes the replay result or the `type` key of new records. U2: a recheck that does not compare the newest versions.
 - A1 and A2: a rewrite that changes behaviour in passing. P1: a re-snapshot that hides another change.
 
-**[Proposal] Test files.** `tests/slice5_syntax_test.py` (F1 to F15 builds, P1, A2, A3; F6, F8c, F13 and F14 skipped as PENDING O7), `tests/slice5_squash_test.py` (F20 to F28), `tests/slice5_replay_test.py` (F9 live call, F11, F11c, F29), `tests/slice5_rewrite_test.py` (A1), U2 in `0001/src/main.rs`, grammar checks in `integrations/zed-beaml/test/`.
+**[Proposal] Test files.** `tests/slice5_syntax_test.py` (F1 to F15 builds, P1, A2, A3; F6, F8c, F13 and F14 test O7 option (a), revision 9.3), `tests/slice5_squash_test.py` (F20 to F28), `tests/slice5_replay_test.py` (F9 live call, F11, F11c, F29), `tests/slice5_rewrite_test.py` (A1), U2 in `0001/src/main.rs`, grammar checks in `integrations/zed-beaml/test/`.
 
 **[Proposal] Compiler change sites.** The parser reads `type` with an optional VERSION, rejects `interface` and plain numbers with their `help` lines, and reads `v<n>` in `migrate`. The `Program` holds per record its VERSION MARK and the byte end of its name. `newest_version` and `chain_start` read the mark (version table). A source check adds M1. `no_path` adds N1, the missing step list and the largest version rule; every message uses `v`. `dead_lines` drops the DL-058 exception. The removal adds the mark insertion, the newest version recheck and the `wrote VERSION MARK` line. The action event adds `marked`.
 
@@ -1352,7 +1355,7 @@ New sources:
 
 **[Proposal] Pass.** The claim holds for slice 5 only if all are true, with fixture names and with random names:
 
-1. F2, F3, F3b, F4, F8, F8b, F8c, F10, F11b, F12, F12b, F12c and F15 fail at compile time with exit 1, no stdout and their tokens. F1, F3c, F5, F7, F9, F11 compile without a warning.
+1. F2, F3, F3b, F4, F8, F8b, F8c, F10, F11b, F12, F12b, F12c and F15 fail at compile time with exit 1, no stdout and their tokens. F1, F3c, F5, F7, F9, F11 compile without a warning; revision 9.3 (O7 option (a)): F6, F13 and F14 too.
 2. F20, F21, F21b, F22, F23, F24 and F26 meet the removal contract byte for byte, with exactly one ` v<n>` per TYPE that lost steps and no mark. F25 and F27 leave the file byte-identical. U2 passes.
 3. F28 blocks again and names every missing MIGRATE STEP. F29 gives equal values and equal `type` keys on both builds. F11 gives `correct_accept`; F11c gives the typed `decode` reject.
 4. P1, A1, A2, A3 and E20 pass. GEN gives no `wrong_accept` and no untyped crash in any case.
@@ -1365,7 +1368,7 @@ New sources:
 - F20 changes a byte outside the dead lines and the inserted ` v4`, or F21 leaves a source whose newest version is not v4.
 - F29 differs: the SQUASH changes behaviour.
 
-**No verdict.** If E20, A1 or A2 fails, slice 5 fails as an implementation (the rewrite changed behaviour) and gives no verdict on the claim. If O7 is not answered, the PENDING O7 cases (F6, F13, F14, and under option (c) E20 and F8c) are not run, and the verdict is limited to the other rows.
+**No verdict.** If E20, A1 or A2 fails, slice 5 fails as an implementation (the rewrite changed behaviour) and gives no verdict on the claim. ~~If O7 is not answered, the PENDING O7 cases (F6, F13, F14, and under option (c) E20 and F8c) are not run, and the verdict is limited to the other rows.~~ Revision 9.3: O7 is answered (DL-080), so F6, F13 and F14 run under option (a) and count toward the verdict.
 
 ### Out of scope (slice 5)
 
@@ -1402,18 +1405,19 @@ New sources:
 | Grammar drops `interface` and plain numbers | Undo | DL-073 tooling; the grammar follows the compiler |
 | New GLOSSARY terms VERSION MARK and SQUASH; MIGRATE CHAIN and MIGRATE STEP updated to `type` and `v` | Undo | One name each; added before use |
 | Revision 9.1: F12b without O7 dependence; T23 prefix and comment layouts; mark in the help line of a marked TYPE; closed lists W3, W4 and S; A1 scope by `git diff`; fallback text row; E13 tag, E21b three refusals | Undo | Test plan and message text only; each kills a named false pass of the fresh check |
-| Revision 9.1: random version numbers only on sources with a VERSION MARK | Undo | Keeps every case outside the PENDING O7 list independent of O7; a revert restores the random chain start |
+| Revision 9.1: random version numbers only on sources with a VERSION MARK | Undo | Keeps every case outside the O7 list independent of O7; a revert restores the random chain start |
 | Revision 9.1: A1 does not audit `integrations/zed-beaml/` and `*.md` | Undo | Grammar tests hold column marks and tree names that move with the grammar; the grammar check covers them. Docs are not read by tests |
 | Revision 9.2: A1 audits test code against the slice 5 RED commit and the `mod tests` block of `main.rs` against `721e7eea`; test code completeness with a closed list of deliberate negatives | Undo | Test harness only. Kills a negative test that passes on an unrewritten inline source |
 | Revision 9.2: slice 4 expectation changes are RED tests in the old syntax, not allowed rows; the Q4 fixture comment changes in RED | Undo | Removes rows copied from a scratch draft; the changes run as tests. A revert restores rows 0 to 24 |
 | Revision 9.2: W1 after a format placeholder; F2 exact help line; N1 versions as whole tokens | Undo | Test checks only; each closes a named gap of the fresh check |
-| Which mark forms are legal beside a complete chain or without a chain | OWNER (O7) | Not chosen; see below |
+| Which mark forms are legal beside a complete chain or without a chain | OWNER (O7), answered | DL-080: (a) is accepted; (b) is the default form; the formatter `beaml fmt` writes it, no warning (DL-081, not built) |
+| Revision 9.3: O7 tests rewritten for option (a), skips removed, controls for M1 (F6) and N1 (F13); F6 uses v1 records so no step is a DEAD LINE | Undo | Test code only; the compiler already accepted (a) |
 
 **[Verified]** No decision is Answer: slice 5 publishes nothing.
 
 ### OWNER questions (slice 5)
 
-- **O7 (Migrate), strictness of the VERSION MARK.** DL-071 says the mark "appears only after a SQUASH" and that a mark and a chain "must agree". Three sources are not settled by that text:
+- **O7 (Migrate), strictness of the VERSION MARK. Answered (DL-080, revision 9.3): (a) is accepted; (b) is the default form — the formatter `beaml fmt` writes it, no warning (DL-081, not built).** The question as asked: DL-071 says the mark "appears only after a SQUASH" and that a mark and a chain "must agree". Three sources are not settled by that text:
   - F6: `type Payment v4` with a complete chain `v1 -> ... -> v4`;
   - F13: `type Payment v1` with no chain;
   - F14: a chain that starts above v1 (`migrate Payment v3 -> v4`) with no mark, for example after a hand edit.

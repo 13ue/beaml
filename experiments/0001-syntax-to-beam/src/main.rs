@@ -835,12 +835,11 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
     Ok(versions)
 }
 
-// PENDING OWNER O7 (EXPERIMENT 0004 README slice 5, "OWNER questions"): which VERSION MARK forms are legal.
-// `chain` is (first `from`, last `to`) of the MIGRATE CHAIN of `name`, if it has one. PROVISIONAL default, option
-// (a) permissive: every mark that agrees with the chain is legal (the agreement is error M1, `mark_agrees`), a mark
-// without a chain is legal, and a chain without a mark is legal, also when it starts above v1. Option (b) would
-// reject a mark beside a chain from v1 and a mark v1 without a chain; option (c) also a chain above v1 without a
-// mark. This one function changes when the OWNER answers O7.
+// O7 answered (DL-080, option (a)): which VERSION MARK forms are legal. `chain` is (first `from`, last `to`) of the
+// MIGRATE CHAIN of `name`, if it has one. Every mark that agrees with the chain is legal (the agreement is error M1,
+// `mark_agrees`), a mark without a chain is legal, and a chain without a mark is legal, also when it starts above
+// v1. Option (b) (a mark only after a SQUASH) is the default form; `beaml fmt` writes it, with no compiler warning
+// (DL-081, not built), so this function rejects nothing.
 fn mark_form_allowed(_name: &str, _mark: Option<u32>, _chain: Option<(u32, u32)>) -> Checked<()> {
     Ok(())
 }

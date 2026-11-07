@@ -246,7 +246,7 @@ figure.code pre i{font-style:normal}
       <dl>
         <dt>Built</dt><dd><code>type</code> replaces <code>interface</code> (DL-061); <code>v</code> on every version (DL-072); VERSION MARK <code>type Payment v4</code>; <code>--remove-dead</code> writes the mark (DL-070, DL-071); 55 files rewritten, audited (A1) and checked for equal behaviour (A2).</dd>
         <dt>Final review</dt><dd><b>PASS WITH NOTES</b>. (1) N1 fired only when the stored TYPE name equals the source name: a record <code>Pay v6</code> against <code>type Payment v4</code> got the backwards help <code>migrate Payment v6 -&gt; v5</code>. Fix: the version check comes before the name check; test F12d. (2) The grammar accepted <code>v0</code> and <code>v03</code> and had no ERROR cases. Fix: version token <code>v[1-9][0-9]*</code>, corpus <code>errors.txt</code> (<code>interface</code>, plain numbers, <code>v0</code>, <code>v01</code>); the u32 range stays a compiler check. GREEN found two RED test faults, fixed by the main agent (DL-078).</dd>
-        <dt>Tests</dt><dd><code>slice5_syntax</code> 56 (8 skipped, PENDING O7); <code>slice5_squash</code> 24; <code>slice5_replay</code> 12; <code>slice5_rewrite</code> 5 (A1: 2 fail on post-slice-5 paths, <code>overview.html</code> and <code>run.py</code>; OWNER decision open); cargo 11 + 14; grammar 17 parses (4 ERROR cases), 69 highlight assertions; <code>run.py</code> runs all slice 2–5 test files.</dd>
+        <dt>Tests</dt><dd><code>slice5_syntax</code> 60, none skipped (O7 option (a): F6, F8c, F13, F14 and two controls); <code>slice5_squash</code> 24; <code>slice5_replay</code> 12; <code>slice5_rewrite</code> 5 (A1: 2 fail on post-slice-5 paths, <code>overview.html</code> and <code>run.py</code>; OWNER decision open); cargo 11 + 14; grammar 17 parses (4 ERROR cases), 69 highlight assertions; <code>run.py</code> runs all slice 2–5 test files.</dd>
         <dt>Commits</dt><dd class="mono">6727353d plan · 721e7eea RED · eefaf483 RED repair · bdc79ecc GREEN</dd>
       </dl>
     </div>
@@ -266,13 +266,14 @@ figure.code pre i{font-style:normal}
         <tr><td><code>add</code> with a constant, <code>drop</code> with a TYPE</td><td><span class="chip ok">slice 3</span></td><td>DL-023, DL-048, DL-049, DL-054</td></tr>
         <tr><td><code>retire … keep … days</code>, DEAD LINES, <code>--remove-dead</code></td><td><span class="chip ok">slice 4</span></td><td>DL-055, DL-056, DL-069</td></tr>
         <tr><td><code>type</code>, <code>v</code> numbers, VERSION MARK, SQUASH</td><td><span class="chip ok">slice 5</span></td><td>DL-061, DL-070, DL-071, DL-072</td></tr>
+        <tr><td>VERSION MARK strictness: any agreeing mark (a)</td><td><span class="chip ok">O7 answered</span></td><td>DL-077, DL-080</td></tr>
         <tr class="grp"><td colspan="3">In progress</td></tr>
-        <tr><td>VERSION MARK strictness</td><td><span class="chip wait">provisional (a), O7</span></td><td>DL-077</td></tr>
-        <tr><td>Production source of stored versions</td><td><span class="chip wait">snapshot only, O5</span></td><td>DL-034, DL-063</td></tr>
+                <tr><td>Production source of stored versions</td><td><span class="chip wait">snapshot only, O5</span></td><td>DL-034, DL-063</td></tr>
         <tr><td>Slice 5 final review</td><td><span class="chip ok">PASS WITH NOTES, closed</span></td><td>DL-007</td></tr>
         <tr class="grp"><td colspan="3">Decided, syntax open or not built</td></tr>
         <tr><td><code>Unknown(String)</code> as a declared <code>enum</code> variant; last clause keeps the value</td><td><span class="chip open">decided, not built</span></td><td>DL-028, DL-062, DL-065</td></tr>
         <tr><td><code>redacted</code> PII field: <code>card_holder: redacted String</code></td><td><span class="chip open">syntax decided, not built</span></td><td>DL-029, DL-059</td></tr>
+        <tr><td>Default mark form (b), written by <code>beaml fmt</code></td><td><span class="chip open">decided, not built</span></td><td>DL-081</td></tr>
         <tr><td>Division: <code>DivByZero</code> failure or non-zero integer TYPE</td><td><span class="chip open">rule decided, syntax open</span></td><td>DL-030</td></tr>
       </tbody>
     </table>
@@ -444,17 +445,17 @@ exit 1</pre>
       </ul>
     </div>
     <div class="card">
-      <span class="chip wait">O7 · Migrate · slice 5</span>
+      <span class="chip ok">O7 · Migrate · answered</span>
       <h3>How strict is the VERSION MARK?</h3>
       <ul>
-        <li>(a) permissive: any agreeing mark is legal (provisional, DL-077)</li>
-        <li>(b) mark only after a SQUASH: F6, F13 are errors</li>
-        <li>(c) as (b), and a shortened chain must show its mark (F14 error)</li>
-        <li>8 tests skipped as PENDING O7</li>
+        <li>(a) accepted: any agreeing mark (DL-080)</li>
+        <li>(b) default form, via <code>beaml fmt</code> (DL-081)</li>
+        <li>No compiler warning; fmt not built</li>
+        <li>F6, F13, F14 compile; tests run</li>
       </ul>
     </div>
   </div>
-  <p>Decision log: <a href="../../wiki/planning/decision-log.md"><span class="mono">wiki/planning/decision-log.md</span></a>, 78 entries (DL-001 to DL-078), all dated 2026-11-06.</p>
+  <p>Decision log: <a href="../../wiki/planning/decision-log.md"><span class="mono">wiki/planning/decision-log.md</span></a>, 81 entries (DL-001 to DL-081).</p>
 </section>
 
 <section>

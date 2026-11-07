@@ -1384,3 +1384,20 @@ Final review verdict: PASS WITH NOTES. Base HEAD `1b546463`. Not committed; the 
 - `tests/slice5_rewrite_test.py` compared the working tree with the base, so every later change in its scope failed A1 (the overview page, the new run.py steps).
 - The main agent pinned the diff audit to the slice 5 GREEN commit `bdc79ecc`: `git diff BASE bdc79ecc` and `git show bdc79ecc:<path>`. The no-old-form check still reads the working tree.
 - Undo-class: our own test design; the worker had raised it as Migrate. `run.py` now exits 0 with all slice 2–5 steps.
+
+## O7 answered
+
+- Base: `95ecfa74` (DL-081), after `fedac9d6` (DL-080). Not committed by the worker.
+- O7: option (a) is accepted (DL-080). Option (b) is the default form; `beaml fmt` writes it, no warning (DL-081, not built).
+- Tests: F6, F8c, F13, F14 rewritten for option (a); skips removed; fixture and random names. New controls: F6 with `v3` gives M1, F13 with a v2 record gives N1.
+- Test fault found: F6 with an empty snapshot gives three DEAD LINE warnings. F6 now stores v1 records, so every step is live.
+- Compiler: `mark_form_allowed` comment refers to DL-080 and DL-081. No behaviour change.
+- README revision 9.3; overview page: O7 answered, 81 DL entries.
+- Runs: cargo 11 + 14 pass; slice5_syntax 60, squash 24, rewrite 5, replay 12 pass; `run.py` pass (`results/20261107T052837751458Z`).
+
+| File | SHA-256 (16) |
+| --- | --- |
+| `0001/src/main.rs` | `abe2ada0321fc4b2` |
+| `tests/slice5_syntax_test.py` | `71b4e88eadeaa69a` |
+| `README.md` | `f7c5f6fe5d19e07e` |
+| `overview.html` | `489eb5c23daebac8` |

@@ -1,0 +1,11 @@
+{
+  "artifact_id": "99059640cf1cd3b50c475c71aad04cacd93edef8c33724f2f7ed3eb57284b70c",
+  "source_id": {
+    "qualified_name": "payments.authorize",
+    "source_sha256": "3d28e57e5bebc0e5ef81044badd2751b925b79e5d0d5b89b3c6961e8c6cdc004"
+  },
+  "byte_range": [
+    81,
+    180
+  ]
+}

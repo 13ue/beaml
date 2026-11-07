@@ -1,8 +1,7 @@
 """EXPERIMENT 0004 slice 5 (README revision 9.1): `type`, `v` on every version number, and the VERSION MARK.
 
-Build cases F1, F2, F3, F3b, F3c, F4, F5, F7, F8, F8b, F9 (build), F10, F11 (build), F11b, F12, F12b, F12c, F15.
-PENDING O7 (README, "O7 is open"): F6, F8c, F13, F14 are written for option (b) and skipped, so they can neither
-pass nor fail silently. Rewrite checks: P1 (the `payments.beaml` snapshot), A2 (R-EQ against the base compiler,
+Build cases F1, F2, F3, F3b, F3c, F4, F5, F6, F7, F8, F8b, F8c, F9 (build), F10, F11 (build), F11b, F12, F12b,
+F12c, F13, F14, F15. O7 is answered (DL-080, option (a)): F6, F13 and F14 compile, F8c stays a gap error. Rewrite checks: P1 (the `payments.beaml` snapshot), A2 (R-EQ against the base compiler,
 closed normaliser S), A3 (stored fixtures unchanged). A1 is in slice5_rewrite_test.py, F20-F28 in
 slice5_squash_test.py, the replay and live cases in slice5_replay_test.py.
 Each name-dependent case runs twice:
@@ -34,7 +33,6 @@ from arm_tree import COMPILER_PATH, EXPERIMENT, REPO  # noqa: E402
 import stored_types_test as st  # noqa: E402
 
 BASE = "f29e3f12"
-PENDING_O7 = "PENDING OWNER O7"
 U32_MAX = 4294967295
 NO_PATH = "no path from the stored TYPE VERSION"
 FALLBACK = "expected type, enum, effect, migrate, retire or fn"
@@ -474,9 +472,8 @@ class Slice5Syntax(Slice5):
             "type %s v%d" % (N.T, V + 1), "migrate %s v%d -> v%d" % (N.T, V - 1, V), "must agree",
             "add migrate %s v%d -> v%d" % (N.T, V, V + 1), "type %s v%d" % (N.T, V)], label="F8b")
 
-    @unittest.skip(PENDING_O7)
     def test_F08c_chain_with_a_gap_is_an_error(self):
-        # Written for option (b). PENDING O7: under option (c) the expected error may change.
+        # O7 option (a) (DL-080): a gap stays an error; only option (c) would have changed it.
         T = self.names.T
         text = source_text(self.names, "Q4", without=("s23",))
         self.assert_rejected(self.write_source(text, "F8c"), [], [
@@ -572,22 +569,41 @@ class Slice5Syntax(Slice5):
         self.assert_rejected(source, [(U32_MAX, "ko")], ["no newer version", "v%d" % U32_MAX], absent=["panicked"],
                              label="F15")
 
-    # PENDING O7 (README, "O7 is open"): written for option (b), skipped until the OWNER answers.
-    @unittest.skip(PENDING_O7)
-    def test_F06_mark_beside_a_chain_from_v1_is_an_error(self):
-        source = self.write_source(source_text(self.names, "Q4", marks={"type": (self.names.T, 4)}), "F6")
-        self.assert_rejected(source, [], ["remove the VERSION MARK while the MIGRATE CHAIN starts at v1"], label="F6")
+    # O7 option (a) (DL-080): every VERSION MARK that agrees with the MIGRATE CHAIN is legal, and a chain without a
+    # mark is legal. None of these gives the option (b) or (c) help line.
+    O7_REFUSALS = ["remove the VERSION MARK", "must agree", "write: type"]
 
-    @unittest.skip(PENDING_O7)
-    def test_F13_mark_v1_without_chain_is_an_error(self):
+    def assert_o7_built(self, source, spec, version, label):
+        stdout, stderr = self.assert_built(source, spec, label=label)
+        self.assertEqual([version], sorted(set(record_versions(stdout))),
+                         self.ctx(label, "the generated record writes the newest version as an integer"))
+        self.assertEqual([], [t for t in self.O7_REFUSALS if t in stderr], self.ctx(label, "no O7 refusal;", stderr))
+
+    def test_F06_mark_beside_a_chain_from_v1_builds(self):
+        N = self.names
+        # v1 records keep every MIGRATE STEP live, so the build has no DEAD LINE warning.
+        source = self.write_source(source_text(N, "Q4", marks={"type": (N.T, 4)}), "F6")
+        self.assert_o7_built(source, [(1, "ko")], 4, "F6")
+
+    def test_F06_control_the_same_chain_with_another_mark_is_M1(self):
+        # Option (a) still checks agreement: the F6 source with `v3` gives M1.
+        N = self.names
+        source = self.write_source(source_text(N, "Q4", marks={"type": (N.T, 3)}), "F6-control")
+        self.assert_rejected(source, [], ["type %s v3" % N.T, "migrate %s v3 -> v4" % N.T, "must agree",
+                                          "write: type %s v4" % N.T], label="F6 control")
+
+    def test_F13_mark_v1_without_chain_builds(self):
         source = self.write_source("".join(t for t, _ in m3_segments(self.names, 1)), "F13")
-        self.assert_rejected(source, [], ["remove the VERSION MARK while the MIGRATE CHAIN starts at v1"], label="F13")
+        self.assert_o7_built(source, [], 1, "F13")
 
-    @unittest.skip(PENDING_O7)
+    def test_F13_control_a_v2_record_against_mark_v1_is_N1(self):
+        source = self.write_source("".join(t for t, _ in m3_segments(self.names, 1)), "F13-control")
+        stderr = self.assert_rejected(source, [(2, "kt")], self.n1_tokens(2, 1), label="F13 control")
+        self.assert_whole_versions(stderr, 2, 1)
+
     def test_F14_chain_above_v1_without_mark_builds(self):
         source = self.write_source(source_text(self.names, "Q4", without=("s12", "s23")), "F14")
-        self.assert_built(source, [(3, "ktc")], label="F14")
-
+        self.assert_o7_built(source, [(3, "ktc")], 4, "F14")
 
 class Fixture(Slice5Syntax, unittest.TestCase):
     names, fixture_based = FIXTURE_NAMES, True

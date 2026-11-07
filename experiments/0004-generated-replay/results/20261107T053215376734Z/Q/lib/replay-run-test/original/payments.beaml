@@ -1,0 +1,3 @@
+type Order { order_id: String channel: String }
+type Payment { order_id: String status: String }
+fn authorize Order { order_id, channel } -> Payment = Payment { order_id: order_id + "", status: "authorized" }
