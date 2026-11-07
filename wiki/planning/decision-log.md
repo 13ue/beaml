@@ -531,6 +531,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: A. The plan default D6B-43 holds. B is a separate decision for later (an own slice: it changes the output of every unversioned TYPE).
 → Because: OWNER choice; a formatter must not renumber stored records or switch a decode form. The literal DL-081 text is superseded for the no-chain case.
 
+**DL-105 · Answer · The RESPONSE RECORD holds the typed projection, never the raw body (Q6B-4, O2)**
+→ Question: a `redacted` field in an EFFECT output TYPE is a core feature and must be allowed. Today the RESPONSE RECORD stores the raw response body (`body_base64`), so it holds the redacted value and every undeclared key the service echoes. What does the record hold?
+→ Options: O1, the raw body minus the redacted keys (undeclared echoes stay raw); O2, the typed projection: declared, non-redacted fields with their values, redacted fields as a marker, unknown keys as names only, a digest of the projection; O3, no body for EFFECTS with redacted output (no replay).
+→ Chose: O2. The raw body is stored nowhere. A REPLAY RUN decodes the projection; a field added later is absent in old records, which is the existing `add` with a constant case. A redacted field replays as absent and marked. Spans, logs, events and dashboards keep the rules of DL-089 (never the value; counts only).
+→ Because: OWNER choice after the walkthrough. Privacy is structural, not a filter: a value that is never stored cannot leak. A compile error (the interim D6B-34) would forbid a basic feature and still not protect the raw body against echoes.
+→ Consequences: the RESPONSE RECORD contract changes (`value`, `redacted`, `unknown_keys`, a digest of the projection; names are a sketch); the replay compare uses the projection; a decode change cannot be replayed against an old raw body. A failure TYPE may carry a redacted field only when that field is `redacted` there too. Derived values (`"Hello " + c.holder`) are PII by flow; the implicit-flow check stays a later compiler target.
+→ Supersedes: D6B-34 (compile error) and the D6B-30/D6B-32 readings in the plan; step 6 of slice 6b is replanned on this basis.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
