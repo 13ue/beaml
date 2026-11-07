@@ -462,6 +462,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - [DL-102](decision-log.md): replay rule, a stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate.
 - [DL-103](decision-log.md): replay rule, a mapping change that only resolves Unknown values needs no MIGRATE STEP.
 - [DL-117](decision-log.md): Q6B-16, `T.new/1` takes one map with atom keys, also for one parameter.
+- [DL-128](decision-log.md): PROTOTYPE, the UI event enters BEAML through a declared inbound EFFECT (b).
 - [DL-127](decision-log.md): PROTOTYPE, Postgres holds BEAML records in one JSONB table, BEAML owns the rows (J).
 - [DL-125](decision-log.md): fate concept, declarative fate operations in the MIGRATE STEP; expressions only on a real case.
 - [DL-122](decision-log.md): Q6B-8, a removed or changed ENUM LITERAL with stored values blocks the build (interim).

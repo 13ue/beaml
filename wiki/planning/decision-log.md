@@ -717,6 +717,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: the smallest build, and it shows the thesis: a TYPE change travels from the source to the table with no second migration system. E would break the vertical line at the place the PROTOTYPE should show. E can come later as a second arm when SQL over fields is needed.
 → Effect: EXPERIMENT 0005 (register entry to come): one Phoenix project, one domain (Orders/Payments from 0004), one LiveView page, one table. BEAML owns TYPES and VERSIONS, constructors, `migrate`, EFFECTS and the flow; the host owns Phoenix setup, router, LiveView template, Repo and deploy. D020 moves: for records in this table, a MIGRATE STEP governs stored state. Open details follow in the walk-through.
 
+**DL-128 · Migrate · Prototype: the UI event enters BEAML through a declared inbound EFFECT (option b)**
+→ Question: how does a LiveView click reach BEAML? a, the host builds the struct (`Order.new/1`, DL-117) and calls the generated flow; b, BEAML declares the entry, the COMPILER generates the decode of the event params (the DL-101 path, String keys), the call and the root span, and the host calls one generated entry function.
+→ Options: a first, b later; b at once.
+→ Chose: b at once. The entry is an EFFECT in the inbound direction: it is declared in the source, it decodes outside data, it opens the root span, it returns a result or a failure TYPE to the UI. Sketch, not grammar: `on ui "place" Order -> place`.
+→ By: 13ue
+→ Because: it makes the vertical line complete: the first thing the PROTOTYPE shows is where the ins and the outs are. It closes the inward view of D018 (every live function is reachable from a declaration) and the D6B-127 follow-up (a declared entry gives the root span). a would leave the entry in the host, the one place the PROTOTYPE should show.
+→ Effect: a new slice before EXPERIMENT 0005 (inbound EFFECT declaration: grammar, decode of params through DL-101, root span, failure TYPE to the caller, REPLAY RUN of an inbound event; plan with RED/GREEN as usual). The HTTP request entry follows the same form later. Roadmap part 6 candidate "entry points declared" moves from concept to decided.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

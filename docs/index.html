@@ -188,9 +188,9 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li><code>redacted</code> fields stay out of logs, traces and reports (DL-059)</li>
       <li>An effect gets a redacted field only with <code>with &lt;field&gt;</code> (DL-089)</li>
       <li>Migration checks report counts per environment, never values</li>
+      <li>Entry points declared in the source as inbound effects (<code>on</code>), so every live function is reachable from a declaration and the entry opens the root span (DL-128)</li>
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
-      <li>Entry points declared in the source (<code>route</code>, <code>on</code>), so every live function is reachable from a declaration (DL-126, D018)</li>
       <li>Policy on effect lines: retry, timeout, idempotent (DL-126)</li>
       <li>Trace resolution per subtree, time-limited; default is the effect path (DL-119, D018)</li>
       <li>Typed dashboards and alerts</li>
