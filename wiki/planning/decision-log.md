@@ -525,6 +525,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice. DL-065 keeps the value for exactly this case.
 → Limit: a change that moves a value from one known variant to another known variant is not covered here; it fails no record either, and stays open until a case shows up.
 
+**DL-104 · Migrate · `beaml fmt` never changes the TYPE VERSION (Q6B-5, A; narrows DL-081)**
+→ Question: DL-081 says `fmt` removes a VERSION MARK when there is no chain. After a SQUASH the mark is the only source of the version (`type Payment v3 { }`), and `v1` without a chain selects the versioned decode while `type Payment { }` selects the slice 1 form.
+→ Options: A, `fmt` never changes the newest version or the decode form: it removes a mark only when the chain already implies it, keeps a mark without a chain (`v3` and `v1` alike), writes a mark when the chain starts above v1; B, make `type T { }` mean `v1` everywhere (every record versioned), then `v1` is redundant.
+→ Chose: A. The plan default D6B-43 holds. B is a separate decision for later (an own slice: it changes the output of every unversioned TYPE).
+→ Because: OWNER choice; a formatter must not renumber stored records or switch a decode form. The literal DL-081 text is superseded for the no-chain case.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
