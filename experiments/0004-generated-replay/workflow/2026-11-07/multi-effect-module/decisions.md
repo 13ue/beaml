@@ -97,3 +97,23 @@ By: Opus (PLAN multi-effect)
 **D6B-209 · Repair · P3 and P5 in one step.**
 Chose: one ledger for both. Over: two steps (the 0005 order P3 → P5). Because: both change the module layout (`emit` header, `Replay`, `DRIVER`, `slice6_entry_test.py`); two steps would edit the same test lines two times. Commits us to: one RED covers N1 and N14.
 By: Opus (PLAN multi-effect)
+
+## Plan repair (after plan check), 2026-11-07
+
+**[Proposal]** Decisions of the PLAN repair after the [plan check](plan-review.md). Plan text: [plan.md](plan.md#plan-repair-after-plan-check-2026-11-07).
+
+**D6B-210 · Repair · Variant sources keep the stem `orders` in their own directory (O1).**
+Chose: `<variant>/orders.beaml` for every host-called or runtime-called variant; the 0005 N10 control (`defmodule Orders do`, the error names `Orders.ui_place/1`, not `Orders.ui_orders/1`). Over: a `module` line (Q5-6 B, syntax). Because: Q6E-1 C names the module by the stem; a variant stem renames the module, so 0005 N7 and N7b break and N10 passes falsely. Commits us to: one directory per variant.
+→ By: Fable (ruling O1 under DL-144)
+
+**D6B-211 · Undo · The P3 variants and the N14 copy follow D6B-210; compile-reject files keep their names.**
+Chose: `slice6/multi/no_hold/`, `no_hold_retired/`, `copy/` each with `orders.beaml`; `bad/` files unchanged (the reserved-name case needs the stem `enum`). Over: renaming the `bad/` files. Because: a compile reject calls no module.
+→ By: Opus (PLAN repair P3/P4)
+
+**D6B-212 · Repair · N13 base is the P3 base commit, moved with any pin sub-step (O2).**
+Chose: the P2 commit that set the commit pins (RV3-14); the RED worker records the hash; a pin sub-step in this step moves `BASE` to its GREEN hash. Over: 35c7e3bf. Because: P2 changes `Replay.record/3` in every EFFECT source, so a pre-P2 base fails N13 by construction. Commits us to: the four pin-site tests carry the P2 values.
+→ By: Fable (ruling O2 under DL-144)
+
+**D6B-213 · Undo · The docs phase notes under DL-133 that `BeamlSpike.Rejected` named the shape; the generated name is `<Module>.Rejected` (O3).**
+Because: Q6E-2 A (big, open) keeps the DL-133 shape. A reader must not take `%Orders.Rejected{}` as against DL-133.
+→ By: Fable (ruling O3 under DL-144)

@@ -63,6 +63,12 @@ By: Opus (PLAN multi-effect, default, open) for every line.
 - **Q6E-4** One EFFECT per flow: A yes (`place` cannot pay and store in one flow) · B several EFFECTS per flow, records selected by operation. Default A.
 - Other Migrate default of this step, not big: **Q6E-3** `Replay.run(operation, ...)` with two or more EFFECTS. Default A.
 
+**After the plan check** ([plan repair](../../../0004-generated-replay/workflow/2026-11-07/multi-effect-module/plan.md#plan-repair-after-plan-check-2026-11-07)), 2026-11-07
+
+- Variants keep the stem `orders` in their own directories; N10 gets a `defmodule Orders do` control (D6B-210). → By: Fable · Repair
+- N13 compares against the P3 base commit, moved with any pin sub-step (D6B-212). → By: Fable · Repair
+- **Q6E-2** stays big and open. The docs phase notes under DL-133 that `BeamlSpike.Rejected` named the shape; the generated name is `<Module>.Rejected` (D6B-213). → By: Fable · Undo
+
 ## Database transports (P4)
 
 Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/db-transport/plan.md). Options: [db-transport/decisions.md](../../../0004-generated-replay/workflow/2026-11-07/db-transport/decisions.md). Every line: By: Opus (PLAN db-transport, default, open).
@@ -73,3 +79,20 @@ Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/
 - **QDB-6** db outcomes: A `"ok"` / `"failed"` + reason · B `"accepted"` / `"rejected"`. Default A; P2 names win.
 - **QDB-7** ROW SNAPSHOT: A `rows.jsonl` beside `--stored` (+ `source: "db"`, `row_id`), meta `row_count` checked · B one mixed file. Default A.
 - **Other (not big):** QDB-3 newest row wins on `db.get`; QDB-4 one bad row fails the whole `db.list`.
+
+**After the plan check** ([plan repair](../../../0004-generated-replay/workflow/2026-11-07/db-transport/plan.md#plan-repair-after-plan-check-2026-11-07)), 2026-11-07
+
+- **QDB-6** withdrawn. The P2 words `accepted` / `rejected` hold; reasons `transport`, `decode`, `constructor`, `not_found`. → By: Fable · Repair
+- **QDB-6b** (big) A failed db call is a rejected record with its reason. Challenge: http writes no record on a transport failure. Default yes. → By: Fable (default, open)
+- **QDB-2** (big) now `put(table, {type, version}, json)`: the generated code encodes the core with OTP `:json`; `get`/`list` return JSON binaries. Q5-8 reads put/3. → By: Fable · Repair
+- **PDB-18** (big) `unknown_fields` of a `db.list` record: `items.<i>.<field>`. → By: Fable (flag)
+- **PDB-24** (big) rows count line `rows: N rows, K checked, M not decodable`. → By: Fable (flag)
+- **QDB-8** (big) 0005 N7/N7b vs D6B-39: A blocked by D036 M4 (default) · B String-only ROW TYPE for N7 · C open M4 now. → By: Opus (PLAN repair P3/P4, default, open)
+
+**Parked items touched, not decided (P4)**
+
+- **M4** (D036): PDB-09 withdrawn; D6B-39 holds for ROW TYPES; N18 pins today's help text, no new wording. 0005 N7/N7b wait on M4 under QDB-8 A. → By: Fable · Repair
+
+## First question tomorrow: M4 (D036)
+
+- **QDB-8** (big): the chained read over rows (N7/N7b) runs on a String-only ROW TYPE because the built D6B-39 bans constructor and enum fields in a chained TYPE. The real `Order` chain waits on M4 (help text vs lifting D6B-39). Default B, By: Fable (default, open). Options: A block N7/N7b on M4 · B String-only ROW TYPE · C answer M4 now.

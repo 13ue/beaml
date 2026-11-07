@@ -243,3 +243,75 @@ Expected values come from this plan, DL-127, DL-129, DL-143 and the test's own d
 - **[Inference]** The fake `BeamlDb` mimics `jsonb` by a `:json` round trip only. Key order, duplicate keys and number forms of Postgres are 0005 evidence.
 - **[Unknown]** The cost of `--stored` over all rows (one full read per build). Fine for a PROTOTYPE.
 - **[Inference]** The host renders a `Channel` value from the tuple form. A literal helper for the host is not in P4.
+
+## Plan repair (after plan check), 2026-11-07
+
+**[Proposal]** PLAN repair after the [plan check](plan-review.md) BLOCK (O1 high, O2 high, O3 high; M-a, M-b medium). Main-agent rulings under DL-144 applied as given. This section overrides the sections above where they differ.
+By: Fable (main agent, rulings under DL-144) for O1, O2 and O3; Opus (PLAN repair P3/P4) for the details marked so in [decisions.md](decisions.md#plan-repair-after-plan-check-2026-11-07).
+
+### O1: the P2, P3 and P5 names
+
+**Outcome words (P2).** QDB-6 is withdrawn. Every db record and every ROW CORE uses the v3 words. → By: Fable · Repair
+
+| Fact | `outcome` | `reason` | `value` |
+|---|---|---|---|
+| Call succeeds; every ROW CORE | `"accepted"` | `:null` (JSON `null`) | the output projection |
+| `BeamlDb` error, other shape, raise, exit | `"rejected"` | `"transport"` | `:null` |
+| Row decode fails (name, digest, version, fingerprint, not JSON) | `"rejected"` | `"decode"` | `:null` |
+| Row constructor fails | `"rejected"` | `"constructor"` | `:null` |
+| `db.get` finds no row | `"rejected"` | `"not_found"` | `:null` |
+
+- New big open question **QDB-6b**: a failed db call is a rejected record with its reason. Challenge: the v3 http writer writes no record on a transport failure; a db call writes one. → By: Fable (default, open) · Migrate
+- PDB-14: `outcome: "accepted"`, `reason: :null`. Changes N2, N10, N11, N25 and the owner-review QDB-6 line.
+- `--stored` over `responses.jsonl`: db records follow QV3-8 B. A `rejected` db record skips the value checks, the TYPE path check and the W2 count. It counts in the P2 count lines `N records, K checked, M rejected at capture` and `digest not verified (P2b)`. → By: Opus (PLAN repair P3/P4) · Undo
+- The exclusion "A DL-136 count line for RESPONSE RECORDS ... P4 skips failed db call records without a line" is withdrawn: P2 builds the count line.
+- `rows.jsonl`: a row with `outcome` other than `"accepted"` is counted as not decodable, not checked (a row is written on success only, so such a row is a hand edit). → By: Opus (PLAN repair P3/P4) · Undo
+
+**Module (P5, Q6E-1 C).** The fixture gets an ENTRY LINE, so its module is `Orders`: → By: Fable · Repair
+
+```
+effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> list_orders
+```
+
+- It is the 0005 entry form. **[Unknown]** whether an ENTRY LINE with the empty input TYPE `OrderQuery {}` passes the P1 checks; the RED worker probes it once and records it. It is 0005 evidence too.
+- Variants in their own directories, each as `orders.beaml` (P3 O1 ruling): `slice6/db/plain/`, `plain_v2/`, `order_v2/` (now a reject case, see O3), `stricter/`, `no_app/`, `put_only/`. Each runtime variant keeps the ENTRY LINE. `put_only/` is a compile-only case (N22) and needs none. → By: Opus (PLAN repair P3/P4) · Undo
+
+**Replay (P3, Q6E-3 A).** The fixture has three EFFECTS, so the call is `Orders.Replay.run(operation, a0, trace_id, records)`. `select/2` stays by `trace_id` only (one EFFECT per flow, Q6E-4 A). The words "P3 select by `trace_id` and `operation`" in PDB-19 and "P3 selects by operation in one list" in QDB-5 are withdrawn. → By: Fable · Repair
+
+- **N11 (changed).** `Orders.Replay.run("orders.save", order1, trace_id, records)` and `run("orders.list", %{}, trace_id, records)` return the live results; the fake log has no call. A `rejected`/`transport` record replays to `{:error, %Orders.StoreError{reason: "transport"}}`. `run("orders.load", order1, save_trace, records) == {:error, :operation_mismatch}`.
+
+### O2: one encoder (JSON binary at the `BeamlDb` boundary)
+
+→ By: Fable · Repair, because it closes the `:null`/`nil` gap with one rule.
+
+| Call | Receives | Returns |
+|---|---|---|
+| `BeamlDb.put(table, {type, version}, json)` | `"records"`; `{"Order", 1}`; `json` = `:json.encode(core)`, a binary, encoded by the generated code (OTP `:json`) | `{:ok, id}` (integer) or `{:error, reason}` |
+| `BeamlDb.get(table, type, key)` | as before | `{:ok, %{"id" => id, "version" => v, "value" => json}}`, `{:ok, nil}` or `{:error, reason}` |
+| `BeamlDb.list(table, type, query)` | as before | `{:ok, [%{"id" => id, "version" => v, "value" => json}]}` or `{:error, reason}` |
+
+- `json` in a returned row is a binary (the host reads `value::text`). The generated code decodes it with `:json.decode/1`. A decode raise is `"decode"`. A non-binary `value` is `"decode"`.
+- The core uses `:null` for every JSON null (`reason`, a failed `value`), never `nil`. **[Observed]** by the plan check: `:json.encode(nil)` writes `"nil"`. → By: Opus (PLAN repair P3/P4) · Undo
+- The host stores the binary as `$3::jsonb`. The host never encodes a core.
+- The fake `BeamlDb` stores the binary as given and returns it as given. It no longer round-trips a map. PDB-10 and PDB-11 change so.
+- **N2 (changed).** The fake got one put with `is_binary(json)`. The test decodes it with `:json.decode` and asserts the PDB-14 key set and values on that map; `reason == :null`.
+- 0005 gets the tie test **N2c**: after N2, `jsonb_typeof(value->'reason') = 'null'` for the one row (appended to the 0005 plan). → By: Fable · Repair
+
+### O3: PDB-09 withdrawn; D6B-39 holds for ROW TYPES
+
+→ By: Fable · Repair, because DL-144 says avoid a parked item (D036 M4), never decide it.
+
+- PDB-09 is withdrawn. The db check branch applies D6B-39 as built: a constructor or enum field cannot stand in a ROW TYPE with a MIGRATE CHAIN or a VERSION MARK. Texts: the built D6B-39 texts (main.rs HEAD lines 1593 and 1605, `effect <op>: the constructor field <R>.<f> ...` and `the enum field ...`), with their help lines. → By: Opus (PLAN repair P3/P4) · Undo
+- The Checks table row "MIGRATE CHANGE on a constructor or enum field" is replaced by these two texts. N12 asserts them with `slice6/db/order_v2/orders.beaml` (the 0005-style v2 `Order` with `amount: Amount`, `channel: Channel` and `add note`): exit non-zero, the constructor text for `Order.amount` (first field in source order). **[Unknown]** which of the two texts fires first; the RED worker records it.
+- The versioned decode is not joined with the DL-101 tail. The Limit on that join is withdrawn.
+- **N5 and N20 (changed).** They use a String-only ROW TYPE: `slice6/db/plain/orders.beaml` with `type Order { order_id: String label: String }`, and `plain_v2/orders.beaml` with `type Order v2 { order_id: String label: String note: String }` and `migrate Order v1 -> v2 { add note: String = "" }`. Same assertions as before. D6B-39 allows this chain (no constructor or enum field). → By: Opus (PLAN repair P3/P4) · Repair
+- **N18 (changed).** The help line stays pinned to today's text, the built RESPONSE RECORD constructor help (main.rs HEAD line 4903): `  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order (DL-102)`. The new row help "these rows ... (DL-102, DL-137)" is withdrawn. No new help wording, so M4 is not decided. → By: Fable · Repair
+
+**[Verified] Finding against the ruling premise (for the main agent).** The ruling says the 0005 v2 `Order` (N7, N7b) is an `add` of a String field "which D6B-39 allows". The built D6B-39 check (main.rs HEAD lines 1582 to 1605) bans any constructor or enum field in a TYPE with a MIGRATE CHAIN, not only a change that names one. The 0005 `Order` holds `amount: Amount` (constructor) and `channel: Channel` (enum). So the 0005 `order_v2` variant is a compile error under D6B-39, and P4 builds no exception (PDB-09 withdrawn). See the 0005 correction and QDB-8 in [decisions.md](decisions.md#plan-repair-after-plan-check-2026-11-07).
+
+### Medium notes
+
+- **M-a (list-item literal check).** **N25b (new, RED).** An `orders.list` record with item 0 `channel "app"` under `no_app/orders.beaml`: exit 1 with the DL-122 RESPONSE RECORD text for `orders.list`. Control: item 0 `channel "tv"` with `unknown_fields ["items.0.channel"]`: exit 0. Without it, a reader that skips list items for literals passes. → By: Opus (PLAN repair P3/P4) · Undo
+- Limit: the list-item literal check rests on N25b only; a list of more than one item with a lost literal in item 1 is not tested. → By: Opus (PLAN repair P3/P4)
+- **M-b (stale put/4).** The 0005 plan gets a dated correction line: `BeamlDb.put/3` (QDB-2, with the JSON binary of O2). Q5-8 reads as put/3. → By: Fable · Repair
+- PDB-18 (`items.<i>.<field>`) and PDB-24 (`rows: N rows, K checked, M not decodable`) are big (record format) and are listed in the 0005 owner review. → By: Fable · Repair

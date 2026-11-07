@@ -227,3 +227,17 @@ A path dep brings no umbrella config. The 0005 host sets these itself:
 ### Acceptance (replaces the README line)
 
 One `run.py` run passes N1 to N7, N7b, N8, N8b, N8c and N10 to N13 with exit 0 and retains its result directory. N9 is `blocked`, never `pass`.
+
+## Corrections after the P3/P5 and P4 plan checks, 2026-11-07
+
+**[Proposal]** Dated corrections. The text above stays; these lines replace it where the two differ. Ledgers: [P3/P5 plan repair](../../../0004-generated-replay/workflow/2026-11-07/multi-effect-module/plan.md#plan-repair-after-plan-check-2026-11-07), [P4 plan repair](../../../0004-generated-replay/workflow/2026-11-07/db-transport/plan.md#plan-repair-after-plan-check-2026-11-07).
+
+- **Variants.** Each variant lives in its own directory as `orders.beaml`: `src/variants/order_v2/orders.beaml`, `src/variants/stricter/orders.beaml`, `src/variants/no_place/orders.beaml`. Reason: Q6E-1 C names the module by the stem. → By: Fable · Repair (D6B-210)
+- **N10 control.** The generated file holds `defmodule Orders do`, and the host error names `Orders.ui_place/1` and not `Orders.ui_orders/1`. → By: Fable · Repair
+- **`BeamlDb.put/3`.** "P4 content", `lib/proto/beaml_db.ex` and Q5-8 read `BeamlDb.put(table, {type, version}, json)`, not put/4 (QDB-2). → By: Fable · Repair
+- **One encoder.** `json` is the `:json.encode` binary of the ROW CORE, encoded by the generated code. The host stores it as `$3::jsonb` and never encodes a core. `get/3` and `list/3` return rows whose `value` is a JSON binary (`value::text`); the generated code decodes it. → By: Fable · Repair (PDB-30)
+- **N2c (new, after N2).** For the one row: `jsonb_typeof(value->'reason') = 'null'`. → By: Fable · Repair
+- **N3 db record.** `outcome: "accepted"`, `reason: null` (P2 words); a failed db call is `rejected` with its reason (QDB-6b, big, open). → By: Fable · Repair
+- **N7 and N7b, ruling.** The v2 `Order` is a MIGRATE CHAIN `add` of a String field with a default; the stricter `Amount` stays only for N8 (a block, no chain). PDB-09 is withdrawn. → By: Fable · Repair
+- **N7 and N7b, finding.** **[Verified]** D6B-39 as built (main.rs HEAD lines 1593, 1605) bans any constructor or enum field in a TYPE with a MIGRATE CHAIN. The 0005 `Order` holds `Amount` and `Channel`, so `order_v2/orders.beaml` is a compile error. Default (QDB-8 A): N7 and N7b are `blocked: D036 M4`, as N9 is; N8c covers N8 and N8b only; the acceptance line drops N7 and N7b to `blocked`. Options B (a String-only ROW TYPE for N7) and C (open M4 now) in the [P4 decisions](../../../0004-generated-replay/workflow/2026-11-07/db-transport/decisions.md#qdb-8--migrate--big--0005-n7-and-n7b-under-d6b-39). → By: Opus (PLAN repair P3/P4, default, open) · Migrate
+- **N8 help line.** Unchanged: no assertion on the help line (M4).

@@ -155,3 +155,63 @@ Over: no file means no rows (the `entries.jsonl` rule). Because: DL-094, "an unk
 **PDB-24 · Undo · On success `--stored` prints one count line for rows: `rows: N rows, K checked, M not decodable`.**
 Because: DL-136 and DL-138 give each stream a count line; never a value or id (DL-124).
 → By: Opus (PLAN db-transport)
+
+## Plan repair (after plan check), 2026-11-07
+
+**[Proposal]** Decisions of the PLAN repair after the [plan check](plan-review.md). Plan text: [plan.md](plan.md#plan-repair-after-plan-check-2026-11-07). QDB-6 is withdrawn; it stays above as history.
+
+### QDB-6b · Migrate · big · A failed db call is a rejected record with its reason
+
+- **Default.** `outcome: "rejected"`, `reason` one of `"transport"`, `"decode"`, `"constructor"`, `"not_found"`, `value: null`, in the `"responses"` stream. A success and every ROW CORE: `"accepted"`, `reason: null` (P2 words, DL-141).
+- **Over.** QDB-6 A (`ok`/`failed`): two outcome vocabularies in one stream; the v3 reader stops on them (DL-138 text).
+- **Challenge.** The v3 http writer writes no record on a transport failure (record-v3 plan, QV3-4). A db call writes one. The two transports then replay a transport failure differently (`missing_response` against the recorded reason).
+- → By: Fable (ruling O1 under DL-144, default, open)
+
+### QDB-8 · Migrate · big · 0005 N7 and N7b under D6B-39
+
+- **[Verified] Evidence.** D6B-39 as built (main.rs HEAD lines 1593, 1605) bans any constructor or enum field in a TYPE with a MIGRATE CHAIN or a VERSION MARK. The 0005 `Order` holds `amount: Amount` and `channel: Channel`. The ruling premise "an `add` of a String field, which D6B-39 allows" holds only for a TYPE without such fields.
+- **Option A (default).** N7 and N7b are `blocked: D036 M4`, as N9 is blocked; `run.py` reports `blocked`, never `pass`. N8c then covers N8 and N8b only. P4 N5 and N20 prove the chain on read with a String-only ROW TYPE.
+- **Option B.** 0005 adds a String-only ROW TYPE with its own chain for N7 and N7b (a second db EFFECT pair and page). Challenge: more host code; the page then does not show the main `Order` domain under a chain.
+- **Option C.** The OWNER opens D036 M4 now (M4 B: lift D6B-39 first). Then PDB-09 comes back as its first step.
+- **Why default A.** It decides no parked item and changes no domain (DL-144). The main agent or the OWNER chooses.
+- → By: Opus (PLAN repair P3/P4, default, open)
+
+### Undo and Repair
+
+**PDB-25 · Undo · Rejected db records follow QV3-8 B and count in the P2 count lines.**
+Because: one reader rule per stream (DL-143); a rejected db call is an outage, not a TYPE change (DL-136).
+→ By: Opus (PLAN repair P3/P4)
+
+**PDB-26 · Undo · A row with `outcome` other than `"accepted"` is counted as not decodable.**
+Because: rows are written on success only; such a row is a hand edit, as a bad digest is.
+→ By: Opus (PLAN repair P3/P4)
+
+**PDB-27 · Repair · The fixture gets the ENTRY LINE `ui.orders`, so the module is `Orders` (Q6E-1 C).**
+Over: `BeamlSpike` in the tests. Because: the 0005 host calls `Orders`; the fixture then has the 0005 shape. Commits us to: the RED worker probes the empty input TYPE entry once.
+→ By: Fable (ruling O1 under DL-144)
+
+**PDB-28 · Undo · Variants in their own directories as `orders.beaml` (D6B-210).**
+Chose: `plain/`, `plain_v2/`, `order_v2/`, `stricter/`, `no_app/`, `put_only/` under `slice6/db/`.
+→ By: Opus (PLAN repair P3/P4)
+
+**PDB-29 · Repair · N11 calls `Replay.run(operation, a0, trace_id, records)`; `select/2` by `trace_id` only.**
+Over: "select by `trace_id` and `operation`" (PDB-19, QDB-5 text). Because: Q6E-3 A and Q6E-4 A (one EFFECT per flow). Commits us to: an `:operation_mismatch` case in N11.
+→ By: Fable (ruling O1 under DL-144)
+
+**PDB-30 · Repair · One encoder: the generated code passes `BeamlDb.put/3` the `:json.encode` binary of the ROW CORE; `get` and `list` return JSON binaries that the generated code decodes.**
+Over: a map passed to the host encoder (Jason), with a fake that round-trips through `:json`. Because: it closes the `:null`/`nil` gap with one rule (plan check O2, observed encoder difference). Commits us to: `:null`, never `nil`, in every core; the fake stores binaries; 0005 N2c ties the fake to `jsonb`. Changes QDB-2 (still big), PDB-10, PDB-11.
+→ By: Fable (ruling O2 under DL-144)
+
+**PDB-31 · Repair · PDB-09 is withdrawn; D6B-39 holds for ROW TYPES with its built texts.**
+Over: PDB-09 (narrow D6B-39 for rows). Because: DL-144, avoid a parked item (D036 M4 B), never decide it. Commits us to: N5 and N20 on a String-only ROW TYPE (`plain/`, `plain_v2/`); `order_v2/` is an N12 reject case; QDB-8 for 0005.
+→ By: Fable (ruling O3 under DL-144); the `plain/` fixtures and the reject case → By: Opus (PLAN repair P3/P4)
+
+**PDB-32 · Repair · N18 pins today's RESPONSE RECORD constructor help text, no new row help.**
+Because: a new help wording would decide M4. Commits us to: the row text differs from the RESPONSE RECORD text only in `stored ROW` and `of table records`.
+→ By: Fable (ruling O3 under DL-144)
+
+**PDB-33 · Undo · N25b tests the list-item literal path (M-a).**
+Because: PDB-18 commits the reader to indexed names; N25 tests only a constructor.
+→ By: Opus (PLAN repair P3/P4)
+
+**PDB-18 and PDB-24 are big** (record format), flagged in the 0005 owner review. → By: Fable (ruling under DL-144)

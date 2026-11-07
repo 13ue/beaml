@@ -186,3 +186,10 @@ Chose: `Capture` child and `ProbeSupport.setup/0` in `Proto.Application`; `:outp
 **P5-25 · Undo · Env variable name `BEAML_CAPTURE_DIR`, service `"orders"`.**
 Because: `run.py` passes the capture directory per run; the name holds no secret.
 → By: Opus (PLAN repair exp0005)
+
+### QDB-8 ruling (main agent, 2026-11-07)
+
+**QDB-8 · Migrate · N7/N7b under the built D6B-39: default B, a String-only ROW TYPE for the chained read (big, open)**
+Chose: B. The MIGRATE CHAIN proof over rows (N7, N7b) runs on a second ROW TYPE with String fields only (for example `Note { text: String }` v1 → v2 `add` of a String field with a default), which D6B-39 allows. `Order` with `Amount` and `Channel` stays for N2 to N5 and N8 (no chain). Over: A (N7/N7b blocked on M4, which takes the thesis test out of 0005), C (open the parked M4 tonight, against the OWNER's instruction). Because: DL-144 says build the smallest form that avoids a parked item; B keeps a thesis proof (a TYPE change travels from the source to a stored row with no second migration system) at the cost of a toy TYPE. Commits us to: M4 is the first parked question in the OWNER walk-through, because the real `Order` chain waits on it. Flagged big.
+→ By: Fable (default, open)
+

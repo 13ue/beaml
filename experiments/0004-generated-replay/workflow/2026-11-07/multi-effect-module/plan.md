@@ -136,3 +136,30 @@ Harness: the `slice6_entry_test.py` runtime harness (span stub with kind and att
 - **[Inference]** `artifact_id` (`beam_hash`) changes for the renamed ENTRY LINE fixtures. No test pins its value.
 - **[Unknown]** Whether `elixirc --warnings-as-errors` catches every duplicate def that item 4 misses. N2 is the check.
 - **[Inference]** A fn that reaches two EFFECTS through two flows (not a flow itself) still runs live and has no REPLAY RUN; an ENTRY LINE cannot target it (D6B-129 text).
+
+## Plan repair (after plan check), 2026-11-07
+
+**[Proposal]** PLAN repair after the [plan check](plan-review.md) BLOCK (O1 high, O2 high, O3 medium). Main-agent rulings under DL-144 applied as given. This section overrides the sections above where they differ.
+By: Fable (main agent, rulings under DL-144) for O1, O2 and O3; Opus (PLAN repair P3/P4) for the details marked so in [decisions.md](decisions.md#plan-repair-after-plan-check-2026-11-07).
+
+### O1: every variant source has the stem `orders` in its own directory
+
+- Rule: a variant that a host or a runtime test calls lives in its own directory as `orders.beaml`. No `module` line, no syntax change. → By: Fable · Repair
+- 0005 variants: `src/variants/order_v2/orders.beaml`, `src/variants/stricter/orders.beaml`, `src/variants/no_place/orders.beaml`. The 0005 plan gets a dated correction line (appended there).
+- 0005 N10 control: the generated file holds `defmodule Orders do`, and the host error names `Orders.ui_place/1` and not `Orders.ui_orders/1`. → By: Fable · Repair
+- This step: the N8 and N9 variant (no `stock.reserve`, `ui.hold`, `hold`) is `slice6/multi/no_hold/orders.beaml`; with its RETIRE LINES it is `slice6/multi/no_hold_retired/orders.beaml`. → By: Opus (PLAN repair P3/P4) · Undo
+- Compile-reject files under `slice6/multi/bad/` keep their own names. The reserved-name case needs the stem `enum`. → By: Opus (PLAN repair P3/P4) · Undo
+- **N14 (new case).** A copy of `slice6/entry/orders.beaml` in another directory (`slice6/multi/copy/orders.beaml`) gives `defmodule Orders do`. → By: Opus (PLAN repair P3/P4) · Undo
+
+### O2: N13 compares against the P3 base commit
+
+- N13 base = the P3 base commit: the P2 commit that set the commit pins (record-v3 RV3-14, the commit after P2 GREEN). The RED worker records its hash in `notes.md` at RED start.
+- "The four pin-site tests pass with no edit" means the P2 values.
+- If a pin sub-step runs in this step (only under Q6E-1 A or Q6E-4 B), N13 `BASE` moves with it to the GREEN hash, as in RV3-14.
+- The fifth site (`slice6_entry_test.py` `BASE`, the 6d N13) stays at the P2 GREEN hash. Its source set excludes ENTRY LINE sources (**[Verified]** `test_n13_sources_without_an_entry_keep_their_bytes`), so the renamed fixtures do not touch it.
+- → By: Fable · Repair
+
+### O3: DL-133 note (docs phase)
+
+- The docs phase adds a note under DL-133: `BeamlSpike.Rejected` named the shape; the generated name is `<Module>.Rejected` (Q6E-2 A, big, open). No code change.
+- → By: Fable · Undo
