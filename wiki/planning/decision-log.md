@@ -393,6 +393,17 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice. L is the short form for the simple case; the constructor covers several spellings, several fields and variants with a payload.
 → Open: how a constructor with several inputs gets its body keys; what happens when an enum has both literals and a constructor.
 
+**DL-083 · Migrate · `beaml fmt` aligns clause columns** (extends DL-013)
+→ Chose: for consecutive clauses of one function, `beaml fmt` aligns every argument column, the `->` and the `=`, so the clauses read as a table. Same rule as the aligned `effect` lines (DL-013).
+→ Because: OWNER choice; the cases of a constructor or a match can be compared line by line.
+
+**DL-084 · Migrate · Constructor inputs come from its parameter names (K1)**
+→ Question: how does the decode know which body keys a constructor with several inputs gets?
+→ Options: K1, the parameter names of a signature line are the body keys; K2, the field names the keys (`state: PaymentState(status, decline_reason)`).
+→ Chose: K1. A signature line `fn PaymentState status: String, decline_reason: String -> PaymentState` names the keys; the clauses below match by position. Several signatures of one constructor are allowed (polymorphism).
+→ Because: OWNER choice; the `type` stays plain.
+→ Open: how the decode picks one of several signatures; lists as an external return TYPE (later).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
