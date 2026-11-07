@@ -21,3 +21,5 @@ The row RESPONSE RECORD says "body bytes". New text: the declared keys of the re
 ## Open
 
 DRIFT (f) and the LIB freeze step stay in `run.py` (notes.md O1). The README text does not change for them in 6a.
+
+**[Verified] Done (DOCS, 2026-11-07).** The note text is under the five pass and reject rules, the case (c) line is in the README, and the glossary row is changed. The "Open" item above is superseded: DL-118 and D6B-96 changed DRIFT (f) in 6a; the README case (f) note and the [slice 6b step 6a section](../../../README.md#slice-6b-step-6a-response-record-version-2) state the GEN-only rows and the repair check. By: Opus (DOCS, slice6b 6a+11)

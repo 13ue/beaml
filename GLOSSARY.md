@@ -50,7 +50,7 @@ Use CAPITALS when naming a glossary term. Use its qualified name when the scope 
 | REPLAY RUN | An isolated reproduction that consumes a specified REPLAY CAPSULE and substitutes recorded outcomes for external effects. | Originating context through shared runner contract | Wiederholungsdurchlauf |
 | COUNTERFACTUAL RUN | An isolated execution with deliberately changed inputs, artifacts or decisions; it is not a reproduction of the original run. | Originating context | Alternativdurchlauf |
 | REPLAY FIXTURE | A permitted recorded input or provider response used in a scoped reproduction test. | EXECUTION | Wiederholungsfixture |
-| RESPONSE RECORD | One stored line that holds the request, the status and the body bytes of one EFFECT call, for a later REPLAY RUN. | EXECUTION | Antwortdatensatz |
+| RESPONSE RECORD | One stored line of one EFFECT call, for a later REPLAY RUN. It holds the request, the status and the typed projection of the response: the values under the declared keys (`value`), the names of other keys and a digest of both. It never holds the raw body (DL-105, record version 2). | EXECUTION | Antwortdatensatz |
 | DRIFT | A change of a TYPE or a signature in BEAML source after records of the old form exist. | LANGUAGE/COMPILATION | Typabweichung |
 | TYPE VERSION | The name, version number, field list and fingerprint of a TYPE as it was when a stored record was written. | LANGUAGE/COMPILATION | Typversion |
 | RECORD SNAPSHOT | A read-only copy of stored RESPONSE RECORDS that the compiler reads to learn the stored TYPE VERSIONS. | LANGUAGE/COMPILATION | Datensatzabzug |
@@ -63,7 +63,7 @@ Use CAPITALS when naming a glossary term. Use its qualified name when the scope 
 | DEAD LINE | A RETIRE LINE or a MIGRATE STEP that no stored RESPONSE RECORD needs. The compiler warns about it and can remove it on request. | LANGUAGE/COMPILATION | Toter Quelltext |
 | SQUASH | The removal of the MIGRATE STEPS that are DEAD LINES, from the start of a MIGRATE CHAIN. The newest version number stays; it moves to the VERSION MARK. | LANGUAGE/COMPILATION | Zusammenfassen |
 | VERSION MARK | The `v<n>` after the TYPE name on a `type` line, for example `type Payment v3 { ... }`. It states the newest TYPE VERSION number after a SQUASH and must agree with the MIGRATE CHAIN. | LANGUAGE/COMPILATION | Versionsmarke |
-| ENUM LITERAL | A wire value bound to a variant in an `enum`, for example `Authorized = "ok"`. The decode maps that String 1:1 to the variant (DL-082). | LANGUAGE/COMPILATION | Enum-Literal |
+| ENUM LITERAL | An outside value (a String in the decode form) bound to a variant in an `enum`, for example `Authorized = "ok"`. The decode maps that String 1:1 to the variant (DL-082). | LANGUAGE/COMPILATION | Enum-Literal |
 | ENUM CONSTRUCTOR | A `fn` named like the `enum` that maps outside values to variants (DL-082). It is the decode path only; code builds variants directly (DL-100). | LANGUAGE/COMPILATION | Enum-Konstruktor |
 | KEEP-VALUE VARIANT | A declared variant that keeps an unknown outside value, for example `Unknown(String)` (DL-062). The decode of outside data and `migrate` steps need it in the last clause (DL-065). | LANGUAGE/COMPILATION | Unbekannt-Variante |
 | QUARANTINED RECORD | A stored RESPONSE RECORD that fails a new rule. It keeps a typed reason and waits until a MIGRATE STEP gives it a rule (DL-102). The `quarantine` syntax is a sketch. | EXECUTION | Quarantänedatensatz |

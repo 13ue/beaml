@@ -8,6 +8,7 @@ By: Opus (RE-PIN, slice6b-records-v2) for every entry in this file.
 - **FINDING.** Not every hunk is in the five named functions. Each changed EFFECT output also changes `Replay.run/3` (the REPLAY RUN chain) in 2 lines.
 - The task rule says: do not re-pin a source with a hunk elsewhere. All 31 sources with a change and the 21 B5 texts have this hunk.
 - Thus the re-pin is **not applied** to the working tree. The test files in the repository are unchanged.
+- **[Verified] Later (DOCS, 2026-11-07):** commit `1bd1217b` applied this re-pin; its message accepts the `Replay.run/3` hunk as part of the 6a change. By: Opus (DOCS, slice6b 6a+11)
 - The re-pin is prepared as [repin.patch](repin.patch). It was tested in a scratch git worktree at `0747c315`. Counts are below.
 - **[Inference]** The `Replay.run/3` hunk is the GREEN change `emit_chain (REPLAY RUN)` in [notes.md](notes.md#changes-in-mainrs-functions) (D6B-60). It only adds `keys` to the two call sites of `body/1` and `__beaml_result_E`. The OWNER or the main agent decides if this hunk is in scope.
 

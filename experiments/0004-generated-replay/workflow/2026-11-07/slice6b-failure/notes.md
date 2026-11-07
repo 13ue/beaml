@@ -97,7 +97,7 @@ Result: 22 tests, 21 FAIL, 1 pass (the guard). Exit 1.
 |---|---|---|---|---|
 | R1 | Undo | The pipe case is a test of its own with an inline source, with a runtime check. `body.beaml` stays unchanged. | Add `mkbad` and `pbad` to `body.beaml` | In `body.beaml` the build stops at `unknown type: Why` first. The test then does not fail for the reason of objection 1. |
 | R2 | Undo | The EFFECT case uses `slice2/reuse/orders.beaml` plus `fn extra x: String -> String ! Int = 5`, with `--stored stored/empty.jsonl`. It also asserts the `{:error, 5}` line. | A new fixture | The review names these files. Both exist. |
-| R3 | Repair | Chose: reject `! A \| B` when A and B are plain records with equal fields. Over: allow the pair. Because: plain records are structural in this compiler; D6B-17 is nominal only for constructor TYPES. Commits us to: a later nominal-records decision relaxes this reject. Record it as DL-097 at the end of the phase. | Allow | Objection 3. `! A \| B` is then the same TYPE two times, like `! String \| String`. |
+| R3 | Repair | Chose: reject `! A \| B` when A and B are plain records with equal fields. Over: allow the pair. Because: plain records are structural in this compiler; D6B-17 is nominal only for constructor TYPES. Commits us to: a later nominal-records decision relaxes this reject. Record it as DL-097 at the end of the phase. **Correction (DOCS, 2026-11-07):** DL-097 is another decision (unattended build). R3 has no DL entry; it is the step 2 default R3. By: Opus (DOCS, slice6b 6a+11) | Allow | Objection 3. `! A \| B` is then the same TYPE two times, like `! String \| String`. |
 | R4 | Undo | R3 text: `error: fn f: the failure TYPE A is also a failure TYPE: B has the same fields` plus `  help: remove B after !`. | `duplicate name: B` | No compiler text exists for this case today. The text follows the structural form of D6B-06 (decision 4). `duplicate name` is false, because the names differ. |
 | R5 | Undo | `compile()` in the test takes extra CLI arguments. | A second compile helper | One small change; the other tests do not change. |
 
@@ -159,7 +159,7 @@ Commands and full output: [green-output.log](green-output.log). Changed file: `e
 ### Limits
 
 - `elixirc` prints a typing warning ("clause will never match `{:ok, result}`") for a fn whose body is always a failure (`piped`). `--warnings-as-errors` does not stop on it in Elixir 1.18.1 (observed exit 0). A later Elixir can make it an error.
-- The R3 reject (DL-097) is not yet in the decision log; the RED repair says "at the end of the phase".
+- The R3 reject (DL-097) is not yet in the decision log; the RED repair says "at the end of the phase". **Correction (DOCS, 2026-11-07):** DL-097 is another decision; no DL entry; step 2 default R3. By: Opus (DOCS, slice6b 6a+11)
 
 ## Harness repair
 

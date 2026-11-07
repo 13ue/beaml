@@ -59,6 +59,8 @@ flowchart LR
   X --> LL
 ```
 
+**[Verified]** After slice 6b step 6a the harness has no LIB arm and no 0003 test copies in its check list. DRIFT has GEN rows only (DL-110, DL-118). See [slice 6b step 6a](#slice-6b-step-6a-response-record-version-2).
+
 ## Slice 1 BEAML source (orders)
 
 **[Proposal]** The fixture `orders.beaml` for GEN. The syntax follows the owner example [order-flow.beaml](examples/order-flow.beaml). `payments.beaml` stays unchanged.
@@ -123,7 +125,7 @@ fn place order: Order -> Payment ! PaymentError =
    - field not in TYPE (`finish` reads `amount`, which `Payment` does not have);
    - unsupported EFFECT kind (`db.get`) in slice 1.
 2. **(b) Emit.** One compiler run writes the Elixir module with `place/1`, `payments_authorize/1`, the typed decode, `Replay.record/3` and `Replay.run/3`, the `PaymentError` struct and one `beaml-declaration-v1` comment per declaration. The module compiles with warnings as errors. Template control: compile DRIFT-R; the generated decode must contain `reference`. The 0003 gate 1 test `payments_cli_emits_checked_authorize_reference` still passes.
-3. **(c) Live.** The GEN router calls only `OrdersBeamlSpike.place/1`. `payment_http.ex` and `replay.ex` are deleted. `0003/run.py` passes in the GEN tree, all five default steps (compiler reference, trace lookup, trace lookup repair, response capture, replay run). The test `tests/overlay_diff_test.py` passes first: per arm, the line diff of each copy against its original equals `arms/<arm>/assertion-changes.json`, which equals the table below. No other line changes.
+3. **(c) Live.** The GEN router calls only `OrdersBeamlSpike.place/1`. `payment_http.ex` and `replay.ex` are deleted. `0003/run.py` passes in the GEN tree, all five default steps (compiler reference, trace lookup, trace lookup repair, response capture, replay run). The test `tests/overlay_diff_test.py` passes first: per arm, the line diff of each copy against its original equals `arms/<arm>/assertion-changes.json`, which equals the table below. No other line changes. **[Verified]** After slice 6b step 6a (DL-110): this case keeps only the GEN structure check (`GenStructure`). The 0003 runner in the GEN tree and the overlay diff are retained evidence of slices 1 to 5.
 4. **(d) Replay.** The 0003 8-case matrix passes against `OrdersBeamlSpike.Replay.run/3`: valid, A1 non-canonical, missing, operation, attempt, request, status, digest. Expected values stay as in 0003. Router, transport and `:gen_tcp.connect/4` count zero in all 8 cases. Live and replay use the same generated decode.
 5. **(d2) TYPE mismatch, live and in a REPLAY RUN [Requirement].** In `tests/arms_test.py`, not in the 0003 copies. Replay cases use the 0003 harness with the arm's runner. Live cases use one Orders release against the 0003 loopback stub (`http.server`, Content-Length framing). Cases R1, R2, L1, L2, P1 below.
 6. **(e) LIB.** The LIB form above passes the same 8 cases with the same counts, in the LIB tree, with the LIB rows of the table only. Before the freeze, LIB R1 must return `%ReplayLib.Error{step, reason}` with step "decode" or "finish" (asserted). It then runs R2, L1, L2, L3; those outcomes are recorded, not asserted. Then the freeze.
@@ -132,12 +134,13 @@ fn place order: Order -> Payment ! PaymentError =
    - **DRIFT-N.** Rename the `Payment` field `status` to `state` in both BEAML files.
    - **DRIFT-Q.** Add a field with a literal value to the request TYPE that `prepare` returns, and the matching Payments input.
    For each derivative and arm, record the outcome at build, on a new live record and on the pre-change record. Outcome classes: compile error with a clear message, typed reject, correct accept, false reject, wrong accept, crash without a typed reason. Then repair each arm until (d) or (e) passes again. Count manual change sites per arm.
+   **[Verified]** After slice 6b step 6a (DL-118, D6B-96): GEN rows only. The repair check is the GEN REPLAY RUN of the repaired tree, after a rebuild of every release that the repair touches. Each row needs a version 2 record with status 200, `ok` and host validation `ok`. See [slice 6b step 6a](#slice-6b-step-6a-response-record-version-2).
 
 ### Case (d2): TYPE mismatch cases
 
 **[Proposal]** Each case asserts the result, the counts and, live, the spans and records. "finish 0" is the runtime half of the pipe rule: a failed step stops the pipe.
 
-- **R1 Replay, missing key.** Record of the first live call with body `{"order_id":"order-1"}`, `body_length` and `body_sha256` recomputed, status 200. Expect `{:error, %OrdersBeamlSpike.PaymentError{reason: "decode"}}`, `:json.decode/1` 1, `finish/1` 0, `valid_payment!/2` 0, transport 0.
+- **R1 Replay, missing key.** Record of the first live call with body `{"order_id":"order-1"}`, `body_length` and `body_sha256` recomputed, status 200 (**[Verified]** after slice 6b step 6a: `value` `{"order_id":"order-1"}` with `value_sha256` recomputed; version 2 records have no `body_length` and no `body_sha256`). Expect `{:error, %OrdersBeamlSpike.PaymentError{reason: "decode"}}`, `:json.decode/1` 1, `finish/1` 0, `valid_payment!/2` 0, transport 0.
 - **R2 Replay, extra key.** The RESPONSE RECORD from L1. Expect the same success as L1 and the same `unknown_keys` hint. Live and replay use the same decode.
 - **R3 Replay, wrong field TYPE.** A declared field with the wrong TYPE (`status: 7`). Expect `PaymentError` with reason "decode" and zero `finish` calls.
 - **L3 Live, missing key.** The stub returns 200 with a body without `status`. Expect HTTP 502 `downstream_failure`, span `orders.payments.authorize` with `outcome: "error"` and `reason: "decode"`, one RESPONSE RECORD byte-exact, zero `orders.finish`, transport count 1.
@@ -181,6 +184,8 @@ All counts in the 8-case matrix stay as in 0003. The revision 2 SHA-256 check of
 - **Manual change site.** One contiguous edited hunk in a hand-written file that an arm needs to pass (d) or (e) after a DRIFT. Exclude the BEAML DRIFT edit. Count domain validation edits (`valid_payment!/2`) and test expectation edits apart; they are equal in both arms.
 
 ### Pass and reject rule
+
+**[Verified] Cut at slice 6b step 6a (DL-110, OWNER, Q6B-10 option B).** LIB comparison up to slice 6b step 5; evidence retained. From 6a on GEN stores RESPONSE RECORD version 2 (the projection, DL-105) and LIB keeps the raw body. The 0003 copy run (cases (c) runner, (d), (e)) and `tests/overlay_diff_test.py` leave the check list of `run.py` and `tests/arms_test.py`. The slice 1 to 5 result directories stay as evidence. This rule is not checked again after 6a. See [slice 6b step 6a](#slice-6b-step-6a-response-record-version-2).
 
 - **Comparison arm [Proposal].** Judge every clause below only against the frozen LIB of [Comparison arm LIB](#comparison-arm-lib). No other LIB form enters the verdict.
 - **Pass [Proposal].** The language claim holds for slice 1 only if both are true: (1) summed over the DRIFT derivatives, GEN needs fewer manual change sites than LIB; (2) for at least one derivative, GEN gives a compile error, a typed reject or a correct accept, while LIB gives a wrong accept or a crash without a typed reason. GEN has no wrong accept in any derivative.
@@ -296,7 +301,7 @@ All counts in the 8-case matrix stay as in 0003. The revision 2 SHA-256 check of
 
 **Common part of both options [Proposal], revision 6.** The generated `record/3` writes one more key, `type`: `{"name": "Payment", "version": 1, "fields": [["order_id", "String"], ["status", "String"]], "fingerprint": "<64 hex>"}`. This is the TYPE VERSION of the EFFECT output TYPE at the time of the write. `version` is the newest version number of the MIGRATE CHAIN of the build (1 without a chain). `fields` is sorted by field name. The fingerprint is the lower-case hex SHA-256 of the compact JSON text of `fields`, for example `[["order_id","String"],["status","String"]]` (no spaces, sorted by field name). The TYPE name is not part of the fingerprint. The format version stays 1, as with `unknown_keys`. The record names the full field list, so the compiler can name the old field in its message.
 
-**Option A, RECORD SNAPSHOT input [Proposal].** The compiler takes a second input, `--stored PATH`, a RECORD SNAPSHOT (a copy of `responses.jsonl`). It reads the distinct `type` values per `operation`. It reads no body bytes.
+**Option A, RECORD SNAPSHOT input [Proposal].** The compiler takes a second input, `--stored PATH`, a RECORD SNAPSHOT (a copy of `responses.jsonl`). It reads the distinct `type` values per `operation`. It reads no body bytes. **[Verified]** After slice 6b step 6a the DL-102 checks read the record `value` (the projection, DL-105); a record has no body bytes.
 
 - For: the compiler checks against observed stored data. The case "no stored records" is an empty file.
 - For: one source of truth. Nothing can claim a TYPE VERSION that no record holds.
@@ -403,6 +408,8 @@ The tests assert these tokens, not the full text: `Payment`, the old field, the 
 **[Inference]** C6 against C1 is the key control. The source is the same; only the stored records differ. The compile error must come from the stored TYPE VERSION, not from the source.
 
 ### LIB comparison and pass and reject rule
+
+**[Verified] Cut at slice 6b step 6a (DL-110, OWNER, Q6B-10 option B).** LIB comparison up to slice 6b step 5; evidence retained. From 6a on GEN stores RESPONSE RECORD version 2 (the projection, DL-105) and LIB keeps the raw body. The 0003 copy run (cases (c) runner, (d), (e)) and `tests/overlay_diff_test.py` leave the check list of `run.py` and `tests/arms_test.py`. The slice 1 to 5 result directories stay as evidence. This rule is not checked again after 6a. See [slice 6b step 6a](#slice-6b-step-6a-response-record-version-2).
 
 **[Inference] What a fair LIB can do.** LIB holds no TYPE facts (revision 4 form: no key list, no field name). It cannot fail a build on a TYPE change. It can give a typed reject of the old record in a REPLAY RUN (slice 1: `ReplayLib.Error finish`). A host test that replays all stored records after each build can find the break, but only after the build, as a test failure, with no TYPE name and no alias proposal. A hand-written key fallback in the LIB decode can accept the old record; that is a manual change site.
 
@@ -654,6 +661,8 @@ Sources:
 **[Proposal] Compiler change sites.** `Migration` holds a list of MIGRATE CHANGES. The parser reads `rename`, `add` and `drop` with comma separators. `derive_versions` applies the three backward rules and checks K1–K8. The decode generator emits one block per MIGRATE CHANGE. `no_path` emits the new `help` lines.
 
 ### Pass and reject rule (slice 3)
+
+**[Verified] Cut at slice 6b step 6a (DL-110, OWNER, Q6B-10 option B).** LIB comparison up to slice 6b step 5; evidence retained. From 6a on GEN stores RESPONSE RECORD version 2 (the projection, DL-105) and LIB keeps the raw body. The 0003 copy run (cases (c) runner, (d), (e)) and `tests/overlay_diff_test.py` leave the check list of `run.py` and `tests/arms_test.py`. The slice 1 to 5 result directories stay as evidence. This rule is not checked again after 6a. See [slice 6b step 6a](#slice-6b-step-6a-response-record-version-2).
 
 **[Proposal] Pass.** The claim holds for slice 3 only if all are true:
 
@@ -979,6 +988,8 @@ Sources:
 **[Proposal] Compiler change sites.** The parser reads `retire`. The `Program` holds RETIRE LINES with their source ranges; `Migration` gains its source range. `derive_versions` accepts a chain start k ≥ 1. `check_stored` splits records by `effect`, RETIRE LINE or neither, and counts versions per TYPE for W1 and W2. `no_path` gains the chain start help row. `main` reads `--remove-dead`. The emitter writes `retired/0`, `Retired` and the retired clause in `run/3`.
 
 ### Pass and reject rule (slice 4)
+
+**[Verified] Cut at slice 6b step 6a (DL-110, OWNER, Q6B-10 option B).** LIB comparison up to slice 6b step 5; evidence retained. From 6a on GEN stores RESPONSE RECORD version 2 (the projection, DL-105) and LIB keeps the raw body. The 0003 copy run (cases (c) runner, (d), (e)) and `tests/overlay_diff_test.py` leave the check list of `run.py` and `tests/arms_test.py`. The slice 1 to 5 result directories stay as evidence. This rule is not checked again after 6a. See [slice 6b step 6a](#slice-6b-step-6a-response-record-version-2).
 
 **[Proposal] Pass.** The claim holds for slice 4 only if all are true, with fixture names and with random names:
 
@@ -1353,6 +1364,8 @@ New sources:
 
 ### Pass and reject rule (slice 5)
 
+**[Verified] Cut at slice 6b step 6a (DL-110, OWNER, Q6B-10 option B).** LIB comparison up to slice 6b step 5; evidence retained. From 6a on GEN stores RESPONSE RECORD version 2 (the projection, DL-105) and LIB keeps the raw body. The 0003 copy run (cases (c) runner, (d), (e)) and `tests/overlay_diff_test.py` leave the check list of `run.py` and `tests/arms_test.py`. The slice 1 to 5 result directories stay as evidence. This rule is not checked again after 6a. See [slice 6b step 6a](#slice-6b-step-6a-response-record-version-2).
+
 **[Proposal] Pass.** The claim holds for slice 5 only if all are true, with fixture names and with random names:
 
 1. F2, F3, F3b, F4, F8, F8b, F8c, F10, F11b, F12, F12b, F12c and F15 fail at compile time with exit 1, no stdout and their tokens. F1, F3c, F5, F7, F9, F11 compile without a warning; revision 9.3 (O7 option (a)): F6, F13 and F14 too.
@@ -1474,3 +1487,139 @@ New sources:
 | Mutations and probes in scratch copies only | Undo | Shared parser cache stays clean |
 | README items in DOCS, not GREEN | Undo | GREEN task named code files only |
 | No `build --wasm` in TEST | Undo | Keeps the tracked WASM unchanged |
+
+## Slice 6b
+
+**[Verified]** Compiler steps of slice 6b, 2026-11-07. This section has the DOCS text of steps 6a and 11 only. The other steps keep their text in their ledgers under [workflow/2026-11-07](workflow/2026-11-07/).
+
+### Slice 6b step 6a: RESPONSE RECORD version 2
+
+**[Verified]** Pass after one repair (RV6A-1). Ledger: [slice6b-records-v2](workflow/2026-11-07/slice6b-records-v2/). Contract: [spec.md](workflow/2026-11-07/slice6b-records-v2/spec.md). Decisions: DL-105, DL-110, DL-118 in the [decision log](../../wiki/planning/decision-log.md).
+
+**[Requirement]** Every RESPONSE RECORD holds the typed projection of the body, never the raw body (DL-105). The raw body is stored nowhere.
+
+**Record shape [Verified].** The generated `Replay.record/3` writes 13 keys (D6B-53):
+
+| Key | Content |
+| --- | --- |
+| `version` | `2` |
+| `trace_id`, `client_span_id`, `artifact_id`, `operation`, `attempt` | as before |
+| `request` | unchanged (D6B-61) |
+| `status` | the HTTP status |
+| `value` | the values under the declared keys of the newest TYPE VERSION, nested for constructor fields; not validated; `null` when the body is not a JSON object; the same rule for every status (D6B-54, D6B-57) |
+| `redacted` | `[]` until step 6b of this slice |
+| `unknown_keys` | the sorted names of the other keys, dotted per level, also for a body that fails the decode (D6B-56) |
+| `value_sha256` | the digest of the projection (D6B-58) |
+| `type` | the TYPE VERSION, as in slice 2 |
+
+- `body_base64`, `body_length` and `body_sha256` are gone (DL-105).
+- `unknown_fields` is an additional key where step 7 writes it.
+- **`value_sha256` rule (D6B-58).** Lower-case hex SHA-256 of the compact JSON of `{"redacted", "unknown_keys", "value"}`. Keys are sorted at every level. UTF-8; non-ASCII is not escaped. The writer and the reader use one function (`digest/3`). The Python helper `stored_types_test.value_sha256` gives the same digest (review probe, also for non-ASCII values).
+- **REPLAY RUN.** The checks keep their order and their reasons. The body check is now the digest check of the projection. A mismatch, or a record without `value`, gives `:body_digest_mismatch`. The decode re-encodes `value` and uses the existing decode path (D6B-60).
+- **`--stored` version check (D6B-59).** A record whose `version` is not `2` blocks the build, also with `--remove-dead`:
+
+```text
+error: stored RESPONSE RECORD has record version V; this build reads record version 2 only (DL-105)
+  record source: S:N (line N)
+```
+
+  `V` is `none` for a missing key and `malformed` for a value that is not a number. The DL-102 checks of `--stored` read `value`, not the body.
+
+**Check list cut (DL-110, OWNER).** The GEN against LIB comparison ends with step 6a. LIB comparison up to slice 6b step 5; evidence retained. From 6a on GEN stores RESPONSE RECORD version 2 and LIB keeps the raw body. The 0003 copy run (cases (c) runner, (d), (e)) and `tests/overlay_diff_test.py` leave the check list of `run.py` and `tests/arms_test.py`. The result directories of slices 1 to 5 stay as evidence.
+
+**DRIFT after 6a (DL-118, D6B-96).**
+
+- DRIFT (f) has GEN rows only. `drift`, `baseline` and `sites` of the DRIFT summary have only the key `gen`.
+- The repair check of each row R, N, Q is the GEN REPLAY RUN of the repaired tree. The 0003 copy replay is gone.
+- The repair rebuilds every release that the repair touches. An edit of a shared app (`probe_support`) rebuilds the Orders and the Payments release (`repair_releases` in `run.py`).
+- D6B-96 evidence per row: `repaired = {exit_code, argv, record, report}`. `argv` is the `eval` of the repaired Orders release. The record is version 2 with status 200. Its `request` has the fields of the drifted `type Order`. The report gives `ok` and host validation `ok`. No command of the row runs the 0003 copy.
+- `repaired_all` reads that GEN replay.
+
+| Step | Owner |
+| --- | --- |
+| Projection, digest, record write (`Replay.record/3`) | BEAML (generated) |
+| Digest check and decode in a REPLAY RUN (`Replay.run/3`) | BEAML (generated) |
+| `--stored` version check | BEAML (COMPILER) |
+| Store `responses.jsonl`, domain validation (`valid_payment!/2`, `valid_order!/1`) | host |
+| DRIFT edits, repair, release rebuild, live call | host (test harness `run.py`) |
+
+**Result [Verified].**
+
+| Run | Result |
+| --- | --- |
+| Full suite after the repair, [`results/20261107T161752613981Z`](results/20261107T161752613981Z/result.json) | 14 of 14 steps pass |
+| DRIFT of that suite, [`results/20261107T161820272952Z`](results/20261107T161820272952Z/drift.json) | R, N, Q: status 200, `ok`, host `ok`; `repaired_all` true |
+| `drift_test.py` apart, [`results/20261107T163033117603Z`](results/20261107T163033117603Z/drift.json) | 5 of 5 |
+| The ten slice 6 test files apart (unittest) | 146 of 146 |
+| First review run, before the repair, [`results/20261107T155400927519Z`](results/20261107T155400927519Z/result.json) | 14 of 14; DRIFT-Q gave status 400 (RV6A-1) |
+
+- **[Verified]** RV6A-1 (high): before the repair the DRIFT-Q check passed without the repair. The Payments release was not rebuilt and replied 400. The repair rebuilds both releases; the [re-check](workflow/2026-11-07/slice6b-records-v2/review.md#re-check-after-rv6a-1-52550d4f) closed RV6A-1.
+- **[Verified]** The re-pin of the EFFECT byte guards is in commit `1bd1217b` ([repin.md](workflow/2026-11-07/slice6b-records-v2/repin.md)).
+
+**Limits (step 6a).**
+
+- **[Verified]** RV6A-2 and RC1 (medium, open): `run.py` runs no `slice6_*_test.py` and not `drift_test.py`. Its `drift` step does not read `repaired_all`. A full-suite `pass` thus holds no 6a acceptance. The evidence is the separate runs above.
+- **[Inference]** An edit of the umbrella `config/*.exs` or `mix.exs` rebuilds no release (`repair_releases`). No repair spec edits these files today.
+- **[Verified]** The `:json` encoder limit for exponent floats in `digest/3` is marked `ponytail:` in the generated code.
+- **[Verified]** `run.py` `proxy` still writes `body_base64` into the proxy exchange. That is a DRIFT diagnostic, not a RESPONSE RECORD.
+
+### Slice 6b step 11: host structs and `T.new/1`
+
+**[Verified]** Pass, no block, two medium notes. Ledger: [slice6b-host-structs](workflow/2026-11-07/slice6b-host-structs/). Contract: [spec.md](workflow/2026-11-07/slice6b-host-structs/spec.md). Review: [review.md](workflow/2026-11-07/slice6b-host-structs/review.md). Decisions: DL-106, DL-117, DL-123 in the [decision log](../../wiki/planning/decision-log.md).
+
+**[Requirement]** The generated wrapper is the only entry for constructor TYPES at the host (DL-106).
+
+**Struct modules [Verified].**
+
+- A constructor TYPE `T` is a nested struct module `BeamlSpike.T` with atom keys (D6B-73). Its success values are structs.
+- A plain record without a constructor keeps the String-key map form (D6B-79). Enum constructors stay tuples.
+- A constructor TYPE failure through a pipe keeps its fields (D6B-77).
+- Sources without a record constructor give byte-equal output (H8: 45 sources and `payments.beaml`).
+
+**`T.new/1` [Verified].** Every constructor TYPE gets `T.new/1`. It takes one map with atom keys, also for one parameter: `NonZeroInt.new(%{n: 3})`, not `NonZeroInt.new(3)` (DL-117, OWNER). It gives `{:ok, struct}` or `{:error, failure}` (D6B-74).
+
+The five rules of `T.new/1` (D6B-97 to D6B-101, class Repair by DL-123):
+
+| Rule | Input | Result |
+| --- | --- | --- |
+| D6B-99 | keys equal the parameter names of a signature | that signature runs; an extra or a missing key matches no signature |
+| D6B-101 | keys match, a value has the wrong TYPE | raises `ArgumentError, "invalid BEAML input"`; the next signature is not tried |
+| D6B-97 | a map that matches no signature | `{:error, {:no_signature, "T.new/1: no signature takes these keys"}}` |
+| D6B-98 | as D6B-97, and a key is not an atom | the same text plus the line `  help: keys must be atoms; decode outside data through the EFFECT` |
+| D6B-100 | a value that is not a map | raises `ArgumentError, "invalid BEAML input"` |
+
+- The signature clauses run in source order. The first clause whose key pattern and `map_size` match runs. Its result is final, also an `{:error, _}`.
+- **[Verified]** The COMPILER rejects a subset signature before a superset signature (`unreachable signature`).
+
+**Nominal struct check [Verified].** Every public wrapper requires the struct where a constructor TYPE stands. This holds also in a nested field and in an enum payload (D6B-76, D6B-82). A map of the same shape raises `invalid BEAML input`. A struct of another module with the same short name also raises (review probes). A struct with a field of the wrong TYPE raises (`m2_struct_wrong_field_type_rejected`).
+
+| Step | Owner |
+| --- | --- |
+| Struct module, `T.new/1`, input check in each public wrapper | BEAML (generated) |
+| Outside data into a constructor TYPE | BEAML (EFFECT decode) |
+| Call `T.new/1`, branch on `{:error, {:no_signature, _}}` | host |
+
+**Result [Verified].**
+
+| Run | Result |
+| --- | --- |
+| Full suite, [`results/20261107T165145154357Z`](results/20261107T165145154357Z/result.json) (DRIFT [`results/20261107T165212652407Z`](results/20261107T165212652407Z/drift.json)) | 14 of 14 steps pass |
+| `slice6_host_struct_test.py` (unittest) | 3 of 3, every subtest |
+| All slice 6 files (unittest) | 149 of 149 |
+| 0001 `cargo test`, `fmt --check`, `clippy -D warnings` | 19 + 14 pass, clean |
+
+**Limits (step 11).**
+
+- **[Verified]** DL-106 limit: Elixir has no private constructors. A deliberate struct literal at the host passes the check (H7 records it: `keep(%NonZeroInt{value: 0})` gives the struct). The check stops the accidental forgery, not a deliberate one.
+- **[Verified]** A forged map `%{__struct__: BeamlSpike.NonZeroInt, value: 4, x: 1}` with an extra key also passes the input check. It is the same class as the DL-106 limit (review probe).
+- **[Inference]** A struct from an older build with another field set is untested.
+- **[Verified]** N1 (medium): `run.py` runs no slice 6 test file. The full-suite run holds no step 11 evidence; unittest keeps no result directory. The evidence for 149 of 149 is the [review](workflow/2026-11-07/slice6b-host-structs/review.md).
+- **[Verified]** The reject of a constructor that reaches an EFFECT is not in this step (DL-120, step 12b).
+
+### Decisions (Decision4, slice 6b DOCS 6a and 11)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| Cut notes under the five old pass and reject rules, not a rewrite | Undo | Slice 1 to 5 text is the record of its time | Opus (DOCS, slice6b 6a+11) |
+| One slice 6b section with steps 6a and 11 only | Undo | The other steps have no DOCS phase yet | Opus (DOCS, slice6b 6a+11) |
+| RV6A-2, RC1 and N1 stated as open limits | Undo | No code change in DOCS; the fix is a separate step | Opus (DOCS, slice6b 6a+11) |
