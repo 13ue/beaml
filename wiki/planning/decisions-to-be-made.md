@@ -694,6 +694,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## Answered 2026-11-07
 
+- [DL-140](decision-log.md): M2, a known-to-known variant change blocks; a `map` MIGRATE STEP is forced (A).
 - [DL-139](decision-log.md): M6, a slice may build and pin a Migrate default, except syntax and record formats (B with a limit).
 - [DL-137](decision-log.md): D020, one `migrate` block governs RESPONSE RECORDS and database rows (A).
 - [DL-136](decision-log.md): M1, `--stored` checks only replayable records; non-200 and bad digest are counted (A).
