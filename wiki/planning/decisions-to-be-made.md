@@ -692,8 +692,9 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Unknown]** Pronunciation of BAML; trademark status of BAML and BEAML (no register searched); whether a reader confuses the two in practice. By: Fable (INGEST, baml-reception).
 
-## D026 — RED TEAM 01 questions M3, M4, M5, M8, M9 (parked by the OWNER)
+## D036 — RED TEAM 01 questions M3, M4, M5, M8, M9 (parked by the OWNER)
 
+- **ID note** first written as D026 by mistake (D026 is the absent-value form); renamed D036 the same day, references in the 0005 and P2/P4 ledgers updated.
 - **Status** OPEN, parked 2026-11-07 by the OWNER ("later, in detail"); M1, M2, M6, M7 are answered (DL-136, DL-140, DL-139, DL-135).
 - **Decision owner** OWNER
 - **Class** Migrate
