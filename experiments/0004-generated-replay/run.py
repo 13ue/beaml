@@ -1,9 +1,9 @@
 """Repeatable command for EXPERIMENT 0004 slice 1 (README "Slice 1: acceptance cases in order").
 
 Usage (from any cwd; loopback only; every step runs serially):
-  python3 -B experiments/0004-generated-replay/run.py          all steps: compiler, overlay diff, LIB freeze,
-                                                               arms (a-e), DRIFT (f), the slice 2-5 test
-                                                               files; one result dir per run
+  python3 -B experiments/0004-generated-replay/run.py          all steps: compiler, LIB freeze, arms (GEN
+                                                               cases), DRIFT (f), the slice 2-5 test files;
+                                                               one result dir per run
   python3 -B experiments/0004-generated-replay/run.py drift    case (f) only: DRIFT R, N, Q per arm
   python3 -B experiments/0004-generated-replay/run.py freeze   write arms/lib/freeze.json once, else verify it
   python3 -B experiments/0004-generated-replay/run.py --list-steps
@@ -72,7 +72,7 @@ MIX = ["env", "MIX_ENV=prod", "mix"]
 TESTS = "experiments/0004-generated-replay/tests/"
 STEPS = [
     ("compiler", ["cargo", "test", "--offline", "--manifest-path", COMPILER_PATH + "/Cargo.toml"]),
-    ("overlay-diff", [sys.executable, "-B", TESTS + "overlay_diff_test.py"]),
+    # Slice 6b step 6a (DL-110, Q6B-10 option B): the overlay diff and the 0003 copy run leave the check list.
     ("lib-freeze", [sys.executable, "-B", "experiments/0004-generated-replay/run.py", "freeze"]),
     ("arms", [sys.executable, "-B", TESTS + "arms_test.py"]),
     ("drift", [sys.executable, "-B", "experiments/0004-generated-replay/run.py", "drift"]),
@@ -396,6 +396,9 @@ def payment_fields(orders_beaml):
 
 
 def body_json(exchange_or_record):
+    """The body of a proxy exchange or a LIB record (raw bytes), or the `value` of a GEN record (version 2, DL-105)."""
+    if "value" in exchange_or_record:
+        return exchange_or_record["value"]
     try:
         return json.loads(base64.b64decode(exchange_or_record["body_base64"]))
     except Exception:

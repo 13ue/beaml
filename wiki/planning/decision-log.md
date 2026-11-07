@@ -638,6 +638,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: generated code stays regular: one form, one map, one pattern match per signature, no conversion. The input map reads like the result struct without its tag (DL-106). The String-key decode form never reaches `new/1`: outside data runs through the EFFECT decode. A naked one-parameter call would be a second form.
 → Effect: step 11 (host structs) generates `new/1` with atom-key maps; the DL-106 example `NonZeroInt.new(3)` becomes `NonZeroInt.new(%{n: 3})`. Closes D014.
 
+**DL-118 · Repair · DRIFT keeps its GEN checks; the 0003 copy replay leaves its repair check (step 6a, O1)**
+→ Question: DL-110 removes the LIB arm comparison and the 0003 copy run before step 6a. The DRIFT repair check still runs the 0003 8-case replay in the repaired tree, which fails once records carry version 2. Does DRIFT leave too?
+→ Chose: DRIFT stays for the GEN arm. Its repair check counts the edited hunks and runs the GEN replay of the repaired tree; the 0003 copy replay leaves with the copy run. `repaired_all` reads that GEN replay. The LIB arm leaves DRIFT with DL-110.
+→ Over: removing DRIFT, or keeping the 0003 copy alive only for DRIFT.
+→ By: Fable (step 6a RED, worker open point O1)
+→ Because: DRIFT (f) is the evidence that a TYPE change repairs through the generated code; that evidence does not need the 0003 copy. One record form (DL-110) means one replay path.
+→ Commits us to: the step 6a GREEN changes `run.py` DRIFT repair accordingly; the README DRIFT section follows in the docs phase.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

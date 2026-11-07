@@ -15,7 +15,6 @@ Run: python3 -B experiments/0004-generated-replay/tests/slice5_syntax_test.py [-
 import base64
 import bisect
 import difflib
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -271,10 +270,7 @@ def make_record(N, version, roles, index=0, name=None):
     record = dict(st.v1_record(), operation=N.op, trace_id="%032x" % (0x5e1ce5 + index))
     record["type"] = st.type_version(name or N.T, version, [getattr(N, r) for r in roles])
     forms = BODIES[roles]
-    raw = {getattr(N, role): value for role, value in forms[index % len(forms)].items()}
-    body = json.dumps(raw, separators=(",", ":"), ensure_ascii=False).encode()
-    return dict(record, body_base64=base64.b64encode(body).decode(), body_length=len(body),
-                body_sha256=hashlib.sha256(body).hexdigest())
+    return st.with_value(record, {getattr(N, role): value for role, value in forms[index % len(forms)].items()})
 
 
 def snapshot_bytes(N, spec):
@@ -786,7 +782,8 @@ class Rewrite(unittest.TestCase):
                                      "A2 %s: the same error class (exit, first line after S)" % relative)
 
     def test_A3_stored_fixtures_are_unchanged(self):
-        # Guard, not RED: record format version 1 and every stored fixture stay byte-identical.
+        # Guard, not RED: every stored fixture keeps its records. Slice 6b step 6a (D6B-69) converts each record to
+        # version 2 in place: the BASE record with its body as `value` (st.with_value) equals the record now.
         prefix = EXPERIMENT_REL + "/stored/"
         names = [n for n in git("ls-tree", "-r", "--name-only", BASE, "--", prefix).decode().splitlines()
                  if n.endswith(".jsonl")]
@@ -794,8 +791,10 @@ class Rewrite(unittest.TestCase):
         self.assertEqual(sorted(names), now, "A3: the same stored files")
         for name in names:
             with self.subTest(file=name):
-                self.assertEqual(hashlib.sha256(git("show", "%s:%s" % (BASE, name))).hexdigest(),
-                                 hashlib.sha256((REPO / name).read_bytes()).hexdigest())
+                old = [json.loads(line) for line in git("show", "%s:%s" % (BASE, name)).decode().splitlines()]
+                converted = [st.with_value(r, json.loads(base64.b64decode(r["body_base64"])), r["unknown_keys"])
+                             for r in old]
+                self.assertEqual(converted, [json.loads(line) for line in (REPO / name).read_text().splitlines()])
 
 
 if __name__ == "__main__":

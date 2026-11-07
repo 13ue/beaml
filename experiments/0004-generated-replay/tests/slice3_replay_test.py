@@ -127,7 +127,7 @@ class Slice3Replay:
         build, (version, roles), body, expected, keys = EXPECTED[case]
         N = self.names
         record = dict(st.v1_record(), type=s3.type_version(N.T, version, [getattr(N, r) for r in roles]))
-        record = arms.with_body(record, json.dumps(resolve(N, body), separators=(",", ":"), ensure_ascii=False).encode())
+        record = st.with_value(record, resolve(N, body))
         seen = s2.counts(self.tree(build), case, record, observe=keys is not None)
         if keys is None:
             return s2.decode_rejected(), seen

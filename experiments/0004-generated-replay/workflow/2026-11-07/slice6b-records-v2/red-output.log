@@ -1,0 +1,230 @@
+# RED, slice 6b step 6a (RESPONSE RECORD version 2). By: Opus (RED, slice6b-records-v2). 2026-11-07.
+# Baseline compiler: HEAD 3b76596d, src/main.rs unchanged. Run from the repository root, one file at a time, serially.
+# Toolchain: cargo 1.94.0 (85eff7c80 2026-01-15); Elixir 1.18.1 (compiled with Erlang/OTP 27); Python 3.13.12
+
+## Summary
+slice6_record_test.py          exit 1  FAILED (failures=20): 17 runtime subtests + 3 P6
+slice6_decode_test.py          exit 1  FAILED (failures=7)
+slice6_decode_ctor_test.py     exit 1  FAILED (failures=5)
+stored_types_test.py           exit 0  OK (guard: adapted helper, compile-only)
+slice3_types_test.py           exit 0  OK (guard)
+slice4_retire_test.py          exit 0  OK (guard: make_record changed, compile-only)
+slice5_syntax_test.py          exit 0  OK (guard: make_record and A3 changed, compile-only)
+slice6_struct_order_test.py    exit 0  OK (imports the changed run_runtime)
+release: arms exit 1 25s : FAILED (failures=5)
+release: slice2_replay exit 1 113s : FAILED (failures=11)
+release: slice3_replay exit 1 219s : FAILED (failures=22)
+release: slice4_replay exit 1 155s : FAILED (failures=6)
+release: slice5_replay exit 1 123s : FAILED (failures=6)
+
+## Reasons (checked)
+R-a  Writer: the compiler writes version 1 with body_base64/body_length/body_sha256; no value, redacted, value_sha256.
+R-b  Replay: body/1 needs the body keys; a version 2 record gives {:error, :body_digest_mismatch} (confirmed by a diagnostic case, see below).
+R-c  --stored: the DL-102 check reads body_base64; a version 2 record counts as a failing value of every literal/constructor field, so the build blocks.
+R-d  --stored: stored_version does not read the key version; a version 1 record builds (P6).
+
+## slice6_record_test.py
+$ python3 -B experiments/0004-generated-replay/tests/slice6_record_test.py
+P1_no_body_keys FAIL
+P1_redacted_is_empty FAIL
+P1_request_unchanged PASS
+P1_unknown_keys_are_names PASS
+P1_unknown_value_is_in_no_record_byte PASS
+P1_value_is_the_declared_keys FAIL
+P1_value_sha256_is_the_canonical_digest FAIL
+P1_version_is_2 FAIL
+P2_replay_of_the_record PASS
+P2_tampered_unknown_keys_is_digest_mismatch FAIL
+P2_tampered_value_is_digest_mismatch FAIL
+P2_version_1_record_is_digest_mismatch FAIL
+P3_failed_decode_digest FAIL
+P3_failed_decode_replays_as_decode PASS
+P3_failed_decode_unknown_keys FAIL
+P3_failed_decode_value FAIL
+P4_not_json_digest FAIL
+P4_not_json_value_is_null FAIL
+P4_status_503_same_projection FAIL
+P5_ascii_parity FAIL
+P5_non_ascii_parity FAIL
+a1_key_order_does_not_matter FAIL
+FAIL: test_P6_record_without_version_blocks_the_build (__main__.Slice6Record.test_P6_record_without_version_blocks_the_build)
+FAIL: test_P6_version_1_record_after_a_version_2_record_blocks_at_its_line (__main__.Slice6Record.test_P6_version_1_record_after_a_version_2_record_blocks_at_its_line)
+FAIL: test_P6_version_1_record_blocks_the_build (__main__.Slice6Record.test_P6_version_1_record_blocks_the_build)
+Reasons: FAIL P1_* (R-a), P2_tampered_* / P2_version_1_* / a1 (R-a, R-b: the old body still replays), P3_* P4_* P5_* (R-a), P6_* (R-d: exit 0 with Elixir on stdout).
+PASS today (guards, unchanged behaviour): P1_unknown_keys_are_names, P1_unknown_value_is_in_no_record_byte, P1_request_unchanged, P2_replay_of_the_record, P3_failed_decode_replays_as_decode, test_P6_version_2_record_builds.
+
+## slice6_decode_test.py
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_test.py
+FAIL: test_resolved_unknown_reports_the_count (__main__.Slice6Decode.test_resolved_unknown_reports_the_count)
+FAIL: test_runtime_live_decode (__main__.Slice6Decode.test_runtime_live_decode)
+FAIL: test_runtime_replay (__main__.Slice6Decode.test_runtime_replay)
+FAIL: test_stored_value_without_a_variant_blocks (__main__.Slice6Decode.test_stored_value_without_a_variant_blocks)
+FAIL: test_stored_values_all_resolve (__main__.Slice6Decode.test_stored_values_all_resolve)
+FAIL: test_wire_value_stays_in_the_typed_field (__main__.Slice6Decode.test_wire_value_stays_in_the_typed_field)
+FAIL: test_written_record_reports_the_count (__main__.Slice6Decode.test_written_record_reports_the_count)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: TYPE Payment: 3 stored RESPONSE RECORDS of operation payments.authorize have no variant of PaymentState for field state
+AssertionError: Tuples differ: (0, True) != (1, False)
+AssertionError: Tuples differ: (1, '[20 chars]ent: 2 stored RESPONSE RECORDS of operation pa[289 chars]02)') != (1, '[20 chars]ent: 3 stored RESPONSE RECORDS of operation pa[289 chars]02)')
+
+## slice6_decode_ctor_test.py
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py
+FAIL: test_runtime_live_decode (__main__.Slice6DecodeCtor.test_runtime_live_decode)
+FAIL: test_runtime_replay (__main__.Slice6DecodeCtor.test_runtime_replay)
+FAIL: test_stored_record_fails_the_record_constructor (__main__.Slice6DecodeCtor.test_stored_record_fails_the_record_constructor)
+FAIL: test_stored_record_matches_no_signature (__main__.Slice6DecodeCtor.test_stored_record_matches_no_signature)
+FAIL: test_stored_records_pass_the_constructors (__main__.Slice6DecodeCtor.test_stored_records_pass_the_constructors)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: TYPE Payment: 4 stored RESPONSE RECORDS of operation payments.authorize match no signature of Amount for field amount
+AssertionError: Tuples differ: (0, True) != (1, False)
+AssertionError: Tuples differ: (1, '[20 chars]ent: 1 stored RESPONSE RECORD of operation pay[301 chars]02)') != (1, '[20 chars]ent: 2 stored RESPONSE RECORDS of operation pa[662 chars]02)')
+AssertionError: Tuples differ: (1, '[20 chars]ent: 2 stored RESPONSE RECORDS of operation pa[310 chars]02)') != (1, '[20 chars]ent: 3 stored RESPONSE RECORDS of operation pa[656 chars]02)')
+
+Reason: R-c for every failure. The build blocks with the DL-102 texts on the converted fixtures; the counts are the full record counts.
+
+## Diagnostic (scratch, not a test file): runtime cases of steps 7 and 8 with --stored stored/empty.jsonl, so the build does not mask them
+amount_constructor_accepts PASS
+amount_constructor_failure_is_typed_reject PASS
+amount_missing_key_is_decode PASS
+declined_via_pipe PASS
+int_matches_no_signature PASS
+missing_key_matches_no_signature PASS
+other_status_is_unknown PASS
+record_keeps_stray_key PASS
+record_keeps_unknown_fields PASS
+record_value_is_the_nested_projection FAIL
+replay_declined FAIL
+replay_kept_value FAIL
+replay_literal FAIL
+replay_not_a_string_is_decode FAIL
+replay_resolved_uses_current_mapping FAIL
+replay_scalar FAIL
+scalar_uses_one_parameter_signature PASS
+stray_key_in_field_value PASS
+two_keys_ok_is_authorized PASS
+value_only_in_the_typed_field FAIL
+wrong_type_matches_no_signature PASS
+FAIL replay_* (R-b), record_value_is_the_nested_projection and value_only_in_the_typed_field (R-a). Every other runtime case PASS (unchanged).
+Reason check: replay of slice6/decode/stored-resolved.jsonl line 1 and slice6/decode-ctor/stored.jsonl line 2 == {:error, :body_digest_mismatch}: PASS (OK, 2 tests).
+
+## arms_test.py
+$ python3 -B experiments/0004-generated-replay/tests/arms_test.py
+results: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T144334140681Z
+test_b_gen_module_compiles_with_warnings_as_errors ... ok
+test_c_gen_router_calls_only_place_and_host_replay_files_are_deleted ... ok
+test_d2_L0_live_valid_body_baseline ... ok
+test_d2_L1_live_unknown_key_accepted_with_hint ... FAIL
+test_d2_L2_live_status_503_rejected ... FAIL
+test_d2_L3_live_missing_key_is_typed_decode_error ... FAIL
+test_d2_P1_pipe_stops_after_failed_effect ... ok
+test_d2_R1_replay_missing_key_is_decode_error ... FAIL
+test_d2_R2_replay_of_L1_record_gives_same_success_and_hint ... ok
+test_d2_R3_replay_wrongly_typed_field_is_decode_error ... FAIL
+test_control_originals_unchanged_by_arm_runs ... ok
+
+## slice2_replay_test.py
+$ python3 -B experiments/0004-generated-replay/tests/slice2_replay_test.py
+results: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T144400020205Z
+test_build_compiles_with_warnings_as_errors ... ok
+test_each_stored_version_replays_to_the_current_fields ... FAIL
+test_live_current_body_decodes_to_the_current_fields ... ok
+test_build_compiles_with_warnings_as_errors ... ok
+test_each_stored_version_replays_to_the_current_fields ... FAIL
+test_live_current_body_decodes_to_the_current_fields ... ok
+test_build_compiles_with_warnings_as_errors ... ok
+test_each_stored_version_replays_to_the_current_fields ... FAIL
+test_live_current_body_decodes_to_the_current_fields ... ok
+test_build_compiles_with_warnings_as_errors ... ok
+test_each_stored_version_replays_to_the_current_fields ... FAIL
+test_live_current_body_decodes_to_the_current_fields ... ok
+test_C11_extra_key_does_not_replace_the_old_name ... FAIL
+test_C12_v1_record_with_both_names_reads_the_old_field_by_its_version ... FAIL
+test_C13_neither_name_is_typed_decode_error ... FAIL
+test_C2_new_call_records_type_version_2 ... ok
+test_C2_old_v1_record_replays_with_state_from_status ... FAIL
+test_C3_both_stored_versions_replay ... FAIL
+test_C14_v1_record_replays_with_order_ref_from_order_id ... FAIL
+test_C9_v1_record_against_build_without_chain_is_typed_decode_error ... FAIL
+test_control_originals_unchanged_by_slice_2_runs ... ok
+
+## slice3_replay_test.py
+$ python3 -B experiments/0004-generated-replay/tests/slice3_replay_test.py
+results: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T144552743415Z
+test_D10_live_body_gets_no_constant ... ok
+test_D11_each_stored_version_replays_by_its_version ... FAIL
+test_D11b_v1_record_with_both_names_reads_the_old_field_by_its_version ... FAIL
+test_D11c_v1_record_with_a_stray_new_name_reads_by_its_version ... FAIL
+test_D14_live_body_keeps_its_value ... ok
+test_D14_v1_record_gets_the_constant_not_the_stored_value ... FAIL
+test_D14_v3_record_with_the_v1_fingerprint_replays_by_its_version ... FAIL
+test_D17_stray_key_never_beats_the_constant_or_the_typed_field ... FAIL
+test_D18_old_field_is_type_checked_and_stray_key_is_unknown ... FAIL
+test_D1_v1_record_gets_the_add_constant ... FAIL
+test_D4_live_body_keeps_dropped_key_as_unknown ... ok
+test_D4_v1_record_drops_the_field_and_consumes_its_key ... FAIL
+test_D8_body_key_of_added_field_is_unknown_and_the_constant_wins ... FAIL
+test_D9_dropped_field_missing_or_not_string_is_typed_decode_error ... FAIL
+test_build_radd_compiles_with_warnings_as_errors ... ok
+test_D10_live_body_gets_no_constant ... ok
+test_D11_each_stored_version_replays_by_its_version ... FAIL
+test_D11b_v1_record_with_both_names_reads_the_old_field_by_its_version ... FAIL
+test_D11c_v1_record_with_a_stray_new_name_reads_by_its_version ... FAIL
+test_D14_live_body_keeps_its_value ... ok
+test_D14_v1_record_gets_the_constant_not_the_stored_value ... FAIL
+test_D14_v3_record_with_the_v1_fingerprint_replays_by_its_version ... FAIL
+test_D17_stray_key_never_beats_the_constant_or_the_typed_field ... FAIL
+test_D18_old_field_is_type_checked_and_stray_key_is_unknown ... FAIL
+test_D1_v1_record_gets_the_add_constant ... FAIL
+test_D4_live_body_keeps_dropped_key_as_unknown ... ok
+test_D4_v1_record_drops_the_field_and_consumes_its_key ... FAIL
+test_D8_body_key_of_added_field_is_unknown_and_the_constant_wins ... FAIL
+test_D9_dropped_field_missing_or_not_string_is_typed_decode_error ... FAIL
+test_build_radd_compiles_with_warnings_as_errors ... ok
+test_control_originals_unchanged_by_slice_3_runs ... ok
+
+## slice4_replay_test.py
+$ python3 -B experiments/0004-generated-replay/tests/slice4_replay_test.py
+results: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T144931548015Z
+test_E02_retired_metadata_names_the_operation_and_keep_days ... ok
+test_E03_retired_record_gives_the_typed_Retired_reject ... ok
+test_E03b_record_of_the_live_operation_replays_beside_a_retire_line ... FAIL
+test_E04_live_call_through_place_records_the_new_operation ... ok
+test_E07_keep_0_days_metadata ... ok
+test_E07_keep_0_days_reject_and_snapshot_unchanged ... ok
+test_E10_no_record_gives_missing_response ... ok
+test_E10_record_of_another_operation_gives_operation_mismatch ... ok
+test_E10_retired_record_without_effect_gives_Retired ... ok
+test_E15b_version_3_records_give_the_same_value_on_Q4_and_Q4s ... FAIL
+test_E17b_version_1_record_on_Q4s_is_a_typed_decode_reject ... FAIL
+test_build_gr_compiles_with_warnings_as_errors ... ok
+test_E02_retired_metadata_names_the_operation_and_keep_days ... ok
+test_E03_retired_record_gives_the_typed_Retired_reject ... ok
+test_E03b_record_of_the_live_operation_replays_beside_a_retire_line ... FAIL
+test_E04_live_call_through_place_records_the_new_operation ... ok
+test_E07_keep_0_days_metadata ... ok
+test_E07_keep_0_days_reject_and_snapshot_unchanged ... ok
+test_E10_no_record_gives_missing_response ... ok
+test_E10_record_of_another_operation_gives_operation_mismatch ... ok
+test_E10_retired_record_without_effect_gives_Retired ... ok
+test_E15b_version_3_records_give_the_same_value_on_Q4_and_Q4s ... FAIL
+test_E17b_version_1_record_on_Q4s_is_a_typed_decode_reject ... FAIL
+test_build_gr_compiles_with_warnings_as_errors ... ok
+test_control_originals_unchanged_by_slice_4_runs ... ok
+test_every_gen_build_of_this_run_passed_stored ... ok
+test_every_gen_tree_has_a_record_snapshot ... ok
+
+## slice5_replay_test.py
+$ python3 -B experiments/0004-generated-replay/tests/slice5_replay_test.py
+results: /Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T145206963003Z
+test_F09_live_record_of_M3_has_the_mark_as_integer_version ... ok
+test_F11_record_of_the_mark_gives_correct_accept ... FAIL
+test_F11c_record_below_the_mark_is_a_typed_decode_reject ... FAIL
+test_F29_live_records_of_Q4_and_Q4z_have_the_same_type_key ... ok
+test_F29_v4_records_replay_the_same_on_Q4_and_Q4z ... FAIL
+test_F09_live_record_of_M3_has_the_mark_as_integer_version ... ok
+test_F11_record_of_the_mark_gives_correct_accept ... FAIL
+test_F11c_record_below_the_mark_is_a_typed_decode_reject ... FAIL
+test_F29_live_records_of_Q4_and_Q4z_have_the_same_type_key ... ok
+test_F29_v4_records_replay_the_same_on_Q4_and_Q4z ... FAIL
+test_control_originals_unchanged_by_slice_5_runs ... ok
+test_every_slice5_build_of_this_run_passed_stored ... ok
+
+Reasons: arms L1, L2, L3: record version 1 and no value (R-a). arms R1, R3 and every slice 2 to 5 replay failure: result {'error': 'body_digest_mismatch'} instead of the expected value or decode reject (R-b). No setup failure: every tree built and every eval reported.

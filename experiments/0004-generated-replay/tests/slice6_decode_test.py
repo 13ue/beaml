@@ -108,10 +108,12 @@ REPLAY_CASES = {
     "replay_not_a_string_is_decode": 'replay.("%s", 5) == %s' % (FAIL, DECODE_ERROR),
 }
 # RED review N3: the wire value stands only in the typed field. No span attribute and no RESPONSE RECORD key holds it,
-# except the raw body `body_base64` (base64, until DL-105).
+# except the projection `value` under its declared key (slice 6b step 6a, DL-105, D6B-54); the raw body is gone.
 NO_VALUE = ('live.("refunded") == %s and '
             'Enum.all?(Process.get(), fn {{:attr, _}, v} -> not String.contains?(inspect(v), "refunded"); _ -> true end) and '
-            'not String.contains?(inspect(Map.delete(captured.("refunded"), :body_base64)), "refunded")'
+            'captured.("refunded").value == %%{"order_id" => "order-1", "state" => "refunded"} and '
+            'not Map.has_key?(captured.("refunded"), :body_base64) and '
+            'not String.contains?(inspect(Map.delete(captured.("refunded"), :value)), "refunded")'
             % ok(v("Unknown", '"refunded"')))
 # RED review N2: a build without Pending writes the record of a "pending" response through the real JSON encode
 # (ProbeSupport.json is :json.encode); the build with Pending then reads that line with --stored.
@@ -148,8 +150,8 @@ class Slice6Decode(unittest.TestCase):
         self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
                          "expected exit 1, no stdout and the exact message")
 
-    def run_runtime(self, cases, source=ORDERS, script=""):
-        code, stdout, stderr = self.compile(source, ["--stored", str(STORED)])
+    def run_runtime(self, cases, source=ORDERS, script="", stored=STORED):
+        code, stdout, stderr = self.compile(source, ["--stored", str(stored)])
         self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
                          "expected exit 0 and Elixir on stdout; stderr: " + stderr)
         out = self.work / "beam"

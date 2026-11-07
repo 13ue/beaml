@@ -130,20 +130,20 @@ class ChainReplay(arms.Case):
 
     def test_C11_extra_key_does_not_replace_the_old_name(self):
         body = b'{"order_id":"order-1","status":"captured","fraud_score":"0.9"}'
-        record = arms.with_body(records(V1)[0], body)
+        record = st.with_value(records(V1)[0], json.loads(body))
         self.assertEqual(accepted({"order_id": "order-1", "state": "captured"}, hint=[["fraud_score"]]),
                          counts("s2-chain", "C11", record, observe=True))
 
     def test_C12_v1_record_with_both_names_reads_the_old_field_by_its_version(self):
         # DL-054 supersedes "current name wins": version 1 is {order_id, status}; state is a stray key.
         body = b'{"order_id":"order-1","state":"settled","status":"authorized"}'
-        record = arms.with_body(records(V1)[0], body)
+        record = st.with_value(records(V1)[0], json.loads(body))
         self.assertEqual(accepted({"order_id": "order-1", "state": "authorized"}, hint=[["state"]]),
                          counts("s2-chain", "C12", record, observe=True))
 
     def test_C13_neither_name_is_typed_decode_error(self):
         body = b'{"order_id":"order-1","fraud_score":"0.9"}'
-        record = arms.with_body(records(V1)[0], body)
+        record = st.with_value(records(V1)[0], json.loads(body))
         self.assertEqual(decode_rejected(), counts("s2-chain", "C13", record))
 
 
@@ -201,7 +201,7 @@ class ChainByVersion:
             tag = "v%d" % version
             [record] = st.chain_records(self.names, self.kind, [version])
             expected[tag] = accepted(self.current(tag))
-            actual[tag] = counts(self.tree, tag, arms.with_body(record, self.body(version, tag)))
+            actual[tag] = counts(self.tree, tag, st.with_value(record, json.loads(self.body(version, tag))))
         self.assertEqual(expected, actual, "names: %s" % self.names.chain)
 
 

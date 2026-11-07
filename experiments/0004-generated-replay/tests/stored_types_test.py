@@ -57,6 +57,23 @@ def v1_record():
     return json.loads(V1_FIXTURE.read_text().splitlines()[0])
 
 
+BODY_KEYS = ("body_base64", "body_length", "body_sha256")
+
+
+def value_sha256(value, unknown_keys=(), redacted=()):
+    """D6B-58: lower-case hex SHA-256 of the canonical JSON of the RESPONSE RECORD projection (version 2)."""
+    projection = {"redacted": sorted(redacted), "unknown_keys": sorted(unknown_keys), "value": value}
+    text = json.dumps(projection, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def with_value(record, value, unknown_keys=(), redacted=()):
+    """D6B-68: a version 2 RESPONSE RECORD derivative with another `value` and a recomputed `value_sha256`."""
+    record = {k: v for k, v in record.items() if k not in BODY_KEYS}
+    return dict(record, version=2, value=value, redacted=sorted(redacted), unknown_keys=sorted(unknown_keys),
+                value_sha256=value_sha256(value, unknown_keys, redacted))
+
+
 def mentions(text, word):
     """The emitter writes BEAML strings as byte lists. Accept the plain text or that form."""
     codes = [str(b) for b in word.encode()]

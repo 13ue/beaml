@@ -15,9 +15,7 @@ never from the compiler. A removal case copies the source into a temporary direc
 Run: python3 -B experiments/0004-generated-replay/tests/slice4_retire_test.py [-k NAME]
 """
 import re
-import base64
 import difflib
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -208,11 +206,6 @@ BODIES = {"ko": [{"k": "order-1", "o": "authorized"}], "kt": [{"k": "order-1", "
           "ktx": [{"k": "order-1", "t": "settled", "x": "r-4"}]}
 
 
-def with_body(record, body):
-    return dict(record, body_base64=base64.b64encode(body).decode(), body_length=len(body),
-                body_sha256=hashlib.sha256(body).hexdigest())
-
-
 def make_record(N, op_role, type_spec, index=0, body=None):
     """A RESPONSE RECORD of stored/v1.jsonl with another operation, TYPE VERSION, trace id and body."""
     record = dict(st.v1_record(), operation=getattr(N, op_role), trace_id="%032x" % (0x5e1ce4 + index))
@@ -226,8 +219,7 @@ def make_record(N, op_role, type_spec, index=0, body=None):
     if body is None:
         forms = BODIES[roles]
         body = forms[index % len(forms)]
-    raw = {getattr(N, role): value for role, value in body.items()}
-    return with_body(record, json.dumps(raw, separators=(",", ":"), ensure_ascii=False).encode())
+    return st.with_value(record, {getattr(N, role): value for role, value in body.items()})
 
 
 def snapshot_records(N, label):

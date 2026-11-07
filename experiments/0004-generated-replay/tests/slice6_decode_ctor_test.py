@@ -91,6 +91,9 @@ LIVE_CASES = {
                                  ' and attr.(:unknown_keys) == ["state.extra"]' % ok(v("Authorized"))),
     "record_keeps_stray_key": ('captured.(Map.merge(st.("ok", ""), %{"extra" => "y"})).unknown_keys'
                                ' == ["state.extra"]'),
+    # Slice 6b step 6a (D6B-54, DL-099): `value` takes the declared keys at every level; the stray key goes.
+    "record_value_is_the_nested_projection": ('captured.(Map.merge(st.("ok", ""), %{"extra" => "y"})).value == '
+                                              '%{"order_id" => "order-1", "state" => st.("ok", ""), "amount" => eur}'),
 }
 REPLAY_CASES = {
     "replay_declined": 'replay.("%s", 2) == %s' % (STORED, ok(v("Declined", '%{"text" => "card"}'))),

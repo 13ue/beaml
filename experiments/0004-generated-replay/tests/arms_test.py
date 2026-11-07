@@ -1,4 +1,8 @@
-"""EXPERIMENT 0004 slice 1 arms harness: cases (b) strict compile, (c) live, (d) replay, (d2) TYPE mismatch, (e) LIB.
+"""EXPERIMENT 0004 slice 1 arms harness: cases (b) strict compile, (c) GEN structure, (d2) TYPE mismatch.
+
+Slice 6b step 6a (DL-110, Q6B-10 option B): the GEN against LIB comparison ends with 6a. The 0003 copy run
+(cases (c) runner, (d) eight-case matrix, (e) LIB) leaves this file; slice 1 to 5 results stay retained evidence.
+The RESPONSE RECORD is version 2 (DL-105, D6B-53): `value` holds the declared keys, never the raw body.
 
 Each arm runs in a temporary tree with the repository layout (tests/arm_tree.py). The originals stay the control.
 Case (d2) follows the owner decision of 2026-11-06 (tolerant decode with a hint, notes.md):
@@ -9,9 +13,7 @@ hint on its EFFECT span; the harness adds the spans of the eval VM to the replay
 Run serially, loopback only: python3 -B experiments/0004-generated-replay/tests/arms_test.py [-k NAME]
 """
 import atexit
-import base64
 import datetime
-import hashlib
 import http.server
 import json
 from pathlib import Path
@@ -27,7 +29,8 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import arm_tree  # noqa: E402
-from arm_tree import COMPILER_PATH, HTTP_PATH, REPLAY_PATH, REPO  # noqa: E402
+from arm_tree import COMPILER_PATH, HTTP_PATH, REPO  # noqa: E402
+import stored_types_test as st  # noqa: E402
 
 sys.path.insert(0, str(REPO / HTTP_PATH))
 from run import request, stop  # noqa: E402  (0002 helpers, as in the 0003 tests)
@@ -43,10 +46,6 @@ WRONG_TYPE_BODY = b'{"order_id":"order-1","status":7}'
 DECODE_ERROR = '%OrdersBeamlSpike.PaymentError{reason: "decode"}'
 TRANSPORT_ERROR = '%OrdersBeamlSpike.PaymentError{reason: "transport"}'
 STATUS_ERROR = '%OrdersBeamlSpike.PaymentError{reason: "status"}'
-EIGHT_CASES = ("replay_first_call", "replay_a1_noncanonical_body", "replay_missing_response",
-               "replay_operation_mismatch", "replay_attempt_mismatch", "replay_body_digest_mismatch",
-               "replay_status_mismatch", "replay_request_mismatch")
-DEFAULT_STEPS = ["compiler-reference", "trace-lookup", "trace-lookup-repair", "response-capture", "replay-run"]
 STAMP = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
 RESULTS = EXPERIMENT / "results" / STAMP
 CONTROL_BEFORE = arm_tree.control_hashes()
@@ -281,34 +280,9 @@ def harness(arm, name, replay_input, payments_port=None):
     return report
 
 
-def with_body(record, body):
-    """A RESPONSE RECORD derivative with other body bytes and a recomputed length and SHA-256."""
-    return dict(record, body_base64=base64.b64encode(body).decode(), body_length=len(body),
-                body_sha256=hashlib.sha256(body).hexdigest())
-
-
 def replay_counts(report, keys):
     calls = report["calls"]
     return dict({"result": report["result"], "transport": report["transport"]}, **{k: calls.get(k) for k in keys})
-
-
-def run_0003(arm):
-    """Run the unchanged 0003 runner in the arm tree once. Keep its result and the result dirs."""
-    if arm not in _RUNS:
-        root = tree(arm)
-        code, stdout = command(arm + "-0003-run", [sys.executable, "-B", REPLAY_PATH + "/run.py"], root, timeout=3000)
-        results = root / REPLAY_PATH / "results"
-        if results.is_dir():
-            shutil.copytree(results, RESULTS / arm / "0003-results")
-        summary = json.loads(stdout.strip().splitlines()[-1]) if stdout.strip() else {}
-        run_result = json.loads((Path(summary["run"]) / "result.json").read_text()) if summary.get("run") else {}
-        replay = next((s for s in run_result.get("steps", []) if s["name"] == "replay-run"), {})
-        replay_result = {}
-        if replay.get("result_dir") and (Path(replay["result_dir"]) / "result.json").is_file():
-            replay_result = json.loads((Path(replay["result_dir"]) / "result.json").read_text())
-        _RUNS[arm] = {"exit_code": code, "result": run_result, "replay": replay_result}
-        save(RESULTS / arm / "0003-run.json", _RUNS[arm])
-    return _RUNS[arm]
 
 
 def tree_text(arm, relative):
@@ -363,25 +337,6 @@ class GenBuild(Case):
         self.assertTrue(build("gen")["strict"], "mix compile --force --warnings-as-errors failed")
 
 
-class GenRunner(Case):
-    def require_gen_copies(self):
-        text = tree_text("gen", REPLAY_PATH + "/tests/replay_run_test.py")
-        self.assertIn("OrdersBeamlSpike.Replay.run(", text, "GEN copy of replay_run_test.py is not in the tree")
-
-    def test_c_gen_0003_runner_passes_all_five_steps(self):
-        self.require_gen_copies()
-        outcome = run_0003("gen")
-        steps = [(s["name"], s["status"]) for s in outcome["result"].get("steps", [])]
-        self.assertEqual(([(n, "pass") for n in DEFAULT_STEPS], 0), (steps, outcome["exit_code"]))
-
-    def test_d_gen_replay_matrix_eight_cases(self):
-        self.require_gen_copies()
-        assertions = run_0003("gen")["replay"].get("assertions", {})
-        self.assertEqual(sorted(EIGHT_CASES + ("a1_record_bytes_equal_sent_bytes",)), sorted(assertions))
-        for name, pair in assertions.items():
-            self.assertEqual(pair["expected"], pair["actual"], name)
-
-
 class GenTypeMismatch(Case):
     """Case (d2). Live cases L0, L1, L2 run first; the replay cases use their records."""
     REPLAY_KEYS = ("OrdersApi.Router.call/2", "OrdersBeamlSpike.payments_authorize/1", ":gen_tcp.connect/4",
@@ -414,12 +369,12 @@ class GenTypeMismatch(Case):
         client = self.spans(seen, "orders.payments.authorize")
         record = seen["records"][0] if len(seen["records"]) == 1 else {}
         self.assertEqual(
-            {"reply": [200, PAYMENT], "transport": 1, "records": 1, "status": 200,
-             "bytes": base64.b64encode(UNKNOWN_KEY_BODY).decode(), "record_hint": ["fraud_score"],
+            {"reply": [200, PAYMENT], "transport": 1, "records": 1, "status": 200, "version": 2,
+             "value": PAYMENT, "record_hint": ["fraud_score"], "unknown_value_in_record": False,
              "client": [("ok", True)], "finish": 1},
             {"reply": seen["reply"], "transport": seen["transport"], "records": len(seen["records"]),
-             "status": record.get("status"), "bytes": record.get("body_base64"),
-             "record_hint": record.get("unknown_keys"),
+             "status": record.get("status"), "version": record.get("version"), "value": record.get("value"),
+             "record_hint": record.get("unknown_keys"), "unknown_value_in_record": "low" in json.dumps(record),
              "client": [(s["attributes"].get("outcome"), "fraud_score" in json.dumps(s["attributes"].get("unknown_keys")))
                         for s in client],
              "finish": len(self.spans(seen, "orders.finish"))})
@@ -439,11 +394,11 @@ class GenTypeMismatch(Case):
         calls = report["calls"]
         self.assertEqual(
             {"reply": [502, {"error": "downstream_failure"}], "transport": 1, "records": 1, "status": 503,
-             "bytes": base64.b64encode(VALID_BODY).decode(), "client": [("error", "status")], "finish": 0,
+             "value": PAYMENT, "client": [("error", "status")], "finish": 0,
              "place": {"result": {"error": STATUS_ERROR}, "sent": 1, "effect": 1, "connect": 1, "finish": 0,
                        "client": [("error", "status")]}},
             {"reply": seen["reply"], "transport": seen["transport"], "records": len(seen["records"]),
-             "status": record.get("status"), "bytes": record.get("body_base64"),
+             "status": record.get("status"), "value": record.get("value"),
              "client": [(s["attributes"].get("outcome"), s["attributes"].get("reason"))
                         for s in self.spans(seen, "orders.payments.authorize")],
              "finish": len(self.spans(seen, "orders.finish")),
@@ -459,9 +414,9 @@ class GenTypeMismatch(Case):
         record = seen["records"][0] if len(seen["records"]) == 1 else {}
         self.assertEqual(
             {"reply": [502, {"error": "downstream_failure"}], "transport": 1, "records": 1, "status": 200,
-             "bytes": base64.b64encode(MISSING_KEY_BODY).decode(), "client": [("error", "decode")], "finish": 0},
+             "value": json.loads(MISSING_KEY_BODY), "client": [("error", "decode")], "finish": 0},
             {"reply": seen["reply"], "transport": seen["transport"], "records": len(seen["records"]),
-             "status": record.get("status"), "bytes": record.get("body_base64"),
+             "status": record.get("status"), "value": record.get("value"),
              "client": [(s["attributes"].get("outcome"), s["attributes"].get("reason"))
                         for s in self.spans(seen, "orders.payments.authorize")],
              "finish": len(self.spans(seen, "orders.finish"))})
@@ -488,7 +443,7 @@ class GenTypeMismatch(Case):
                 "OrdersBeamlSpike.finish/1": 0, "ProbeSupport.valid_payment!/2": 0}
 
     def test_d2_R1_replay_missing_key_is_decode_error(self):
-        record = with_body(self.base_record("L0"), MISSING_KEY_BODY)
+        record = st.with_value(self.base_record("L0"), json.loads(MISSING_KEY_BODY))
         self.assertEqual(self.decode_error(), self.replay_record("R1", record))
 
     def test_d2_R2_replay_of_L1_record_gives_same_success_and_hint(self):
@@ -500,7 +455,7 @@ class GenTypeMismatch(Case):
         self.assertEqual(expected, self.replay_record("R2", self.base_record("L1"), observe=True))
 
     def test_d2_R3_replay_wrongly_typed_field_is_decode_error(self):
-        record = with_body(self.base_record("L0"), WRONG_TYPE_BODY)
+        record = st.with_value(self.base_record("L0"), json.loads(WRONG_TYPE_BODY))
         self.assertEqual(self.decode_error(), self.replay_record("R3", record))
 
     def test_d2_P1_pipe_stops_after_failed_effect(self):
@@ -513,76 +468,6 @@ class GenTypeMismatch(Case):
                           "effect": calls.get("OrdersBeamlSpike.payments_authorize/1"),
                           "connect": calls.get(":gen_tcp.connect/4"),
                           "finish": calls.get("OrdersBeamlSpike.finish/1")})
-
-
-class LibArm(Case):
-    """Case (e). The LIB form is fixed by the README; R1, R2, L1, L2 are recorded, not asserted."""
-
-    def test_e_lib_form_is_the_fixed_strongest_library(self):
-        found, problems = modules("lib"), []
-        lib = found.get("ReplayLib")
-        descriptor = found.get("OrdersApi.ReplayDescriptor")
-        if lib is None:
-            problems.append("no ReplayLib module")
-        else:
-            if len(lib[1].splitlines()) > 60:
-                problems.append("ReplayLib exceeds 60 lines")
-            if "rescue" not in lib[1]:
-                # Guard only. The typed result is asserted on LIB R1 before the freeze (review objection 3).
-                problems.append("ReplayLib has no rescue")
-        if descriptor is None:
-            problems.append("no OrdersApi.ReplayDescriptor module")
-        elif re.search(r"order_id|status|reference", descriptor[1]):
-            problems.append("descriptor names a TYPE field")
-        if "OrdersApi.Replay" in found:
-            problems.append("replay.ex is not deleted")
-        transport = tree_text("lib", HTTP_PATH + "/apps/orders_api/lib/orders_api/payment_http.ex") or ""
-        if transport.count("ReplayLib.record(") != 1 or "defp capture" in transport:
-            problems.append("payment_http.ex does not record through one ReplayLib.record call")
-        router = HTTP_PATH + "/apps/orders_api/lib/orders_api/router.ex"
-        if tree_text("lib", router) != (REPO / router).read_text():
-            problems.append("LIB changed the router")
-        self.assertEqual([], problems)
-
-    def require_lib_copies(self):
-        text = tree_text("lib", REPLAY_PATH + "/tests/replay_run_test.py")
-        self.assertIn("ReplayLib.run(", text, "LIB copy of replay_run_test.py is not in the tree")
-
-    def test_e_lib_arm_replays_matrix(self):
-        self.require_lib_copies()
-        outcome = run_0003("lib")
-        steps = [(s["name"], s["status"]) for s in outcome["result"].get("steps", [])]
-        self.assertEqual([(n, "pass") for n in DEFAULT_STEPS], steps)
-        assertions = outcome["replay"].get("assertions", {})
-        self.assertEqual(sorted(EIGHT_CASES + ("a1_record_bytes_equal_sent_bytes",)), sorted(assertions))
-        for name, pair in assertions.items():
-            self.assertEqual(pair["expected"], pair["actual"], name)
-
-    def test_e_lib_type_mismatch_outcomes_recorded_then_frozen(self):
-        self.assertIn("ReplayLib", modules("lib"), "no ReplayLib module in the LIB tree")
-        outcomes = {}
-        for name, status, body in (("L0", 200, VALID_BODY), ("L1", 200, UNKNOWN_KEY_BODY), ("L2", 503, VALID_BODY)):
-            seen = live("lib", name, status, body)
-            outcomes[name] = {"reply": seen["reply"], "records": len(seen["records"])}
-            outcomes[name + "_record"] = seen["records"][0] if seen["records"] else None
-        cases = {"R1": with_body(outcomes["L0_record"], MISSING_KEY_BODY) if outcomes["L0_record"] else None,
-                 "R2": outcomes["L1_record"]}
-        for name, record in cases.items():
-            outcomes[name] = record and harness("lib", name, {"mode": "replay", "trace_id": record["trace_id"],
-                                                               "responses": [record]})["result"]
-        save(RESULTS / "lib" / "type-mismatch-outcomes.json", outcomes)
-        # Fixed LIB form, not an outcome class (review objection 3): ReplayLib.run returns
-        # {:error, %ReplayLib.Error{step: "decode" | "finish", reason: ...}}, never a raise, never an untyped tuple.
-        typed = (outcomes["R1"] or {}).get("error", "")
-        self.assertRegex(typed, r'^%ReplayLib\.Error\{(?=.*\bstep: "(decode|finish)")(?=.*\breason: )',
-                         "LIB R1 is not a typed ReplayLib.Error: %r" % (outcomes["R1"],))
-        freeze = EXPERIMENT / "arms/lib/freeze.json"
-        self.assertTrue(freeze.is_file(), "no LIB freeze record")
-        frozen = json.loads(freeze.read_text())
-        found = modules("lib")
-        actual = {name: hashlib.sha256(found[name][0].read_bytes()).hexdigest()
-                  for name in ("ReplayLib", "OrdersApi.ReplayDescriptor")}
-        self.assertEqual(actual, frozen.get("sha256"))
 
 
 class ZzControlUnchanged(Case):
