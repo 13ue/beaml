@@ -37,3 +37,35 @@ Result: 2 tests, 1 FAIL, 1 PASS. Exit 1.
 
 - The failure is the missing behavior: the compiler gives exit 0; `elixirc` fails on the struct order only.
 - `main.rs` was not changed. `run.py` was not run. No result directory was touched. No commit.
+
+## GREEN
+
+Change: `experiments/0001-syntax-to-beam/src/main.rs` (sha256 `2dee707fd1444156f91b53773ad11e8250a583064f94ce3d6459baaff9227b01`, +12 −7). Base: `80de51ea`. Full output: [green-output.log](green-output.log).
+
+- `emit()` always puts the struct modules of the record failure TYPES that no EFFECT names at the top of `BeamlSpike`. Without an EFFECT this is every struct, as before.
+- `emit_effect()` puts only the struct modules of the EFFECT failure TYPES after the clauses, as before.
+- New helper `effect_failure(name)`. `emit_structs` takes a filter.
+
+### Results
+
+- **[Observed]** `slice6_struct_order_test.py`: 2 tests, OK (RED: 1 FAIL).
+- **[Observed]** int 16 OK, failure 22 OK, enum 20 OK, pipe 12 OK, decode 10 OK.
+- **[Observed]** constructor 24/25 (`test_constructor_type_in_an_effect_output_field` FAIL), decode_ctor 0/7. Both unchanged, by design until step 8 GREEN.
+- **[Observed]** stored_types 33, slice3_types 69, slice4_retire 87, slice5_syntax 60, slice5_squash 24, slice5_rewrite 5: all OK.
+- **[Observed]** `cargo fmt --check` exit 0, `cargo clippy --offline --all-targets -- -D warnings` exit 0, `cargo test --offline --no-fail-fast` 17 + 14 passed.
+- **[Observed]** The orders guard hashes and the payments snapshot stay equal (guard test PASS). `run.py` was not run. No commit.
+
+### Decisions
+
+| # | Class | Choice | Alternative | Reason |
+|---|---|---|---|---|
+| G1 | Repair | Split by EFFECT: the structs that no EFFECT names go to the top; the EFFECT failure structs stay after the clauses. | Move all structs to the top | All structs at the top change the orders outputs (`PaymentError` moves). The guards forbid that. |
+| G2 | Undo | A filter argument on `emit_structs` and one helper `effect_failure`. | Two struct lists or a new emit function | Smallest diff. One loop for both places. |
+| G3 | Repair | Accept a known limit: a pure clause that builds an EFFECT failure struct (for example `PaymentError { reason: "x" }`) still gets the struct after its use. A `ponytail:` comment in `emit()` records it. | Detect record literals in clause bodies | No fixture or test has this case. The fix needs a body scan or a byte change of the orders outputs. Open point P2. |
+
+By: Opus (GREEN, slice6b-struct-order)
+
+### Open points
+
+- **P2 [Inference, Repair]** G3 limit. The smallest next test: the probe with a pure fn `! PaymentError` that returns `PaymentError { reason: "x" }`, through `elixirc`. A fix then moves that struct to the top and changes no guarded output only if no guarded fixture has such a clause.
+- P1 is closed by G1: the guards PASS because the orders fixtures name `PaymentError` only through the EFFECT.
