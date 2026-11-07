@@ -337,3 +337,7 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 **[Proposal]** Added the OPEN records D004 (Q6B-4, Answer: redacted fields and the stored body), D005 (Q6B-6, Migrate: forged constructor values at the public wrapper) and D006 (Q6B-7, Migrate: spans for a pipe that reaches an EFFECT through a fn) to [decisions to be made](planning/decisions-to-be-made.md). Added an answered list for DL-099 to DL-104. D001 stays CLOSED.
 **[Proposal]** Added the glossary terms DEVELOPER AND AGENT EXPERIENCE, QUARANTINED RECORD, ENUM LITERAL, ENUM CONSTRUCTOR and KEEP-VALUE VARIANT to the [glossary](../GLOSSARY.md). Nothing was run.
 **[Proposal]** Added the OPEN record D007 (Q6B-8, Migrate: a removed or changed ENUM LITERAL replays as `Unknown` with no block and no count) to [decisions to be made](planning/decisions-to-be-made.md). Nothing was run.
+
+## 2026-11-07: slice 6b step 6 plan repair
+
+**[Proposal]** Repaired the [slice6b-redacted plan](../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/plan.md#plan-repair) on plan check O1 to O3 (tests P6, R4c, R8; D6B-72); raised D6B-62, D6B-63, D6B-66 to OWNER questions; added D008 to D011 (Q6B-10 to Q6B-13) to [decisions to be made](planning/decisions-to-be-made.md). Nothing was run.

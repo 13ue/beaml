@@ -28,26 +28,31 @@
       "topic": "GEN arm and the 0003 RESPONSE RECORD contract",
       "options": [
         "A: GEN copies get projection rows, LIB stays frozen raw",
-        "B: arm comparison stops at 6a, results stay evidence"
+        "B: arm comparison stops at 6a, results stay evidence",
+        "C: LIB frozen as own record version; record-byte lines not applicable; compare outcomes and call counts only"
       ],
       "blocks": [
-        "6a",
-        "6b",
-        "6c"
+        "6a GEN copy run",
+        "overlay_diff_test.py"
       ],
       "by": "open (13ue)"
     },
     {
       "id": "Q6B-11",
       "class": "Migrate",
-      "topic": "field that becomes redacted while stored records hold its value",
+      "topic": "field that becomes redacted while stored records hold its value, input (request) and output (value) case",
       "options": [
-        "A: MIGRATE CHANGE redact f",
-        "B: only DL-102 fates retire or quarantine"
+        "1A: redacted in the fingerprint (was D6B-66)",
+        "1B: not in the fingerprint (D6B-30), value check only",
+        "2A: MIGRATE CHANGE redact f",
+        "2B: only DL-102 fates retire or quarantine"
       ],
-      "blocks": [],
-      "interim": "D6B-66 fingerprint blocks",
-      "by": "open (13ue)"
+      "blocks": [
+        "6b GREEN R7",
+        "6b GREEN R8"
+      ],
+      "interim": "D6B-72 value check blocks; no exit in 6b",
+      "by": "open (13ue); repair: Opus (PLAN REPAIR, slice6b-redacted)"
     },
     {
       "id": "Q6B-12",
@@ -60,6 +65,47 @@
       "blocks": [],
       "interim": "6c builds failure TYPES only (DL-105 text)",
       "by": "open (13ue)"
+    },
+    {
+      "id": "Q6B-13",
+      "class": "Answer",
+      "topic": "redacted input field and same-named plain output field of the same EFFECT",
+      "options": [
+        "A: compile error",
+        "B: compile warning",
+        "C: allowed, OWNER declares the output plain"
+      ],
+      "blocks": [
+        "6b GREEN R4c"
+      ],
+      "interim": "none; no recommendation",
+      "by": "open (13ue); evidence: Opus (PLAN REPAIR, slice6b-redacted)"
+    },
+    {
+      "id": "Q6B-14",
+      "class": "Migrate",
+      "topic": "how a REPLAY RUN shows a marked field (was D6B-62)",
+      "options": [
+        "A: atom :redacted in the field",
+        "B: key absent plus the redacted list"
+      ],
+      "blocks": [
+        "6b GREEN R5"
+      ],
+      "by": "open (13ue); question: Opus (PLAN REPAIR, slice6b-redacted)"
+    },
+    {
+      "id": "Q6B-15",
+      "class": "Migrate",
+      "topic": "redacted output only on a top-level String field (was D6B-63)",
+      "options": [
+        "A: compile error for other redacted output fields",
+        "B: any field TYPE, replay and DL-102 skip rules of a marked field"
+      ],
+      "blocks": [
+        "6b GREEN R6"
+      ],
+      "by": "open (13ue); question: Opus (PLAN REPAIR, slice6b-redacted)"
     }
   ],
   "substeps": [
@@ -71,7 +117,7 @@
         "decode-literals GREEN",
         "decode-constructor GREEN"
       ],
-      "blocked_by_owner_question": "Q6B-10",
+      "blocked_by_owner_question": "Q6B-10 (GEN copy run and overlay_diff_test.py only)",
       "decisions": [
         "D6B-52",
         "D6B-53",
@@ -117,7 +163,8 @@
         "python3 -B experiments/0004-generated-replay/tests/slice6_*_test.py",
         "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
         "payments.generated.snapshot byte-equal",
-        "slice6_record_test.py P5 digest parity Elixir and Python"
+        "slice6_record_test.py P5 digest parity Elixir and Python",
+        "slice6_record_test.py P6 version 1 record blocks --stored with the D6B-59 text"
       ]
     },
     {
@@ -127,19 +174,22 @@
       "depends_on": [
         "6a"
       ],
-      "blocked_by_owner_question": null,
+      "blocked_by_owner_question": [
+        "Q6B-11 (GREEN R7, R8)",
+        "Q6B-13 (GREEN R4c)",
+        "Q6B-14 (GREEN R5)",
+        "Q6B-15 (GREEN R6)"
+      ],
       "decisions": [
         "D6B-29",
         "D6B-31",
         "D6B-32",
         "D6B-33",
-        "D6B-62",
-        "D6B-63",
         "D6B-64",
         "D6B-65",
-        "D6B-66",
         "D6B-70",
-        "D6B-71"
+        "D6B-71",
+        "D6B-72"
       ],
       "files": [
         "experiments/0001-syntax-to-beam/src/main.rs",
@@ -159,8 +209,9 @@
         "python3 -B experiments/0004-generated-replay/tests/slice6_*_test.py",
         "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
         "payments.generated.snapshot byte-equal",
-        "R4 echo: MARKER in no file of the RUN DIRECTORY and not in .beaml/actions.jsonl, with positive controls",
-        "sources without redacted and with: byte-equal output against 6a"
+        "R4 and R4c echo: MARKER plain, base64 (three offsets) and lower-case hex in no file of the RUN DIRECTORY (incl. the :otel_span.set_attribute file) and not in .beaml/actions.jsonl, with positive controls",
+        "sources without redacted and with: byte-equal output against 6a",
+        "R8 input field that becomes redacted blocks --stored with the D6B-72 text, count only"
       ]
     },
     {
@@ -199,7 +250,7 @@
     "derived values and implicit flow (DL-029 target)",
     "dotted with paths",
     "redacted in enum payloads, signature lines, MIGRATE CHANGES",
-    "redacted on non-String or constructor-TYPE output fields",
+    "redacted on non-String or constructor-TYPE output fields (if Q6B-15 keeps A)",
     "release path of the echo test (limit L1)",
     "run.py proxy raw exchanges (limit L2)",
     "MIGRATE CHANGE for a newly redacted field (Q6B-11)",
@@ -211,5 +262,24 @@
     "L2",
     "L3",
     "L4"
-  ]
+  ],
+  "plan_repair": {
+    "by": "Opus (PLAN REPAIR, slice6b-redacted)",
+    "review": "plan-review.md",
+    "applies": [
+      "O1",
+      "O2",
+      "O3",
+      "PC6R-2",
+      "PC6R-3"
+    ],
+    "changes": [
+      "D6B-59: --stored blocks on a record version other than 2 (6a P6)",
+      "D6B-72 new: --stored blocks on stored values under a now-redacted field in request and value (6b R7, R8)",
+      "R4c, file-backed :otel_span.set_attribute stub, base64 and hex MARKER scan (D6B-70)",
+      "R4 unknown_keys dotted per level (D6B-56)",
+      "D6B-62 -> Q6B-14, D6B-63 -> Q6B-15, D6B-66 -> Q6B-11 Part 1",
+      "Q6B-10 option C; Q6B-13 new"
+    ]
+  }
 }

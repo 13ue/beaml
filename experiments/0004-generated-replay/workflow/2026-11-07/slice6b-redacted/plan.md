@@ -2,9 +2,22 @@
 
 **[Proposal]** PLAN phase, 2026-11-07. Replan of step 6 of the [slice 6b plan](../slice6b-plan/plan.md#step-6-redacted-and-with-slice6b-redacted) on the OWNER decision DL-105. Task records only. No production file, no commit, no `run.py` run.
 Inputs: DL-029, DL-032, DL-033, DL-059, DL-089, DL-102, DL-103, DL-105 in [the decision log](../../../../../wiki/planning/decision-log.md); [slice 6b decisions](../slice6b-plan/decisions.md) D6B-29 to D6B-35; [plan review](../slice6b-plan/plan-review.md) O1 and O2; the step 7 and step 8 ledgers ([decode-literals](../slice6b-decode-literals/notes.md), [decode-constructor](../slice6b-decode-constructor/notes.md)); `experiments/0001-syntax-to-beam/src/main.rs`; the slice 2 to 5 replay tests, `arms_test.py`, `run.py`; the GEN copies of the 0003 tests; the grammar corpus (`integrations/zed-beaml/test/corpus/forms.txt`, `constructors.txt`).
-Design decisions that the decision log does not settle: [decisions.md](decisions.md) (D6B-52 to D6B-71, OWNER questions Q6B-10 to Q6B-12). Machine form: [plan.json](plan.json).
+Design decisions that the decision log does not settle: [decisions.md](decisions.md) (D6B-52 to D6B-72, OWNER questions Q6B-10 to Q6B-15). Machine form: [plan.json](plan.json).
 By: Opus (PLAN, slice6b-redacted) for every proposal in this file (DL-107). OWNER questions are decided later by `13ue`.
-Also read: DL-106 (constructor TYPES become structs at the host, generated `new/1`). It touches 6b at D6B-63 and D6B-71.
+Also read: DL-106 (constructor TYPES become structs at the host, generated `new/1`). It touches 6b at Q6B-15 (was D6B-63) and D6B-71.
+
+## Plan repair
+
+**[Proposal]** PLAN REPAIR, 2026-11-07, on the [plan check](plan-review.md) (BLOCK on O1 and O2). The three sub-steps stay.
+By: Opus (PLAN REPAIR, slice6b-redacted) for every item in this section and every changed or new entry below.
+
+- **O1.** `--stored` blocks on a record whose `version` is not `2` (D6B-59 changed). New test 6a P6 with the exact text. Why: a record that the build cannot read must block (DL-031, DL-040).
+- **O2.** A field that becomes `redacted` while stored records hold its value blocks for INPUT fields too, by a count of stored values in `request` and `value` (new D6B-72). New test 6b R8. Q6B-11 names the input case. Why: the input TYPE has no fingerprint in the record.
+- **O3.** New echo case R4c (same-named plain output field), a file-backed `:otel_span.set_attribute` stub, and a scan for the base64 and hex forms of the MARKER (D6B-70 amended). R4 expects dotted `unknown_keys` names (D6B-56 amended). Why: three channels were not scanned.
+- **Raised to Migrate.** D6B-62 is now Q6B-14, D6B-63 is now Q6B-15, two options each. D6B-66 folds into Q6B-11 Part 1. Why: each changes generated behaviour, syntax or stored-record readability (PC6R-2).
+- **Q6B-10.** New option C (LIB frozen, compare outcomes and counts only). Q6B-10 now blocks only the GEN copy run and `overlay_diff_test.py`.
+- **Q6B-13 (new, Answer).** A redacted input field and a same-named plain output field. Evidence and challenges, no recommendation.
+- **Blocks.** 6b RED can start after 6a. 6b GREEN waits for Q6B-11 (R7, R8), Q6B-13 (R4c), Q6B-14 (R5) and Q6B-15 (R6).
 
 ## What changes against the old step 6
 
@@ -28,8 +41,8 @@ Also read: DL-106 (constructor TYPES become structs at the host, generated `new/
 
 | # | Sub-step | Ledger | Depends on | Blocked by |
 |---|---|---|---|---|
-| 6a | RESPONSE RECORD = projection for every record. No `redacted` yet. All old tests adapted. | `slice6b-record/` | step 7 GREEN, step 8 GREEN | **Q6B-10** |
-| 6b | `redacted` on fields, `with` on EFFECTS, wire and record projections, marked fields, echo test | `slice6b-redacted/` | 6a | — |
+| 6a | RESPONSE RECORD = projection for every record. No `redacted` yet. All old tests adapted. | `slice6b-record/` | step 7 GREEN, step 8 GREEN | **Q6B-10** (GEN copy run and `overlay_diff_test.py` only) |
+| 6b | `redacted` on fields, `with` on EFFECTS, wire and record projections, marked fields, echo test, stored-value block | `slice6b-redacted/` | 6a | GREEN: **Q6B-11**, **Q6B-13**, **Q6B-14**, **Q6B-15** |
 | 6c | Failure TYPE rule: no non-redacted copy of a redacted field (DL-105) | `slice6b-redacted-failure/` | 6b | — |
 
 - **[Proposal]** 6a runs after steps 7 and 8 GREEN (D6B-52). Both RED files hold `body_base64` fixtures. 6a then adapts every record test in one pass, also theirs.
@@ -57,7 +70,7 @@ Also read: DL-106 (constructor TYPES become structs at the host, generated `new/
 ### REPLAY RUN (6a)
 
 - The checks keep their order and their six reasons. `body/1` becomes the digest check of the projection. A mismatch stays `:body_digest_mismatch` (D6B-58).
-- A record without `value` (version 1, raw body) gives `:body_digest_mismatch` (D6B-59).
+- `--stored`: a record whose `version` is not `2` is a build error (D6B-59). At replay, a record without `value` (version 1, raw body) still gives `:body_digest_mismatch` as a second guard.
 - The decode reads `value` through the existing decode path. It re-encodes `value` to bytes, so the arm counts keep `":json.decode/1": 1` (D6B-60).
 - The replay span attribute `unknown_keys` is the sorted union of the record `unknown_keys` and the stray keys that the decode finds in `value` (D6B-60).
 
@@ -67,11 +80,12 @@ Also read: DL-106 (constructor TYPES become structs at the host, generated `new/
 - Parse `with f1, f2` after the `)` of the EFFECT target (D6B-31). Each name is a top-level redacted field of the EFFECT input TYPE. Unknown, not redacted, duplicate: compile errors (D6B-65).
 - Wire body: the input without every redacted field at any depth, except the `with` names (DL-089, D6B-32).
 - Record `request`, the `:request_mismatch` compare, the span input argument and `ProbeSupport.event`: the input without every redacted field, `with` names included (D6B-32). The key is removed; no placeholder (D6B-33).
-- EFFECT output: a redacted field is legal (DL-105). In 6b only on a top-level `String` field of a TYPE without a constructor (D6B-63, DL-106).
+- EFFECT output: a redacted field is legal (DL-105). Which field TYPES 6b allows is Q6B-15 (was D6B-63, DL-106).
 - The redaction helpers work on the plain map form. A struct input (DL-106) goes through `Map.from_struct/1` first (D6B-71).
 - The live decode returns the real value to the flow. The record keeps only the name in `redacted`.
-- The REPLAY RUN puts the atom `:redacted` in a marked field. `__beaml_valid__` accepts it only for a redacted field (D6B-62). A redacted field that is missing or invalid at write time is not marked, so the replay gives the same `decode` reject as live (D6B-55).
-- `redacted` is part of the TYPE VERSION fingerprint: the field TYPE text is `redacted String` (D6B-66, replaces D6B-30). A field that becomes redacted blocks a build with stored records of the old form (existing `--stored` check). The long-term fate is Q6B-11.
+- How the REPLAY RUN shows a marked field is Q6B-14 (was D6B-62). A redacted field that is missing or invalid at write time is not marked, so the replay gives the same `decode` reject as live (D6B-55).
+- A field that becomes redacted while stored records hold its value blocks the build: `--stored` counts stored values under that field in `request` (input TYPE) and `value` (output TYPE) (D6B-72). Whether `redacted` is part of the fingerprint, and the exit, are Q6B-11 (D6B-66 folded in).
+- A redacted input field and a same-named plain output field: Q6B-13 (Answer).
 
 ### Failure TYPE rule (6c)
 
@@ -84,7 +98,7 @@ Also read: DL-106 (constructor TYPES become structs at the host, generated `new/
 - Derived values and implicit flow (`"Hello " + holder`), DL-029 target.
 - Dotted `with` paths. A nested redacted input field is never sent (D6B-31).
 - `redacted` in enum payloads, signature lines and MIGRATE CHANGES. The corpus line `drop secret: redacted String` is a known grammar/compiler gap.
-- `redacted` on an enum, constructor or record field of an EFFECT output TYPE (D6B-63).
+- `redacted` on an enum, constructor or record field of an EFFECT output TYPE, if Q6B-15 keeps option A.
 - The release path of the echo test (real ProbeSupport, Logger handler, OTel exporter). The `run.py` proxy writes raw wire exchanges into its results; it is test tooling, not BEAML output (limit L2).
 - A MIGRATE CHANGE for a field that becomes redacted (Q6B-11).
 - The LIB arm record format (Q6B-10).
@@ -115,7 +129,7 @@ Also read: DL-106 (constructor TYPES become structs at the host, generated `new/
 | GEN copies of 0003 `replay_run_test.py` | l. 227, 262-263, 312-323, the stub record writer | raw body equals `PAYMENT`; `a1_record_bytes_equal_sent_bytes`; `replay_a1_noncanonical_body`; tamper of `body_base64` | projection form; a1 becomes "key order does not matter"; tamper of `value`; **Q6B-10** |
 | `tests/overlay_diff_test.py`, `arms/gen/assertion-changes.json`, README table "0003 lines that change" | change table | fixed GEN rows | new GEN rows; **Q6B-10** |
 
-No change: `tests/cli.rs` (no body key), `tests/payments.generated.snapshot` (no `Replay`), the `--stored` TYPE checks (`type` key only), the LIB overlay and `arms/lib/freeze.json` under option A of Q6B-10.
+No change: `tests/cli.rs` (no body key), `tests/payments.generated.snapshot` (no `Replay`), the `--stored` TYPE checks (`type` key; 6a adds only the `version` check of D6B-59), the LIB overlay and `arms/lib/freeze.json` under option A of Q6B-10.
 
 Docs in 6a: the glossary row RESPONSE RECORD says "body bytes". The 6a docs phase updates it (projection, not body).
 
@@ -129,6 +143,7 @@ Docs in 6a: the glossary row RESPONSE RECORD says "body bytes". The 6a docs phas
 - P3: a body that fails the decode (`MISSING_KEY_BODY`) gives `value: {"order_id": "order-1"}` and replays as the typed reject `decode`.
 - P4: a body that is not JSON gives `value: null`, `unknown_keys: []`. A 503 body gets the same projection.
 - P5: digest parity. Elixir and Python give the same `value_sha256` for one ASCII and one non-ASCII value.
+- P6 (O1): `--stored` with one version 1 record of `stored/v1.jsonl` (taken before the conversion) with a correct `type` key. Expect exit 1 and stderr exactly `error: stored RESPONSE RECORD has record version 1; this build reads record version 2 only (DL-105)` and `  record source: S:1 (line 1)`. A record without `version` gives `V` = `none`. Today (inferred): the build passes.
 - Then: every old test in the table above passes with only the listed changes.
 
 ### 6b: `tests/slice6_redacted_test.py`
@@ -137,12 +152,15 @@ Docs in 6a: the glossary row RESPONSE RECORD says "body bytes". The 6a docs phas
 - **R1 (first RED).** `orders.beaml`: `type Order { order_id: String  card_holder: redacted String }`, EFFECT without `with`. The loopback stub receives a body without `card_holder`. Today: the parse fails at `redacted`.
 - R2: `orders-with.beaml` (`with card_holder`): the wire body has `card_holder`. The record `request`, the span input and the event file have no `card_holder` key.
 - R3: the replay `:request_mismatch` compare uses the projection: a record `request` without `card_holder` replays; a record with it gives `:request_mismatch`.
-- R4 (echo, plan review O2): the stub echoes the full request in its response, at the top level and under the key `echo`. Two sources: the output TYPE declares `card_holder: redacted String`; the output TYPE does not declare it. Positive controls: the stub memory holds the MARKER in the request and in the response. Assert: the MARKER is in no file of the RUN DIRECTORY and not in `.beaml/actions.jsonl`. The record has `redacted: ["card_holder"]` in the first case, and `unknown_keys` with `card_holder` and `echo` (names) in the second.
-- R5: replay of the R4 record gives the field value `:redacted`. A record whose `redacted` list lacks the field gives the typed reject `decode`.
-- R6: rejects with exact texts (D6B-64, D6B-65, D6B-63).
-- R7: a RECORD SNAPSHOT with the fingerprint of `card_holder: String` against a source with `card_holder: redacted String` fails the build with the existing `--stored` TYPE VERSION error (D6B-66).
+- R4 (echo, plan review O2): the stub echoes the full request in its response, at the top level and under the key `echo`. Two sources: the output TYPE declares `card_holder: redacted String`; the output TYPE does not declare it. Positive controls: the stub memory holds the MARKER in the request and in the response. Assert: the MARKER is in no file of the RUN DIRECTORY and not in `.beaml/actions.jsonl`. First case: `redacted: ["card_holder"]`, `unknown_keys: ["echo", "echo.card_holder", "echo.order_id"]`. Second case: `redacted: []`, `unknown_keys: ["card_holder", "echo", "echo.card_holder", "echo.order_id"]` (dotted per level, D6B-56).
+- R4c (O3): the output TYPE declares a plain `card_holder: String`. The same echo. The expected outcome is set by the Q6B-13 answer. Before the answer, R4c is recorded as an open case, not as a pass.
+- The R4 harness stubs `:otel_span.set_attribute`: it appends its arguments to a file in the RUN DIRECTORY. The scan looks for the MARKER in plain text, in base64 at the three byte offsets and in lower-case hex (D6B-70).
+- R5: replay of the R4 record gives the marked form of Q6B-14. A record whose `redacted` list lacks the field gives the typed reject `decode`.
+- R6: rejects with exact texts (D6B-64, D6B-65; the Q6B-15 text under its option A).
+- R7: a RECORD SNAPSHOT of the output TYPE whose `value` holds `card_holder` against a source with `card_holder: redacted String` fails the build with the D6B-72 text (P = `value`). Under Q6B-11 option 1A the fingerprint error may also show.
+- R8 (O2): a stored record with `request: {"order_id": "order-1", "card_holder": "x"}` against a source that marks `Order.card_holder` as `redacted`. Expect exit 1 and the D6B-72 text with P = `request` and count 1. The value `x` is in no stderr byte. Today (inferred): the build passes.
 - The MARKER is `MARKER-` plus a random hex string per run. It goes to the harness through an environment variable, never through a file (D6B-70).
-- A scan self-check: the scan finds the MARKER in a planted file outside the RUN DIRECTORY.
+- A scan self-check: the scan finds the MARKER in a planted file outside the RUN DIRECTORY, in each of the plain, base64 and hex forms.
 
 ### 6c: `tests/slice6_redacted_failure_test.py`
 
@@ -156,7 +174,7 @@ Docs in 6a: the glossary row RESPONSE RECORD says "body bytes". The 6a docs phas
 ## Fixtures
 
 - 6a: none new. Conversion of `stored/v1.jsonl`, `stored/v1-v2.jsonl`, `slice6/decode/stored*.jsonl`, `slice6/decode-ctor/stored*.jsonl` by a one-off script kept in the 6a ledger (D6B-69).
-- 6b: `slice6/redacted/orders.beaml`, `orders-with.beaml`, `orders-echo-declared.beaml`, `orders-echo-undeclared.beaml`, `bad/*.beaml` (one reject per file), `stored-unredacted.jsonl` (R7). Records for R3 and R5 are built in the test with `st.with_value`.
+- 6b: `slice6/redacted/orders.beaml`, `orders-with.beaml`, `orders-echo-declared.beaml`, `orders-echo-undeclared.beaml`, `orders-echo-plain.beaml` (R4c), `bad/*.beaml` (one reject per file), `stored-unredacted.jsonl` (R7), `stored-request-unredacted.jsonl` (R8). Records for R3 and R5 are built in the test with `st.with_value`.
 - 6c: `slice6/redacted-failure/*.beaml`, one case per file.
 
 ## Checks, every sub-step

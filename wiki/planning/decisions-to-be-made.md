@@ -182,6 +182,92 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Next check: a fixture with a stored value whose literal is removed, run with `--stored`. Record the exit and the stderr.
 
+## D008 — GEN arm and the 0003 RESPONSE RECORD contract (Q6B-10)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** EXPERIMENT 0004 evidence base, GEN against LIB comparison
+- **Decision trigger** Before the 6a GEN copy run and `overlay_diff_test.py` run with the projection record.
+
+**[Inference]** DL-105 removes the raw body from every GEN record. The GEN copies of the 0003 tests read the raw body, and LIB is frozen on the raw body. [Q6B-10](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/decisions.md#q6b-10--migrate--the-gen-arm-and-the-0003-response-record-contract-blocks-6a)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| A, new GEN rows | GEN copies get projection rows. LIB stays frozen on the raw body. | The arms store different contracts. a1 gets a new meaning. |
+| B, stop the comparison | The arm comparison stops at 6a. Slice 1 to 5 results stay evidence. | Cheap. The GEN against LIB claim ends. |
+| C, outcomes and counts only | LIB stays its own record version. Record-byte lines become "not applicable". | Cheaper than A, keeps more than B. Loses the byte checks. |
+
+**[Verified]** Blocks only the GEN copy run and `overlay_diff_test.py`. 6a RED and GREEN can start. By: Opus (PLAN REPAIR, slice6b-redacted).
+
+**[Proposal]** Next check: list the GEN copy lines that each option changes. Count them.
+
+## D009 — A field that becomes redacted while stored records hold its value (Q6B-11)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** EXECUTION/REPLAY RUN, stored records, DL-029, DL-102
+- **Decision trigger** Before 6b GREEN of R7 and R8, or before a deploy marks a stored field as `redacted`.
+
+**[Inference]** Input case: the value is in the record `request`. The record has no fingerprint of the input TYPE, so the build passes and every old record gives `:request_mismatch`. Output case: the value is in `value`. [Plan check, O2](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/plan-review.md#o2--high--an-input-field-that-becomes-redacted-does-not-block-and-leaves-the-value-in-stored-request-d6b-66-q6b-11)
+
+**[Proposal]** Interim D6B-72: `--stored` counts stored values under a now-redacted field in `request` and `value`, and blocks. No exit in 6b. By: Opus (PLAN REPAIR, slice6b-redacted).
+
+**[Proposal]** Options, Part 1 (detection, was D6B-66) and Part 2 (exit):
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| 1A, in the fingerprint | The field TYPE text is `redacted String`. | A new TYPE VERSION. The input case still needs D6B-72. |
+| 1B, not in the fingerprint | Only the D6B-72 value check blocks (D6B-30). | The TYPE VERSION does not show the change. |
+| 2A, MIGRATE CHANGE `redact f` | The REPLAY RUN removes and marks the old value at read. | The old value stays until a `retire` keep window ends. |
+| 2B, DL-102 fates only | `retire` with a keep window, or `quarantine`. | An input field has no TYPE VERSION in the record. |
+
+**[Unknown]** Not built. No test runs today.
+
+**[Proposal]** Next check: 6b R8, a stored `request` with `card_holder` against a source that marks it `redacted`.
+
+## D010 — Direct copy of a redacted value into a non-failure TYPE (Q6B-12)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Answer
+- **Scope** LANGUAGE/COMPILATION, DL-105 failure TYPE rule
+- **Decision trigger** Before a flow copies a redacted field into a non-redacted field of a TYPE that an EFFECT takes.
+
+**[Inference]** `Receipt { holder: card_holder }` with a non-redacted `holder` sends the value on the wire without `with`. DL-105 names only failure TYPES. [Q6B-12](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/decisions.md#q6b-12--answer--a-direct-copy-of-a-redacted-value-into-a-non-redacted-field-of-a-non-failure-type-does-not-block)
+
+| Option | Meaning | Challenge |
+|---|---|---|
+| A, every TYPE | The 6c compile error applies to every record literal and variant payload. | Stricter than the OWNER text. A legal copy needs a `redacted` mark. |
+| B, failure TYPES only | DL-105 text now. Other copies wait for the flow check. | A one-step copy bypasses DL-089 until then. |
+
+**[Unknown]** How many real flows copy a PII field on purpose. No recommendation (Answer class).
+
+**[Proposal]** Next check: 6c F1 to F6, plus one non-failure copy case compiled under each option.
+
+## D011 — Redacted input field and same-named plain output field (Q6B-13)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Answer
+- **Scope** LANGUAGE/COMPILATION, DL-089, DL-105
+- **Decision trigger** Before 6b GREEN of R4c, or before an EFFECT returns an input PII field under the same name.
+
+**[Inference]** An output TYPE with a plain `card_holder: String` puts an echoed value into the record `value`. No compile signal. The same name does not prove the same value. [Plan check, O3](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/plan-review.md#o3--high--the-echo-test-misses-one-leak-path-and-two-channels-r4-d6b-70), [Q6B-13](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/decisions.md#q6b-13--answer--a-redacted-input-field-and-a-same-named-plain-output-field-of-the-same-effect-blocks-6b-green-of-r4c)
+
+| Option | Meaning | Challenge |
+|---|---|---|
+| A, compile error | The build fails. | Blocks a legal display field. A different name bypasses it. |
+| B, warning | The build passes with a warning. | A stored value cannot be taken back (DL-029). |
+| C, allowed | The OWNER declares the output plain. | The record holds a value that the input marks as PII. |
+
+**[Unknown]** How many real EFFECTS return an input PII field under the same name. No recommendation (Answer class). By: Opus (PLAN REPAIR, slice6b-redacted).
+
+**[Proposal]** Next check: 6b R4c with the echo stub, scan of the RUN DIRECTORY.
+
 ## Answered 2026-11-07
 
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.
