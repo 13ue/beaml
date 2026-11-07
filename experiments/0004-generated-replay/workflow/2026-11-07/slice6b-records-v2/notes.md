@@ -221,3 +221,42 @@ FAIL: test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree
 **Repair**
 - → **Chose:** tighten the existing D6B-96 case. **Over:** a new case. **Because:** one DRIFT run feeds all cases; the old rule was the gap. **Commits us to:** a non-200 repaired record fails for every row. By: Opus (RED RV6A-1, slice6b-records-v2)
 - → **Chose:** check the request against the payments `type Order`. **Over:** the Orders input order. **Because:** in Q only the Payments TYPE gets `channel`; Orders adds it in `prepare`. **Commits us to:** a derivative that changes `type Order` in payments sets the expected request. By: Opus (RED RV6A-1, slice6b-records-v2)
+
+## GREEN RV6A-1
+
+### Verified cause
+
+- **[Observed]** `arms/gen/repair/Q.json` edits `apps/probe_support/lib/probe_support.ex`: it adds the `valid_order!/1` clause for `{order_id, channel}`.
+- **[Observed]** `probe_support` is part of both releases. `payments_api/router.ex` line 14 calls `ProbeSupport.valid_order!/1`.
+- **[Observed]** `repaired_replay` ran only `mix release orders`. The Payments release kept the old clause, raised on the channel order and replied 400.
+- **[Observed]** R and N edit only `valid_payment!/2` inside the Orders flow. For them the Orders rebuild was enough.
+
+### Change (`run.py` only)
+
+- `repair_releases(edited)`: get the releases from the paths that the repair edited (`counts["files"]`). An app `<service>_api` gives its release. Another app (`probe_support`) gives every release.
+- `repaired_replay` rebuilds each of these releases (`repair-release-<service>`), then makes the live call and the replay as before. The D6B-96 evidence shape does not change.
+- `ponytail:` note: an app that is not `<service>_api` counts as shared. Read the `mix.exs` deps if this changes.
+
+### Results
+
+- `drift_test.py`: 5 of 5 pass (100.5 s). Run dir `results/20261107T161442676324Z`.
+- `arms_test.py`: 11 of 11 pass. Run dir `results/20261107T161629435408Z`.
+- Each row R, N, Q runs `repair-release-orders` and `repair-release-payments`.
+
+| Row | Status | Replay result | Host validation |
+|---|---|---|---|
+| R | 200 | `ok` | `ok` |
+| N | 200 | `ok` | `ok` |
+| Q | 200 | `ok` | `ok` |
+
+- **[Observed]** `repaired_all` is `true`. RV6A-2 (`repaired_all` reads only `exit_code`) stays open.
+
+### Decisions
+
+**Undo**
+- → Kept the command names `repair-release-<service>`. By: Opus (GREEN RV6A-1, slice6b-records-v2)
+- → Did not change the tests or `main.rs`. By: Opus (GREEN RV6A-1, slice6b-records-v2)
+
+**Repair**
+- → **Chose:** get the release set from the edited paths. **Over:** always rebuild both releases. **Because:** the task asks for a derived set; a repair that edits only test files rebuilds nothing. **Commits us to:** a new shared app in the tree counts as shared by every release. By: Opus (GREEN RV6A-1, slice6b-records-v2)
+- → **Chose:** a shared app rebuilds every release. **Over:** parse the `mix.exs` deps. **Because:** both releases use `probe_support` today. **Commits us to:** the `ponytail:` ceiling in `repair_releases`. By: Opus (GREEN RV6A-1, slice6b-records-v2)

@@ -18,8 +18,8 @@ tests/drift_test.py):
   2. new_live: one Orders call against the drifted Payments release through a loopback proxy that keeps
      the exchanged bytes, plus one eval probe of the arm flow that shows where a failure starts.
   3. pre_change: replay the RESPONSE RECORD of the undrifted arm (baseline) with the drifted arm runner.
-  4. repair: apply arms/gen/repair/<derivative>.json, count the edited hunks, rebuild the Orders release
-     (the repair changes probe_support.ex), make one live call and replay its RESPONSE RECORD (D6B-96).
+  4. repair: apply arms/gen/repair/<derivative>.json, count the edited hunks, rebuild each release whose
+     source the repair edits (probe_support.ex is in both), make one live call and replay its RESPONSE RECORD (D6B-96).
 The classes come from these observations. The expected outcome comes from the bytes that the proxy saw
 and from the drifted TYPE (never from a constant per derivative); see `classify_*`.
 """
@@ -495,12 +495,20 @@ def repair(arm, derivative, tree, out):
     return counts
 
 
-def repaired_replay(tree, arm, out, commands):
-    """D6B-96: rebuild the Orders release of the repaired tree, make one live call, replay its RESPONSE RECORD."""
+def repair_releases(edited):
+    """Releases whose source the repair edited (RV6A-1). A shared app (probe_support) is in every release."""
+    apps = {rel[len(HTTP_PATH + "/apps/"):].split("/")[0] for rel in edited if rel.startswith(HTTP_PATH + "/apps/")}
+    # ponytail: an app that is not <service>_api counts as shared by all releases; read mix.exs deps if that changes.
+    return [s for s in ("orders", "payments") if s + "_api" in apps or apps - {"orders_api", "payments_api"}]
+
+
+def repaired_replay(tree, arm, out, commands, edited):
+    """D6B-96: rebuild each release the repair touched, make one live call, replay its RESPONSE RECORD."""
     http = Path(tree) / HTTP_PATH
-    code, _ = commands.run("repair-release-orders", MIX + ["release", "orders", "--overwrite"], http)
-    if code != 0:
-        return {"exit_code": code, "argv": commands.log[-1]["argv"]}
+    for service in repair_releases(edited):
+        code, _ = commands.run("repair-release-" + service, MIX + ["release", service, "--overwrite"], http)
+        if code != 0:
+            return {"exit_code": code, "argv": commands.log[-1]["argv"]}
     _, observed = live_call(tree, arm, out / "live", commands, name="repaired-flow")
     if len(observed["records"]) != 1:
         return {"exit_code": None, "records": len(observed["records"])}
@@ -582,8 +590,8 @@ def drift():
                 row["domain_validation_sites"] = counts["domain"]
                 row["test_expectation_sites"] = counts["test"]
                 if code == 0:
-                    # Repairs do not touch BEAML, but they change probe_support.ex: rebuild Orders (D6B-96).
-                    row["repaired"] = repaired_replay(tree, arm, out / "repaired", commands)
+                    # Repairs do not touch BEAML, but they change probe_support.ex: rebuild its releases (D6B-96).
+                    row["repaired"] = repaired_replay(tree, arm, out / "repaired", commands, counts["files"])
                 save(out / "row.json", row)
                 summary["drift"].setdefault(derivative, {})[arm] = row
                 done += 1
