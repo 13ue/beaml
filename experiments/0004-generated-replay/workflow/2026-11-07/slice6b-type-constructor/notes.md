@@ -117,3 +117,57 @@ Result: 25 tests, 24 FAIL, 1 pass (the guard). Exit 1. The first 19 failures are
 - Production unchanged (`main.rs` not touched): `cargo test --offline --no-fail-fast` 28 pass (14 unit, 14 CLI). `slice6_int_test.py` 16 OK. `slice6_failure_test.py` 22 OK.
 - `run.py` was not run. No result directory was touched. No commit.
 - Limit: the four new rejects fail at the signature line today. They prove the rule only after GREEN parses the signature line. The bypass of objection 1 was not built.
+
+## GREEN
+
+Commands and full output: [green-output.log](green-output.log). Changed file: `experiments/0001-syntax-to-beam/src/main.rs` only. The test and the fixtures are not changed.
+
+### Result (observed)
+
+| Command | Result |
+|---|---|
+| `slice6_constructor_test.py` | 25 tests, 25 OK, all runtime subtests PASS, no ProbeSupport stub |
+| `slice6_failure_test.py` | 22 OK (its stub stays, now without a caller in pure modules) |
+| `slice6_int_test.py` | 16 OK |
+| `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings` | pass |
+| `cargo test --offline --no-fail-fast` | 29 pass (15 unit, 14 CLI); one new unit test |
+| `stored_types_test.py`, `slice3_types_test.py`, `slice4_retire_test.py` | 33, 69, 87 OK |
+| `slice5_syntax_test.py`, `slice5_squash_test.py`, `slice5_rewrite_test.py` | 60, 24, 5 OK |
+| Byte-equal check: HEAD compiler (scratch build) against the GREEN compiler | `payments.beaml` and `orders.beaml` outputs byte-equal |
+| Diff of the `body.beaml` output | only the two pure pipe steps lose `ProbeSupport.span` (S3) |
+
+### Decisions
+
+| # | Class | Choice | Alternative | Reason |
+|---|---|---|---|---|
+| G1 | Undo | A signature line is a `fn` line without `=`, kept in `Program.signature_lines`. A parameter that is not `name: TYPE` gives `error: fn N: a signature line has name: TYPE parameters only`. | A `Clause` with an empty body | No dummy body in the emit and coverage code. |
+| G2 | Undo | Signature lines are checked before the clauses. They fill `signatures` and `failures`. A clause of the same name takes the TYPE of position i as the expected TYPE of its parameter i. | Merge lines and clauses in one loop | The existing `inconsistent function signature` check then compares each clause with the line. |
+| G3 | Undo | D6B-13 compares byte positions: a clause that starts before the signature line of its name is an error. | Order index | Source position is already stored. |
+| G4 | Undo | A second equal signature line gives `unreachable signature`. A second different one gives `inconsistent function signature` (step 4 replaces it with several signatures, `ponytail:` comment). | Accept several now | Step 3 scope (spec). |
+| G5 | Undo | `fn_name` holds the D6B-11 checks and the old reserved-word check. An uppercase name needs a record `type`; an enum name also gives `a constructor needs a type`. | A special text for an enum | Enum constructors come in step 4 (open Unknown point). |
+| G6 | Undo | Elixir name `new_T_1` through one helper `elixir_name`, used in the `def`, the `defp` clauses, the call emit and the pipe step emit. The declaration comment and the span name keep the BEAML name `T`. | Rename in the `signatures` map | One mapping point at emit time; checks keep BEAML names. |
+| G7 | Undo | A lowercase `fn new_T_1` beside a constructor `fn T` gives `duplicate name: new_T_1`. | No check | Without it, two Elixir functions get one name. One line. |
+| G8 | Repair | **Chose:** the nominal rule in `same_type` (D6B-17), so it holds at `require_type`, the `!` body check, the pipe step check, `failure_types` and `overlap`. **Over:** a rule in `require_type` only. **Because:** RED repair R1 tests all three gates. **Commits us to:** a TYPE with a constructor never equals a structural twin, also as a failure TYPE. | `require_type` only | red-review.md objection 1. |
+| G9 | Repair | **Chose:** D6B-18 as a walk over the whole clause body in `validate`, before the body TYPE check. A literal of T is legal only when the clause name is T. **Over:** a check of the top node or of "any constructor". **Because:** RED repair R2. **Commits us to:** record patterns stay free; only expressions are walked. | Top node only | R2, red-review.md objection 2. |
+| G10 | Undo | The D6B-18 help line says `(as a pipe step, because it can fail)` for a constructor with `!`, else `(as a call T(...))`. | One text | A constructor without `!` is called as `T(r)` (R4). No test for the second text. |
+| G11 | Undo | D6B-19 runs first in the EFFECT checks, after the name, kind and path checks. Positions: `input`, `output`, each `failure`; a nested field gives ` field Owner.field` (enum: `Owner.Variant`). | After the String-field checks | Open point "order of EFFECT checks": else the field case gives another text. |
+| G12 | Undo | D6B-19 stays as an interim reject, as the tests expect. **DL-101** (the decode of outside data calls the record constructor) makes it a temporary state: a later step replaces this reject with the decode path. The code comment names DL-101. | Build the decode path now | Out of step 3 scope; the tests expect the reject. |
+| G13 | Repair | **Chose:** D6B-28 per pipe: `emit_chain` emits spans only when the pipe has an EFFECT step. **Over:** per module (spans in every pipe of a module with an EFFECT). **Because:** `test_pure_pipe_beside_an_effect_has_no_span` and D6B-28 text "only a whole-body pipe with an EFFECT step". **Commits us to:** pure pipes are plain calls also in an EFFECT module; the orders and payments flows keep their spans (byte-equal, observed). | Per module | S3, S14. |
+| G14 | Undo | The service-name error (`a pipe or an effect needs a source file name ...`) now fires only for a source with an EFFECT. | Keep it for every pipe | A pure pipe names no span (red-review.md: narrowing is harmless). Text unchanged. |
+| G15 | Undo | New unit test `constructor_is_the_only_way_in` (S1): accept with a pipe step, reject of a literal outside, reject of a structural twin. | No unit test | S1 says it comes with GREEN. |
+
+### Deviations
+
+- None from the spec. The task text "spans only when the module has an EFFECT" is built per pipe (G13), because the test `test_pure_pipe_beside_an_effect_has_no_span` asks for a plain call beside an EFFECT. A per-pipe rule also gives no `ProbeSupport` in a pure module.
+
+### Checks
+
+- **[Verified]** Action events: the event code is not changed. The harness checks on every compile that no source text and no path are in the events.
+- **[Verified]** No other fixture has a pipe without an EFFECT step (all slice 2 to 6 suites pass, outputs byte-equal).
+- `run.py` was not run. No commit.
+
+### Limits
+
+- **[Unknown]** Q6B-6 (host forges a nominal value at a public wrapper) is not changed by this step.
+- No test of the help text for a constructor without `!` (G10), of a nested constructor TYPE inside an EFFECT input field, or of the `duplicate name: new_T_1` check (G7).
+- A signature line without any clause gives `non-exhaustive function: T`, not a specific text. No test.

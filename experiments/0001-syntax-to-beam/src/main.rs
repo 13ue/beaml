@@ -146,6 +146,15 @@ struct Clause {
     body: Node,
     source_range: Range<usize>,
 }
+// `fn NAME p: T, ... -> OUT ! ERR` without `=` (slice 6b, D6B-12): the clauses below take its TYPES by position.
+#[derive(Clone, Debug)]
+struct SignatureLine {
+    name: String,
+    args: Vec<Node>,
+    output: String,
+    failures: Vec<String>,
+    start: usize,
+}
 // `effect NAME IN -> OUT ! ERR = KIND("path")`: an operation that leaves the module.
 #[derive(Clone, Debug)]
 struct Effect {
@@ -189,6 +198,7 @@ enum Change {
 struct Program {
     types: BTreeMap<String, Definition>,
     clauses: Vec<Clause>,
+    signature_lines: Vec<SignatureLine>,
     effects: Vec<Effect>,
     migrations: Vec<Migration>,
     retires: Vec<Retire>,
@@ -513,7 +523,23 @@ impl Parser {
                     self.arrow()?;
                     let output = self.word()?;
                     let failures = self.failures()?;
-                    self.expect('=')?;
+                    if !self.eat('=') {
+                        // A signature line has `name: TYPE` parameters only (D6B-12).
+                        let typed = |arg: &Node| matches!(arg, Node::Annotated(inner, _) if matches!(inner.as_ref(), Node::Name(n) if lower(n)));
+                        if !args.iter().all(typed) {
+                            return Err(format!(
+                                "error: fn {name}: a signature line has name: TYPE parameters only"
+                            ));
+                        }
+                        program.signature_lines.push(SignatureLine {
+                            name,
+                            args,
+                            output,
+                            failures,
+                            start,
+                        });
+                        continue;
+                    }
                     let mut body = self.node(0)?;
                     if self.peek() == &Token::Pipe {
                         let mut steps = Vec::new();
@@ -690,6 +716,16 @@ struct Checker<'a> {
     failures: BTreeMap<String, Vec<String>>,
     // TYPE VERSIONS of each TYPE with a MIGRATE CHAIN: index 0 is the chain start, the last is the interface.
     versions: Versions,
+    // TYPES with a constructor `fn T` (DL-092): nominal TYPES (D6B-17).
+    constructors: BTreeSet<String>,
+}
+// The Elixir name of a fn: a constructor `fn T` is `new_T_1` (D6B-15).
+fn elixir_name(name: &str) -> String {
+    if upper(name) {
+        format!("new_{name}_1")
+    } else {
+        name.to_string()
+    }
 }
 
 // The MIGRATE CHAIN check: MIGRATE STEPS `1 -> 2 -> ...` without gaps per TYPE. Old TYPE VERSIONS are
@@ -907,6 +943,14 @@ impl<'a> Checker<'a> {
             signatures: BTreeMap::new(),
             failures: BTreeMap::new(),
             versions: BTreeMap::new(),
+            constructors: program
+                .clauses
+                .iter()
+                .map(|c| &c.name)
+                .chain(program.signature_lines.iter().map(|s| &s.name))
+                .filter(|n| upper(n))
+                .cloned()
+                .collect(),
         };
         for (name, def) in &program.types {
             if !upper(name) || name == "String" || name == "Int" {
@@ -946,56 +990,54 @@ impl<'a> Checker<'a> {
         if program.clauses.is_empty() {
             return Err("expected at least one function".into());
         }
+        // D6B-12, D6B-14: a signature line gives the parameter TYPES; an equal second one is unreachable.
+        let mut lines: BTreeMap<&str, usize> = BTreeMap::new();
+        for line in &program.signature_lines {
+            checker.fn_name(&line.name, &line.output)?;
+            checker.check_type(&line.output, &mut Vec::new())?;
+            let mut vars = BTreeMap::new();
+            let mut args = Vec::new();
+            for pattern in &line.args {
+                args.push(checker.pattern(pattern, None, &mut vars)?);
+            }
+            let owner = format!("fn {}", line.name);
+            checker.failure_types(&owner, &line.failures)?;
+            checker.overlap(&owner, &line.output, &line.failures, true)?;
+            let signature = (args, line.output.clone());
+            if lines.insert(&line.name, line.start).is_some() {
+                // ponytail: one signature per fn in step 3; step 4 (D6B-23) adds several signatures.
+                if checker.signatures.get(&line.name) == Some(&signature)
+                    && checker.failures.get(&line.name) == Some(&line.failures)
+                {
+                    return Err(format!(
+                        "unreachable signature: {0}\n  help: an earlier signature line of fn {0} has the same parameters; remove this one",
+                        line.name
+                    ));
+                }
+                return Err(format!("inconsistent function signature: {}", line.name));
+            }
+            checker.signatures.insert(line.name.clone(), signature);
+            checker
+                .failures
+                .insert(line.name.clone(), line.failures.clone());
+        }
         for clause in &program.clauses {
-            let reserved = [
-                "fn",
-                "def",
-                "defp",
-                "end",
-                "do",
-                "when",
-                "case",
-                "cond",
-                "if",
-                "unless",
-                "try",
-                "catch",
-                "rescue",
-                "after",
-                "else",
-                "true",
-                "false",
-                "nil",
-                "and",
-                "or",
-                "not",
-                "in",
-                "receive",
-                "for",
-                "with",
-                "quote",
-                "unquote",
-                "super",
-                "import",
-                "alias",
-                "require",
-                "use",
-                "raise",
-                "throw",
-                "exit",
-                "is_binary",
-                "is_integer",
-                "is_map",
-                "map_size",
-            ];
-            if !lower(&clause.name) || reserved.contains(&clause.name.as_str()) {
-                return Err(format!("invalid function name: {}", clause.name));
+            checker.fn_name(&clause.name, &clause.output)?;
+            // D6B-13: with a signature line, no clause stands before it.
+            let line = lines.get(clause.name.as_str());
+            if line.is_some_and(|start| clause.source_range.start < *start) {
+                return Err(format!(
+                    "error: fn {}: a clause stands before the signature line\n  help: move the signature line above the first clause",
+                    clause.name
+                ));
             }
             checker.check_type(&clause.output, &mut Vec::new())?;
             let mut vars = BTreeMap::new();
             let mut args = Vec::new();
-            for pattern in &clause.args {
-                args.push(checker.pattern(pattern, None, &mut vars)?);
+            let given = line.map(|_| checker.signatures[&clause.name].0.clone());
+            for (index, pattern) in clause.args.iter().enumerate() {
+                let expected = given.as_ref().and_then(|types| types.get(index));
+                args.push(checker.pattern(pattern, expected.map(String::as_str), &mut vars)?);
             }
             let owner = format!("fn {}", clause.name);
             checker.failure_types(&owner, &clause.failures)?;
@@ -1043,6 +1085,71 @@ impl<'a> Checker<'a> {
         checker.effects()?;
         checker.retires()?;
         Ok(checker)
+    }
+    // A lowercase fn name, or a constructor `fn T` of a record `type T` that returns T (D6B-11).
+    fn fn_name(&self, name: &str, output: &str) -> Checked<()> {
+        if upper(name) {
+            if !matches!(self.program.types.get(name), Some(Definition::Record(_))) {
+                return Err(format!(
+                    "error: fn {name}: a constructor needs a type {name}\n  help: declare type {name} {{ ... }}, or write the fn name in lowercase"
+                ));
+            }
+            if output != name {
+                return Err(format!(
+                    "error: fn {name}: a constructor returns its own TYPE {name}, not {output}"
+                ));
+            }
+            return Ok(());
+        }
+        let reserved = [
+            "fn",
+            "def",
+            "defp",
+            "end",
+            "do",
+            "when",
+            "case",
+            "cond",
+            "if",
+            "unless",
+            "try",
+            "catch",
+            "rescue",
+            "after",
+            "else",
+            "true",
+            "false",
+            "nil",
+            "and",
+            "or",
+            "not",
+            "in",
+            "receive",
+            "for",
+            "with",
+            "quote",
+            "unquote",
+            "super",
+            "import",
+            "alias",
+            "require",
+            "use",
+            "raise",
+            "throw",
+            "exit",
+            "is_binary",
+            "is_integer",
+            "is_map",
+            "map_size",
+        ];
+        if !lower(name) || reserved.contains(&name) {
+            return Err(format!("invalid function name: {name}"));
+        }
+        // `new_T_1` is the Elixir name of the constructor `fn T`.
+        if self.constructors.iter().any(|c| elixir_name(c) == name) {
+            return Err(format!("duplicate name: {name}"));
+        }
+        Ok(())
     }
     // D6B-04: any TYPE after `!`. RED repair R3: two failure TYPES with equal fields are the same TYPE.
     fn failure_types(&self, owner: &str, failures: &[String]) -> Checked<()> {
@@ -1159,6 +1266,17 @@ impl<'a> Checker<'a> {
             {
                 return Err(format!("unsupported http path in effect {name}"));
             }
+            // D6B-19, interim for Q6B-3 (DL-101 replaces it with the decode through the constructor).
+            let positions = [("input", &effect.input), ("output", &effect.output)]
+                .into_iter()
+                .chain(effect.failures.iter().map(|f| ("failure", f)));
+            for (position, ty) in positions {
+                if let Some((nominal, field)) = self.constructor_inside(ty) {
+                    return Err(format!(
+                        "error: effect {name}: the TYPE {nominal} has a constructor and cannot stand in an EFFECT {position}{field} (interim D6B-19, Q6B-3)\n  help: use a TYPE without a constructor at the EFFECT, then pipe it into fn {nominal}"
+                    ));
+                }
+            }
             self.check_type(&effect.input, &mut Vec::new())?;
             // D6B-03: no Int in an EFFECT input, also not in a nested TYPE.
             if let Some(place) = self.int_inside(&effect.input) {
@@ -1199,6 +1317,59 @@ impl<'a> Checker<'a> {
             return Err("slice 1 supports one effect".into());
         }
         Ok(())
+    }
+    // The first TYPE with a constructor in `ty`: itself (`""`) or the place ` field Owner.field` that holds it.
+    fn constructor_inside(&self, ty: &str) -> Option<(String, String)> {
+        if self.constructors.contains(ty) {
+            return Some((ty.into(), String::new()));
+        }
+        let refs: Vec<(String, &String)> = match self.program.types.get(ty)? {
+            Definition::Record(fields) => fields
+                .iter()
+                .map(|(f, t)| (format!("{ty}.{f}"), t))
+                .collect(),
+            Definition::Enum(variants) => variants
+                .iter()
+                .flat_map(|(v, args)| args.iter().map(move |t| (format!("{ty}.{v}"), t)))
+                .collect(),
+        };
+        refs.into_iter().find_map(|(place, t)| {
+            self.constructor_inside(t).map(|(nominal, inner)| {
+                (
+                    nominal,
+                    if inner.is_empty() {
+                        format!(" field {place}")
+                    } else {
+                        inner
+                    },
+                )
+            })
+        })
+    }
+    // D6B-18: a record literal of a TYPE T with a constructor stands only in the clauses of `fn T`, at any depth.
+    fn literals(&self, node: &Node, owner: &str) -> Checked<()> {
+        let children: Vec<&Node> = match node {
+            Node::Record(ty, fields) => {
+                if self.constructors.contains(ty) && ty != owner {
+                    let how = if self.failures[ty].is_empty() {
+                        format!("as a call {ty}(...)")
+                    } else {
+                        "as a pipe step, because it can fail".into()
+                    };
+                    return Err(format!(
+                        "error: fn {owner}: the record literal {ty} {{ ... }} is legal only in the clauses of the constructor fn {ty}\n  help: call the constructor fn {ty} ({how})"
+                    ));
+                }
+                fields.iter().map(|(_, v)| v).collect()
+            }
+            Node::Call(_, args) => args.iter().collect(),
+            Node::Plus(a, b) => vec![a, b],
+            Node::Pipe(head, _) | Node::Annotated(head, _) => vec![head],
+            Node::Text(_) | Node::Int(_) | Node::Name(_) => vec![],
+        };
+        children
+            .into_iter()
+            .try_for_each(|n| self.literals(n, owner))
     }
     // The first place with the TYPE Int inside `ty`: `Owner.field`, `Owner.Variant` or `Int` itself.
     fn int_inside(&self, ty: &str) -> Option<String> {
@@ -1251,6 +1422,10 @@ impl<'a> Checker<'a> {
     fn same_type(&self, left: &str, right: &str) -> bool {
         if left == right {
             return true;
+        }
+        // D6B-17: a TYPE with a constructor is nominal, at every gate.
+        if self.constructors.contains(left) || self.constructors.contains(right) {
+            return false;
         }
         match (self.program.types.get(left), self.program.types.get(right)) {
             (Some(Definition::Record(a)), Some(Definition::Record(b))) => {
@@ -1535,6 +1710,7 @@ impl Checker<'_> {
                 for (arg, ty) in clause.args.iter().zip(types) {
                     self.pattern(arg, Some(ty), &mut vars)?;
                 }
+                self.literals(&clause.body, name)?;
                 let ty = self.body(clause, &vars)?;
                 // D6B-05: a body of a fn with `!` has the output TYPE or one failure TYPE.
                 if clause.failures.is_empty() {
@@ -1651,7 +1827,7 @@ impl Checker<'_> {
                 if let Some((owner, _)) = self.variants.get(name) {
                     format!("{{{}, {}, [{}]}}", binary(owner), binary(name), args)
                 } else {
-                    format!("__MODULE__.{name}({args})")
+                    format!("__MODULE__.{}({args})", elixir_name(name))
                 }
             }
         }
@@ -1723,6 +1899,7 @@ impl Checker<'_> {
         }
         out.push_str("  defp __beaml_valid__(_, _), do: false\n");
         for (name, (types, output)) in &self.signatures {
+            let fun = elixir_name(name);
             let args: Vec<_> = (0..types.len()).map(|i| format!("a{i}")).collect();
             let checks: Vec<_> = args
                 .iter()
@@ -1732,9 +1909,9 @@ impl Checker<'_> {
             let fails = !self.failures[name].is_empty();
             if fails {
                 // `name/n` of a function that can fail: `{:ok, value}` or `{:error, error}`.
-                out.push_str(&format!("  def {name}({}) do\n    if {} do\n      case __beaml_{name}({}) do\n        {{:ok, result}} ->\n          if __beaml_valid__(result, {}), do: {{:ok, result}}, else: raise(ArgumentError, \"invalid BEAML output\")\n\n        {{:error, error}} ->\n          {{:error, error}}\n      end\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n", args.join(", "), if checks.is_empty() { "true".into() } else { checks.join(" and ") }, args.join(", "), binary(output)));
+                out.push_str(&format!("  def {fun}({}) do\n    if {} do\n      case __beaml_{fun}({}) do\n        {{:ok, result}} ->\n          if __beaml_valid__(result, {}), do: {{:ok, result}}, else: raise(ArgumentError, \"invalid BEAML output\")\n\n        {{:error, error}} ->\n          {{:error, error}}\n      end\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n", args.join(", "), if checks.is_empty() { "true".into() } else { checks.join(" and ") }, args.join(", "), binary(output)));
             } else {
-                out.push_str(&format!("  def {name}({}) do\n    if {} do\n      result = __beaml_{name}({})\n      if __beaml_valid__(result, {}), do: result, else: raise(ArgumentError, \"invalid BEAML output\")\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n", args.join(", "), if checks.is_empty() { "true".into() } else { checks.join(" and ") }, args.join(", "), binary(output)));
+                out.push_str(&format!("  def {fun}({}) do\n    if {} do\n      result = __beaml_{fun}({})\n      if __beaml_valid__(result, {}), do: result, else: raise(ArgumentError, \"invalid BEAML output\")\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n", args.join(", "), if checks.is_empty() { "true".into() } else { checks.join(" and ") }, args.join(", "), binary(output)));
             }
             for clause in self.program.clauses.iter().filter(|c| &c.name == name) {
                 out.push_str(&format!(
@@ -1751,7 +1928,7 @@ impl Checker<'_> {
                     .join(", ");
                 if let Node::Pipe(head, steps) = &clause.body {
                     out.push_str(&format!(
-                        "  defp __beaml_{name}({params}) do\n    p0 = {}\n{}  end\n",
+                        "  defp __beaml_{fun}({params}) do\n    p0 = {}\n{}  end\n",
                         self.emit_node(head),
                         self.emit_chain(
                             steps,
@@ -1763,12 +1940,12 @@ impl Checker<'_> {
                     ));
                 } else if fails {
                     out.push_str(&format!(
-                        "  defp __beaml_{name}({params}), do: {}\n",
+                        "  defp __beaml_{fun}({params}), do: {}\n",
                         self.result(clause, &self.emit_node(&clause.body), "__MODULE__")
                     ));
                 } else {
                     out.push_str(&format!(
-                        "  defp __beaml_{name}({params}), do: {}\n",
+                        "  defp __beaml_{fun}({params}), do: {}\n",
                         self.emit_node(&clause.body)
                     ));
                 }
@@ -1979,6 +2156,8 @@ impl Checker<'_> {
         } else {
             "@parent"
         };
+        // D6B-28: only a pipe with an EFFECT step has spans; every other pipe is plain calls.
+        let spans = steps.iter().any(|s| self.effect(s).is_some());
         let mut clauses = Vec::new();
         let mut matched = false;
         for (index, step) in steps.iter().enumerate() {
@@ -2021,9 +2200,10 @@ impl Checker<'_> {
                 continue;
             }
             let failing = !self.failures[step].is_empty();
-            let call = format!("{owner}.{step}({input})");
+            let call = format!("{owner}.{}({input})", elixir_name(step));
             let expression = match (mode, steps.get(index + 1).and_then(|s| self.effect(s))) {
                 (Step::Replay, _) => call,
+                (Step::Live, _) if !spans => call,
                 (Step::Live, next) => {
                     // The Orders log: inside the span of the pure step directly before an EFFECT.
                     let inner = match next {
@@ -3140,11 +3320,8 @@ fn build_with_refusals(
     .program()?;
     let checker = Checker::new(&program)?;
     checker.validate()?;
-    let spans = !program.effects.is_empty()
-        || program
-            .clauses
-            .iter()
-            .any(|c| matches!(c.body, Node::Pipe(..)));
+    // D6B-28: only an EFFECT pipe names spans.
+    let spans = !program.effects.is_empty();
     let service = match service {
         Some(name)
             if lower(name)
@@ -3983,5 +4160,31 @@ mod tests {
             );
         }
         assert!(compile("fn f x: String -> String ! Int = 5\n").is_ok());
+    }
+    #[test]
+    fn constructor_is_the_only_way_in() {
+        // DL-092, D6B-17, D6B-18: the literal only in its own constructor; a structural twin is no NonZeroInt.
+        let head = "type IsZero {}\ntype NonZeroInt { value: Int }\nfn NonZeroInt n: Int -> NonZeroInt ! IsZero\nfn NonZeroInt 0 -> NonZeroInt ! IsZero = IsZero {}\nfn NonZeroInt n -> NonZeroInt ! IsZero = NonZeroInt { value: n }\n";
+        assert!(
+            compile(&format!(
+                "{head}fn wrap n: Int -> NonZeroInt ! IsZero = n |> NonZeroInt\n"
+            ))
+            .is_ok()
+        );
+        let error = compile(&format!(
+            "{head}fn make n: Int -> NonZeroInt = NonZeroInt {{ value: n }}\n"
+        ));
+        assert!(
+            error
+                .unwrap_err()
+                .contains("is legal only in the clauses of the constructor fn NonZeroInt")
+        );
+        assert_eq!(
+            compile(&format!(
+                "{head}type Plain {{ value: Int }}\nfn same p: Plain -> NonZeroInt = p\n"
+            ))
+            .unwrap_err(),
+            "type mismatch: expected NonZeroInt, got Plain"
+        );
     }
 }

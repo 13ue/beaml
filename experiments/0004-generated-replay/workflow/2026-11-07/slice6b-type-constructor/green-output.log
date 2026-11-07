@@ -1,0 +1,506 @@
+# Slice 6b step 3 GREEN: commands and output (repository root, 2026-11-07)
+toolchain: cargo 1.94.0 (85eff7c80 2026-01-15), rustc 1.94.0 (4a4ef493e 2026-03-02), Elixir 1.18.1 (compiled with Erlang/OTP 27), Python 3.13.12
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py
+test_clause_annotation_differs_from_the_signature (__main__.Slice6Constructor.test_clause_annotation_differs_from_the_signature) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_clause_before_the_signature_line (__main__.Slice6Constructor.test_clause_before_the_signature_line) ... ok
+test_constructor_returns_another_type (__main__.Slice6Constructor.test_constructor_returns_another_type) ... ok
+test_constructor_type_as_effect_failure (__main__.Slice6Constructor.test_constructor_type_as_effect_failure) ... ok
+test_constructor_type_as_effect_input (__main__.Slice6Constructor.test_constructor_type_as_effect_input) ... ok
+test_constructor_type_as_effect_output (__main__.Slice6Constructor.test_constructor_type_as_effect_output) ... ok
+test_constructor_type_in_an_effect_output_field (__main__.Slice6Constructor.test_constructor_type_in_an_effect_output_field) ... ok
+test_effect_pipe_keeps_its_spans (__main__.Slice6Constructor.test_effect_pipe_keeps_its_spans) ... ok
+test_nested_literal_in_a_lowercase_fn (__main__.Slice6Constructor.test_nested_literal_in_a_lowercase_fn) ... ok
+test_nested_literal_in_another_constructor (__main__.Slice6Constructor.test_nested_literal_in_another_constructor) ... ok
+test_nominal_type_is_not_its_structural_twin (__main__.Slice6Constructor.test_nominal_type_is_not_its_structural_twin) ... ok
+test_nonzero_fixture_compiles_to_the_planned_shape (__main__.Slice6Constructor.test_nonzero_fixture_compiles_to_the_planned_shape) ... ok
+test_plain_fixture_compiles (__main__.Slice6Constructor.test_plain_fixture_compiles) ... ok
+test_pure_module_has_no_span (__main__.Slice6Constructor.test_pure_module_has_no_span) ... ok
+test_pure_pipe_beside_an_effect_has_no_span (__main__.Slice6Constructor.test_pure_pipe_beside_an_effect_has_no_span) ... ok
+test_record_literal_outside_the_constructor (__main__.Slice6Constructor.test_record_literal_outside_the_constructor) ... ok
+test_runtime_constructor_call_form (__main__.Slice6Constructor.test_runtime_constructor_call_form) ... ok
+test_runtime_nonzero (__main__.Slice6Constructor.test_runtime_nonzero) ... ok
+test_runtime_plain (__main__.Slice6Constructor.test_runtime_plain) ... ok
+test_runtime_pure_pipe_without_stub (__main__.Slice6Constructor.test_runtime_pure_pipe_without_stub) ... ok
+test_second_signature_line (__main__.Slice6Constructor.test_second_signature_line) ... ok
+test_structural_twin_at_the_failing_body (__main__.Slice6Constructor.test_structural_twin_at_the_failing_body) ... ok
+test_structural_twin_into_a_pipe_step (__main__.Slice6Constructor.test_structural_twin_into_a_pipe_step) ... ok
+test_structural_twin_is_not_the_nominal_type (__main__.Slice6Constructor.test_structural_twin_is_not_the_nominal_type) ... ok
+test_uppercase_fn_without_its_type (__main__.Slice6Constructor.test_uppercase_fn_without_its_type) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 4.751s
+
+OK
+exit 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py
+test_body_fixture_compiles_to_the_planned_shape (__main__.Slice6Failure.test_body_fixture_compiles_to_the_planned_shape) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_body_of_neither_type (__main__.Slice6Failure.test_body_of_neither_type) ... ok
+test_body_of_neither_type_record_failure (__main__.Slice6Failure.test_body_of_neither_type_record_failure) ... ok
+test_duplicate_failure_keeps_its_text (__main__.Slice6Failure.test_duplicate_failure_keeps_its_text) ... ok
+test_effect_beside_int_failure_compiles (__main__.Slice6Failure.test_effect_beside_int_failure_compiles) ... ok
+test_effect_overlap (__main__.Slice6Failure.test_effect_overlap) ... ok
+test_effect_structural_overlap (__main__.Slice6Failure.test_effect_structural_overlap) ... ok
+test_equal_record_failures_in_a_list (__main__.Slice6Failure.test_equal_record_failures_in_a_list) ... ok
+test_no_int_in_effect_failure (__main__.Slice6Failure.test_no_int_in_effect_failure) ... ok
+test_overlap_fixture_compiles (__main__.Slice6Failure.test_overlap_fixture_compiles) ... ok
+test_overlap_in_a_list (__main__.Slice6Failure.test_overlap_in_a_list) ... ok
+test_pipe_ends_in_neither_type (__main__.Slice6Failure.test_pipe_ends_in_neither_type) ... ok
+test_plan_source_with_int_failure_compiles (__main__.Slice6Failure.test_plan_source_with_int_failure_compiles) ... ok
+test_runtime_body (__main__.Slice6Failure.test_runtime_body) ... ok
+test_runtime_overlap (__main__.Slice6Failure.test_runtime_overlap) ... ok
+test_runtime_pipe_ends_in_record_failure (__main__.Slice6Failure.test_runtime_pipe_ends_in_record_failure) ... ok
+test_same_enum_both_sides (__main__.Slice6Failure.test_same_enum_both_sides) ... ok
+test_same_int_both_sides (__main__.Slice6Failure.test_same_int_both_sides) ... ok
+test_same_record_both_sides (__main__.Slice6Failure.test_same_record_both_sides) ... ok
+test_same_type_both_sides (__main__.Slice6Failure.test_same_type_both_sides) ... ok
+test_structural_records_overlap (__main__.Slice6Failure.test_structural_records_overlap) ... ok
+test_variant_is_no_failure_type (__main__.Slice6Failure.test_variant_is_no_failure_type) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 2.923s
+
+OK
+exit 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py
+test_equal_literals_are_unreachable (__main__.Slice6Int.test_equal_literals_are_unreachable) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_fixture_compiles_to_the_planned_shape (__main__.Slice6Int.test_fixture_compiles_to_the_planned_shape) ... ok
+test_int_body_for_string_output (__main__.Slice6Int.test_int_body_for_string_output) ... ok
+test_int_is_not_a_declared_type_name (__main__.Slice6Int.test_int_is_not_a_declared_type_name) ... ok
+test_int_literal_against_string_parameter (__main__.Slice6Int.test_int_literal_against_string_parameter) ... ok
+test_int_output_and_literal_expression_compile (__main__.Slice6Int.test_int_output_and_literal_expression_compile) ... ok
+test_is_integer_is_a_reserved_function_name (__main__.Slice6Int.test_is_integer_is_a_reserved_function_name) ... ok
+test_literal_after_catch_all_is_unreachable (__main__.Slice6Int.test_literal_after_catch_all_is_unreachable) ... ok
+test_literal_alone_is_non_exhaustive (__main__.Slice6Int.test_literal_alone_is_non_exhaustive) ... ok
+test_literal_clause_and_int_parameter_compile (__main__.Slice6Int.test_literal_clause_and_int_parameter_compile) ... ok
+test_no_int_in_effect_input (__main__.Slice6Int.test_no_int_in_effect_input) ... ok
+test_no_int_in_effect_output (__main__.Slice6Int.test_no_int_in_effect_output) ... ok
+test_no_negative_literal (__main__.Slice6Int.test_no_negative_literal) ... ok
+test_no_plus_on_int (__main__.Slice6Int.test_no_plus_on_int) ... ok
+test_runtime (__main__.Slice6Int.test_runtime) ... ok
+test_string_body_for_int_output (__main__.Slice6Int.test_string_body_for_int_output) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.031s
+
+OK
+exit 0
+
+$ cargo fmt --check --manifest-path experiments/0001-syntax-to-beam/Cargo.toml
+exit 0
+
+$ cargo clippy --offline --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.33s
+exit 0
+
+$ cargo test --offline --no-fail-fast
+   Compiling beaml-spike v0.1.0 (/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.77s
+     Running unittests src/main.rs (target/debug/deps/beaml_spike-00458143e2d49d37)
+
+running 15 tests
+test tests::checks_coverage_and_clause_order ... ok
+test tests::coverage_handles_multiple_arguments_and_empty_shapes ... ok
+test tests::interfaces_are_structural_and_exact ... ok
+test tests::int_literals_and_patterns ... ok
+test tests::constructor_is_the_only_way_in ... ok
+test tests::effect_input_has_no_int_also_nested ... ok
+test tests::rejects_unsupported_or_recursive_types ... ok
+test tests::rejects_wrong_return_type ... ok
+test tests::checks_calls_and_bindings ... ok
+test tests::checks_exact_construction_and_pattern_fields ... ok
+test tests::accepts_nested_partial_patterns ... ok
+test tests::success_and_failure_types_never_overlap ... ok
+test tests::coverage_agrees_with_a_four_value_truth_table ... ok
+--- orders.beaml
++++ orders.beaml
+@@ -6 +5,0 @@
+-retire payments.authorize keep 30 days
+--- orders.beaml
++++ orders.beaml
+@@ -2,2 +2 @@
+-type Payment { order_id: String state: String }
+-migrate Payment v1 -> v2 { rename status -> state }
++type Payment v2 { order_id: String state: String }
+test tests::removal_writes_nothing_when_the_recheck_fails ... ok
+test tests::removal_writes_nothing_when_the_newest_version_changes ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/cli.rs (target/debug/deps/cli-6ba597b100ad03d9)
+
+running 14 tests
+test orders_cli_rejects_field_not_in_type ... ok
+test orders_cli_rejects_unknown_pipe_step ... ok
+test orders_cli_rejects_pipe_type_mismatch ... ok
+test orders_cli_accepts_effect_pipe_place ... ok
+test payments_cli_output_stays_byte_identical ... ok
+test orders_cli_rejects_undeclared_pipe_failure ... ok
+test orders_cli_rejects_unsupported_effect_kind ... ok
+test orders_cli_effect_source_without_stored_is_rejected ... ok
+test orders_cli_emits_flow_effect_decode_and_replay ... ok
+test orders_cli_template_control_drift_r_decode_names_reference ... ok
+test orders_cli_parse_and_type_errors_come_before_stored_check ... ok
+test orders_cli_template_control_drift_n_decode_follows_field_rename ... ok
+test payments_cli_emits_checked_authorize_reference ... ok
+test invalid_source_emits_no_code_and_actions_do_not_capture_source ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+
+exit 0
+
+$ python3 -B experiments/0004-generated-replay/tests/stored_types_test.py
+test_C10_slice_1_source_compiles_with_v1 (__main__.Fixture.test_C10_slice_1_source_compiles_with_v1) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_C14_second_rename_chain_compiles_and_decode_reads_old_name (__main__.Fixture.test_C14_second_rename_chain_compiles_and_decode_reads_old_name) ... ok
+test_C15_second_rename_without_chain_is_compile_error (__main__.Fixture.test_C15_second_rename_without_chain_is_compile_error) ... ok
+test_C17_fingerprint_not_fields_decides_the_path (__main__.Fixture.test_C17_fingerprint_not_fields_decides_the_path) ... ok
+test_C18_help_line_names_stored_and_next_version (__main__.Fixture.test_C18_help_line_names_stored_and_next_version) ... ok
+test_C19_name_reuse_chain_compiles_with_v1_v4_and_all_versions (__main__.Fixture.test_C19_name_reuse_chain_compiles_with_v1_v4_and_all_versions) ... ok
+test_C1_rename_without_chain_is_compile_error (__main__.Fixture.test_C1_rename_without_chain_is_compile_error) ... ok
+test_C1b_bad_type_version_after_a_good_one_is_compile_error (__main__.Fixture.test_C1b_bad_type_version_after_a_good_one_is_compile_error) ... ok
+test_C20_rotation_chain_compiles_with_v1_v4_and_all_versions (__main__.Fixture.test_C20_rotation_chain_compiles_with_v1_v4_and_all_versions) ... ok
+test_C2_chain_compiles_and_decode_reads_old_name (__main__.Fixture.test_C2_chain_compiles_and_decode_reads_old_name) ... ok
+test_C3_chain_compiles_with_two_stored_versions (__main__.Fixture.test_C3_chain_compiles_with_two_stored_versions) ... ok
+test_C4_rename_of_unknown_old_field_is_compile_error (__main__.Fixture.test_C4_rename_of_unknown_old_field_is_compile_error) ... ok
+test_C5_added_field_without_step_is_compile_error (__main__.Fixture.test_C5_added_field_without_step_is_compile_error) ... ok
+test_C6_same_source_with_empty_snapshot_compiles (__main__.Fixture.test_C6_same_source_with_empty_snapshot_compiles) ... ok
+test_C7_record_without_type_version_is_compile_error (__main__.Fixture.test_C7_record_without_type_version_is_compile_error) ... ok
+test_C8_effect_source_without_stored_input_is_compile_error (__main__.Fixture.test_C8_effect_source_without_stored_input_is_compile_error) ... ok
+test_fixtures_match_the_template_rule (__main__.Fixture.test_fixtures_match_the_template_rule) ... ok
+test_C10_slice_1_source_compiles_with_v1 (__main__.Template.test_C10_slice_1_source_compiles_with_v1) ... ok
+test_C14_second_rename_chain_compiles_and_decode_reads_old_name (__main__.Template.test_C14_second_rename_chain_compiles_and_decode_reads_old_name) ... ok
+test_C15_second_rename_without_chain_is_compile_error (__main__.Template.test_C15_second_rename_without_chain_is_compile_error) ... ok
+test_C17_fingerprint_not_fields_decides_the_path (__main__.Template.test_C17_fingerprint_not_fields_decides_the_path) ... ok
+test_C18_help_line_names_stored_and_next_version (__main__.Template.test_C18_help_line_names_stored_and_next_version) ... ok
+test_C19_name_reuse_chain_compiles_with_v1_v4_and_all_versions (__main__.Template.test_C19_name_reuse_chain_compiles_with_v1_v4_and_all_versions) ... ok
+test_C1_rename_without_chain_is_compile_error (__main__.Template.test_C1_rename_without_chain_is_compile_error) ... ok
+test_C1b_bad_type_version_after_a_good_one_is_compile_error (__main__.Template.test_C1b_bad_type_version_after_a_good_one_is_compile_error) ... ok
+test_C20_rotation_chain_compiles_with_v1_v4_and_all_versions (__main__.Template.test_C20_rotation_chain_compiles_with_v1_v4_and_all_versions) ... ok
+test_C2_chain_compiles_and_decode_reads_old_name (__main__.Template.test_C2_chain_compiles_and_decode_reads_old_name) ... ok
+test_C3_chain_compiles_with_two_stored_versions (__main__.Template.test_C3_chain_compiles_with_two_stored_versions) ... ok
+test_C4_rename_of_unknown_old_field_is_compile_error (__main__.Template.test_C4_rename_of_unknown_old_field_is_compile_error) ... ok
+test_C5_added_field_without_step_is_compile_error (__main__.Template.test_C5_added_field_without_step_is_compile_error) ... ok
+test_C6_same_source_with_empty_snapshot_compiles (__main__.Template.test_C6_same_source_with_empty_snapshot_compiles) ... ok
+test_C7_record_without_type_version_is_compile_error (__main__.Template.test_C7_record_without_type_version_is_compile_error) ... ok
+test_C8_effect_source_without_stored_input_is_compile_error (__main__.Template.test_C8_effect_source_without_stored_input_is_compile_error) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.953s
+
+OK
+exit 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice3_types_test.py
+test_D11_build_mixed_chain_with_versions_1_2_3 (__main__.Fixture.test_D11_build_mixed_chain_with_versions_1_2_3) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_D11c_build_rename_chain_reusing_the_renamed_name (__main__.Fixture.test_D11c_build_rename_chain_reusing_the_renamed_name) ... ok
+test_D12_add_of_field_not_in_next_version_is_K1 (__main__.Fixture.test_D12_add_of_field_not_in_next_version_is_K1) ... ok
+test_D13_version_2_record_without_added_field_has_no_path (__main__.Fixture.test_D13_version_2_record_without_added_field_has_no_path) ... ok
+test_D14_build_drop_then_add_chain_with_v1 (__main__.Fixture.test_D14_build_drop_then_add_chain_with_v1) ... ok
+test_D14_build_drop_then_add_chain_with_versions_1_and_3 (__main__.Fixture.test_D14_build_drop_then_add_chain_with_versions_1_and_3) ... ok
+test_D15_add_of_field_that_old_records_hold_has_no_path (__main__.Fixture.test_D15_add_of_field_that_old_records_hold_has_no_path) ... ok
+test_D15b_same_source_with_empty_snapshot_compiles (__main__.Fixture.test_D15b_same_source_with_empty_snapshot_compiles) ... ok
+test_D17_build_drop_add_rename_chain_with_versions_1_2_3 (__main__.Fixture.test_D17_build_drop_add_rename_chain_with_versions_1_2_3) ... ok
+test_D18_build_rename_then_drop_chain_with_versions_1_2 (__main__.Fixture.test_D18_build_rename_then_drop_chain_with_versions_1_2) ... ok
+test_D1_build_add_chain_with_v1 (__main__.Fixture.test_D1_build_add_chain_with_v1) ... ok
+test_D2_added_field_without_add_is_compile_error (__main__.Fixture.test_D2_added_field_without_add_is_compile_error) ... ok
+test_D2b_two_added_fields_help_line_sorted_by_name (__main__.Fixture.test_D2b_two_added_fields_help_line_sorted_by_name) ... ok
+test_D2c_two_removed_one_added_field_help_line_drops_then_adds (__main__.Fixture.test_D2c_two_removed_one_added_field_help_line_drops_then_adds) ... ok
+test_D3_added_field_with_empty_snapshot_compiles (__main__.Fixture.test_D3_added_field_with_empty_snapshot_compiles) ... ok
+test_D4_build_drop_chain_with_v1 (__main__.Fixture.test_D4_build_drop_chain_with_v1) ... ok
+test_D5_removed_field_without_drop_is_compile_error (__main__.Fixture.test_D5_removed_field_without_drop_is_compile_error) ... ok
+test_D5b_one_removed_one_added_field_gives_rename_and_drop_add_help (__main__.Fixture.test_D5b_one_removed_one_added_field_gives_rename_and_drop_add_help) ... ok
+test_D5c_removed_field_of_other_type_has_no_drop_form (__main__.Fixture.test_D5c_removed_field_of_other_type_has_no_drop_form) ... ok
+test_D6_removed_field_with_empty_snapshot_compiles (__main__.Fixture.test_D6_removed_field_with_empty_snapshot_compiles) ... ok
+test_D7_drop_of_other_type_is_compile_error (__main__.Fixture.test_D7_drop_of_other_type_is_compile_error) ... ok
+test_D7b_drop_of_other_type_fails_also_with_empty_snapshot (__main__.Fixture.test_D7b_drop_of_other_type_fails_also_with_empty_snapshot) ... ok
+test_K01_add_of_field_not_in_next_version (__main__.Fixture.test_K01_add_of_field_not_in_next_version) ... ok
+test_K02_add_with_other_type_than_the_field (__main__.Fixture.test_K02_add_with_other_type_than_the_field) ... ok
+test_K03_add_constant_not_a_string_literal (__main__.Fixture.test_K03_add_constant_not_a_string_literal) ... ok
+test_K04_add_of_field_with_type_other_than_string (__main__.Fixture.test_K04_add_of_field_with_type_other_than_string) ... ok
+test_K05_drop_of_field_still_in_next_version (__main__.Fixture.test_K05_drop_of_field_still_in_next_version) ... ok
+test_K06_drop_of_type_other_than_string (__main__.Fixture.test_K06_drop_of_type_other_than_string) ... ok
+test_K07_field_two_times_in_one_step (__main__.Fixture.test_K07_field_two_times_in_one_step) ... ok
+test_K08_empty_step (__main__.Fixture.test_K08_empty_step) ... ok
+test_K09_missing_comma (__main__.Fixture.test_K09_missing_comma) ... ok
+test_K10_trailing_comma (__main__.Fixture.test_K10_trailing_comma) ... ok
+test_K11_add_without_constant (__main__.Fixture.test_K11_add_without_constant) ... ok
+test_K12_computed_assignment (__main__.Fixture.test_K12_computed_assignment) ... ok
+test_fixtures_match_the_template_rule (__main__.Fixture.test_fixtures_match_the_template_rule) ... ok
+test_D11_build_mixed_chain_with_versions_1_2_3 (__main__.Template.test_D11_build_mixed_chain_with_versions_1_2_3) ... ok
+test_D11c_build_rename_chain_reusing_the_renamed_name (__main__.Template.test_D11c_build_rename_chain_reusing_the_renamed_name) ... ok
+test_D12_add_of_field_not_in_next_version_is_K1 (__main__.Template.test_D12_add_of_field_not_in_next_version_is_K1) ... ok
+test_D13_version_2_record_without_added_field_has_no_path (__main__.Template.test_D13_version_2_record_without_added_field_has_no_path) ... ok
+test_D14_build_drop_then_add_chain_with_v1 (__main__.Template.test_D14_build_drop_then_add_chain_with_v1) ... ok
+test_D14_build_drop_then_add_chain_with_versions_1_and_3 (__main__.Template.test_D14_build_drop_then_add_chain_with_versions_1_and_3) ... ok
+test_D15_add_of_field_that_old_records_hold_has_no_path (__main__.Template.test_D15_add_of_field_that_old_records_hold_has_no_path) ... ok
+test_D15b_same_source_with_empty_snapshot_compiles (__main__.Template.test_D15b_same_source_with_empty_snapshot_compiles) ... ok
+test_D17_build_drop_add_rename_chain_with_versions_1_2_3 (__main__.Template.test_D17_build_drop_add_rename_chain_with_versions_1_2_3) ... ok
+test_D18_build_rename_then_drop_chain_with_versions_1_2 (__main__.Template.test_D18_build_rename_then_drop_chain_with_versions_1_2) ... ok
+test_D1_build_add_chain_with_v1 (__main__.Template.test_D1_build_add_chain_with_v1) ... ok
+test_D2_added_field_without_add_is_compile_error (__main__.Template.test_D2_added_field_without_add_is_compile_error) ... ok
+test_D2b_two_added_fields_help_line_sorted_by_name (__main__.Template.test_D2b_two_added_fields_help_line_sorted_by_name) ... ok
+test_D2c_two_removed_one_added_field_help_line_drops_then_adds (__main__.Template.test_D2c_two_removed_one_added_field_help_line_drops_then_adds) ... ok
+test_D3_added_field_with_empty_snapshot_compiles (__main__.Template.test_D3_added_field_with_empty_snapshot_compiles) ... ok
+test_D4_build_drop_chain_with_v1 (__main__.Template.test_D4_build_drop_chain_with_v1) ... ok
+test_D5_removed_field_without_drop_is_compile_error (__main__.Template.test_D5_removed_field_without_drop_is_compile_error) ... ok
+test_D5b_one_removed_one_added_field_gives_rename_and_drop_add_help (__main__.Template.test_D5b_one_removed_one_added_field_gives_rename_and_drop_add_help) ... ok
+test_D5c_removed_field_of_other_type_has_no_drop_form (__main__.Template.test_D5c_removed_field_of_other_type_has_no_drop_form) ... ok
+test_D6_removed_field_with_empty_snapshot_compiles (__main__.Template.test_D6_removed_field_with_empty_snapshot_compiles) ... ok
+test_D7_drop_of_other_type_is_compile_error (__main__.Template.test_D7_drop_of_other_type_is_compile_error) ... ok
+test_D7b_drop_of_other_type_fails_also_with_empty_snapshot (__main__.Template.test_D7b_drop_of_other_type_fails_also_with_empty_snapshot) ... ok
+test_K01_add_of_field_not_in_next_version (__main__.Template.test_K01_add_of_field_not_in_next_version) ... ok
+test_K02_add_with_other_type_than_the_field (__main__.Template.test_K02_add_with_other_type_than_the_field) ... ok
+test_K03_add_constant_not_a_string_literal (__main__.Template.test_K03_add_constant_not_a_string_literal) ... ok
+test_K04_add_of_field_with_type_other_than_string (__main__.Template.test_K04_add_of_field_with_type_other_than_string) ... ok
+test_K05_drop_of_field_still_in_next_version (__main__.Template.test_K05_drop_of_field_still_in_next_version) ... ok
+test_K06_drop_of_type_other_than_string (__main__.Template.test_K06_drop_of_type_other_than_string) ... ok
+test_K07_field_two_times_in_one_step (__main__.Template.test_K07_field_two_times_in_one_step) ... ok
+test_K08_empty_step (__main__.Template.test_K08_empty_step) ... ok
+test_K09_missing_comma (__main__.Template.test_K09_missing_comma) ... ok
+test_K10_trailing_comma (__main__.Template.test_K10_trailing_comma) ... ok
+test_K11_add_without_constant (__main__.Template.test_K11_add_without_constant) ... ok
+test_K12_computed_assignment (__main__.Template.test_K12_computed_assignment) ... ok
+
+----------------------------------------------------------------------
+Ran 69 tests in 0.773s
+
+OK
+exit 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice4_retire_test.py
+test_E01_deleted_effect_with_stored_record_is_compile_error (__main__.Fixture.test_E01_deleted_effect_with_stored_record_is_compile_error) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_E01b_source_without_any_effect_gives_the_same_error (__main__.Fixture.test_E01b_source_without_any_effect_gives_the_same_error) ... ok
+test_E01c_same_source_with_empty_snapshot_compiles (__main__.Fixture.test_E01c_same_source_with_empty_snapshot_compiles) ... ok
+test_E01d_two_records_of_the_operation_are_counted_in_one_message (__main__.Fixture.test_E01d_two_records_of_the_operation_are_counted_in_one_message) ... ok
+test_E02_retire_line_makes_the_build_pass (__main__.Fixture.test_E02_retire_line_makes_the_build_pass) ... ok
+test_E05_retired_and_live_records_together_compile (__main__.Fixture.test_E05_retired_and_live_records_together_compile) ... ok
+test_E05b_live_record_without_path_still_fails_beside_a_retire_line (__main__.Fixture.test_E05b_live_record_without_path_still_fails_beside_a_retire_line) ... ok
+test_E05c_retired_record_of_a_type_in_no_source_is_not_path_checked (__main__.Fixture.test_E05c_retired_record_of_a_type_in_no_source_is_not_path_checked) ... ok
+test_E05d_retired_record_without_type_version_is_compile_error (__main__.Fixture.test_E05d_retired_record_without_type_version_is_compile_error) ... ok
+test_E06_retire_line_for_a_declared_effect_is_compile_error (__main__.Fixture.test_E06_retire_line_for_a_declared_effect_is_compile_error) ... ok
+test_E06b_the_same_error_with_an_empty_snapshot (__main__.Fixture.test_E06b_the_same_error_with_an_empty_snapshot) ... ok
+test_E08_retire_line_faults_T2_to_T7 (__main__.Fixture.test_E08_retire_line_faults_T2_to_T7) ... ok
+test_E09_retire_line_without_records_is_one_W1_warning (__main__.Fixture.test_E09_retire_line_without_records_is_one_W1_warning) ... ok
+test_E09b_retire_line_with_records_has_no_warning (__main__.Fixture.test_E09b_retire_line_with_records_has_no_warning) ... ok
+test_E09c_records_of_the_live_operation_only_give_one_W1_warning (__main__.Fixture.test_E09c_records_of_the_live_operation_only_give_one_W1_warning) ... ok
+test_E10b_retire_line_without_stored_input_is_compile_error (__main__.Fixture.test_E10b_retire_line_without_stored_input_is_compile_error) ... ok
+test_E10c_source_without_effect_and_retire_line_needs_no_stored_input (__main__.Fixture.test_E10c_source_without_effect_and_retire_line_needs_no_stored_input) ... ok
+test_E11_records_of_version_1_need_every_step (__main__.Fixture.test_E11_records_of_version_1_need_every_step) ... ok
+test_E11b_records_of_version_2_give_one_W2_warning (__main__.Fixture.test_E11b_records_of_version_2_give_one_W2_warning) ... ok
+test_E11c_oldest_record_last_in_the_snapshot_keeps_every_step (__main__.Fixture.test_E11c_oldest_record_last_in_the_snapshot_keeps_every_step) ... ok
+test_E11d_versions_3_and_2_give_one_W2_warning (__main__.Fixture.test_E11d_versions_3_and_2_give_one_W2_warning) ... ok
+test_E12_records_of_version_3_give_two_W2_warnings_in_source_order (__main__.Fixture.test_E12_records_of_version_3_give_two_W2_warnings_in_source_order) ... ok
+test_E12b_empty_snapshot_gives_three_W2_warnings (__main__.Fixture.test_E12b_empty_snapshot_gives_three_W2_warnings) ... ok
+test_E12c_newest_version_only_gives_three_W2_warnings (__main__.Fixture.test_E12c_newest_version_only_gives_three_W2_warnings) ... ok
+test_E13_last_step_is_dead_when_only_its_target_version_is_stored (__main__.Fixture.test_E13_last_step_is_dead_when_only_its_target_version_is_stored) ... ok
+test_E14_retired_records_do_not_keep_a_step_alive (__main__.Fixture.test_E14_retired_records_do_not_keep_a_step_alive) ... ok
+test_E15_removal_removes_exactly_the_dead_steps (__main__.Fixture.test_E15_removal_removes_exactly_the_dead_steps) ... ok
+test_E15c_removal_of_W1_and_W2_together (__main__.Fixture.test_E15c_removal_of_W1_and_W2_together) ... ok
+test_E15d_removal_keeps_CRLF_line_ends (__main__.Fixture.test_E15d_removal_keeps_CRLF_line_ends) ... ok
+test_E16_second_removal_changes_nothing (__main__.Fixture.test_E16_second_removal_changes_nothing) ... ok
+test_E17_control_shortened_chain_with_version_3_records_compiles (__main__.Fixture.test_E17_control_shortened_chain_with_version_3_records_compiles) ... ok
+test_E17_removed_step_needed_again_blocks_the_build (__main__.Fixture.test_E17_removed_step_needed_again_blocks_the_build) ... ok
+test_E18_removed_retire_line_blocks_again_with_records (__main__.Fixture.test_E18_removed_retire_line_blocks_again_with_records) ... ok
+test_E19_removal_on_a_build_error_writes_nothing (__main__.Fixture.test_E19_removal_on_a_build_error_writes_nothing) ... ok
+test_E19b_dead_step_sharing_a_line_with_other_text_is_not_removed (__main__.Fixture.test_E19b_dead_step_sharing_a_line_with_other_text_is_not_removed) ... ok
+test_E19c_removal_without_stored_or_in_other_order_is_a_usage_error (__main__.Fixture.test_E19c_removal_without_stored_or_in_other_order_is_a_usage_error) ... ok
+test_E21_empty_snapshot_refuses_dead_migrate_steps (__main__.Fixture.test_E21_empty_snapshot_refuses_dead_migrate_steps) ... ok
+test_E21b_retired_records_only_refuse_dead_migrate_steps (__main__.Fixture.test_E21b_retired_records_only_refuse_dead_migrate_steps) ... ok
+test_E21c_empty_snapshot_refuses_a_dead_retire_line (__main__.Fixture.test_E21c_empty_snapshot_refuses_a_dead_retire_line) ... ok
+test_E21d_assume_complete_removes_with_an_empty_snapshot (__main__.Fixture.test_E21d_assume_complete_removes_with_an_empty_snapshot) ... ok
+test_E21e_assume_complete_without_or_before_remove_dead_is_a_usage_error (__main__.Fixture.test_E21e_assume_complete_without_or_before_remove_dead_is_a_usage_error) ... ok
+test_E22_removal_through_a_symlink_edits_the_target_and_keeps_the_link (__main__.Fixture.test_E22_removal_through_a_symlink_edits_the_target_and_keeps_the_link) ... ok
+test_E22b_read_only_source_is_refused (__main__.Fixture.test_E22b_read_only_source_is_refused) ... ok
+test_fixtures_equal_the_template_byte_for_byte (__main__.Fixture.test_fixtures_equal_the_template_byte_for_byte) ... ok
+test_E01_deleted_effect_with_stored_record_is_compile_error (__main__.Template.test_E01_deleted_effect_with_stored_record_is_compile_error) ... ok
+test_E01b_source_without_any_effect_gives_the_same_error (__main__.Template.test_E01b_source_without_any_effect_gives_the_same_error) ... ok
+test_E01c_same_source_with_empty_snapshot_compiles (__main__.Template.test_E01c_same_source_with_empty_snapshot_compiles) ... ok
+test_E01d_two_records_of_the_operation_are_counted_in_one_message (__main__.Template.test_E01d_two_records_of_the_operation_are_counted_in_one_message) ... ok
+test_E02_retire_line_makes_the_build_pass (__main__.Template.test_E02_retire_line_makes_the_build_pass) ... ok
+test_E05_retired_and_live_records_together_compile (__main__.Template.test_E05_retired_and_live_records_together_compile) ... ok
+test_E05b_live_record_without_path_still_fails_beside_a_retire_line (__main__.Template.test_E05b_live_record_without_path_still_fails_beside_a_retire_line) ... ok
+test_E05c_retired_record_of_a_type_in_no_source_is_not_path_checked (__main__.Template.test_E05c_retired_record_of_a_type_in_no_source_is_not_path_checked) ... ok
+test_E05d_retired_record_without_type_version_is_compile_error (__main__.Template.test_E05d_retired_record_without_type_version_is_compile_error) ... ok
+test_E06_retire_line_for_a_declared_effect_is_compile_error (__main__.Template.test_E06_retire_line_for_a_declared_effect_is_compile_error) ... ok
+test_E06b_the_same_error_with_an_empty_snapshot (__main__.Template.test_E06b_the_same_error_with_an_empty_snapshot) ... ok
+test_E08_retire_line_faults_T2_to_T7 (__main__.Template.test_E08_retire_line_faults_T2_to_T7) ... ok
+test_E09_retire_line_without_records_is_one_W1_warning (__main__.Template.test_E09_retire_line_without_records_is_one_W1_warning) ... ok
+test_E09b_retire_line_with_records_has_no_warning (__main__.Template.test_E09b_retire_line_with_records_has_no_warning) ... ok
+test_E09c_records_of_the_live_operation_only_give_one_W1_warning (__main__.Template.test_E09c_records_of_the_live_operation_only_give_one_W1_warning) ... ok
+test_E10b_retire_line_without_stored_input_is_compile_error (__main__.Template.test_E10b_retire_line_without_stored_input_is_compile_error) ... ok
+test_E10c_source_without_effect_and_retire_line_needs_no_stored_input (__main__.Template.test_E10c_source_without_effect_and_retire_line_needs_no_stored_input) ... ok
+test_E11_records_of_version_1_need_every_step (__main__.Template.test_E11_records_of_version_1_need_every_step) ... ok
+test_E11b_records_of_version_2_give_one_W2_warning (__main__.Template.test_E11b_records_of_version_2_give_one_W2_warning) ... ok
+test_E11c_oldest_record_last_in_the_snapshot_keeps_every_step (__main__.Template.test_E11c_oldest_record_last_in_the_snapshot_keeps_every_step) ... ok
+test_E11d_versions_3_and_2_give_one_W2_warning (__main__.Template.test_E11d_versions_3_and_2_give_one_W2_warning) ... ok
+test_E12_records_of_version_3_give_two_W2_warnings_in_source_order (__main__.Template.test_E12_records_of_version_3_give_two_W2_warnings_in_source_order) ... ok
+test_E12b_empty_snapshot_gives_three_W2_warnings (__main__.Template.test_E12b_empty_snapshot_gives_three_W2_warnings) ... ok
+test_E12c_newest_version_only_gives_three_W2_warnings (__main__.Template.test_E12c_newest_version_only_gives_three_W2_warnings) ... ok
+test_E13_last_step_is_dead_when_only_its_target_version_is_stored (__main__.Template.test_E13_last_step_is_dead_when_only_its_target_version_is_stored) ... ok
+test_E14_retired_records_do_not_keep_a_step_alive (__main__.Template.test_E14_retired_records_do_not_keep_a_step_alive) ... ok
+test_E15_removal_removes_exactly_the_dead_steps (__main__.Template.test_E15_removal_removes_exactly_the_dead_steps) ... ok
+test_E15c_removal_of_W1_and_W2_together (__main__.Template.test_E15c_removal_of_W1_and_W2_together) ... ok
+test_E15d_removal_keeps_CRLF_line_ends (__main__.Template.test_E15d_removal_keeps_CRLF_line_ends) ... ok
+test_E16_second_removal_changes_nothing (__main__.Template.test_E16_second_removal_changes_nothing) ... ok
+test_E17_control_shortened_chain_with_version_3_records_compiles (__main__.Template.test_E17_control_shortened_chain_with_version_3_records_compiles) ... ok
+test_E17_removed_step_needed_again_blocks_the_build (__main__.Template.test_E17_removed_step_needed_again_blocks_the_build) ... ok
+test_E18_removed_retire_line_blocks_again_with_records (__main__.Template.test_E18_removed_retire_line_blocks_again_with_records) ... ok
+test_E19_removal_on_a_build_error_writes_nothing (__main__.Template.test_E19_removal_on_a_build_error_writes_nothing) ... ok
+test_E19b_dead_step_sharing_a_line_with_other_text_is_not_removed (__main__.Template.test_E19b_dead_step_sharing_a_line_with_other_text_is_not_removed) ... ok
+test_E19c_removal_without_stored_or_in_other_order_is_a_usage_error (__main__.Template.test_E19c_removal_without_stored_or_in_other_order_is_a_usage_error) ... ok
+test_E21_empty_snapshot_refuses_dead_migrate_steps (__main__.Template.test_E21_empty_snapshot_refuses_dead_migrate_steps) ... ok
+test_E21b_retired_records_only_refuse_dead_migrate_steps (__main__.Template.test_E21b_retired_records_only_refuse_dead_migrate_steps) ... ok
+test_E21c_empty_snapshot_refuses_a_dead_retire_line (__main__.Template.test_E21c_empty_snapshot_refuses_a_dead_retire_line) ... ok
+test_E21d_assume_complete_removes_with_an_empty_snapshot (__main__.Template.test_E21d_assume_complete_removes_with_an_empty_snapshot) ... ok
+test_E21e_assume_complete_without_or_before_remove_dead_is_a_usage_error (__main__.Template.test_E21e_assume_complete_without_or_before_remove_dead_is_a_usage_error) ... ok
+test_E22_removal_through_a_symlink_edits_the_target_and_keeps_the_link (__main__.Template.test_E22_removal_through_a_symlink_edits_the_target_and_keeps_the_link) ... ok
+test_E22b_read_only_source_is_refused (__main__.Template.test_E22b_read_only_source_is_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 87 tests in 1.515s
+
+OK
+exit 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice5_syntax_test.py
+test_F01_B5_builds_and_equals_the_base_output (__main__.Fixture.test_F01_B5_builds_and_equals_the_base_output) ... base compiler: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-base-fa36015r/target/debug/beaml-spike
+compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_F02_fallback_error_names_every_declaration_word (__main__.Fixture.test_F02_fallback_error_names_every_declaration_word) ... ok
+test_F02_interface_is_an_error_with_a_help_line_at_each_position (__main__.Fixture.test_F02_interface_is_an_error_with_a_help_line_at_each_position) ... ok
+test_F03_plain_numbers_in_migrate_are_an_error (__main__.Fixture.test_F03_plain_numbers_in_migrate_are_an_error) ... ok
+test_F03b_mixed_numbers_name_v2 (__main__.Fixture.test_F03b_mixed_numbers_name_v2) ... ok
+test_F03b_plain_number_on_the_type_line_is_an_error (__main__.Fixture.test_F03b_plain_number_on_the_type_line_is_an_error) ... ok
+test_F03c_control_v_numbers_build (__main__.Fixture.test_F03c_control_v_numbers_build) ... ok
+test_F04_version_faults_on_the_type_line_and_in_migrate (__main__.Fixture.test_F04_version_faults_on_the_type_line_and_in_migrate) ... ok
+test_F05_fields_named_like_versions_stay_fields (__main__.Fixture.test_F05_fields_named_like_versions_stay_fields) ... ok
+test_F06_control_the_same_chain_with_another_mark_is_M1 (__main__.Fixture.test_F06_control_the_same_chain_with_another_mark_is_M1) ... ok
+test_F06_mark_beside_a_chain_from_v1_builds (__main__.Fixture.test_F06_mark_beside_a_chain_from_v1_builds) ... ok
+test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning (__main__.Fixture.test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning) ... ok
+test_F08_mark_below_the_chain_end_is_M1 (__main__.Fixture.test_F08_mark_below_the_chain_end_is_M1) ... ok
+test_F08b_mark_above_the_chain_end_is_M1 (__main__.Fixture.test_F08b_mark_above_the_chain_end_is_M1) ... ok
+test_F08c_chain_with_a_gap_is_an_error (__main__.Fixture.test_F08c_chain_with_a_gap_is_an_error) ... ok
+test_F09_M3_builds_and_writes_its_mark_as_the_version (__main__.Fixture.test_F09_M3_builds_and_writes_its_mark_as_the_version) ... ok
+test_F10_M3_with_older_records_names_the_missing_steps (__main__.Fixture.test_F10_M3_with_older_records_names_the_missing_steps) ... ok
+test_F11_M3_with_records_of_its_mark_builds_without_warning (__main__.Fixture.test_F11_M3_with_records_of_its_mark_builds_without_warning) ... ok
+test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark (__main__.Fixture.test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark) ... ok
+test_F12_control_the_same_record_against_a_higher_mark_builds (__main__.Fixture.test_F12_control_the_same_record_against_a_higher_mark_builds) ... ok
+test_F12_record_newer_than_the_mark_is_N1 (__main__.Fixture.test_F12_record_newer_than_the_mark_is_N1) ... ok
+test_F12b_lowered_mark_without_chain_is_N1 (__main__.Fixture.test_F12b_lowered_mark_without_chain_is_N1) ... ok
+test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1 (__main__.Fixture.test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1) ... ok
+test_F12d_record_of_another_name_newer_than_the_mark_is_N1 (__main__.Fixture.test_F12d_record_of_another_name_newer_than_the_mark_is_N1) ... ok
+test_F13_control_a_v2_record_against_mark_v1_is_N1 (__main__.Fixture.test_F13_control_a_v2_record_against_mark_v1_is_N1) ... ok
+test_F13_mark_v1_without_chain_builds (__main__.Fixture.test_F13_mark_v1_without_chain_builds) ... ok
+test_F14_chain_above_v1_without_mark_builds (__main__.Fixture.test_F14_chain_above_v1_without_mark_builds) ... ok
+test_F15_largest_version_has_no_newer_version_and_no_panic (__main__.Fixture.test_F15_largest_version_has_no_newer_version_and_no_panic) ... ok
+test_fixtures_equal_the_template_byte_for_byte (__main__.Fixture.test_fixtures_equal_the_template_byte_for_byte) ... ok
+test_A2_rewritten_sources_build_like_the_base (__main__.Rewrite.test_A2_rewritten_sources_build_like_the_base) ... ok
+test_A3_stored_fixtures_are_unchanged (__main__.Rewrite.test_A3_stored_fixtures_are_unchanged) ... ok
+test_P1_payments_snapshot_differs_in_one_offset_line_and_matches_the_build (__main__.Rewrite.test_P1_payments_snapshot_differs_in_one_offset_line_and_matches_the_build) ... ok
+test_F01_B5_builds_and_equals_the_base_output (__main__.Template.test_F01_B5_builds_and_equals_the_base_output) ... ok
+test_F02_fallback_error_names_every_declaration_word (__main__.Template.test_F02_fallback_error_names_every_declaration_word) ... ok
+test_F02_interface_is_an_error_with_a_help_line_at_each_position (__main__.Template.test_F02_interface_is_an_error_with_a_help_line_at_each_position) ... ok
+test_F03_plain_numbers_in_migrate_are_an_error (__main__.Template.test_F03_plain_numbers_in_migrate_are_an_error) ... ok
+test_F03b_mixed_numbers_name_v2 (__main__.Template.test_F03b_mixed_numbers_name_v2) ... ok
+test_F03b_plain_number_on_the_type_line_is_an_error (__main__.Template.test_F03b_plain_number_on_the_type_line_is_an_error) ... ok
+test_F03c_control_v_numbers_build (__main__.Template.test_F03c_control_v_numbers_build) ... ok
+test_F04_version_faults_on_the_type_line_and_in_migrate (__main__.Template.test_F04_version_faults_on_the_type_line_and_in_migrate) ... ok
+test_F05_fields_named_like_versions_stay_fields (__main__.Template.test_F05_fields_named_like_versions_stay_fields) ... ok
+test_F06_control_the_same_chain_with_another_mark_is_M1 (__main__.Template.test_F06_control_the_same_chain_with_another_mark_is_M1) ... ok
+test_F06_mark_beside_a_chain_from_v1_builds (__main__.Template.test_F06_mark_beside_a_chain_from_v1_builds) ... ok
+test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning (__main__.Template.test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning) ... ok
+test_F08_mark_below_the_chain_end_is_M1 (__main__.Template.test_F08_mark_below_the_chain_end_is_M1) ... ok
+test_F08b_mark_above_the_chain_end_is_M1 (__main__.Template.test_F08b_mark_above_the_chain_end_is_M1) ... ok
+test_F08c_chain_with_a_gap_is_an_error (__main__.Template.test_F08c_chain_with_a_gap_is_an_error) ... ok
+test_F09_M3_builds_and_writes_its_mark_as_the_version (__main__.Template.test_F09_M3_builds_and_writes_its_mark_as_the_version) ... ok
+test_F10_M3_with_older_records_names_the_missing_steps (__main__.Template.test_F10_M3_with_older_records_names_the_missing_steps) ... ok
+test_F11_M3_with_records_of_its_mark_builds_without_warning (__main__.Template.test_F11_M3_with_records_of_its_mark_builds_without_warning) ... ok
+test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark (__main__.Template.test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark) ... ok
+test_F12_control_the_same_record_against_a_higher_mark_builds (__main__.Template.test_F12_control_the_same_record_against_a_higher_mark_builds) ... ok
+test_F12_record_newer_than_the_mark_is_N1 (__main__.Template.test_F12_record_newer_than_the_mark_is_N1) ... ok
+test_F12b_lowered_mark_without_chain_is_N1 (__main__.Template.test_F12b_lowered_mark_without_chain_is_N1) ... ok
+test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1 (__main__.Template.test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1) ... ok
+test_F12d_record_of_another_name_newer_than_the_mark_is_N1 (__main__.Template.test_F12d_record_of_another_name_newer_than_the_mark_is_N1) ... ok
+test_F13_control_a_v2_record_against_mark_v1_is_N1 (__main__.Template.test_F13_control_a_v2_record_against_mark_v1_is_N1) ... ok
+test_F13_mark_v1_without_chain_builds (__main__.Template.test_F13_mark_v1_without_chain_builds) ... ok
+test_F14_chain_above_v1_without_mark_builds (__main__.Template.test_F14_chain_above_v1_without_mark_builds) ... ok
+test_F15_largest_version_has_no_newer_version_and_no_panic (__main__.Template.test_F15_largest_version_has_no_newer_version_and_no_panic) ... ok
+
+----------------------------------------------------------------------
+Ran 60 tests in 4.096s
+
+OK
+exit 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice5_squash_test.py
+test_F20_squash_removes_two_steps_and_writes_the_mark (__main__.Fixture.test_F20_squash_removes_two_steps_and_writes_the_mark) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_F21_records_of_the_newest_version_remove_every_step (__main__.Fixture.test_F21_records_of_the_newest_version_remove_every_step) ... ok
+test_F21b_one_step_chain_with_records_of_v2 (__main__.Fixture.test_F21b_one_step_chain_with_records_of_v2) ... ok
+test_F22_crlf_source_keeps_crlf (__main__.Fixture.test_F22_crlf_source_keeps_crlf) ... ok
+test_F23_every_type_line_layout_gets_the_mark_after_the_name (__main__.Fixture.test_F23_every_type_line_layout_gets_the_mark_after_the_name) ... ok
+test_F24_marked_type_keeps_its_line (__main__.Fixture.test_F24_marked_type_keeps_its_line) ... ok
+test_F25_second_removal_changes_nothing (__main__.Fixture.test_F25_second_removal_changes_nothing) ... ok
+test_F26_two_types_are_marked_in_source_order (__main__.Fixture.test_F26_two_types_are_marked_in_source_order) ... ok
+test_F26_without_the_flag_the_note_step_is_refused_and_nothing_is_written (__main__.Fixture.test_F26_without_the_flag_the_note_step_is_refused_and_nothing_is_written) ... ok
+test_F27_empty_snapshot_refuses_every_step_and_writes_no_mark (__main__.Fixture.test_F27_empty_snapshot_refuses_every_step_and_writes_no_mark) ... ok
+test_F28_record_older_than_a_mark_without_chain_names_the_step (__main__.Fixture.test_F28_record_older_than_a_mark_without_chain_names_the_step) ... ok
+test_F28_record_older_than_the_squash_names_every_missing_step (__main__.Fixture.test_F28_record_older_than_the_squash_names_every_missing_step) ... ok
+test_F20_squash_removes_two_steps_and_writes_the_mark (__main__.Template.test_F20_squash_removes_two_steps_and_writes_the_mark) ... ok
+test_F21_records_of_the_newest_version_remove_every_step (__main__.Template.test_F21_records_of_the_newest_version_remove_every_step) ... ok
+test_F21b_one_step_chain_with_records_of_v2 (__main__.Template.test_F21b_one_step_chain_with_records_of_v2) ... ok
+test_F22_crlf_source_keeps_crlf (__main__.Template.test_F22_crlf_source_keeps_crlf) ... ok
+test_F23_every_type_line_layout_gets_the_mark_after_the_name (__main__.Template.test_F23_every_type_line_layout_gets_the_mark_after_the_name) ... ok
+test_F24_marked_type_keeps_its_line (__main__.Template.test_F24_marked_type_keeps_its_line) ... ok
+test_F25_second_removal_changes_nothing (__main__.Template.test_F25_second_removal_changes_nothing) ... ok
+test_F26_two_types_are_marked_in_source_order (__main__.Template.test_F26_two_types_are_marked_in_source_order) ... ok
+test_F26_without_the_flag_the_note_step_is_refused_and_nothing_is_written (__main__.Template.test_F26_without_the_flag_the_note_step_is_refused_and_nothing_is_written) ... ok
+test_F27_empty_snapshot_refuses_every_step_and_writes_no_mark (__main__.Template.test_F27_empty_snapshot_refuses_every_step_and_writes_no_mark) ... ok
+test_F28_record_older_than_a_mark_without_chain_names_the_step (__main__.Template.test_F28_record_older_than_a_mark_without_chain_names_the_step) ... ok
+test_F28_record_older_than_the_squash_names_every_missing_step (__main__.Template.test_F28_record_older_than_the_squash_names_every_missing_step) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.761s
+
+OK
+exit 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice5_rewrite_test.py
+test_A1_allowed_rows_are_well_formed (__main__.RewriteAudit.test_A1_allowed_rows_are_well_formed) ... ok
+test_A1_every_changed_line_is_a_rewrite_rule_or_an_allowed_row (__main__.RewriteAudit.test_A1_every_changed_line_is_a_rewrite_rule_or_an_allowed_row) ... ok
+test_A1_no_deleted_or_new_path_in_scope (__main__.RewriteAudit.test_A1_no_deleted_or_new_path_in_scope) ... ok
+test_A1_test_code_keeps_no_old_form (__main__.RewriteAudit.test_A1_test_code_keeps_no_old_form) ... ok
+test_A1_the_rewrite_is_complete (__main__.RewriteAudit.test_A1_the_rewrite_is_complete) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.833s
+
+OK
+exit 0
+
+$ byte-equal check: HEAD compiler (scratch build of git HEAD main.rs) against the GREEN compiler, run in a scratch cwd
+old exit 0
+new exit 0
+payments.beaml: byte-equal, sha256 e9b6f4a321a8d7f0
+old exit 0
+new exit 0
+orders.beaml: byte-equal, sha256 ba63e1e87474e8c4
+
+$ diff HEAD output and GREEN output of slice6/failure/body.beaml (D6B-28, notes S3)
+68c68
+<     with {:ok, p1} <- ProbeSupport.span(<<..>>, :internal, p0, <<..>>, fn -> __MODULE__.check(p0) end) do
+---
+>     with {:ok, p1} <- __MODULE__.check(p0) do
+88c88
+<     p1 = ProbeSupport.span(<<..>>, :internal, p0, <<..>>, fn -> __MODULE__.seven(p0) end)
+---
+>     p1 = __MODULE__.seven(p0)
+
