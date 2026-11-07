@@ -4178,6 +4178,207 @@ fn remove_dead_marked(
     Ok((dead.len(), marks.len()))
 }
 
+// `beaml-spike fmt SOURCE` (slice 6b step 10, D6B-41 to D6B-46): check the source without `--stored`, edit the
+// VERSION MARKS and the column gaps by token ranges, write atomically only on a change, print the diff. Return the
+// number of changed lines.
+fn fmt_file(path: &std::path::Path, label: &str) -> Checked<usize> {
+    let old =
+        std::fs::read_to_string(path).map_err(|e| format!("cannot read source: {}", e.kind()))?;
+    let new = formatted(&old)?;
+    if new == old {
+        return Ok(0);
+    }
+    let changed = old
+        .split('\n')
+        .zip(new.split('\n'))
+        .filter(|(a, b)| a != b)
+        .count();
+    let diff = unified_diff(&old, &new, label);
+    write_atomic(path, &new)?;
+    std::io::stdout()
+        .write_all(diff.as_bytes())
+        .map_err(|e| format!("cannot write output: {}", e.kind()))?;
+    Ok(changed)
+}
+
+// DL-104 form (b) (D6B-43): the VERSION MARK that `fmt` writes. `chain` is (first `from`, last `to`). A mark that a
+// chain from v1 implies goes; a chain above v1 without a mark gets its end; every other mark stays (O3).
+fn fmt_mark(mark: Option<u32>, chain: Option<(u32, u32)>) -> Option<u32> {
+    match (mark, chain) {
+        (Some(m), Some((1, end))) if m == end => None,
+        (None, Some((from, end))) if from > 1 => Some(end),
+        _ => mark,
+    }
+}
+
+fn formatted(source: &str) -> Checked<String> {
+    let tokens = lex(source)?;
+    let program = Parser {
+        tokens: tokens.clone(),
+        at: 0,
+    }
+    .program()?;
+    let checker = Checker::new(&program)?;
+    checker.validate()?;
+    let mut edits: Vec<(Range<usize>, String)> = Vec::new();
+    for (name, &end) in &program.name_ends {
+        let steps = checker.migrations(name);
+        let chain = steps.first().zip(steps.last()).map(|(a, b)| (a.from, b.to));
+        let mark = program.marks.get(name).copied();
+        match (mark, fmt_mark(mark, chain)) {
+            (Some(_), None) => {
+                let token = &tokens.iter().find(|(_, r)| r.start >= end).unwrap().1;
+                let start = end + source[end..token.start].trim_end_matches([' ', '\t']).len();
+                edits.push((start..token.end, String::new()));
+            }
+            (None, Some(version)) => edits.push((end..end, format!(" v{version}"))),
+            _ => {}
+        }
+    }
+    edits.extend(aligned(source, &tokens, &program));
+    edits.sort_by_key(|(range, _)| range.start);
+    let mut text = source.to_string();
+    for (range, with) in edits.into_iter().rev() {
+        text.replace_range(range, &with);
+    }
+    Ok(text)
+}
+
+// One single-line clause or EFFECT line: its line, group key, line start, cells and the `=` byte.
+struct Row {
+    line: usize,
+    key: String,
+    start: usize,
+    cells: Vec<Range<usize>>,
+    equals: usize,
+}
+
+// DL-083, D6B-44, DL-013: consecutive single-line clauses of one signature (or EFFECT lines) form a group. Cells
+// are `fn NAME` (or `effect NAME IN`), each top-level argument with its comma, `->` and the return text; each cell
+// and `=` start one space after the longest previous cell. Only the gaps between cells change.
+fn aligned(
+    source: &str,
+    tokens: &[(Token, Range<usize>)],
+    program: &Program,
+) -> Vec<(Range<usize>, String)> {
+    // ponytail: line numbers by counting from the file start, O(rows * size); fine under the 256 KiB limit.
+    let line_of = |at: usize| {
+        source.as_bytes()[..at]
+            .iter()
+            .filter(|&&b| b == b'\n')
+            .count()
+    };
+    let items = program
+        .clauses
+        .iter()
+        .map(|c| (c.key.as_str(), &c.source_range))
+        .chain(program.effects.iter().map(|e| ("effect", &e.source_range)));
+    let mut rows = Vec::new();
+    for (key, range) in items {
+        let first = tokens
+            .iter()
+            .position(|(_, r)| r.start == range.start)
+            .unwrap();
+        let last = first
+            + tokens[first..]
+                .iter()
+                .position(|(_, r)| r.end == range.end)
+                .unwrap();
+        let line = line_of(range.start);
+        let next = &tokens[last + 1];
+        if source[range.clone()].contains('\n')
+            || (first > 0 && line_of(tokens[first - 1].1.end) == line)
+            || (next.0 != Token::End && line_of(next.1.start) == line)
+        {
+            continue;
+        }
+        let effect = key == "effect";
+        let mut cells = Vec::new();
+        let skip = if effect {
+            0
+        } else {
+            cells.push(tokens[first].1.start..tokens[first + 1].1.end);
+            2
+        };
+        let (mut open, mut depth, mut arrow, mut equals) = (None::<Range<usize>>, 0, false, None);
+        for (token, r) in &tokens[first + skip..=last] {
+            match token {
+                Token::Symbol('(' | '{') => depth += 1,
+                Token::Symbol(')' | '}') => depth -= 1,
+                _ => {}
+            }
+            if depth == 0 && !arrow && *token == Token::Arrow {
+                cells.extend(open.take());
+                cells.push(r.clone());
+                arrow = true;
+                continue;
+            }
+            if depth == 0 && arrow && *token == Token::Symbol('=') {
+                cells.extend(open.take());
+                equals = Some(r.start);
+                break;
+            }
+            open = Some(open.map_or(r.clone(), |o| o.start..r.end));
+            if depth == 0 && !effect && !arrow && *token == Token::Symbol(',') {
+                cells.extend(open.take());
+            }
+        }
+        let start = source[..range.start].rfind('\n').map_or(0, |i| i + 1);
+        rows.push(Row {
+            line,
+            key: key.to_string(),
+            start,
+            cells,
+            equals: equals.unwrap(),
+        });
+    }
+    rows.sort_by_key(|row| row.line);
+    let mut edits = Vec::new();
+    let mut begin = 0;
+    for end in 1..=rows.len() {
+        let (a, b) = (&rows[end - 1], rows.get(end));
+        if b.is_some_and(|b| {
+            b.line == a.line + 1 && b.key == a.key && b.cells.len() == a.cells.len()
+        }) {
+            continue;
+        }
+        let group = &rows[begin..end];
+        begin = end;
+        let n = group[0].cells.len();
+        // columns[k]: the column of cell k (k == n is `=`); cell 0 keeps its place on each line.
+        let mut columns = vec![0; n + 1];
+        for k in 1..=n {
+            columns[k] = group
+                .iter()
+                .map(|row| {
+                    let cell = &row.cells[k - 1];
+                    let at = if k == 1 {
+                        cell.start - row.start
+                    } else {
+                        columns[k - 1]
+                    };
+                    at + cell.len()
+                })
+                .max()
+                .unwrap()
+                + 1;
+        }
+        for row in group {
+            for k in 1..=n {
+                let cell = &row.cells[k - 1];
+                let at = if k == 1 {
+                    cell.start - row.start
+                } else {
+                    columns[k - 1]
+                };
+                let gap = cell.end..row.cells.get(k).map_or(row.equals, |c| c.start);
+                edits.push((gap, " ".repeat(columns[k] - at - cell.len())));
+            }
+        }
+    }
+    edits
+}
+
 // The warning of one DEAD LINE (README slice 4, "Warning texts").
 fn warning(source: &str, label: &str, stored: &str, dead: &Dead) -> String {
     format!(
@@ -4215,7 +4416,12 @@ fn main() {
     let remove = matches!(args.as_slice(), [_, flag, _, last, ..] if flag == "--stored" && last == "--remove-dead");
     let assume_complete =
         matches!(args.as_slice(), [_, _, _, _, last] if last == "--assume-complete");
+    let fmt = matches!(args.as_slice(), [command, _] if command == "fmt");
     let result = (|| -> Checked<Vec<(&str, usize)>> {
+        if fmt {
+            let changed = fmt_file(std::path::Path::new(&args[1]), &args[1].to_string_lossy())?;
+            return Ok(vec![("changed", changed)]);
+        }
         let stored = match args.as_slice() {
             [_] => None,
             [_, flag, path] if flag == "--stored" => Some(std::path::Path::new(path)),
@@ -4263,9 +4469,16 @@ fn main() {
         }
         Ok(vec![("warnings", built.dead.len())])
     })();
-    let name = if remove { "remove-dead" } else { "compile" };
+    let name = if fmt {
+        "fmt"
+    } else if remove {
+        "remove-dead"
+    } else {
+        "compile"
+    };
     match &result {
         Ok(counts) => action(name, "ok", counts),
+        Err(_) if fmt => action(name, "error", &[("changed", 0)]),
         Err(_) if remove => action(name, "error", &[("removed", 0), ("marked", 0)]),
         Err(_) => action(name, "error", &[]),
     }
@@ -4665,6 +4878,18 @@ mod tests {
                 .unwrap_err()
                 .starts_with("error: enum S has literals and a constructor")
         );
+    }
+
+    #[test]
+    fn fmt_mark_follows_dl104() {
+        // D6B-43: (mark, chain) -> the mark that `fmt` writes.
+        assert_eq!(fmt_mark(Some(3), Some((1, 3))), None);
+        assert_eq!(fmt_mark(None, Some((1, 2))), None);
+        assert_eq!(fmt_mark(Some(3), None), Some(3));
+        assert_eq!(fmt_mark(Some(1), None), Some(1));
+        assert_eq!(fmt_mark(None, Some((4, 5))), Some(5));
+        assert_eq!(fmt_mark(Some(5), Some((4, 5))), Some(5));
+        assert_eq!(fmt_mark(None, None), None);
     }
 
     #[test]

@@ -1,0 +1,99 @@
+# Slice 6b step 10 GREEN run, 2026-11-07T13:59:35Z, repository root, live tree (not committed)
+# toolchain: cargo 1.94.0 (85eff7c80 2026-01-15), rustc 1.94.0 (4a4ef493e 2026-03-02), Python 3.13.12
+# src/main.rs sha256: a4dbc788304e8694660d268b0089667e0d3e592430648901cb03ecbd51474ccb
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_fmt_test.py
+Ran 25 tests in 0.921s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py
+Ran 16 tests in 1.264s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py
+Ran 22 tests in 2.506s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py
+Ran 20 tests in 2.454s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py
+Ran 12 tests in 1.067s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_test.py
+Ran 10 tests in 3.349s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_struct_order_test.py
+Ran 2 tests in 0.686s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py
+FAIL: test_constructor_type_in_an_effect_output_field (__main__.Slice6Constructor.test_constructor_type_in_an_effect_output_field)
+Ran 25 tests in 3.126s
+FAILED (failures=1)
+# exit: 1
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py
+FAIL: test_last_clause_does_not_keep_the_value (__main__.Slice6DecodeCtor.test_last_clause_does_not_keep_the_value)
+FAIL: test_runtime_first_signature_wins (__main__.Slice6DecodeCtor.test_runtime_first_signature_wins)
+FAIL: test_runtime_live_decode (__main__.Slice6DecodeCtor.test_runtime_live_decode)
+FAIL: test_runtime_replay (__main__.Slice6DecodeCtor.test_runtime_replay)
+FAIL: test_stored_record_fails_the_record_constructor (__main__.Slice6DecodeCtor.test_stored_record_fails_the_record_constructor)
+FAIL: test_stored_record_matches_no_signature (__main__.Slice6DecodeCtor.test_stored_record_matches_no_signature)
+FAIL: test_stored_records_pass_the_constructors (__main__.Slice6DecodeCtor.test_stored_records_pass_the_constructors)
+Ran 7 tests in 0.303s
+FAILED (failures=7)
+# exit: 1
+
+$ python3 -B experiments/0004-generated-replay/tests/stored_types_test.py
+Ran 33 tests in 0.454s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice3_types_test.py
+Ran 69 tests in 0.667s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice4_retire_test.py
+Ran 87 tests in 1.097s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice5_syntax_test.py
+Ran 60 tests in 4.403s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice5_squash_test.py
+Ran 24 tests in 0.844s
+OK
+# exit: 0
+
+$ python3 -B experiments/0004-generated-replay/tests/slice5_rewrite_test.py
+Ran 5 tests in 2.836s
+OK
+# exit: 0
+
+$ (cd experiments/0001-syntax-to-beam) cargo fmt --check
+# exit: 0
+
+$ (cd experiments/0001-syntax-to-beam) cargo clippy --offline --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.33s
+# exit: 0
+
+$ (cd experiments/0001-syntax-to-beam) cargo test --offline --no-fail-fast
+test tests::fmt_mark_follows_dl104 ... ok
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+# exit: 0

@@ -140,3 +140,39 @@ Inputs (sha256):
 | Header row in `header` (option B) | `test_signature_line_ends_a_group` fails |
 
 - **[Inference]** R1, R2, R3 and the `=` note are closed for RED. U5 and U9 stay untested (low).
+
+## GREEN
+
+Changed file: `experiments/0001-syntax-to-beam/src/main.rs` (sha256 `a4dbc788304e8694660d268b0089667e0d3e592430648901cb03ecbd51474ccb`). No test or fixture changed. `run.py` was not run. Not committed.
+Full output: [green-output.log](green-output.log). Toolchain: cargo 1.94.0, rustc 1.94.0, Python 3.13.12.
+
+### Change
+
+- `main()`: the argument form `fmt SOURCE` starts `fmt_file`. The action event is `fmt` with `changed: N`; an error gives `changed: 0`.
+- `fmt_file`: read SOURCE, call `formatted`, return 0 when the text is the same (no write, no output). Else count the changed lines, print `unified_diff`, write with `write_atomic`.
+- `formatted`: `lex`, `Parser::program`, `Checker::new`, `Checker::validate`. This is the source check of `build_with_refusals` before the file-name check and `--stored`. Then the mark edits and the column edits, applied from the end of the text.
+- `fmt_mark(mark, chain)`: the DL-104 rule as a pure function. Unit test `fmt_mark_follows_dl104` (7 cases).
+- `aligned`: rows are single-line clauses and EFFECT lines that are alone on their line. A group is consecutive lines with the same clause `key` and the same cell count. Only the gaps between cells change.
+
+### Results
+
+- **[Observed]** `slice6_fmt_test.py`: 25 of 25 pass.
+- **[Observed]** int 16, failure 22, enum 20, pipe 12, decode 10, struct_order 2: all pass. constructor 24 of 25 and decode_ctor 0 of 7: RED by design until step 8.
+- **[Observed]** `stored_types_test` 33, `slice3_types_test` 69, `slice4_retire_test` 87, `slice5_syntax_test` 60, `slice5_squash_test` 24, `slice5_rewrite_test` 5: all pass.
+- **[Observed]** `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings`, `cargo test --offline --no-fail-fast` (18 + 14): pass.
+- **[Observed]** Scratch probe: `fmt` on a copy of each of the 1737 tracked `.beaml` files. No panic. A second `fmt` of each formatted file gives no change (idempotence). Not retained as evidence; the command is in this section only.
+- **[Inference]** The compile invariant (D6B-45) holds by construction: an edit replaces only spaces between tokens or applies `fmt_mark`, which keeps `newest_version` and `versioned`. The test checks it on three fixtures only.
+
+### Decisions
+
+| # | Class | Choice | Alternative | Reason | By |
+|---|---|---|---|---|---|
+| G1 | Undo | The source check is parse, `Checker::new` and `validate`. The file-name rule for EFFECTS and pipes is not checked. | Run the full `build` check without `--stored` | The file name is not source text; a wrong name still fails the compile. | Opus (GREEN, slice6b-fmt) |
+| G2 | Undo | A group key is the clause `key` (the signature, `T#k` for a constructor), not only the `fn` name. | The `fn` name | Two signatures of one name never share a column table (U5). | Opus (GREEN, slice6b-fmt) |
+| G3 | Undo | Consecutive EFFECT lines form one group by the same rule (key `effect`). | Lone EFFECT lines only | One rule; untestable today (F3, U6). | Opus (GREEN, slice6b-fmt) |
+| G4 | Undo | Lines with a different cell count do not join a group. | Pad missing cells | No case exists today (U5). | Opus (GREEN, slice6b-fmt) |
+| G5 | Undo | The gap after `->` is a column gap: the return text starts one space after `->`. | Keep the gap after `->` | Fixture line 31 requires it. | Opus (GREEN, slice6b-fmt) |
+| G6 | Undo | The gap between `fn` and the name, and gaps inside a cell (`x: String`, the `!` list), stay. | Normalize them | D6B-42: only the column gaps change (U4). | Opus (GREEN, slice6b-fmt) |
+| G7 | Undo | Mark removal removes the mark token and the spaces and tabs before it, not past the TYPE name. | Remove from the name end | A comment between name and mark stays. | Opus (GREEN, slice6b-fmt) |
+| G8 | Undo | A row must be alone on its line: no token of another item before or after it on that line. | Align any single-line clause | Two items on one line have no column table. | Opus (GREEN, slice6b-fmt) |
+| G9 | Undo | Line numbers come from a byte count from the file start (`ponytail:` comment in the code). | A line index table | Fine below the 256 KiB source limit. | Opus (GREEN, slice6b-fmt) |
