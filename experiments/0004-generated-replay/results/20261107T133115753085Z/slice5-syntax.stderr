@@ -1,0 +1,67 @@
+test_F01_B5_builds_and_equals_the_base_output (__main__.Fixture.test_F01_B5_builds_and_equals_the_base_output) ... base compiler: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-base-2nebasc2/target/debug/beaml-spike
+compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_F02_fallback_error_names_every_declaration_word (__main__.Fixture.test_F02_fallback_error_names_every_declaration_word) ... ok
+test_F02_interface_is_an_error_with_a_help_line_at_each_position (__main__.Fixture.test_F02_interface_is_an_error_with_a_help_line_at_each_position) ... ok
+test_F03_plain_numbers_in_migrate_are_an_error (__main__.Fixture.test_F03_plain_numbers_in_migrate_are_an_error) ... ok
+test_F03b_mixed_numbers_name_v2 (__main__.Fixture.test_F03b_mixed_numbers_name_v2) ... ok
+test_F03b_plain_number_on_the_type_line_is_an_error (__main__.Fixture.test_F03b_plain_number_on_the_type_line_is_an_error) ... ok
+test_F03c_control_v_numbers_build (__main__.Fixture.test_F03c_control_v_numbers_build) ... ok
+test_F04_version_faults_on_the_type_line_and_in_migrate (__main__.Fixture.test_F04_version_faults_on_the_type_line_and_in_migrate) ... ok
+test_F05_fields_named_like_versions_stay_fields (__main__.Fixture.test_F05_fields_named_like_versions_stay_fields) ... ok
+test_F06_control_the_same_chain_with_another_mark_is_M1 (__main__.Fixture.test_F06_control_the_same_chain_with_another_mark_is_M1) ... ok
+test_F06_mark_beside_a_chain_from_v1_builds (__main__.Fixture.test_F06_mark_beside_a_chain_from_v1_builds) ... ok
+test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning (__main__.Fixture.test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning) ... ok
+test_F08_mark_below_the_chain_end_is_M1 (__main__.Fixture.test_F08_mark_below_the_chain_end_is_M1) ... ok
+test_F08b_mark_above_the_chain_end_is_M1 (__main__.Fixture.test_F08b_mark_above_the_chain_end_is_M1) ... ok
+test_F08c_chain_with_a_gap_is_an_error (__main__.Fixture.test_F08c_chain_with_a_gap_is_an_error) ... ok
+test_F09_M3_builds_and_writes_its_mark_as_the_version (__main__.Fixture.test_F09_M3_builds_and_writes_its_mark_as_the_version) ... ok
+test_F10_M3_with_older_records_names_the_missing_steps (__main__.Fixture.test_F10_M3_with_older_records_names_the_missing_steps) ... ok
+test_F11_M3_with_records_of_its_mark_builds_without_warning (__main__.Fixture.test_F11_M3_with_records_of_its_mark_builds_without_warning) ... ok
+test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark (__main__.Fixture.test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark) ... ok
+test_F12_control_the_same_record_against_a_higher_mark_builds (__main__.Fixture.test_F12_control_the_same_record_against_a_higher_mark_builds) ... ok
+test_F12_record_newer_than_the_mark_is_N1 (__main__.Fixture.test_F12_record_newer_than_the_mark_is_N1) ... ok
+test_F12b_lowered_mark_without_chain_is_N1 (__main__.Fixture.test_F12b_lowered_mark_without_chain_is_N1) ... ok
+test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1 (__main__.Fixture.test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1) ... ok
+test_F12d_record_of_another_name_newer_than_the_mark_is_N1 (__main__.Fixture.test_F12d_record_of_another_name_newer_than_the_mark_is_N1) ... ok
+test_F13_control_a_v2_record_against_mark_v1_is_N1 (__main__.Fixture.test_F13_control_a_v2_record_against_mark_v1_is_N1) ... ok
+test_F13_mark_v1_without_chain_builds (__main__.Fixture.test_F13_mark_v1_without_chain_builds) ... ok
+test_F14_chain_above_v1_without_mark_builds (__main__.Fixture.test_F14_chain_above_v1_without_mark_builds) ... ok
+test_F15_largest_version_has_no_newer_version_and_no_panic (__main__.Fixture.test_F15_largest_version_has_no_newer_version_and_no_panic) ... ok
+test_fixtures_equal_the_template_byte_for_byte (__main__.Fixture.test_fixtures_equal_the_template_byte_for_byte) ... ok
+test_A2_rewritten_sources_build_like_the_base (__main__.Rewrite.test_A2_rewritten_sources_build_like_the_base) ... ok
+test_A3_stored_fixtures_are_unchanged (__main__.Rewrite.test_A3_stored_fixtures_are_unchanged) ... ok
+test_P1_payments_snapshot_differs_in_one_offset_line_and_matches_the_build (__main__.Rewrite.test_P1_payments_snapshot_differs_in_one_offset_line_and_matches_the_build) ... ok
+test_F01_B5_builds_and_equals_the_base_output (__main__.Template.test_F01_B5_builds_and_equals_the_base_output) ... ok
+test_F02_fallback_error_names_every_declaration_word (__main__.Template.test_F02_fallback_error_names_every_declaration_word) ... ok
+test_F02_interface_is_an_error_with_a_help_line_at_each_position (__main__.Template.test_F02_interface_is_an_error_with_a_help_line_at_each_position) ... ok
+test_F03_plain_numbers_in_migrate_are_an_error (__main__.Template.test_F03_plain_numbers_in_migrate_are_an_error) ... ok
+test_F03b_mixed_numbers_name_v2 (__main__.Template.test_F03b_mixed_numbers_name_v2) ... ok
+test_F03b_plain_number_on_the_type_line_is_an_error (__main__.Template.test_F03b_plain_number_on_the_type_line_is_an_error) ... ok
+test_F03c_control_v_numbers_build (__main__.Template.test_F03c_control_v_numbers_build) ... ok
+test_F04_version_faults_on_the_type_line_and_in_migrate (__main__.Template.test_F04_version_faults_on_the_type_line_and_in_migrate) ... ok
+test_F05_fields_named_like_versions_stay_fields (__main__.Template.test_F05_fields_named_like_versions_stay_fields) ... ok
+test_F06_control_the_same_chain_with_another_mark_is_M1 (__main__.Template.test_F06_control_the_same_chain_with_another_mark_is_M1) ... ok
+test_F06_mark_beside_a_chain_from_v1_builds (__main__.Template.test_F06_mark_beside_a_chain_from_v1_builds) ... ok
+test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning (__main__.Template.test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning) ... ok
+test_F08_mark_below_the_chain_end_is_M1 (__main__.Template.test_F08_mark_below_the_chain_end_is_M1) ... ok
+test_F08b_mark_above_the_chain_end_is_M1 (__main__.Template.test_F08b_mark_above_the_chain_end_is_M1) ... ok
+test_F08c_chain_with_a_gap_is_an_error (__main__.Template.test_F08c_chain_with_a_gap_is_an_error) ... ok
+test_F09_M3_builds_and_writes_its_mark_as_the_version (__main__.Template.test_F09_M3_builds_and_writes_its_mark_as_the_version) ... ok
+test_F10_M3_with_older_records_names_the_missing_steps (__main__.Template.test_F10_M3_with_older_records_names_the_missing_steps) ... ok
+test_F11_M3_with_records_of_its_mark_builds_without_warning (__main__.Template.test_F11_M3_with_records_of_its_mark_builds_without_warning) ... ok
+test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark (__main__.Template.test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark) ... ok
+test_F12_control_the_same_record_against_a_higher_mark_builds (__main__.Template.test_F12_control_the_same_record_against_a_higher_mark_builds) ... ok
+test_F12_record_newer_than_the_mark_is_N1 (__main__.Template.test_F12_record_newer_than_the_mark_is_N1) ... ok
+test_F12b_lowered_mark_without_chain_is_N1 (__main__.Template.test_F12b_lowered_mark_without_chain_is_N1) ... ok
+test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1 (__main__.Template.test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1) ... ok
+test_F12d_record_of_another_name_newer_than_the_mark_is_N1 (__main__.Template.test_F12d_record_of_another_name_newer_than_the_mark_is_N1) ... ok
+test_F13_control_a_v2_record_against_mark_v1_is_N1 (__main__.Template.test_F13_control_a_v2_record_against_mark_v1_is_N1) ... ok
+test_F13_mark_v1_without_chain_builds (__main__.Template.test_F13_mark_v1_without_chain_builds) ... ok
+test_F14_chain_above_v1_without_mark_builds (__main__.Template.test_F14_chain_above_v1_without_mark_builds) ... ok
+test_F15_largest_version_has_no_newer_version_and_no_panic (__main__.Template.test_F15_largest_version_has_no_newer_version_and_no_panic) ... ok
+
+----------------------------------------------------------------------
+Ran 60 tests in 4.916s
+
+OK

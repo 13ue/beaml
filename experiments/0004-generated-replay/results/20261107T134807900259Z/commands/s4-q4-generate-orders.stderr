@@ -1,0 +1,8 @@
+warning: DEAD LINE: migrate Payment v1 -> v2
+  at /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-9z6whv70/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml:5
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-wrrvm4ma/stored.jsonl: no stored RESPONSE RECORD of TYPE Payment has v1 or older
+  help: remove DEAD LINES with: beaml-spike /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-9z6whv70/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml --stored /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-wrrvm4ma/stored.jsonl --remove-dead
+warning: DEAD LINE: migrate Payment v2 -> v3
+  at /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-9z6whv70/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml:7
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-wrrvm4ma/stored.jsonl: no stored RESPONSE RECORD of TYPE Payment has v2 or older
+  help: remove DEAD LINES with: beaml-spike /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-9z6whv70/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml --stored /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s4-q4-wrrvm4ma/stored.jsonl --remove-dead

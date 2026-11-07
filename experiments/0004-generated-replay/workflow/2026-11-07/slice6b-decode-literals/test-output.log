@@ -1,0 +1,78 @@
+# TEST, slice 6b step 7 (and struct-order), HEAD fac6d5ac. Repository root. Toolchain: cargo 1.94.0, rustc 1.94.0, Elixir 1.18.1 (OTP 27), Python 3.13.12
+# Tree: clean of tracked changes at start (one untracked ledger file of another step, no code).
+$ (experiments/0001-syntax-to-beam) cargo fmt --check
+EXIT fmt 0
+$ cargo clippy --offline --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.39s
+EXIT clippy 0
+$ cargo test --offline --no-fail-fast
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+EXIT test 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py
+Ran 16 tests in 1.238s
+OK
+EXIT int 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py
+Ran 22 tests in 3.386s
+OK
+EXIT failure 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py
+FAIL: test_constructor_type_in_an_effect_output_field (__main__.Slice6Constructor.test_constructor_type_in_an_effect_output_field)
+Ran 25 tests in 4.348s
+FAILED (failures=1)
+EXIT constructor 1
+$ python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py
+Ran 20 tests in 3.206s
+OK
+EXIT enum 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py
+Ran 12 tests in 1.099s
+OK
+EXIT pipe 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_test.py
+Ran 10 tests in 3.899s
+OK
+EXIT decode 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_struct_order_test.py
+Ran 2 tests in 1.196s
+OK
+EXIT struct_order 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py
+FAIL: test_last_clause_does_not_keep_the_value (__main__.Slice6DecodeCtor.test_last_clause_does_not_keep_the_value)
+FAIL: test_runtime_first_signature_wins (__main__.Slice6DecodeCtor.test_runtime_first_signature_wins)
+FAIL: test_runtime_live_decode (__main__.Slice6DecodeCtor.test_runtime_live_decode)
+FAIL: test_runtime_replay (__main__.Slice6DecodeCtor.test_runtime_replay)
+FAIL: test_stored_record_fails_the_record_constructor (__main__.Slice6DecodeCtor.test_stored_record_fails_the_record_constructor)
+FAIL: test_stored_record_matches_no_signature (__main__.Slice6DecodeCtor.test_stored_record_matches_no_signature)
+FAIL: test_stored_records_pass_the_constructors (__main__.Slice6DecodeCtor.test_stored_records_pass_the_constructors)
+Ran 7 tests in 0.298s
+FAILED (failures=7)
+EXIT decode_ctor 1
+# constructor 24/25 and decode_ctor 0/7: expected RED (step 8 RED, by design until step 8 GREEN). Not pass.
+$ python3 experiments/0001-syntax-to-beam/run.py
+EXPERIMENT 0001: pass (experiments/0001-syntax-to-beam/results/20261107T133221330609Z/result.json)
+EXIT r1 0
+$ python3 experiments/0004-generated-replay/run.py  (13:31:15 to 13:54:05 UTC, 1370 s)
+{"run": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T133115753085Z", "status": "pass"}
+EXIT 0
+  compiler pass 0
+  overlay-diff pass 0
+  lib-freeze pass 0
+  arms pass 0
+  drift pass 0
+  stored-types pass 0
+  slice2-replay pass 0
+  slice3-types pass 0
+  slice3-replay pass 0
+  slice4-retire pass 0
+  slice4-replay pass 0
+  slice5-syntax pass 0
+  slice5-squash pass 0
+  slice5-replay pass 0
+  slice5-rewrite pass 0
+$ python3 scripts/lint_wiki.py
+Checked 81 maintained Markdown files; 0 error(s). PDF hash, bytes, page count and per-page text rechecked.
+Parsed raw JSON records; verified 6 explicitly retained capture hashes.
+Limits: inline Markdown links/headings only; original raw documents not linted; no external URL, semantic truth, security proof or runtime checks.
+EXIT lint 0

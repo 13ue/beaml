@@ -573,6 +573,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice for maximum vertical integration. The same reachability feeds replay (pure `fn`s need no capture), tests and evals (pure `fn`s run without stubs), the PII flow check (EFFECTS are the sinks), dead-EFFECT detection and the IDE hover.
 → Effect: a new slice 6b step (call graph with recursion; spans per reachability; generated outputs with indirect pipes change, Repair). Higher-order functions do not exist yet; when they come, the graph needs an approximation.
 
+**DL-109 · Repair · The RESPONSE RECORD key `unknown_fields` holds field names whose value went to the keep-value variant**
+→ Question: DL-103 reports how many stored records a new ENUM LITERAL resolves from `Unknown`. The record must say which fields were Unknown at capture time.
+→ Options: a record key `unknown_fields` with field NAMES only; no key (the DL-103 count is then impossible); the literals in the `type` key (a TYPE VERSION change per literal, against DL-103).
+→ Chose: the key, names only, never values; written only for literal outputs so older outputs stay byte-equal; additive for old records. Built in slice 6b step 7. It joins the record version 2 of DL-105 (step 6a).
+→ By: Fable (class and choice; the step 7 review asked for the register entry), built by Opus (GREEN, slice6b-decode-literals).
+→ Because: Repair, not Migrate: the record format is the compiler's own and pre-production, and the key holds no value. Reversible until the first production store.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

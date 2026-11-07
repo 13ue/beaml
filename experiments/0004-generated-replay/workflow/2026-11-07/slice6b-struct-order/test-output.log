@@ -1,0 +1,11 @@
+# TEST, slice 6b mini-step struct-order, HEAD fac6d5ac. One shared TEST run with step 7.
+# Full log: ../slice6b-decode-literals/test-output.log
+$ python3 -B experiments/0004-generated-replay/tests/slice6_struct_order_test.py
+Ran 2 tests in 1.196s
+OK
+EXIT struct_order 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py  (step 2: pure modules keep their output)
+Ran 22 tests in 3.386s
+OK
+EXIT failure 0
+# All other commands (fmt, clippy, cargo test, slice6 files, 0001 run.py, 0004 run.py, lint): see the step 7 log. All pass, except constructor 24/25 and decode_ctor 0/7 (expected RED, step 8).

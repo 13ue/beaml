@@ -1,0 +1,99 @@
+{
+  "step": "slice6b-struct-order",
+  "phase": "TEST",
+  "head": "fac6d5ac",
+  "toolchain": {
+    "cargo": "1.94.0",
+    "rustc": "1.94.0",
+    "elixir": "1.18.1 (OTP 27)",
+    "python": "3.13.12"
+  },
+  "results": [
+    {
+      "command": "cargo fmt --check",
+      "status": "pass",
+      "exit": 0
+    },
+    {
+      "command": "cargo clippy --offline --all-targets -- -D warnings",
+      "status": "pass",
+      "exit": 0
+    },
+    {
+      "command": "cargo test --offline --no-fail-fast",
+      "status": "pass",
+      "exit": 0,
+      "tests": "17 unit, 14 CLI"
+    },
+    {
+      "command": "python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py",
+      "status": "pass",
+      "tests": 16
+    },
+    {
+      "command": "python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py",
+      "status": "pass",
+      "tests": 22
+    },
+    {
+      "command": "python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py",
+      "status": "expected_red",
+      "tests": 25,
+      "failed": 1,
+      "failing": [
+        "test_constructor_type_in_an_effect_output_field"
+      ],
+      "reason": "step 8 RED, until step 8 GREEN"
+    },
+    {
+      "command": "python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py",
+      "status": "pass",
+      "tests": 20
+    },
+    {
+      "command": "python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py",
+      "status": "pass",
+      "tests": 12
+    },
+    {
+      "command": "python3 -B experiments/0004-generated-replay/tests/slice6_decode_test.py",
+      "status": "pass",
+      "tests": 10
+    },
+    {
+      "command": "python3 -B experiments/0004-generated-replay/tests/slice6_struct_order_test.py",
+      "status": "pass",
+      "tests": 2
+    },
+    {
+      "command": "python3 -B experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py",
+      "status": "expected_red",
+      "tests": 7,
+      "failed": 7,
+      "reason": "step 8 RED, until step 8 GREEN"
+    },
+    {
+      "command": "python3 experiments/0001-syntax-to-beam/run.py",
+      "status": "pass",
+      "exit": 0,
+      "result": "experiments/0001-syntax-to-beam/results/20261107T133221330609Z/result.json"
+    },
+    {
+      "command": "python3 experiments/0004-generated-replay/run.py",
+      "status": "pass",
+      "exit": 0,
+      "steps": 15,
+      "duration_s": 1370,
+      "result": "experiments/0004-generated-replay/results/20261107T133115753085Z/result.json"
+    },
+    {
+      "command": "python3 scripts/lint_wiki.py",
+      "status": "pass",
+      "exit": 0,
+      "errors": 0
+    }
+  ],
+  "not_run": [],
+  "verdict": "pass (2 files expected RED of step 8)",
+  "shared_with": "../slice6b-decode-literals/test-output.log"
+}

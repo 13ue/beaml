@@ -1,0 +1,5 @@
+
+14:41:49.516 [info] Exporter ProbeSupport.Exporter successfully initialized
+
+14:41:49.535 [info] probe observation
+REPLAY {"result":{"ok":{"p_yodsax":"X-live","s_ymhzxe":"Y-live"}},"unwatched":[],"calls":{":gen_tcp.connect/4":1,":json.decode/1":2,"OrdersApi.Router.call/2":0,"OrdersBeamlSpike.finish/1":1,"OrdersBeamlSpike.payments_authorize/1":1,"OrdersBeamlSpike.prepare/1":1,"ProbeSupport.valid_payment!/2":0},"transport":1,"artifact":"b2ec63af868c0ee82afae45ebd3234e372756a48869c6db45091fc46471fa457"}
