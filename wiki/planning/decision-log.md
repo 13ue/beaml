@@ -539,6 +539,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Consequences: the RESPONSE RECORD contract changes (`value`, `redacted`, `unknown_keys`, a digest of the projection; names are a sketch); the replay compare uses the projection; a decode change cannot be replayed against an old raw body. A failure TYPE may carry a redacted field only when that field is `redacted` there too. Derived values (`"Hello " + c.holder`) are PII by flow; the implicit-flow check stays a later compiler target.
 → Supersedes: D6B-34 (compile error) and the D6B-30/D6B-32 readings in the plan; step 6 of slice 6b is replanned on this basis.
 
+**DL-106 · Migrate · The generated wrapper is the only entry for constructor TYPES at the host (Q6B-6, B)**
+→ Question: in generated Elixir a host could pass `%{"value" => 0}` where BEAML requires `NonZeroInt`; the wrapper checked the shape, not the rule. Does "the constructor is the only way in" (DL-092) also cover host calls?
+→ Options: A, out of scope: the host is a trusted boundary; B, constructor TYPES are structs at the host, built only through a generated constructor function (`new/1`, `{:ok, struct}` or `{:error, failure}`), and the host input check requires the struct, also in nested fields.
+→ Chose: B. Success values of constructor TYPES become structs like the failure records of step 2; plain records without a constructor keep their form for now.
+→ Because: OWNER choice. The TYPE holds up to the last boundary the compiler generates; this removes the accidental error (a map that happens to fit).
+→ Limit, stated: Elixir has no private constructors, so a host can still write the struct literal on purpose. B stops the accidental forgery, not a deliberate one. Anything beyond that is a separate decision.
+→ Effect: a new slice 6b step (struct codegen, `new/1`, the input check); the step 3 tests that expect `{:ok, %{"value" => 3}}` change to the struct form.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
