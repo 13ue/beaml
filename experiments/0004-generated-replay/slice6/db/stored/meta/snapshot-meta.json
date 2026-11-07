@@ -1,0 +1,10 @@
+{
+  "table": "records",
+  "database": "beaml_dev",
+  "query_time": "2026-11-07T20:00:00.000000Z",
+  "row_count": 2,
+  "row_ids": [
+    41,
+    42
+  ]
+}

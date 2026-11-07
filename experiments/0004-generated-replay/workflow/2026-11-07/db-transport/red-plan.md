@@ -70,3 +70,71 @@ N12 files and texts (one EFFECT per file, no ENTRY LINE, so they do not depend o
 → `slice6/db/stored/` holds an empty `responses.jsonl` and `rows.jsonl`; every build uses it, so PDB-23 cannot hide a check. → By: Opus (RED db-transport) · Undo
 → N16 checks file facts and `tree-sitter parse`; `generate` and `test --rebuild` stay GREEN/TEST commands (they write `src/`). Skip when the binary is missing. → By: Opus (RED db-transport) · Undo
 → N2c skipped with its reason (0005 only). → By: Opus (RED db-transport) · Undo
+
+## P4b: `--stored` over the ROW SNAPSHOT
+
+**[Proposal]** Solve/RED phase, 2026-11-08. By: Opus (RED db-stored). Test file: `tests/slice6_db_stored_test.py` (imports the P4a helpers of `slice6_db_test.py`; no existing test changed). Evidence: [red-output.md](red-output.md#p4b-run).
+Inputs: plan.md with both repairs (N17 to N27, N20b), decisions.md (PDB-21 to PDB-36, QDB-7 A, QDB-8 B), the P4a RED review M1, record-format-v3 plan (count lines, QV3-7 A, QV3-8 B, `digest not verified (P2b)`), DL-040, DL-102, DL-122, DL-124, DL-134, DL-136, DL-137, DL-140.
+New fixtures: `slice6/db/stricter/orders.beaml` (`fn Amount "0", _` before the general clause), `slice6/db/put_only/orders.beaml` (one `db.put`, no reader, no ENTRY LINE), `slice6/db/stored/meta/` (sample ROW SNAPSHOT: two rows, empty `responses.jsonl`, `snapshot-meta.json`). Row files of every other case are written per test into a temp directory beside an empty or given `responses.jsonl`.
+
+### Mapping
+
+| Test | Plan item | Asserts |
+|---|---|---|
+| `N17_clean_rows`, `N17b_empty_row_snapshot` | N17, PDB-24 | exit 0, module `Orders`, stderr exactly `rows: 2 rows, 2 checked, 0 not decodable` (empty file: `0 rows, 0 checked, 0`) |
+| `N18_stricter_constructor_blocks`, `N18b_…` | N18, DL-102, PDB-32, PDB-36 | `error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for field amount with BadAmount`, `record source: <rows>:1 (line 1)`, help line by `HELP_PREFIX`; two rows: `2 stored ROWS … fail`, first line 2 |
+| `N18_control_*` | N18 controls | same row under `orders.beaml` builds; `stricter/` without the row builds |
+| `N19_lost_literal_blocks`, `N19_control_*` | N19, DL-122, DL-124 | the DL-122 ROW text (three lines exact); kept `tv` with `unknown_fields ["channel"]` builds; the `app` row under `orders.beaml` builds |
+| `N20_chain_rows_build` | N20, DL-043, DL-127 | `plain_v2/` with a v1 and a v2 row: `2 rows, 2 checked` (the v1 row passes the DL-101 shape check only after the chain) |
+| `N20_off_chain_row_blocks`, `N20_newer_version_blocks` | N20 | `error: TYPE Order cannot read 1 stored ROW of table records` and `record source: <rows> (first at line N)` |
+| `N20b_two_row_types_build` | N20b, QDB-8 B, PDB-34 | `two_rows/` with one `Order` v1, one `Note` v1, one `Note` v2 row: `3 rows, 3 checked, 0 not decodable` |
+| `N20b_control_note_row_under_the_order_type_blocks` | N20b control (Fable) | path text naming `Order`, never `TYPE Note` |
+| `N20b_control_note_row_off_its_chain_blocks` | PDB-35 | path text naming `Note` |
+| `N21_not_decodable_rows_are_counted` | N21, DL-136, DL-137 | bad digest + `Invoice` row: `3 rows, 1 checked, 2 not decodable` |
+| `N21b_rows_not_accepted_are_counted_QV3_8_B`, `N21b_rejected_row_skips_the_constructor_check` | PDB-26, QV3-8 B | a `rejected` row (also off-chain) is counted, not path-checked; a `rejected` `0` row under `stricter/` builds (`1 rows, 0 checked, 1`) |
+| `N29_read_order_*` | PDB-15 read order | digest before TYPE VERSION (bad digest + off-chain: counted); TYPE name before TYPE VERSION (`Invoice` v7: counted); TYPE VERSION before DL-101 (off-chain `0` row under `stricter/`: path text only, no constructor text). Chain before DL-101: `N20_chain_rows_build` |
+| `N22_no_row_snapshot_blocks_a_reader`, `N22_control_put_only_…` | N22, PDB-23 | exact PDB-23 text; `put_only/` without `rows.jsonl` exits 0 with `def orders_save(` and empty stderr |
+| `N23_line_form` (3 subtests) | N23 | not JSON, no `source "db"`, record version 2: each its text and `record source: <rows>:2 (line 2)` |
+| `N24_partial_row_snapshot_blocks`, `N24_control_matching_meta_builds`, `N24_sample_builds` | N24, PDB-22, P5-19 | `row_count` 3 beside 2 rows: the PDB-22 text; `row_count` 2 builds; the sample builds with `2 rows, 2 checked` |
+| `N24_sample_meta_form` (guard) | P5-19 | sample keys `table`, `database`, `query_time`, `row_count`, `row_ids`; ids sorted and equal to the rows' `row_id`; `row_count` = row lines; digests hold. Passes today (fixture check, not RED) |
+| `N25_list_record_constructor_blocks`, `N25_save_record_constructor_blocks` | N25, PDB-17 | the RESPONSE RECORD constructor text for `orders.list` (item 0) and `orders.save` |
+| `N25_control_rejected_record_is_counted` | N25 control, QV3-8 B, QV3-7 A | exit 0; stderr is the P2 pair `1 records, 0 checked, 1 rejected at capture` + `digest not verified (P2b)` (adjacent, in this order) and `rows: 0 rows, 0 checked, 0 not decodable` |
+| `N26_no_stored_value_in_any_text` (6 subtests) | N26, DL-124 | constructor, literal, path, orphan, list record, count line: the anchor text stands and no stored String (5 chars or more), row id, trace id or span id written by the test is in stderr |
+| `N27_events_hold_no_row_value` + every `compile()` | N27 (N14) | `.beaml/actions.jsonl` holds none of those words and not the `--stored` directory; the P4a and 6d checks run too |
+| `N28_orphan_rows_of_a_removed_db_effect_block` | DL-040 parity (6d O3) | two `Note` rows of `notes.save` under `orders.beaml`: `error: stored ROW of operation notes.save has no effect in the source`, `record source: <rows>:2 (line 2)`, `stored ROWS of operation notes.save: 2`; help line not compared |
+| `N28_control_row_of_a_removed_writer_with_a_reader_is_checked` | DL-137 | an `Order` row of `orders.import` (no such EFFECT) is checked: `1 rows, 1 checked` |
+| `N28b_retire_line_frees_orphan_rows` | 6d S5b parity | `@unittest.skip`: the RETIRE LINE meaning for rows is M5 (D036) |
+| `N30_literal_swap_on_a_row_blocks`, `N30b_map_migrate_step_frees_the_swap` | DL-140 | `@unittest.skip` with the reason (blocked, not red): no stored variant in a ROW CORE, no `map` form, fate slice P6 (D036). Skip, not `expectedFailure`: an expected failure would turn into "unexpected success" noise and says nothing about the block |
+| `N10_constructor_record` (runtime, 2 cases) | P4a RED review M1 | a seeded row that fails the constructor: the `responses` record of `list_orders` and of `load` is `value null, outcome rejected, reason constructor` |
+| `N31_note_chain_read_runtime` (runtime, 3 cases) | QDB-8 B | `list_notes` reads a `Note` v1 row with `tag ""`; `save_note` writes `{"Note", 2}` with the v2 `type`; `Order` and `Note` rows read side by side |
+
+### Dependencies
+
+| Needs | Tests |
+|---|---|
+| P4a GREEN (db KINDS, LIST TYPE, runtime) | every test but `N24_sample_meta_form` |
+| P3/P5 (several EFFECTS, module `Orders`) | every `orders.beaml`-family case (three or more EFFECTS); not `put_only/` |
+| P2 (v3 reader, count lines, QV3-8 B) | N23 version text, N25 (record version 3, RESPONSE checks), N25 control (count pair) |
+| P4b GREEN (rows reader) | N17 to N24, N26 to N29 |
+| P4a GREEN only (generated code) | N10_constructor_record, N31 |
+
+- **[Inference]** `N10_constructor_record` and `N31` can turn green with P4a GREEN alone; they stand here because the P4a RED review asked for M1 in P4b and QDB-8 B had no runtime case.
+- `slice6_entry_test.py` (imported for `setUp`, `compile`, `elixirc`) is under edit by a GREEN worker at this RED. A change of those helpers changes this file's harness.
+
+### Decisions
+
+**Repair**
+→ Orphan rows: block when the `operation` names no EFFECT and no RETIRE LINE and `type.name` has no reader statt block on operation only (RESPONSE form), weil DL-137 says a row that `db.get` or `db.list` decodes is checked; a removed writer with a kept reader must not block. Owner review line. → By: Opus (RED db-stored, default, open) · Repair
+→ The `N21` `Invoice` row keeps `operation "orders.save"` (a declared EFFECT), so it stays "counted" under the orphan rule statt a new operation, weil plan N21 says counted. → By: Opus (RED db-stored, default, open) · Repair
+→ An off-chain TYPE VERSION blocks with the path text statt "counted, not decodable", weil N20 and the N20b controls (Fable) say exit 1; the plan line "Decodable row … TYPE VERSION is on the chain … every other row is counted" contradicts them. Owner review line. → By: Opus (RED db-stored, default, open) · Repair
+→ The rows count line always prints (N17 with `0 not decodable`) statt QV3-7 A for rows, weil PDB-24 says "on success" and the N20b `3 checked` needs the line. The P2 RESPONSE pair keeps QV3-7 A. Owner review line. → By: Opus (RED db-stored, default, open) · Repair
+
+**Undo**
+→ DL-122 ROW text `has a value` (the built text with the plan substitution rule) statt the plan's `holds a value`. → By: Opus (RED db-stored, default, open) · Undo
+→ Plurals as built: `2 stored ROWS … fail`, `stored ROWS of operation …: N`. → By: Opus (RED db-stored, default, open) · Undo
+→ The rows line is not pinned to a place among the stderr lines; only the P2 pair is pinned adjacent. → By: Opus (RED db-stored) · Undo
+→ Orphan help line not compared (M4 text, M5 retire for rows). → By: Opus (RED db-stored) · Undo
+→ N26 word list: every String of 5 characters or more, every row id, trace id and span id written by the test; short values (`0`, `web`, `app`, `EUR`) are proven by the exact texts. → By: Opus (RED db-stored) · Undo
+→ DL-140 and the RETIRE LINE free as `@unittest.skip` with the reason, not `expectedFailure`. → By: Opus (RED db-stored) · Undo
+→ New test file statt extending `slice6_db_test.py`, weil the task forbids editing existing tests. → By: Opus (RED db-stored) · Undo
+→ Sample database name `beaml_dev` in `snapshot-meta.json` (no secret, a dev name). → By: Opus (RED db-stored) · Undo

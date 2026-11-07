@@ -98,6 +98,12 @@ Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/
 
 - **M4** (D036): PDB-09 withdrawn; D6B-39 holds for ROW TYPES; N18 pins today's help text, no new wording. 0005 N7/N7b run on the String-only ROW TYPE `Note` under QDB-8 B; the real `Order` chain waits on M4. → By: Fable · Repair
 
+**P4b RED defaults (`--stored` over rows)**, 2026-11-08. Ledger: [red-plan.md P4b](../../../0004-generated-replay/workflow/2026-11-07/db-transport/red-plan.md#p4b---stored-over-the-row-snapshot). By: Opus (RED db-stored, default, open) for every line.
+
+- **Orphan rows (DL-040 parity):** A row blocks with the DL-040 ROW text when its `operation` has no EFFECT and no RETIRE LINE and its `type.name` has no reader · B block on operation only (the RESPONSE form; a removed writer with a kept reader blocks) · C never block, count as not decodable. Default A. The RETIRE LINE free stays blocked on M5.
+- **Off-chain row:** A an accepted row of a ROW TYPE with a TYPE VERSION on no chain blocks with the path text (N20, N20b) · B counted as not decodable (the plan line "every other row is counted"). Default A.
+- **Rows count line:** A `rows: N rows, K checked, M not decodable` prints on every success, also with M = 0 · B QV3-7 A (only when M > 0). Default A; the P2 RESPONSE pair keeps QV3-7 A.
+
 ## First question tomorrow: M4 (D036)
 
 - **QDB-8** (big): the chained read over rows (N7/N7b) runs on a String-only ROW TYPE because the built D6B-39 bans constructor and enum fields in a chained TYPE. The real `Order` chain waits on M4 (help text vs lifting D6B-39). Default B, By: Fable (default, open). Options: A block N7/N7b on M4 · B String-only ROW TYPE · C answer M4 now.
