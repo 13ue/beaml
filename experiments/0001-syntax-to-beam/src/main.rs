@@ -2101,6 +2101,166 @@ impl<'a> Checker<'a> {
     }
 }
 
+// A variable bound to a redacted field: the field and its declaring TYPE (D6B-177).
+type Redacted = BTreeMap<String, (String, String)>;
+// A direct redacted value (D6B-174, D6B-182): the field, its declaring TYPE, and whether the one hop is used.
+type Direct = Option<((String, String), bool)>;
+// D6B-67 (b), (c), D6B-175, D6B-176: a variant payload or a whole clause body.
+fn hold_error(clause: &Clause, field: &str, owner: &str, ty: &str, failure: bool) -> String {
+    let (kind, dl) = if failure {
+        ("failure TYPE", "DL-105")
+    } else {
+        ("TYPE", "DL-112")
+    };
+    format!(
+        "error: fn {} copies the redacted field {field} of {owner} into the {kind} {ty}, which cannot hold a redacted value\n  help: do not copy the value ({dl})",
+        clause.name
+    )
+}
+impl Checker<'_> {
+    // DL-112, D6B-67: no direct copy of a redacted value into a place that is not redacted. A build check after
+    // `validate`; `fmt` does not check it.
+    fn redacted_copies(&self) -> Checked<()> {
+        for clause in &self.program.clauses {
+            let mut rv = BTreeMap::new();
+            for arg in &clause.args {
+                self.bound(arg, &mut rv);
+            }
+            self.copies(clause, &clause.body, &rv, None)?;
+            let ty = self.body_type(clause).0;
+            if let (Some(((field, owner), _)), Some(failure)) =
+                (self.direct(&clause.body, &rv), self.failure_of(clause, &ty))
+            {
+                return Err(hold_error(clause, &field, &owner, failure, true));
+            }
+        }
+        Ok(())
+    }
+    // The pattern variables bound to a redacted field, at any depth and under any name (D6B-174).
+    fn bound(&self, node: &Node, rv: &mut Redacted) {
+        match node {
+            Node::Annotated(inner, _) => self.bound(inner, rv),
+            Node::Record(ty, fields) => {
+                for (field, value) in fields {
+                    match value {
+                        Node::Name(v) if v != "_" && self.is_redacted(ty, field) => {
+                            rv.insert(v.clone(), (field.clone(), ty.clone()));
+                        }
+                        _ => self.bound(value, rv),
+                    }
+                }
+            }
+            Node::Call(_, args) => args.iter().for_each(|a| self.bound(a, rv)),
+            _ => {}
+        }
+    }
+    fn direct(&self, node: &Node, rv: &Redacted) -> Direct {
+        match node {
+            Node::Name(v) => rv.get(v).map(|hit| (hit.clone(), false)),
+            Node::Call(f, args) if args.len() == 1 => self.hop(f, self.direct(&args[0], rv)),
+            Node::Pipe(head, steps) => steps
+                .iter()
+                .fold(self.direct(head, rv), |cur, step| self.hop(step, cur)),
+            _ => None,
+        }
+    }
+    // One call or pipe step into the BEAML fn `f` with one parameter: an identity fn keeps a direct value, an
+    // accessor makes one (D6B-174, D6B-182). Every clause must qualify (D6B-183). One hop only.
+    fn hop(&self, f: &str, cur: Direct) -> Direct {
+        let clauses: Vec<&Clause> = self.program.clauses.iter().filter(|c| c.key == f).collect();
+        if clauses.is_empty() || clauses.iter().any(|c| c.args.len() != 1) {
+            return None;
+        }
+        let identity = clauses.iter().all(|c| {
+            let param = match &c.args[0] {
+                Node::Annotated(inner, _) => inner.as_ref(),
+                arg => arg,
+            };
+            matches!((param, &c.body), (Node::Name(p), Node::Name(b)) if p == b)
+        });
+        if identity {
+            return cur.filter(|(_, used)| !used).map(|(hit, _)| (hit, true));
+        }
+        let mut hits = clauses.iter().map(|c| {
+            let mut rv = BTreeMap::new();
+            self.bound(&c.args[0], &mut rv);
+            match &c.body {
+                Node::Name(v) => rv.get(v).cloned(),
+                _ => None,
+            }
+        });
+        let first = hits.next().flatten()?;
+        hits.all(|h| h.is_some()).then_some((first, true))
+    }
+    // DL-105, DL-112: a direct value in a record field that is not redacted, or in a variant payload. `outer` is
+    // the outer record literal TYPE and the dotted target of a record literal nested in a field (D6B-177).
+    fn copies(
+        &self,
+        clause: &Clause,
+        node: &Node,
+        rv: &Redacted,
+        outer: Option<(&str, &str)>,
+    ) -> Checked<()> {
+        let payload = |variant: &str, value: Direct| match (self.variants.get(variant), value) {
+            (Some((ty, _)), Some(((field, owner), _))) => Err(hold_error(
+                clause,
+                &field,
+                &owner,
+                ty,
+                self.failure_of(clause, ty).is_some(),
+            )),
+            _ => Ok(()),
+        };
+        match node {
+            Node::Record(ty, fields) => {
+                for (field, value) in fields {
+                    let (top, target) = match outer {
+                        Some((top, path)) => (top, format!("{path}.{field}")),
+                        None => (ty.as_str(), field.clone()),
+                    };
+                    if let Some(((source, owner), _)) = self.direct(value, rv)
+                        && !self.is_redacted(ty, field)
+                    {
+                        let (kind, dl) = if self.failure_of(clause, top).is_some() {
+                            ("failure TYPE", "DL-105")
+                        } else {
+                            ("TYPE", "DL-112")
+                        };
+                        return Err(format!(
+                            "error: fn {} copies the redacted field {source} of {owner} into {target} of the {kind} {top}, which is not redacted\n  help: mark {field} as redacted in {ty}, or do not copy the value ({dl})",
+                            clause.name
+                        ));
+                    }
+                    self.copies(clause, value, rv, Some((top, &target)))?;
+                }
+                Ok(())
+            }
+            Node::Call(name, args) => {
+                for arg in args {
+                    payload(name, self.direct(arg, rv))?;
+                    self.copies(clause, arg, rv, None)?;
+                }
+                Ok(())
+            }
+            Node::Pipe(head, steps) => {
+                self.copies(clause, head, rv, None)?;
+                let mut cur = self.direct(head, rv);
+                for step in steps {
+                    payload(step, cur.clone())?;
+                    cur = self.hop(step, cur);
+                }
+                Ok(())
+            }
+            Node::Plus(a, b) => {
+                self.copies(clause, a, rv, None)?;
+                self.copies(clause, b, rv, None)
+            }
+            Node::Annotated(inner, _) => self.copies(clause, inner, rv, None),
+            _ => Ok(()),
+        }
+    }
+}
+
 // Pattern coverage specializes one typed column at a time, including omitted record fields.
 #[derive(Clone, Debug)]
 enum Pattern {
@@ -4646,6 +4806,7 @@ fn build_with_refusals(
     .program()?;
     let mut checker = Checker::new(&program)?;
     checker.validate()?;
+    checker.redacted_copies()?;
     // D6B-28: only an EFFECT pipe names spans.
     let spans = !program.effects.is_empty();
     let service = match service {

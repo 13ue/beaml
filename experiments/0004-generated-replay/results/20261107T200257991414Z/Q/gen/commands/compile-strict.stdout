@@ -1,0 +1,16 @@
+==> mime
+Compiling 1 file (.ex)
+Generated mime app
+===> Analyzing applications...
+===> Compiling telemetry
+==> plug_crypto
+Compiling 5 files (.ex)
+Generated plug_crypto app
+===> Analyzing applications...
+===> Compiling ranch
+==> plug
+Compiling 1 file (.erl)
+Compiling 42 files (.ex)
+Generated plug app
+===> Analyzing applications...
+===> Compiling cowlib

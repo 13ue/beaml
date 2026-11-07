@@ -79,10 +79,11 @@ RED = {
     # D6B-177: F of T names the TYPE that declares the redacted field.
     "d7_nested_pattern": record_text("receipt", "holder", "Card", "holder", "TYPE Receipt", "holder", "Receipt"),
 }
-GUARDS = ["g1_redacted_target", "g2_failure_redacted_target", "g3_same_name_other_value", "g4_whole_record"]
-# l6, l7: "every clause" (D6B-174, D6B-182); a GREEN that reads one clause only rejects one of them.
+GUARDS = ["g1_redacted_target", "g2_failure_redacted_target", "g3_same_name_other_value", "g4_whole_record",
+          "g5_accessor_redacted_target"]
+# l6, l7, l8: "every clause" (D6B-174, D6B-182); a GREEN that reads one clause only rejects one of them.
 LIMITS = ["l1_concat", "l2_constructor_other_type", "l3_fn_builds_record", "l4_two_levels", "l5_success_body",
-          "l6_accessor_first_clause_only", "l7_identity_last_clause_only"]
+          "l6_accessor_first_clause_only", "l7_identity_last_clause_only", "l8_accessor_last_clause_only"]
 
 
 class RedactedFailureTest(unittest.TestCase):
@@ -134,7 +135,7 @@ class RedactedFailureTest(unittest.TestCase):
                 self.assert_reject(name, RED[name])
 
     def test_allowed_copies_build(self):
-        """G1, G2 (plan F2): a redacted target; G3: DL-113 same name, other value; G4 (plan F6): whole record."""
+        """G1, G2 (plan F2), G5 (N2): a redacted target; G3: DL-113 same name, other value; G4 (plan F6): whole record."""
         for name in GUARDS:
             with self.subTest(name):
                 self.assert_builds(name)
