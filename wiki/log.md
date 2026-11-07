@@ -361,3 +361,7 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 ## 2026-11-07: EXPERIMENT 0004 slice 6b step 11 docs (host structs and `T.new/1`)
 
 **[Verified]** Step 11 passed TEST and review: full suite [`20261107T165145154357Z`](../experiments/0004-generated-replay/results/20261107T165145154357Z/result.json) 14 of 14, slice 6 files 149 of 149, cargo clean ([ledger](../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-host-structs/), [review](../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-host-structs/review.md)). Added the [step 11 section](../experiments/0004-generated-replay/README.md#slice-6b-step-11-host-structs-and-tnew1) with the five `T.new/1` rules (DL-123) and the DL-106 limits, and a register row in [research and development](planning/research-and-development.md). **[Unknown]** N1 (the full suite holds no step 11 evidence) stays open; a struct from an older build is untested. By: Opus (DOCS, slice6b 6a+11)
+
+## 2026-11-07: concept | MIGRATE STEP fate operations (DL-125)
+
+**[Proposal]** New concept page [MIGRATE STEP fates](concepts/migrate-fates.md): the three interim blocks (DL-102, DL-116, DL-122/DL-124), the four FATE OPERATIONS of DL-125 with one unbuilt example each, proposed semantics, scope (RESPONSE RECORDS only, D020; form 2 only on a real case; DL-126) and open questions. GLOSSARY: new FATE OPERATION and MAP OPERATION, QUARANTINED RECORD points at DL-125, RETIRE LINE names the record-field form. No grammar or code change. By: Opus (DOCS, migrate-fates).
