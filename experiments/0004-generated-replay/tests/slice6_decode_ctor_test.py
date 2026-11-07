@@ -134,6 +134,27 @@ SHARED_CASES = {
     # Signature 2 is reachable: its keys only.
     "second_signature_alone": 'pick.(%%{"status" => "ok", "code" => "x"}) == %s' % (PICKED % "ByCode"),
 }
+# D6B-40 (GREEN, notes.md G-text): an enum field in an EFFECT input TYPE, also nested. Today it compiles and
+# :json.encode raises at call time.
+INPUT_ENUM = ('type Order { order_id: String state: %s }\n'
+              '%s'
+              'type Payment { order_id: String }\n'
+              'type PaymentError { reason: String }\n'
+              'effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")\n'
+              'fn place order: Order -> Payment ! PaymentError = order |> payments.authorize\n')
+LITERAL_ENUM = 'enum Kind { Card = "card"  Unknown(String) }\n'
+CTOR_ENUM = ('type Meta { kind: Pick }\n'
+             'enum Pick { ByCode  Unknown(String) }\n'
+             'fn Pick code: String -> Pick\n'
+             'fn Pick "x" -> Pick = ByCode\n'
+             'fn Pick other -> Pick = Unknown(other)\n')
+
+
+def input_enum_reject(place, enum):
+    return ("error: effect payments.authorize: the enum field %s cannot stand in an EFFECT input in slice 6b (D6B-40)\n"
+            "  help: send a String field, then map it to the enum %s after the EFFECT" % (place, enum))
+
+
 HELP_MIGRATE = "  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Payment (DL-102)"
 
 
@@ -207,6 +228,13 @@ class Slice6DecodeCtor(unittest.TestCase):
             "  help: bind every input in the last clause and put one String input into Unknown, for example "
             "fn PaymentState other, _ -> PaymentState = Unknown(other)"), EMPTY)
 
+
+    def test_enum_field_in_effect_input_is_rejected(self):
+        # D6B-40: an ENUM LITERAL field and a constructor enum in a nested input TYPE.
+        with self.subTest("literal"):
+            self.assert_rejected(INPUT_ENUM % ("Kind", LITERAL_ENUM), input_enum_reject("Order.state", "Kind"), EMPTY)
+        with self.subTest("constructor, nested"):
+            self.assert_rejected(INPUT_ENUM % ("Meta", CTOR_ENUM), input_enum_reject("Meta.kind", "Pick"), EMPTY)
 
 if __name__ == "__main__":
     unittest.main()

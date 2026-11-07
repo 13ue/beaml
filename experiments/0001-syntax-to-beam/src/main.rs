@@ -770,6 +770,10 @@ fn elixir_name(key: &str) -> String {
         None => key.to_string(),
     }
 }
+// The signature number k of a key `T#k`.
+fn display_k(key: &str) -> &str {
+    key.split_once('#').map_or("1", |(_, k)| k)
+}
 // The BEAML fn name of a signature key.
 fn display(key: &str) -> &str {
     key.split('#').next().unwrap_or(key)
@@ -1429,12 +1433,25 @@ impl<'a> Checker<'a> {
             {
                 return Err(format!("unsupported http path in effect {name}"));
             }
-            // D6B-19, interim for Q6B-3 (DL-101 replaces it with the decode through the constructor).
+            // D6B-40: no enum in an EFFECT input, also not nested (the tuple form has no JSON encoding).
+            if let Some((place, enum_name)) = self.enum_inside(&effect.input) {
+                return Err(format!(
+                    "error: effect {name}: the enum field {place} cannot stand in an EFFECT input in slice 6b (D6B-40)\n  help: send a String field, then map it to the enum {enum_name} after the EFFECT"
+                ));
+            }
+            // D6B-19, interim for Q6B-3. Step 8 (DL-101, S3) lifts it for the fields of the output TYPE only.
             let positions = [("input", &effect.input), ("output", &effect.output)]
                 .into_iter()
                 .chain(effect.failures.iter().map(|f| ("failure", f)));
             for (position, ty) in positions {
-                if let Some((nominal, field)) = self.constructor_inside(ty) {
+                let found = if position == "output" {
+                    self.constructors
+                        .contains(ty)
+                        .then(|| (ty.clone(), String::new()))
+                } else {
+                    self.constructor_inside(ty)
+                };
+                if let Some((nominal, field)) = found {
                     return Err(format!(
                         "error: effect {name}: the TYPE {nominal} has a constructor and cannot stand in an EFFECT {position}{field} (interim D6B-19, Q6B-3)\n  help: use a TYPE without a constructor at the EFFECT, then pipe it into fn {nominal}"
                     ));
@@ -1461,6 +1478,14 @@ impl<'a> Checker<'a> {
                             "error: effect {name}: the enum {ty} of {output}.{field} has no keep-value variant (DL-065)\n  help: add the variant Unknown(String) to enum {ty}"
                         ));
                     }
+                } else if self.constructors.contains(ty) && self.ctor_signatures(ty).is_some() {
+                    // Step 8 (DL-101): the decode calls the constructor with String parameters (S4).
+                    if self.versioned(output) {
+                        return Err(format!(
+                            "error: effect {name}: the constructor field {output}.{field} cannot stand in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n  help: remove the MIGRATE CHAIN and the VERSION MARK of {output}"
+                        ));
+                    }
+                    self.ctor_keeps(name, output, field, ty)?;
                 } else if ty != "String" {
                     return Err(format!(
                         "effect {name}: slice 1 decodes String fields only, not {}.{field}",
@@ -1521,6 +1546,132 @@ impl<'a> Checker<'a> {
                 )
             })
         })
+    }
+    // D6B-40: the first enum inside `ty` as (`Owner.field` or `Owner.Variant`, enum).
+    fn enum_inside(&self, ty: &str) -> Option<(String, String)> {
+        let here = |place: String, t: &String| match self.program.types.get(t) {
+            Some(Definition::Enum(_)) => Some((place, t.clone())),
+            _ => self.enum_inside(t),
+        };
+        match self.program.types.get(ty)? {
+            Definition::Record(fields) => fields
+                .iter()
+                .find_map(|(f, t)| here(format!("{ty}.{f}"), t)),
+            Definition::Enum(variants) => variants
+                .iter()
+                .find_map(|(v, args)| args.iter().find_map(|t| here(format!("{ty}.{v}"), t))),
+        }
+    }
+    // DL-084 K1: the signatures `T#k` of the constructor `fn T` in source order with their parameter names (the
+    // keys). None when a parameter is not `name: String` (S4: the decode reads String parameters only).
+    fn ctor_signatures(&self, ty: &str) -> Option<Vec<(String, Vec<String>)>> {
+        (1..)
+            .map(|k| format!("{ty}#{k}"))
+            .take_while(|key| self.signatures.contains_key(key))
+            .map(|key| {
+                let args = self
+                    .program
+                    .signature_lines
+                    .iter()
+                    .find(|l| l.key == key)
+                    .map(|l| &l.args)
+                    .or_else(|| {
+                        self.program
+                            .clauses
+                            .iter()
+                            .find(|c| c.key == key)
+                            .map(|c| &c.args)
+                    })?;
+                let names = args
+                    .iter()
+                    .map(|a| match a {
+                        Node::Annotated(inner, t) if t == "String" => match inner.as_ref() {
+                            Node::Name(n) if n != "_" => Some(n.clone()),
+                            _ => None,
+                        },
+                        _ => None,
+                    })
+                    .collect::<Option<Vec<_>>>()?;
+                (!names.is_empty()).then_some((key, names))
+            })
+            .collect::<Option<Vec<_>>>()
+            .filter(|s| !s.is_empty())
+    }
+    // D6B-50 (DL-065): for an enum constructor in an EFFECT decode, the last clause of each signature binds every
+    // input and puts one String input into a keep-value variant X(String). Gives those variants, one per signature.
+    fn ctor_keeps(
+        &self,
+        effect: &str,
+        output: &str,
+        field: &str,
+        ty: &str,
+    ) -> Checked<Vec<String>> {
+        let Some(Definition::Enum(variants)) = self.program.types.get(ty) else {
+            return Ok(Vec::new());
+        };
+        let keeps: Vec<&String> = variants
+            .iter()
+            .filter(|(_, args)| args.as_slice() == ["String"])
+            .map(|(v, _)| v)
+            .collect();
+        let Some(first) = keeps.first() else {
+            return Err(format!(
+                "error: effect {effect}: the enum {ty} of {output}.{field} has no keep-value variant (DL-065)\n  help: add the variant Unknown(String) to enum {ty}"
+            ));
+        };
+        let mut found = Vec::new();
+        for (key, names) in self.ctor_signatures(ty).expect("checked signatures") {
+            let last = self.program.clauses.iter().rfind(|c| c.key == key);
+            let bound = |arg: &Node| -> Option<String> {
+                match arg {
+                    Node::Name(n) => Some(n.clone()),
+                    Node::Annotated(inner, _) => match inner.as_ref() {
+                        Node::Name(n) => Some(n.clone()),
+                        _ => None,
+                    },
+                    _ => None,
+                }
+            };
+            let kept = last.and_then(|clause| {
+                let vars = clause.args.iter().map(bound).collect::<Option<Vec<_>>>()?;
+                let (variant, input) = match &clause.body {
+                    Node::Call(v, args) => match args.as_slice() {
+                        [Node::Name(x)] => (v, x),
+                        _ => return None,
+                    },
+                    Node::Pipe(head, steps) => match (head.as_ref(), steps.as_slice()) {
+                        (Node::Name(x), [v]) => (v, x),
+                        _ => return None,
+                    },
+                    _ => return None,
+                };
+                (input != "_" && vars.contains(input) && keeps.contains(&variant))
+                    .then(|| variant.clone())
+            });
+            let Some(variant) = kept else {
+                let k = display_k(&key);
+                let rest = ", _".repeat(names.len() - 1);
+                return Err(format!(
+                    "error: effect {effect}: the last clause of signature {k} of constructor {ty} (field {output}.{field}) keeps no String input in the keep-value variant {first} (DL-065, D6B-50)\n  help: bind every input in the last clause and put one String input into {first}, for example fn {ty} other{rest} -> {ty} = {first}(other)"
+                ));
+            };
+            if !found.contains(&variant) {
+                found.push(variant);
+            }
+        }
+        Ok(found)
+    }
+    // The constructor fields of an EFFECT output TYPE, sorted by field name: (field, TYPE).
+    fn ctor_fields(&self, output: &str) -> Vec<(String, String)> {
+        let mut fields: Vec<(String, String)> = self
+            .record(output)
+            .cloned()
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|(_, t)| self.constructors.contains(t))
+            .collect();
+        fields.sort();
+        fields
     }
     // D6B-18: a record literal of a TYPE T with a constructor stands only in the clauses of `fn T`, at any depth.
     fn literals(&self, node: &Node, owner: &str) -> Checked<()> {
@@ -2133,9 +2284,8 @@ impl Checker<'_> {
         let mut out = format!(
             "# Generated by experiment 0001. Not a stable ABI.\ndefmodule BeamlSpike do\n  import Kernel, only: [and: 2, is_binary: 1,{is_integer} is_map: 1, map_size: 1, ==: 2, <>: 2, if: 2, raise: 2, def: 2, defp: 2{nested}]\n",
         );
-        // D6B-07: the failure structs that no EFFECT names come first, so that clause bodies can build them.
-        // ponytail: an EFFECT failure struct stays after the clauses (byte guard); a pure clause that builds one needs it first.
-        out.push_str(&self.emit_structs(|f| !self.effect_failure(f)));
+        // D6B-07: the failure structs that no EFFECT names, or that a clause body builds, come first.
+        out.push_str(&self.emit_structs(|f| !self.effect_failure(f) || self.built(f)));
         out.push_str("  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and String.valid?(v)\n");
         if int {
             out.push_str("  defp __beaml_valid__(v, <<73,110,116>>), do: is_integer(v)\n");
@@ -2334,6 +2484,13 @@ impl Checker<'_> {
             .effects
             .iter()
             .any(|e| e.failures.iter().any(|f| f == failure))
+    }
+    // A clause whose body has the failure TYPE builds its struct in `result` (struct-order P2).
+    fn built(&self, failure: &str) -> bool {
+        self.program.clauses.iter().any(|c| {
+            self.failure_of(c, &self.body_type(c).0)
+                .is_some_and(|f| f == failure)
+        })
     }
     fn emit_structs(&self, keep: impl Fn(&str) -> bool) -> String {
         let mut out = String::new();
@@ -2602,6 +2759,24 @@ impl Checker<'_> {
             "__beaml_unknown_fields_{}",
             effect.output.to_ascii_lowercase()
         );
+        // Step 8 (DL-101, S5): (field, enum, keep-value variant) of literal and constructor enum fields.
+        let ctor_fields = self.ctor_fields(&effect.output);
+        let mut keeps: Vec<(String, String, String)> = literal_fields
+            .iter()
+            .map(|(f, e)| {
+                let keep = self.keep_variant(e).expect("checked keep-value variant");
+                (f.clone(), e.clone(), keep.to_string())
+            })
+            .collect();
+        for (field, ty) in &ctor_fields {
+            for variant in self
+                .ctor_keeps(name, &effect.output, field, ty)
+                .expect("checked keep-value variants")
+            {
+                keeps.push((field.clone(), ty.clone(), variant));
+            }
+        }
+        keeps.sort();
         let mut literal_map = String::new();
         if !literal_fields.is_empty() {
             let enums: BTreeSet<&String> = literal_fields.iter().map(|(_, e)| e).collect();
@@ -2620,22 +2795,19 @@ impl Checker<'_> {
                     binary(self.keep_variant(enum_name).expect("checked keep-value variant"))
                 ));
             }
+        }
+        if !keeps.is_empty() {
             // D6B-37: the field names whose value went to the keep-value variant, sorted, no values.
-            let keeps: Vec<String> = literal_fields
+            let listed: Vec<String> = keeps
                 .iter()
-                .map(|(f, e)| {
-                    format!(
-                        "{{{}, {}, {}}}",
-                        binary(f),
-                        binary(e),
-                        binary(self.keep_variant(e).expect("checked keep-value variant"))
-                    )
-                })
+                .map(|(f, e, v)| format!("{{{}, {}, {}}}", binary(f), binary(e), binary(v)))
                 .collect();
             out.push_str(&format!(
                 "  def {unknown_fields}(value) do\n    Enum.flat_map([{}], fn {{field, owner, keep}} ->\n      case Map.get(value, field) do\n        {{^owner, ^keep, _}} -> [field]\n        _ -> []\n      end\n    end)\n  end\n",
-                keeps.join(", ")
+                listed.join(", ")
             ));
+        }
+        if !literal_fields.is_empty() {
             for (field, enum_name) in &literal_fields {
                 literal_map.push_str(&format!(
                     "    shape =\n      if is_map(shape) and Map.has_key?(shape, {field}),\n        do: Map.update!(shape, {field}, &__beaml_literal_{enum_name}/1),\n        else: shape\n\n",
@@ -2643,11 +2815,82 @@ impl Checker<'_> {
                 ));
             }
         }
+        // Step 8 (DL-084, DL-085, DL-099, DL-101, D6B-48): `__beaml_from_T` tries the signatures of `fn T` top to
+        // bottom. A signature matches when all its keys hold Strings (one parameter: the field value is the
+        // String). A constructor failure is `:constructor` (the typed reject `constructor`), no match `:error`.
+        let ctor_types: BTreeSet<&String> = ctor_fields.iter().map(|(_, t)| t).collect();
+        let string = binary("String");
+        for ty in ctor_types {
+            let mut branches = String::new();
+            for (key, names) in self.ctor_signatures(ty).expect("checked signatures") {
+                let (test, args) = if let [_] = names.as_slice() {
+                    (format!("__beaml_valid__(v, {string})"), "v".to_string())
+                } else {
+                    let gets: Vec<String> = names
+                        .iter()
+                        .map(|n| format!("Map.get(v, {})", binary(n)))
+                        .collect();
+                    let tests: Vec<String> = gets
+                        .iter()
+                        .map(|g| format!(" and __beaml_valid__({g}, {string})"))
+                        .collect();
+                    (format!("is_map(v){}", tests.concat()), gets.join(", "))
+                };
+                let call = format!("{}({args})", elixir_name(&key));
+                let body = if self.failures[&key].is_empty() {
+                    call
+                } else {
+                    format!(
+                        "case {call} do\n          {{:ok, value}} -> value\n          {{:error, _}} -> :constructor\n        end"
+                    )
+                };
+                branches.push_str(&format!("      {test} ->\n        {body}\n\n"));
+            }
+            out.push_str(&format!(
+                "  defp __beaml_from_{ty}(v) do\n    cond do\n{branches}      true ->\n        :error\n    end\n  end\n"
+            ));
+        }
+        for (field, ty) in &ctor_fields {
+            literal_map.push_str(&format!(
+                "    shape =\n      if is_map(shape) and Map.has_key?(shape, {field}),\n        do: Map.update!(shape, {field}, &__beaml_from_{ty}/1),\n        else: shape\n\n",
+                field = binary(field)
+            ));
+        }
+        let tail = if ctor_fields.is_empty() {
+            format!(
+                "    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n",
+                output = binary(&effect.output)
+            )
+        } else {
+            // D6B-49, S8: a stray key inside a constructor field value is `FIELD.KEY`; every parameter name
+            // of every signature is declared.
+            let inner: Vec<String> = ctor_fields
+                .iter()
+                .map(|(field, ty)| {
+                    let mut names: Vec<String> = Vec::new();
+                    for (_, list) in self.ctor_signatures(ty).expect("checked signatures") {
+                        for n in list {
+                            if !names.contains(&n) {
+                                names.push(n);
+                            }
+                        }
+                    }
+                    let names: Vec<String> = names.iter().map(|n| binary(n)).collect();
+                    format!("{{{}, [{}]}}", binary(field), names.join(", "))
+                })
+                .collect();
+            format!(
+                "    cond do\n      is_map(shape) and Enum.member?(Map.values(shape), :constructor) ->\n        {{:error, {constructor}}}\n\n      __beaml_valid__(shape, {output}) ->\n        nested =\n          Enum.flat_map([{inner}], fn {{field, names}} ->\n            case Map.get(value, field) do\n              inner when is_map(inner) -> Enum.map(Map.keys(Map.drop(inner, names)), &(field <> {dot} <> &1))\n              _ -> []\n            end\n          end)\n\n        {{:ok, shape, Enum.sort(Enum.concat(Map.keys(Map.drop(value, declared)), nested))}}\n\n      true ->\n        :error\n    end\n",
+                constructor = binary("constructor"),
+                output = binary(&effect.output),
+                inner = inner.join(", "),
+                dot = binary("."),
+            )
+        };
         if !self.versioned(&effect.output) {
             out.push_str(&format!(
-                "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n{literal_map}    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n  end\n",
+                "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n{literal_map}{tail}  end\n",
                 declared.join(", "),
-                output = binary(&effect.output),
             ));
         } else {
             let known: Vec<String> = versions
@@ -2720,7 +2963,7 @@ impl Checker<'_> {
                 ", type_version",
             )
         };
-        let mark = if literal_fields.is_empty() {
+        let mark = if keeps.is_empty() {
             String::new()
         } else {
             format!(
@@ -2728,22 +2971,27 @@ impl Checker<'_> {
             )
         };
         out.push_str(&format!(
-            "{result_head}    case {decode}(a0{arity}) do\n      {{:ok, value, []}} ->\n        {mark}{{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {mark}{{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
+            "{result_head}    case {decode}(a0{arity}) do\n      {{:ok, value, []}} ->\n        {mark}{{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {mark}{{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n{reject}    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
             decode_reason = binary("decode"),
+            reject = if ctor_fields.is_empty() {
+                String::new()
+            } else {
+                format!("\n      {{:error, reason}} ->\n        __beaml_fail_{elixir}(reason)\n")
+            },
         ));
-        out.push_str(&self.emit_structs(|f| self.effect_failure(f)));
+        out.push_str(&self.emit_structs(|f| self.effect_failure(f) && !self.built(f)));
         out.push_str("  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n");
         out.push_str(HTTP);
         out.push_str(&format!(
             "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n\n{unknown}\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 1,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        body_base64: Base.encode64(bytes),\n        body_length: byte_size(bytes),\n        body_sha256: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),\n        unknown_keys: unknown_keys,\n{fields_key}        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
             operation = binary(name),
             // Step 7 (notes.md S4): the RESPONSE RECORD key `unknown_fields` holds field names only.
-            unknown = if literal_fields.is_empty() {
+            unknown = if keeps.is_empty() {
                 format!("      unknown_keys =\n        case @parent.{decode}(bytes) do\n          {{:ok, _, keys}} -> keys\n          _ -> []\n        end\n")
             } else {
                 format!("      {{unknown_keys, unknown_fields}} =\n        case @parent.{decode}(bytes) do\n          {{:ok, value, keys}} -> {{keys, @parent.{unknown_fields}(value)}}\n          _ -> {{[], []}}\n        end\n")
             },
-            fields_key = if literal_fields.is_empty() { "" } else { "        unknown_fields: unknown_fields,\n" },
+            fields_key = if keeps.is_empty() { "" } else { "        unknown_fields: unknown_fields,\n" },
             retired = self.emit_retired(),
             type_version = self.emit_type_version(&effect.output),
             chain = self.emit_chain(&self.body_type(flow).1, Some(flow), service, "      ", Step::Replay),
@@ -3333,6 +3581,9 @@ impl Checker<'_> {
         // DL-102, DL-103: per (TYPE, operation, field, enum) of a literal enum field: (failed records, first
         // failed line, resolved records). The body is mapped by the current literals (one file, one environment).
         let mut mapped: BTreeMap<FieldKey, (usize, usize, usize)> = BTreeMap::new();
+        // Step 8 (DL-102, S9): per (TYPE, operation, field, constructor, failure TYPE or None for no signature):
+        // (failed records, first failed line).
+        let mut faults: BTreeMap<(FieldKey, Option<String>), (usize, usize)> = BTreeMap::new();
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             if line.trim().is_empty() {
@@ -3350,7 +3601,10 @@ impl Checker<'_> {
                     .or_insert(stored.version);
                 *oldest = (*oldest).min(stored.version);
                 let literal_fields = self.literal_fields(&effect.output);
-                if stored.name == effect.output && !literal_fields.is_empty() {
+                let ctor_fields = self.ctor_fields(&effect.output);
+                if stored.name == effect.output
+                    && !(literal_fields.is_empty() && ctor_fields.is_empty())
+                {
                     let body = record
                         .get("body_base64")
                         .and_then(Json::text)
@@ -3386,6 +3640,13 @@ impl Checker<'_> {
                             }
                         }
                         entry.2 += usize::from(resolved);
+                    }
+                    for (field, ty) in ctor_fields {
+                        let value = body.as_ref().and_then(|b| b.get(&field));
+                        if let Some(reason) = self.ctor_fault(&ty, value) {
+                            let key = (effect.output.clone(), stored.operation.clone(), field, ty);
+                            faults.entry((key, reason)).or_insert((0, number)).0 += 1;
+                        }
                     }
                 }
                 groups.entry(stored).or_insert((0, number)).0 += 1;
@@ -3424,12 +3685,62 @@ impl Checker<'_> {
                     ));
                 }
             }
+            for (((ty, op, field, ctor), reason), (failed, line)) in &faults {
+                let one = *failed == 1;
+                let what = match reason {
+                    Some(failure) => format!(
+                        "{} the constructor of {ctor} for field {field} with {failure}",
+                        if one { "fails" } else { "fail" }
+                    ),
+                    None => format!(
+                        "{} no signature of {ctor} for field {field}",
+                        if one { "matches" } else { "match" }
+                    ),
+                };
+                errors.push(format!(
+                    "error: TYPE {ty}: {failed} stored RESPONSE RECORD{} of operation {op} {what}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of {ty} (DL-102)",
+                    plural(*failed)
+                ));
+            }
         }
         if errors.is_empty() {
             Ok(snapshot)
         } else {
             Err(errors.join("\n"))
         }
+    }
+    // Step 8 (D6B-48, DL-101): runs the constructor `fn T` over a stored field value. None: it passes. Some(None): no
+    // signature matches. Some(Some(E)): the first matching clause fails with E.
+    fn ctor_fault(&self, ty: &str, value: Option<&Json>) -> Option<Option<String>> {
+        fn matches(arg: &Node, input: &str) -> bool {
+            match arg {
+                Node::Text(t) => t == input,
+                Node::Name(_) => true,
+                Node::Annotated(inner, _) => matches(inner, input),
+                _ => false,
+            }
+        }
+        for (key, names) in self.ctor_signatures(ty).expect("checked signatures") {
+            let inputs: Option<Vec<&str>> = match names.as_slice() {
+                [_] => value.and_then(Json::text).map(|t| vec![t]),
+                _ => names
+                    .iter()
+                    .map(|n| value.and_then(|v| v.get(n)).and_then(Json::text))
+                    .collect(),
+            };
+            let Some(inputs) = inputs else { continue };
+            // ponytail: the static body TYPE of the first matching clause decides; a body that fails only in a pipe
+            // step counts as passing. Evaluate the body when such a constructor stands in a decode.
+            return self
+                .program
+                .clauses
+                .iter()
+                .filter(|c| c.key == key)
+                .find(|c| c.args.iter().zip(&inputs).all(|(a, i)| matches(a, i)))
+                .and_then(|c| self.failure_of(c, &self.body_type(c).0))
+                .map(|f| Some(f.clone()));
+        }
+        Some(None)
     }
     // DEAD LINES (slice 4, DL-056), in source order. W1: a RETIRE LINE whose operation has no record in the
     // RECORD SNAPSHOT. W2: a MIGRATE STEP `T a -> b` when no record of an operation whose `effect` outputs T

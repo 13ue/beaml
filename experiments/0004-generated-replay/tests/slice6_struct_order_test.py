@@ -26,6 +26,13 @@ PROBE = ('type Order { order_id: String }\n'
          'type PaymentError { reason: String }\n'
          'effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")\n'
          'fn place order: Order -> Payment ! PaymentError = order |> payments.authorize\n')
+# Struct-order notes P2 (G3 limit): a pure fn builds the EFFECT failure struct.
+PROBE_P2 = ('type Order { order_id: String }\n'
+            'fn refuse x: String -> String ! PaymentError = PaymentError { reason: "x" }\n'
+            'type Payment { order_id: String }\n'
+            'type PaymentError { reason: String }\n'
+            'effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")\n'
+            'fn place order: Order -> Payment ! PaymentError = order |> payments.authorize\n')
 EMPTY = ["--stored", str(sf.EMPTY_STORED)]
 
 
@@ -36,7 +43,14 @@ class Slice6StructOrder(unittest.TestCase):
 
     def test_effect_module_with_pure_record_failure_compiles(self):
         # D6B-07: struct modules come before any use. Today: BeamlSpike.Bad.__struct__/1 is undefined.
-        code, stdout, stderr = self.compile(PROBE, EMPTY)
+        self.assert_elixirc(PROBE)
+
+    def test_pure_fn_builds_the_effect_failure_struct(self):
+        # Struct-order notes P2: the EFFECT failure struct comes before the pure clause that builds it.
+        self.assert_elixirc(PROBE_P2)
+
+    def assert_elixirc(self, source):
+        code, stdout, stderr = self.compile(source, EMPTY)
         self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout), stderr)
         out = self.work / "beam"
         out.mkdir()

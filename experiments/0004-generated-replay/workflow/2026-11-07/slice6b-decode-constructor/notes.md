@@ -109,3 +109,62 @@ Step 3 suite: 25 tests, 1 FAIL (`test_constructor_type_in_an_effect_output_field
 - **[Observed]** Fixture check for R2: a pure copy of `Pick` (no EFFECT) compiles on the baseline. `new_Pick_1("ok", "")` gives `{"Pick", "ByReason", []}`, `new_Pick_2("ok", "x")` gives `{"Pick", "ByCode", []}`. The copy stays in the scratch directory.
 - **[Inference]** The three runtime and `--stored` accept tests now fail for the missing constructor decode only, not for a wrong fixture.
 - **[Inference]** After the step 8 GREEN, the runtime tests also need the struct-order GREEN (R5).
+
+## GREEN
+
+Commands and results: [green-output.log](green-output.log). Changed files: `experiments/0001-syntax-to-beam/src/main.rs` (sha256 `ad946c6d…`, +357 −24), `tests/slice6_decode_ctor_test.py` (new test D6B-40), `tests/slice6_struct_order_test.py` (new test P2). The two tests were written before the `main.rs` change. The fixtures and the snapshots did not change (hashes equal to RED). `run.py` was not run. No commit.
+
+### Tests first (RED)
+
+- `test_enum_field_in_effect_input_is_rejected` (D6B-40), two subtests. HEAD compiler `078bbf6f`, `main.rs` unchanged: the ENUM LITERAL input compiles (exit 0); the nested constructor enum gives the D6B-19 text. 2 of 2 FAIL.
+- `test_pure_fn_builds_the_effect_failure_struct` (struct-order P2): `elixirc` exit 1, `BeamlSpike.PaymentError.__struct__/1 is undefined`. 1 FAIL.
+
+### Result (observed)
+
+| Command | Result |
+|---|---|
+| `slice6_decode_ctor_test.py` | 8 tests OK (the 7 of RED and D6B-40) |
+| `slice6_constructor_test.py` | 25 OK |
+| int, failure, enum, pipe, decode | 16, 22, 20, 12, 10 OK |
+| `slice6_struct_order_test.py` | 3 OK (2 and P2) |
+| `slice6_fmt_test.py` | 25 OK |
+| stored_types, slice3_types, slice4_retire | 33, 69, 87 OK |
+| slice5_syntax, slice5_squash, slice5_rewrite | 60, 24, 5 OK |
+| `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings` | exit 0 |
+| `cargo test --offline --no-fail-fast` | 18 unit, 14 CLI passed |
+| Byte-equal, HEAD against GREEN (slice6, slice2, arms, payments.beaml) | 22 equal; only `slice6/decode-ctor/orders.beaml` changes (rejected to compiled) |
+
+### Decisions
+
+- **G1 · Undo.** D6B-40 text: `error: effect OP: the enum field T.F cannot stand in an EFFECT input in slice 6b (D6B-40)`, then `  help: send a String field, then map it to the enum E after the EFFECT`. It runs before D6B-19, so a constructor enum in an input field gets D6B-40. Alternative: D6B-19 first. Reason: D6B-40 names the real limit; the step 3 input test uses a record constructor and keeps D6B-19.
+  By: Opus (GREEN, slice6b-decode-constructor)
+- **G2 · Undo.** The D6B-40 test is in `slice6_decode_ctor_test.py` (8 tests now). Alternative: `slice6_enum_test.py`. Reason: one ledger for this step.
+  By: Opus (GREEN, slice6b-decode-constructor)
+- **G3 · Repair.** **Chose:** a struct goes to the top of `BeamlSpike` when no EFFECT names it or when a clause body has that failure TYPE (`built`). **Over:** all structs at the top. **Because:** the orders fixtures name `PaymentError` only through the EFFECT and the flow; their bytes stay equal (guards PASS). **Commits us to:** the struct-order `ponytail:` comment and P2 are closed.
+  By: Opus (GREEN, slice6b-decode-constructor)
+- **G4 · Repair.** **Chose:** one helper `__beaml_from_T` per constructor field TYPE: a `cond` over the signatures in source order; an object signature matches when every key holds a valid String; a one-parameter signature matches a String; a failing call gives `:constructor`; no match `:error`. The decode then gives `{:error, "constructor"}` before the shape check, else the slice 1 shape check (typed reject `decode`). **Over:** a decode that returns a 4-tuple. **Because:** the result function needs one new clause only; outputs without constructor fields keep their bytes. **Commits us to:** a missing key and a wrong TYPE give `decode`, never `constructor` (S7).
+  By: Opus (GREEN, slice6b-decode-constructor)
+- **G5 · Repair.** **Chose:** the keep-value variant of a constructor enum is the variant that the last clause of each signature fills (D6B-50). The step 7 helper `__beaml_unknown_fields_T` lists these with the literal fields. **Over:** the variant found by shape only. **Because:** D6B-50 already finds it. **Commits us to:** **[Inference]** a non-last clause that gives the same variant also flags the field; not tested.
+  By: Opus (GREEN, slice6b-decode-constructor)
+- **G6 · Undo.** Stray keys: the nested `FIELD.KEY` names join the top-level stray keys in one sorted list. Every parameter name of every signature is declared (D6B-49). The rule is the same for a record constructor field (`amount`). Alternative: enum fields only. Reason: one rule.
+  By: Opus (GREEN, slice6b-decode-constructor)
+- **G7 · Repair.** **Chose:** the `--stored` check runs the constructor in Rust: the first matching signature (D6B-48), then the first clause whose patterns match; the static body TYPE of that clause decides the failure TYPE. **Over:** an interpreter for clause bodies. **Because:** the fixture constructors fail by a literal body. **Commits us to:** a `ponytail:` limit in `ctor_fault`: a body that fails only in a pipe step counts as passing. Open point P11.
+  By: Opus (GREEN, slice6b-decode-constructor)
+- **G8 · Undo.** DL-102 text for constructors: singular `fails` and `matches`, plural `fail` and `match`. One message per TYPE, operation, field, constructor and reason, after the literal messages. A record constructor field with a missing key gives the `no signature` form. Alternative: one plural form. Reason: as step 7 G7.
+  By: Opus (GREEN, slice6b-decode-constructor)
+- **G9 · Undo.** A constructor field in a TYPE with a MIGRATE CHAIN or a VERSION MARK gives `the constructor field T.F cannot stand in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)`. Alternative: no check. Reason: the versioned decode validates raw values before the steps; not tested.
+  By: Opus (GREEN, slice6b-decode-constructor)
+- **G10 · Undo.** A constructor TYPE with a parameter that is not `name: String` keeps the slice 1 field text (R3). The step 3 test passes with no change to its text.
+  By: Opus (GREEN, slice6b-decode-constructor)
+- **G11 · Undo.** No new action event field. The events record no value and no source text; the existing test check runs on every compile.
+  By: Opus (GREEN, slice6b-decode-constructor)
+
+### Open points
+
+- **P11 [Open, Repair]** G7 limit: a constructor that fails only in a pipe step of its body is not checked by `--stored`. The smallest next test: a record constructor `fn Amount v, c -> Amount ! NoCurrency = c |> check |> ...` with a failing stored record.
+- **P2** of the struct-order mini-step is closed by G3. P2 of this step (D6B-19 on the output TYPE itself, the input and a failure TYPE) stays open.
+
+### Limits
+
+- **[Observed]** The runtime harness uses the step 7 stubs, not a release. `run.py` (TEST phase) covers the release path.
+- **[Inference]** P4 (record constructor with one parameter) works by the same code path as an enum one-parameter signature; not tested.
