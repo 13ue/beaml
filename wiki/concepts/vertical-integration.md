@@ -58,6 +58,7 @@ updated: 2026-11-07
 - Unknown values stay visible through the stack. The check reports per environment how many values are `Unknown`.
 - Privacy is the highest goal. A field of a `type` can be declared as PII with the word `redacted` before its TYPE (`card_holder: redacted String`). The compiler keeps that value out of logs, traces and reports across the stack. See [information-flow security](information-flow-security.md).
 - By default the compiler checks only the stored TYPE VERSIONS. A run of the migrations over stored values is a separate step per environment, started on request.
+  - **[Verified]** Superseded 2026-11-07 by [DL-102](../planning/decision-log.md), [DL-121](../planning/decision-log.md) and [DL-122](../planning/decision-log.md): the `--stored` check also runs the generated Elixir constructors and the ENUM LITERAL mapping over the stored values at build time. A failing value or a lost literal blocks the build. The text above stays as the 2026-11-06 record (RED TEAM 01, finding D6).
 
 **[Verified]** Review round 1 found that a chain with guessing fallbacks cannot fail a build on bad data. Review round 2 found that an agent that may accept its own fallback hits turns the check into a formality. The rules above remove both: there is no guessing fallback, so there is nothing to accept.
 
@@ -67,6 +68,7 @@ updated: 2026-11-07
 - The compiler checks PII flow in both forms: a PII value that reaches an effect, and a value derived from PII by a branch (implicit flow). This is a target for the compiler, not the next slice.
 - Division offers both forms: a function can return a typed `DivByZero` failure (`!`), or declare the divisor as a non-zero integer TYPE, so that the caller must prove it.
 - A deploy blocks only when an environment stores a TYPE VERSION that the `migrate` chain cannot reach. `Unknown` counts are reported, not blocking.
+  - **[Verified]** Superseded 2026-11-07 by [DL-102](../planning/decision-log.md), [DL-121](../planning/decision-log.md) and [DL-122](../planning/decision-log.md): a deploy also blocks when a stored value fails a new constructor or mapping rule, or holds a removed ENUM LITERAL, until a MIGRATE STEP declares its fate. `Unknown` counts stay non-blocking ([DL-103](../planning/decision-log.md)). The text above stays as the 2026-11-06 record (RED TEAM 01, finding D6).
 
 - An `effect` that leaves the source while an environment stores its records blocks the build until `retire <effect> keep <duration>` is declared. Retired records are kept for the duration and then deleted; `keep 0 days` deletes at deploy and the report says so.
 - The compiler warns about dead `retire` lines and dead `migrate` steps (no stored records left in any environment), and a command removes them on request.

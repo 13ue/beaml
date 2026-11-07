@@ -1611,6 +1611,7 @@ The five rules of `T.new/1` (D6B-97 to D6B-101, class Repair by DL-123):
 **Limits (step 11).**
 
 - **[Verified]** DL-106 limit: Elixir has no private constructors. A deliberate struct literal at the host passes the check (H7 records it: `keep(%NonZeroInt{value: 0})` gives the struct). The check stops the accidental forgery, not a deliberate one.
+  - **[Verified]** Correction 2026-11-07 (RED TEAM 01, finding B5): the sentence above is too wide. The check requires the struct TYPE. A struct built by `new/1` carries validated fields. A struct update (`%{s | value: 0}`, the normal Elixir edit) and a forged `__struct__` map pass the check, also inside a nested field. The check does not run the constructor again. This is the DL-106 limit. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md).
 - **[Verified]** A forged map `%{__struct__: BeamlSpike.NonZeroInt, value: 4, x: 1}` with an extra key also passes the input check. It is the same class as the DL-106 limit (review probe).
 - **[Inference]** A struct from an older build with another field set is untested.
 - **[Verified]** N1 (medium): `run.py` runs no slice 6 test file. The full-suite run holds no step 11 evidence; unittest keeps no result directory. The evidence for 149 of 149 is the [review](workflow/2026-11-07/slice6b-host-structs/review.md).
@@ -1685,6 +1686,7 @@ error: fn T: a constructor cannot reach an EFFECT: T -> f -> ... -> effect.name 
 - **[Verified]** N1 (medium): no 0002 test calls `event/2` without a span. Only `arms_test` covers D6B-127, indirectly. A consumer that joins on `span_id` drops a `"none"` row.
 - **[Inference]** The real OTel exporter runs only for the GEN orders source, which has no indirect pipe. The indirect pipes run with stubs.
 - **[Verified]** Spans for call forms and nested pipes, the REPLAY RUN of an indirect caller and a `check --json` reach output are out of scope (D6B-85, D6B-93, D6B-94).
+- **[Verified]** Limit of the full suite (added 2026-11-07, RED TEAM 01, finding D10): the full `run.py` run covers slices 1 to 5. It runs no `slice6_*_test.py` file and not `drift_test.py`, and its `drift` step does not read `repaired_all`. The 13 slice 6 files (172 of 172) and `drift_test.py` (5 of 5) ran apart and keep no `results/` directory. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md).
 
 ### Slice 6b step 13: stored check through Elixir
 
@@ -1768,6 +1770,7 @@ error: the --stored check: the Elixir run of the generated constructors failed (
 - **[Inference]** The process-group kill is shown on this host only.
 - **[Inference]** The signature pick is a Rust mirror of the generated `cond` (D6B-103). The guards E9a and E9b catch a drift of the order. A new signature rule must change both.
 - **[Verified]** Lost mappings of constructor enums are not checked (D6B-109).
+- **[Verified]** Limit of the full suite (added 2026-11-07, RED TEAM 01, finding D10): the full `run.py` run (14 of 14) covers slices 1 to 5. `slice6_stored_elixir` (15 of 15), the other slice 6 files (172 of 172 in total) and `drift_test.py` ran apart. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md).
 - **[Inference]** `elixir` from asdf reads `~/.tool-versions` in a temporary cwd. A machine with only a project-local `.tool-versions` gets the run error, not a pass.
 
 ### Decisions (Decision4, slice 6b DOCS 12, 12b and 13)

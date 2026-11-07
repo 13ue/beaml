@@ -76,7 +76,7 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
 </header>
 
 <section style="display:grid;gap:10px">
-  <div class="bar" aria-hidden="true"><div class="mix"></div><div class="mix"></div><div class="wait"></div><div></div><div></div><div class="mix"></div><div class="mix"></div></div>
+  <div class="bar" aria-hidden="true"><div class="mix"></div><div class="mix"></div><div class="mix"></div><div></div><div></div><div class="mix"></div><div class="mix"></div></div>
   <div class="legend">
     <span><span class="chip ok">verified</span> built, tests green, evidence retained</span>
     <span><span class="chip wait">decided</span> owner decision recorded, not built</span>
@@ -91,15 +91,17 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
   <p>Rust-level diagnostics. Compile times faster than Go.</p>
   <div class="cols">
     <div class="col"><h3>Verified</h3><ul>
-      <li>Records, variants and nested patterns compile to Elixir with exact boundary checks (experiment 0001)</li>
+      <li>Records, variants and nested patterns compile to Elixir with boundary checks at the generated wrappers (experiment 0001)</li>
       <li>Error messages with a help line that names the fix</li>
       <li>Tree-sitter grammar and editor highlighting</li>
+      <li>One <code>type</code> form for every type; a constructor is the only way in (DL-092, slice 6b step 3)</li>
+      <li>Enum literals and enum constructors as function clauses, first matching signature wins, unreachable clause is an error (DL-082 to DL-088, steps 4, 7 and 8)</li>
+      <li>Pipes in any expression (DL-086, step 5)</li>
+      <li>Constructor types are structs at the host, built through <code>T.new/1</code> (DL-106, DL-117, step 11). Limit: a struct update or a forged <code>__struct__</code> map passes the check</li>
+      <li>A constructor is pure: a constructor that reaches an effect is a compile error (DL-120, step 12b)</li>
     </ul></div>
     <div class="col"><h3>Decided, next</h3><ul>
-      <li>One <code>type</code> form for every type; a constructor is the only way in (DL-092)</li>
-      <li>Enum constructors as function clauses, first matching signature wins, unreachable clause is an error (DL-082 to DL-088)</li>
-      <li>Pipes in any expression (DL-086)</li>
-      <li><code>beaml fmt</code> aligns clause columns (DL-083)</li>
+      <li>Repair of the RED TEAM 01 findings on enum constructors and enum literals in the stored check (C1, D1)</li>
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
       <li>Compile-time budget against Go</li>
@@ -119,10 +121,13 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>Build fails when a stored version has no path to the newest</li>
       <li><code>retire</code> for deleted effects, dead-line warnings, <code>--remove-dead</code></li>
       <li>VERSION MARK on the type line after a squash</li>
+      <li><code>Unknown(String)</code> as a declared variant for outside data (DL-062, DL-065, slice 6b step 4)</li>
+      <li>A stored record holds the typed projection of the response, never the raw body (DL-105, records version 2, step 6a)</li>
+      <li>The <code>--stored</code> check runs the generated Elixir constructors over the stored values (DL-121, step 13)</li>
+      <li>A stored value that fails a new rule blocks the build (DL-102, steps 8 and 13); a removed enum literal with stored values blocks it too (DL-122, DL-124, step 13). Interim: no fate syntax exists yet to lift the block</li>
     </ul></div>
     <div class="col"><h3>Decided, next</h3><ul>
       <li>Production stores report versions by a live query of the nodes; registry and exports later (DL-094)</li>
-      <li><code>Unknown(String)</code> as a declared variant for outside data (DL-062, DL-065)</li>
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
       <li>Lazy or eager migration, batches, rollback windows</li>
@@ -134,14 +139,14 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
 </article>
 
 <article class="part">
-  <header><h2><span class="num">3</span>Typed errors</h2><span class="chip wait">decided</span></header>
+  <header><h2><span class="num">3</span>Typed errors</h2><span class="chip ok">verified · partly</span></header>
   <p>Every failure has a type. Total functions; the compiler proves the cases.</p>
   <div class="cols">
     <div class="col"><h3>Verified</h3><ul>
       <li>Typed replay rejection reasons (experiment 0003, 0004 slice 4)</li>
+      <li><code>-&gt; T ! E1 | E2</code>: the failure position; success and failure types never overlap (DL-092, DL-093, slice 6b step 2)</li>
     </ul></div>
     <div class="col"><h3>Decided, next</h3><ul>
-      <li><code>-&gt; T ! E1 | E2</code>: the failure position; success and failure types never overlap (DL-092, DL-093)</li>
       <li>Division: <code>! DivByZero</code> or a <code>NonZeroInt</code> type with a constructor (DL-030)</li>
       <li>No guessing fallback in migrations</li>
     </ul></div>
@@ -183,16 +188,17 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
     <div class="col"><h3>Verified</h3><ul>
       <li>One order located across two HTTP services, spans and logs (experiment 0002)</li>
       <li>Captured responses replay in isolation (experiment 0003)</li>
+      <li>A step gets a span when it is an effect or reaches one, transitively; the default span set is the effect path (DL-108, DL-119, slice 6b step 12)</li>
     </ul></div>
     <div class="col"><h3>Decided, next</h3><ul>
-      <li><code>redacted</code> fields stay out of logs, traces and reports (DL-059)</li>
+      <li><code>redacted</code> fields stay out of logs, traces and reports (DL-059; slice 6b step 6b, in build)</li>
       <li>An effect gets a redacted field only with <code>with &lt;field&gt;</code> (DL-089)</li>
       <li>Migration checks report counts per environment, never values</li>
       <li>Entry points declared in the source as inbound effects (<code>on</code>), so every live function is reachable from a declaration and the entry opens the root span (DL-128)</li>
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
       <li>Policy on effect lines: retry, timeout, idempotent (DL-126)</li>
-      <li>Trace resolution per subtree, time-limited; default is the effect path (DL-119, D018)</li>
+      <li>Trace resolution per subtree, time-limited, as an observatory setting (DL-119, D018)</li>
       <li>Typed dashboards and alerts</li>
       <li>Feature flags</li>
       <li>Implicit PII flow in the compiler</li>
@@ -207,11 +213,11 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
     <div class="col"><h3>Verified</h3><ul>
       <li>Tree-sitter grammar, Zed extension, highlighting</li>
       <li>Compiler errors with a help line that names the fix</li>
-      <li>Action log of every compiler run</li>
+      <li>Action log of compiler runs. Limit: parallel runs can lose lines (RED TEAM 01, B3)</li>
+      <li>Grammar for the decided forms (slice 6a, 12 of 12 checks)</li>
+      <li><code>beaml fmt</code>: one canonical form, aligned clauses, version mark form (DL-081, DL-083, DL-104, slice 6b step 10)</li>
     </ul></div>
     <div class="col"><h3>Decided, next</h3><ul>
-      <li>Grammar for the decided forms (slice 6a, in progress)</li>
-      <li><code>beaml fmt</code>: one canonical form, aligned clauses (DL-081, DL-083)</li>
       <li><code>beaml check --json</code>: diagnostics with positions, for agents and editors</li>
       <li>Language server on that JSON: diagnostics and hover first; Zed, then VS Code</li>
     </ul></div>
@@ -226,19 +232,29 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
 
 <section style="display:grid;gap:10px">
   <h2>What the source looks like today</h2>
-  <div class="code"><pre><i class=k>type</i> <i class=t>Payment</i> <i class=c>v3</i> <i class=b>{</i>
+  <div class="code"><pre><i class=k>type</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>PaymentError</i> <i class=b>{</i> <i class=p>reason</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+
+<i class=k>type</i> <i class=t>Payment</i> <i class=c>v3</i> <i class=b>{</i>
   <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i>
-  <i class=p>state</i><i class=o>:</i> <i class=t>PaymentState</i>
-  <i class=p>card_holder</i><i class=o>:</i> <i class=k>redacted</i> <i class=t>String</i>
+  <i class=p>state</i><i class=o>:</i> <i class=t>String</i>
+  <i class=p>card_holder</i><i class=o>:</i> <i class=t>String</i>
 <i class=b>}</i>
 
 <i class=k>migrate</i> <i class=t>Payment</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i> <i class=k>rename</i> <i class=p>status</i> <i class=o>-&gt;</i> <i class=p>state</i> <i class=b>}</i>
 <i class=k>migrate</i> <i class=t>Payment</i> <i class=c>v2</i> <i class=o>-&gt;</i> <i class=c>v3</i> <i class=b>{</i>
-  <i class=k>add</i> <i class=p>card_holder</i><i class=o>:</i> <i class=k>redacted</i> <i class=t>String</i> <i class=o>=</i> <i class=s>&quot;&quot;</i>
+  <i class=k>add</i> <i class=p>card_holder</i><i class=o>:</i> <i class=t>String</i> <i class=o>=</i> <i class=s>&quot;&quot;</i>
 <i class=b>}</i>
 
-<i class=k>retire</i> <i class=f>refund_payment</i> <i class=k>keep</i> <i class=c>30</i> <i class=k>days</i></pre></div>
-  <p class="note">Only the newest type is declared. The chain holds the history. Highlighted with the project grammar.</p>
+<i class=k>enum</i> <i class=t>PaymentState</i> <i class=b>{</i> <i class=c>Authorized</i> <i class=o>=</i> <i class=s>&quot;ok&quot;</i>  <i class=c>Pending</i> <i class=o>=</i> <i class=s>&quot;pending&quot;</i>  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i> <i class=b>}</i>
+
+<i class=k>effect</i> <i class=f>payments.authorize</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i> <i class=f>http.post</i><i class=b>(</i><i class=s>&quot;payments/authorize&quot;</i><i class=b>)</i>
+<i class=k>retire</i> <i class=f>payments.refund</i> <i class=k>keep</i> <i class=c>30</i> <i class=k>days</i>
+
+<i class=k>fn</i> <i class=f>place</i> order<i class=o>:</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i>
+  order
+  <i class=o>|&gt;</i> <i class=f>payments.authorize</i></pre></div>
+  <p class="note">Only the newest type is declared. The chain holds the history. This sample compiles with the compiler at git <code>1dd6ad62</code> (<code>--stored</code> with an empty snapshot: exit 0, three dead-line warnings). Highlighted with the project grammar. <code>redacted</code> fields (DL-059) are in build and not in this sample.</p>
 </section>
 
 <footer>

@@ -18,13 +18,13 @@ BEAML owns the whole path from source to production, so that agents make fewer e
 
 | Part | State | Next step |
 |---|---|---|
-| 1. Type system and compiler | Verified in part: records, variants, nested patterns compile to Elixir | One `type` form with constructors, enum constructors, pipes (DL-082 to DL-092) |
-| 2. Types at runtime | Verified in part: TYPE VERSIONS, MIGRATE CHAIN, retire, dead lines (experiment 0004) | Live query of production TYPE VERSIONS (DL-094) |
-| 3. Typed errors | Decided: `-> T ! E1 \| E2`, no overlap (DL-093) | Implement the failure position in the compiler |
+| 1. Type system and compiler | Verified in part: records, variants, nested patterns; one `type` form with constructors, enum constructors, pipes, host structs (DL-082 to DL-092, DL-106, DL-117, DL-120; experiment 0004 slice 6b) | Repair the RED TEAM 01 enum findings (C1, D1) |
+| 2. Types at runtime | Verified in part: TYPE VERSIONS, MIGRATE CHAIN, retire, dead lines, stored value check through Elixir (DL-102, DL-121, DL-122; experiment 0004) | Live query of production TYPE VERSIONS (DL-094) |
+| 3. Typed errors | Verified in part: `-> T ! E1 \| E2`, no overlap (DL-093, slice 6b step 2) | Division form (DL-030) |
 | 4. Modules follow the file system | Concept | Decide the module form |
 | 5. Tests and evals for agents | Verified in part: source-linked REPLAY RUN (experiment 0003) | Decide the test syntax |
-| 6. Production | Verified in part: HTTP correlation (0002), isolated replay (0003) | `redacted` across the stack (DL-059, DL-089) |
-| 7. Developer and agent experience | Verified in part: grammar, Zed extension, help lines | Grammar for the decided forms (slice 6a), then `beaml fmt`, `beaml check --json`, a language server (DL-096) |
+| 6. Production | Verified in part: HTTP correlation (0002), isolated replay (0003), spans on the EFFECT path (DL-119, slice 6b step 12) | `redacted` across the stack (DL-059, DL-089; slice 6b step 6b in build) |
+| 7. Developer and agent experience | Verified in part: grammar with the decided forms (slice 6a), Zed extension, help lines, `beaml fmt` (slice 6b step 10) | `beaml check --json`, then a language server (DL-096) |
 
 ## Local use
 
