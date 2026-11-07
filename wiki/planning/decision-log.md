@@ -782,6 +782,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: a green crash run is a false pass, the thing the vertical line must prevent. The pin cost is known from the byte pins.
 → Effect: C3 and C4 go to GREEN (`redteam_c3_test.py`, D6B-189, D6B-190 unblocked). D10 limit lines become unnecessary once the slice 6 files run in `run.py`. A wanted class change moves the pin with a diff proof, as the byte pins do.
 
+**DL-136 · Migrate · `--stored` checks only the records that the REPLAY RUN decodes; non-200 and bad-digest records are counted, not checked (RED TEAM 01 M1, option A)**
+→ Question: `--stored` blocks on a 503 record or a record with a wrong digest although `Replay.run` rejects both before it reads `value` (C2, C5). Which records does the check read?
+→ Options: A, the check uses the replay rule: it skips non-200 and bad-digest records and prints one count line ("N records, K checked, M not replayable"); B, the check blocks as today and DL-121 is narrowed to 200 records; C, the check reads `status` and the digest and gives a separate non-blocking note per record.
+→ Chose: A.
+→ By: 13ue
+→ Because: DL-121 ("the check result equals the REPLAY RUN result") becomes true again. A recorded outage is not a TYPE change and asks for no MIGRATE STEP.
+→ Effect: one shared "replayable record" rule in the compiler for `--stored` and the REPLAY RUN (rt-correctness R2-3). The count line never prints a stored value (DL-124). Scope: RESPONSE RECORDS only; stored database rows are D020.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

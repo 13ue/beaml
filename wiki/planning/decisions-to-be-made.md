@@ -557,6 +557,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## Answered 2026-11-07
 
+- [DL-136](decision-log.md): M1, `--stored` checks only replayable records; non-200 and bad digest are counted (A).
 - [DL-135](decision-log.md): M7, the DRIFT status pins classes; crash, build failure, open repair are fail (A).
 - [DL-134](decision-log.md): Q6D-4, `--stored` also checks stored ENTRY RECORDS (A).
 - [DL-133](decision-log.md): Q6D-3, a decode reject is a generated `Rejected` struct (A).
