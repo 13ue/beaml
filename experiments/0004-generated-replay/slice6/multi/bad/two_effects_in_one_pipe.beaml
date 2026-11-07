@@ -1,0 +1,15 @@
+// Slice 6e (Q6E-4 A): one pipe that calls two EFFECTS is a compile error. The ENTRY LINE keeps this file out of
+// the N13 byte guards (their filter skips ENTRY LINE sources), because its error text changes by design.
+type Order { order_id: String }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
+
+effect payments.authorize Order   -> Payment ! PaymentError = http.post("payments/authorize")
+effect audit.log          Payment -> Payment ! PaymentError = http.post("audit/log")
+
+effect ui.place Order -> Payment ! PaymentError = ui.event("place") |> place
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> payments.authorize
+  |> audit.log

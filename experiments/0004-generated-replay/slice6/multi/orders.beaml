@@ -1,0 +1,35 @@
+// Slice 6e: two EFFECTS and two ENTRY LINES in one source; the module is named from the stem (Q6E-1 C).
+type NoCurrency {}
+type Amount { value: String currency: String }
+fn Amount value: String, currency: String -> Amount ! NoCurrency
+fn Amount _,     ""       -> Amount ! NoCurrency = NoCurrency {}
+fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, currency: currency }
+
+enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }
+
+type PlaceOrder { order_id: String amount: Amount channel: Channel }
+type Order { order_id: String }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
+type Hold { order_id: String amount: Amount }
+type StockError { reason: String }
+
+// Two EFFECTS leave the module. Each is recorded live and substituted in a REPLAY RUN by its operation.
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+effect stock.reserve Order      -> Hold ! StockError      = http.post("stock/reserve")
+
+// Two ENTRY LINES enter the module. The host calls Orders.ui_place(params) and Orders.ui_hold(params).
+effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> place
+effect ui.hold PlaceOrder  -> Hold ! StockError      = ui.event("hold") |> hold
+
+fn to_order PlaceOrder { order_id, amount, channel } -> Order = Order { order_id: order_id }
+
+fn place p: PlaceOrder -> Payment ! PaymentError =
+  p
+  |> to_order
+  |> payments.authorize
+
+fn hold p: PlaceOrder -> Hold ! StockError =
+  p
+  |> to_order
+  |> stock.reserve
