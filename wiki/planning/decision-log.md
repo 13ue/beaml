@@ -518,6 +518,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Supersedes: D6B-38 (count only) and D6B-32/D6B-30 need a new reading in the plan. The syntax of `quarantine` and of `retire` for a TYPE VERSION is a sketch, not decided.
 → Open: a mapping change that does not fail but changes the outcome (an old `Unknown("refunded")` that a new literal maps to `Refunded`): is that a hit that needs a step, or a plain improvement?
 
+**DL-103 · Migrate · A mapping change that only resolves Unknown values needs no MIGRATE STEP**
+→ Question: a new ENUM LITERAL or constructor clause maps a wire value that an older deploy kept as `Unknown(value)`. The stored record does not fail; its outcome changes (`Unknown("refunded")` becomes `Refunded`). Is that a hit under DL-102?
+→ Options: strict, every outcome change on stored records needs a MIGRATE STEP; relaxed, only a failing record is a hit.
+→ Chose: relaxed. `Unknown` is the declared promise to keep the value until a rule exists; the new variant is that rule. The build reports the count of resolved records per environment and does not block.
+→ Because: OWNER choice. DL-065 keeps the value for exactly this case.
+→ Limit: a change that moves a value from one known variant to another known variant is not covered here; it fails no record either, and stays open until a case shows up.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
