@@ -296,3 +296,150 @@ FAILED (failures=10)
 + (34, 2000)
 + (25, 2000)
 + (9, 2000)
+
+# RED review repair O1, 2026-11-07, git HEAD 9df71247. Same scratch binary (sha256 cf8fef3e4cdeff327849f4de67b96f271b786bb2c3b4e4b916e7b244ec3c0cfb); DRIVER text from the scratch main.rs.
+## $ BEAML_SPIKE=<scratch> python3 -B experiments/0004-generated-replay/tests/redteam_c1_test.py -v
+test_c1a_valid_record_builds (__main__.RedTeamC1.test_c1a_valid_record_builds) ... compiler: <scratch>/beaml-spike
+FAIL
+test_c1b_valid_record_gives_an_ok_event (__main__.RedTeamC1.test_c1b_valid_record_gives_an_ok_event) ... FAIL
+test_c1c_payload_variant_builds (__main__.RedTeamC1.test_c1c_payload_variant_builds) ... FAIL
+test_c1d_mixed_records_give_the_dl102_block (__main__.RedTeamC1.test_c1d_mixed_records_give_the_dl102_block) ... FAIL
+test_c1e_failing_record_alone_gives_the_dl102_block (__main__.RedTeamC1.test_c1e_failing_record_alone_gives_the_dl102_block) ... ok
+test_c1f_enum_success_is_a_tuple_not_a_struct (__main__.RedTeamC1.test_c1f_enum_success_is_a_tuple_not_a_struct) ... ok
+test_c1g_driver_accepts_success_shapes (__main__.RedTeamC1Driver.test_c1g_driver_accepts_success_shapes) ... 
+  test_c1g_driver_accepts_success_shapes (__main__.RedTeamC1Driver.test_c1g_driver_accepts_success_shapes) [enum_ok] ... FAIL
+  test_c1g_driver_accepts_success_shapes (__main__.RedTeamC1Driver.test_c1g_driver_accepts_success_shapes) [enum_payload] ... FAIL
+test_c1h_driver_raises_on_wrong_success_shapes (__main__.RedTeamC1Driver.test_c1h_driver_raises_on_wrong_success_shapes) ... ok
+
+======================================================================
+FAIL: test_c1a_valid_record_builds (__main__.RedTeamC1.test_c1a_valid_record_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 77, in test_c1a_valid_record_builds
+    _, stderr = self.build(self.stored("ok"), self.source())
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py", line 94, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: the --stored check: the Elixir run of the generated constructors failed (exit 1)
+  help: compile the generated module with elixirc to see the error
+
+
+======================================================================
+FAIL: test_c1b_valid_record_gives_an_ok_event (__main__.RedTeamC1.test_c1b_valid_record_gives_an_ok_event)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 82, in test_c1b_valid_record_gives_an_ok_event
+    self.build(self.stored("ok"), self.source())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py", line 94, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: the --stored check: the Elixir run of the generated constructors failed (exit 1)
+  help: compile the generated module with elixirc to see the error
+
+
+======================================================================
+FAIL: test_c1c_payload_variant_builds (__main__.RedTeamC1.test_c1c_payload_variant_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 88, in test_c1c_payload_variant_builds
+    _, stderr = self.build(self.stored("ok", "refunded"), self.source())
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py", line 94, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: the --stored check: the Elixir run of the generated constructors failed (exit 1)
+  help: compile the generated module with elixirc to see the error
+
+
+======================================================================
+FAIL: test_c1d_mixed_records_give_the_dl102_block (__main__.RedTeamC1.test_c1d_mixed_records_give_the_dl102_block)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 95, in test_c1d_mixed_records_give_the_dl102_block
+    self.assertEqual((1, "", FAILS % (stored, 2, 2)), (code, stdout, stderr.strip()))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Payment: 1 stored RESPONSE RECORD of[310 chars]02)') != (1, '', 'error: the --stored check: the Elixir run of the[104 chars]ror')
+
+First differing element 2:
+'error: TYPE Payment: 1 stored RESPONSE RECORD of[309 chars]102)'
+'error: the --stored check: the Elixir run of the[103 chars]rror'
+
+  (1,
+   '',
++  'error: the --stored check: the Elixir run of the generated constructors '
++  'failed (exit 1)\n'
++  '  help: compile the generated module with elixirc to see the error')
+-  'error: TYPE Payment: 1 stored RESPONSE RECORD of operation '
+-  'payments.authorize fails the constructor of PaymentState for field state '
+-  'with Bad\n'
+-  '  record source: '
+-  '<tmp>/stored.jsonl:2 '
+-  '(line 2)\n'
+-  '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
+-  'VERSION of Payment (DL-102)')
+
+======================================================================
+FAIL: test_c1g_driver_accepts_success_shapes (__main__.RedTeamC1Driver.test_c1g_driver_accepts_success_shapes) [enum_ok]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 163, in test_c1g_driver_accepts_success_shapes
+    self.assertEqual((0, ["ok"]), self.run_driver(fun, type_name))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, ['ok']) != (1, [])
+
+First differing element 0:
+0
+1
+
+- (0, ['ok'])
++ (1, [])
+
+======================================================================
+FAIL: test_c1g_driver_accepts_success_shapes (__main__.RedTeamC1Driver.test_c1g_driver_accepts_success_shapes) [enum_payload]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 163, in test_c1g_driver_accepts_success_shapes
+    self.assertEqual((0, ["ok"]), self.run_driver(fun, type_name))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, ['ok']) != (1, [])
+
+First differing element 0:
+0
+1
+
+- (0, ['ok'])
++ (1, [])
+
+----------------------------------------------------------------------
+Ran 8 tests in 5.574s
+
+FAILED (failures=6)

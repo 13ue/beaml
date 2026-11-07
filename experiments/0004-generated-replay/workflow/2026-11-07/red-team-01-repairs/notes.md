@@ -33,12 +33,25 @@ Undo:
 Repair:
 → D6B-187 enum tuple as DRIVER `ok` statt skip enum constructors, weil only the success match is wrong. By: Opus (RED, red-team-01-repairs)
 → D6B-188 one `write_all` per line statt `flock`, weil one write of a short line lands whole. By: Opus (RED, red-team-01-repairs)
-→ D6B-189 full row pin plus `repaired_all` statt `new_live` pin only, weil a `pre_change` crash would pass. By: Opus (RED, red-team-01-repairs)
-→ D6B-190 add the slice 6 files and `drift_test.py`, keep the `drift` step, statt replace it, weil `result.json` reads its summary. By: Opus (RED, red-team-01-repairs)
+→ D6B-189 (now Migrate, M7, waits for the OWNER) full row pin plus `repaired_all` statt `new_live` pin only, weil a `pre_change` crash would pass. By: Opus (RED, red-team-01-repairs)
+→ D6B-190 (now Migrate, M7, waits for the OWNER) add the slice 6 files and `drift_test.py`, keep the `drift` step, statt replace it, weil `result.json` reads its summary. By: Opus (RED, red-team-01-repairs)
+
+## RED review repair (O1 to O3), 2026-11-07
+
+By: Opus (RED repair, red-team-01-repairs) on every entry, after the RED review BLOCK by Fable.
+- **[Observed]** O1: `RedTeamC1Driver` added to `tests/redteam_c1_test.py`. C1g FAIL for `enum_ok` and `enum_payload` (exit 1, no line); `struct_ok` ok. C1h ok for all 7 wrong shapes (each raises today). No wrong shape passes today, so C1h holds only guards.
+- **[Observed]** The DRIVER text of working-tree `main.rs` equals HEAD at this time (diff of the const).
+- O2: D6B-189 and D6B-190 are Migrate, OWNER question M7. GREEN of C3/C4 waits for the OWNER. They would reverse the slice 1 Undo D12 "recorded, not asserted". Raised by: Fable (RED review).
+- O3: spec.md notes that D6B-190 fails the full run while a slice 6 RED is open (6c is GREEN at 51fd79b2).
+
+Undo:
+→ C1g/C1h test the DRIVER text directly, not through the COMPILER: no valid BEAML source makes a constructor return a wrong shape. By: Opus (RED repair, red-team-01-repairs)
+→ The DRIVER text comes from the `main.rs` beside `BEAML_SPIKE` (scratch tree), else the repo `main.rs`; no new environment variable. By: Opus (RED repair, red-team-01-repairs)
+→ Two more wrong shapes than asked: atom variant, bare value without `{:ok, _}`. By: Opus (RED repair, red-team-01-repairs)
 
 ## Left for GREEN
 
 - `main.rs`: D6B-187 DRIVER clause, D6B-188 `fn action`. Coordinate with the GREEN worker who edits `main.rs` now.
-- `run.py`: `drift_status`, its use in `drift()`, `SLICE_TESTS` (D6B-189, D6B-190).
+- `run.py` (only after the OWNER answers M7): `drift_status`, its use in `drift()`, `SLICE_TESTS` (D6B-189, D6B-190).
 - `drift_test.py` header "recorded, not asserted" and the README limit line (C4/D10) go stale after D6B-189 and D6B-190. DOCS phase.
 - A decision-log entry for each D6B Repair at the end of GREEN (DL-097 rule).

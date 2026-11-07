@@ -20,6 +20,7 @@ Tests: `tests/redteam_c1_test.py`, `tests/redteam_b3_test.py`, `tests/redteam_c3
 Chose: the DRIVER prints `ok` for `{:ok, %{__struct__: BeamlSpike.<type>}}` (as now) and also for `{:ok, {<type>, variant, payload}}` with `<type>` equal to the `type` String of the call, `variant` a binary and `payload` a list. Every other result still raises (D6B-122 stays: no `rescue`, `catch` or `try`).
 Over: skip enum constructors in the Elixir pass (D6B-104 then misses the `!` clauses of an enum); a `rescue` that maps a `CaseClauseError` to `ok`.
 Because: the generated enum constructor returns `{:ok, {"PaymentState", "Authorized", []}}` (observed, test C1f). The DL-102 block for a failing enum record already works (guard C1e). Only the success match is wrong.
+Strictness (RED review O1): the new clause matches only that shape. C1h feeds the DRIVER text (read from the `main.rs` of the binary under test) a struct of another TYPE, a bare map, a 2-tuple, another enum name, an atom variant, a non-list payload and a bare value; each must exit non-zero with no `ok` line. The COMPILER maps a non-zero exit to the run error (D6B-121, U1, E8).
 Commits us to: the DRIVER mirrors the enum value shape of the emitter. A change of that shape needs a change of the DRIVER and of C1f.
 By: Opus (RED, red-team-01-repairs)
 
@@ -30,7 +31,7 @@ Because: `writeln!` on an unbuffered `File` issues one `write(2)` per format pie
 Commits us to: an event stays one short line. **[Inference]** One `write(2)` to an `O_APPEND` file is not a documented POSIX atomicity promise for every size and file system; local APFS and ext4 keep short lines whole. The longest line in the repo-root log is 557 bytes. A network file system or a much longer event would need the lock. A `ponytail:` comment names that ceiling.
 By: Opus (RED, red-team-01-repairs)
 
-**D6B-189 · Repair · `drift_status(summary) -> "pass" | "fail"` pins the classes (C3).**
+**D6B-189 · Migrate (was Repair) · `drift_status(summary) -> "pass" | "fail"` pins the classes (C3).**
 Chose: a module function `drift_status(summary)` in `run.py`. It gives `"pass"` only when all of these hold, else `"fail"`:
 1. `summary["freeze"]["status"] == "pass"`;
 2. `summary["repaired_all"] is True`;
@@ -48,12 +49,17 @@ Because: the `new_live` pin catches the crash run, but a crash in `pre_change` o
 Commits us to: a deliberate change of a DRIFT derivative changes the pin in the same commit. That is the wanted trigger. The `drift_test.py` header line "The outcomes are recorded, not asserted" is then false for the status; GREEN or DOCS updates it.
 By: Opus (RED, red-team-01-repairs)
 
-**D6B-190 · Repair · The full run runs every slice 6 file and `drift_test.py` (C4).**
+**Class raised to Migrate (RED review O2, 2026-11-07).** OWNER question M7 in [report.md](../red-team-01/report.md). GREEN of C3/C4 waits for the OWNER. It would reverse the slice 1 Undo D12 "recorded, not asserted" ([roasting-rounds.md](../../../../../wiki/planning/roasting-rounds.md) line 198). The RED tests stay as evidence for option A of M7. Raised by: Fable (RED review, red-team-01-repairs). The Repair class above was the RED default.
+
+**D6B-190 · Migrate (was Repair) · The full run runs every slice 6 file and `drift_test.py` (C4).**
 Chose: `SLICE_TESTS` in `run.py` gets every `tests/slice6_*_test.py` (15 files today) and `drift_test.py`, after the slice 2 to 5 files. The `drift` step stays. The three `redteam_*_test.py` files also join (not asserted by C4).
 Over: replace the `drift` step with `drift_test.py` (saves one DRIFT run of some minutes, but `execute()` reads the `drift` step summary into `result.json`); a glob in `run.py` (a new file then joins without review).
 Because: the full-run PASS then covers slice 6 and the D6B-96 checks. The test uses a glob, so a new slice 6 file that is not listed fails it.
 Commits us to: the full run starts two DRIFT runs (the `drift` step and `drift_test.py` setUpClass). **[Unknown]** Total wall time; the GREEN TEST phase measures it.
 By: Opus (RED, red-team-01-repairs)
+
+**Class raised to Migrate (RED review O2, 2026-11-07).** OWNER question M7 in [report.md](../red-team-01/report.md). GREEN of C3/C4 waits for the OWNER. It would reverse the slice 1 Undo D12 "recorded, not asserted" ([roasting-rounds.md](../../../../../wiki/planning/roasting-rounds.md) line 198). The RED tests stay as evidence for option A of M7. Raised by: Fable (RED review, red-team-01-repairs). The Repair class above was the RED default.
+Effect while a RED is open (RED review O3): with D6B-190 the full run fails while any slice 6 test file holds an open RED. That was expected while step 6c GREEN was pending; 6c is GREEN at 51fd79b2. A new slice 6 RED commit makes the full run fail until its GREEN. **[Inference]**
 
 ## RED cases
 
@@ -65,6 +71,8 @@ By: Opus (RED, red-team-01-repairs)
 | C1d mixed records give the DL-102 block | FAIL | run error hides the block |
 | C1e failing record alone gives the DL-102 block | ok | guard |
 | C1f enum success is a tuple | ok | guard, pins the D6B-187 shape |
+| C1g DRIVER accepts struct, enum tuple, enum tuple with payload | FAIL (2 of 3 subtests) | enum tuple raises; struct ok is a guard |
+| C1h DRIVER raises on 7 wrong success shapes | ok (guard) | other struct, bare map, 2-tuple, other enum name, atom variant, payload not a list, no `{:ok, _}` |
 | B3 parallel runs write whole JSON lines | FAIL | 9 to 40 of 2000 lines invalid, 8 of 8 runs |
 | C3a crash run fails | FAIL | no `drift_status` |
 | C3b good run passes | FAIL | no `drift_status` |
