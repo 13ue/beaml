@@ -103,6 +103,8 @@ The SDK exporter and Logger handler write local JSONL files with a 1 MiB cap per
 The control endpoint reports capture loss separately from the business HTTP response.
 The [normal query evidence](results/20261105T220545655633Z/normal/query-H02.json) shows the two connected traces.
 
+**[Verified]** Note, 2026-11-07 (EXPERIMENT 0004 slice 6b step 12, D6B-127): `ProbeSupport.event/2` with no open span records `trace_id` and `span_id` as the literal `"none"`, returns `:ok` and does not raise. Such a row has no span link. The router runs above always have an open span. Evidence: [0004 steps 12 and 12b](../0004-generated-replay/README.md#slice-6b-steps-12-and-12b-spans-on-the-effect-path-and-a-pure-constructor).
+
 ## Retained results
 
 **[Verified]** The [repaired EXPERIMENT RUN](results/20261105T220545655633Z/result.json) passed H01–H05. All six release processes exited with status 0.

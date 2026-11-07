@@ -1490,7 +1490,7 @@ New sources:
 
 ## Slice 6b
 
-**[Verified]** Compiler steps of slice 6b, 2026-11-07. This section has the DOCS text of steps 6a and 11 only. The other steps keep their text in their ledgers under [workflow/2026-11-07](workflow/2026-11-07/).
+**[Verified]** Compiler steps of slice 6b, 2026-11-07. This section has the DOCS text of steps 6a, 11, 12 and 12b, and 13. The other steps keep their text in their ledgers under [workflow/2026-11-07](workflow/2026-11-07/).
 
 ### Slice 6b step 6a: RESPONSE RECORD version 2
 
@@ -1614,7 +1614,7 @@ The five rules of `T.new/1` (D6B-97 to D6B-101, class Repair by DL-123):
 - **[Verified]** A forged map `%{__struct__: BeamlSpike.NonZeroInt, value: 4, x: 1}` with an extra key also passes the input check. It is the same class as the DL-106 limit (review probe).
 - **[Inference]** A struct from an older build with another field set is untested.
 - **[Verified]** N1 (medium): `run.py` runs no slice 6 test file. The full-suite run holds no step 11 evidence; unittest keeps no result directory. The evidence for 149 of 149 is the [review](workflow/2026-11-07/slice6b-host-structs/review.md).
-- **[Verified]** The reject of a constructor that reaches an EFFECT is not in this step (DL-120, step 12b).
+- **[Verified]** The reject of a constructor that reaches an EFFECT is not in this step (DL-120). Step 12b adds it: [steps 12 and 12b](#slice-6b-steps-12-and-12b-spans-on-the-effect-path-and-a-pure-constructor).
 
 ### Decisions (Decision4, slice 6b DOCS 6a and 11)
 
@@ -1623,3 +1623,157 @@ The five rules of `T.new/1` (D6B-97 to D6B-101, class Repair by DL-123):
 | Cut notes under the five old pass and reject rules, not a rewrite | Undo | Slice 1 to 5 text is the record of its time | Opus (DOCS, slice6b 6a+11) |
 | One slice 6b section with steps 6a and 11 only | Undo | The other steps have no DOCS phase yet | Opus (DOCS, slice6b 6a+11) |
 | RV6A-2, RC1 and N1 stated as open limits | Undo | No code change in DOCS; the fix is a separate step | Opus (DOCS, slice6b 6a+11) |
+
+### Slice 6b steps 12 and 12b: spans on the EFFECT path and a pure constructor
+
+**[Verified]** Pass, no block, two medium notes (N1, N2). Ledger: [slice6b-effect-reach](workflow/2026-11-07/slice6b-effect-reach/). Contract: [spec.md](workflow/2026-11-07/slice6b-effect-reach/spec.md). Review: [review.md](workflow/2026-11-07/slice6b-effect-reach/review.md). Decisions: DL-108, DL-119, DL-120, DL-128 in the [decision log](../../wiki/planning/decision-log.md).
+
+**[Requirement]** A span follows the EFFECT, transitively; the compiler infers the reach (DL-108). The default span set is the EFFECT path per step (DL-119, option S). A constructor is pure (DL-120).
+
+**Reach map [Verified].** For every fn and constructor the compiler computes the set of EFFECTS that it reaches through call edges. The edges are pipe steps, call forms, nested pipe steps and record field values (D6B-85). The map is a fixpoint, so cycles are correct (D6B-84). The unit test `effect_reach_is_transitive` checks a chain, a reaching cycle and a pure cycle.
+
+**Span rule (DL-119 S) [Verified].**
+
+- In a whole-body pipe, a step gets a span only when it is an EFFECT or reaches one through a fn. Spans nest by call, so the trace is a tree.
+- A pure step is the plain call `pN = __MODULE__.f(pM)` (or `{:ok, pN} <- ...`), also in the EFFECT flow (D6B-114). `orders.prepare` and `orders.finish` are gone from the GEN trace.
+- A reaching step has the span `ProbeSupport.span(<<"service.step">>, :internal, INPUT, <<"step">>, fn -> __MODULE__.step(pN) end)` (D6B-90).
+- A direct EFFECT step keeps its call. Its `:client` span stays inside the EFFECT function.
+- The step directly before a direct EFFECT step gets its own next `with` clause `_ = ProbeSupport.event(<<"<output>_request_prepared">>, <<"step">>)` (D6B-89, D6B-114). The operation stays the step name. In a router run the event lands in `orders.request`.
+- The one-clause rule fires only for a direct EFFECT step (D6B-87). The REPLAY RUN does not change (D6B-93). A pure module has no `ProbeSupport` call.
+- Probe (review): `top = o |> pa |> pz |> c`, `c = o |> helper`, `helper = o |> payments.authorize`. `top` has one span (`c`), `c` has one span (`helper`), `pa` and `pz` are plain calls.
+
+**Event without an open span (D6B-127) [Verified].** The host can call `place` with no open span (the eval HARNESS of `arms_test` does). `ProbeSupport.event/2` in 0002 then records `trace_id` and `span_id` as the literal `"none"`, returns `:ok` and does not raise. Before step 12 the event stood inside the `orders.prepare` span. A row with `"none"` has no span link. **[Requirement]** Follow-up: a declared inbound EFFECT gives the root span (DL-128). Then `"none"` stays only for an undeclared host call.
+
+**Constructor rule (DL-120, step 12b) [Verified].** A record or enum constructor that reaches an EFFECT, directly or through fns, is a compile error. Exit 1, no stdout. Text (D6B-112):
+
+```text
+error: fn T: a constructor cannot reach an EFFECT: T -> f -> ... -> effect.name (DL-120)
+  help: call the EFFECT in a lowercase fn, then pipe its result into fn T
+```
+
+- The path is the shortest path from `T` to an EFFECT. Ties go to the first step in source order (D6B-113). Probe: `Ticket -> s1 -> place -> payments.authorize` wins over a longer first step.
+- A lowercase fn may call the EFFECT and pipe its result into a pure constructor (guard).
+- A constructor that pipes into a reaching constructor names only the reaching one (review probe).
+
+**Byte changes [Verified].**
+
+- 40 of 71 sources change output (E8, [byte-guard.json](slice6/effect-reach/byte-guard.json), rule in [byte-guard.py](workflow/2026-11-07/slice6b-effect-reach/byte-guard.py)). Each change removes a pure-step span or adds the `_ =` event clause (D6B-117).
+- The slice 5 byte PIN moved from `0747c315` to the step 12 compiler `237a4578` (commit `f3a52261`). Diff proof: 68 sources, exit code and stderr equal; 52 change with 104 hunks, all in `__beaml_place` at lines `35/35-36` and `37/38` (`drift/Q/orders.beaml` one line later), 0 elsewhere ([notes.md](workflow/2026-11-07/slice6b-effect-reach/notes.md#cause-b-the-slice-5-byte-pin)).
+- The GEN `query.py` expects the event `payment_request_prepared` with operation `prepare` in `orders.request`. `arms_test` L0 and L1 expect `"finish": 0`.
+
+| Step | Owner |
+| --- | --- |
+| Reach map, span per reaching step, plain call per pure step, event clause | BEAML (COMPILER, generated) |
+| Reject of a constructor that reaches an EFFECT | BEAML (COMPILER) |
+| `ProbeSupport.span/5`, `event/2` with `"none"` ids, OTel exporter | host (0002 `probe_support`) |
+| Root span (`orders.request` router), call of `place` | host |
+
+**Result [Verified].** One TEST run for steps 12 and 13.
+
+| Run | Result |
+| --- | --- |
+| Full suite, [`results/20261107T180401517724Z`](results/20261107T180401517724Z/result.json) (DRIFT [`results/20261107T180431928222Z`](results/20261107T180431928222Z/drift.json)) | 14 of 14 steps pass, 13 min 03 s |
+| `slice6_*_test.py` (13 files, unittest) | 172 of 172; `slice6_effect_reach` 8 of 8 |
+| `drift_test.py` | 5 of 5 |
+| 0001 [`run.py`](../0001-syntax-to-beam/results/20261107T182003249036Z/result.json), `cargo test`, `fmt --check`, `clippy -D warnings` | pass; unit 21 of 21, `cli.rs` 14 of 14; clean |
+
+- **[Verified]** In the DRIFT run the baseline and the six N, Q, R logs each hold one `payment_request_prepared` with operation `prepare`, in the `orders.request` span. No `orders.prepare`, no `orders.finish`.
+
+**Limits (steps 12 and 12b).**
+
+- **[Verified]** N2 (medium): the span input is the pipe head (`p0` for a plain record head, else `nil`, D6B-88), not the step input. After pure steps that change `order_id`, the span shows the head value.
+- **[Verified]** N1 (medium): no 0002 test calls `event/2` without a span. Only `arms_test` covers D6B-127, indirectly. A consumer that joins on `span_id` drops a `"none"` row.
+- **[Inference]** The real OTel exporter runs only for the GEN orders source, which has no indirect pipe. The indirect pipes run with stubs.
+- **[Verified]** Spans for call forms and nested pipes, the REPLAY RUN of an indirect caller and a `check --json` reach output are out of scope (D6B-85, D6B-93, D6B-94).
+
+### Slice 6b step 13: stored check through Elixir
+
+**[Verified]** Pass, no block, two medium notes (N1, N2). Ledger: [slice6b-stored-elixir](workflow/2026-11-07/slice6b-stored-elixir/). Contract: [spec.md](workflow/2026-11-07/slice6b-stored-elixir/spec.md) and [plan.md](workflow/2026-11-07/slice6b-stored-elixir/plan.md) (section "Plan repair"). Review: [review.md](workflow/2026-11-07/slice6b-stored-elixir/review.md). Decisions: DL-032, DL-102, DL-121, DL-122, DL-124 in the [decision log](../../wiki/planning/decision-log.md).
+
+**[Requirement]** The `--stored` check runs the generated Elixir constructor over the stored values. The static check stays as a fast first pass; the Elixir run decides. A build without Elixir fails, it does not pass (DL-121). A lost ENUM LITERAL with stored values blocks (DL-122, narrowed by DL-124).
+
+**Two passes [Verified].**
+
+1. **Static pass**, in the old order: record version, TYPE VERSION path, orphans, "no variant", the new lost-literal rule, "no signature". A static error ends the check. Elixir does not start (D6B-105).
+2. **Elixir pass.** For each record and each constructor field, the compiler picks the first matching signature (the Rust mirror of the `cond` in `__beaml_from_T`, D6B-103). Only a signature with a failure TYPE gives a call (D6B-104). When the list is not empty, one `elixir -e DRIVER` process runs (D6B-102). Stdin holds `{"module": <generated code>, "calls": [[new_T_k, T, [inputs]], ...]}`. The driver compiles the module in memory and prints one line per call: `ok` or `error F`. No file holds a record value.
+
+- **Strict protocol (D6B-121, D6B-122).** Success needs exit 0, exactly one line per call, and each line `ok` or `error F` with F in the failure list of that signature. The driver has no `rescue`, `catch` or `try`. Any other result is a run error. The unit test `elixir_results_are_strict` pins this.
+- **Time limit (D6B-119).** 60 s by default. `BEAML_STORED_ELIXIR_LIMIT_S` sets whole seconds from 1. On expiry the compiler kills the process group and gives the run error.
+- **Child env (D6B-123).** `ERL_CRASH_DUMP=/dev/null`, so a crash writes no dump with record values.
+- **No values out (DL-032, D6B-106).** The compiler reads and drops the child stdout and stderr; it never forwards them.
+
+**Texts [Verified].** An `error F` line gives the step 8 DL-102 block, byte-equal:
+
+```text
+error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize fails the constructor of Amount for field amount with NoCurrency
+  record source: S:1 (line 1)
+  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Payment (DL-102)
+```
+
+A lost or changed ENUM LITERAL (DL-122 with DL-124) gives, in the static pass:
+
+```text
+error: TYPE Payment v1: 1 stored RESPONSE RECORD of operation payments.authorize has a value of field state that is no ENUM LITERAL of PaymentState now (DL-122)
+  record source: S:2 (line 2)
+  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of PaymentState
+```
+
+- The text never holds the stored String (D6B-124). Plural: `RECORDS ... have values of field state that are no ENUM LITERAL`. One `record source` line per record, in file order.
+- A value in the record `unknown_fields` does not count. A Unknown-to-known resolve keeps the DL-103 note.
+- No Elixir on `PATH` (D6B-106):
+
+```text
+error: the --stored check runs the constructors over the stored values in Elixir (DL-121): elixir is not on PATH
+  help: install Elixir 1.18 with Erlang/OTP 27 and put elixir on PATH
+```
+
+- A run error, with `<why>` one of `exit N`, `signal N`, `time limit N s`, `result lines` (D6B-121):
+
+```text
+error: the --stored check: the Elixir run of the generated constructors failed (<why>)
+  help: compile the generated module with elixirc to see the error
+```
+
+- A bad limit value: `error: BEAML_STORED_ELIXIR_LIMIT_S must be a whole number of seconds from 1`. Exit 1 for every text above.
+
+**Event [Verified].** Each Elixir run appends one event `stored-elixir` to `.beaml/actions.jsonl` with `result` (`ok`, `blocked` or `error`), Int `ms` and `calls` (D6B-107). The keys are `ts`, `source`, `action`, `target`, `result`, `ms`, `calls`; no path, no source text, no value. No Elixir on `PATH` gives `result: "error"`, `ms: 0`. A build with 0 calls or a static error writes no `stored-elixir` event.
+
+**Timings observed [Verified]** (macOS, Elixir 1.18.1, OTP 27):
+
+| Input | `ms` | `calls` | `result` |
+| --- | --- | --- | --- |
+| `pipe.beaml` with `decode-ctor/stored.jsonl` (GREEN, review) | 396 to 460 | 4 | ok |
+| `decode-ctor/orders.beaml` with `stored.jsonl` | 555 | 4 | ok |
+| the same with `stored-fail.jsonl` | 1276 | 3 | blocked |
+| failure two fns deep; nested constructor failure (review) | 470; 439 | 1 | blocked |
+| `rec.beaml` loop, limit 1 s; default limit | 1000; 60005 | 1 | error |
+
+- **[Inference]** The Elixir pass adds about 0.45 s only to a build that makes calls. The full run was 23 s shorter than the step 11 run (host noise).
+
+| Step | Owner |
+| --- | --- |
+| Static pass, lost-literal rule, signature pick, call list | BEAML (COMPILER) |
+| Driver, protocol check, time limit, process-group kill, event | BEAML (COMPILER) |
+| `new_T_k` constructor bodies that run in the check | BEAML (generated) |
+| Elixir 1.18 and OTP 27 on `PATH`, the RECORD SNAPSHOT file | host |
+
+**Result [Verified].** The same TEST run as steps 12 and 12b: full suite [`results/20261107T180401517724Z`](results/20261107T180401517724Z/result.json) 14 of 14; `slice6_stored_elixir` 15 of 15 in 7.1 s; all slice 6 files 172 of 172; `cargo test` unit 21 of 21 with `elixir_results_are_strict`. **[Verified]** No generated byte change: the PIN diff probe on HEAD shows only the step 12 hunks.
+
+**P11 closed [Verified].** The `--stored` check now runs the constructor body. A failure in a called pipe step blocks the build (E1, E2, review probe two fns deep). The false pass of step 8 (P11, [review D1](workflow/2026-11-07/slice6b-decode-constructor/review.md)) is closed by this step, as DL-121 states.
+
+**Limits (step 13).**
+
+- **[Verified]** N1 (medium): the default limit of 60 s and a bad limit value have no automated test. The review probed both by hand: the default stops at 60.1 s, `abc` and `0` give the limit error.
+- **[Verified]** N2 (medium): the limit value is read only when Elixir starts. With 0 calls, `BEAML_STORED_ELIXIR_LIMIT_S=abc` gives no error.
+- **[Inference]** The process-group kill is shown on this host only.
+- **[Inference]** The signature pick is a Rust mirror of the generated `cond` (D6B-103). The guards E9a and E9b catch a drift of the order. A new signature rule must change both.
+- **[Verified]** Lost mappings of constructor enums are not checked (D6B-109).
+- **[Inference]** `elixir` from asdf reads `~/.tool-versions` in a temporary cwd. A machine with only a project-local `.tool-versions` gets the run error, not a pass.
+
+### Decisions (Decision4, slice 6b DOCS 12, 12b and 13)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| No glossary term STORED CHECK; the text says "the `--stored` check" | Undo | One flag name is clearer than a second term | Opus (DOCS, slice6b 12+13) |
+| N1 and N2 of both reviews stated as open limits | Undo | No code change in DOCS; a fix is a separate step | Opus (DOCS, slice6b 12+13) |
+| Steps 12, 12b and 13 in one DOCS pass, with one shared TEST table | Undo | One TEST run covers both steps | Opus (DOCS, slice6b 12+13) |

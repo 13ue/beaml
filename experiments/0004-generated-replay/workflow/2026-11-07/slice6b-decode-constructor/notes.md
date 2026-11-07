@@ -168,3 +168,7 @@ Commands and results: [green-output.log](green-output.log). Changed files: `expe
 
 - **[Observed]** The runtime harness uses the step 7 stubs, not a release. `run.py` (TEST phase) covers the release path.
 - **[Inference]** P4 (record constructor with one parameter) works by the same code path as an enum one-parameter signature; not tested.
+
+## P11 closed (2026-11-07)
+
+- **[Verified]** P11 is closed by slice 6b step 13 (DL-121): the `--stored` check runs the generated Elixir constructor, so a failure in a pipe step blocks. Evidence: [step 13 review](../slice6b-stored-elixir/review.md). By: Opus (DOCS, slice6b 12+13)
