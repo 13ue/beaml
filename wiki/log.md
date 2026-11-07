@@ -331,3 +331,8 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 
 **[Verified]** The tree-sitter grammar parses and highlights the forms of DL-082 to DL-093: 23/23 corpus examples, 4/4 highlight files with `test --rebuild` ([ledger](../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/notes.md), [review](../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/review.md): pass, three medium notes). Added the [slice 6a section](../experiments/0004-generated-replay/README.md#slice-6a), a register row in [research and development](planning/research-and-development.md), DL-098 in the [decision log](planning/decision-log.md) and the new forms and the `--rebuild` rule in the [Zed README](../integrations/zed-beaml/README.md).
 **[Unknown]** The committed `grammars/beaml.wasm` and the shared `#match?` are not checked in Zed.
+
+## 2026-11-07: open questions Q6B-4, Q6B-6, Q6B-7 and glossary terms
+
+**[Proposal]** Added the OPEN records D004 (Q6B-4, Answer: redacted fields and the stored body), D005 (Q6B-6, Migrate: forged constructor values at the public wrapper) and D006 (Q6B-7, Migrate: spans for a pipe that reaches an EFFECT through a fn) to [decisions to be made](planning/decisions-to-be-made.md). Added an answered list for DL-099 to DL-104. D001 stays CLOSED.
+**[Proposal]** Added the glossary terms DEVELOPER AND AGENT EXPERIENCE, QUARANTINED RECORD, ENUM LITERAL, ENUM CONSTRUCTOR and KEEP-VALUE VARIANT to the [glossary](../GLOSSARY.md). Nothing was run.

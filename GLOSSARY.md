@@ -2,7 +2,7 @@
 id: beaml-glossary
 kind: proposed-convention
 status: proposed-not-adopted
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # BEAML glossary
@@ -63,12 +63,17 @@ Use CAPITALS when naming a glossary term. Use its qualified name when the scope 
 | DEAD LINE | A RETIRE LINE or a MIGRATE STEP that no stored RESPONSE RECORD needs. The compiler warns about it and can remove it on request. | LANGUAGE/COMPILATION | Toter Quelltext |
 | SQUASH | The removal of the MIGRATE STEPS that are DEAD LINES, from the start of a MIGRATE CHAIN. The newest version number stays; it moves to the VERSION MARK. | LANGUAGE/COMPILATION | Zusammenfassen |
 | VERSION MARK | The `v<n>` after the TYPE name on a `type` line, for example `type Payment v3 { ... }`. It states the newest TYPE VERSION number after a SQUASH and must agree with the MIGRATE CHAIN. | LANGUAGE/COMPILATION | Versionsmarke |
+| ENUM LITERAL | A wire value bound to a variant in an `enum`, for example `Authorized = "ok"`. The decode maps that String 1:1 to the variant (DL-082). | LANGUAGE/COMPILATION | Enum-Literal |
+| ENUM CONSTRUCTOR | A `fn` named like the `enum` that maps outside values to variants (DL-082). It is the decode path only; code builds variants directly (DL-100). | LANGUAGE/COMPILATION | Enum-Konstruktor |
+| KEEP-VALUE VARIANT | A declared variant that keeps an unknown outside value, for example `Unknown(String)` (DL-062). The decode of outside data and `migrate` steps need it in the last clause (DL-065). | LANGUAGE/COMPILATION | Unbekannt-Variante |
+| QUARANTINED RECORD | A stored RESPONSE RECORD that fails a new rule. It keeps a typed reason and waits until a MIGRATE STEP gives it a rule (DL-102). The `quarantine` syntax is a sketch. | EXECUTION | Quarantänedatensatz |
 | EFFECT | An operation category tracked by language rules to constrain behavior beyond pure computation. | LANGUAGE/COMPILATION | Wirkung |
 | SECURITY LABEL | A restriction attached to data or control flow and interpreted by a versioned security policy. | LANGUAGE/COMPILATION | Sicherheitskennzeichnung |
 | CAPABILITY | Explicit authority to perform a named operation under a stated contract. | LANGUAGE/COMPILATION | Berechtigungsnachweis |
 | SOURCE ID | A version-scoped identity that connects an artifact or observation to authored source. | LANGUAGE/COMPILATION | Quellidentität |
 | AUTHORING AGENT | A tool-using assistant that proposes source or knowledge changes through ordinary reviewable interfaces. | Authoring tools | Entwicklungsassistent |
 | AGENT TOOL RESULT | A versioned compiler or runtime response consumed by an AUTHORING AGENT without transferring semantic authority to it. | Producing context | Agentenwerkzeugergebnis |
+| DEVELOPER AND AGENT EXPERIENCE (DX AND AX) | Roadmap part 7. The CLI and its JSON output are the agent interface; the editor shows the same facts to people (DL-096). | Authoring tools | Entwickler- und Agentenerfahrung |
 
 **[Proposal]** AUTHORING AGENT names a possible consumer role. It does not require a separate agent service or an agent runtime. Runtime agent behavior remains an open product decision. PROVIDER ATTEMPT identity and retry rules also need decisions; a network retry is not silently a new WORKFLOW RUN. VALIDATED VALUE does not imply factual truth, current authorization or all domain invariants. EVIDENCE STATUS keeps the specification's unresolved status names visible. [Open decisions](wiki/planning/specification-gaps.md)
 
