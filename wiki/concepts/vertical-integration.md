@@ -3,7 +3,7 @@ id: concept-vertical-integration
 title: Vertical integration, the owner goal
 kind: synthesis
 status: owner-requirement
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # Vertical integration
@@ -31,21 +31,26 @@ updated: 2026-11-06
 - The check runs the migration over the stored records of each environment and reports the values that fail.
 - V1: any migration failure in any environment blocks the build. Later, an environment can be declared as lower priority, so that its failures do not block.
 
-**[Proposal]** Sketch syntax, not decided: versioned TYPES (`Payment@1`), a `migrate Payment@1 -> Payment@2 ! MigrationError` form, and `case ... do ... end`. The grammar does not support these forms yet.
+**[Requirement]** Decided forms (DL-022, DL-023, DL-028, DL-061, DL-070 to DL-072, DL-080, DL-081):
 
-**[Unknown]** How each environment reports its TYPE versions and records (distributed nodes or an export). Whether the compiler proposes the rename alias as a fix.
+- `type Payment v3 { … }` declares the newest record. The VERSION MARK `v3` is optional while the MIGRATE CHAIN is complete; any mark that agrees with the chain is legal.
+- `migrate Payment v1 -> v2 { rename status -> state, add f: T = c, drop g: T }` holds the history. `add` needs a constant; `drop` names the TYPE.
+- `retire <operation> keep <n> days` releases a deleted EFFECT with stored records (DL-055, DL-057).
+- `beaml fmt` writes the default mark form (DL-081, not built).
+
+**[Unknown]** Whether the compiler proposes the rename alias as a fix.
 
 ## Totality, unknown values and migration runs
 
 **[Requirement]** Owner decisions, 2026-11-06, after two Devil's Advocate reviews of the migration chain:
 
-- A `migrate` chain with `rename`, `add` and `drop` holds the TYPE history. Only the newest `interface` is declared. `drop` names the TYPE of the removed field, so that every old version is fully typed.
+- A `migrate` chain with `rename`, `add` and `drop` holds the TYPE history. Only the newest `type` is declared. `drop` names the TYPE of the removed field, so that every old version is fully typed.
 - No guessing fallback. A step may not invent a value for a case it does not know.
-- A closed TYPE (an `enum`) is matched exhaustively. `Unknown(String)` is a declared variant; an `enum` holds no literals, and the mapping is written as function clauses (DL-062). Records are declared with `type` (DL-061).
+- A closed TYPE (an `enum`) is matched exhaustively. `Unknown(String)` is a declared variant; the String mapping uses enum literals or an enum constructor (DL-082, narrows DL-062). Records are declared with `type` (DL-061).
 - In `migrate` steps and in the decode of data from outside, an open TYPE (`String`, `Int`) is matched with a last branch that keeps the original value, for example `other -> Unknown(other)`. The target TYPE then has an `Unknown` variant, and every use of that TYPE must handle it.
 - `add` with a constant is allowed. It is an explicit statement about the old data, not a guess.
 - Unknown values stay visible through the stack. The check reports per environment how many values are `Unknown`.
-- Privacy is the highest goal. A field of an `interface` can be declared as PII with the word `redacted` before its TYPE (`card_holder: redacted String`). The compiler keeps that value out of logs, traces and reports across the stack. See [information-flow security](information-flow-security.md).
+- Privacy is the highest goal. A field of a `type` can be declared as PII with the word `redacted` before its TYPE (`card_holder: redacted String`). The compiler keeps that value out of logs, traces and reports across the stack. See [information-flow security](information-flow-security.md).
 - By default the compiler checks only the stored TYPE VERSIONS. A run of the migrations over stored values is a separate step per environment, started on request.
 
 **[Verified]** Review round 1 found that a chain with guessing fallbacks cannot fail a build on bad data. Review round 2 found that an agent that may accept its own fallback hits turns the check into a formality. The rules above remove both: there is no guessing fallback, so there is nothing to accept.
@@ -62,7 +67,24 @@ updated: 2026-11-06
 
 **[Verified]** On the BEAM, integer division by zero raises (`badarith`). Plain arithmetic therefore breaks "no crash" without one of the two forms above.
 
+## Language forms (2026-11-07)
+
+**[Requirement]** OWNER decisions, 2026-11-07:
+
+- An `enum` maps a String by literals or by a constructor named like the enum (DL-082). Both at once is an error (DL-088).
+- Constructor inputs come from the parameter names of its signature (DL-084).
+- The first matching signature or clause wins (DL-085).
+- An unreachable signature or clause is a compile error (DL-087).
+- The pipe `|>` works in any expression; constructors and variants are steps (DL-086).
+- `beaml fmt` aligns the columns of consecutive clauses (DL-083).
+- An EFFECT gets a `redacted` field only with `with <field>` (DL-089).
+- One type form `type X { … }`; a constructor makes itself the only way in (DL-092).
+- `!` marks a position in a signature, not a kind of type (DL-092).
+- Success and failure types never overlap: `-> String ! String` is an error (DL-093).
+
 **[Unknown]** Research items:
+
+- O5 is decided (DL-094): start with a live query of the deployed nodes. A registry service and exports follow later. Open: the build's access to the nodes.
 
 - Lazy migration on read or eager rewrite. The owner expects both, chosen by the kind of data.
 - Large stores: migration runs in batches or as a stream of batches.

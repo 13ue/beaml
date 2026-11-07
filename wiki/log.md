@@ -321,3 +321,8 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 
 **[Proposal]** Added the [slice 5 plan](../experiments/0004-generated-replay/README.md#slice-5) (README revision 9): `type` replaces `interface` as a hard error with a `help` line (DL-061), `v` on every version number (DL-072), the VERSION MARK on the type line and the SQUASH by `--remove-dead`, with the last MIGRATE STEP now removable (DL-070, DL-071; DL-058 superseded). Cases F1–F29, U2, P1, A1–A3 and a pass and reject rule. Added a register row in [research and development](planning/research-and-development.md).
 **[Proposal]** The slice 1 to slice 4 sources and tests change by four rewrite rules, checked by an audit and a rewrite equivalence against a HEAD build. The `payments.beaml` output changes in one line only: the declaration offsets move by −10 bytes. Added the glossary terms VERSION MARK and SQUASH. New OWNER question O7. Nothing was run.
+
+## 2026-11-07: planning pages after EXPERIMENT 0004 slices 2 to 5
+
+**[Verified]** Updated the four 0004 rows in [research and development](planning/research-and-development.md): slices 2 to 5 are implemented and the tests are green. Evidence: `run.py` run [`20261107T052837751458Z`](../experiments/0004-generated-replay/results/20261107T052837751458Z/result.json) (15 steps, exit 0) and the [step ledger](../experiments/0004-generated-replay/workflow/2026-11-06/notes.md). O5, O6 and O7 are answered (DL-094, DL-070/DL-071, DL-080).
+**[Requirement]** Updated [vertical integration](concepts/vertical-integration.md): the decided `type`, `migrate` and `retire` forms replace the `Payment@1` sketch, and the language decisions DL-080 to DL-094 are listed. Nothing was run.
