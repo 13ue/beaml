@@ -1,0 +1,73 @@
+{
+  "order": {
+    "order_id": "order-1"
+  },
+  "mode": "replay",
+  "trace_id": "d4570845bbba80b097f9e89385450361",
+  "responses": [
+    {
+      "status": 200,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "status",
+            "String"
+          ]
+        ],
+        "fingerprint": "35a7a9d23ad4d4c63d3d1dd9de660161952b8b6fbf263967f4fd802661143747"
+      },
+      "version": 1,
+      "request": {
+        "channel": "web",
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "d4570845bbba80b097f9e89385450361",
+      "body_length": 44,
+      "unknown_keys": [],
+      "artifact_id": "564c14996eac8b6ccb213975976670fbfc0cb88f1aa8e56f22f7d82a89cb276a",
+      "attempt": 1,
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0dXMiOiJhdXRob3JpemVkIn0=",
+      "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba",
+      "client_span_id": "7da51d31c285e6b6"
+    },
+    {
+      "status": 200,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "status",
+            "String"
+          ]
+        ],
+        "fingerprint": "35a7a9d23ad4d4c63d3d1dd9de660161952b8b6fbf263967f4fd802661143747"
+      },
+      "version": 1,
+      "request": {
+        "channel": "web",
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "d900cc2b5e0d247045d2b17d7a27dca7",
+      "body_length": 44,
+      "unknown_keys": [],
+      "artifact_id": "564c14996eac8b6ccb213975976670fbfc0cb88f1aa8e56f22f7d82a89cb276a",
+      "attempt": 1,
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0dXMiOiJhdXRob3JpemVkIn0=",
+      "body_sha256": "b65081d81c6a74a44a419ee1eefd088caf25d356ae8db5538748983391f7ffba",
+      "client_span_id": "8da3c994e058ac97"
+    }
+  ]
+}

@@ -69,7 +69,7 @@ See [red-output.log](red-output.log) for commands, failing names and output.
 
 ### Open points
 
-- **O1 [Open, Repair]** `run.py drift` stays in the check list. Its repair check runs the GEN 0003 copy of `replay_run_test.py` in the repaired tree (`replay_test`). After 6a GREEN this check reads the raw body and fails for GEN. The `drift` step status does not depend on it (`status` = freeze), but `repaired_all` becomes false. DL-110 names the 0003 copy run; whether DRIFT (f) and the LIB freeze step leave too is not stated. Default in this phase: keep both, no change.
+- **O1 [Closed by DL-118 and the RED repair, D6B-96]** `run.py drift` stays in the check list. Its repair check runs the GEN 0003 copy of `replay_run_test.py` in the repaired tree (`replay_test`). After 6a GREEN this check reads the raw body and fails for GEN. The `drift` step status does not depend on it (`status` = freeze), but `repaired_all` becomes false. DL-110 names the 0003 copy run; whether DRIFT (f) and the LIB freeze step leave too is not stated. Default in this phase: keep both, no change.
 - **O2 [Open, Undo]** The plan says "6a: none new" for fixtures; R4 adds one.
 - **O3 [Inference]** (diagnostic scripts `diag_runtime.py`, `diag_reason.py` kept in this ledger) The step 7 and 8 runtime tests build with the converted RECORD SNAPSHOTS. Today that build blocks (the DL-102 check reads `body_base64`), so the runtime cases do not run there. A diagnostic run with `--stored stored/empty.jsonl` (red-output.log) shows the runtime RED for each case.
 
@@ -80,3 +80,36 @@ See [red-output.log](red-output.log) for commands, failing names and output.
 - **[Observed]** Compile-only adapted files pass: `stored_types_test.py`, `slice3_types_test.py`, `slice4_retire_test.py`, `slice5_syntax_test.py`, `slice6_struct_order_test.py`.
 - **[Observed]** Every failure has one of four reasons: version 1 writer (R-a), `body/1` gives `:body_digest_mismatch` for a version 2 record (R-b, checked by a diagnostic case), `--stored` DL-102 check reads `body_base64` (R-c), `--stored` ignores `version` (R-d). No setup failure.
 - Result directories of the release runs: `results/20261107T144334140681Z` (arms), `20261107T144400020205Z` (slice 2), `20261107T144552743415Z` (slice 3), `20261107T144931548015Z` (slice 4), `20261107T145206963003Z` (slice 5).
+
+## RED repair
+
+**[Observed]** RED repair, 2026-11-07, after the [RED review](red-review.md) (BLOCK on RR6A-1). `main.rs` is not changed.
+By: Opus (RED repair, slice6b-records-v2) for every entry in this section.
+
+### Changes
+
+- RR6A-1: `tests/drift_test.py`. `ARMS_NAMES` is `("gen",)`. One `run.py drift` run per class (`setUpClass`). New case `test_f_6a_drift_has_gen_rows_only`. New case `test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree`. The D24 case keeps its checks for the GEN rows. The freeze case and the fixture guard do not change.
+- RR6A-1: D6B-96 in [spec.md](spec.md#drift-change-dl-118-d6b-96-red-repair-rr6a-1). DRIFT is in the acceptance.
+- RR6A-2: `tests/slice6_record_test.py` new runtime case `P1_key_set_is_D6B_53`. The sorted keys of `stored.(200, U)` equal the 13 keys of D6B-53. `orders.beaml` has no enum, so no `unknown_fields`.
+- Count text: this file says 17 failing of 22 runtime cases. That is correct. The "21 runtime" text is in the RED commit message only. No change here. With P1 key set the file has 23 runtime cases.
+
+### Counts
+
+- **[Observed]** `python3 -B .../tests/drift_test.py`: 5 tests, FAILED (failures=2), 290 s. Fail: `test_f_6a_drift_has_gen_rows_only` (lib keys in `drift`, `baseline`, `sites`; lib output dirs), `test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree` (each GEN row runs the 0003 copy; `repaired` has no `argv`, `record`, `report`). Pass: the fixture guard, the freeze case, the D24 case for GEN rows. Run dir `results/20261107T150832940455Z`.
+- **[Observed]** A first run (`results/20261107T150258383935Z`) gave the same 2 failures. Its baseline line read the stdout summary, which has no `baseline`. The case now reads `drift.json`.
+- **[Observed]** `python3 -B .../tests/slice6_record_test.py`: 5 tests, FAILED (failures=21): 18 of 23 runtime cases, 3 P6. New `P1_key_set_is_D6B_53` fails because the record has the version 1 keys with the body keys (R-a, diagnostic case).
+- **[Observed]** No pytest module in this Python. The runner is `unittest`, as in the `run.py` header. Output: [red-output.log](red-output.log) (section "RED repair").
+
+### Decisions
+
+**Undo**
+- → Number D6B-96, not D6B-70. D6B-70 to D6B-95 exist in other ledgers. By: Opus (RED repair, slice6b-records-v2)
+- → One DRIFT run per test class, not one per case. A run takes minutes. By: Opus (RED repair, slice6b-records-v2)
+- → Keep the freeze case and the lib hash check. The LIB freeze step stays in `run.py` (R6). By: Opus (RED repair, slice6b-records-v2)
+- → Key set without `unknown_fields`. The test source has no enum. By: Opus (RED repair, slice6b-records-v2)
+
+**Repair**
+- → **Chose:** the repair check is the eval of the repaired Orders release. It replays a version 2 record of one live call in the repaired tree. **Over:** keep `exit_code` only; the 0003 copy. **Because:** the eval exits 0 also on an error result; only the report shows the replay. **Commits us to:** GREEN rebuilds or reruns the repaired tree. By: Opus (RED repair, slice6b-records-v2)
+- → **Chose:** the expected result comes from the record status (200 gives `ok`, else `error`). **Over:** `ok` for every derivative. **Because:** DRIFT-Q gives a typed reject live; the replay must give the same. **Commits us to:** a Q row may pass with `error`. By: Opus (RED repair, slice6b-records-v2)
+- → **Chose:** check the command log of each row for the 0003 copy path. **Over:** check `repaired.argv` only. **Because:** a GEN run can keep the 0003 run and report another argv. **Commits us to:** `commands/commands.json` stays the row command log. By: Opus (RED repair, slice6b-records-v2)
+- → **Chose:** no `lib` key and no `lib` output dir. **Over:** summary keys only. **Because:** a run can hide LIB rows and still run them. **Commits us to:** DRIFT writes no LIB output. By: Opus (RED repair, slice6b-records-v2)

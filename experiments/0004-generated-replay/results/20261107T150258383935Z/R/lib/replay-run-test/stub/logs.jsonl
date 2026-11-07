@@ -1,0 +1,1 @@
+{"service":"orders","operation":"prepare","span_id":"ff690254279afc3e","trace_id":"93469f4f137a158cc3bb28ad977fb87d","event":"payment_request_prepared","order_id":"order-1"}

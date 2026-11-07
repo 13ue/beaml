@@ -24,9 +24,21 @@ Every RESPONSE RECORD becomes version 2. The raw body is stored nowhere (DL-105)
 
 The GEN against LIB comparison ends with 6a. The 0003 copy run and `overlay_diff_test.py` leave the check list of `run.py` and `arms_test.py`. Slice 1 to 5 results stay retained evidence. README text for the docs phase: [readme-change.md](readme-change.md).
 
+## DRIFT change (DL-118, D6B-96, RED repair RR6A-1)
+
+- DRIFT (f) has GEN rows only. `drift`, `baseline` and `sites` of the summary have no `lib` key. No `lib` output dir in the run dir.
+- D6B-96, the repair evidence of a GEN row whose build passed: `repaired = {"exit_code", "argv", "record", "report"}`.
+  - `argv`: the `eval` of the Orders release of the repaired tree (`.../_build/prod/rel/orders/bin/orders eval ...`).
+  - `record`: a file in the run dir. It holds the RESPONSE RECORD (version 2) of one live call in the repaired tree.
+  - `report`: a file in the run dir. It holds the GEN runner result over that record. A 200 record gives `ok` and host validation `ok`; another status gives `error`.
+  - `exit_code` is `0`. No command of the row runs the 0003 copy `experiments/0003-source-linked-replay/tests/replay_run_test.py`.
+- `repaired_all` reads this GEN replay and is `true`.
+- Default mechanism (GREEN may choose another one with the same evidence): rebuild the Orders release after the repair, because the repair changes `probe_support.ex`.
+
 ## Tests
 
-- New: `tests/slice6_record_test.py` (P1 to P6, a1). Fixture `slice6/record/stored-v1.jsonl` (the version 1 record of `stored/v1.jsonl` before the conversion).
+- New: `tests/slice6_record_test.py` (P1 to P6, a1; P1 key set from the RED repair). Fixture `slice6/record/stored-v1.jsonl` (the version 1 record of `stored/v1.jsonl` before the conversion).
+- Changed in the RED repair: `tests/drift_test.py` (GEN rows only, D6B-96 repair cases).
 - Adapted: `tests/arms_test.py`, `tests/slice2_replay_test.py`, `tests/slice3_replay_test.py`, `tests/slice4_retire_test.py`, `tests/slice5_syntax_test.py`, `tests/stored_types_test.py`, `tests/slice6_decode_test.py`, `tests/slice6_decode_ctor_test.py`, `run.py`.
 - Converted fixtures (D6B-69, script [convert_fixtures.py](convert_fixtures.py)): `stored/v1.jsonl`, `stored/v1-v2.jsonl`, `slice6/decode/stored*.jsonl`, `slice6/decode-ctor/stored*.jsonl`.
 - Every changed assertion and its class: [notes.md](notes.md#changed-assertions).
@@ -34,5 +46,6 @@ The GEN against LIB comparison ends with 6a. The 0003 copy run and `overlay_diff
 ## Acceptance (GREEN)
 
 - `slice6_record_test.py` passes.
+- `drift_test.py` passes: GEN rows only, and each GEN repair check is the GEN replay of the repaired tree (D6B-96).
 - Every adapted test file passes with only the listed changes.
 - `payments.generated.snapshot` stays byte-equal. Every existing reject keeps its message.

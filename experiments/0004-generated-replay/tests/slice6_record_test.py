@@ -35,6 +35,9 @@ NOT_JSON_BODY = b'not json'
 NON_ASCII = {"order_id": "order-1", "status": "autorisé ✓ \U0001f600"}
 NON_ASCII_BODY = json.dumps(NON_ASCII, ensure_ascii=False).encode()
 BODY_KEYS = ("body_base64", "body_length", "body_sha256")
+# D6B-53, sorted. `unknown_fields` only where step 7 writes it; arms/gen/orders.beaml has no enum, so none here.
+RECORD_KEYS = ["artifact_id", "attempt", "client_span_id", "operation", "redacted", "request", "status", "trace_id",
+               "type", "unknown_keys", "value", "value_sha256", "version"]
 
 
 def b(data):
@@ -82,6 +85,8 @@ CASES = {
                                                 % (U, ex(st.value_sha256(PAYMENT, ["fraud_score"])))),
     "P1_no_body_keys": 'Enum.all?(%s, fn k -> not Map.has_key?(stored.(200, %s), k) end)' % (ex(list(BODY_KEYS)), U),
     "P1_unknown_value_is_in_no_record_byte": 'not String.contains?(text.(200, %s), "low")' % U,
+    # RED repair RR6A-2: the exact key set, so no second key can keep the raw body (DL-105).
+    "P1_key_set_is_D6B_53": 'Enum.sort(Map.keys(stored.(200, %s))) == %s' % (U, ex(RECORD_KEYS)),
     "P1_request_unchanged": 'stored.(200, %s)["request"] == %s' % (U, ex({"order_id": "order-1"})),
     # P2: the REPLAY RUN reads `value` and checks the digest (D6B-58, D6B-59 second guard, D6B-60).
     "P2_replay_of_the_record": 'replay.(stored.(200, %s)) == {:ok, %s}' % (U, ex(PAYMENT)),

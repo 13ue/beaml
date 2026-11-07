@@ -228,3 +228,102 @@ test_control_originals_unchanged_by_slice_5_runs ... ok
 test_every_slice5_build_of_this_run_passed_stored ... ok
 
 Reasons: arms L1, L2, L3: record version 1 and no value (R-a). arms R1, R3 and every slice 2 to 5 replay failure: result {'error': 'body_digest_mismatch'} instead of the expected value or decode reject (R-b). No setup failure: every tree built and every eval reported.
+
+# ---------------------------------------------------------------------------------------------
+# RED repair (RR6A-1, RR6A-2), 2026-11-07. By: Opus (RED repair, slice6b-records-v2). main.rs unchanged.
+# No pytest in this Python; the runner is unittest, as in the run.py header. Run from the repository root.
+
+## Summary
+drift_test.py           exit 1  FAILED (failures=2) of 5 tests, 290s; run dir results/20261107T150832940455Z
+                                first run results/20261107T150258383935Z (same 2 failures; one baseline line was a test bug, fixed)
+slice6_record_test.py   exit 1  FAILED (failures=21): 18 of 23 runtime cases + 3 P6; new P1_key_set_is_D6B_53 FAIL
+
+## Reasons (checked)
+test_f_6a_drift_has_gen_rows_only: drift, baseline and sites have a lib key; lib output dirs exist (DRIFT still runs LIB).
+test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree: each GEN row runs the 0003 copy replay_run_test.py; repaired has no argv, record, report.
+  Today repaired.exit_code is 0 and repaired_all is true: the 0003 copy still reads version 1 records. No exit-code message.
+P1_key_set_is_D6B_53: diagnostic case (scratch, not kept) shows the keys equal the version 1 set with body_base64, body_length, body_sha256 (R-a).
+Unchanged and pass: test_f_drift_fixtures_change_only_beaml_declarations, test_f_lib_is_frozen_before_drift, test_f_drift_outcomes_recorded_per_arm_and_derivative (GEN rows).
+
+## drift_test.py output (warnings stripped)
+test_f_drift_fixtures_change_only_beaml_declarations (__main__.DriftFixtures.test_f_drift_fixtures_change_only_beaml_declarations) ... ok
+test_f_6a_drift_has_gen_rows_only (__main__.DriftRun.test_f_6a_drift_has_gen_rows_only) ... FAIL
+test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree (__main__.DriftRun.test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree) ... FAIL
+test_f_drift_outcomes_recorded_per_arm_and_derivative (__main__.DriftRun.test_f_drift_outcomes_recorded_per_arm_and_derivative) ... ok
+test_f_lib_is_frozen_before_drift (__main__.DriftRun.test_f_lib_is_frozen_before_drift) ... ok
+======================================================================
+FAIL: test_f_6a_drift_has_gen_rows_only (__main__.DriftRun.test_f_6a_drift_has_gen_rows_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/drift_test.py", line 135, in test_f_6a_drift_has_gen_rows_only
+    self.assertEqual([], problems)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ["drift arms: [{'gen', 'lib'}, {'gen', 'li[182 chars]lib']
+Second list contains 7 additional elements.
+First extra element 0:
+"drift arms: [{'gen', 'lib'}, {'gen', 'lib'}, {'gen', 'lib'}]"
+- []
++ ["drift arms: [{'gen', 'lib'}, {'gen', 'lib'}, {'gen', 'lib'}]",
++  "baseline arms: [{'gen', 'lib'}]",
++  "sites arms: [{'gen', 'lib'}]",
++  'LIB output dir: lib',
++  'LIB output dir: R/lib',
++  'LIB output dir: N/lib',
++  'LIB output dir: Q/lib']
+======================================================================
+FAIL: test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree (__main__.DriftRun.test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/drift_test.py", line 148, in test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree
+    self.assertEqual([], problems)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ["R gen: command 'replay-run-test' runs th[715 chars]ort']
+Second list contains 12 additional elements.
+First extra element 0:
+"R gen: command 'replay-run-test' runs the 0003 copy experiments/0003-source-linked-replay/tests/replay_run_test.py"
+- []
++ ["R gen: command 'replay-run-test' runs the 0003 copy "
++  'experiments/0003-source-linked-replay/tests/replay_run_test.py',
++  'R gen: repaired.argv is not the eval of the Orders release: None',
++  'R gen: no evidence path record',
++  'R gen: no evidence path report',
++  "N gen: command 'replay-run-test' runs the 0003 copy "
++  'experiments/0003-source-linked-replay/tests/replay_run_test.py',
++  'N gen: repaired.argv is not the eval of the Orders release: None',
++  'N gen: no evidence path record',
++  'N gen: no evidence path report',
++  "Q gen: command 'replay-run-test' runs the 0003 copy "
++  'experiments/0003-source-linked-replay/tests/replay_run_test.py',
++  'Q gen: repaired.argv is not the eval of the Orders release: None',
++  'Q gen: no evidence path record',
++  'Q gen: no evidence path report']
+----------------------------------------------------------------------
+Ran 5 tests in 289.821s
+FAILED (failures=2)
+exit 1
+
+## slice6_record_test.py failing names (guards that pass: P1_unknown_value_is_in_no_record_byte, P1_request_unchanged,
+## P1_unknown_keys_are_names, P2_replay_of_the_record, P3_failed_decode_replays_as_decode, test_P6_version_2_record_builds)
+FAIL: test_P6_record_without_version_blocks_the_build (__main__.Slice6Record.test_P6_record_without_version_blocks_the_build)
+FAIL: test_P6_version_1_record_after_a_version_2_record_blocks_at_its_line (__main__.Slice6Record.test_P6_version_1_record_after_a_version_2_record_blocks_at_its_line)
+FAIL: test_P6_version_1_record_blocks_the_build (__main__.Slice6Record.test_P6_version_1_record_blocks_the_build)
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P1_version_is_2]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P1_value_is_the_declared_keys]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P1_redacted_is_empty]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P1_value_sha256_is_the_canonical_digest]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P1_no_body_keys]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P1_key_set_is_D6B_53]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P2_tampered_value_is_digest_mismatch]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P2_tampered_unknown_keys_is_digest_mismatch]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P2_version_1_record_is_digest_mismatch]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [a1_key_order_does_not_matter]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P3_failed_decode_value]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P3_failed_decode_unknown_keys]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P3_failed_decode_digest]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P4_not_json_value_is_null]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P4_not_json_digest]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P4_status_503_same_projection]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P5_ascii_parity]
+FAIL: test_runtime_record_version_2 (__main__.Slice6Record.test_runtime_record_version_2) [P5_non_ascii_parity]
+Ran 5 tests in 1.518s
+FAILED (failures=21)

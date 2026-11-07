@@ -1,0 +1,5 @@
+type Order { order_id: String }
+type PaymentRequest { order_id: String channel: String }
+type Payment { order_id: String status: String }
+fn prepare Order { order_id } -> PaymentRequest = PaymentRequest { order_id: order_id + "", channel: "web" }
+fn finish Payment { order_id, status } -> Payment = Payment { order_id: order_id + "", status: status }

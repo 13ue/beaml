@@ -1,5 +1,8 @@
 """EXPERIMENT 0004 slice 1 case (f): DRIFT runs only against the frozen LIB and records outcome classes.
 
+Slice 6b step 6a (DL-110, DL-118, D6B-96): DRIFT has GEN rows only. The repair check is the GEN replay
+of the repaired tree, not the 0003 copy `replay_run_test.py`.
+
 The outcomes are recorded, not asserted: the pass and reject rule judges them (README).
 Run: python3 -B experiments/0004-generated-replay/tests/drift_test.py
 """
@@ -11,10 +14,10 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from arm_tree import ARMS, EXPERIMENT, PAYMENTS_BEAML, REPO  # noqa: E402
+from arm_tree import ARMS, EXPERIMENT, HTTP_PATH, PAYMENTS_BEAML, REPLAY_PATH, REPO  # noqa: E402
 
 DERIVATIVES = ("R", "N", "Q")
-ARMS_NAMES = ("gen", "lib")
+ARMS_NAMES = ("gen",)  # D6B-96: the LIB arm leaves DRIFT (DL-118)
 OBSERVATIONS = ("build", "new_live", "pre_change")
 # README "(f) DRIFT": outcome classes.
 CLASSES = {"compile_error", "typed_reject", "correct_accept", "false_reject", "wrong_accept", "untyped_crash"}
@@ -27,6 +30,14 @@ RESULTS_ROOT = EXPERIMENT / "results"
 #                      "new_live_report": <live observed.json: {"reply": [code, body], ...}>,
 #                      "pre_change_replay_report": <eval report.json: {"result": {"ok"|"error"|"raised": ...}}>}
 # All files lie inside the run dir. With a failed build, both report paths may be absent.
+# D6B-96 (slice 6b step 6a, DL-118), the repair evidence of a GEN row whose build passed:
+#   row["repaired"] = {"exit_code": <int, eval exit>, "argv": <argv of the replay command>,
+#                      "record": <RESPONSE RECORD (version 2) of one live call in the repaired tree>,
+#                      "report": <eval report.json of the GEN runner over that record>}
+#   The command is the eval of the Orders release of the repaired tree. No command of the row runs the
+#   0003 copy replay_run_test.py. summary["repaired_all"] is true. drift, baseline and sites have no "lib".
+REPLAY_0003_TEST = REPLAY_PATH + "/tests/replay_run_test.py"
+ORDERS_RELEASE = HTTP_PATH + "/_build/prod/rel/orders/bin/orders"
 
 
 def lib_hashes():
@@ -58,7 +69,28 @@ class DriftFixtures(unittest.TestCase):
 
 
 class DriftRun(unittest.TestCase):
+    """One `run.py drift` run for every case of this class (a run takes minutes)."""
     maxDiff = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls.before = lib_hashes()
+        results_before = set(RESULTS_ROOT.iterdir()) if RESULTS_ROOT.is_dir() else set()
+        cls.done = subprocess.run([sys.executable, "-B", str(EXPERIMENT / "run.py"), "drift"], cwd=str(REPO),
+                                  capture_output=True, text=True, timeout=7200)
+        cls.after = lib_hashes()
+        try:
+            cls.summary = json.loads(cls.done.stdout.strip().splitlines()[-1])
+        except (IndexError, ValueError):
+            cls.summary = {}
+        cls.run_dir = Path(cls.summary.get("run") or "/nonexistent").resolve()
+        cls.new_dir = cls.run_dir not in {path.resolve() for path in results_before}
+
+    def assert_run(self):
+        self.assertEqual(0, self.done.returncode, self.done.stdout.strip()[-400:])
+        self.assertTrue(self.run_dir.is_dir() and self.run_dir.parent == RESULTS_ROOT.resolve(),
+                        "no run dir: %r" % self.run_dir)
+        self.assertTrue(self.new_dir, "run dir is not new")
 
     def test_f_lib_is_frozen_before_drift(self):
         freeze = ARMS / "lib" / "freeze.json"
@@ -69,16 +101,8 @@ class DriftRun(unittest.TestCase):
     def test_f_drift_outcomes_recorded_per_arm_and_derivative(self):
         # Review round 2: a class string alone is not evidence. Each row names the files of this run
         # (EVIDENCE_CONTRACT), and the test re-derives the class families from them.
-        before = lib_hashes()
-        results_before = set(RESULTS_ROOT.iterdir()) if RESULTS_ROOT.is_dir() else set()
-        done = subprocess.run([sys.executable, "-B", str(EXPERIMENT / "run.py"), "drift"], cwd=str(REPO),
-                              capture_output=True, text=True, timeout=7200)
-        self.assertEqual(0, done.returncode, done.stdout.strip()[-400:])
-        summary = json.loads(done.stdout.strip().splitlines()[-1])
-        run_dir = Path(summary.get("run") or "/nonexistent").resolve()
-        self.assertTrue(run_dir.is_dir() and run_dir.parent == RESULTS_ROOT.resolve(), "no run dir: %r" % run_dir)
-        self.assertNotIn(run_dir, {path.resolve() for path in results_before}, "run dir is not new")
-        drift = summary["drift"]
+        self.assert_run()
+        drift = self.summary["drift"]
         problems = []
         for derivative in DERIVATIVES:
             for arm in ARMS_NAMES:
@@ -89,9 +113,73 @@ class DriftRun(unittest.TestCase):
                         problems.append("%s %s: %r" % (where, observation, row.get(observation)))
                 if not isinstance(row.get("manual_change_sites"), int):
                     problems.append("%s: no manual change site count" % where)
-                problems.extend(evidence_problems(where, row, run_dir))
+                problems.extend(evidence_problems(where, row, self.run_dir))
         self.assertEqual([], problems)
-        self.assertEqual(before, lib_hashes(), "a DRIFT run changed the frozen LIB")
+        self.assertEqual(self.before, self.after, "a DRIFT run changed the frozen LIB")
+
+    def test_f_6a_drift_has_gen_rows_only(self):
+        # D6B-96, DL-118: the LIB arm leaves DRIFT with DL-110. No LIB row, no LIB baseline, no LIB output.
+        self.assert_run()
+        problems = []
+        # The stdout line has no "baseline"; drift.json in the run dir holds the full summary.
+        saved = self.run_dir / "drift.json"
+        full = json.loads(saved.read_text()) if saved.is_file() else {}
+        for key in ("drift", "baseline", "sites"):
+            nested = (self.summary if key != "baseline" else full).get(key) or {}
+            arms = [set(nested.get(d) or {}) for d in DERIVATIVES] if key == "drift" else [set(nested)]
+            if any(found != {"gen"} for found in arms):
+                problems.append("%s arms: %r" % (key, arms))
+        problems.extend("LIB output dir: %s" % path.relative_to(self.run_dir)
+                        for path in [self.run_dir / "lib"] + [self.run_dir / d / "lib" for d in DERIVATIVES]
+                        if path.exists())
+        self.assertEqual([], problems)
+
+    def test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree(self):
+        # D6B-96, DL-118: the repair check is the GEN replay of the repaired tree, never the 0003 copy.
+        self.assert_run()
+        problems = []
+        for derivative in DERIVATIVES:
+            row = (self.summary.get("drift", {}).get(derivative) or {}).get("gen") or {}
+            if (row.get("evidence") or {}).get("build_exit_code") != 0:
+                continue
+            problems.extend(repaired_problems(derivative, row, self.run_dir))
+        if self.summary.get("repaired_all") is not True:
+            problems.append("repaired_all: %r" % self.summary.get("repaired_all"))
+        self.assertEqual([], problems)
+
+
+def repaired_problems(derivative, row, run_dir):
+    """D6B-96: check row["repaired"] and the command log of one GEN row."""
+    where = "%s gen" % derivative
+    problems = []
+    log = run_dir / derivative / "gen" / "commands" / "commands.json"
+    for command in json.loads(log.read_text()) if log.is_file() else []:
+        if any(str(arg).endswith(REPLAY_0003_TEST) for arg in command.get("argv", [])):
+            problems.append("%s: command %r runs the 0003 copy %s" % (where, command.get("name"), REPLAY_0003_TEST))
+    repaired = row.get("repaired") or {}
+    code = repaired.get("exit_code")
+    if not isinstance(code, int) or isinstance(code, bool) or code != 0:
+        problems.append("%s: repaired.exit_code %r" % (where, code))
+    argv = repaired.get("argv")
+    if not (isinstance(argv, list) and len(argv) > 1 and str(argv[0]).endswith(ORDERS_RELEASE)
+            and argv[1] == "eval"):
+        problems.append("%s: repaired.argv is not the eval of the Orders release: %r" % (where, argv))
+    record_path = evidence_file(where, {"evidence": repaired}, "record", run_dir, problems)
+    report_path = evidence_file(where, {"evidence": repaired}, "report", run_dir, problems)
+    if record_path is None or report_path is None:
+        return problems
+    record = json.loads(record_path.read_text())
+    if record.get("version") != 2:
+        problems.append("%s: replayed record version %r" % (where, record.get("version")))
+    report = json.loads(report_path.read_text())
+    result = report.get("result") or {}
+    # The replay gives what the recorded call gave: a 200 record accepts, any other status rejects typed.
+    expected = "ok" if record.get("status") == 200 else "error"
+    if expected not in result:
+        problems.append("%s: record status %r, replay result %r" % (where, record.get("status"), result))
+    if "ok" in result and report.get("host_validation") != "ok":
+        problems.append("%s: host validation %r after the repair" % (where, report.get("host_validation")))
+    return problems
 
 
 def evidence_file(where, row, key, run_dir, problems):
