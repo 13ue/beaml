@@ -440,7 +440,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D020 — Does a MIGRATE STEP govern BEAML-owned persistence, or only RESPONSE RECORDS
 
-- **Status** OPEN
+- **Status** CLOSED, [DL-137](decision-log.md): option A, one `migrate` block for both streams, By: 13ue, 2026-11-07
 - **Decision owner** OWNER
 - **Class** Migrate (roadmap part 3)
 - **Scope** EXECUTION, MIGRATE CHAIN, DL-102, DL-125
@@ -557,6 +557,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## Answered 2026-11-07
 
+- [DL-137](decision-log.md): D020, one `migrate` block governs RESPONSE RECORDS and database rows (A).
 - [DL-136](decision-log.md): M1, `--stored` checks only replayable records; non-200 and bad digest are counted (A).
 - [DL-135](decision-log.md): M7, the DRIFT status pins classes; crash, build failure, open repair are fail (A).
 - [DL-134](decision-log.md): Q6D-4, `--stored` also checks stored ENTRY RECORDS (A).
