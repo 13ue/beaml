@@ -2630,7 +2630,8 @@ impl Checker<'_> {
                         ":ok <- expect(record[\"request\"], {input}, :request_mismatch)"
                     ));
                     clauses.push(":ok <- expect(record[\"status\"], 200, :status_mismatch)".into());
-                    clauses.push("{:ok, bytes} <- body(record)".into());
+                    // Slice 6b step 6a (D6B-58, D6B-60): the digest check of the projection gives the re-encoded `value`.
+                    clauses.push("{:ok, bytes, keys} <- body(record)".into());
                     // With a MIGRATE CHAIN, the decode reads the body as the TYPE VERSION of the record.
                     let version = if !self.versioned(&effect.output) {
                         ""
@@ -2638,7 +2639,7 @@ impl Checker<'_> {
                         ", record[\"type\"]"
                     };
                     clauses.push(format!(
-                        "{{:ok, {output}}} <- @parent.__beaml_attempt__(fn -> ProbeSupport.span({}, :internal, p0, nil, fn -> @parent.__beaml_result_{}(bytes{version}) end) end)",
+                        "{{:ok, {output}}} <- @parent.__beaml_attempt__(fn -> ProbeSupport.span({}, :internal, p0, nil, fn -> @parent.__beaml_result_{}(bytes{version}, keys) end) end)",
                         binary(&format!("{service}.{step}")),
                         effect.name.replace('.', "_")
                     ));
@@ -2856,29 +2857,29 @@ impl Checker<'_> {
                 field = binary(field)
             ));
         }
+        // D6B-49, S8: the declared keys inside a constructor field value: every parameter name of every signature.
+        let inner: Vec<String> = ctor_fields
+            .iter()
+            .map(|(field, ty)| {
+                let mut names: Vec<String> = Vec::new();
+                for (_, list) in self.ctor_signatures(ty).expect("checked signatures") {
+                    for n in list {
+                        if !names.contains(&n) {
+                            names.push(n);
+                        }
+                    }
+                }
+                let names: Vec<String> = names.iter().map(|n| binary(n)).collect();
+                format!("{{{}, [{}]}}", binary(field), names.join(", "))
+            })
+            .collect();
         let tail = if ctor_fields.is_empty() {
             format!(
                 "    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n",
                 output = binary(&effect.output)
             )
         } else {
-            // D6B-49, S8: a stray key inside a constructor field value is `FIELD.KEY`; every parameter name
-            // of every signature is declared.
-            let inner: Vec<String> = ctor_fields
-                .iter()
-                .map(|(field, ty)| {
-                    let mut names: Vec<String> = Vec::new();
-                    for (_, list) in self.ctor_signatures(ty).expect("checked signatures") {
-                        for n in list {
-                            if !names.contains(&n) {
-                                names.push(n);
-                            }
-                        }
-                    }
-                    let names: Vec<String> = names.iter().map(|n| binary(n)).collect();
-                    format!("{{{}, [{}]}}", binary(field), names.join(", "))
-                })
-                .collect();
+            // D6B-49, S8: a stray key inside a constructor field value is `FIELD.KEY`.
             format!(
                 "    cond do\n      is_map(shape) and Enum.member?(Map.values(shape), :constructor) ->\n        {{:error, {constructor}}}\n\n      __beaml_valid__(shape, {output}) ->\n        nested =\n          Enum.flat_map([{inner}], fn {{field, names}} ->\n            case Map.get(value, field) do\n              inner when is_map(inner) -> Enum.map(Map.keys(Map.drop(inner, names)), &(field <> {dot} <> &1))\n              _ -> []\n            end\n          end)\n\n        {{:ok, shape, Enum.sort(Enum.concat(Map.keys(Map.drop(value, declared)), nested))}}\n\n      true ->\n        :error\n    end\n",
                 constructor = binary("constructor"),
@@ -2953,12 +2954,27 @@ impl Checker<'_> {
                 output = binary(&effect.output),
             ));
         }
+        // Slice 6b step 6a (DL-105, D6B-54, D6B-56, D6B-57): the projection of a body for the RESPONSE RECORD.
+        // `value`: the wire values under the declared keys of the newest TYPE VERSION, nested by DL-099 and D6B-49,
+        // not validated; `:null` when the body is not a JSON object. `unknown_keys`: the other key names, dotted.
+        out.push_str(&format!(
+            "  def __beaml_project_{elixir}(a0) do\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    if is_map(body) do\n      declared = [{declared}]\n\n      nested =\n        Enum.flat_map([{inner}], fn {{field, names}} ->\n          case Map.get(body, field) do\n            v when is_map(v) -> [{{field, Map.take(v, names), Enum.map(Map.keys(Map.drop(v, names)), &(field <> {dot} <> &1))}}]\n            _ -> []\n          end\n        end)\n\n      value = Enum.reduce(nested, Map.take(body, declared), fn {{field, v, _}}, acc -> Map.put(acc, field, v) end)\n      {{value, Enum.sort(Enum.concat(Map.keys(Map.drop(body, declared)), Enum.flat_map(nested, fn {{_, _, keys}} -> keys end)))}}\n    else\n      {{:null, []}}\n    end\n  end\n",
+            declared = declared.join(", "),
+            inner = inner.join(", "),
+            dot = binary("."),
+        ));
+        // D6B-60: a REPLAY RUN passes the record `unknown_keys` as `extra`; the span gets the sorted union.
         let (result_head, arity) = if !self.versioned(&effect.output) {
-            (format!("  def __beaml_result_{elixir}(a0) do\n"), "")
+            (
+                format!(
+                    "  def __beaml_result_{elixir}(a0), do: __beaml_result_{elixir}(a0, [])\n  def __beaml_result_{elixir}(a0, extra) do\n"
+                ),
+                "",
+            )
         } else {
             (
                 format!(
-                    "  def __beaml_result_{elixir}(a0), do: __beaml_result_{elixir}(a0, nil)\n  def __beaml_result_{elixir}(a0, type_version) do\n"
+                    "  def __beaml_result_{elixir}(a0), do: __beaml_result_{elixir}(a0, nil, [])\n  def __beaml_result_{elixir}(a0, type_version, extra) do\n"
                 ),
                 ", type_version",
             )
@@ -2971,7 +2987,7 @@ impl Checker<'_> {
             )
         };
         out.push_str(&format!(
-            "{result_head}    case {decode}(a0{arity}) do\n      {{:ok, value, []}} ->\n        {mark}{{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {mark}{{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n{reject}    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
+            "{result_head}    case {decode}(a0{arity}) do\n      {{:ok, value, keys}} ->\n        keys = Enum.sort(Enum.uniq(Enum.concat(extra, keys)))\n        if keys == [], do: :ok, else: :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {mark}{{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n{reject}    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
             decode_reason = binary("decode"),
             reject = if ctor_fields.is_empty() {
                 String::new()
@@ -2983,13 +2999,13 @@ impl Checker<'_> {
         out.push_str("  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n");
         out.push_str(HTTP);
         out.push_str(&format!(
-            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n\n{unknown}\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 1,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        body_base64: Base.encode64(bytes),\n        body_length: byte_size(bytes),\n        body_sha256: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower),\n        unknown_keys: unknown_keys,\n{fields_key}        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
+            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n      {{value, unknown_keys}} = @parent.__beaml_project_{elixir}(bytes)\n{unknown}\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 2,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        value: value,\n        redacted: [],\n        unknown_keys: unknown_keys,\n        value_sha256: digest(value, unknown_keys, []),\n{fields_key}        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
             operation = binary(name),
             // Step 7 (notes.md S4): the RESPONSE RECORD key `unknown_fields` holds field names only.
             unknown = if keeps.is_empty() {
-                format!("      unknown_keys =\n        case @parent.{decode}(bytes) do\n          {{:ok, _, keys}} -> keys\n          _ -> []\n        end\n")
+                String::new()
             } else {
-                format!("      {{unknown_keys, unknown_fields}} =\n        case @parent.{decode}(bytes) do\n          {{:ok, value, keys}} -> {{keys, @parent.{unknown_fields}(value)}}\n          _ -> {{[], []}}\n        end\n")
+                format!("      unknown_fields =\n        case @parent.{decode}(bytes) do\n          {{:ok, decoded, _}} -> @parent.{unknown_fields}(decoded)\n          _ -> []\n        end\n")
             },
             fields_key = if keeps.is_empty() { "" } else { "        unknown_fields: unknown_fields,\n" },
             retired = self.emit_retired(),
@@ -3127,7 +3143,7 @@ const HTTP: &str = r#"  defmodule Http do
   end
 "#;
 
-// RESPONSE RECORD checks of the REPLAY RUN (0003 format version 1, six reasons).
+// RESPONSE RECORD checks of the REPLAY RUN (record version 2 since slice 6b step 6a, six reasons).
 const REPLAY_HELPERS: &str = r#"
     defp select(records, trace_id) do
       case Enum.filter(records, &(&1["trace_id"] == trace_id)) do
@@ -3139,18 +3155,29 @@ const REPLAY_HELPERS: &str = r#"
     defp expect(value, value, _reason), do: :ok
     defp expect(_value, _expected, reason), do: {:error, reason}
 
-    defp body(%{"body_base64" => text, "body_length" => length, "body_sha256" => sha256})
-         when is_binary(text) do
-      with {:ok, bytes} <- Base.decode64(text),
-           true <- byte_size(bytes) === length,
-           true <- Base.encode16(:crypto.hash(:sha256, bytes), case: :lower) === sha256 do
-        {:ok, bytes}
-      else
-        _ -> {:error, :body_digest_mismatch}
-      end
+    # Slice 6b step 6a (D6B-58, D6B-60): a version 2 record replays the re-encoded `value` when the digest of its
+    # projection holds. A record without `value` (version 1) is `:body_digest_mismatch`.
+    defp body(%{"value" => value, "redacted" => redacted, "unknown_keys" => keys, "value_sha256" => sha256})
+         when is_list(keys) do
+      if digest(value, keys, redacted) === sha256,
+        do: {:ok, IO.iodata_to_binary(:json.encode(value)), keys},
+        else: {:error, :body_digest_mismatch}
     end
 
     defp body(_record), do: {:error, :body_digest_mismatch}
+
+    # D6B-58: lower-case hex SHA-256 of the compact JSON of the projection, keys sorted at every level, UTF-8.
+    # ponytail: :json float text (for example 1.0e100) can differ from other encoders; the writer and the reader
+    # share this function, so only a foreign digest of an exponent float would differ.
+    defp digest(value, keys, redacted) do
+      sorted = fn
+        map, encode when is_map(map) -> :json.encode_key_value_list(Enum.sort(Map.to_list(map)), encode)
+        other, encode -> :json.encode_value(other, encode)
+      end
+
+      text = :json.encode(%{"redacted" => redacted, "unknown_keys" => keys, "value" => value}, sorted)
+      Base.encode16(:crypto.hash(:sha256, text), case: :lower)
+    end
 "#;
 
 // Fields of a TYPE VERSION sorted by field name (the order of the RESPONSE RECORD `type` key).
@@ -3455,36 +3482,6 @@ struct Snapshot {
 // (TYPE, operation, field, enum) of a literal enum field in the `--stored` check.
 type FieldKey = (String, String, String, String);
 
-// Standard base64 (with padding) of a RESPONSE RECORD body; None for any other text.
-fn base64(text: &str) -> Option<Vec<u8>> {
-    let digit = |c: u8| match c {
-        b'A'..=b'Z' => Some(c - b'A'),
-        b'a'..=b'z' => Some(c - b'a' + 26),
-        b'0'..=b'9' => Some(c - b'0' + 52),
-        b'+' => Some(62),
-        b'/' => Some(63),
-        _ => None,
-    };
-    let bytes = text.as_bytes();
-    if !bytes.len().is_multiple_of(4) {
-        return None;
-    }
-    let mut out = Vec::new();
-    for chunk in bytes.chunks(4) {
-        let pad = chunk.iter().rev().take_while(|c| **c == b'=').count();
-        if pad > 2 {
-            return None;
-        }
-        let mut n = 0u32;
-        for c in &chunk[..4 - pad] {
-            n = n << 6 | u32::from(digit(*c)?);
-        }
-        n <<= 6 * pad as u32;
-        out.extend_from_slice(&n.to_be_bytes()[1..4 - pad]);
-    }
-    Some(out)
-}
-
 // A DEAD LINE: its byte range in the source, its form (`retire ...` or `migrate T a -> b`) and why it is dead.
 #[derive(Clone, Debug)]
 struct Dead {
@@ -3592,6 +3589,18 @@ impl Checker<'_> {
             let at = format!("record source: {source}:{number} (line {number})");
             let record = parse_json(line)
                 .ok_or_else(|| format!("error: stored RESPONSE RECORD is not JSON\n  {at}"))?;
+            // D6B-59 (plan repair O1): this build reads RESPONSE RECORD version 2 only.
+            let version = match record.get("version") {
+                Some(Json::Number(n)) if n == "2" => None,
+                Some(Json::Number(n)) => Some(n.as_str()),
+                None => Some("none"),
+                Some(_) => Some("malformed"),
+            };
+            if let Some(v) = version {
+                return Err(format!(
+                    "error: stored RESPONSE RECORD has record version {v}; this build reads record version 2 only (DL-105)\n  {at}"
+                ));
+            }
             let stored = stored_version(&record).map_err(|e| format!("error: {e}\n  {at}"))?;
             snapshot.operations.insert(stored.operation.clone());
             if let Some(effect) = self.effect(&stored.operation) {
@@ -3605,19 +3614,15 @@ impl Checker<'_> {
                 if stored.name == effect.output
                     && !(literal_fields.is_empty() && ctor_fields.is_empty())
                 {
-                    let body = record
-                        .get("body_base64")
-                        .and_then(Json::text)
-                        .and_then(base64)
-                        .and_then(|bytes| String::from_utf8(bytes).ok())
-                        .and_then(|text| parse_json(&text));
+                    // Slice 6b step 6a (DL-105): the DL-102 checks read the projection `value`.
+                    let body = record.get("value");
                     // A record without the key `unknown_fields` (written before step 7) kept nothing.
                     let kept = |field: &str| match record.get("unknown_fields") {
                         Some(Json::List(names)) => names.iter().any(|n| n.text() == Some(field)),
                         _ => false,
                     };
                     for (field, enum_name) in literal_fields {
-                        let value = body.as_ref().and_then(|b| b.get(&field));
+                        let value = body.and_then(|b| b.get(&field));
                         let literal = value.and_then(Json::text).is_some_and(|text| {
                             self.program.literals[&enum_name]
                                 .iter()
@@ -3642,7 +3647,7 @@ impl Checker<'_> {
                         entry.2 += usize::from(resolved);
                     }
                     for (field, ty) in ctor_fields {
-                        let value = body.as_ref().and_then(|b| b.get(&field));
+                        let value = body.and_then(|b| b.get(&field));
                         if let Some(reason) = self.ctor_fault(&ty, value) {
                             let key = (effect.output.clone(), stored.operation.clone(), field, ty);
                             faults.entry((key, reason)).or_insert((0, number)).0 += 1;

@@ -4,7 +4,7 @@ Usage (from any cwd; loopback only; every step runs serially):
   python3 -B experiments/0004-generated-replay/run.py          all steps: compiler, LIB freeze, arms (GEN
                                                                cases), DRIFT (f), the slice 2-5 test files;
                                                                one result dir per run
-  python3 -B experiments/0004-generated-replay/run.py drift    case (f) only: DRIFT R, N, Q per arm
+  python3 -B experiments/0004-generated-replay/run.py drift    case (f) only: DRIFT R, N, Q (GEN rows)
   python3 -B experiments/0004-generated-replay/run.py freeze   write arms/lib/freeze.json once, else verify it
   python3 -B experiments/0004-generated-replay/run.py --list-steps
 
@@ -12,13 +12,14 @@ The last stdout line is one JSON object: {"run": <result dir>, "status": ...} (a
 Arm trees are temporary copies with the repository layout (tests/arm_tree.py); the originals stay the control.
 CLI actions go to <repo>/.beaml/actions.jsonl (append-only JSONL; logging never raises).
 
-DRIFT (f), per derivative and arm (README; evidence shape D24 in tests/drift_test.py):
+DRIFT (f), per derivative, GEN arm only since slice 6b step 6a (DL-110, DL-118; evidence D24 and D6B-96 in
+tests/drift_test.py):
   1. build: regenerate both modules from the drifted BEAML and build both releases (no other change).
   2. new_live: one Orders call against the drifted Payments release through a loopback proxy that keeps
      the exchanged bytes, plus one eval probe of the arm flow that shows where a failure starts.
   3. pre_change: replay the RESPONSE RECORD of the undrifted arm (baseline) with the drifted arm runner.
-  4. repair: apply arms/<arm>/repair/<derivative>.json, count the edited hunks, then run the 0003
-     8-case replay test in the repaired tree ((d) for GEN, (e) for LIB).
+  4. repair: apply arms/gen/repair/<derivative>.json, count the edited hunks, rebuild the Orders release
+     (the repair changes probe_support.ex), make one live call and replay its RESPONSE RECORD (D6B-96).
 The classes come from these observations. The expected outcome comes from the bytes that the proxy saw
 and from the drifted TYPE (never from a constant per derivative); see `classify_*`.
 """
@@ -59,7 +60,7 @@ JOB = "exp-0004-run"
 TITLE = "Run the arms and the DRIFT of EXPERIMENT 0004 (slice 1)"
 RESULTS = EXPERIMENT / "results"
 ACTIONS = REPO / ".beaml" / "actions.jsonl"
-ARMS = ("gen", "lib")
+ARMS = ("gen",)  # Slice 6b step 6a (DL-118, D6B-96): the LIB arm leaves DRIFT; the LIB freeze stays.
 DERIVATIVES = ("R", "N", "Q")
 LIB_MODULES = {"ReplayLib": "apps/orders_api/lib/replay_lib.ex",
                "OrdersApi.ReplayDescriptor": "apps/orders_api/lib/orders_api/replay_descriptor.ex"}
@@ -87,12 +88,8 @@ TEST_FILES = tuple([HTTP_PATH + "/query.py"] + [REPLAY_PATH + "/tests/" + n for 
 # Eval probes. GEN: the generated flow. LIB: the 0002 live path the router runs (prepare, transport in its
 # client span, finish). The span matters: without one, the CAPTURE reads no span context and raises, which
 # the live router never sees (first DRIFT run, results/20261106T123902454745Z, LIB new_live probe).
-FLOW = {"gen": "OrdersBeamlSpike.place(order)",
-        "lib": "{:ok, OrdersBeamlSpike.finish(ProbeSupport.span(\"orders.payment_http\", :client, order, nil, "
-               "fn -> OrdersApi.PaymentHttp.authorize(OrdersBeamlSpike.prepare(order), []) end))}"}
-RUNNER = {"gen": "OrdersBeamlSpike.Replay.run(ProbeSupport.valid_order!(order), input[\"trace_id\"], input[\"responses\"])",
-          "lib": "ReplayLib.run(OrdersApi.ReplayDescriptor.authorize(), ProbeSupport.valid_order!(order), "
-                 "input[\"trace_id\"], input[\"responses\"])"}
+FLOW = {"gen": "OrdersBeamlSpike.place(order)"}
+RUNNER = {"gen": "OrdersBeamlSpike.Replay.run(ProbeSupport.valid_order!(order), input[\"trace_id\"], input[\"responses\"])"}
 # One eval script for both probes. The runner result is reported without host validation; the host
 # validation (`valid_payment!/2`, counted apart in the README) is reported next to it.
 EVAL = r'''
@@ -358,7 +355,7 @@ def probe(tree, arm, name, out, probe_input, payments_port, commands):
     return out / "report.json", report
 
 
-def live_call(tree, arm, out, commands):
+def live_call(tree, arm, out, commands, name="flow"):
     """Start Payments and Orders of the tree, one Orders call through the proxy, then one flow probe."""
     holder = []
     server, exchanges = None, []
@@ -370,7 +367,7 @@ def live_call(tree, arm, out, commands):
         _, control = request(port)
         stop(process)
         live_exchanges = list(exchanges)
-        _, flow = probe(tree, arm, "flow", out / "flow", {"mode": "flow"}, server.server_address[1], commands)
+        _, flow = probe(tree, arm, name, out / "flow", {"mode": "flow"}, server.server_address[1], commands)
     finally:
         for item in holder:
             if isinstance(item, subprocess.Popen):
@@ -452,7 +449,9 @@ def classify_replay(report, old_record, new_request, fields):
 def lib_beaml(drifted):
     """The LIB arm has no `effect` and no `place`: its BEAML is the 0002 orders.beaml. A DRIFT changes the
     same TYPE and signature lines there. Keep each drifted line whose declaration exists in the LIB source,
-    plus each new interface; drop the GEN-only lines (effect, failure TYPE, flow, comments)."""
+    plus each new interface; drop the GEN-only lines (effect, failure TYPE, flow, comments).
+    Slice 6b step 6a (DL-118): DRIFT no longer calls it. It stays because tests/slice5_rewrite_test.py A1 audits
+    its `type ` line test."""
     def key(line):
         return " ".join(line.split()[:2])
     lib = (REPO / arm_tree.ORDERS_BEAML).read_text().splitlines()
@@ -496,20 +495,21 @@ def repair(arm, derivative, tree, out):
     return counts
 
 
-def replay_test(tree, out, commands):
-    """(d) or (e) again: the 0003 8-case replay test in the repaired tree."""
-    code, stdout = commands.run("replay-run-test", [sys.executable, "-B", REPLAY_PATH + "/tests/replay_run_test.py"],
-                                tree, timeout=1800)
-    first = stdout.strip().splitlines()[0] if stdout.strip() else ""
-    result_path = Path(first) / "result.json" if first else None
-    summary = {"exit_code": code, "status": None, "assertions": {}}
-    if result_path and result_path.is_file():
-        result = json.loads(result_path.read_text())
-        summary["status"] = result.get("status")
-        summary["assertions"] = {k: v["expected"] == v["actual"] for k, v in result.get("assertions", {}).items()}
-        shutil.copytree(result_path.parent, out / "replay-run-test")
-    save(out / "replay-run-test.json", summary)
-    return summary
+def repaired_replay(tree, arm, out, commands):
+    """D6B-96: rebuild the Orders release of the repaired tree, make one live call, replay its RESPONSE RECORD."""
+    http = Path(tree) / HTTP_PATH
+    code, _ = commands.run("repair-release-orders", MIX + ["release", "orders", "--overwrite"], http)
+    if code != 0:
+        return {"exit_code": code, "argv": commands.log[-1]["argv"]}
+    _, observed = live_call(tree, arm, out / "live", commands, name="repaired-flow")
+    if len(observed["records"]) != 1:
+        return {"exit_code": None, "records": len(observed["records"])}
+    record = observed["records"][0]
+    save(out / "record.json", record)
+    report_path, report = probe(tree, arm, "repaired-replay", out / "replay",
+                                {"mode": "replay", "trace_id": record["trace_id"], "responses": [record]}, 0, commands)
+    return {"exit_code": report["eval_exit_code"], "argv": commands.log[-1]["argv"],
+            "record": str(out / "record.json"), "report": str(report_path)}
 
 
 # ---------------------------------------------------------------------------------------------- drift
@@ -519,7 +519,7 @@ def drift():
     run = RESULTS / started.strftime("%Y%m%dT%H%M%S%fZ")
     run.mkdir(parents=True)
     event("start", TARGET + "-drift", "running")
-    bus("start", msg="DRIFT R, N, Q per arm", path=str(run))
+    bus("start", msg="DRIFT R, N, Q (GEN rows)", path=str(run))
     summary = {"run": str(run), "status": "fail", "freeze": freeze(), "drift": {}, "baseline": {}}
     if summary["freeze"]["status"] != "pass" or summary["freeze"]["action"] != "verified":
         # DRIFT runs only against a LIB that was frozen before (README "Freeze").
@@ -553,11 +553,7 @@ def drift():
             for arm in ARMS:
                 out = run / derivative / arm
                 out.mkdir(parents=True)
-                if arm == "gen":
-                    orders = source / "orders.beaml"
-                else:
-                    orders = out / "orders.beaml"
-                    orders.write_text(lib_beaml(source / "orders.beaml"))
+                orders = source / "orders.beaml"
                 shutil.copyfile(orders, out / "orders.applied.beaml")
                 shutil.copyfile(source / "payments.beaml", out / "payments.applied.beaml")
                 tree = scratch / derivative / arm
@@ -586,8 +582,8 @@ def drift():
                 row["domain_validation_sites"] = counts["domain"]
                 row["test_expectation_sites"] = counts["test"]
                 if code == 0:
-                    # Repairs do not touch BEAML: the built releases stay; the 0003 test builds its own.
-                    row["repaired"] = replay_test(tree, out, commands)
+                    # Repairs do not touch BEAML, but they change probe_support.ex: rebuild Orders (D6B-96).
+                    row["repaired"] = repaired_replay(tree, arm, out / "repaired", commands)
                 save(out / "row.json", row)
                 summary["drift"].setdefault(derivative, {})[arm] = row
                 done += 1

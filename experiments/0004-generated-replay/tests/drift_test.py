@@ -141,6 +141,8 @@ class DriftRun(unittest.TestCase):
         for derivative in DERIVATIVES:
             row = (self.summary.get("drift", {}).get(derivative) or {}).get("gen") or {}
             if (row.get("evidence") or {}).get("build_exit_code") != 0:
+                # RC6A-2: R, N and Q built in every earlier run; without a build D6B-96 has no evidence.
+                problems.append("%s gen: build_exit_code %r" % (derivative, (row.get("evidence") or {}).get("build_exit_code")))
                 continue
             problems.extend(repaired_problems(derivative, row, self.run_dir))
         if self.summary.get("repaired_all") is not True:
@@ -153,7 +155,8 @@ def repaired_problems(derivative, row, run_dir):
     where = "%s gen" % derivative
     problems = []
     log = run_dir / derivative / "gen" / "commands" / "commands.json"
-    for command in json.loads(log.read_text()) if log.is_file() else []:
+    commands = json.loads(log.read_text()) if log.is_file() else []
+    for command in commands:
         if any(str(arg).endswith(REPLAY_0003_TEST) for arg in command.get("argv", [])):
             problems.append("%s: command %r runs the 0003 copy %s" % (where, command.get("name"), REPLAY_0003_TEST))
     repaired = row.get("repaired") or {}
@@ -164,6 +167,9 @@ def repaired_problems(derivative, row, run_dir):
     if not (isinstance(argv, list) and len(argv) > 1 and str(argv[0]).endswith(ORDERS_RELEASE)
             and argv[1] == "eval"):
         problems.append("%s: repaired.argv is not the eval of the Orders release: %r" % (where, argv))
+    # RC6A-1: the argv is a command of this row that exited 0.
+    if not any(c.get("argv") == argv and c.get("exit_code") == 0 for c in commands):
+        problems.append("%s: repaired.argv is no command of the row log with exit 0" % where)
     record_path = evidence_file(where, {"evidence": repaired}, "record", run_dir, problems)
     report_path = evidence_file(where, {"evidence": repaired}, "report", run_dir, problems)
     if record_path is None or report_path is None:
@@ -172,6 +178,19 @@ def repaired_problems(derivative, row, run_dir):
     if record.get("version") != 2:
         problems.append("%s: replayed record version %r" % (where, record.get("version")))
     report = json.loads(report_path.read_text())
+    # RC6A-1: the eval ran, and the record comes from a new live call of this row (not baseline, not new_live).
+    if report.get("eval_exit_code") != 0:
+        problems.append("%s: report eval_exit_code %r" % (where, report.get("eval_exit_code")))
+    row_dir = run_dir / derivative / "gen"
+    traces = lambda path: [json.loads(l).get("trace_id") for l in path.read_text().splitlines() if l.strip()]  # noqa: E731
+    baseline = run_dir / "gen" / "baseline" / "record.json"
+    old = {json.loads(baseline.read_text()).get("trace_id")} if baseline.is_file() else set()
+    live = row_dir / "new_live" / "orders" / "responses.jsonl"
+    old |= set(traces(live)) if live.is_file() else set()
+    written = {t for path in row_dir.rglob("responses.jsonl") for t in traces(path)}
+    trace = record.get("trace_id")
+    if not trace or trace in old or trace not in written:
+        problems.append("%s: record trace_id %r is not new or not in a responses.jsonl of the row" % (where, trace))
     result = report.get("result") or {}
     # The replay gives what the recorded call gave: a 200 record accepts, any other status rejects typed.
     expected = "ok" if record.get("status") == 200 else "error"

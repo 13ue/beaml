@@ -113,3 +113,68 @@ By: Opus (RED repair, slice6b-records-v2) for every entry in this section.
 - → **Chose:** the expected result comes from the record status (200 gives `ok`, else `error`). **Over:** `ok` for every derivative. **Because:** DRIFT-Q gives a typed reject live; the replay must give the same. **Commits us to:** a Q row may pass with `error`. By: Opus (RED repair, slice6b-records-v2)
 - → **Chose:** check the command log of each row for the 0003 copy path. **Over:** check `repaired.argv` only. **Because:** a GEN run can keep the 0003 run and report another argv. **Commits us to:** `commands/commands.json` stays the row command log. By: Opus (RED repair, slice6b-records-v2)
 - → **Chose:** no `lib` key and no `lib` output dir. **Over:** summary keys only. **Because:** a run can hide LIB rows and still run them. **Commits us to:** DRIFT writes no LIB output. By: Opus (RED repair, slice6b-records-v2)
+
+## GREEN
+
+**[Observed]** GREEN, 2026-11-07, base HEAD `2cf10785`. Not committed.
+By: Opus (GREEN, slice6b-records-v2) for every entry in this section.
+
+### Changes in `main.rs` (functions)
+
+- `emit_effect`: emits a new `__beaml_project_E/1` per EFFECT. It gives `{value, unknown_keys}`: the declared keys of the newest TYPE VERSION, nested for constructor fields (D6B-49 names), and the other key names, dotted. A body that is not a JSON object gives `{:null, []}` (D6B-54, D6B-56, D6B-57).
+- `emit_effect`, `Replay.record/3`: writes `version: 2`, `value`, `redacted: []`, `unknown_keys`, `value_sha256`. The body keys are gone (DL-105). It decodes again only for `unknown_fields` (step 7).
+- `emit_effect`, `__beaml_result_E`: a new last parameter `extra`. The span `unknown_keys` is the sorted union of `extra` and the decode stray keys. A live call passes `[]` (the public 1-arity function is unchanged).
+- `emit_chain` (REPLAY RUN): `{:ok, bytes, keys} <- body(record)`, then `__beaml_result_E(bytes, [type,] keys)` (D6B-60).
+- `REPLAY_HELPERS`: `body/1` checks `value_sha256` against `digest/3` and gives the re-encoded `value`. A record without the four keys, or with a non-list `unknown_keys`, gives `:body_digest_mismatch`. New `digest/3`: SHA-256 of the compact JSON of the projection, keys sorted at every level (`:json.encode` with a sorting encoder) (D6B-58).
+- `check_stored`: a record whose `version` is not `2` blocks the build with the D6B-59 text. The DL-102 checks read `value`.
+- `base64` (Rust) removed: no reader is left.
+
+### Changes in `run.py`
+
+- `ARMS = ("gen",)`: DRIFT has GEN rows only (DL-118). The LIB freeze step stays.
+- New `repaired_replay`: rebuild the Orders release of the repaired tree, one live call, replay its RESPONSE RECORD with the GEN runner (D6B-96). `replay_test` (the 0003 copy run) removed.
+- `live_call` gets a probe name, so the repaired live call keeps its own command files.
+- `FLOW` and `RUNNER` lose the LIB entries. `lib_beaml` stays (dead), because `slice5_rewrite_test.py` A1 audits its text.
+- Docstring: DRIFT step 4 and the `drift` usage line.
+
+### Changes in tests (re-check notes only)
+
+- RC6A-1 in `drift_test.py` `repaired_problems`: `repaired.argv` must be a row command with exit 0; `report.eval_exit_code` must be 0; the record `trace_id` must be in a `responses.jsonl` of the row and differ from the baseline and `new_live` records.
+- RC6A-2 in `test_f_6a_repair_check...`: a GEN row of R, N or Q that does not build is a problem, not a skip.
+
+### Counts after GREEN (unittest, repository root)
+
+| File | Result |
+|---|---|
+| `slice6_record_test.py` | 5 tests OK |
+| `drift_test.py` | 5 tests OK, 97 s, run dir `results/20261107T154227589307Z`, `repaired_all` true, R/N/Q eval exit 0 |
+| `arms_test.py` | 11 OK |
+| `slice2_replay_test.py` | 21 OK |
+| `slice3_replay_test.py` | 31 OK |
+| `slice4_replay_test.py` | 27 OK |
+| `slice5_replay_test.py` | 12 OK |
+| `slice6_decode_test.py` | 10 OK |
+| `slice6_decode_ctor_test.py` | 8 OK |
+| `stored_types_test.py`, `slice3_types_test.py`, `slice4_retire_test.py` | 33, 69, 87 OK |
+| `slice5_rewrite_test.py`, `slice5_squash_test.py`, `slice6_constructor/enum/failure/fmt/int_test.py` | OK |
+| `slice5_syntax_test.py` | **FAILED (33)**: `test_F01_B5_builds_and_equals_the_base_output` (2), `test_A2_rewritten_sources_build_like_the_base` (31 sources) |
+| `slice6_pipe_test.py`, `slice6_struct_order_test.py` | **FAILED (2 each)**: `test_effect_fixture_outputs_stay_byte_equal` (arms/gen, slice2/reuse) |
+| cargo `fmt`, `clippy -D warnings` | clean |
+| cargo test | 18 + 14 passed |
+
+- **[Observed]** `payments.generated.snapshot` is byte-equal (`git diff` empty; cargo `payments_cli_output_stays_byte_identical` passes).
+- **[Observed]** Each of the 37 open failures is a byte guard. It compares the generated EFFECT output with the base compiler (`f29e3f12`) or with fixed hashes (`slice6_pipe_test.EFFECT_OUTPUTS`). 6a changes the `Replay.record` output of every EFFECT by contract, so no GREEN can keep them. **[Inference]** RED did not list these files: they passed at RED because `main.rs` was unchanged. Their assertions are not changed here (task rule). They need a reviewed test change (new hashes, or a base form that excludes the record writer).
+
+### Decisions
+
+**Undo**
+- → A record `version` that is not a number shows `V` = `malformed`; the spec names only a number and a missing key. By: Opus (GREEN, slice6b-records-v2)
+- → The version check runs before the TYPE VERSION read, so it wins over other record errors. By: Opus (GREEN, slice6b-records-v2)
+- → `lib_beaml` stays as dead code. The A1 audit of `slice5_rewrite_test.py` reads its text. By: Opus (GREEN, slice6b-records-v2)
+- → RC6A-1 and RC6A-2 closed in `drift_test.py` as tightening only. By: Opus (GREEN, slice6b-records-v2)
+- → Byte guards in `slice5_syntax`, `slice6_pipe`, `slice6_struct_order` left failing and reported. By: Opus (GREEN, slice6b-records-v2)
+
+**Repair**
+- → **Chose:** the span union inside `__beaml_result_E` (new parameter `extra`). **Over:** a second decode in the REPLAY RUN. **Because:** `arms_test.py` R2 counts one `:json.decode/1` per replay. **Commits us to:** `__beaml_result_E/2` (`/3` with a chain) takes `extra`. By: Opus (GREEN, slice6b-records-v2)
+- → **Chose:** rebuild only the Orders release after the repair. **Over:** rebuild both releases. **Because:** the repair changes `probe_support.ex`, and only Orders runs the host validation. **Commits us to:** a Payments repair needs a Payments rebuild. By: Opus (GREEN, slice6b-records-v2)
+- → **Chose:** one `digest/3` for writer and reader with `:json.encode`. **Over:** a hand-written canonical encoder. **Because:** fewer lines; the digest parity with Python passes for ASCII and non-ASCII. **Commits us to:** a `ponytail:` limit for exponent floats. By: Opus (GREEN, slice6b-records-v2)

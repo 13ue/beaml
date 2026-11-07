@@ -1,0 +1,34 @@
+{
+  "status": 400,
+  "type": {
+    "name": "Payment",
+    "version": 1,
+    "fields": [
+      [
+        "order_id",
+        "String"
+      ],
+      [
+        "status",
+        "String"
+      ]
+    ],
+    "fingerprint": "35a7a9d23ad4d4c63d3d1dd9de660161952b8b6fbf263967f4fd802661143747"
+  },
+  "value": {},
+  "version": 2,
+  "request": {
+    "channel": "web",
+    "order_id": "order-1"
+  },
+  "operation": "payments.authorize",
+  "trace_id": "adcd250717c4c44ab8fb68355ea534d9",
+  "unknown_keys": [
+    "error"
+  ],
+  "artifact_id": "e9b4783ae653c88163d783213815ddad6b964f7f03c174b7b461f9491506f746",
+  "attempt": 1,
+  "client_span_id": "d435f7b840069904",
+  "redacted": [],
+  "value_sha256": "14765beed6ef2ca05c618638462c76b9d834dfaeb2ac104815108aca7154752b"
+}
