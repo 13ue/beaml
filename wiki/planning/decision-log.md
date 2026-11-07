@@ -501,6 +501,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice. Variants are finite and named, so they are valid by construction; a record constructor checks values, an enum constructor only translates. Under A code would need the wire string (`"pending"`) to build a variant, which is outside knowledge, not domain knowledge.
 → Effect: slice 6b step 9 (enum only-way-in check) is dropped. Step 4 builds no restriction.
 
+**DL-101 · Migrate · The decode of outside data calls the record constructor (Q6B-3, A)**
+→ Question: a record TYPE with a constructor (DL-092) stands in an EFFECT position. Does the generated decode call the constructor?
+→ Options: A, yes: the decode calls the constructor and its failure becomes a typed reject; B, no: constructor TYPES are rejected in every EFFECT position, the constructor is called later in a `fn` on a plain TYPE.
+→ Chose: A. One rule everywhere: the constructor is the only way in, also for outside data. The interim reject D6B-19 is replaced by the decode path.
+→ Because: OWNER choice; the compiler knows every stage, so it also checks this one. B needs a raw TYPE per checked TYPE.
+→ Commits us to: the replay questions on stored records (D6B-30, D6B-32, D6B-38) include a changed constructor against stored RESPONSE RECORDS: a new check can make an old record fail at replay. The OWNER wants that thought through together with those questions.
+→ Open: the reject reason for a constructor failure in a decode (`decode` or a reason of its own).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
