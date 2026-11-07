@@ -105,4 +105,4 @@ Bound generators by depth/size, preserve preconditions during shrinking, save mi
 
 Before implementation tickets: which grammar and integer/null model is normative; which effect/error/cancellation rules cross BEAM; which ABI and parser versions are supported; which facts are inputs; which identities survive which edits/builds; which obligations may be statically proven versus enforced/tested/UNKNOWN; and which minimal pc-flow/security behavior is mandatory at P0? These are release-contract decisions. [Decision queue](../planning/specification-gaps.md)
 
-See also [syntax sentiment](syntax-sentiment.md): what programmers love and hate in syntax, the BEAML scorecard and the open items D025 to D032.
+See also [syntax sentiment](syntax-sentiment.md): what programmers love and hate in syntax, the BEAML scorecard and the open items D026 to D033.

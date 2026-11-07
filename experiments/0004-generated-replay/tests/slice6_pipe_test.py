@@ -41,12 +41,13 @@ SMALL = ("type P { id: String }\ntype R { id: String tag: String }\n"
          "fn build P { id }, x: String -> R = R { id: id, tag: x }\n")
 OUTCOME = "enum Outcome { Approved()  Declined(String)  Two(String, String) }\n"
 
-# Guard S12: stdout sha256, --stored stored/empty.jsonl. Re-pinned to slice 6b step 12 (DL-119, D6B-114): the
+# Guard S12: stdout sha256, --stored stored/empty.jsonl. Re-pinned to slice 6b step 6b (D6B-172): the dotted
+# unknown_keys projection (D6B-56 amendment), see slice6b-redacted-fields/notes.md. Before: slice 6b step 12 (DL-119, D6B-114): the
 # pure steps lose their spans, see slice6b-effect-reach/notes.md and slice6/effect-reach/byte-guard.json; before:
 # the step 6a compiler (commit 0747c315, slice6b-records-v2/repin.md), the baseline compiler (commit 80bd33cd).
 EFFECT_OUTPUTS = {
-    "arms/gen/orders.beaml": "2b8dc63670aa2a9a3bcd889ec680e5bbc5a66ea789676d98045964cf50909fed",
-    "slice2/reuse/orders.beaml": "597ad5824fca31814599e47e2761d191fbe190c0e728962687d1a71e2d045ab8",
+    "arms/gen/orders.beaml": "f8998ed508b056d36debe444c8539f8ab20f2840710b48e452751d4d87ec9871",
+    "slice2/reuse/orders.beaml": "586e1943b3c863a996834b95ade5f89da308703014a9331092f921e3e112266a",
 }
 PAYMENTS = REPO / "experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml"
 PAYMENTS_SNAPSHOT = EXPERIMENT / "tests" / "payments.generated.snapshot"

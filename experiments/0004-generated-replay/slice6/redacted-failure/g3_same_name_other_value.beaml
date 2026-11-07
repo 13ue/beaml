@@ -1,0 +1,5 @@
+// G3 (DL-113): a same-named plain field that holds another value. Allowed.
+type Order { order_id: String  card_holder: redacted String }
+type Receipt { card_holder: String }
+
+fn receipt Order { order_id, card_holder } -> Receipt = Receipt { card_holder: order_id }

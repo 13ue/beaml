@@ -1,0 +1,20 @@
+{
+  "result": {
+    "ok": {
+      "phase": "X-v1",
+      "status": "Y-v1"
+    }
+  },
+  "unwatched": [],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "6ad71e9b071d03d15a9bf88abe2631bbfa3009c5069e6b6034e39787268c7e47"
+}

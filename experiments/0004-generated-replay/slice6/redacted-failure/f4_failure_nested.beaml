@@ -1,0 +1,6 @@
+// F4 (D6B-67 a): a redacted value in a plain field of a record literal nested in the failure value.
+type Order { order_id: String  card_holder: redacted String }
+type Inner { text: String }
+type Bad { inner: Inner }
+
+fn check Order { card_holder } -> String ! Bad = Bad { inner: Inner { text: card_holder } }

@@ -53,19 +53,19 @@ updated: 2026-11-07
 **[Inference]** BEAML's position is on the hated side or against a loved feature ([risks](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#4-where-beaml-risks-what-people-hate)). Each has an open item.
 
 - Minimal inference, `-> Type` on every clause (loved 14; DL-083 gives the reason). No open item; the trade-off is recorded only in the lens.
-- String interpolation rejected, `+` the only operator (loved 16). D027.
-- Complexity creep: each top-level form decided singly, no budget (hated 4; DL-125, DL-126, DL-128 sketch more forms). D032.
-- `-> T ! E1 | E2` as a declared failure list: a new failure on a deep `effect` ripples through every caller's `!` list (hated 11, versionability). D026.
-- Optional separators between fields and variants, bare `Pending` next to `Approved()` (hated 25). D031.
+- String interpolation rejected, `+` the only operator (loved 16). D028.
+- Complexity creep: each top-level form decided singly, no budget (hated 4; DL-125, DL-126, DL-128 sketch more forms). D033.
+- `-> T ! E1 | E2` as a declared failure list: a new failure on a deep `effect` ripples through every caller's `!` list (hated 11, versionability). D027.
+- Optional separators between fields and variants, bare `Pending` next to `Approved()` (hated 25). D032.
 
 ## 6. Seven gaps
 
 **[Inference]** The evidence names it; BEAML has no decision ([gaps](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#5-gaps-in-beamls-syntax-surface-vs-top-10-loved-features)).
 
-- Null or absent value: no `Option`, `nil` or optional field; spec S06 required the distinction (loved 4, hated 1). D025.
-- Closures and lambdas: functions are top-level clauses only (loved 10). D029.
-- Comprehensions and list literals: no list TYPE; DL-129 needs a `List` (loved 11). D028.
-- Lightweight concurrency form: none, on a runtime built for it (loved 13, hated 5). D030.
+- Null or absent value: no `Option`, `nil` or optional field; spec S06 required the distinction (loved 4, hated 1). D026.
+- Closures and lambdas: functions are top-level clauses only (loved 10). D030.
+- Comprehensions and list literals: no list TYPE; DL-129 needs a `List` (loved 11). D029.
+- Lightweight concurrency form: none, on a runtime built for it (loved 13, hated 5). D031.
 - REPL and fast feedback: CLI and JSON only (loved 19). No open item; low weight.
 - Traits or protocols: `interface` reserved, no form (loved 21). No open item; see D001 history and DL-061.
 - Record field access `a.b`: fields are selected by pattern only (hated 19). No open item; Q, [profile gaps](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-syntax-profile.md#6-gaps-noticed-in-the-kb-for-the-synthesis-worker).
@@ -78,8 +78,10 @@ updated: 2026-11-07
 
 ## 8. How to use this page
 
-**[Requirement]** OWNER decision of 2026-11-07 ([DL-130](../planning/decision-log.md)): the research is ingested. Its tensions and gaps are not decided now. They stay open and visible as D025 to D032 in [decisions to be made](../planning/decisions-to-be-made.md). Trigger: after the first example applications are built, not too late and not too early. Goal: BEAML wants the best syntax ever built and wants to innovate; this research stays present in every syntax decision.
+**[Requirement]** OWNER decision of 2026-11-07 ([DL-135](../planning/decision-log.md)): the research is ingested. Its tensions and gaps are not decided now. They stay open and visible as D026 to D033 in [decisions to be made](../planning/decisions-to-be-made.md). Trigger: after the first example applications are built, not too late and not too early. Goal: BEAML wants the best syntax ever built and wants to innovate; this research stays present in every syntax decision.
 
 **[Proposal]** At every syntax decision, read sections 5 to 7 of this page. Name the row the decision touches. When the decision moves a tension or a gap, link the decision-log entry from the open item.
 
 See also [vertical integration](vertical-integration.md) (language forms), [MIGRATE STEP fates](migrate-fates.md), the [syntax spike requirement](../sources/syntax-spike-requirement.md) and the [glossary](../../GLOSSARY.md).
+
+See also [D025](../planning/decisions-to-be-made.md) (a second `enum` and `type` declaration form with `=` and `|`) and [DL-132](../planning/decision-log.md) (one comment form, `//`): OWNER syntax items raised on 2026-11-07 outside this research.

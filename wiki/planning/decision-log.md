@@ -733,14 +733,55 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: input and output of every database call are TYPES, so the type check, spans, RESPONSE RECORDS, REPLAY RUN and `--stored` apply as for any EFFECT. `Query` is a BEAML TYPE, not a query language: a new filter is a field, and a TYPE change runs through `migrate`. S would put column names into a String that no check sees and would break the vertical line at the database. S can come later as a fourth transport when a real case needs it.
 → Effect: EXPERIMENT 0005 host module (`BeamlDb` or a better name) with `put`, `get`, `list`; one Ecto migration for the table; the compiler needs the three transport names (a small slice or part of 0005 setup: transport names are strings today, so `db.put` may already parse; the RED decides). Open for 0005: the `get` key (id field of the TYPE), `list` order and limit, a `List` TYPE for `Orders`.
 
-**DL-130 · Repair · Ingest the PL syntax sentiment research; decide its tensions after the first example applications**
+**DL-130 · Migrate · ENTRY LINE form: an inbound EFFECT is written like an outbound EFFECT (Q6D-1, option E', register option B)**
+→ Question: which line form declares the UI event entry (DL-128)?
+→ Options: A `on ui "place" PlaceOrder -> place` (slice default, new keyword); D `effect in ui "place" PlaceOrder -> place`; E `effect ui.place = ui.event("place") |> place` (no TYPE in the head); E' `effect ui.place PlaceForm -> Order ! PlaceError = ui.event("place") |> place` (the register's option B: head with input, output and failure TYPE, body with the inbound transport and the target fn).
+→ Chose: E'. Inbound like outbound.
+→ By: 13ue
+→ Because: every outbound EFFECT carries input TYPE, output TYPE and failure TYPE in its head. E would be the only EFFECT without a TYPE in the head; A and D add a second line form. One `effect` form for both directions keeps the grammar, the highlighter, the RESPONSE RECORD and the REPLAY RUN on one path.
+→ Drift rule (By: Fable, Repair): the head TYPEs must equal the target fn's input, output and failure TYPE; a difference is a compile error. This closes the register's trade-off "stand twice and can drift". The slice 6d RED tests this.
+→ Effect: D021 closed. Slice 6d plan D6B-128 and the tree-sitter rule move from A to E'; the RED builds E'. `ui.event("…")` is the inbound transport call; the event name is a String as in `http.post("…")`.
+
+**DL-131 · Migrate · The host calls one generated function per ENTRY LINE (Q6D-2, option A)**
+→ Question: which generated function does the host (LiveView `handle_event`) call for a UI event?
+→ Options: A, one function per ENTRY LINE, `Orders.ui_place(params)`, the host writes one `handle_event("place", params, socket)` clause per event; B, one dispatch function `Orders.entry(event, params)` with one host clause for every event and a runtime `unknown_event` reject.
+→ Chose: A.
+→ By: 13ue
+→ Because: a renamed or deleted ENTRY LINE is an undefined remote call in the host build, not a runtime surprise. The vertical line stops at build time.
+→ Effect: D022 closed. Slice 6d generates `ui_<event>/1` per ENTRY LINE; the RED probes the host build with `--warnings-as-errors` for a removed entry.
+
+**DL-132 · Migrate · BEAML has one comment form: `//` to the end of the line**
+→ Question: sketches in this session used `//`, `#` and `--`; which comment form does BEAML have?
+→ Options: `//` (grammar `comment: token(seq("//", /[^\n]*/))`, 270 of 300 corpus sources, no `#` or `--` in any source); `#` or `--` as an addition.
+→ Chose: `//` only. The `#` and `--` forms came from main-agent sketches, not from the language.
+→ By: 13ue
+→ Because: one comment form, already in the grammar, the highlighter and every fixture. A second form adds nothing.
+→ Effect: every sketch, picture and fixture uses `//`. No compiler change.
+
+**DL-133 · Migrate · A decode reject at the host is a generated `Rejected` struct, apart from the fn's failure TYPE (Q6D-3, option A)**
+→ Question: how does the host see a UI event whose Decode-Form fails the decode or a constructor?
+→ Options: A, `{:error, %BeamlSpike.Rejected{reason: "decode" | "constructor"}}`, a generated struct apart from domain failures; B, the fn's failure TYPE with `reason: "decode"`, as the outbound EFFECT does; C, a plain tuple `{:error, {:rejected, "decode"}}`.
+→ Chose: A.
+→ By: 13ue
+→ Because: the UI must tell "the form is broken" from "the flow failed"; B merges both into one struct and fails for a fn without `!`; C is no TYPE, a host pattern on structs misses it.
+→ Effect: D023 closed. Slice 6d generates the `Rejected` struct once per build; reasons are `"decode"` and `"constructor"` (D6B-132, D6B-143).
+
+**DL-134 · Migrate · `--stored` also checks stored ENTRY RECORDS; DL-102 covers every record stream (Q6D-4, option A)**
+→ Question: when the input TYPE of an ENTRY LINE gets a stricter constructor or loses an ENUM LITERAL, does the build see the stored UI events?
+→ Options: A, `beaml build --stored` also reads `entries.jsonl` and runs the field constructors and literals of the input TYPE over each stored value; a failure blocks the build until a MIGRATE STEP names the fate (DL-102, DL-122); B, no build check over ENTRY RECORDS in slice 6d, the gap stays recorded as interim (D6B-146).
+→ Chose: A.
+→ By: 13ue
+→ Because: every later record stream copies this answer. B keeps the build green while stored events break at the REPLAY RUN, which breaks the vertical line at the first inbound stream.
+→ Effect: D024 closed. Slice 6d adds the `--stored` case for ENTRY RECORDS and an N-test; the DL-124 text rule applies (no stored value is printed). The MIGRATE STEP forms of DL-125 apply to entry fields.
+
+**DL-135 · Repair · Ingest the PL syntax sentiment research; decide its tensions after the first example applications**
 → Question: ingest the PL syntax sentiment research (loved and hated features, BEAML lens) into the wiki, and when to decide its tensions and gaps?
 → Options: ingest now and decide the tensions now; ingest now and decide them after the first example applications; keep it as temporary research outside the wiki.
 → Chose: ingest now, decide the tensions after the first example applications.
 → By: 13ue
 → Because: not too late, not too early. BEAML wants the best syntax ever built and wants to innovate, so the research must stay present in the design process. An example application gives the evidence that a decision today lacks.
 → Trigger: research handed back 2026-11-07.
-→ Effect: capture under `raw/research/2026-11-07-pl-syntax-sentiment/`, [source page](../sources/pl-syntax-sentiment-2026.md), [concept page](../concepts/syntax-sentiment.md); eight open items D025 to D032 in [decisions to be made](decisions-to-be-made.md), each with trigger "after the first example applications".
+→ Effect: capture under `raw/research/2026-11-07-pl-syntax-sentiment/`, [source page](../sources/pl-syntax-sentiment-2026.md), [concept page](../concepts/syntax-sentiment.md); eight open items D026 to D033 in [decisions to be made](decisions-to-be-made.md), each with trigger "after the first example applications".
 
 ### Process
 

@@ -1,0 +1,17 @@
+test_F09_live_record_of_M3_has_the_mark_as_integer_version (__main__.FixtureNames.test_F09_live_record_of_M3_has_the_mark_as_integer_version) ... ok
+test_F11_record_of_the_mark_gives_correct_accept (__main__.FixtureNames.test_F11_record_of_the_mark_gives_correct_accept) ... ok
+test_F11c_record_below_the_mark_is_a_typed_decode_reject (__main__.FixtureNames.test_F11c_record_below_the_mark_is_a_typed_decode_reject) ... ok
+test_F29_live_records_of_Q4_and_Q4z_have_the_same_type_key (__main__.FixtureNames.test_F29_live_records_of_Q4_and_Q4z_have_the_same_type_key) ... ok
+test_F29_v4_records_replay_the_same_on_Q4_and_Q4z (__main__.FixtureNames.test_F29_v4_records_replay_the_same_on_Q4_and_Q4z) ... ok
+test_F09_live_record_of_M3_has_the_mark_as_integer_version (__main__.RandomNames.test_F09_live_record_of_M3_has_the_mark_as_integer_version) ... ok
+test_F11_record_of_the_mark_gives_correct_accept (__main__.RandomNames.test_F11_record_of_the_mark_gives_correct_accept) ... ok
+test_F11c_record_below_the_mark_is_a_typed_decode_reject (__main__.RandomNames.test_F11c_record_below_the_mark_is_a_typed_decode_reject) ... ok
+test_F29_live_records_of_Q4_and_Q4z_have_the_same_type_key (__main__.RandomNames.test_F29_live_records_of_Q4_and_Q4z_have_the_same_type_key) ... ok
+test_F29_v4_records_replay_the_same_on_Q4_and_Q4z (__main__.RandomNames.test_F29_v4_records_replay_the_same_on_Q4_and_Q4z) ... ok
+test_control_originals_unchanged_by_slice_5_runs (__main__.ZzHarness.test_control_originals_unchanged_by_slice_5_runs) ... ok
+test_every_slice5_build_of_this_run_passed_stored (__main__.ZzHarness.test_every_slice5_build_of_this_run_passed_stored) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 120.499s
+
+OK

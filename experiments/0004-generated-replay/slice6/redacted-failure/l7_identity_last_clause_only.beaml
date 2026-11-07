@@ -1,0 +1,8 @@
+// L7 (limit, D6B-174): only the last clause returns the parameter, so the fn is no identity fn.
+type Order { order_id: String  card_holder: redacted String }
+type Receipt { holder: String }
+
+fn same s: String -> String
+fn same "a" -> String = "a"
+fn same s   -> String = s
+fn receipt Order { card_holder } -> Receipt = Receipt { holder: same(card_holder) }

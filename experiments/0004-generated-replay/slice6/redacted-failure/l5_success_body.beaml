@@ -1,0 +1,4 @@
+// L5 (limit, D6B-182): the accessor itself builds; no redacted return form exists. The call site is checked.
+type Order { order_id: String  card_holder: redacted String }
+
+fn holder Order { card_holder } -> String = card_holder

@@ -167,6 +167,8 @@ struct Effect {
     failures: Vec<String>,
     kind: String,
     path: String,
+    // Slice 6b step 6b (D6B-31): `with f1, f2` after the target names redacted input fields that go on the wire.
+    with: Vec<String>,
     source_range: Range<usize>,
 }
 // `migrate T va -> vb { change, change }`: one MIGRATE STEP of the MIGRATE CHAIN of the TYPE T.
@@ -209,6 +211,8 @@ struct Program {
     marks: BTreeMap<String, u32>,
     // Slice 6b (DL-082): the ENUM LITERALS `V = "text"` per enum, in source order (D6B-21).
     literals: BTreeMap<String, Vec<(String, String)>>,
+    // Slice 6b step 6b (D6B-29): the (TYPE, field) pairs declared `name: redacted TYPE`.
+    redacted: BTreeSet<(String, String)>,
     // Slice 5: the byte end of the TYPE name in each `type` declaration (where `--remove-dead` writes a mark).
     name_ends: BTreeMap<String, usize>,
 }
@@ -273,6 +277,18 @@ impl Parser {
             _ => Err(self.error("expected identifier")),
         }
     }
+    // A TYPE word outside a `type` field: `redacted` stands only there (D6B-29, D6B-64).
+    fn type_word(&mut self) -> Checked<String> {
+        if matches!(self.peek(), Token::Word(w) if w == "redacted")
+            && matches!(self.tokens.get(self.at + 1), Some((Token::Word(_), _)))
+        {
+            return Err(format!(
+                "error: redacted stands only before a field TYPE in a type (D6B-29)\n  at byte {}",
+                self.tokens[self.at].1.start
+            ));
+        }
+        self.word()
+    }
     // A plain or dotted name: EFFECT names, EFFECT kinds and pipe steps only.
     fn dotted(&mut self) -> Checked<String> {
         if let Token::Word(word) = self.peek().clone() {
@@ -323,7 +339,7 @@ impl Parser {
                 self.at += 1;
                 let field = self.word()?;
                 self.expect(':')?;
-                let ty = self.word()?;
+                let ty = self.type_word()?;
                 self.expect('=')?;
                 let constant = match self.peek().clone() {
                     Token::Text(text) => Ok(text),
@@ -338,7 +354,7 @@ impl Parser {
                 self.at += 1;
                 let field = self.word()?;
                 self.expect(':')?;
-                Ok(Change::Drop(field, self.word()?))
+                Ok(Change::Drop(field, self.type_word()?))
             }
             other => Err(self.error(&format!(
                 "unsupported migrate step: {other}; a MIGRATE CHANGE is rename, add or drop"
@@ -488,6 +504,12 @@ impl Parser {
                     while !self.eat('}') {
                         let field = self.word()?;
                         self.expect(':')?;
+                        if matches!(self.peek(), Token::Word(w) if w == "redacted")
+                            && matches!(self.tokens.get(self.at + 1), Some((Token::Word(_), _)))
+                        {
+                            self.at += 1;
+                            program.redacted.insert((name.clone(), field.clone()));
+                        }
                         fields.push((field, self.word()?));
                         self.eat(',');
                     }
@@ -510,7 +532,7 @@ impl Parser {
                         let mut args = Vec::new();
                         if self.eat('(') && !self.eat(')') {
                             loop {
-                                args.push(self.word()?);
+                                args.push(self.type_word()?);
                                 if self.eat(')') {
                                     break;
                                 }
@@ -551,7 +573,7 @@ impl Parser {
                         loop {
                             let mut arg = self.node(0)?;
                             if self.eat(':') {
-                                arg = Node::Annotated(Box::new(arg), self.word()?);
+                                arg = Node::Annotated(Box::new(arg), self.type_word()?);
                             }
                             args.push(arg);
                             if !self.eat(',') {
@@ -624,6 +646,16 @@ impl Parser {
                         _ => return Err(self.error("expected effect target string")),
                     };
                     self.expect(')')?;
+                    let mut with = Vec::new();
+                    if matches!(self.peek(), Token::Word(w) if w == "with") {
+                        self.at += 1;
+                        loop {
+                            with.push(self.word()?);
+                            if !self.eat(',') {
+                                break;
+                            }
+                        }
+                    }
                     program.effects.push(Effect {
                         name,
                         input,
@@ -631,6 +663,7 @@ impl Parser {
                         failures,
                         kind,
                         path,
+                        with,
                         source_range: start..self.tokens[self.at - 1].1.end,
                     });
                 }
@@ -1467,6 +1500,62 @@ impl<'a> Checker<'a> {
                     "effect {name}: slice 6b sends String fields only, not {place}"
                 ));
             }
+            // D6B-65: each `with` name is a top-level redacted field of the input TYPE, named once.
+            let input = &effect.input;
+            let mut named = BTreeSet::new();
+            for field in &effect.with {
+                if !self.record(input)?.iter().any(|(f, _)| f == field) {
+                    return Err(format!(
+                        "error: with names {field}, which is not a field of {input}"
+                    ));
+                }
+                if !self.is_redacted(input, field) {
+                    return Err(format!(
+                        "error: with names {field}, which is not a redacted field of {input}"
+                    ));
+                }
+                if !named.insert(field) {
+                    return Err(format!("error: with names {field} twice"));
+                }
+            }
+            // DL-116 interim (D6B-154, D6B-157): a redacted output field at any depth is a String or Int field of a
+            // TYPE without a constructor. Before the slice 1 decode limit. D6B-184: also not below an enum payload
+            // or a TYPE with a constructor, because D6B-106 stores the constructor inputs in `value`.
+            let mut todo = vec![(effect.output.clone(), false)];
+            let mut seen = BTreeSet::new();
+            while let Some((ty, below)) = todo.pop() {
+                if !seen.insert((ty.clone(), below)) {
+                    continue;
+                }
+                let fields = match self.program.types.get(&ty) {
+                    Some(Definition::Record(fields)) => fields,
+                    Some(Definition::Enum(variants)) => {
+                        todo.extend(
+                            variants
+                                .iter()
+                                .flat_map(|(_, p)| p)
+                                .map(|t| (t.clone(), true)),
+                        );
+                        continue;
+                    }
+                    None => continue,
+                };
+                let below = below || self.constructors.contains(&ty);
+                for (field, t) in fields {
+                    if !self.is_redacted(&ty, field) {
+                        todo.push((t.clone(), below));
+                    } else if !["String", "Int"].contains(&t.as_str()) || below {
+                        return Err(format!(
+                            "error: effect {name}: the redacted field {ty}.{field} must be a String or Int field of a TYPE without a constructor in slice 6b (DL-116)\n  help: remove redacted from {ty}.{field}; the limit holds until a rule over an absent value exists (DL-116)"
+                        ));
+                    } else if ty == effect.output && self.versioned(&ty) {
+                        // ponytail: the versioned decode does not mark a field; lift with a `redact` form (DL-125).
+                        return Err(format!(
+                            "error: effect {name}: the redacted field {ty}.{field} cannot stand in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n  help: remove the MIGRATE CHAIN and the VERSION MARK of {ty}"
+                        ));
+                    }
+                }
+            }
             for (field, ty) in self.record(&effect.output)? {
                 let output = &effect.output;
                 // Slice 6b step 7: an enum with ENUM LITERALS decodes by its mapping (D6B-35).
@@ -2012,6 +2101,166 @@ impl<'a> Checker<'a> {
     }
 }
 
+// A variable bound to a redacted field: the field and its declaring TYPE (D6B-177).
+type Redacted = BTreeMap<String, (String, String)>;
+// A direct redacted value (D6B-174, D6B-182): the field, its declaring TYPE, and whether the one hop is used.
+type Direct = Option<((String, String), bool)>;
+// D6B-67 (b), (c), D6B-175, D6B-176: a variant payload or a whole clause body.
+fn hold_error(clause: &Clause, field: &str, owner: &str, ty: &str, failure: bool) -> String {
+    let (kind, dl) = if failure {
+        ("failure TYPE", "DL-105")
+    } else {
+        ("TYPE", "DL-112")
+    };
+    format!(
+        "error: fn {} copies the redacted field {field} of {owner} into the {kind} {ty}, which cannot hold a redacted value\n  help: do not copy the value ({dl})",
+        clause.name
+    )
+}
+impl Checker<'_> {
+    // DL-112, D6B-67: no direct copy of a redacted value into a place that is not redacted. A build check after
+    // `validate`; `fmt` does not check it.
+    fn redacted_copies(&self) -> Checked<()> {
+        for clause in &self.program.clauses {
+            let mut rv = BTreeMap::new();
+            for arg in &clause.args {
+                self.bound(arg, &mut rv);
+            }
+            self.copies(clause, &clause.body, &rv, None)?;
+            let ty = self.body_type(clause).0;
+            if let (Some(((field, owner), _)), Some(failure)) =
+                (self.direct(&clause.body, &rv), self.failure_of(clause, &ty))
+            {
+                return Err(hold_error(clause, &field, &owner, failure, true));
+            }
+        }
+        Ok(())
+    }
+    // The pattern variables bound to a redacted field, at any depth and under any name (D6B-174).
+    fn bound(&self, node: &Node, rv: &mut Redacted) {
+        match node {
+            Node::Annotated(inner, _) => self.bound(inner, rv),
+            Node::Record(ty, fields) => {
+                for (field, value) in fields {
+                    match value {
+                        Node::Name(v) if v != "_" && self.is_redacted(ty, field) => {
+                            rv.insert(v.clone(), (field.clone(), ty.clone()));
+                        }
+                        _ => self.bound(value, rv),
+                    }
+                }
+            }
+            Node::Call(_, args) => args.iter().for_each(|a| self.bound(a, rv)),
+            _ => {}
+        }
+    }
+    fn direct(&self, node: &Node, rv: &Redacted) -> Direct {
+        match node {
+            Node::Name(v) => rv.get(v).map(|hit| (hit.clone(), false)),
+            Node::Call(f, args) if args.len() == 1 => self.hop(f, self.direct(&args[0], rv)),
+            Node::Pipe(head, steps) => steps
+                .iter()
+                .fold(self.direct(head, rv), |cur, step| self.hop(step, cur)),
+            _ => None,
+        }
+    }
+    // One call or pipe step into the BEAML fn `f` with one parameter: an identity fn keeps a direct value, an
+    // accessor makes one (D6B-174, D6B-182). Every clause must qualify (D6B-183). One hop only.
+    fn hop(&self, f: &str, cur: Direct) -> Direct {
+        let clauses: Vec<&Clause> = self.program.clauses.iter().filter(|c| c.key == f).collect();
+        if clauses.is_empty() || clauses.iter().any(|c| c.args.len() != 1) {
+            return None;
+        }
+        let identity = clauses.iter().all(|c| {
+            let param = match &c.args[0] {
+                Node::Annotated(inner, _) => inner.as_ref(),
+                arg => arg,
+            };
+            matches!((param, &c.body), (Node::Name(p), Node::Name(b)) if p == b)
+        });
+        if identity {
+            return cur.filter(|(_, used)| !used).map(|(hit, _)| (hit, true));
+        }
+        let mut hits = clauses.iter().map(|c| {
+            let mut rv = BTreeMap::new();
+            self.bound(&c.args[0], &mut rv);
+            match &c.body {
+                Node::Name(v) => rv.get(v).cloned(),
+                _ => None,
+            }
+        });
+        let first = hits.next().flatten()?;
+        hits.all(|h| h.is_some()).then_some((first, true))
+    }
+    // DL-105, DL-112: a direct value in a record field that is not redacted, or in a variant payload. `outer` is
+    // the outer record literal TYPE and the dotted target of a record literal nested in a field (D6B-177).
+    fn copies(
+        &self,
+        clause: &Clause,
+        node: &Node,
+        rv: &Redacted,
+        outer: Option<(&str, &str)>,
+    ) -> Checked<()> {
+        let payload = |variant: &str, value: Direct| match (self.variants.get(variant), value) {
+            (Some((ty, _)), Some(((field, owner), _))) => Err(hold_error(
+                clause,
+                &field,
+                &owner,
+                ty,
+                self.failure_of(clause, ty).is_some(),
+            )),
+            _ => Ok(()),
+        };
+        match node {
+            Node::Record(ty, fields) => {
+                for (field, value) in fields {
+                    let (top, target) = match outer {
+                        Some((top, path)) => (top, format!("{path}.{field}")),
+                        None => (ty.as_str(), field.clone()),
+                    };
+                    if let Some(((source, owner), _)) = self.direct(value, rv)
+                        && !self.is_redacted(ty, field)
+                    {
+                        let (kind, dl) = if self.failure_of(clause, top).is_some() {
+                            ("failure TYPE", "DL-105")
+                        } else {
+                            ("TYPE", "DL-112")
+                        };
+                        return Err(format!(
+                            "error: fn {} copies the redacted field {source} of {owner} into {target} of the {kind} {top}, which is not redacted\n  help: mark {field} as redacted in {ty}, or do not copy the value ({dl})",
+                            clause.name
+                        ));
+                    }
+                    self.copies(clause, value, rv, Some((top, &target)))?;
+                }
+                Ok(())
+            }
+            Node::Call(name, args) => {
+                for arg in args {
+                    payload(name, self.direct(arg, rv))?;
+                    self.copies(clause, arg, rv, None)?;
+                }
+                Ok(())
+            }
+            Node::Pipe(head, steps) => {
+                self.copies(clause, head, rv, None)?;
+                let mut cur = self.direct(head, rv);
+                for step in steps {
+                    payload(step, cur.clone())?;
+                    cur = self.hop(step, cur);
+                }
+                Ok(())
+            }
+            Node::Plus(a, b) => {
+                self.copies(clause, a, rv, None)?;
+                self.copies(clause, b, rv, None)
+            }
+            Node::Annotated(inner, _) => self.copies(clause, inner, rv, None),
+            _ => Ok(()),
+        }
+    }
+}
+
 // Pattern coverage specializes one typed column at a time, including omitted record fields.
 #[derive(Clone, Debug)]
 enum Pattern {
@@ -2432,6 +2681,21 @@ impl Checker<'_> {
         if int {
             out.push_str("  defp __beaml_valid__(v, <<73,110,116>>), do: is_integer(v)\n");
         }
+        // DL-115 (Q6B-14 A): a marked EFFECT output field holds a value of its TYPE or the atom `:redacted`.
+        let marked: BTreeSet<String> = self
+            .program
+            .types
+            .keys()
+            .flat_map(|t| self.output_marks(t))
+            .map(|(_, t)| t)
+            .collect();
+        for ty in marked {
+            let tag = binary(&format!("redacted {ty}"));
+            out.push_str(&format!(
+                "  defp __beaml_valid__(:redacted, {tag}), do: true\n  defp __beaml_valid__(v, {tag}), do: __beaml_valid__(v, {})\n",
+                binary(&ty)
+            ));
+        }
         for (name, def) in &self.program.types {
             match def {
                 Definition::Record(fields) if self.ctor_record(name) => {
@@ -2442,10 +2706,16 @@ impl Checker<'_> {
                     out.push_str(&format!("  defp __beaml_valid__(v, {}) when is_struct(v, __MODULE__.{name}), do: {}\n", binary(name), if checks.is_empty() { "true".into() } else { checks.join(" and ") }));
                 }
                 Definition::Record(fields) => {
+                    let marks = self.output_marks(name);
                     let checks = fields
                         .iter()
                         .map(|(n, t)| {
-                            format!("__beaml_valid__(Map.get(v, {}), {})", binary(n), binary(t))
+                            let t = if marks.iter().any(|(f, _)| f == n) {
+                                format!("redacted {t}")
+                            } else {
+                                t.clone()
+                            };
+                            format!("__beaml_valid__(Map.get(v, {}), {})", binary(n), binary(&t))
                         })
                         .collect::<Vec<_>>();
                     out.push_str(&format!("  defp __beaml_valid__(v, {}) when is_map(v) and map_size(v) == {}, do: {}\n", binary(name), fields.len(), if checks.is_empty() { "true".into() } else { checks.join(" and ") }));
@@ -2518,7 +2788,11 @@ impl Checker<'_> {
                             service,
                             "    ",
                             Step::Live,
-                            if plain { "p0" } else { "nil" }
+                            &if plain {
+                                self.redact("p0", &ty, &[], "")
+                            } else {
+                                "nil".into()
+                            }
                         )
                     ));
                 } else if fails {
@@ -2564,11 +2838,74 @@ fn decode_name(output: &str) -> String {
 
 impl Checker<'_> {
     // TYPE VERSIONS of a TYPE, oldest first; the last one is the `type`.
+    // D6B-148 (DL-111 1A): the newest version writes a redacted field TYPE as `redacted T` (`type` key, fingerprint).
     fn type_versions(&self, name: &str) -> Vec<Vec<(String, String)>> {
-        match self.versions.get(name) {
+        let mut chain = match self.versions.get(name) {
             Some(chain) => chain.clone(),
             None => vec![self.record(name).cloned().unwrap_or_default()],
+        };
+        for (field, ty) in chain.last_mut().into_iter().flatten() {
+            if self.is_redacted(name, field) {
+                *ty = format!("redacted {ty}");
+            }
         }
+        chain
+    }
+    fn is_redacted(&self, ty: &str, field: &str) -> bool {
+        self.program
+            .redacted
+            .contains(&(ty.to_string(), field.to_string()))
+    }
+    // Slice 6b step 6b (DL-089, D6B-72): the paths of the redacted fields of a TYPE, at any depth.
+    fn redacted_paths(&self, ty: &str) -> Vec<Vec<String>> {
+        let Some(Definition::Record(fields)) = self.program.types.get(ty) else {
+            return Vec::new();
+        };
+        let mut paths = Vec::new();
+        for (field, t) in fields {
+            if self.is_redacted(ty, field) {
+                paths.push(vec![field.clone()]);
+            } else {
+                for mut path in self.redacted_paths(t) {
+                    path.insert(0, field.clone());
+                    paths.push(path);
+                }
+            }
+        }
+        paths
+    }
+    // D6B-32, D6B-33: `expr` of TYPE `ty` without its redacted fields at any depth, except the top-level `keep` names
+    // (the `with` names on the wire). Unchanged without redacted fields, so other sources keep their output.
+    fn redact(&self, expr: &str, ty: &str, keep: &[String], owner: &str) -> String {
+        let paths: Vec<String> = self
+            .redacted_paths(ty)
+            .into_iter()
+            .filter(|p| !(p.len() == 1 && keep.contains(&p[0])))
+            .map(|p| {
+                let keys: Vec<String> = p.iter().map(|k| binary(k)).collect();
+                format!("[{}]", keys.join(", "))
+            })
+            .collect();
+        if paths.is_empty() {
+            expr.to_string()
+        } else {
+            format!("{owner}__beaml_redact__({expr}, [{}])", paths.join(", "))
+        }
+    }
+    // DL-115, D6B-55: the redacted (field, TYPE) pairs of an EFFECT output TYPE; DL-116 keeps them top-level.
+    fn output_marks(&self, ty: &str) -> Vec<(String, String)> {
+        if !self.program.effects.iter().any(|e| e.output == ty) {
+            return Vec::new();
+        }
+        self.record(ty)
+            .map(|fields| {
+                fields
+                    .iter()
+                    .filter(|(f, _)| self.is_redacted(ty, f))
+                    .cloned()
+                    .collect()
+            })
+            .unwrap_or_default()
     }
     // The version number of index 0 of `type_versions`: the `from` of the first MIGRATE STEP, else the VERSION
     // MARK, else 1 (slice 5 version table).
@@ -2834,7 +3171,8 @@ impl Checker<'_> {
                     ));
                     clauses.push(":ok <- expect(record[\"attempt\"], 1, :attempt_mismatch)".into());
                     clauses.push(format!(
-                        ":ok <- expect(record[\"request\"], {input}, :request_mismatch)"
+                        ":ok <- expect(record[\"request\"], {}, :request_mismatch)",
+                        self.redact(&input, &effect.input, &[], "@parent.")
                     ));
                     clauses.push(":ok <- expect(record[\"status\"], 200, :status_mismatch)".into());
                     // Slice 6b step 6a (D6B-58, D6B-60): the digest check of the projection gives the re-encoded `value`.
@@ -2846,9 +3184,14 @@ impl Checker<'_> {
                         ", record[\"type\"]"
                     };
                     clauses.push(format!(
-                        "{{:ok, {output}}} <- @parent.__beaml_attempt__(fn -> ProbeSupport.span({}, :internal, p0, nil, fn -> @parent.__beaml_result_{}(bytes{version}, keys) end) end)",
+                        "{{:ok, {output}}} <- @parent.__beaml_attempt__(fn -> ProbeSupport.span({}, :internal, {head}, nil, fn -> @parent.__beaml_result_{}(bytes{version}, keys{marked}) end) end)",
                         binary(&format!("{service}.{step}")),
-                        effect.name.replace('.', "_")
+                        effect.name.replace('.', "_"),
+                        marked = if self.output_marks(&effect.output).is_empty() {
+                            ""
+                        } else {
+                            ", record[\"redacted\"]"
+                        }
                     ));
                 }
                 matched = true;
@@ -2929,13 +3272,21 @@ impl Checker<'_> {
         // `{:error, %Failure{reason: r}}` outside it. Transport, status and decode never raise to the caller.
         let failure = &effect.failures[0];
         out.push_str(&format!(
-            "  def {elixir}(a0) do\n    if __beaml_valid__(a0, {input}) do\n      __beaml_attempt__(fn ->\n        ProbeSupport.span({span}, :client, a0, nil, fn ->\n          carrier = if ProbeSupport.config(:drop_context), do: [], else: :otel_propagator_text_map.inject([])\n\n          case __MODULE__.Http.post(:{namespace}_port, {path}, a0, carrier) do\n            {{:ok, status, bytes}} ->\n              __MODULE__.Replay.record(a0, status, bytes)\n              if status == 200, do: __beaml_result_{elixir}(bytes), else: __beaml_fail_{elixir}({status_reason})\n\n            :error ->\n              __beaml_fail_{elixir}({transport_reason})\n          end\n        end)\n      end)\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n",
+            "  def {elixir}(a0) do\n    if __beaml_valid__(a0, {input}) do\n      __beaml_attempt__(fn ->\n        ProbeSupport.span({span}, :client, {record}, nil, fn ->\n          carrier = if ProbeSupport.config(:drop_context), do: [], else: :otel_propagator_text_map.inject([])\n\n          case __MODULE__.Http.post(:{namespace}_port, {path}, {wire}, carrier) do\n            {{:ok, status, bytes}} ->\n              __MODULE__.Replay.record({record}, status, bytes)\n              if status == 200, do: __beaml_result_{elixir}(bytes), else: __beaml_fail_{elixir}({status_reason})\n\n            :error ->\n              __beaml_fail_{elixir}({transport_reason})\n          end\n        end)\n      end)\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n",
             input = binary(&effect.input),
             span = binary(&format!("{service}.{name}")),
             path = binary(&effect.path),
             status_reason = binary("status"),
             transport_reason = binary("transport"),
+            record = self.redact("a0", &effect.input, &[], ""),
+            wire = self.redact("a0", &effect.input, &effect.with, ""),
         ));
+        if !self.program.redacted.is_empty() {
+            // D6B-71: the redaction works on the plain map form; one path list per call.
+            out.push_str("  def __beaml_redact__(v, paths) when is_map(v) do\n    Enum.reduce(paths, v, fn\n      [key], acc -> Map.delete(acc, key)\n      [key | rest], acc -> if Map.has_key?(acc, key), do: Map.put(acc, key, __beaml_redact__(Map.get(acc, key), [rest])), else: acc\n    end)\n  end\n\n  def __beaml_redact__(v, _paths), do: v\n");
+        }
+        // DL-115, D6B-55: the marked output fields (top-level String or Int fields, DL-116).
+        let marks = self.output_marks(&effect.output);
         // Tolerant typed decode: every declared field present with its TYPE, extra keys are a hint.
         let declared: Vec<String> = self
             .record(&effect.output)
@@ -3099,8 +3450,19 @@ impl Checker<'_> {
             )
         };
         if !self.versioned(&effect.output) {
+            // DL-115 (Q6B-14 A): a REPLAY RUN puts `:redacted` into each marked field before the TYPE check.
+            let (head, shape) = if marks.is_empty() {
+                (format!("  def {decode}(a0) do\n"), "value")
+            } else {
+                (
+                    format!(
+                        "  def {decode}(a0), do: {decode}(a0, [])\n  def {decode}(a0, marked) do\n"
+                    ),
+                    "Map.merge(value, Map.new(List.wrap(marked), &{&1, :redacted}))",
+                )
+            };
             out.push_str(&format!(
-                "  def {decode}(a0) do\n    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n{literal_map}{tail}  end\n",
+                "{head}    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take({shape}, declared), else: nil\n\n{literal_map}{tail}  end\n",
                 declared.join(", "),
             ));
         } else {
@@ -3167,14 +3529,57 @@ impl Checker<'_> {
         // Slice 6b step 6a (DL-105, D6B-54, D6B-56, D6B-57): the projection of a body for the RESPONSE RECORD.
         // `value`: the wire values under the declared keys of the newest TYPE VERSION, nested by DL-099 and D6B-49,
         // not validated; `:null` when the body is not a JSON object. `unknown_keys`: the other key names, dotted.
+        // D6B-56 amendment: a dotted name per level, also below an undeclared key. D6B-55: a marked field leaves
+        // `value`; `redacted` lists it when it was present and valid.
+        let (marked, null) = if marks.is_empty() {
+            (String::new(), "")
+        } else {
+            let pairs: Vec<String> = marks
+                .iter()
+                .map(|(f, t)| format!("{{{}, {}}}", binary(f), binary(t)))
+                .collect();
+            out.push_str(&format!(
+                "  def __beaml_marked_{elixir}(body) do\n    Enum.sort(Enum.flat_map([{}], fn {{field, type}} -> if __beaml_valid__(Map.get(body, field), type), do: [field], else: [] end))\n  end\n",
+                pairs.join(", ")
+            ));
+            (format!(", __beaml_marked_{elixir}(body)"), ", []")
+        };
+        // D6B-56 amendment, D6B-172: a dotted name per level for every EFFECT source (one record shape).
+        let dot = binary(".");
+        let keys_fn = format!(
+            "  def __beaml_keys__(v, prefix) when is_map(v), do: Enum.flat_map(Map.keys(v), fn k -> [prefix <> k | __beaml_keys__(Map.get(v, k), prefix <> k <> {dot})] end)\n  def __beaml_keys__(_, _), do: []\n"
+        );
+        let inner_keys = format!("__beaml_keys__(Map.drop(v, names), field <> {dot})");
+        let top_keys = format!("__beaml_keys__(Map.drop(body, declared), {})", binary(""));
+        let kept: Vec<String> = self
+            .record(&effect.output)
+            .expect("checked output")
+            .iter()
+            .filter(|(f, _)| !marks.iter().any(|(m, _)| m == f))
+            .map(|(f, _)| binary(f))
+            .collect();
         out.push_str(&format!(
-            "  def __beaml_project_{elixir}(a0) do\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    if is_map(body) do\n      declared = [{declared}]\n\n      nested =\n        Enum.flat_map([{inner}], fn {{field, names}} ->\n          case Map.get(body, field) do\n            v when is_map(v) -> [{{field, Map.take(v, names), Enum.map(Map.keys(Map.drop(v, names)), &(field <> {dot} <> &1))}}]\n            _ -> []\n          end\n        end)\n\n      value = Enum.reduce(nested, Map.take(body, declared), fn {{field, v, _}}, acc -> Map.put(acc, field, v) end)\n      {{value, Enum.sort(Enum.concat(Map.keys(Map.drop(body, declared)), Enum.flat_map(nested, fn {{_, _, keys}} -> keys end)))}}\n    else\n      {{:null, []}}\n    end\n  end\n",
+            "{keys_fn}  def __beaml_project_{elixir}(a0) do\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    if is_map(body) do\n      declared = [{declared}]\n\n      nested =\n        Enum.flat_map([{inner}], fn {{field, names}} ->\n          case Map.get(body, field) do\n            v when is_map(v) -> [{{field, Map.take(v, names), {inner_keys}}}]\n            _ -> []\n          end\n        end)\n\n      value = Enum.reduce(nested, Map.take(body, {kept}), fn {{field, v, _}}, acc -> Map.put(acc, field, v) end)\n      {{value, Enum.sort(Enum.concat({top_keys}, Enum.flat_map(nested, fn {{_, _, keys}} -> keys end))){marked}}}\n    else\n      {{:null, []{null}}}\n    end\n  end\n",
             declared = declared.join(", "),
+            kept = if marks.is_empty() {
+                "declared".to_string()
+            } else {
+                format!("[{}]", kept.join(", "))
+            },
             inner = inner.join(", "),
-            dot = binary("."),
+            keys_fn = keys_fn,
+            inner_keys = inner_keys,
+            top_keys = top_keys,
         ));
         // D6B-60: a REPLAY RUN passes the record `unknown_keys` as `extra`; the span gets the sorted union.
-        let (result_head, arity) = if !self.versioned(&effect.output) {
+        let (result_head, arity) = if !marks.is_empty() {
+            (
+                format!(
+                    "  def __beaml_result_{elixir}(a0), do: __beaml_result_{elixir}(a0, [], [])\n  def __beaml_result_{elixir}(a0, extra, marked) do\n"
+                ),
+                ", marked",
+            )
+        } else if !self.versioned(&effect.output) {
             (
                 format!(
                     "  def __beaml_result_{elixir}(a0), do: __beaml_result_{elixir}(a0, [])\n  def __beaml_result_{elixir}(a0, extra) do\n"
@@ -3212,8 +3617,10 @@ impl Checker<'_> {
         out.push_str("  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n");
         out.push_str(HTTP);
         out.push_str(&format!(
-            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n      {{value, unknown_keys}} = @parent.__beaml_project_{elixir}(bytes)\n{unknown}\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 2,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        value: value,\n        redacted: [],\n        unknown_keys: unknown_keys,\n        value_sha256: digest(value, unknown_keys, []),\n{fields_key}        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
+            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n      {{value, unknown_keys{marked}}} = @parent.__beaml_project_{elixir}(bytes)\n{unknown}\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 2,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        value: value,\n        redacted: {redacted},\n        unknown_keys: unknown_keys,\n        value_sha256: digest(value, unknown_keys, {redacted}),\n{fields_key}        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
             operation = binary(name),
+            marked = if marks.is_empty() { "" } else { ", redacted" },
+            redacted = if marks.is_empty() { "[]" } else { "redacted" },
             // Step 7 (notes.md S4): the RESPONSE RECORD key `unknown_fields` holds field names only.
             unknown = if keeps.is_empty() {
                 String::new()
@@ -3223,7 +3630,14 @@ impl Checker<'_> {
             fields_key = if keeps.is_empty() { "" } else { "        unknown_fields: unknown_fields,\n" },
             retired = self.emit_retired(),
             type_version = self.emit_type_version(&effect.output),
-            chain = self.emit_chain(&self.body_type(flow).1, Some(flow), service, "      ", Step::Replay, "p0"),
+            chain = self.emit_chain(
+                &self.body_type(flow).1,
+                Some(flow),
+                service,
+                "      ",
+                Step::Replay,
+                &self.redact("p0", &self.signatures[&flow.key].0[0], &[], "@parent."),
+            ),
         ));
         out
     }
@@ -3800,6 +4214,8 @@ impl Checker<'_> {
         let mut lost: BTreeMap<(String, u32, String, String, String), Vec<usize>> = BTreeMap::new();
         // D6B-102: the constructor calls for the Elixir run: (field key, line, signature key, inputs).
         let mut calls: Vec<(FieldKey, usize, String, Vec<String>)> = Vec::new();
+        // D6B-72, D6B-163: per (TYPE, operation, dotted path, place): (records that hold a value there, first line).
+        let mut held: BTreeMap<(String, String, String, &str), (usize, usize)> = BTreeMap::new();
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             if line.trim().is_empty() {
@@ -3828,6 +4244,18 @@ impl Checker<'_> {
                     .entry(effect.output.clone())
                     .or_insert(stored.version);
                 *oldest = (*oldest).min(stored.version);
+                for (place, ty) in [("request", &effect.input), ("value", &effect.output)] {
+                    for path in self.redacted_paths(ty) {
+                        let mut at = record.get(place);
+                        for key in &path {
+                            at = at.and_then(|v| v.get(key));
+                        }
+                        if at.is_some() {
+                            let key = (ty.clone(), stored.operation.clone(), path.join("."), place);
+                            held.entry(key).or_insert((0, number)).0 += 1;
+                        }
+                    }
+                }
                 let literal_fields = self.literal_fields(&effect.output);
                 let ctor_fields = self.ctor_fields(&effect.output);
                 if stored.name == effect.output
@@ -3993,6 +4421,18 @@ impl Checker<'_> {
                     plural(*failed)
                 ));
             }
+        }
+        // D6B-72, D6B-149, D6B-151, D6B-152: a stored value under a field that is now redacted blocks, also when
+        // the path check fails. Names and counts only (DL-032).
+        for ((ty, op, field, place), (count, line)) in &held {
+            let (records, verb) = if *count == 1 {
+                ("RECORD", "holds")
+            } else {
+                ("RECORDS", "hold")
+            };
+            errors.push(format!(
+                "error: TYPE {ty}: {count} stored RESPONSE {records} of operation {op} {verb} a value of the redacted field {field} in {place}\n  record source: {source}:{line} (line {line})\n  help: declare the fate in a MIGRATE STEP: redact {field} (DL-111); slice 6b has no form for it yet (DL-125)"
+            ));
         }
         if errors.is_empty() {
             Ok(snapshot)
@@ -4366,6 +4806,7 @@ fn build_with_refusals(
     .program()?;
     let mut checker = Checker::new(&program)?;
     checker.validate()?;
+    checker.redacted_copies()?;
     // D6B-28: only an EFFECT pipe names spans.
     let spans = !program.effects.is_empty();
     let service = match service {

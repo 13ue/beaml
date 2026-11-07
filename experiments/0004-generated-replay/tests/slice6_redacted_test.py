@@ -441,6 +441,15 @@ class Slice6Redacted(unittest.TestCase):
             with self.subTest(name):
                 self.assertEqual(dl_116(output, field), self.rejected(BAD / (name + ".beaml")))
 
+    def test_R6_dl116_below_an_enum_payload_or_a_constructor_type(self):
+        # Review O2 (D6B-184): a redacted field below an enum payload or below a TYPE with a constructor
+        # is stored in plain text through the constructor inputs (D6B-106). The interim DL-116 text names the
+        # TYPE that holds the field.
+        for name, ty, field in (("output_enum_payload", "Holder", "name"),
+                                ("output_constructor_above", "Inner", "s")):
+            with self.subTest(name):
+                self.assertEqual(dl_116(ty, field), self.rejected(BAD / (name + ".beaml")))
+
     def test_R6_redacted_int_output_passes_dl116(self):
         # DL-116 allows Int; only the existing slice 1 decode limit for Int output fields stays (D6B-156).
         self.assertEqual("effect payments.authorize: slice 1 decodes String fields only, not Payment.attempts",
@@ -496,6 +505,12 @@ class Slice6Redacted(unittest.TestCase):
         stored = self.nested_stored()
         self.assertEqual(d6b_72("Order", 1, "card.holder", "request", stored, 1),
                          self.rejected(FIX / "orders_nested.beaml", ["--stored", str(stored)]))
+        with self.subTest("plain holder at another path"):
+            # RED re-check R1: the count is path-aware; a top-level `holder` is not `card.holder`, so no block.
+            record = json.loads(stored.read_text())
+            record["request"] = {"order_id": "order-1", "holder": STORED_HOLDER, "card": {"number": "4111"}}
+            stored.write_text(json.dumps(record, separators=(",", ":")) + "\n")
+            self.build(FIX / "orders_nested.beaml", ["--stored", str(stored)])
 
     def test_R8_count_and_first_line(self):
         clean = (EXPERIMENT / "stored" / "v1.jsonl").read_text().splitlines()[0]

@@ -1,0 +1,7 @@
+// F3 (D6B-67 b): a redacted value in a variant payload of a failure enum.
+type Order { order_id: String  card_holder: redacted String }
+enum Why {
+  Short(String)
+}
+
+fn check Order { card_holder } -> String ! Why = Short(card_holder)

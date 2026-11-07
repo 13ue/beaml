@@ -1,0 +1,445 @@
+# RED output, RED TEAM 01 repairs C1, B3, C3. Date 2026-11-07. git HEAD acf12d75.
+# Compiler: scratch copy of HEAD (git archive HEAD experiments/0001-syntax-to-beam), cargo build, BEAML_SPIKE=<scratch>/target/debug/beaml-spike
+# Toolchain: rustc 1.94.0 (4a4ef493e 2026-03-02); cargo 1.94.0 (85eff7c80 2026-01-15); Elixir 1.18.1 (compiled with Erlang/OTP 27); python 3.13.12
+# Binary sha256: cf8fef3e4cdeff327849f4de67b96f271b786bb2c3b4e4b916e7b244ec3c0cfb
+
+## $ BEAML_SPIKE=<scratch> python3 -B experiments/0004-generated-replay/tests/redteam_c1_test.py -v
+test_c1a_valid_record_builds (__main__.RedTeamC1.test_c1a_valid_record_builds) ... compiler: <scratch>/beaml-spike
+FAIL
+test_c1b_valid_record_gives_an_ok_event (__main__.RedTeamC1.test_c1b_valid_record_gives_an_ok_event) ... FAIL
+test_c1c_payload_variant_builds (__main__.RedTeamC1.test_c1c_payload_variant_builds) ... FAIL
+test_c1d_mixed_records_give_the_dl102_block (__main__.RedTeamC1.test_c1d_mixed_records_give_the_dl102_block) ... FAIL
+test_c1e_failing_record_alone_gives_the_dl102_block (__main__.RedTeamC1.test_c1e_failing_record_alone_gives_the_dl102_block) ... ok
+test_c1f_enum_success_is_a_tuple_not_a_struct (__main__.RedTeamC1.test_c1f_enum_success_is_a_tuple_not_a_struct) ... ok
+
+======================================================================
+FAIL: test_c1a_valid_record_builds (__main__.RedTeamC1.test_c1a_valid_record_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 73, in test_c1a_valid_record_builds
+    _, stderr = self.build(self.stored("ok"), self.source())
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py", line 94, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: the --stored check: the Elixir run of the generated constructors failed (exit 1)
+  help: compile the generated module with elixirc to see the error
+
+
+======================================================================
+FAIL: test_c1b_valid_record_gives_an_ok_event (__main__.RedTeamC1.test_c1b_valid_record_gives_an_ok_event)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 78, in test_c1b_valid_record_gives_an_ok_event
+    self.build(self.stored("ok"), self.source())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py", line 94, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: the --stored check: the Elixir run of the generated constructors failed (exit 1)
+  help: compile the generated module with elixirc to see the error
+
+
+======================================================================
+FAIL: test_c1c_payload_variant_builds (__main__.RedTeamC1.test_c1c_payload_variant_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 84, in test_c1c_payload_variant_builds
+    _, stderr = self.build(self.stored("ok", "refunded"), self.source())
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py", line 94, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: the --stored check: the Elixir run of the generated constructors failed (exit 1)
+  help: compile the generated module with elixirc to see the error
+
+
+======================================================================
+FAIL: test_c1d_mixed_records_give_the_dl102_block (__main__.RedTeamC1.test_c1d_mixed_records_give_the_dl102_block)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 91, in test_c1d_mixed_records_give_the_dl102_block
+    self.assertEqual((1, "", FAILS % (stored, 2, 2)), (code, stdout, stderr.strip()))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Payment: 1 stored RESPONSE RECORD of[310 chars]02)') != (1, '', 'error: the --stored check: the Elixir run of the[104 chars]ror')
+
+First differing element 2:
+'error: TYPE Payment: 1 stored RESPONSE RECORD of[309 chars]102)'
+'error: the --stored check: the Elixir run of the[103 chars]rror'
+
+  (1,
+   '',
++  'error: the --stored check: the Elixir run of the generated constructors '
++  'failed (exit 1)\n'
++  '  help: compile the generated module with elixirc to see the error')
+-  'error: TYPE Payment: 1 stored RESPONSE RECORD of operation '
+-  'payments.authorize fails the constructor of PaymentState for field state '
+-  'with Bad\n'
+-  '  record source: '
+-  '<tmp>/stored.jsonl:2 '
+-  '(line 2)\n'
+-  '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
+-  'VERSION of Payment (DL-102)')
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.584s
+
+FAILED (failures=4)
+## exit 1 (see the FAILED line above)
+
+## $ BEAML_SPIKE=<scratch> python3 -B experiments/0004-generated-replay/tests/redteam_b3_test.py -v
+test_b3_parallel_runs_write_whole_json_lines (__main__.RedTeamB3.test_b3_parallel_runs_write_whole_json_lines) ... compiler: <scratch>/beaml-spike
+FAIL
+
+======================================================================
+FAIL: test_b3_parallel_runs_write_whole_json_lines (__main__.RedTeamB3.test_b3_parallel_runs_write_whole_json_lines)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_b3_test.py", line 67, in test_b3_parallel_runs_write_whole_json_lines
+    self.assertEqual((0, WORKERS * RUNS * per_run), (bad, len(lines)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "(invalid lines, line count) of %d parallel runs" % (WORKERS * RUNS))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, 2000) != (11, 2000)
+
+First differing element 0:
+0
+11
+
+- (0, 2000)
+?  ^
+
++ (11, 2000)
+?  ^^
+ : (invalid lines, line count) of 2000 parallel runs
+
+----------------------------------------------------------------------
+Ran 1 test in 1.945s
+
+FAILED (failures=1)
+## exit 1 (see the FAILED line above)
+
+## $ BEAML_SPIKE=<scratch> python3 -B experiments/0004-generated-replay/tests/redteam_c3_test.py -v
+test_c3a_crash_run_fails (__main__.RedTeamC3Status.test_c3a_crash_run_fails) ... FAIL
+test_c3b_good_run_passes (__main__.RedTeamC3Status.test_c3b_good_run_passes) ... FAIL
+test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) ... 
+  test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [repaired_false] ... FAIL
+  test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [freeze_fail] ... FAIL
+  test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [wrong_accept] ... FAIL
+  test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [compile_error] ... FAIL
+  test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [pre_change_crash] ... FAIL
+  test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [row_missing] ... FAIL
+test_c3d_drift_step_uses_the_rule (__main__.RedTeamC3Status.test_c3d_drift_step_uses_the_rule) ... FAIL
+test_c4_full_run_lists_every_slice6_file_and_drift_test (__main__.RedTeamC4Steps.test_c4_full_run_lists_every_slice6_file_and_drift_test) ... FAIL
+
+======================================================================
+FAIL: test_c3a_crash_run_fails (__main__.RedTeamC3Status.test_c3a_crash_run_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 42, in test_c3a_crash_run_fails
+    self.assertEqual("fail", self.status(load(CRASH)))
+                             ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 37, in status
+    self.assertTrue(callable(rule), "run.py has no drift_status(summary) (D6B-189)")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : run.py has no drift_status(summary) (D6B-189)
+
+======================================================================
+FAIL: test_c3b_good_run_passes (__main__.RedTeamC3Status.test_c3b_good_run_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 45, in test_c3b_good_run_passes
+    self.assertEqual("pass", self.status(load(GOOD)))
+                             ~~~~~~~~~~~^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 37, in status
+    self.assertTrue(callable(rule), "run.py has no drift_status(summary) (D6B-189)")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : run.py has no drift_status(summary) (D6B-189)
+
+======================================================================
+FAIL: test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [repaired_false]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 71, in test_c3c_each_broken_input_fails
+    self.assertEqual("fail", self.status(summary))
+                             ~~~~~~~~~~~^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 37, in status
+    self.assertTrue(callable(rule), "run.py has no drift_status(summary) (D6B-189)")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : run.py has no drift_status(summary) (D6B-189)
+
+======================================================================
+FAIL: test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [freeze_fail]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 71, in test_c3c_each_broken_input_fails
+    self.assertEqual("fail", self.status(summary))
+                             ~~~~~~~~~~~^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 37, in status
+    self.assertTrue(callable(rule), "run.py has no drift_status(summary) (D6B-189)")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : run.py has no drift_status(summary) (D6B-189)
+
+======================================================================
+FAIL: test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [wrong_accept]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 71, in test_c3c_each_broken_input_fails
+    self.assertEqual("fail", self.status(summary))
+                             ~~~~~~~~~~~^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 37, in status
+    self.assertTrue(callable(rule), "run.py has no drift_status(summary) (D6B-189)")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : run.py has no drift_status(summary) (D6B-189)
+
+======================================================================
+FAIL: test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [compile_error]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 71, in test_c3c_each_broken_input_fails
+    self.assertEqual("fail", self.status(summary))
+                             ~~~~~~~~~~~^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 37, in status
+    self.assertTrue(callable(rule), "run.py has no drift_status(summary) (D6B-189)")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : run.py has no drift_status(summary) (D6B-189)
+
+======================================================================
+FAIL: test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [pre_change_crash]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 71, in test_c3c_each_broken_input_fails
+    self.assertEqual("fail", self.status(summary))
+                             ~~~~~~~~~~~^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 37, in status
+    self.assertTrue(callable(rule), "run.py has no drift_status(summary) (D6B-189)")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : run.py has no drift_status(summary) (D6B-189)
+
+======================================================================
+FAIL: test_c3c_each_broken_input_fails (__main__.RedTeamC3Status.test_c3c_each_broken_input_fails) [row_missing]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 71, in test_c3c_each_broken_input_fails
+    self.assertEqual("fail", self.status(summary))
+                             ~~~~~~~~~~~^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 37, in status
+    self.assertTrue(callable(rule), "run.py has no drift_status(summary) (D6B-189)")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : run.py has no drift_status(summary) (D6B-189)
+
+======================================================================
+FAIL: test_c3d_drift_step_uses_the_rule (__main__.RedTeamC3Status.test_c3d_drift_step_uses_the_rule)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 76, in test_c3d_drift_step_uses_the_rule
+    self.assertTrue('summary["status"] = drift_status(summary)' in source,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "drift() does not set its status with drift_status(summary)")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : drift() does not set its status with drift_status(summary)
+
+======================================================================
+FAIL: test_c4_full_run_lists_every_slice6_file_and_drift_test (__main__.RedTeamC4Steps.test_c4_full_run_lists_every_slice6_file_and_drift_test)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c3_test.py", line 87, in test_c4_full_run_lists_every_slice6_file_and_drift_test
+    self.assertEqual([], [w for w in wanted if w not in commands], "files that no full-run step runs")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['experiments/0004-generated-replay/tests/[1022 chars].py']
+
+Second list contains 16 additional elements.
+First extra element 0:
+'experiments/0004-generated-replay/tests/slice6_constructor_test.py'
+
+Diff is 1122 characters long. Set self.maxDiff to None to see it. : files that no full-run step runs
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.059s
+
+FAILED (failures=10)
+## exit 1 (see the FAILED line above)
+
+## B3 repeat: 8 runs of redteam_b3_test.py (40 x 50 builds)
++ (19, 2000)
++ (34, 2000)
++ (12, 2000)
++ (11, 2000)
++ (19, 2000)
++ (34, 2000)
++ (25, 2000)
++ (9, 2000)
+
+# RED review repair O1, 2026-11-07, git HEAD 9df71247. Same scratch binary (sha256 cf8fef3e4cdeff327849f4de67b96f271b786bb2c3b4e4b916e7b244ec3c0cfb); DRIVER text from the scratch main.rs.
+## $ BEAML_SPIKE=<scratch> python3 -B experiments/0004-generated-replay/tests/redteam_c1_test.py -v
+test_c1a_valid_record_builds (__main__.RedTeamC1.test_c1a_valid_record_builds) ... compiler: <scratch>/beaml-spike
+FAIL
+test_c1b_valid_record_gives_an_ok_event (__main__.RedTeamC1.test_c1b_valid_record_gives_an_ok_event) ... FAIL
+test_c1c_payload_variant_builds (__main__.RedTeamC1.test_c1c_payload_variant_builds) ... FAIL
+test_c1d_mixed_records_give_the_dl102_block (__main__.RedTeamC1.test_c1d_mixed_records_give_the_dl102_block) ... FAIL
+test_c1e_failing_record_alone_gives_the_dl102_block (__main__.RedTeamC1.test_c1e_failing_record_alone_gives_the_dl102_block) ... ok
+test_c1f_enum_success_is_a_tuple_not_a_struct (__main__.RedTeamC1.test_c1f_enum_success_is_a_tuple_not_a_struct) ... ok
+test_c1g_driver_accepts_success_shapes (__main__.RedTeamC1Driver.test_c1g_driver_accepts_success_shapes) ... 
+  test_c1g_driver_accepts_success_shapes (__main__.RedTeamC1Driver.test_c1g_driver_accepts_success_shapes) [enum_ok] ... FAIL
+  test_c1g_driver_accepts_success_shapes (__main__.RedTeamC1Driver.test_c1g_driver_accepts_success_shapes) [enum_payload] ... FAIL
+test_c1h_driver_raises_on_wrong_success_shapes (__main__.RedTeamC1Driver.test_c1h_driver_raises_on_wrong_success_shapes) ... ok
+
+======================================================================
+FAIL: test_c1a_valid_record_builds (__main__.RedTeamC1.test_c1a_valid_record_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 77, in test_c1a_valid_record_builds
+    _, stderr = self.build(self.stored("ok"), self.source())
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py", line 94, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: the --stored check: the Elixir run of the generated constructors failed (exit 1)
+  help: compile the generated module with elixirc to see the error
+
+
+======================================================================
+FAIL: test_c1b_valid_record_gives_an_ok_event (__main__.RedTeamC1.test_c1b_valid_record_gives_an_ok_event)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 82, in test_c1b_valid_record_gives_an_ok_event
+    self.build(self.stored("ok"), self.source())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py", line 94, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: the --stored check: the Elixir run of the generated constructors failed (exit 1)
+  help: compile the generated module with elixirc to see the error
+
+
+======================================================================
+FAIL: test_c1c_payload_variant_builds (__main__.RedTeamC1.test_c1c_payload_variant_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 88, in test_c1c_payload_variant_builds
+    _, stderr = self.build(self.stored("ok", "refunded"), self.source())
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py", line 94, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: error: the --stored check: the Elixir run of the generated constructors failed (exit 1)
+  help: compile the generated module with elixirc to see the error
+
+
+======================================================================
+FAIL: test_c1d_mixed_records_give_the_dl102_block (__main__.RedTeamC1.test_c1d_mixed_records_give_the_dl102_block)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 95, in test_c1d_mixed_records_give_the_dl102_block
+    self.assertEqual((1, "", FAILS % (stored, 2, 2)), (code, stdout, stderr.strip()))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Payment: 1 stored RESPONSE RECORD of[310 chars]02)') != (1, '', 'error: the --stored check: the Elixir run of the[104 chars]ror')
+
+First differing element 2:
+'error: TYPE Payment: 1 stored RESPONSE RECORD of[309 chars]102)'
+'error: the --stored check: the Elixir run of the[103 chars]rror'
+
+  (1,
+   '',
++  'error: the --stored check: the Elixir run of the generated constructors '
++  'failed (exit 1)\n'
++  '  help: compile the generated module with elixirc to see the error')
+-  'error: TYPE Payment: 1 stored RESPONSE RECORD of operation '
+-  'payments.authorize fails the constructor of PaymentState for field state '
+-  'with Bad\n'
+-  '  record source: '
+-  '<tmp>/stored.jsonl:2 '
+-  '(line 2)\n'
+-  '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
+-  'VERSION of Payment (DL-102)')
+
+======================================================================
+FAIL: test_c1g_driver_accepts_success_shapes (__main__.RedTeamC1Driver.test_c1g_driver_accepts_success_shapes) [enum_ok]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 163, in test_c1g_driver_accepts_success_shapes
+    self.assertEqual((0, ["ok"]), self.run_driver(fun, type_name))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, ['ok']) != (1, [])
+
+First differing element 0:
+0
+1
+
+- (0, ['ok'])
++ (1, [])
+
+======================================================================
+FAIL: test_c1g_driver_accepts_success_shapes (__main__.RedTeamC1Driver.test_c1g_driver_accepts_success_shapes) [enum_payload]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "experiments/0004-generated-replay/tests/redteam_c1_test.py", line 163, in test_c1g_driver_accepts_success_shapes
+    self.assertEqual((0, ["ok"]), self.run_driver(fun, type_name))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, ['ok']) != (1, [])
+
+First differing element 0:
+0
+1
+
+- (0, ['ok'])
++ (1, [])
+
+----------------------------------------------------------------------
+Ran 8 tests in 5.574s
+
+FAILED (failures=6)

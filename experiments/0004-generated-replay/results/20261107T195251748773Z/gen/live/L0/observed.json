@@ -1,0 +1,86 @@
+{
+  "reply": [
+    200,
+    {
+      "order_id": "order-1",
+      "status": "authorized"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "sent": 1,
+  "spans": [
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "start_time": -576460750978461875,
+      "kind": "client",
+      "span_id": "b08de9512cf71a3c",
+      "trace_id": "2cc97bce39fc9c200d10c7373f373768",
+      "end_time": -576460750977527250,
+      "end_time_unix_nano": 1794081187885014750,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "a8aa1b93b9f63999",
+      "start_time_unix_nano": 1794081187884080125
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460750978748625,
+      "kind": "server",
+      "span_id": "a8aa1b93b9f63999",
+      "trace_id": "2cc97bce39fc9c200d10c7373f373768",
+      "end_time": -576460750977266959,
+      "end_time_unix_nano": 1794081187885275041,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1794081187883793375
+    }
+  ],
+  "records": [
+    {
+      "status": 200,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "status",
+            "String"
+          ]
+        ],
+        "fingerprint": "35a7a9d23ad4d4c63d3d1dd9de660161952b8b6fbf263967f4fd802661143747"
+      },
+      "value": {
+        "order_id": "order-1",
+        "status": "authorized"
+      },
+      "version": 2,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "2cc97bce39fc9c200d10c7373f373768",
+      "artifact_id": "a3986dbcdf88380884f0ec956f604564832a17697da66a43d36b88ab54f5acc0",
+      "attempt": 1,
+      "client_span_id": "b08de9512cf71a3c",
+      "redacted": [],
+      "unknown_keys": [],
+      "value_sha256": "ab02f160671735d88630c327c319e823c84fde2ddf06af68150c8888d04301ee"
+    }
+  ]
+}

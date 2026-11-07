@@ -1,0 +1,6 @@
+// D7 (DL-112): a redacted field bound by a nested record pattern.
+type Card { holder: redacted String  number: String }
+type Order { order_id: String  card: Card }
+type Receipt { holder: String }
+
+fn receipt Order { card: Card { holder } } -> Receipt = Receipt { holder: holder }
