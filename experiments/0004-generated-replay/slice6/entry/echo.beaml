@@ -2,7 +2,7 @@
 type NoCurrency {}
 type Amount { value: String currency: String }
 fn Amount value: String, currency: String -> Amount ! NoCurrency
-fn Amount _, "" -> Amount ! NoCurrency = NoCurrency {}
+fn Amount _,     ""       -> Amount ! NoCurrency = NoCurrency {}
 fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, currency: currency }
 
 enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }

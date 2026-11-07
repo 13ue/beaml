@@ -16,6 +16,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -98,7 +99,9 @@ NO_ENTRY_BLOCK = ("error: stored ENTRY RECORD of operation ui.place has no effec
                   "  help: if the effect is deleted on purpose, declare: retire ui.place keep <n> days" % ENTRIES)
 RETIRE_ENTRY = "retire ui.place keep 30 days\n"
 APP = 'App = "app-channel"  '
-STRICTER = 'fn Amount _, "EUR" -> Amount ! NoCurrency = NoCurrency {}\nfn Amount _, "" ->'
+# GREEN slice6d: the fixtures hold the DL-083 column alignment of the Amount clauses (N11), so the anchor has it too.
+AMOUNT_EMPTY = 'fn Amount _,     ""       ->'
+STRICTER = 'fn Amount _, "EUR" -> Amount ! NoCurrency = NoCurrency {}\n' + AMOUNT_EMPTY
 STORED_WORDS = ("12.50", "EUR", "order-entry-", "app-channel", "phone", "00000000000000000000000000000001")
 
 STUBS = r'''
@@ -416,7 +419,7 @@ class Slice6Entry(unittest.TestCase):
         self.assertEqual((1, True), (len(lines), COUNT_LINE in "".join(lines)), stderr)
 
     def test_s2_stricter_constructor_blocks(self):
-        source = ORDERS.read_text().replace('fn Amount _, "" ->', STRICTER)
+        source = ORDERS.read_text().replace(AMOUNT_EMPTY, STRICTER)
         self.assertEqual((1, "", CTOR_BLOCK), self.blocked(source))
 
     def test_s3_removed_literal_blocks(self):
@@ -429,7 +432,7 @@ class Slice6Entry(unittest.TestCase):
 
     def test_s4_no_stored_value_in_output(self):
         # DL-124, DL-032: the block texts name no stored value (events: see compile()).
-        for name, source in (("ctor", ORDERS.read_text().replace('fn Amount _, "" ->', STRICTER)),
+        for name, source in (("ctor", ORDERS.read_text().replace(AMOUNT_EMPTY, STRICTER)),
                              ("literal", ORDERS.read_text().replace(APP, ""))):
             with self.subTest(name):
                 code, _, stderr = self.compile(source, ["--stored", str(STORED)])
@@ -459,7 +462,9 @@ class Slice6Entry(unittest.TestCase):
                                  "experiments/0004-generated-replay/drift/*.beaml",
                                  "experiments/0004-generated-replay/bad/*.beaml"],
                                 capture_output=True, text=True, check=True).stdout.split()
-        sources = [REPO / p for p in listed if "ui.event(" not in (REPO / p).read_text()]
+        # GREEN slice6d: an ENTRY LINE is an `effect` line with `|>` after the call; `ui.event(` alone missed
+        # bad/transport_route.beaml (http.route), which N10 needs to change its bytes.
+        sources = [REPO / p for p in listed if not re.search(r"^effect .*\)\s*\|>", (REPO / p).read_text(), re.M)]
         self.assertGreater(len(sources), 100, "setup: too few tracked sources")
         base = s5.compiler_at(BASE)
         for path in sources:
