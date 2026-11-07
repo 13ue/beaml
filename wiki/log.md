@@ -326,3 +326,8 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 
 **[Verified]** Updated the four 0004 rows in [research and development](planning/research-and-development.md): slices 2 to 5 are implemented and the tests are green. Evidence: `run.py` run [`20261107T052837751458Z`](../experiments/0004-generated-replay/results/20261107T052837751458Z/result.json) (15 steps, exit 0) and the [step ledger](../experiments/0004-generated-replay/workflow/2026-11-06/notes.md). O5, O6 and O7 are answered (DL-094, DL-070/DL-071, DL-080).
 **[Requirement]** Updated [vertical integration](concepts/vertical-integration.md): the decided `type`, `migrate` and `retire` forms replace the `Payment@1` sketch, and the language decisions DL-080 to DL-094 are listed. Nothing was run.
+
+## 2026-11-07: EXPERIMENT 0004 slice 6a grammar
+
+**[Verified]** The tree-sitter grammar parses and highlights the forms of DL-082 to DL-093: 23/23 corpus examples, 4/4 highlight files with `test --rebuild` ([ledger](../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/notes.md), [review](../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/review.md): pass, three medium notes). Added the [slice 6a section](../experiments/0004-generated-replay/README.md#slice-6a), a register row in [research and development](planning/research-and-development.md), DL-098 in the [decision log](planning/decision-log.md) and the new forms and the `--rebuild` rule in the [Zed README](../integrations/zed-beaml/README.md).
+**[Unknown]** The committed `grammars/beaml.wasm` and the shared `#match?` are not checked in Zed.

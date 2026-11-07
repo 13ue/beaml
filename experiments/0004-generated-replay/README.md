@@ -1424,3 +1424,53 @@ New sources:
 
   Options: (a) **permissive**: every mark that agrees is legal (F6 and F13 compile), and a chain gives the number without a mark (F14 compiles); (b) **mark only after a SQUASH**: F6 and F13 are errors (`help: remove the VERSION MARK while the MIGRATE CHAIN starts at v1`), F14 compiles; (c) **mark exactly after a SQUASH**: as (b), and F14 is an error with `help: write: type Payment v4`, so every shortened chain shows its number on the type line. (a) is the smallest compiler change. (c) makes the source state "squashed" always visible. Which form?
 - **O5 (Migrate), open.** Unchanged. A hand-edited lower mark with an empty RECORD SNAPSHOT compiles (out of scope above).
+
+## Slice 6a
+
+**[Verified]** Grammar and highlighting only, 2026-11-07. Ledger: [slice6-grammar](workflow/2026-11-07/slice6-grammar/). No compiler change.
+
+### Question and claim (slice 6a)
+
+**[Requirement]** Can the tree-sitter grammar in `integrations/zed-beaml/` parse the forms of DL-082 to DL-093 with 0 ERROR nodes and give them the correct highlight classes, with no change to the old tests? Task: [spec.md](workflow/2026-11-07/slice6-grammar/spec.md).
+
+### Forms (slice 6a)
+
+- ENUM LITERALS `Authorized = "ok"` (DL-082).
+- Constructor clauses and signature lines without a body (DL-082, DL-084, DL-085).
+- Record constructor `fn NonZeroInt n: Int -> NonZeroInt ! IsZero = …` and integer literals (DL-092).
+- Failure TYPES `! E1 | E2`; the DL-093 overlap stays a compiler check (DL-092, DL-093).
+- Pipes with constructors and variants as steps (DL-086). Bare variants get class `c`.
+- Redaction release `with <field, …>` on an `effect` (DL-089).
+
+### Pass rule (slice 6a)
+
+- Every new corpus example parses with 0 ERROR nodes and matches its tree. Every new highlight assertion passes.
+- All old corpus and highlight tests pass, also the `:error` cases. `generate` reports no new conflict.
+- Every `tree-sitter test` run uses `--rebuild`. A run without it is no evidence (stale shared cache, RED setup fault).
+
+### Result (slice 6a)
+
+**[Verified]** Pass. [test-result.json](workflow/2026-11-07/slice6-grammar/test-result.json): 12 of 12 checks pass. `test --rebuild` and `test --wasm --rebuild`: 23/23 corpus examples, 4/4 highlight files (19 + 48 + 2 + 11 assertions). The [review](workflow/2026-11-07/slice6-grammar/review.md) (Devil's Advocate) passed with three medium notes, after adversarial inputs and 7 query mutations.
+
+### Limits (slice 6a)
+
+- **[Unknown]** No check tests the committed `grammars/beaml.wasm`. `test --wasm --rebuild` builds its own WASM. Smallest test: load the file in Zed or `web-tree-sitter` and parse the RED example.
+- **[Unknown]** The shared `#match?` over the constructor alternatives is checked in the CLI only, not in Zed.
+- **[Verified]** The ledger has no record of the main agent's own RED review. The fresh RED review and the RED repair are recorded.
+- **[Verified]** The grammar edits reached `main` in commit `4a691ec7` (slice 6b plan check), one commit before the GREEN commit. The content is the same.
+
+### Decisions (Decision4, slice 6a)
+
+| Decision | Class | Choice and reason |
+| --- | --- | --- |
+| PROPOSAL ULTRA over LITE | Repair | Same grammar diff, smaller query diff, one uppercase rule |
+| Signature line = clause with optional body | Repair | One rule for DL-084 signatures and clauses |
+| Variant has a payload or a literal | Repair | DL-082; a `choice` rejects both at once |
+| `with` takes a comma list of fields on `effect` only | Repair | DL-089 names fields; release is for effects |
+| Uppercase fn name and pipe step are constructors | Repair | Shared `#match?` block; lowercase stays `function` |
+| Integer literals in expressions | Repair | DL-092 needs `0` in a clause |
+| ` // anchor` after end-of-line highlight targets | Undo | Stops a borrowed class; smallest test diff |
+| `--rebuild` on every `tree-sitter test` | Undo | Stale shared cache gave a false pass in RED |
+| Mutations and probes in scratch copies only | Undo | Shared parser cache stays clean |
+| README items in DOCS, not GREEN | Undo | GREEN task named code files only |
+| No `build --wasm` in TEST | Undo | Keeps the tracked WASM unchanged |

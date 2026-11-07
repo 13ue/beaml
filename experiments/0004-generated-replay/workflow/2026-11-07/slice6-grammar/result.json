@@ -1,0 +1,51 @@
+{
+  "phase": "VERIFY",
+  "slice": "6a grammar",
+  "date": "2026-11-07",
+  "toolchain": "tree-sitter 0.26.5 (/private/tmp/beaml-zed-highlighting/tools/tree-sitter)",
+  "log": "final-test-output.log",
+  "outcome": "success",
+  "checks": [
+    {"name": "corpus and highlight", "command": "$TS test --rebuild", "status": "pass", "detail": "23/23 corpus, 4/4 highlight files, exit 0"},
+    {"name": "predicate check", "command": "rg -n '^\\((function_clause|pipe right: \\(identifier\\))' languages/beaml/highlights.scm", "status": "pass", "detail": "no output, rg exit 1"},
+    {"name": "ERROR/MISSING in corpus", "command": "rg -n 'ERROR|MISSING' test/corpus/constructors.txt", "status": "pass", "detail": "no output, rg exit 1"},
+    {"name": "ERROR/MISSING in parse of constructors.beaml", "command": "$TS parse test/highlight/constructors.beaml | rg 'ERROR|MISSING'", "status": "pass", "detail": "no output, rg exit 1"},
+    {"name": "parse orders.beaml", "command": "$TS parse -q ../../experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml", "status": "pass", "detail": "exit 0"},
+    {"name": "parse payments.beaml", "command": "$TS parse -q ../../experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml", "status": "pass", "detail": "exit 0"},
+    {"name": "parse example.beaml", "command": "$TS parse -q ../../experiments/0001-syntax-to-beam/example.beaml", "status": "pass", "detail": "exit 0"},
+    {"name": "test file hashes", "command": "shasum -a 256 test/corpus/constructors.txt test/highlight/constructors.beaml", "status": "pass", "detail": "equal to the notes.md Solve table"},
+    {"name": "wiki lint", "command": "python3 scripts/lint_wiki.py", "status": "pass", "detail": "81 files, 0 errors, after DOCS"}
+  ],
+  "unresolved_defects": [],
+  "open_notes": [
+    "review.md medium 1: committed grammars/beaml.wasm not checked in Zed or web-tree-sitter",
+    "review.md medium 2: shared #match? over the alternation not checked in Zed",
+    "review.md medium 3: no ledger record of the main agent's own RED review"
+  ],
+  "changed_files": {
+    "since_7858e728_committed": [
+      "integrations/zed-beaml/grammar.js",
+      "integrations/zed-beaml/grammars/beaml.wasm",
+      "integrations/zed-beaml/languages/beaml/highlights.scm",
+      "integrations/zed-beaml/test/highlight/constructors.beaml"
+    ],
+    "docs_uncommitted": [
+      "integrations/zed-beaml/README.md",
+      "experiments/0004-generated-replay/README.md",
+      "wiki/planning/research-and-development.md",
+      "wiki/planning/decision-log.md",
+      "wiki/log.md"
+    ],
+    "ledger_untracked": [
+      "experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/final-test-output.log",
+      "experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/result.json"
+    ]
+  },
+  "out_of_scope_paths": [
+    "experiments/0001-syntax-to-beam/results/20261107T100316072470Z/",
+    "experiments/0004-generated-replay/results/20261107T100323345706Z/",
+    "experiments/0004-generated-replay/results/20261107T100323851420Z/",
+    "experiments/0004-generated-replay/results/20261107T100608492892Z/",
+    "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-hygiene/"
+  ]
+}

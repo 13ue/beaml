@@ -477,6 +477,16 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: workers build every item whose decisions are recorded (DL-062, DL-065, DL-081 to DL-093), one code-writing worker at a time, in bounded steps with a ledger each. A step stops at the first Migrate or Answer question and hands it back. Every decision of every class, Undo and Repair included, goes into the step's `notes.md` with its class, choice, alternative and reason. Repair decisions that change language behaviour or a check also get a decision-log entry at the end of the phase.
 → Because: OWNER instruction of 2026-11-07. The OWNER must find no silent decision, small ones included.
 
+**DL-098 · Repair · Slice 6a grammar: worker decisions**
+→ Chose: a signature line is a `fn` clause with an optional `= body` (DL-084). Over: a separate signature rule.
+→ Chose: a variant has a payload or an ENUM LITERAL, not both (DL-082).
+→ Chose: `with` on an `effect` takes a comma list of fields; a `fn` has no `with` (DL-089).
+→ Chose: an uppercase `fn` name, an uppercase pipe step and a bare uppercase name are constructors (class `c`). Lowercase stays `function`.
+→ Chose: integer literals in expressions (DL-092 `fn NonZeroInt 0 …`).
+→ Chose: highlight tests put ` // anchor` after a target at the end of a line. Over: a test that passes on a borrowed class.
+→ Chose: every `tree-sitter test` runs with `--rebuild`. Over: the shared cache, which gave a false pass in RED.
+→ Because: smallest grammar that parses the decided forms. Details: [slice 6a ledger](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/notes.md), [review](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/review.md).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

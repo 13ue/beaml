@@ -1,0 +1,94 @@
+# VERIFY slice 6a, 2026-11-07, fresh verifier. cwd integrations/zed-beaml
+$ /private/tmp/beaml-zed-highlighting/tools/tree-sitter --version
+tree-sitter 0.26.5
+$ /private/tmp/beaml-zed-highlighting/tools/tree-sitter test --rebuild
+  constructors:
+      1. ✓ [32mEnum constructor with signatures and clauses[0m
+      2. ✓ [32mRecord constructor with a failure TYPE[0m
+      3. ✓ [32mSignature with several failure TYPES[0m
+      4. ✓ [32mOverlap is no grammar error[0m
+      5. ✓ [32mPipe inside an argument[0m
+      6. ✓ [32mEffect releases a redacted field[0m
+  errors:
+      7. ✓ [32mInterface is no record keyword[0m
+      8. ✓ [32mPlain numbers in a MIGRATE STEP[0m
+      9. ✓ [32mVersion v0 on the type line[0m
+     10. ✓ [32mVersion with a leading zero in a MIGRATE STEP[0m
+  forms:
+     11. ✓ [32mRecord type with version mark and redacted field[0m
+     12. ✓ [32mEnum with plain and payload variants[0m
+     13. ✓ [32mEffect with dotted name and failure list[0m
+     14. ✓ [32mPipe in a function with a failure TYPE[0m
+     15. ✓ [32mMIGRATE CHAIN, several steps on one line[0m
+     16. ✓ [32mMIGRATE CHAIN with v numbers, multi-line, comments[0m
+     17. ✓ [32mRetire an operation[0m
+     18. ✓ [32mWith expression[0m
+     19. ✓ [32mKeywords stay identifiers outside their forms[0m
+  lexer:
+     20. ✓ [32mUnicode whitespace[0m
+     21. ✓ [32mA line comment stops at LF[0m
+  syntax:
+     22. ✓ [32mDeclarations[0m
+     23. ✓ [32mFunction clauses and nested patterns[0m
+
+syntax highlighting:
+      1. ✓ [32msyntax.beaml[0m (19 assertions)
+      2. ✓ [32mforms.beaml[0m (48 assertions)
+      3. ✓ [32mlexer.beaml[0m (2 assertions)
+      4. ✓ [32mconstructors.beaml[0m (11 assertions)
+Total parses: 23; successful parses: 23; failed parses: 0; success percentage: 100.00%; average speed: 5898 bytes/ms
+
+exit 0
+$ rg -n '^\((function_clause|pipe right: \(identifier\))' languages/beaml/highlights.scm
+rg exit 1 (1 = no match = pass)
+$ rg -n 'ERROR|MISSING' test/corpus/constructors.txt
+rg exit 1
+$ /private/tmp/beaml-zed-highlighting/tools/tree-sitter parse test/highlight/constructors.beaml | rg 'ERROR|MISSING'
+rg exit 1
+$ /private/tmp/beaml-zed-highlighting/tools/tree-sitter parse -q ../../experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+exit 0
+$ /private/tmp/beaml-zed-highlighting/tools/tree-sitter parse -q ../../experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+exit 0
+$ /private/tmp/beaml-zed-highlighting/tools/tree-sitter parse -q ../../experiments/0001-syntax-to-beam/example.beaml
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+exit 0
+$ shasum -a 256 test/corpus/constructors.txt test/highlight/constructors.beaml
+7f23972e451961fc10699ddcac337f0650daade736102fd77f96527433d53001  test/corpus/constructors.txt
+940fadadae98aab6c3e1dee12820227b3c64bc17adc74990d143390ac19a9f58  test/highlight/constructors.beaml
+$ git diff --stat 7858e728..HEAD -- integrations/zed-beaml/
+ integrations/zed-beaml/grammar.js                  |  14 +++++++++----
+ integrations/zed-beaml/grammars/beaml.wasm         | Bin 26373 -> 28477 bytes
+ .../zed-beaml/languages/beaml/highlights.scm       |  23 +++++++++++++++++----
+ .../zed-beaml/test/highlight/constructors.beaml    |   6 +++---
+ 4 files changed, 32 insertions(+), 11 deletions(-)
+$ git status --short (repo)
+ M experiments/0004-generated-replay/README.md
+ M integrations/zed-beaml/README.md
+ M wiki/log.md
+ M wiki/planning/decision-log.md
+ M wiki/planning/research-and-development.md
+?? experiments/0001-syntax-to-beam/results/20261107T100316072470Z/
+?? experiments/0004-generated-replay/results/20261107T100323345706Z/
+?? experiments/0004-generated-replay/results/20261107T100323851420Z/
+?? experiments/0004-generated-replay/results/20261107T100608492892Z/
+?? experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/final-test-output.log
+?? experiments/0004-generated-replay/workflow/2026-11-07/slice6b-hygiene/
+$ python3 scripts/lint_wiki.py
+Checked 81 maintained Markdown files; 0 error(s). PDF hash, bytes, page count and per-page text rechecked.
+Parsed raw JSON records; verified 6 explicitly retained capture hashes.
+Limits: inline Markdown links/headings only; original raw documents not linted; no external URL, semantic truth, security proof or runtime checks.
+exit 0
