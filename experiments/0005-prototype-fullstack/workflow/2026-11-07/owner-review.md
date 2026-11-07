@@ -48,3 +48,24 @@ By: Opus (PLAN exp0005, default, open) for every line.
 **Deferred, not decided**
 
 - DL-136 digest half (bad-digest records counted, not checked): follow-up step P2b (RV3-07, Repair, By: Opus).
+
+## Several EFFECTS and module name (P3, P5)
+
+Ledger: [0004 multi-effect-module](../../../0004-generated-replay/workflow/2026-11-07/multi-effect-module/decisions.md). Built defaults, open (DL-144).
+By: Opus (PLAN multi-effect, default, open) for every line.
+
+- **Q6E-1** Which sources take the stem module name: A every source (all byte pins move, re-pin sub-step) · C only a source with an ENTRY LINE, others stay `BeamlSpike`. Default C.
+- **Q6E-2** `Rejected` namespace: A `<Module>.Rejected` (`Orders.Rejected`) · B one fixed `BeamlSpike.Rejected`. Default A.
+- **Q6E-4** One EFFECT per flow: A yes (`place` cannot pay and store in one flow) · B several EFFECTS per flow, records selected by operation. Default A.
+- Other Migrate default of this step, not big: **Q6E-3** `Replay.run(operation, ...)` with two or more EFFECTS. Default A.
+
+## Database transports (P4)
+
+Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/db-transport/plan.md). Options: [db-transport/decisions.md](../../../0004-generated-replay/workflow/2026-11-07/db-transport/decisions.md). Every line: By: Opus (PLAN db-transport, default, open).
+
+- **QDB-1** `db.get` key: A the key TYPE has one String field, its name is the key · B key in the call `db.get("records", order_id)`. Default A.
+- **QDB-2** `BeamlDb` signatures: A `put(table, {type, version}, core)`, `get/3`, `list/3` · B the 0005 plan's `put/4`. Default A.
+- **QDB-5** db call records: A stream `"responses"`, v3 core + `request`, output values · B own stream with row references. Default A.
+- **QDB-6** db outcomes: A `"ok"` / `"failed"` + reason · B `"accepted"` / `"rejected"`. Default A; P2 names win.
+- **QDB-7** ROW SNAPSHOT: A `rows.jsonl` beside `--stored` (+ `source: "db"`, `row_id`), meta `row_count` checked · B one mixed file. Default A.
+- **Other (not big):** QDB-3 newest row wins on `db.get`; QDB-4 one bad row fails the whole `db.list`.
