@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+    "run.py",
+    "db-up"
+  ],
+  "subcommand": "db-up",
+  "started_at": "2026-11-07T21:53:53.053608+00:00",
+  "finished_at": "2026-11-07T21:53:53.634612+00:00",
+  "toolchain": {
+    "python": "3.13.12",
+    "elixir": "Elixir 1.18.1 (compiled with Erlang/OTP 27)",
+    "otp": "27",
+    "pg_ctl": "pg_ctl (PostgreSQL) 17.11 (Postgres.app)"
+  },
+  "steps": [
+    {
+      "name": "pg-start",
+      "command": [
+        "pg_ctl",
+        "-D",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgdata",
+        "-o",
+        "-k /Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgsock -c listen_addresses='' -c unix_socket_permissions=0700",
+        "-l",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgdata/log",
+        "-w",
+        "start"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    }
+  ],
+  "status": "pass"
+}

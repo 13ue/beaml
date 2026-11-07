@@ -1,0 +1,5 @@
+app/.pgdata/
+app/.pgsock/
+app/.capture/
+app/_build/
+app/deps/
