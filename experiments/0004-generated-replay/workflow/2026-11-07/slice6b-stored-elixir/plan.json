@@ -1,0 +1,77 @@
+{
+  "slice": "6b",
+  "step": 13,
+  "date": "2026-11-07",
+  "phase": "plan",
+  "by": "Opus (PLAN, slice6b-stored-elixir)",
+  "decisions": "decisions.md",
+  "decision": ["DL-121", "DL-122"],
+  "closes": ["D017", "P11", "D007"],
+  "inputs": ["DL-101", "DL-102", "DL-103", "DL-105", "DL-106", "DL-116", "DL-117", "DL-120", "DL-121", "DL-122", "D019"],
+  "base": "2f211da7",
+  "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-stored-elixir/",
+  "mechanism": {
+    "process": "elixir -e DRIVER, one start per check",
+    "input": "stdin JSON {module: emit output, calls: [[new_T_k, [inputs]], ...]}",
+    "compile": "Code.compile_string/1 in memory, no scratch dir, no file holds values",
+    "output": "one line per call: ok | error <FailureType>; child stdout/stderr never forwarded",
+    "measured": "0.41 s wall, Elixir 1.18.1, OTP 27 (scratch probe)"
+  },
+  "owner_questions": [],
+  "defaults": ["D6B-102", "D6B-103", "D6B-104", "D6B-105", "D6B-106", "D6B-107", "D6B-108", "D6B-109", "D6B-110", "D6B-111"],
+  "files": [
+    "experiments/0001-syntax-to-beam/src/main.rs",
+    "experiments/0004-generated-replay/tests/slice6_stored_elixir_test.py",
+    "experiments/0004-generated-replay/slice6/stored-elixir/pipe.beaml",
+    "experiments/0004-generated-replay/slice6/stored-elixir/nested.beaml",
+    "experiments/0004-generated-replay/slice6/stored-elixir/pipe-fail.jsonl",
+    "experiments/0004-generated-replay/slice6/stored-elixir/nested-fail.jsonl",
+    "experiments/0004-generated-replay/tests/slice6_decode_test.py"
+  ],
+  "first_red": {
+    "test": "E1",
+    "file": "tests/slice6_stored_elixir_test.py",
+    "assert": "pipe.beaml --stored pipe-fail.jsonl: exit 1, exact DL-102 block 'fails the constructor of Amount for field amount with NoCurrency', record source line 1",
+    "today": "exit 0, empty stderr (observed)"
+  },
+  "tests": {
+    "E1": "RED: review probe 6, failure in a pipe step",
+    "E2": "RED: failure only in a nested constructor step",
+    "E3": "guard plus RED event part: passing records exit 0, empty stderr, stored-elixir event ok",
+    "E4": "RED: PATH=/usr/bin:/bin gives the D6B-106 toolchain error",
+    "E5": "RED: stored-elixir event has Int ms, calls 4, no other keys",
+    "E6": "guard: static error without Elixir on PATH gives the static text",
+    "E7": "guard: no record value in stderr or events",
+    "L1": "RED: DL-122 removed ENUM LITERAL blocks",
+    "L1b": "RED: DL-122 changed literal String blocks",
+    "L2": "guard: unchanged literal and kept Unknown value do not block",
+    "L3": "guard: DL-103 note stays"
+  },
+  "changed_assertions": {
+    "slice6_decode_test.py": ["test_written_record_reports_the_count: run_runtime with stored=sf.EMPTY_STORED"]
+  },
+  "byte_changes": {
+    "change": ["stderr and exit of --stored runs that hit P11 or DL-122", "new stored-elixir event line"],
+    "equal": ["every generated Elixir output", "payments.generated.snapshot", "slice6_pipe S12 pins", "slice6_host_struct H8 pins"]
+  },
+  "checks": [
+    "cargo test --no-fail-fast",
+    "cargo fmt --check",
+    "cargo clippy --offline --all-targets -- -D warnings",
+    "tests/slice6_stored_elixir_test.py",
+    "every slice6_*_test.py",
+    "six compile-level test files",
+    "run.py once at TEST, serialized",
+    "record stored-elixir ms in notes.md"
+  ],
+  "test_first": "applies; E1, E2, E4, E5, L1, L1b are RED; E3 event part RED; E6, E7, L2, L3 guards",
+  "exclusions": [
+    "Rust NIF or second backend (D019)",
+    "compiler evaluator (DL-121 option a)",
+    "any change of generated Elixir, runtime decode, __beaml_from_T, T.new/1",
+    "lost mappings of constructor enums (D6B-109)",
+    "known-to-known literal moves (DL-103 limit)",
+    "MIGRATE STEP form for enum fields (D6B-39), quarantine syntax",
+    "integrations/zed-beaml/"
+  ]
+}
