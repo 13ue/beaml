@@ -1,0 +1,197 @@
+{
+  "slice": "6d",
+  "step": "inbound-effect",
+  "date": "2026-11-07",
+  "phase": "plan",
+  "by": "Opus (PLAN, slice6d-inbound-effect)",
+  "decisions": "decisions.md",
+  "decision": "DL-128",
+  "inputs": [
+    "DL-092",
+    "DL-101",
+    "DL-105",
+    "DL-106",
+    "DL-108",
+    "DL-117",
+    "DL-119",
+    "DL-120",
+    "DL-126",
+    "DL-127",
+    "DL-128",
+    "D018",
+    "D6B-114",
+    "D6B-127"
+  ],
+  "base": "fccb7941",
+  "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/",
+  "test_first": {
+    "applies": true,
+    "reason": "new language declaration with generated runtime behaviour"
+  },
+  "order": {
+    "after": [
+      "13 (slice6b-stored-elixir GREEN)"
+    ],
+    "before": [
+      "EXPERIMENT 0005"
+    ],
+    "reason": "one code-writing worker at a time; DL-128 puts the slice before 0005"
+  },
+  "syntax_default": "on ui \"place\" PlaceOrder -> place",
+  "entry_function": "BeamlSpike.ui_<event>(params) -> {:ok, result} | {:error, failure} | {:error, %BeamlSpike.Rejected{reason}}",
+  "owner_questions": [
+    {
+      "id": "Q6D-1",
+      "class": "Migrate",
+      "topic": "form of the ENTRY LINE",
+      "options": [
+        "A: on ui \"place\" PlaceOrder -> place (default)",
+        "B: effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event(\"place\") |> place",
+        "C: entry ui.place PlaceOrder -> place"
+      ],
+      "default": "A",
+      "blocks": [],
+      "by": "open (13ue)"
+    },
+    {
+      "id": "Q6D-2",
+      "class": "Migrate",
+      "topic": "generated host function",
+      "options": [
+        "A: one function per entry, ui_place(params) (default)",
+        "B: one dispatch entry(event, params)"
+      ],
+      "default": "A",
+      "blocks": [],
+      "by": "open (13ue)"
+    },
+    {
+      "id": "Q6D-3",
+      "class": "Migrate",
+      "topic": "decode reject form at the host",
+      "options": [
+        "A: %Rejected{reason} (default)",
+        "B: failure TYPE of the fn with reason",
+        "C: {:error, {:rejected, reason}}"
+      ],
+      "default": "A",
+      "blocks": [],
+      "by": "open (13ue)"
+    }
+  ],
+  "defaults": [
+    "D6B-128",
+    "D6B-129",
+    "D6B-130",
+    "D6B-131",
+    "D6B-132",
+    "D6B-133",
+    "D6B-134",
+    "D6B-135",
+    "D6B-136",
+    "D6B-137",
+    "D6B-138",
+    "D6B-139",
+    "D6B-140",
+    "D6B-141",
+    "D6B-142"
+  ],
+  "record": {
+    "stream": "entries",
+    "keys": [
+      "version",
+      "trace_id",
+      "server_span_id",
+      "artifact_id",
+      "operation",
+      "attempt",
+      "value",
+      "redacted",
+      "unknown_keys",
+      "value_sha256",
+      "type"
+    ],
+    "version": 2,
+    "operation": "ui.<event>",
+    "value": "DL-105 projection of the params under the declared keys of the input TYPE",
+    "raw_params": "never stored",
+    "written": "before the decode, also for a reject; only with an outbound EFFECT",
+    "replay": "Replay.entry(record, records)"
+  },
+  "files": [
+    "experiments/0001-syntax-to-beam/src/main.rs",
+    "experiments/0001-syntax-to-beam/tests/cli.rs",
+    "experiments/0004-generated-replay/tests/slice6_inbound_test.py",
+    "experiments/0004-generated-replay/slice6/inbound/orders.beaml",
+    "experiments/0004-generated-replay/slice6/inbound/echo.beaml",
+    "experiments/0004-generated-replay/tests/slice5_syntax_test.py",
+    "integrations/zed-beaml/grammar.js",
+    "integrations/zed-beaml/src/ (generated)",
+    "integrations/zed-beaml/languages/beaml/highlights.scm",
+    "integrations/zed-beaml/test/corpus/entry.txt",
+    "integrations/zed-beaml/test/highlight/forms.beaml"
+  ],
+  "first_red": {
+    "test": "N1",
+    "file": "tests/slice6_inbound_test.py",
+    "assert": "slice6/inbound/orders.beaml compiles (exit 0) and the output has def ui_place(",
+    "today": "exit 1: expected type, enum, effect, migrate, retire or fn"
+  },
+  "tests": {
+    "N1": "the ENTRY LINE compiles; def ui_place( exists",
+    "N2": "ui_echo(good): Amount struct through the constructor, Channel Web",
+    "N3": "channel app gives Unknown(app)",
+    "N4": "typed reject, never a raise: constructor; decode for missing key, nil, list, atom keys, non-JSON value",
+    "N5": "root span orders.ui.place (:server, parent nil); event and EFFECT span have the root as parent",
+    "N6": "reject inside the root span, attribute reason, no child",
+    "N7": "domain failure passes: transport PaymentError",
+    "N8": "ENTRY RECORD key set, projection, unknown_keys, digest; no record for the pure source",
+    "N9": "Replay.entry ok, body_digest_mismatch, operation_mismatch, reject replays to the same Rejected",
+    "N10": "compile rejects of D6B-129, D6B-130, D6B-138",
+    "N11": "fmt keeps the ENTRY LINE",
+    "N12": "no source text or path in compiler events",
+    "N13": "guard: byte-equal output for every source without an ENTRY LINE; payments snapshot",
+    "N14": "tree-sitter corpus and highlight case, test --rebuild and --wasm --rebuild"
+  },
+  "changed_assertions": {
+    "tests/slice5_syntax_test.py": [
+      "FALLBACK (test_F02_fallback_error_names_every_declaration_word)"
+    ],
+    "experiments/0001-syntax-to-beam/tests/cli.rs": [
+      "line 208 fallback text in assert_rejected (false pass if left)"
+    ]
+  },
+  "byte_changes": {
+    "change": [],
+    "new": [
+      "slice6/inbound/*.beaml outputs",
+      "N10 inline sources"
+    ],
+    "equal": [
+      "every tracked source without an ENTRY LINE",
+      "payments.beaml snapshot"
+    ]
+  },
+  "checks": [
+    "cargo test --no-fail-fast",
+    "cargo fmt --check",
+    "cargo clippy --offline --all-targets -- -D warnings",
+    "tests/slice6_inbound_test.py",
+    "every slice6_*_test.py",
+    "slice5_syntax_test.py",
+    "tree-sitter generate",
+    "tree-sitter test --rebuild",
+    "tree-sitter test --wasm --rebuild",
+    "run.py once at TEST"
+  ],
+  "exclusions": [
+    "HTTP route entries",
+    "LiveView and Phoenix (EXPERIMENT 0005)",
+    "more than one ENTRY LINE",
+    "a reaching target that is not the EFFECT flow",
+    "input TYPE with own constructor, MIGRATE CHAIN or redacted fields",
+    "ENTRY RECORD and REPLAY RUN without an outbound EFFECT",
+    "--stored over ENTRY RECORDS",
+    "OBSERVATORY settings (D018)"
+  ]
+}
