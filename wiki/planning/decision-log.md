@@ -494,6 +494,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice after analysis. Under A the field list no longer describes the wire shape, so the fingerprint, the derived old TYPE VERSIONS and `unknown_keys` need extra rules; under B the per-level rule of today holds, and literal and constructor read the same place. B can express A, A cannot express B.
 → Unblocks: slice 6b step 8 (decode through an enum constructor). The call form of a constructor with several arguments inside a record constructor is a sketch, not decided.
 
+**DL-100 · Migrate · An enum constructor is the decode path only (Q6B-2, B)**
+→ Question: does an enum constructor (`fn PaymentState …`) make itself the only way to build the variants of its enum, as a record constructor does (DL-092)?
+→ Options: A, yes: a bare variant as an expression is legal only inside the constructor's clauses, code calls the constructor; B, no: the constructor is the path for outside data and `migrate` only, code builds variants directly.
+→ Chose: B. Code writes `Pending`; the constructor maps wire values to variants. Patterns stay free in both.
+→ Because: OWNER choice. Variants are finite and named, so they are valid by construction; a record constructor checks values, an enum constructor only translates. Under A code would need the wire string (`"pending"`) to build a variant, which is outside knowledge, not domain knowledge.
+→ Effect: slice 6b step 9 (enum only-way-in check) is dropped. Step 4 builds no restriction.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
