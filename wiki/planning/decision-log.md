@@ -602,6 +602,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: OWNER choice; who copies PII declares it. The evidence and challenges are in `wiki/planning/decisions-to-be-made.md` (D010).
 
+**DL-113 · Answer · A same-named plain output field beside a redacted input field is allowed; the declaration decides (Q6B-13, C)**
+→ Question: an EFFECT takes `Order { card_holder: redacted String }` and returns `Receipt { card_holder: String }`. A service that echoes the input puts the value into the record `value`. Compile error, warning, or allowed?
+→ Options: A, compile error on the same name; B, warning; C, allowed, the output field declaration decides like for every other field.
+→ Chose: C. A name rule is a heuristic that any other name bypasses, and it would block a legal display field. The OWNER who declares the output field plain has decided; a redacted output field is protected by DL-105.
+→ By: 13ue
+→ Because: OWNER choice. The evidence and challenges are in `wiki/planning/decisions-to-be-made.md` (D011). Limit: the record then holds a value that the input marks as PII; that is a declared choice, not an accident.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
