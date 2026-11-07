@@ -1,0 +1,15 @@
+{
+  "replay": 0,
+  "domain": 1,
+  "test": 2,
+  "files": {
+    "experiments/0002-http-correlation/apps/probe_support/lib/probe_support.ex": {
+      "class": "domain",
+      "hunks": 1
+    },
+    "experiments/0003-source-linked-replay/tests/replay_run_test.py": {
+      "class": "test",
+      "hunks": 2
+    }
+  }
+}

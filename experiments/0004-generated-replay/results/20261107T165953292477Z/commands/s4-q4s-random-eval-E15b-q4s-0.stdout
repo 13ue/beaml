@@ -1,0 +1,3 @@
+
+18:02:32.017 [info] Exporter ProbeSupport.Exporter successfully initialized
+REPLAY {"result":{"ok":{"k_axvtlc":"order-1","t_ishhks":"settled","x_krnxqq":"cxktnkxl\"\\épwcwag"}},"unwatched":["{OrdersBeamlSpike, :payments_authorize, 1}","{OrdersBeamlSpike, :payments_charge, 1}","{OrdersBeamlSpike, :payments_oqcvoaez, 1}"],"calls":{":gen_tcp.connect/4":0,":json.decode/1":1,"OrdersApi.Router.call/2":0,"OrdersBeamlSpike.finish/1":1,"OrdersBeamlSpike.nswsgorg_opkdkbtc/1":0,"OrdersBeamlSpike.payments_authorize/1":"nil","OrdersBeamlSpike.payments_charge/1":"nil","OrdersBeamlSpike.payments_oqcvoaez/1":"nil","OrdersBeamlSpike.prepare/1":1,"ProbeSupport.valid_payment!/2":0},"transport":0,"artifact":"fa80a9ce46009053197182144d453ac34605d0d17890cff1b496f5dffdba6161"}

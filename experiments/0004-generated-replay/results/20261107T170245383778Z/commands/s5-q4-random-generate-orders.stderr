@@ -1,0 +1,12 @@
+warning: DEAD LINE: migrate Tqarxjuz v1 -> v2
+  at /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-random-2p0k5692/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml:5
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-1i8zxn1p/stored.jsonl: no stored RESPONSE RECORD of TYPE Tqarxjuz has v1 or older
+  help: remove DEAD LINES with: beaml-spike /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-random-2p0k5692/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml --stored /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-1i8zxn1p/stored.jsonl --remove-dead
+warning: DEAD LINE: migrate Tqarxjuz v2 -> v3
+  at /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-random-2p0k5692/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml:7
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-1i8zxn1p/stored.jsonl: no stored RESPONSE RECORD of TYPE Tqarxjuz has v2 or older
+  help: remove DEAD LINES with: beaml-spike /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-random-2p0k5692/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml --stored /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-1i8zxn1p/stored.jsonl --remove-dead
+warning: DEAD LINE: migrate Tqarxjuz v3 -> v4
+  at /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-random-2p0k5692/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml:11
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-1i8zxn1p/stored.jsonl: no stored RESPONSE RECORD of TYPE Tqarxjuz has v3 or older
+  help: remove DEAD LINES with: beaml-spike /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-random-2p0k5692/experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml --stored /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-q4-1i8zxn1p/stored.jsonl --remove-dead

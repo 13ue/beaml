@@ -1,0 +1,43 @@
+{
+  "order": {
+    "order_id": "order-1"
+  },
+  "mode": "replay_plain",
+  "trace_id": "000000000000000000000000005e1ce5",
+  "responses": [
+    {
+      "status": 200,
+      "version": 2,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.oqymohbw",
+      "trace_id": "000000000000000000000000005e1ce5",
+      "unknown_keys": [],
+      "artifact_id": "d89b3d8cf9659a02bb9df915e70375d3748ae5fd754c726e0919bc64437ca0bc",
+      "attempt": 1,
+      "client_span_id": "aad42eae89efe43a",
+      "type": {
+        "name": "Tqarxjuz",
+        "version": 97297599,
+        "fields": [
+          [
+            "o_hcjsoj",
+            "String"
+          ],
+          [
+            "v26698604832",
+            "String"
+          ]
+        ],
+        "fingerprint": "5e7e3e5e9c6bd81805fb543c892e82b595b8e15d6d46b6c080a425e9d5ee5dce"
+      },
+      "value": {
+        "v26698604832": "order-1",
+        "o_hcjsoj": "authorized"
+      },
+      "redacted": [],
+      "value_sha256": "82e5450c268d0542e9dfe99756f00bcd23d5a676c954a1f838bcb33222045967"
+    }
+  ]
+}

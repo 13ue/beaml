@@ -1,0 +1,20 @@
+{
+  "result": {
+    "ok": {
+      "p_ckbasg": "X-v1",
+      "s_hsrdqo": "Y-v1"
+    }
+  },
+  "unwatched": [],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "98aeeb124b6d0a50e11f733147a535532b278de9bfe1338c7bb2fc4f6846e604"
+}

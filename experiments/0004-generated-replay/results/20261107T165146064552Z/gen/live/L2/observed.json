@@ -1,0 +1,107 @@
+{
+  "reply": [
+    502,
+    {
+      "error": "downstream_failure"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "sent": 1,
+  "spans": [
+    {
+      "attributes": {
+        "function": "prepare",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "e22dbc86e8848339ea9067497149ffc8e045ef311942d891b56b0361c21ef753",
+        "outcome": "ok"
+      },
+      "name": "orders.prepare",
+      "service": "orders",
+      "start_time": -576460751760389041,
+      "kind": "internal",
+      "span_id": "85ad05623ef3d858",
+      "trace_id": "3440bfebc1c6b61e6bdfa60ca65d0c35",
+      "end_time": -576460751760185666,
+      "end_time_unix_nano": 1794070325670853334,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "fd18f74d75a667a4",
+      "start_time_unix_nano": 1794070325670649959
+    },
+    {
+      "attributes": {
+        "reason": "status",
+        "order_id": "order-1",
+        "outcome": "error"
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "start_time": -576460751760007083,
+      "kind": "client",
+      "span_id": "bb7335d880f1fe1f",
+      "trace_id": "3440bfebc1c6b61e6bdfa60ca65d0c35",
+      "end_time": -576460751759448500,
+      "end_time_unix_nano": 1794070325671590500,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "fd18f74d75a667a4",
+      "start_time_unix_nano": 1794070325671031917
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460751760527291,
+      "kind": "server",
+      "span_id": "fd18f74d75a667a4",
+      "trace_id": "3440bfebc1c6b61e6bdfa60ca65d0c35",
+      "end_time": -576460751759321625,
+      "end_time_unix_nano": 1794070325671717375,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1794070325670511709
+    }
+  ],
+  "records": [
+    {
+      "status": 503,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "status",
+            "String"
+          ]
+        ],
+        "fingerprint": "35a7a9d23ad4d4c63d3d1dd9de660161952b8b6fbf263967f4fd802661143747"
+      },
+      "value": {
+        "order_id": "order-1",
+        "status": "authorized"
+      },
+      "version": 2,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "3440bfebc1c6b61e6bdfa60ca65d0c35",
+      "artifact_id": "e2358f50f89ef3be96f8b818f53727112f947cb524a2201fa47ea111d8a540f6",
+      "attempt": 1,
+      "client_span_id": "bb7335d880f1fe1f",
+      "redacted": [],
+      "unknown_keys": [],
+      "value_sha256": "ab02f160671735d88630c327c319e823c84fde2ddf06af68150c8888d04301ee"
+    }
+  ]
+}
