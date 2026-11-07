@@ -72,6 +72,7 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
   <div class="eyebrow">BEAML · roadmap · 2026-11-07</div>
   <h1>One language from source to production</h1>
   <p class="lead">BEAML is a typed language for the BEAM. It compiles to Elixir. One compiler knows every stage, from the type check to the trace in production, so that agents make fewer errors.</p>
+  <p class="lead">Design principle (DL-126): declarations carry shape and policy, from types and versions to effects, fates, retention and tracing. Expressions carry computation only. The compiler derives the rest.</p>
 </header>
 
 <section style="display:grid;gap:10px">
@@ -103,6 +104,7 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
     <div class="col"><h3>Concept</h3><ul>
       <li>Compile-time budget against Go</li>
       <li>Generics</li>
+      <li>Simple rules on a type field (<code>where</code>); the constructor stays for the complex case (DL-126)</li>
     </ul></div>
   </div>
 </article>
@@ -124,6 +126,8 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
       <li>Lazy or eager migration, batches, rollback windows</li>
+      <li>Fate operations in a migrate step: <code>quarantine</code>, <code>retire … keep</code>, <code>redact</code>, <code>map</code> (DL-125)</li>
+      <li>Retention per type, <code>keep N days</code> (DL-126)</li>
       <li>Environments with lower priority</li>
     </ul></div>
   </div>
@@ -166,7 +170,7 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>Source-linked REPLAY RUN of a captured call (experiment 0003)</li>
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
-      <li>Test syntax in the language</li>
+      <li>Test syntax in the language: examples in the source as tests and replay fixtures (DL-126)</li>
       <li>Eval framework for agent outputs</li>
     </ul></div>
   </div>
@@ -186,6 +190,9 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>Migration checks report counts per environment, never values</li>
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
+      <li>Entry points declared in the source (<code>route</code>, <code>on</code>), so every live function is reachable from a declaration (DL-126, D018)</li>
+      <li>Policy on effect lines: retry, timeout, idempotent (DL-126)</li>
+      <li>Trace resolution per subtree, time-limited; default is the effect path (DL-119, D018)</li>
       <li>Typed dashboards and alerts</li>
       <li>Feature flags</li>
       <li>Implicit PII flow in the compiler</li>

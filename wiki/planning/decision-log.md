@@ -701,6 +701,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: declarative first: an agent derives the line from the error text and the decision; fewer places to make an error. The three interim blocks need nothing more than 1.
 → Effect: a concept page for the fate operations, then grammar (slice 6c or 7) and a slice 6b follow-up that lifts the interim blocks. The REPLAY RUN rule stays DL-102: chain to vM, then today's code; a quarantined record does not run. Scope note: a MIGRATE STEP governs RESPONSE RECORDS today; whether it also governs BEAML-owned persistence later is open (D020).
 
+**DL-126 · Migrate · Design principle: declarative for shape and policy, expressions for computation**
+→ Question: how far does BEAML push the declarative paradigm?
+→ Chose: declarations carry shape and policy: TYPES and VERSIONS, enum literals, redaction, EFFECT signatures and their transport, MIGRATE STEPS and fates (DL-125), RETIRE LINES, entry points, retention, tracing resolution. Expressions carry computation only: fn bodies, pipes, constructor clauses. The COMPILER derives everything else (decode, structs, spans, replay) and never asks for it in source. Every new declaration needs a compiler semantics and keeps an expression escape hatch, so it is never magic.
+→ Options: push declarations into computation too (rules as expressions everywhere); keep the current mix without a stated line.
+→ By: 13ue
+→ Because: policy as lines is diff-able and checkable by an agent; computation stays small. The three fate blocks and the span default showed that the line already exists in practice.
+→ Effect: six roadmap candidates (concept, not decided): entry points declared (`route`/`on`, closes the inward view of D018); policy on EFFECT lines (retry, timeout, idempotent); simple rules on a TYPE field (`where`), the constructor stays for the complex case; examples in the source as tests and replay fixtures; retention per TYPE (`keep N days`); trace resolution per subtree, time-limited (D018). Recorded on the roadmap page and in the vertical-integration concept.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

@@ -21,6 +21,12 @@ updated: 2026-11-07
 
 **[Inference]** A comparison that counts only hand edits against a shared library cannot show this advantage. A library with no TYPE facts needs no edit on a field change, but it also cannot type the trace or fail the build. EXPERIMENT 0004 slice 1 hit exactly this limit (see `experiments/0004-generated-replay/workflow/2026-11-06/notes.md`, final review).
 
+## Design principle: declarative for shape and policy (2026-11-07)
+
+**[Requirement]** DL-126 (OWNER): declarations carry shape and policy, expressions carry computation only, and the COMPILER derives the rest. Today declarative: TYPES and VERSIONS, enum literals, `redacted`, EFFECT signatures with their transport, MIGRATE STEPS and fates (DL-125), RETIRE LINES. Derived, never written: decode, host structs, spans, REPLAY RUN. Expressions: fn bodies, pipes, constructor clauses.
+
+**[Proposal]** Candidates on the roadmap, concept only: entry points declared (`route`, `on`; closes the inward view of D018), policy on EFFECT lines (retry, timeout, idempotent), simple rules on a TYPE field (`where`), examples in the source as tests and replay fixtures, retention per TYPE (`keep N days`), trace resolution per subtree with a time limit (D018). Every new declaration needs a compiler semantics and keeps an expression escape hatch.
+
 ## Type changes against deployed data
 
 **[Requirement]** Owner decisions, 2026-11-06:
