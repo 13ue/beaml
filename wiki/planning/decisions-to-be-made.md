@@ -268,6 +268,90 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Next check: 6b R4c with the echo stub, scan of the RUN DIRECTORY.
 
+## D012 — Replay marker for a redacted field (Q6B-14)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** EXECUTION/REPLAY RUN, DL-105
+- **Decision trigger** Before 6b GREEN of R5, or before host replay code reads a redacted field.
+
+**[Inference]** DL-105: a redacted field replays "as absent and marked". An atom in a String field takes another host branch than live (`is_binary`). [Q6B-14](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/decisions.md#q6b-14--migrate--how-a-replay-run-shows-a-marked-field-was-d6b-62-blocks-6b-green-of-r5)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| A, atom `:redacted` | The field holds `:redacted`. `__beaml_valid__` accepts it only for a redacted field. | Host code sees a value that live never gives. A pure step that computes with it may raise. |
+| B, absent key plus list | The key is absent; the result carries the `redacted` list. | The result is not TYPE-valid by today's `__beaml_valid__`. Host code needs a second check. |
+
+**[Unknown]** Not built. By: Opus (PLAN REPAIR, slice6b-redacted).
+
+**[Proposal]** Next check: 6b R5, replay of the R4 record under each option.
+
+## D013 — `redacted` output only on a top-level String field (Q6B-15)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** LANGUAGE/COMPILATION, DL-102, DL-105, DL-106
+- **Decision trigger** Before 6b GREEN of R6, or before an EFFECT output marks an enum, constructor or record field `redacted`.
+
+**[Inference]** DL-102 cannot run a rule over a value that the record does not have, and a constructor would get the marker as input. [Q6B-15](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/decisions.md#q6b-15--migrate--interim-limit-redacted-output-only-on-a-top-level-string-field-was-d6b-63-blocks-6b-green-of-r6)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| A, String fields only | Compile error for every other redacted output field (slice 6b). | A new interim compile error on a basic feature. |
+| B, any field TYPE | The REPLAY RUN and the DL-102 check skip the rules of a marked field. | A constructor or enum rule over that field is not checked at replay. |
+
+**[Unknown]** Not built. By: Opus (PLAN REPAIR, slice6b-redacted).
+
+**[Proposal]** Next check: 6b R6, the reject texts under option A; one enum field case under option B.
+
+## D014 — Form of `T.new` for several parameters or signatures (Q6B-16)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** LANGUAGE/COMPILATION, host call boundary, DL-106
+- **Decision trigger** Before step 11 GREEN of H9, or before a host builds a constructor TYPE with more than one parameter.
+
+**[Verified]** DL-106 names `new/1`. `NonZeroInt` has one parameter; `Pair` and `Amount` have two. A record constructor can have several signatures; a host call has no static TYPE. [Q6B-16](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-host-structs/decisions.md#q6b-16--migrate--the-form-of-tnew-for-a-constructor-with-more-than-one-parameter-or-more-than-one-signature-blocks-h9-only)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| A, positional | `T.new/n` with the parameters in order; the first accepting signature wins. | `new/1` holds only for one parameter. |
+| B, one map | Always `T.new/1`; several parameters as a map with the parameter names as String keys, as in the decode (DL-099). | One-parameter and several-parameter signatures read the argument differently. |
+
+**[Unknown]** Not built. By: Opus (PLAN, slice6b-host-structs).
+
+**[Proposal]** Next check: step 11 H9, `Pair.new` under each option.
+
+## D015 — Which steps of a reaching pipe get a span (Q6B-17)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** EXECUTION/OBSERVATORY, DL-108, D6B-28
+- **Decision trigger** Before step 12 GREEN of E2.
+
+**[Verified]** DL-108: "Pure steps stay silent; steps on a path to an EFFECT get a span". Today every step of a direct EFFECT pipe has a span; the GEN arm query expects `orders.prepare` and the log inside it. [Q6B-17](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-effect-reach/decisions.md#q6b-17--migrate--which-steps-of-a-reaching-pipe-get-a-span-blocks-e2-and-the-green-of-e2-only)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| P, per pipe | Every step of a pipe in which any step is or reaches an EFFECT. | No byte change. Pure work next to an EFFECT has spans. |
+| S, per step | Only steps that are or reach an EFFECT. | About 50 EFFECT sources, the hash guards and the GEN query change. |
+
+**[Unknown]** Not built. By: Opus (PLAN, slice6b-effect-reach).
+
+**[Proposal]** Next check: step 12 E2, span count of `checkout` under each option.
+
 ## Answered 2026-11-07
 
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.

@@ -1,0 +1,144 @@
+{
+  "slice": "6b",
+  "step": 11,
+  "date": "2026-11-07",
+  "phase": "plan",
+  "by": "Opus (PLAN, slice6b-host-structs)",
+  "decisions": "decisions.md",
+  "decision": "DL-106",
+  "inputs": [
+    "DL-092",
+    "DL-093",
+    "DL-099",
+    "DL-101",
+    "DL-105",
+    "DL-106",
+    "DL-107",
+    "DL-108",
+    "DL-109",
+    "DL-110"
+  ],
+  "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-host-structs/",
+  "order": {
+    "after": [
+      "6a"
+    ],
+    "before": [
+      "12",
+      "6b",
+      "6c"
+    ],
+    "reason": "6a is unblocked and ends the LIB comparison; step 12 span input needs the struct form; 6b D6B-71 and Q6B-15 assume structs"
+  },
+  "owner_questions": [
+    {
+      "id": "Q6B-16",
+      "class": "Migrate",
+      "topic": "form of T.new for several parameters or signatures",
+      "options": [
+        "A: T.new/n positional, first accepting signature in source order",
+        "B: always T.new/1, a map with parameter names as String keys for several parameters (decode form)"
+      ],
+      "blocks": [
+        "H9"
+      ],
+      "by": "open (13ue)"
+    }
+  ],
+  "defaults": [
+    "D6B-73",
+    "D6B-74",
+    "D6B-75",
+    "D6B-76",
+    "D6B-77",
+    "D6B-78",
+    "D6B-79",
+    "D6B-80",
+    "D6B-81",
+    "D6B-82",
+    "D6B-83"
+  ],
+  "files": [
+    "experiments/0001-syntax-to-beam/src/main.rs",
+    "experiments/0004-generated-replay/tests/slice6_host_struct_test.py",
+    "experiments/0004-generated-replay/slice6/host-structs/nonzero.beaml",
+    "experiments/0004-generated-replay/tests/slice6_constructor_test.py",
+    "experiments/0004-generated-replay/tests/slice6_pipe_test.py",
+    "experiments/0004-generated-replay/tests/slice6_enum_test.py",
+    "experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py"
+  ],
+  "first_red": {
+    "test": "H1",
+    "file": "tests/slice6_host_struct_test.py",
+    "assert": "BeamlSpike.keep(%{\"value\" => 0}) raises ArgumentError invalid BEAML input",
+    "today": "returns the map (step 3 keep_passes)"
+  },
+  "tests": {
+    "H1": "forged map rejected at the wrapper",
+    "H2": "NonZeroInt.new/1 ok, error, invalid input",
+    "H3": "nested field needs the struct",
+    "H4": "wrap(5) gives the struct",
+    "H5": "plain record keeps the map form",
+    "H6": "constructor TYPE failure through a pipe keeps its fields (D6B-77)",
+    "H7": "limit: deliberate struct literal is not caught",
+    "H8": "byte guard for sources without a record constructor",
+    "H9": "several-parameter T.new, waits for Q6B-16"
+  },
+  "changed_assertions": {
+    "slice6_constructor_test.py": [
+      "constructor_ok",
+      "wrap_ok",
+      "read_pattern",
+      "keep_passes",
+      "plain_ok",
+      "call_form",
+      "build lines 96 and 105"
+    ],
+    "slice6_pipe_test.py": [
+      "record_field_in_constructor",
+      "first_clause_ok",
+      "second_clause_ok"
+    ],
+    "slice6_enum_test.py": [
+      "line 38 pipe clause",
+      "call_pair"
+    ],
+    "slice6_decode_ctor_test.py": [
+      "EUR constant (every ok result)",
+      "declined_via_pipe",
+      "replay_declined"
+    ]
+  },
+  "byte_changes": {
+    "change": [
+      "slice6/constructor/*.beaml",
+      "slice6/pipe/pipe.beaml",
+      "slice6/enum/constructor.beaml",
+      "slice6/decode-ctor/orders.beaml",
+      "slice6/fmt/clauses*.beaml (inside slice6_fmt_test only)",
+      "inline test sources with a record constructor"
+    ],
+    "equal": [
+      "arms/gen/orders.beaml",
+      "slice2 to slice5 sources",
+      "payments.beaml snapshot",
+      "slice6 int, failure, decode, enum/enum.beaml"
+    ]
+  },
+  "checks": [
+    "cargo test --no-fail-fast",
+    "cargo fmt --check",
+    "cargo clippy --offline --all-targets -- -D warnings",
+    "six compile-level test files",
+    "every slice6_*_test.py",
+    "run.py once at TEST"
+  ],
+  "exclusions": [
+    "deliberate struct literal (DL-106 limit)",
+    "plain records without a constructor",
+    "enum values",
+    "constructor TYPES in EFFECT inputs and failures (D6B-19)",
+    "struct module name collisions (D6B-81)",
+    "integrations/zed-beaml/"
+  ]
+}

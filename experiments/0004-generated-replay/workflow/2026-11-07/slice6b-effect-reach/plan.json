@@ -1,0 +1,117 @@
+{
+  "slice": "6b",
+  "step": 12,
+  "date": "2026-11-07",
+  "phase": "plan",
+  "by": "Opus (PLAN, slice6b-effect-reach)",
+  "decisions": "decisions.md",
+  "decision": "DL-108",
+  "supersedes": [
+    "D6B-28 (span part, for pipes that reach an EFFECT through a fn)"
+  ],
+  "inputs": [
+    "DL-092",
+    "DL-093",
+    "DL-099",
+    "DL-101",
+    "DL-105",
+    "DL-106",
+    "DL-107",
+    "DL-108",
+    "DL-109",
+    "DL-110"
+  ],
+  "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-effect-reach/",
+  "order": {
+    "after": [
+      "6a",
+      "11"
+    ],
+    "before": [
+      "6b"
+    ],
+    "independent": [
+      "6c"
+    ],
+    "reason": "after 6a: option S changes GEN span bytes and DL-110 ends the LIB comparison at 6a; after 11: span input rule sees structs; before 6b: 6b redacts every spanned pipe in one place",
+    "follow_up": "12b, D6B-91 constructor that reaches an EFFECT is a compile error"
+  },
+  "owner_questions": [
+    {
+      "id": "Q6B-17",
+      "class": "Migrate",
+      "topic": "which steps of a reaching pipe get a span",
+      "options": [
+        "P: every step of a pipe in which any step is or reaches an EFFECT (today's form, no byte change)",
+        "S: only steps that are or reach an EFFECT (pure steps lose spans, about 50 EFFECT sources and GEN query.py change)"
+      ],
+      "blocks": [
+        "E2"
+      ],
+      "by": "open (13ue)"
+    }
+  ],
+  "defaults": [
+    "D6B-84",
+    "D6B-85",
+    "D6B-86",
+    "D6B-87",
+    "D6B-88",
+    "D6B-89",
+    "D6B-90",
+    "D6B-91",
+    "D6B-92",
+    "D6B-93",
+    "D6B-94",
+    "D6B-95"
+  ],
+  "files": [
+    "experiments/0001-syntax-to-beam/src/main.rs",
+    "experiments/0004-generated-replay/tests/slice6_effect_reach_test.py",
+    "experiments/0004-generated-replay/slice6/effect-reach/orders.beaml"
+  ],
+  "first_red": {
+    "test": "E1",
+    "assert": "checkout clause holds {:ok, p2} <- ProbeSupport.span(<<\"orders.place\">>, :internal, p0, <<\"place\">>, fn -> __MODULE__.place(p1) end)",
+    "today": "{:ok, p2} <- __MODULE__.place(p1), no span (observed probe)"
+  },
+  "tests": {
+    "E1": "indirect reaching step gets a span",
+    "E2": "pure siblings in a reaching pipe, waits for Q6B-17",
+    "E3": "pure fn pipe and pure module stay silent",
+    "E4": "mutual recursion that reaches",
+    "E5": "pure recursion stays silent",
+    "E6": "span input nil for a non-record head (D6B-88)",
+    "E7": "one-clause rule text kept; several-clause indirect fn compiles",
+    "E8": "byte guard: every existing source byte-equal under option P",
+    "E9": "unit test effect_reach_is_transitive",
+    "E10": "no source text or path in events"
+  },
+  "byte_changes": {
+    "option_P": "none (no existing fixture has an indirect pipe, observed scan)",
+    "option_S": [
+      "arms/gen/orders.beaml",
+      "slice2/reuse/orders.beaml",
+      "about 50 EFFECT sources under slice2 to slice6, bad, drift, examples",
+      "step 5 S12 hashes",
+      "arms/gen/overlay/.../query.py rows orders.prepare and payment_request_prepared"
+    ]
+  },
+  "checks": [
+    "cargo test --no-fail-fast",
+    "cargo fmt --check",
+    "cargo clippy --offline --all-targets -- -D warnings",
+    "six compile-level test files",
+    "every slice6_*_test.py",
+    "run.py once at TEST"
+  ],
+  "exclusions": [
+    "declared reach form in the signature",
+    "higher-order functions",
+    "spans for call forms and nested pipes",
+    "REPLAY RUN of an indirect caller",
+    "beaml check --json reach output (note only)",
+    "other DL-108 users",
+    "integrations/zed-beaml/"
+  ]
+}
