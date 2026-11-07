@@ -509,6 +509,15 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Commits us to: the replay questions on stored records (D6B-30, D6B-32, D6B-38) include a changed constructor against stored RESPONSE RECORDS: a new check can make an old record fail at replay. The OWNER wants that thought through together with those questions.
 → Open: the reject reason for a constructor failure in a decode (`decode` or a reason of its own).
 
+**DL-102 · Migrate · A stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate**
+→ Question: a TYPE keeps its field shape but gets a new rule (a record constructor, DL-101; a changed enum mapping, DL-082), and a stored RESPONSE RECORD of an earlier deploy fails that rule today. What does the build do, and what does a REPLAY RUN show?
+→ Options: ignore stored records; count and report only (plan default D6B-38 for enum mappings); block until a MIGRATE STEP declares the fate of the failing records.
+→ Chose: block. The check runs the new constructors and mappings over the stored records of every environment and reports counts and reasons, never values (DL-032). When any record fails, the build fails until a MIGRATE STEP to a new TYPE VERSION says what happens to those records: a total rule (checked by the compiler), `quarantine` (the record keeps a typed reason and waits, visible in the dashboard), or `retire` with a keep window. A rule change that hits stored records therefore makes a new TYPE VERSION even though the field list is unchanged. Rescue is a code change, never a hand edit in a REPL or CLI.
+→ Replay: a stored record is typed by its version and goes through the chain, then through today's code (the existing design, DL-043). There is no second replay mode "as it happened then"; that result is in the record itself.
+→ Because: OWNER choice. A failing old record is the same situation as a missing MIGRATE STEP: the compiler sees it, so it must block (DL-031). Quarantine is no guess and no fallback: the record is not reinterpreted, it waits.
+→ Supersedes: D6B-38 (count only) and D6B-32/D6B-30 need a new reading in the plan. The syntax of `quarantine` and of `retire` for a TYPE VERSION is a sketch, not decided.
+→ Open: a mapping change that does not fail but changes the outcome (an old `Unknown("refunded")` that a new literal maps to `Refunded`): is that a hit that needs a step, or a plain improvement?
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
