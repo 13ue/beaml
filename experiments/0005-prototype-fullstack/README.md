@@ -3,12 +3,12 @@ id: experiment-0005-prototype-fullstack
 kind: experiment
 status: proposed
 updated: 2026-11-07
-revision: 1 (PLAN, free run DL-144)
+revision: 2 (PLAN repair after plan check, free run DL-144)
 ---
 
 # EXPERIMENT 0005 — PROTOTYPE: Postgres, BEAML, LiveView
 
-**[Proposal]** PLAN phase, 2026-11-07. No code, no run. Plan: [workflow/2026-11-07/plan.md](workflow/2026-11-07/plan.md). Decisions: [decisions.md](workflow/2026-11-07/decisions.md). OWNER walk-through: [owner-review.md](workflow/2026-11-07/owner-review.md).
+**[Proposal]** PLAN phase, 2026-11-07, repaired after the plan check ([plan-review.md](workflow/2026-11-07/plan-review.md), [repair](workflow/2026-11-07/plan.md#plan-repair-after-plan-check-2026-11-07)). No code, no run. Plan: [workflow/2026-11-07/plan.md](workflow/2026-11-07/plan.md). Decisions: [decisions.md](workflow/2026-11-07/decisions.md). OWNER walk-through: [owner-review.md](workflow/2026-11-07/owner-review.md).
 Binding OWNER decisions: DL-126 to DL-134, DL-137, DL-139, DL-141 to DL-144 in [the decision log](../../wiki/planning/decision-log.md). DL-144 makes this a free run: every open Migrate question has a built default, marked `By: Opus (PLAN exp0005, default, open)`.
 By: Opus (PLAN exp0005) for every proposal on this page.
 
@@ -37,7 +37,7 @@ By: Opus (PLAN exp0005) for every proposal on this page.
 | One Ecto migration: table `records(id, type, version, value jsonb, inserted_at)` | host | never changed by a TYPE change (DL-127) |
 | `BeamlDb` with `put/…`, `list/…` (and `get/…`, unused) | host | SQL over the one table (DL-129) |
 | Router, LiveView `OrderFormLive`, `OrderListLive`, HEEx | host | `handle_event("place", …)` calls `Orders.ui_place/1` |
-| Local Postgres | OWNER | `pg_ctl` cluster, see prerequisites |
+| Local Postgres | host (worker or OWNER, P5-22) | `pg_ctl` cluster, see prerequisites |
 
 ## Supported subset
 
@@ -61,16 +61,16 @@ By: Opus (PLAN exp0005) for every proposal on this page.
 
 ## Acceptance criteria
 
-**[Proposal]** One `run.py` run passes N1 to N8 and N10 to N13 with exit 0 and retains its result directory. N9 is reported as `blocked` with the reason, never as `pass`. Details: [plan.md](workflow/2026-11-07/plan.md#n-tests).
+**[Proposal]** One `run.py` run passes N1 to N7, N7b, N8, N8b, N8c and N10 to N13 with exit 0 and retains its result directory. N9 is reported as `blocked` with the reason, never as `pass`. Details: [plan.md](workflow/2026-11-07/plan.md#n-tests).
 
 ## Repeatable command
 
 ```
-python3 experiments/0005-prototype-fullstack/run.py db-up     # the OWNER, once per machine start
+python3 experiments/0005-prototype-fullstack/run.py db-up     # a worker or the OWNER, once per machine start
 python3 experiments/0005-prototype-fullstack/run.py           # every run
 ```
 
-`run.py` builds the 0001 compiler, generates `app/lib/generated/orders.ex`, runs `mix compile --warnings-as-errors`, `mix ecto.migrate`, `mix test`, the `--stored` cases and writes `results/<UTC>/` with commands, toolchain versions, input and output hashes and the actual results. It never starts, stops or reads the credentials of a database.
+`run.py` builds the 0001 compiler, generates `app/lib/generated/orders.ex`, runs `mix compile --warnings-as-errors`, `mix ecto.migrate`, `mix test`, the `--stored` cases and writes `results/<UTC>/` with commands, toolchain versions, input and output hashes and the actual results. The test run never starts or stops the database; `db-up` and `db-down` do (local trust-auth socket cluster, no secret; a worker may run them, P5-22). No step reads database credentials. When `DATABASE_URL` is set, the OWNER runs every step.
 
 ## Prerequisites
 
@@ -79,7 +79,7 @@ All are separate implement-step tasks with their own ledgers. 0005 Solve/RED sta
 | ID | Step | State (2026-11-07) |
 |---|---|---|
 | P1 | Slice 6d GREEN and TEST (ENTRY LINE, DL-130 to DL-134, DL-138, DL-141, DL-142) | **[Verified]** RED re-check PASS (commit 8ab33d8d); GREEN not started |
-| P2 | Record format v3 (DL-143): one core for every EFFECT stream | not started |
+| P2 | Record format v3 (DL-143): one core for every EFFECT stream; record keys only, M8 and M9 untouched (P5-18) | not started |
 | P3 | Several ENTRY LINES and several EFFECTS per source (D6B-147; today `slice 1 supports one effect`) | not started |
 | P4 | `db.*` transport step: `db.put`, `db.list` on `effect` lines, host module call, row decode with MIGRATE CHAIN on read, `--stored` over rows, List TYPE (Q5-3) | not started |
 | P5 | Module name per source (Q5-6): generated module `Orders`, not `BeamlSpike` | not started |

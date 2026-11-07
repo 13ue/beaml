@@ -166,3 +166,64 @@ As in the [README](../../README.md#exclusions). Also: no Docker image, no TCP da
 - **[Unknown]** Whether `probe_support` works as a path dep outside its umbrella (P5-06).
 - **[Unknown]** The cost of `--stored` over the live table (one full scan of `records` per build). Fine for a PROTOTYPE; a measure decides later.
 - **[Inference]** P4 is the largest prerequisite. Its plan may split it (put and list first, `--stored` over rows second).
+
+## Plan repair (after plan check), 2026-11-07
+
+**[Proposal]** Repair of the BLOCK in [plan-review.md](plan-review.md) (O1 high, O2 high, O3 medium). Earlier text above stays; this section replaces it where the two differ. Rulings by the main agent under DL-144: `By: Fable`. Other lines: `By: Opus (PLAN repair exp0005)`. Decisions: [decisions.md](decisions.md#plan-repair-after-plan-check-2026-11-07).
+
+### O1 · P2 changes record keys only (M8, M9 avoided)
+
+- **P2 (record format v3) scope.** P2 changes the keys of the records only: the common core of DL-143 (head keys, `value` + `value_sha256`, `outcome` + `reason`, `unknown_keys` + `unknown_fields`, `redacted`, span id) and the transport extras.
+- **P2 does not touch M8.** Generated code accepts no failure struct as an input value. The host value rule stays as built.
+- **P2 does not touch M9.** The DL-124 block text keeps its current line shape. P2 adds no per-record line and no new line count.
+- P2 meets the D026 trigger "before the record format v3 step (M8, M9)". Because P2 avoids both, P2 does not wait. M8 and M9 stay open and parked. A P2 worker that finds it must change either one stops and reports a blocker.
+- → By: Fable · class Repair
+
+Replacement row for the D026 table:
+
+| Item | Touch | Plan |
+|---|---|---|
+| M8 (failure struct as a value at the host) | the host receives `StoreError`, `Rejected`; P2 changes record keys | the host only matches; P2 adds no input path for a failure struct |
+| M9 (record lines in the DL-124 text) | N8 with one stored row; P2 record keys | no line-count assertion; P2 keeps the block text line shape |
+
+### O2 · N8 and N7 prove a live read
+
+Every `--stored` build over Postgres (`mix beaml.stored`, Q5-4 default B) writes its snapshot to a new file in the result directory. It also writes `snapshot-meta.json` beside it: the query time (UTC, from `SELECT now()` in the same transaction), the database name, the row count and the sorted row ids. No row value goes into the meta file.
+
+- **N8b (data-side control).** After N8, delete the `order-zero` row by SQL. Run the same stricter build through `mix beaml.stored` again: exit 0. The block came from the data, not from a stale file.
+- **N8c (snapshot provenance).** For every snapshot in N7, N7b, N8 and N8b: the file did not exist before the step; its row ids and count equal a fresh `psql` query of `records` ids at the same instant (the test holds writes still between the two reads). Compare ids and count only; print no values. N7 also asserts that the seeded v1 row id is in its snapshot before the exit-0 check.
+- → By: Fable · class Repair (N8b, N8c, the meta file)
+- → N8c applied to N7 and N7b as well · By: Opus (PLAN repair exp0005) · class Repair
+
+### O3 · N7b, a write under v2
+
+- **N7b (v2 write, mixed read).** Under `variants/order_v2.beaml`, submit `order-3` through the page. One new row has `version = 2` and `value.note = ""`. `/orders` lists the v1 row (from N7) and the v2 row together. N11 columns are still unchanged.
+- **Variant change.** `order_v2.beaml` also changes `to_order`: it builds `Order { order_id: order_id, amount: amount, channel: channel, note: "" }`. The variant diff in the ledger shows this line.
+- → By: Fable · class Repair
+
+### Q5-10 · STORED ROW value shape
+
+New big OWNER question, see [decisions.md](decisions.md#q5-10--migrate--big--stored-row-value-shape). Default B: the record format v3 core goes into the row `value`. P4 builds it; N2 then asserts the projection inside the core (`value.value` equals the old N2 object) and `value_sha256`, not a bare projection. The N2 expectation above changes accordingly in RED.
+- → By: Fable (default, open) · class Migrate
+
+### Local database: a worker may run `db-up` and `db-down`
+
+- The local `pg_ctl` cluster has trust auth on a Unix socket only and holds no secret. A worker may run `run.py db-up` and `run.py db-down`. → By: Fable · class Undo
+- `db-up` adds `-c unix_socket_permissions=0700` to the `pg_ctl -o` options. → By: Opus (PLAN repair exp0005) · class Undo
+- The OWNER-step rule stays only when `DATABASE_URL` is set (P5-02 commitment).
+- The test run (`run.py` without a subcommand) never starts or stops the database. When it is down, it fails as written above.
+
+### Host setup lines (setup, not behaviour)
+
+A path dep brings no umbrella config. The 0005 host sets these itself:
+
+- `Proto.Application` starts `ProbeSupport.Capture` as a child and calls `ProbeSupport.setup/0` at start.
+- `config/runtime.exs` sets `:probe_support, :output` to the capture directory of the run (`results/<UTC>/capture/`, passed by `run.py` in a non-secret env variable that this plan names `BEAML_CAPTURE_DIR`) and `:probe_support, :service` to `"orders"`.
+- `config/config.exs` copies the OTel config of the 0002 umbrella: `resource_detectors`, `sampler: :always_on`, `processors: [{:otel_simple_processor, %{exporter: {ProbeSupport.Exporter, %{}}}}]`, `text_map_propagators: [:trace_context]`.
+- `probe_support` pins `plug_cowboy == 2.8.1`, `opentelemetry_api == 1.5.0`, `opentelemetry == 1.7.0`. The setup worker checks that `mix deps.get` resolves them with the Phoenix 1.8.5 deps and records the lock diff.
+- `lazy_html` (needed by `Phoenix.LiveViewTest` in 1.8) downloads a precompiled NIF at build. The setup worker records the download in the result directory: source URL and sha256 only.
+- → By: Fable · class Undo (setup lines); `BEAML_CAPTURE_DIR` and `:service` value · By: Opus (PLAN repair exp0005) · class Undo
+
+### Acceptance (replaces the README line)
+
+One `run.py` run passes N1 to N7, N7b, N8, N8b, N8c and N10 to N13 with exit 0 and retains its result directory. N9 is `blocked`, never `pass`.

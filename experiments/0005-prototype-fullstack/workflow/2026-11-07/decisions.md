@@ -141,3 +141,48 @@ Over: an `Int` field. Because: the String-to-Int coercion question of slice 6d s
 **P5-17 · Repair · 0005 RED starts after P1 to P5 are GREEN and TESTED; the host skeleton is setup.**
 Chose: the first behaviour RED is N2 on the missing `/orders/new` route. Over: a RED on `unsupported effect kind db.put`. Because: a prerequisite failure is not 0005 behaviour. Commits us to: 0005 waits for five steps.
 → By: Opus (PLAN exp0005)
+
+## Plan repair (after plan check), 2026-11-07
+
+**[Proposal]** Decisions of the repair of [plan-review.md](plan-review.md). Rulings by the main agent under DL-144 carry `By: Fable`. Earlier entries above stay.
+
+### Q5-10 · Migrate · big · STORED ROW value shape
+
+- **A.** The bare DL-105 projection of the TYPE in `value`; `type` = bare TYPE name; no `value_sha256`, no record core in the row.
+- **B.** The record format v3 core (DL-143) in the row: `value` holds the core with the projection under its `value` key, `value_sha256`, and the head keys. The columns `type` and `version` stay for the query.
+- **Default: B**, because DL-127 says a row is a record as in the JSONL store, and DL-143 wants one format for every stream. Big: a record format. Built in P4; pinned by N2. Needs P2.
+- → By: Fable (default, open)
+
+### Repair and Undo
+
+**P5-18 · Repair · P2 changes record keys only.**
+Chose: P2 builds the DL-143 core and extras; no failure struct as an input value (M8), the DL-124 block text keeps its line shape (M9). Over: P2 waits for D026. Because: P2 then decides neither parked item. Commits us to: a P2 worker that must change M8 or M9 stops and reports a blocker.
+→ By: Fable
+
+**P5-19 · Repair · N8b and N8c; every snapshot writes `snapshot-meta.json`.**
+Chose: a data-side control (delete `order-zero`, rebuild, exit 0) and a provenance check (snapshot ids and count equal a fresh `psql` query; query time and row count in the result directory). Over: the source-side control only. Because: a stale or wrong snapshot gave the same exit (O2). Commits us to: writes stay still between the snapshot and the `psql` read.
+→ By: Fable
+
+**P5-20 · Repair · N8c also covers N7 and N7b; N7 asserts its seeded row id is in the snapshot.**
+Over: N8 only. Because: N7 exit 0 is also true on an empty snapshot (O2 evidence).
+→ By: Opus (PLAN repair exp0005)
+
+**P5-21 · Repair · N7b: a submit under v2 writes a version-2 row; the list renders v1 and v2.**
+Chose: N7b and the `to_order` change in `order_v2.beaml` (`note: ""`). Over: lazy read only. Because: the `put` side of a version change was unproven (O3).
+→ By: Fable
+
+**P5-22 · Undo · A worker may run `db-up` and `db-down`.**
+Chose: worker step for the local trust-auth socket cluster. Over: OWNER step. Because: no secret exists; the OWNER step stopped a free run. P5-02 changes: the OWNER step stays only with a set `DATABASE_URL`.
+→ By: Fable
+
+**P5-23 · Undo · `unix_socket_permissions=0700` in `db-up`.**
+Over: the default mode 0777. Because: only the OWNER user reaches the trust socket.
+→ By: Opus (PLAN repair exp0005)
+
+**P5-24 · Undo · Host setup lines for `probe_support`.**
+Chose: `Capture` child and `ProbeSupport.setup/0` in `Proto.Application`; `:output` and `:service` in `runtime.exs`; the 0002 OTel config copied; the `lazy_html` NIF download recorded (source URL and sha256 only); the dep pins checked against Phoenix 1.8.5. Because: a path dep brings no umbrella config.
+→ By: Fable
+
+**P5-25 · Undo · Env variable name `BEAML_CAPTURE_DIR`, service `"orders"`.**
+Because: `run.py` passes the capture directory per run; the name holds no secret.
+→ By: Opus (PLAN repair exp0005)
