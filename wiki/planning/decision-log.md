@@ -587,6 +587,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: OWNER choice; a comparison that filters out the difference checks little. The README gets a clear cut: "LIB comparison up to slice 6b step 5; evidence retained".
 
+**DL-111 · Migrate · A field that becomes redacted is a new TYPE VERSION; `redact f` removes the stored values eagerly (Q6B-11, 1A + 2A)**
+→ Question: a field becomes `redacted` while stored RESPONSE RECORDS hold its value (in `value` for an output field, in `request` for an input field). Part 1: is `redacted` part of the TYPE VERSION? Part 2: what is the exit from the DL-102 block?
+→ Options: 1A, yes, a new TYPE VERSION like every rule change with hits; 1B, no, only the value check blocks. 2A, a MIGRATE CHANGE `redact f` whose deploy removes the value from the stored records and reports the count; 2B, no own change, only `retire` or `quarantine`.
+→ Chose: 1A and 2A. The deploy removes the values eagerly; the store is clean after the deploy. The input case follows the same rule through the value check in `request` (an input TYPE has no version in the record).
+→ By: 13ue
+→ Because: OWNER choice; with PII what counts is what lies in the store, and a keep window would leave the value there for weeks. This is also the first concrete answer to "lazy or eager": for redaction, eager.
+→ Open: the syntax `redact f` is a sketch; `quarantine` is a sketched fate (DL-102), no keyword exists yet.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
