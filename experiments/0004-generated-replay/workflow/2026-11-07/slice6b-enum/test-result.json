@@ -1,0 +1,21 @@
+{
+  "step": "slice6b-enum",
+  "phase": "test",
+  "date": "2026-11-07",
+  "head": "f74be40c",
+  "result": "pass",
+  "checks": [
+    {"name": "cargo fmt --check", "result": "pass"},
+    {"name": "cargo clippy --offline --all-targets -- -D warnings", "result": "pass"},
+    {"name": "cargo test --offline --no-fail-fast", "result": "pass", "counts": "16 unit, 14 CLI"},
+    {"name": "slice6_int_test.py", "result": "pass", "tests": 16},
+    {"name": "slice6_failure_test.py", "result": "pass", "tests": 22},
+    {"name": "slice6_constructor_test.py", "result": "pass", "tests": 25},
+    {"name": "slice6_enum_test.py", "result": "pass", "tests": 20, "note": "spec 19 plus G7"},
+    {"name": "experiments/0001-syntax-to-beam/run.py", "result": "pass", "run": "experiments/0001-syntax-to-beam/results/20261107T122342047917Z"},
+    {"name": "experiments/0004-generated-replay/run.py", "result": "pass", "run": "experiments/0004-generated-replay/results/20261107T122317702373Z"},
+    {"name": "scripts/lint_wiki.py", "result": "pass", "errors": 0}
+  ],
+  "not_run": ["slice6_pipe_test.py (step 5 RED, outside this step)"],
+  "log": "test-output.log"
+}
