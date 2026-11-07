@@ -170,11 +170,11 @@ Because: DL-136 and DL-138 give each stream a count line; never a value or id (D
 ### QDB-8 · Migrate · big · 0005 N7 and N7b under D6B-39
 
 - **[Verified] Evidence.** D6B-39 as built (main.rs HEAD lines 1593, 1605) bans any constructor or enum field in a TYPE with a MIGRATE CHAIN or a VERSION MARK. The 0005 `Order` holds `amount: Amount` and `channel: Channel`. The ruling premise "an `add` of a String field, which D6B-39 allows" holds only for a TYPE without such fields.
-- **Option A (default).** N7 and N7b are `blocked: D036 M4`, as N9 is blocked; `run.py` reports `blocked`, never `pass`. N8c then covers N8 and N8b only. P4 N5 and N20 prove the chain on read with a String-only ROW TYPE.
-- **Option B.** 0005 adds a String-only ROW TYPE with its own chain for N7 and N7b (a second db EFFECT pair and page). Challenge: more host code; the page then does not show the main `Order` domain under a chain.
+- **Option A.** N7 and N7b are `blocked: D036 M4`, as N9 is blocked; `run.py` reports `blocked`, never `pass`. N8c then covers N8 and N8b only. P4 N5 and N20 prove the chain on read with a String-only ROW TYPE.
+- **Option B (default, ruling).** 0005 adds the String-only ROW TYPE `Note { text: String }` with its own chain for N7 and N7b (a second db EFFECT pair and page). Detail: [Plan repair 2](#plan-repair-2-after-re-check-2026-11-07). Challenge: more host code; the page then does not show the main `Order` domain under a chain.
 - **Option C.** The OWNER opens D036 M4 now (M4 B: lift D6B-39 first). Then PDB-09 comes back as its first step.
-- **Why default A.** It decides no parked item and changes no domain (DL-144). The main agent or the OWNER chooses.
-- → By: Opus (PLAN repair P3/P4, default, open)
+- **Default B (ruling, 2026-11-07).** B keeps a thesis proof (a TYPE change travels from the source to a stored row) and decides no parked item (DL-144). It replaces the earlier default A ("it decides no parked item and changes no domain", By: Opus, PLAN repair P3/P4). Ruling in the [0005 decisions](../../../../0005-prototype-fullstack/workflow/2026-11-07/decisions.md#qdb-8-ruling-main-agent-2026-11-07).
+- → By: Fable (default, open); carried into this text by Opus (PLAN repair 2 P4)
 
 ### Undo and Repair
 
@@ -187,7 +187,7 @@ Because: rows are written on success only; such a row is a hand edit, as a bad d
 → By: Opus (PLAN repair P3/P4)
 
 **PDB-27 · Repair · The fixture gets the ENTRY LINE `ui.orders`, so the module is `Orders` (Q6E-1 C).**
-Over: `BeamlSpike` in the tests. Because: the 0005 host calls `Orders`; the fixture then has the 0005 shape. Commits us to: the RED worker probes the empty input TYPE entry once.
+Over: `BeamlSpike` in the tests. Because: the 0005 host calls `Orders`; the fixture then has the 0005 shape. Commits us to: the RED worker probes the empty input TYPE entry once. **[Verified]** 2026-11-07: the plan re-check probe built an ENTRY LINE with `type OrderQuery {}` at HEAD 56b705df, exit 0; no RED probe needed ([Plan repair 2](#plan-repair-2-after-re-check-2026-11-07)).
 → By: Fable (ruling O1 under DL-144)
 
 **PDB-28 · Undo · Variants in their own directories as `orders.beaml` (D6B-210).**
@@ -215,3 +215,26 @@ Because: PDB-18 commits the reader to indexed names; N25 tests only a constructo
 → By: Opus (PLAN repair P3/P4)
 
 **PDB-18 and PDB-24 are big** (record format), flagged in the 0005 owner review. → By: Fable (ruling under DL-144)
+
+## Plan repair 2 (after re-check), 2026-11-07
+
+**[Proposal]** Decisions of the second PLAN repair after the [re-check](plan-review.md#re-check-after-plan-repair). Plan text: [plan.md](plan.md#plan-repair-2-after-re-check-2026-11-07).
+
+**QDB-8 · Migrate · big · default B (ruling).** The text of QDB-8 above now says B: 0005 N7 and N7b run on the String-only ROW TYPE `Note { text: String }` v1 → v2 (`add tag: String = ""`). Open for the OWNER; listed in "## Big" of the 0005 owner review.
+→ By: Fable (default, open)
+
+**PDB-34 · Repair · N20b: two ROW TYPES in one `rows.jsonl`, each decoded by its own TYPE.**
+Chose: fixture `slice6/db/two_rows/orders.beaml` (`Order` without a chain, `Note` v2 with a chain), rows of both TYPES; exit 0 with `rows: 3 rows, 3 checked, 0 not decodable`. Control: a `Note` row under the `Order` TYPE exits 1 with the `stored ROW` path text naming `Order`. Over: no P4 case (N21 tests only an undeclared TYPE). Because: QDB-8 B rests on it; a reader that drops the second TYPE gives a false pass on 0005 N7. Commits us to: one more fixture directory and one RED case.
+→ By: Fable (ruling R1); fixture shape and the field name `tag` → By: Opus (PLAN repair 2 P4)
+
+**PDB-35 · Undo · N20b keeps a second control: a `Note` row with a fingerprint on no `Note` chain version exits 1 naming `Note`.**
+Because: the ruled control shows the TYPE name is read; this one shows `Note` rows reach the path check (the re-check R1 control).
+→ By: Opus (PLAN repair 2 P4)
+
+**PDB-36 · Repair · N18 compares the help line as a prefix up to the DL reference (changes PDB-32).**
+Over: word-for-word pin of the built help line. Because: an M4 text change then touches one test constant (re-check R2). Commits us to: one text pin site stays; M4 is not decided.
+→ By: Fable (ruling R2)
+
+**PDB-27 · [Verified]** (see PDB-27 above): the empty input TYPE `OrderQuery {}` builds at HEAD 56b705df. → By: Fable · Undo
+
+**R3 · Repair.** QDB-6b, QDB-8, PDB-18, PDB-24 moved into "## Big" of the 0005 owner review; Q5-8 corrected to `put/3`. → By: Fable

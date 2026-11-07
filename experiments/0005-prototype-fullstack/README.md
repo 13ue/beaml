@@ -63,6 +63,8 @@ By: Opus (PLAN exp0005) for every proposal on this page.
 
 **[Proposal]** One `run.py` run passes N1 to N7, N7b, N8, N8b, N8c and N10 to N13 with exit 0 and retains its result directory. N9 is reported as `blocked` with the reason, never as `pass`. Details: [plan.md](workflow/2026-11-07/plan.md#n-tests).
 
+2026-11-07 (plan repair 2, QDB-8 B): N7 and N7b stay in this line. They run on the String-only ROW TYPE `Note` (v1 → v2 `add tag`), not on `Order`, which has no chain under the built D6B-39. Details: [plan repair 2](workflow/2026-11-07/plan.md#plan-repair-2-after-re-check-2026-11-07). → By: Fable · Repair
+
 ## Repeatable command
 
 ```

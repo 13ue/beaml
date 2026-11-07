@@ -315,3 +315,58 @@ effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> li
 - Limit: the list-item literal check rests on N25b only; a list of more than one item with a lost literal in item 1 is not tested. → By: Opus (PLAN repair P3/P4)
 - **M-b (stale put/4).** The 0005 plan gets a dated correction line: `BeamlDb.put/3` (QDB-2, with the JSON binary of O2). Q5-8 reads as put/3. → By: Fable · Repair
 - PDB-18 (`items.<i>.<field>`) and PDB-24 (`rows: N rows, K checked, M not decodable`) are big (record format) and are listed in the 0005 owner review. → By: Fable · Repair
+
+## Plan repair 2 (after re-check), 2026-11-07
+
+**[Proposal]** Second PLAN repair after the [re-check](plan-review.md#re-check-after-plan-repair) BLOCK (R1 high; R2, R3 medium). This section overrides the sections above where they differ. Decisions: [decisions.md](decisions.md#plan-repair-2-after-re-check-2026-11-07).
+By: Fable (main agent, rulings) for the R1 to R3 fixes and PDB-27; Opus (PLAN repair 2 P4) for the details marked so.
+
+### R1: QDB-8 B, two ROW TYPES in one table
+
+- **QDB-8 default B.** The 0005 chained read over rows (N7, N7b) runs on a second, String-only ROW TYPE `Note { text: String }` (v1) → v2 with `add tag: String = ""`. `Order` keeps `Amount` and `Channel` and has no chain. The QDB-8 text in decisions.md now says B. → By: Fable · Repair
+- **P4 fact that B needs.** One source with two ROW TYPES (`Order` without a chain, `Note` with a chain), one `records` table, one `rows.jsonl`, one `--stored` build. Each row is decoded and checked by the TYPE that its `type.name` names. No case above tests this: N21 counts a row of an undeclared TYPE (`Invoice`) as not decodable; a reader that drops the rows of a second declared TYPE would pass N17 to N21.
+- **Fixture `slice6/db/two_rows/orders.beaml`** (PDB-28 directory rule). The `orders.beaml` fixture (ENTRY LINE `ui.orders`, module `Orders`) plus: → By: Opus (PLAN repair 2 P4) · Undo
+
+```
+type Note v2 { text: String tag: String }
+migrate Note v1 -> v2 { add tag: String = "" }
+type NoteQuery {}
+type NoteList { items: [Note] }
+effect notes.save Note -> Note ! StoreError = db.put("records")
+effect notes.list NoteQuery -> NoteList ! StoreError = db.list("records")
+fn save_note n: Note -> Note ! StoreError = n |> notes.save
+fn list_notes q: NoteQuery -> NoteList ! StoreError = q |> notes.list
+```
+
+- The v1/v2 form follows `plain_v2/` (N5, N20). D6B-39 allows the `Note` chain (String fields only).
+- **N20b (two ROW TYPES in one table, RED).** `rows.jsonl` with three ROW CORES, built by the test with its own digest and fingerprint code: one `Order` v1 row (the `wire1` value), one `Note` v1 row (`fields [text]`), one `Note` v2 row (`fields [text, tag]`). Under `two_rows/`: exit 0; stderr has `rows: 3 rows, 3 checked, 0 not decodable`. The `3 checked` fails a reader that drops or skips the `Note` rows.
+  - **Control (must fail): a `Note` row under the `Order` TYPE.** A row with `type.name "Order"` and the `Note` v1 fields and fingerprint: exit 1; stderr has the path text with `stored ROW` and the TYPE name `Order`. It fails a reader that checks every row against one TYPE or ignores `type.name`. → By: Fable · Repair
+  - **Control (must fail): a `Note` row off its chain.** A `Note` row with a fingerprint on no `Note` chain version: exit 1; stderr has the path text with `stored ROW` and the TYPE name `Note`. It fails a reader that counts `Note` rows without the path check. → By: Opus (PLAN repair 2 P4) · Undo (the re-check R1 control, kept beside the ruled one)
+  - N26 (DL-124) covers N20b: stderr holds no `text` value, no row id and no `trace_id` of the fixture.
+- **Limit.** N20b uses the fake rows file only. The live proof (`Note` rows written through the page, read under v2 beside `Order` rows) is 0005 N7 and N7b.
+
+### R2: N18 compares the help line as a prefix
+
+- **N18 (changed again).** The help line is compared as a prefix up to the DL reference, not word for word: stderr holds a line that starts with `  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order`. The DL reference and any text after it are not compared. The prefix stands in one test constant, so an M4 text change touches that one place in N18. → By: Fable · Repair
+- Note: this is still a text pin on the built help (one site). The 0005 N8 keeps no help assertion (M4). M4 is not decided.
+
+### R3: big items in the owner review
+
+- QDB-6b, QDB-8, PDB-18 and PDB-24 have their own lines in "## Big" of the [0005 owner review](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md#big-syntax-record-format-or-host-called-name); their lines under "Database transports (P4)" are pointers. The Q5-8 line reads `BeamlDb.put/3`. → By: Fable · Repair
+
+### PDB-27 verified
+
+- **[Verified]** An ENTRY LINE with the empty input TYPE `OrderQuery {}` builds at HEAD 56b705df (re-check probe, exit 0; `__beaml_decode_orderquery("{}")` gives `{:ok, %{}, []}`). The **[Unknown]** in "Module (P5, Q6E-1 C)" above is closed; the RED worker needs no probe. Limit: the probe used a String output TYPE and the module `BeamlSpike`. → By: Fable · Undo
+
+### Decisions
+
+**Repair**
+→ QDB-8 B in the P4 text statt A, weil Fable ruled B. → By: Fable · Repair
+→ N20b with the `Note`-under-`Order` control statt no P4 case, weil B needs two ROW TYPES in one table. → By: Fable · Repair
+→ N18 prefix statt word for word, weil an M4 change then touches one place. → By: Fable · Repair
+→ Four big items in "## Big" statt only in the P4 section. → By: Fable · Repair
+
+**Undo**
+→ PDB-27 [Verified] from the re-check probe. → By: Fable · Undo
+→ Fixture `two_rows/` with `tag` as the v2 field. → By: Opus (PLAN repair 2 P4) · Undo
+→ Second N20b control (off-chain `Note` row) kept. → By: Opus (PLAN repair 2 P4) · Undo

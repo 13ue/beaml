@@ -8,11 +8,16 @@ By: Opus (PLAN exp0005, default, open) for every line.
 - **Q5-3** List TYPE: A `items: [Order]` field form · B `list OrderList of Order` keyword. Default A.
 - **Q5-6** Module name: A from file stem (`Orders`) · B `module Orders` line. Default A.
 - **Q5-9** List page load: A second ENTRY LINE `ui.orders`, called from `mount` · B new `ui.mount("orders")` transport. Default A.
-- **Q5-8** Host DB module: A fixed `BeamlDb.put/4, list/3, get/3` · B configured module with a behaviour. Default A.
+- **Q5-8** Host DB module: A fixed `BeamlDb.put/3, list/3, get/3` (`put(table, {type, version}, json)`, QDB-2) · B configured module with a behaviour. Default A. Corrected from put/4 on 2026-11-07 (plan re-check R3). → By: Fable · Repair
 - **Q5-4** `--stored` over Postgres: A compiler runs `psql` (`--stored-db`) · B host task `mix beaml.stored` writes a row snapshot. Default B.
 - **Q5-7** Capture streams: A JSONL files per run · B rows in the `records` table. Default A.
 - **Q5-10** STORED ROW value shape: A bare projection in `value` · B record format v3 core in the row. Default B (DL-127, DL-143). By: Fable (default, open).
 - **Q5-1** `db.get` key: A row `id` · B a TYPE field (`order_id`). Default B, not built in 0005.
+- **QDB-6b** (P4) A failed db call is a rejected record with its reason. Challenge: http writes no record on a transport failure. Default yes. [Detail](../../../0004-generated-replay/workflow/2026-11-07/db-transport/decisions.md#qdb-6b--migrate--big--a-failed-db-call-is-a-rejected-record-with-its-reason). → By: Fable (default, open)
+- **QDB-8** (P4, 0005) The chained read over rows (N7/N7b) under the built D6B-39: A block N7/N7b on M4 · B a String-only ROW TYPE `Note { text: String }` with its own chain · C open M4 now. Default B. [Detail](../../../0004-generated-replay/workflow/2026-11-07/db-transport/decisions.md#qdb-8--migrate--big--0005-n7-and-n7b-under-d6b-39). → By: Fable (default, open)
+- **PDB-18** (P4) `unknown_fields` of a `db.list` record: `items.<i>.<field>`. [Detail](../../../0004-generated-replay/workflow/2026-11-07/db-transport/decisions.md#undo-and-repair-decisions). → By: Fable (flag)
+- **PDB-24** (P4) rows count line `rows: N rows, K checked, M not decodable`. [Detail](../../../0004-generated-replay/workflow/2026-11-07/db-transport/decisions.md#undo-and-repair-decisions). → By: Fable (flag)
+- The four P4 lines above moved here from "Database transports (P4)" on 2026-11-07 (plan re-check R3); pointers stay there. → By: Fable · Repair
 
 ## Other
 
@@ -83,16 +88,22 @@ Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/
 **After the plan check** ([plan repair](../../../0004-generated-replay/workflow/2026-11-07/db-transport/plan.md#plan-repair-after-plan-check-2026-11-07)), 2026-11-07
 
 - **QDB-6** withdrawn. The P2 words `accepted` / `rejected` hold; reasons `transport`, `decode`, `constructor`, `not_found`. → By: Fable · Repair
-- **QDB-6b** (big) A failed db call is a rejected record with its reason. Challenge: http writes no record on a transport failure. Default yes. → By: Fable (default, open)
+- **QDB-6b** (big): see "## Big" above.
 - **QDB-2** (big) now `put(table, {type, version}, json)`: the generated code encodes the core with OTP `:json`; `get`/`list` return JSON binaries. Q5-8 reads put/3. → By: Fable · Repair
-- **PDB-18** (big) `unknown_fields` of a `db.list` record: `items.<i>.<field>`. → By: Fable (flag)
-- **PDB-24** (big) rows count line `rows: N rows, K checked, M not decodable`. → By: Fable (flag)
-- **QDB-8** (big) 0005 N7/N7b vs D6B-39: A blocked by D036 M4 (default) · B String-only ROW TYPE for N7 · C open M4 now. → By: Opus (PLAN repair P3/P4, default, open)
+- **PDB-18** (big): see "## Big" above.
+- **PDB-24** (big): see "## Big" above.
+- **QDB-8** (big): default B, see "## Big" above. The earlier default A (By: Opus, PLAN repair P3/P4) is replaced by the ruling B (By: Fable).
 
 **Parked items touched, not decided (P4)**
 
-- **M4** (D036): PDB-09 withdrawn; D6B-39 holds for ROW TYPES; N18 pins today's help text, no new wording. 0005 N7/N7b wait on M4 under QDB-8 A. → By: Fable · Repair
+- **M4** (D036): PDB-09 withdrawn; D6B-39 holds for ROW TYPES; N18 pins today's help text, no new wording. 0005 N7/N7b run on the String-only ROW TYPE `Note` under QDB-8 B; the real `Order` chain waits on M4. → By: Fable · Repair
 
 ## First question tomorrow: M4 (D036)
 
 - **QDB-8** (big): the chained read over rows (N7/N7b) runs on a String-only ROW TYPE because the built D6B-39 bans constructor and enum fields in a chained TYPE. The real `Order` chain waits on M4 (help text vs lifting D6B-39). Default B, By: Fable (default, open). Options: A block N7/N7b on M4 · B String-only ROW TYPE · C answer M4 now.
+
+## Slice 6d built defaults
+
+- **G6D-04** A pure ENTRY LINE target in a source with an outbound EFFECT writes no ENTRY RECORD and has no `Replay.entry`. UI events of that target reach no `--stored` check and no REPLAY RUN. Challenge (TEST O2): the D6B-136 reason (no `Replay` module) does not hold there. → By: Opus (GREEN slice6d, default, open) · Repair (raised from Undo by TEST O2, Fable)
+- **G6D-03** The ENTRY RECORD `type` key lists the fields in source order; a RESPONSE RECORD sorts them. The fingerprint sorts in both. → By: Opus (GREEN slice6d, default, open) · Repair
+- **G6D-12** The input TYPE needs a keep-value variant for a literal enum field and `name: String` constructor signatures, with the outbound texts in the `effect <op>:` form. No test pins it. → By: Opus (GREEN slice6d, default, open) · Undo

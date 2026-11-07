@@ -239,5 +239,60 @@ One `run.py` run passes N1 to N7, N7b, N8, N8b, N8c and N10 to N13 with exit 0 a
 - **N2c (new, after N2).** For the one row: `jsonb_typeof(value->'reason') = 'null'`. → By: Fable · Repair
 - **N3 db record.** `outcome: "accepted"`, `reason: null` (P2 words); a failed db call is `rejected` with its reason (QDB-6b, big, open). → By: Fable · Repair
 - **N7 and N7b, ruling.** The v2 `Order` is a MIGRATE CHAIN `add` of a String field with a default; the stricter `Amount` stays only for N8 (a block, no chain). PDB-09 is withdrawn. → By: Fable · Repair
-- **N7 and N7b, finding.** **[Verified]** D6B-39 as built (main.rs HEAD lines 1593, 1605) bans any constructor or enum field in a TYPE with a MIGRATE CHAIN. The 0005 `Order` holds `Amount` and `Channel`, so `order_v2/orders.beaml` is a compile error. Default (QDB-8 A): N7 and N7b are `blocked: D036 M4`, as N9 is; N8c covers N8 and N8b only; the acceptance line drops N7 and N7b to `blocked`. Options B (a String-only ROW TYPE for N7) and C (open M4 now) in the [P4 decisions](../../../0004-generated-replay/workflow/2026-11-07/db-transport/decisions.md#qdb-8--migrate--big--0005-n7-and-n7b-under-d6b-39). → By: Opus (PLAN repair P3/P4, default, open) · Migrate
+- **N7 and N7b, finding.** **[Verified]** D6B-39 as built (main.rs HEAD lines 1593, 1605) bans any constructor or enum field in a TYPE with a MIGRATE CHAIN. The 0005 `Order` holds `Amount` and `Channel`, so `order_v2/orders.beaml` is a compile error. Default (QDB-8 A): N7 and N7b are `blocked: D036 M4`, as N9 is; N8c covers N8 and N8b only; the acceptance line drops N7 and N7b to `blocked`. Options B (a String-only ROW TYPE for N7) and C (open M4 now) in the [P4 decisions](../../../0004-generated-replay/workflow/2026-11-07/db-transport/decisions.md#qdb-8--migrate--big--0005-n7-and-n7b-under-d6b-39). → By: Opus (PLAN repair P3/P4, default, open) · Migrate **Replaced by QDB-8 B** in [Plan repair 2](#plan-repair-2-after-re-check-2026-11-07) (By: Fable).
 - **N8 help line.** Unchanged: no assertion on the help line (M4).
+
+## Plan repair 2 (after re-check), 2026-11-07
+
+**[Proposal]** Dated correction after the P4 [re-check](../../../0004-generated-replay/workflow/2026-11-07/db-transport/plan-review.md#re-check-after-plan-repair) BLOCK (R1). It replaces the line "N7 and N7b, finding ... Default (QDB-8 A)" above. The text above stays; these lines win where the two differ. P4 ledger: [Plan repair 2](../../../0004-generated-replay/workflow/2026-11-07/db-transport/plan.md#plan-repair-2-after-re-check-2026-11-07).
+
+### QDB-8 B: N7 and N7b on the ROW TYPE `Note`
+
+→ By: Fable (QDB-8 ruling, default, open) · Repair. `Order` keeps `Amount` and `Channel`, has no chain and stays for N2 to N5, N8 and N8b.
+
+**Source additions** to `src/orders.beaml` (v1):
+
+```
+type NoteForm { text: String }
+type Note { text: String }
+type NoteQuery {}
+type NoteList { items: [Note] }
+
+effect notes.save Note -> Note ! StoreError = db.put("records")
+effect notes.list NoteQuery -> NoteList ! StoreError = db.list("records")
+
+effect ui.note NoteForm -> Note ! StoreError = ui.event("note") |> save_note
+effect ui.notes NoteQuery -> NoteList ! StoreError = ui.event("notes") |> list_notes
+
+fn to_note NoteForm { text } -> Note = Note { text: text }
+fn save_note f: NoteForm -> Note ! StoreError = f |> to_note |> notes.save
+fn list_notes q: NoteQuery -> NoteList ! StoreError = q |> notes.list
+```
+
+- **Variant `src/variants/note_v2/orders.beaml`.** `orders.beaml` with `type Note v2 { text: String tag: String }`, `migrate Note v1 -> v2 { add tag: String = "" }` and `fn to_note NoteForm { text } -> Note = Note { text: text, tag: "" }`. D6B-39 allows this chain (String fields only). It replaces `src/variants/order_v2/` in 0005; P4 keeps an `order_v2/` fixture as a reject case (N12). The variants `stricter/` and `no_place/` hold the `Note` lines unchanged.
+- **Host.** A LiveView `NoteLive` at `live "/notes", NoteLive`: a small form `#note` with `text`, whose `handle_event("note", params, socket)` calls `Orders.ui_note(params["note"])`, and a list part that `mount` fills with `Orders.ui_notes(%{})` (each note's `text`, and `tag` when the field is present). The action log (P5-13) gets `action` `note` and `notes`. Results map as on the order pages.
+- **N1** also asserts `def ui_note(` and `def ui_notes(`.
+
+**N-tests (replace N7 and N7b above):**
+
+- **N7 (MIGRATE CHAIN on read, `Note`).** Under `orders.beaml` (v1), submit `note-1` through `/notes`: one row `type = "Note"`, `version = 1`. Generate from `variants/note_v2/orders.beaml`. `--stored` over the live table exits 0; its rows count line counts the `Note` row and the `Order` rows of N2 to N6 as checked, 0 not decodable (two ROW TYPES in one table, P4 N20b). `/notes` lists `note-1` with `tag` `""`. The row in the table still has `version = 1` (lazy, on read). N8c: the snapshot holds the `note-1` row id before the exit-0 check.
+- **N7b (v2 write, mixed list).** Under `note_v2`, submit `note-2` through `/notes`. One new row has `type = "Note"`, `version = 2` and `value.tag = ""`. `/notes` lists `note-1` (v1, read through the chain) and `note-2` (v2) together. A second `--stored` over the live table exits 0.
+- **N8c** covers the snapshots of N7 and N7b again (with N8 and N8b).
+- **N11** (no DDL) holds across N7, N7b and N8.
+
+### Acceptance (replaces the acceptance lines above)
+
+One `run.py` run passes N1 to N7, N7b, N8, N8b, N8c and N10 to N13 with exit 0 and retains its result directory. N7 and N7b run on `Note`, not on `Order`. N9 is `blocked`, never `pass`.
+
+### Decisions
+
+**Repair**
+→ N7/N7b on `Note` statt `blocked: D036 M4`, weil Fable ruled QDB-8 B. → By: Fable · Repair
+→ N7/N7b back in the acceptance line. → By: Fable · Repair
+
+**Undo**
+→ Second ENTRY LINE `ui.notes` for the list part statt none, weil the host calls only ENTRY LINES. → By: Opus (PLAN repair 2 P4) · Undo
+→ `NoteForm` as the input TYPE statt `Note`, weil `Order` uses `PlaceForm` too. → By: Opus (PLAN repair 2 P4) · Undo
+→ `! StoreError` on `notes.list` statt none, weil P4 checks a failure TYPE per db EFFECT. → By: Opus (PLAN repair 2 P4) · Undo
+→ v2 field name `tag`, route `/notes`, `note_v2` replaces `order_v2` in 0005. → By: Opus (PLAN repair 2 P4) · Undo
+→ `note-1` written through the page under v1 statt an SQL seed. → By: Opus (PLAN repair 2 P4) · Undo
