@@ -1,0 +1,3 @@
+
+19:17:00.941 [info] Exporter ProbeSupport.Exporter successfully initialized
+REPLAY {"result":{"ok":{"k_facxcb":"order-1","v385077163732":"pending","x_lupvfn":"r-5"}},"unwatched":["{OrdersBeamlSpike, :payments_authorize, 1}"],"calls":{":gen_tcp.connect/4":0,":json.decode/1":1,"OrdersApi.Router.call/2":0,"OrdersBeamlSpike.finish/1":1,"OrdersBeamlSpike.payments_authorize/1":"nil","OrdersBeamlSpike.payments_oqhicyoe/1":0,"OrdersBeamlSpike.prepare/1":1,"ProbeSupport.valid_payment!/2":0},"transport":0,"artifact":"7a44d410853b1cd6baf92021224ed9f20944e29c3b5c6af84d657a73a8b9b1e5"}
