@@ -725,6 +725,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: it makes the vertical line complete: the first thing the PROTOTYPE shows is where the ins and the outs are. It closes the inward view of D018 (every live function is reachable from a declaration) and the D6B-127 follow-up (a declared entry gives the root span). a would leave the entry in the host, the one place the PROTOTYPE should show.
 → Effect: a new slice before EXPERIMENT 0005 (inbound EFFECT declaration: grammar, decode of params through DL-101, root span, failure TYPE to the caller, REPLAY RUN of an inbound event; plan with RED/GREEN as usual). The HTTP request entry follows the same form later. Roadmap part 6 candidate "entry points declared" moves from concept to decided.
 
+**DL-129 · Migrate · Prototype: Postgres is reached through three fixed transports, `db.put`, `db.get`, `db.list` (option T)**
+→ Question: with one JSONB table that BEAML owns (DL-127), how does BEAML read and write it?
+→ Options: T, three fixed transports on ordinary `effect` lines (`effect orders.save Order -> Order = db.put("records")`, `effect orders.load OrderId -> Order ! NotFound = db.get("records")`, `effect orders.list Query -> Orders = db.list("records")`), the host implements one module with these three functions once, no Ecto schema; S, a generic `db.query` with SQL text in the source.
+→ Chose: T.
+→ By: 13ue
+→ Because: input and output of every database call are TYPES, so the type check, spans, RESPONSE RECORDS, REPLAY RUN and `--stored` apply as for any EFFECT. `Query` is a BEAML TYPE, not a query language: a new filter is a field, and a TYPE change runs through `migrate`. S would put column names into a String that no check sees and would break the vertical line at the database. S can come later as a fourth transport when a real case needs it.
+→ Effect: EXPERIMENT 0005 host module (`BeamlDb` or a better name) with `put`, `get`, `list`; one Ecto migration for the table; the compiler needs the three transport names (a small slice or part of 0005 setup: transport names are strings today, so `db.put` may already parse; the RED decides). Open for 0005: the `get` key (id field of the TYPE), `list` order and limit, a `List` TYPE for `Orders`.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
