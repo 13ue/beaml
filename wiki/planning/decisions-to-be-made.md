@@ -160,6 +160,28 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Next check: compile and run the `indirect` probe under each option. Count the spans.
 
+## D007 — Removed or changed ENUM LITERAL in stored records (Q6B-8)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** EXECUTION, DL-102, DL-103
+- **Decision trigger** Before a deploy removes an ENUM LITERAL or changes its String.
+
+**[Inference]** When an ENUM LITERAL is removed, or its String changes, old stored records replay as the KEEP-VALUE VARIANT `Unknown`. Example: remove `Pending = "pending"`, and a stored `"pending"` replays as `Unknown("pending")`. DL-102 does not fire, so the build does not fail. DL-103 covers only `Unknown` to known, so no count occurs. Today a deploy changes the replay result with no block and no count. [RED review, N1](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-decode-literals/red-review.md)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| A, block | Treat it as a hit under DL-102. Block until a MIGRATE STEP. | Safe. In slice 6b no MIGRATE STEP is possible for this TYPE (D6B-39). |
+| B, count | Count and report the records. Do not block. | Visible. The replay result still changes. |
+| C, no check | The `Unknown` promise covers it. | No work. The change stays silent. |
+
+**[Unknown]** No fixture has a stored value whose literal is removed.
+
+**[Proposal]** Next check: a fixture with a stored value whose literal is removed, run with `--stored`. Record the exit and the stderr.
+
 ## Answered 2026-11-07
 
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.
