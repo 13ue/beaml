@@ -312,7 +312,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D014 — Form of `T.new` for several parameters or signatures (Q6B-16)
 
-- **Status** OPEN
+- **Status** CLOSED by [DL-117](decision-log.md): B with atom keys, `T.new/1` takes one map with atom keys, also for one parameter.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** LANGUAGE/COMPILATION, host call boundary, DL-106
@@ -405,4 +405,5 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - [DL-101](decision-log.md): Q6B-3, the decode of outside data calls the record constructor.
 - [DL-102](decision-log.md): replay rule, a stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate.
 - [DL-103](decision-log.md): replay rule, a mapping change that only resolves Unknown values needs no MIGRATE STEP.
+- [DL-117](decision-log.md): Q6B-16, `T.new/1` takes one map with atom keys, also for one parameter.
 - [DL-104](decision-log.md): Q6B-5, `beaml fmt` never changes the TYPE VERSION.

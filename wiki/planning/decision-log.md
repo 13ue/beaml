@@ -630,6 +630,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: OWNER choice, in line with every earlier choice: a loud compile error over a silent gap. Lifted when a rule over an absent value is defined.
 
+**DL-117 · Migrate · `T.new/1` takes one map with atom keys, also for one parameter (Q6B-16, B with atom keys)**
+→ Question: DL-106 names `new/1`. A record constructor can have several parameters and several signatures. Which form does the host call take?
+→ Options: A, positional `T.new/n`, the arity picks the signature; B, one map with String keys as in the decode form (DL-099); B with atom keys, one map `%{cents: 500}`, the keys pick the signature; C, a keyword list.
+→ Chose: B with atom keys. Every constructor TYPE gets `T.new/1` with one map, also a one-parameter TYPE: `NonZeroInt.new(%{n: 3})`, not `NonZeroInt.new(3)`. The keys are the parameter names of a signature; the first signature whose keys match runs. A map with String keys matches no signature and fails with a help line: keys must be atoms; outside data goes through the EFFECT decode.
+→ By: 13ue
+→ Because: generated code stays regular: one form, one map, one pattern match per signature, no conversion. The input map reads like the result struct without its tag (DL-106). The String-key decode form never reaches `new/1`: outside data runs through the EFFECT decode. A naked one-parameter call would be a second form.
+→ Effect: step 11 (host structs) generates `new/1` with atom-key maps; the DL-106 example `NonZeroInt.new(3)` becomes `NonZeroInt.new(%{n: 3})`. Closes D014.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
