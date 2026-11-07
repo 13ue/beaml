@@ -580,6 +580,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: Fable (class and choice; the step 7 review asked for the register entry), built by Opus (GREEN, slice6b-decode-literals).
 → Because: Repair, not Migrate: the record format is the compiler's own and pre-production, and the key holds no value. Reversible until the first production store.
 
+**DL-110 · Migrate · The GEN against LIB arm comparison ends before the projection records (Q6B-10, B)**
+→ Question: DL-105 removes the raw body from every GEN RESPONSE RECORD; the frozen LIB arm of experiment 0003 keeps it. The byte lines of the arm comparison (body length, digest, body tamper) lose their meaning.
+→ Options: A, rewrite the GEN copies with projection rows, LIB stays raw; B, the arm comparison ends with slice 6b step 6a, slice 1 to 5 results stay retained evidence, the 0003 copy run and the overlay diff leave the check list; C, LIB stays frozen, byte lines become not applicable, compare outcomes and counts only.
+→ Chose: B. The LIB arm had one job: show that generated code does what the hand-written library does. That is shown through slice 5. From 6a on GEN does something different on purpose.
+→ By: 13ue
+→ Because: OWNER choice; a comparison that filters out the difference checks little. The README gets a clear cut: "LIB comparison up to slice 6b step 5; evidence retained".
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
