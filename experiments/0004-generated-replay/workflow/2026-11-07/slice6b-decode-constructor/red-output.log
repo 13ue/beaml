@@ -1,0 +1,201 @@
+# Slice 6b step 8 RED run, 2026-11-07
+# Command (repository root): BEAML_SPIKE=<scratch>/basecd37/experiments/0001-syntax-to-beam/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py
+# Baseline: commit cd379ff0, git archive + cargo build --offline. Exit 1.
+
+compiler: <scratch>/basecd37/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+FFFFFF
+======================================================================
+FAIL: test_last_clause_does_not_keep_the_value (__main__.Slice6DecodeCtor.test_last_clause_does_not_keep_the_value)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py", line 168, in test_last_clause_does_not_keep_the_value
+    self.assert_rejected(DROPS, (
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+        "error: effect payments.authorize: the last clause of signature 1 of constructor PaymentState (field "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "Payment.state) keeps no String input in the keep-value variant Unknown (DL-065, D6B-50)\n"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "  help: bind every input in the last clause and put one String input into Unknown, for example "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "fn PaymentState other, _ -> PaymentState = Unknown(other)"), EMPTY)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 138, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[37 chars] the last clause of signature 1 of constructor[259 chars]er)') != (1, '[37 chars] the TYPE PaymentState has a constructor and c[163 chars]ate')
+
+First differing element 2:
+'erro[29 chars] the last clause of signature 1 of constructor[258 chars]her)'
+'erro[29 chars] the TYPE PaymentState has a constructor and c[162 chars]tate'
+
+  (1,
+   '',
++  'error: effect payments.authorize: the TYPE PaymentState has a constructor '
++  'and cannot stand in an EFFECT output field Payment.state (interim D6B-19, '
++  'Q6B-3)\n'
++  '  help: use a TYPE without a constructor at the EFFECT, then pipe it into fn '
++  'PaymentState')
+-  'error: effect payments.authorize: the last clause of signature 1 of '
+-  'constructor PaymentState (field Payment.state) keeps no String input in the '
+-  'keep-value variant Unknown (DL-065, D6B-50)\n'
+-  '  help: bind every input in the last clause and put one String input into '
+-  'Unknown, for example fn PaymentState other, _ -> PaymentState = '
+-  'Unknown(other)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_runtime_live_decode (__main__.Slice6DecodeCtor.test_runtime_live_decode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py", line 145, in test_runtime_live_decode
+    self.run_runtime(LIVE_CASES)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py", line 121, in run_runtime
+    stdout, _ = self.build(STORED)
+                ~~~~~~~~~~^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 132, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: effect payments.authorize: slice 1 decodes String fields only, not Payment.state
+
+
+======================================================================
+FAIL: test_runtime_replay (__main__.Slice6DecodeCtor.test_runtime_replay)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py", line 148, in test_runtime_replay
+    self.run_runtime(REPLAY_CASES)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py", line 121, in run_runtime
+    stdout, _ = self.build(STORED)
+                ~~~~~~~~~~^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 132, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: effect payments.authorize: slice 1 decodes String fields only, not Payment.state
+
+
+======================================================================
+FAIL: test_stored_record_fails_the_record_constructor (__main__.Slice6DecodeCtor.test_stored_record_fails_the_record_constructor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py", line 154, in test_stored_record_fails_the_record_constructor
+    self.assert_rejected(ORDERS, (
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+        "error: TYPE Payment: 2 stored RESPONSE RECORDS of operation payments.authorize fail the constructor of "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "Amount for field amount with NoCurrency\n"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "  record source: %s:2 (line 2)\n" + HELP_MIGRATE) % FAIL, ["--stored", str(FAIL)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 138, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Payment: 2 stored RESPONSE RECORDS o[324 chars]02)') != (1, '', 'error: effect payments.authorize: the TYPE Payme[194 chars]ate')
+
+First differing element 2:
+'error: TYPE Payment: 2 stored RESPONSE RECORDS o[323 chars]102)'
+'error: effect payments.authorize: the TYPE Payme[193 chars]tate'
+
+  (1,
+   '',
++  'error: effect payments.authorize: the TYPE PaymentState has a constructor '
++  'and cannot stand in an EFFECT output field Payment.state (interim D6B-19, '
++  'Q6B-3)\n'
++  '  help: use a TYPE without a constructor at the EFFECT, then pipe it into fn '
++  'PaymentState')
+-  'error: TYPE Payment: 2 stored RESPONSE RECORDS of operation '
+-  'payments.authorize fail the constructor of Amount for field amount with '
+-  'NoCurrency\n'
+-  '  record source: '
+-  '/Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/decode-ctor/stored-fail.jsonl:2 '
+-  '(line 2)\n'
+-  '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
+-  'VERSION of Payment (DL-102)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_stored_record_matches_no_signature (__main__.Slice6DecodeCtor.test_stored_record_matches_no_signature)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py", line 161, in test_stored_record_matches_no_signature
+    self.assert_rejected(ORDERS, (
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+        "error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize matches no signature of "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "PaymentState for field state\n"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "  record source: %s:2 (line 2)\n" + HELP_MIGRATE) % NOMATCH, ["--stored", str(NOMATCH)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 138, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Payment: 1 stored RESPONSE RECORD of[315 chars]02)') != (1, '', 'error: effect payments.authorize: the TYPE Payme[194 chars]ate')
+
+First differing element 2:
+'error: TYPE Payment: 1 stored RESPONSE RECORD of[314 chars]102)'
+'error: effect payments.authorize: the TYPE Payme[193 chars]tate'
+
+  (1,
+   '',
++  'error: effect payments.authorize: the TYPE PaymentState has a constructor '
++  'and cannot stand in an EFFECT output field Payment.state (interim D6B-19, '
++  'Q6B-3)\n'
++  '  help: use a TYPE without a constructor at the EFFECT, then pipe it into fn '
++  'PaymentState')
+-  'error: TYPE Payment: 1 stored RESPONSE RECORD of operation '
+-  'payments.authorize matches no signature of PaymentState for field state\n'
+-  '  record source: '
+-  '/Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/decode-ctor/stored-nomatch.jsonl:2 '
+-  '(line 2)\n'
+-  '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
+-  'VERSION of Payment (DL-102)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_stored_records_pass_the_constructors (__main__.Slice6DecodeCtor.test_stored_records_pass_the_constructors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_ctor_test.py", line 141, in test_stored_records_pass_the_constructors
+    _, stderr = self.build(STORED)
+                ~~~~~~~~~~^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 132, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: effect payments.authorize: slice 1 decodes String fields only, not Payment.state
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.128s
+
+FAILED (failures=6)

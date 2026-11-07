@@ -1,0 +1,39 @@
+// Slice 6b step 8: decode through constructors (DL-084, DL-085, DL-099, DL-101, D6B-48 to D6B-50).
+type Order { order_id: String }
+type DeclineReason { text: String }
+fn DeclineReason text: String -> DeclineReason = DeclineReason { text: text }
+
+enum PaymentState { Authorized  Pending  Declined(DeclineReason)  Unknown(String) }
+
+// Signature 1: the keys status and decline_reason inside the field value (DL-084 K1, DL-099 B).
+// Signatures are tried top to bottom; the first match wins (DL-085).
+fn PaymentState status: String, decline_reason: String -> PaymentState
+fn PaymentState "ok", _ -> PaymentState = Authorized
+fn PaymentState "declined", reason -> PaymentState = reason |> DeclineReason |> Declined
+fn PaymentState other, _ -> PaymentState = Unknown(other)
+
+// Signature 2: one parameter reads a scalar field value directly, like an ENUM LITERAL (DL-099).
+fn PaymentState code: String -> PaymentState
+fn PaymentState "ok" -> PaymentState = Authorized
+fn PaymentState "pending" -> PaymentState = Pending
+fn PaymentState other -> PaymentState = Unknown(other)
+
+// A record constructor (DL-092). The decode of outside data calls it (DL-101).
+type NoCurrency {}
+type Amount { value: String currency: String }
+fn Amount value: String, currency: String -> Amount ! NoCurrency
+fn Amount _, "" -> Amount ! NoCurrency = NoCurrency {}
+fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, currency: currency }
+
+type Payment { order_id: String state: PaymentState amount: Amount }
+type PaymentError { reason: String }
+
+// Leaves the module. Recorded live, substituted in a REPLAY RUN.
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize
