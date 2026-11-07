@@ -32,7 +32,7 @@ import stored_types_test as st  # noqa: E402
 FIX = EXPERIMENT / "slice6" / "entry"
 ORDERS, ECHO, COUNT = FIX / "orders.beaml", FIX / "echo.beaml", FIX / "count.beaml"
 BAD = FIX / "bad"
-STORED = FIX / "stored" / "responses.jsonl"  # empty; entries.jsonl beside it holds three ENTRY RECORDS
+STORED = FIX / "stored" / "responses.jsonl"  # empty; entries.jsonl beside it: 3 accepted, 2 rejected at capture
 ENTRIES = FIX / "stored" / "entries.jsonl"
 EMPTY = ["--stored", str(EXPERIMENT / "stored" / "empty.jsonl")]  # no entries.jsonl beside it
 BASE = "857fb310"  # N13: the HEAD before slice 6d GREEN
@@ -44,9 +44,10 @@ GOOD = {"order_id": "order-1", "amount": {"value": "12.50", "currency": "EUR"}, 
 PLACE_FIELDS = [["order_id", "String"], ["amount", "Amount"], ["channel", "Channel"]]
 PLACE_TYPE = {"name": "PlaceOrder", "version": 1, "fields": PLACE_FIELDS,
               "fingerprint": hashlib.sha256(json.dumps(sorted(PLACE_FIELDS), separators=(",", ":")).encode()).hexdigest()}
-# D6B-135 keys, plus unknown_fields (red-plan R6D-05: DL-122 needs it to tell a kept value from a lost literal).
+# D6B-135 keys, plus unknown_fields (red-plan R6D-05: DL-122 needs it to tell a kept value from a lost literal), plus
+# outcome and reason (DL-138, R6D-13): "accepted" with reason null, or "rejected" with "decode" or "constructor".
 ENTRY_KEYS = sorted(["version", "trace_id", "server_span_id", "artifact_id", "operation", "attempt", "value", "redacted",
-                     "unknown_keys", "unknown_fields", "value_sha256", "type"])
+                     "unknown_keys", "unknown_fields", "value_sha256", "type", "outcome", "reason"])
 TOKEN = "csrf-token-value-6d"  # a host value outside the input TYPE; it must reach no record
 
 # The drift rule (DL-130) and the subset checks (D6B-129, D6B-130, D6B-138), texts in red-plan.md R6D-07.
@@ -77,16 +78,25 @@ BAD_CASES = {
 }
 
 # DL-134 texts: the DL-102 and DL-122 texts of RESPONSE RECORDS with ENTRY RECORD (DL-124: never a stored value).
+# DL-138 (O2, R6D-14): the DL-102 help names no TYPE VERSION, because D6B-130 bans a MIGRATE CHAIN on the input TYPE.
 CTOR_BLOCK = ("error: TYPE PlaceOrder: 3 stored ENTRY RECORDS of operation ui.place fail the constructor of Amount for "
               "field amount with NoCurrency\n"
               "  record source: %s:1 (line 1)\n"
-              "  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of PlaceOrder (DL-102)"
-              % ENTRIES)
+              "  help: declare the fate of these records in a MIGRATE STEP (DL-102); slice 6d has no MIGRATE STEP for an input "
+              "TYPE (D6B-130), so restore the constructor rule of Amount" % ENTRIES)
 LITERAL_BLOCK = ("error: TYPE PlaceOrder v1: 1 stored ENTRY RECORD of operation ui.place has a value of field channel "
                  "that is no ENUM LITERAL of Channel now (DL-122)\n"
                  "  record source: %s:2 (line 2)\n"
                  "  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field "
                  "(D6B-39), so restore the removed or changed ENUM LITERAL of Channel" % ENTRIES)
+# DL-138: lines 4 and 5 of entries.jsonl are rejected at capture; --stored skips them and counts them.
+COUNT_LINE = "5 entries, 3 checked, 2 rejected at capture"
+# O3 (R6D-15): parity with a removed EFFECT (slice 4 E01; probe in red-output.md, RED repair).
+NO_ENTRY_BLOCK = ("error: stored ENTRY RECORD of operation ui.place has no effect in the source\n"
+                  "  record source: %s:1 (line 1)\n"
+                  "  stored ENTRY RECORDS of operation ui.place: 5\n"
+                  "  help: if the effect is deleted on purpose, declare: retire ui.place keep <n> days" % ENTRIES)
+RETIRE_ENTRY = "retire ui.place keep 30 days\n"
 APP = 'App = "app-channel"  '
 STRICTER = 'fn Amount _, "EUR" -> Amount ! NoCurrency = NoCurrency {}\nfn Amount _, "" ->'
 STORED_WORDS = ("12.50", "EUR", "order-entry-", "app-channel", "phone", "00000000000000000000000000000001")
@@ -215,10 +225,11 @@ ORDERS_CASES = {
     "N8_entry_keys": "(%s |> elem(2) |> entries.() |> hd() |> Map.keys() |> Enum.sort()) == %s" % (CSRF, ex(ENTRY_KEYS)),
     "N8_entry_fields": ('(%s |> elem(2) |> entries.() |> hd() |> Map.take(%s)) == %s' % (
         CSRF, ex(["version", "operation", "attempt", "value", "redacted", "unknown_keys", "unknown_fields",
-                  "value_sha256", "type"]),
+                  "value_sha256", "type", "outcome", "reason"]),
         ex({"version": 2, "operation": "ui.place", "attempt": 1, "value": GOOD, "redacted": [],
             "unknown_keys": ["_csrf_token"], "unknown_fields": [],
-            "value_sha256": st.value_sha256(GOOD, ["_csrf_token"]), "type": PLACE_TYPE}))),
+            "value_sha256": st.value_sha256(GOOD, ["_csrf_token"]), "type": PLACE_TYPE,
+            "outcome": "accepted", "reason": None}))),
     "N8_no_token_in_any_record": ('not String.contains?(%s |> elem(2) |> Enum.map(&rt.(elem(&1, 1))) |> :json.encode() '
                                   '|> IO.iodata_to_binary(), %s)' % (CSRF, ex(TOKEN))),
     "N8_unknown_keys_root_attribute": ('Enum.member?(%s |> elem(1), {:attr, :unknown_keys, ["_csrf_token"], '
@@ -241,11 +252,17 @@ ORDERS_CASES = {
         '(fn -> {r, _, caps} = run.(fn -> BeamlSpike.ui_place(put_in(good, ["amount", "currency"], "")) end); '
         '{r, length(responses.(caps)), BeamlSpike.Replay.entry(hd(entries.(caps)), [])} end).() == {%s, 0, %s}'
         % (CTOR, CTOR)),
+    # DL-138: a reject record names its capture outcome.
+    "DL138_constructor_reject_outcome": (
+        'run.(fn -> BeamlSpike.ui_place(put_in(good, ["amount", "currency"], "")) end) |> elem(2) |> entries.() |> hd() '
+        '|> Map.take(["outcome", "reason"]) == %s' % ex({"outcome": "rejected", "reason": "constructor"})),
     # D6B-145: a term check reject writes value null; the REPLAY RUN gives the live outcome.
     "N9_nested_nil_record_holds_null_and_replays_as_decode": (
         '(fn -> {_, _, caps} = run.(fn -> BeamlSpike.ui_place(put_in(good, ["amount", "currency"], nil)) end); '
-        'e = hd(entries.(caps)); {Map.take(e, ["value", "unknown_keys", "value_sha256"]), BeamlSpike.Replay.entry(e, [])} '
-        'end).() == {%s, %s}' % (ex({"value": None, "unknown_keys": [], "value_sha256": st.value_sha256(None)}), DECODE)),
+        'e = hd(entries.(caps)); {Map.take(e, ["value", "unknown_keys", "value_sha256", "outcome", "reason"]), '
+        'BeamlSpike.Replay.entry(e, [])} end).() == {%s, %s}'
+        % (ex({"value": None, "unknown_keys": [], "value_sha256": st.value_sha256(None), "outcome": "rejected",
+               "reason": "decode"}), DECODE)),
 }
 HOST = '''defmodule Host do
   def handle_event("place", params, socket), do: {BeamlSpike.ui_place(params), socket}
@@ -386,25 +403,29 @@ class Slice6Entry(unittest.TestCase):
 
     # DL-134: --stored reads entries.jsonl beside the snapshot (DL-102, DL-122, DL-124).
 
+    def blocked(self, source, extra=("--stored", str(STORED))):
+        """Exit, stdout and stderr without the DL-138 count line: a block may print it, it need not."""
+        code, stdout, stderr = self.compile(source, extra)
+        return code, stdout, "\n".join(l for l in stderr.strip().splitlines() if COUNT_LINE not in l)
+
     def test_s1_stored_entry_records_build(self):
-        # Line 3 holds a value kept as Unknown (unknown_fields): no lost literal, no note.
+        # Line 3 holds a value kept as Unknown (unknown_fields): no lost literal, no note. DL-138 (O1): line 4 (a
+        # constructor reject) and line 5 (value null) are skipped, not checked and no crash; one count line only.
         _, stderr = self.built(ORDERS, ["--stored", str(STORED)])
-        self.assertEqual("", stderr)
+        lines = stderr.splitlines()
+        self.assertEqual((1, True), (len(lines), COUNT_LINE in "".join(lines)), stderr)
 
     def test_s2_stricter_constructor_blocks(self):
         source = ORDERS.read_text().replace('fn Amount _, "" ->', STRICTER)
-        code, stdout, stderr = self.compile(source, ["--stored", str(STORED)])
-        self.assertEqual((1, "", CTOR_BLOCK), (code, stdout, stderr.strip()))
+        self.assertEqual((1, "", CTOR_BLOCK), self.blocked(source))
 
     def test_s3_removed_literal_blocks(self):
         source = ORDERS.read_text().replace(APP, "")
-        code, stdout, stderr = self.compile(source, ["--stored", str(STORED)])
-        self.assertEqual((1, "", LITERAL_BLOCK), (code, stdout, stderr.strip()))
+        self.assertEqual((1, "", LITERAL_BLOCK), self.blocked(source))
 
     def test_s3b_changed_literal_blocks(self):
         source = ORDERS.read_text().replace(APP, 'App = "app-ch2"  ')
-        code, stdout, stderr = self.compile(source, ["--stored", str(STORED)])
-        self.assertEqual((1, "", LITERAL_BLOCK), (code, stdout, stderr.strip()))
+        self.assertEqual((1, "", LITERAL_BLOCK), self.blocked(source))
 
     def test_s4_no_stored_value_in_output(self):
         # DL-124, DL-032: the block texts name no stored value (events: see compile()).
@@ -415,6 +436,19 @@ class Slice6Entry(unittest.TestCase):
                 # The block itself must stand in stderr, so a parse error cannot pass this test.
                 self.assertEqual((1, True, []), (code, "stored ENTRY RECORD" in stderr,
                                                  [w for w in STORED_WORDS if w in stderr]), stderr)
+
+    # O3 (DL-138, R6D-15): a removed ENTRY LINE with stored ENTRY RECORDS behaves as a removed EFFECT (slice 4 E01, E02).
+
+    def test_s5_removed_entry_line_with_stored_entries_blocks(self):
+        source = ORDERS.read_text()
+        self.assertIn(ENTRY_LINE, source, "setup: the fixture lost its ENTRY LINE")
+        self.assertEqual((1, "", NO_ENTRY_BLOCK), self.blocked(source.replace(ENTRY_LINE, "")))
+
+    def test_s5b_retire_line_frees_the_removed_entry_line(self):
+        code, stdout, stderr = self.compile(ORDERS.read_text().replace(ENTRY_LINE, RETIRE_ENTRY),
+                                            ["--stored", str(STORED)])
+        self.assertEqual((0, True, False, False), (code, "defmodule BeamlSpike do" in stdout, "error" in stderr,
+                                                   "DEAD LINE" in stderr), stderr)
 
     # N13 (guard): every tracked source without an ENTRY LINE keeps its bytes against the pre-6d compiler.
 

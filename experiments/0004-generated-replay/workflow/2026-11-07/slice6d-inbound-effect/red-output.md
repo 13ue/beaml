@@ -47,3 +47,41 @@ Toolchain: Elixir 1.18.1, Erlang/OTP 27.3.4. The working copy of `main.rs` is no
 - **[Inference]** Error texts, the `unknown_fields` key and the sibling `entries.jsonl` are RED decisions (R6D-04, R6D-05, R6D-07), not OWNER rules.
 - **[Unknown]** Whether `Replay` `body/1` accepts `value: null`. `N9_nested_nil_...` tests it; the digest helper passes `:null` through `:json.encode/1`.
 - No test for the MIGRATE STEP that frees the build (M1, Migrate) or for stored ENTRY RECORDS without an ENTRY LINE (M2).
+
+## RED repair
+
+**[Observed]** 2026-11-07, git HEAD 5aee6d47 (compiler from `git archive HEAD`, same command as above). Plan: [red-plan.md](red-plan.md) section "RED repair". Log: [red-repair-output.log](red-repair-output.log).
+By: Opus (RED repair slice6d).
+
+### Probe: a removed EFFECT with stored RESPONSE RECORDS (O3)
+
+Source with no `effect`, snapshot with two `payments.authorize` records (status 200 and 503):
+
+- Without a RETIRE LINE: exit 1, `error: stored RESPONSE RECORD of operation payments.authorize has no effect in the source`, `stored RESPONSE RECORDS of operation payments.authorize: 2`, help `retire payments.authorize keep <n> days`. The 503 record counts.
+- With `retire payments.authorize keep 30 days`: exit 0, empty stderr.
+
+So today's behaviour is defined (block, RETIRE LINE frees). R6D-15 pins the same for ENTRY RECORDS; no question needed.
+
+### Result
+
+- 18 tests, 34 failing subtests, exit 1. Guards passing: `test_h2`, `test_n13`.
+- 32 failures keep the old reason (parse error at the ENTRY LINE, `expected identifier at byte N`). The changed `test_s1` to `test_s4` and the new runtime cases sit behind the same parse error.
+- 2 new failures, both genuine:
+
+| Test | Today | Expected |
+|---|---|---|
+| `test_s5_removed_entry_line_with_stored_entries_blocks` | exit 0, Elixir on stdout: HEAD reads no `entries.jsonl`, the entries are lost silently | exit 1, the parity block text |
+| `test_s5b_retire_line_frees_the_removed_entry_line` | exit 0 with `warning: DEAD LINE: retire ui.place ...` (no stored record of `ui.place` known) | exit 0, no DEAD LINE |
+
+### Checks against a false pass
+
+- **[Observed]** The five `entries.jsonl` digests: lines 1 to 3 still match `value_sha256` of `stored_types_test`; lines 4 and 5 are computed by the same helper (line 5 over `null`).
+- **[Inference]** A GREEN that checks rejects too fails `test_s1` (line 4 fails `Amount`), `test_s2` (4 records, not 3) and `test_s3` (line 4 holds `App`, 2 records). A GREEN that crashes on `null` fails `test_s1`.
+- **[Inference]** `test_s5` fails a GREEN that skips orphan entries silently (today's output) and one that counts only accepted entries (3, not 5).
+
+### Limits
+
+- **[Inference]** The `outcome`/`reason` shape (R6D-13), the help line (R6D-14) and the orphan count (R6D-15) are RED decisions under DL-138, not OWNER rules.
+- **[Unknown]** An accepted record with `value: null` (not written by D6B-145). Not tested.
+- The DL-122 header still reads `TYPE PlaceOrder v1:`: it names the stored TYPE VERSION of the record, not a help step. Left as is.
+

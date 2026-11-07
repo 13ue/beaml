@@ -39,6 +39,33 @@ By: Opus (RED slice6d) for every proposal in this file. No `main.rs`, `run.py` o
 - **DL-134.** `test_s1_...` (three stored ENTRY RECORDS build; line 3 is a kept `Unknown`); `test_s2_...` (stricter `Amount` constructor, 3 records); `test_s3_...`, `test_s3b_...` (removed or changed `App` literal, line 2); `test_s4_...` (DL-124: the block stands in stderr and names no stored value).
 - **Not written: a MIGRATE STEP that frees the build.** Migrate, see M1.
 
+## RED repair (after the RED review BLOCK, DL-138)
+
+By: Opus (RED repair slice6d). Evidence: [red-output.md](red-output.md) section "RED repair", [red-repair-output.log](red-repair-output.log).
+
+| Review | Change | Test |
+|---|---|---|
+| O1 (high) | `stored/entries.jsonl`: every line gets `outcome` and `reason`; line 4 is a constructor reject, line 5 a term check reject with `value: null` | `test_s1` (exit 0, one count line `5 entries, 3 checked, 2 rejected at capture`, no crash), `test_s2` (still 3 records), `test_s3`, `test_s3b` (still line 2 only; line 4 holds `App` too) |
+| O1 | ENTRY RECORD keys + `outcome`, `reason` | `N8_entry_keys`, `N8_entry_fields` (`accepted`, `null`), `DL138_constructor_reject_outcome`, `N9_nested_nil_...` (`rejected`, `decode`) |
+| O2 (medium) | `CTOR_BLOCK` help names no TYPE VERSION | `test_s2`, `test_s4` |
+| O3 (medium) | removed ENTRY LINE: parity with a removed EFFECT (slice 4 E01, E02) | `test_s5_...` (block text), `test_s5b_...` (RETIRE LINE frees, no DEAD LINE) |
+
+**R6D-13 · Repair · The shape of the capture outcome.**
+Chose: two fixed keys, `"outcome": "accepted" | "rejected"` and `"reason": null | "decode" | "constructor"` (the `Rejected` reason, DL-133). Over: one mixed-type key (`"accepted"` or `{"rejected": reason}`), or a key only on rejects. Because: one key set for every record (`N8_entry_keys`); the reason uses the DL-133 words. Commits us to: GREEN writes both keys at capture; `--stored` checks a record only when `outcome` is `"accepted"`.
+→ By: Opus (RED repair slice6d)
+
+**R6D-14 · Repair · DL-102 help for an ENTRY RECORD names no TYPE VERSION (O2).**
+Chose: `help: declare the fate of these records in a MIGRATE STEP (DL-102); slice 6d has no MIGRATE STEP for an input TYPE (D6B-130), so restore the constructor rule of Amount`. Over: the `main.rs` DL-102 help as is ("... to a new TYPE VERSION of PlaceOrder"), which sends the user into the `input_version_mark` reject. Because: DL-138 bans a TYPE VERSION in the help; the form copies the DL-122 help ("declare the fate ...; no form ..., so restore ..."). Commits us to: an M1 answer changes this help line.
+→ By: Opus (RED repair slice6d)
+
+**R6D-15 · Repair · A removed ENTRY LINE blocks as a removed EFFECT does (O3, DL-138 parity).**
+Chose: the DL-040 text with `ENTRY RECORD`; the count is every stored ENTRY RECORD of the operation (5, also rejects); `retire ui.place keep 30 days` frees the build with no DEAD LINE warning. Over: count only accepted entries; leave RETIRE LINE coverage open (M2). Because: **[Observed]** the HEAD probe (red-output.md) counts a 503 RESPONSE RECORD in the orphan count (2 of 2) and a RETIRE LINE frees the build. Commits us to: ENTRY RECORD operations join the RECORD SNAPSHOT for W1. Closes M2 by DL-138.
+→ By: Opus (RED repair slice6d)
+
+**R6D-16 · Undo · The count line is optional in a blocked build.**
+Chose: block tests compare stderr without the count line (`blocked()`); `test_s1` needs it as the only line. Over: pin it in every block. Because: DL-136 does not say whether a block prints it.
+→ By: Opus (RED repair slice6d)
+
 ## Decisions
 
 **R6D-01 · Repair · Names come from the head name.**
@@ -98,10 +125,12 @@ Chose: tracked `.beaml` under 0001, 0002 `apps/`, 0004 `slice*/`, `drift/`, `bad
 - **Option B.** 6d lifts D6B-130 for the input TYPE and builds DL-125 `quarantine f` / `map f "old" -> V` for ENTRY RECORDS.
 - Why Migrate: it sets the fate syntax and the TYPE VERSION rule of the input TYPE for every later record stream (DL-134 reason).
 - By: open, `13ue`. Question by Opus (RED slice6d).
+- RED repair: the block text no longer names a TYPE VERSION (R6D-14, DL-138). The fate form stays open.
 
 **M2 · Migrate (note) · Stored ENTRY RECORDS whose ENTRY LINE is gone.**
 - A RESPONSE RECORD without its EFFECT blocks with "has no effect in the source" until a RETIRE LINE. DL-134 does not say whether `retire ui.place keep N days` covers ENTRY RECORDS. Not tested.
 - By: open, `13ue`. Question by Opus (RED slice6d).
+- RED repair: answered by DL-138 (parity); pinned by R6D-15 (`test_s5`, `test_s5b`).
 
 ## Out-of-scope finding
 
