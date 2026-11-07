@@ -1,0 +1,239 @@
+{
+  "step": "record-format-v3",
+  "experiment": "0004",
+  "for": "EXPERIMENT 0005 prerequisite P2",
+  "date": "2026-11-07",
+  "phase": "plan",
+  "by": "Opus (PLAN record-v3)",
+  "decision": "DL-143",
+  "inputs": [
+    "DL-105",
+    "DL-124",
+    "DL-136",
+    "DL-138",
+    "DL-141",
+    "DL-142",
+    "DL-143",
+    "DL-144",
+    "D026",
+    "P5-18"
+  ],
+  "base": {
+    "read": "35c7e3bf",
+    "build_on": "the slice 6d TEST commit"
+  },
+  "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/record-format-v3/",
+  "test_first": {
+    "applies": true,
+    "reason": "record writer and --stored reader change behaviour"
+  },
+  "shape": {
+    "marker": {
+      "key": "version",
+      "value": 3
+    },
+    "core": [
+      "version",
+      "trace_id",
+      "span_id",
+      "artifact_id",
+      "operation",
+      "attempt",
+      "type",
+      "value",
+      "value_sha256",
+      "redacted",
+      "unknown_keys",
+      "unknown_fields",
+      "outcome",
+      "reason"
+    ],
+    "extras": {
+      "http": [
+        "request",
+        "status"
+      ],
+      "ui": [],
+      "db": "decided in P4"
+    },
+    "digest": "D6B-58 unchanged: redacted, unknown_keys, value"
+  },
+  "response_outcome": [
+    {
+      "when": "status != 200",
+      "outcome": "rejected",
+      "reason": "status"
+    },
+    {
+      "when": "200, decode :error",
+      "outcome": "rejected",
+      "reason": "decode"
+    },
+    {
+      "when": "200, decode {:error, constructor}",
+      "outcome": "rejected",
+      "reason": "constructor"
+    },
+    {
+      "when": "200, decode ok",
+      "outcome": "accepted",
+      "reason": null
+    }
+  ],
+  "readers": {
+    "stored_responses": "version 3 only; rejected skip DL-102/DL-122 value checks; count line only when M > 0",
+    "stored_entries": "version 3 only (new); 6d count line unchanged",
+    "replay_run": "unchanged",
+    "driver": "unchanged",
+    "run_py": "unchanged",
+    "drift_test": "version 2 -> 3",
+    "drift_pin": "unchanged"
+  },
+  "old_files": {
+    "policy": "one-time rewrite (convert_v3.py)",
+    "not_converted": [
+      "slice6/record/stored-v1.jsonl",
+      "results/*"
+    ],
+    "files": [
+      "stored/v1.jsonl",
+      "stored/v1-v2.jsonl",
+      "slice6/decode/stored.jsonl",
+      "slice6/decode/stored-fail.jsonl",
+      "slice6/decode/stored-resolved.jsonl",
+      "slice6/decode-ctor/stored.jsonl",
+      "slice6/decode-ctor/stored-fail.jsonl",
+      "slice6/decode-ctor/stored-nomatch.jsonl",
+      "slice6/redacted/stored-unredacted.jsonl",
+      "slice6/redacted/stored-request-unredacted.jsonl",
+      "slice6/stored-elixir/order.jsonl",
+      "slice6/stored-elixir/nested-fail.jsonl",
+      "slice6/stored-elixir/pipe-fail.jsonl",
+      "slice6/stored-elixir/rec-loop.jsonl",
+      "slice6/entry/stored/entries.jsonl"
+    ]
+  },
+  "first_failing_test": {
+    "file": "experiments/0004-generated-replay/tests/record_v3_test.py",
+    "name": "V1",
+    "assert": "stored.(200, U)[\"version\"] == 3",
+    "today": 2
+  },
+  "tests": [
+    "V1",
+    "V2",
+    "V3",
+    "V4",
+    "V5",
+    "V6",
+    "V7",
+    "V8",
+    "V9",
+    "V10",
+    "V11",
+    "V12",
+    "V13",
+    "V14",
+    "V14b",
+    "V15",
+    "V16",
+    "V17",
+    "V18",
+    "V19",
+    "V20",
+    "V21"
+  ],
+  "texts": {
+    "V12": "error: stored RESPONSE RECORD has record version 2; this build reads record version 3 only (DL-143)\n  record source: S:1 (line 1)",
+    "V13": "error: stored ENTRY RECORD has record version 2; this build reads record version 3 only (DL-143)\n  record source: E:1 (line 1)",
+    "V14": "3 records, 1 checked, 2 not replayable"
+  },
+  "pin_sites": [
+    "tests/slice5_syntax_test.py PIN",
+    "tests/slice6_pipe_test.py EFFECT_OUTPUTS",
+    "tests/slice6_host_struct_test.py BYTE_GUARD",
+    "slice6/effect-reach/byte-guard.json",
+    "tests/slice6_entry_test.py BASE (N13)"
+  ],
+  "allowed_hunks": [
+    "Replay.record/3",
+    "Replay.entry_record/2"
+  ],
+  "equal": [
+    "Replay.run/3",
+    "body/1",
+    "digest/3",
+    "Replay.entry/2",
+    "live EFFECT function",
+    "non-EFFECT outputs",
+    "payments.generated.snapshot",
+    "exit codes",
+    "stderr over converted fixtures"
+  ],
+  "changed_files": [
+    "experiments/0001-syntax-to-beam/src/main.rs",
+    "experiments/0004-generated-replay/tests/record_v3_test.py (new)",
+    "experiments/0004-generated-replay/slice6/record-v3/stored-mixed.jsonl (new)",
+    "the 15 converted fixtures",
+    "tests/slice6_record_test.py",
+    "tests/slice6_entry_test.py",
+    "tests/arms_test.py",
+    "tests/redteam_c1_test.py",
+    "tests/drift_test.py",
+    "tests/stored_types_test.py",
+    "the five pin sites"
+  ],
+  "migrate_open": [
+    "QV3-1",
+    "QV3-2",
+    "QV3-3",
+    "QV3-4",
+    "QV3-5",
+    "QV3-6",
+    "QV3-7",
+    "QV3-8"
+  ],
+  "big": [
+    "QV3-1",
+    "QV3-2",
+    "QV3-3",
+    "QV3-4",
+    "QV3-5",
+    "QV3-6"
+  ],
+  "repair_undo": [
+    "RV3-01",
+    "RV3-02",
+    "RV3-03",
+    "RV3-04",
+    "RV3-05",
+    "RV3-06",
+    "RV3-07",
+    "RV3-08",
+    "RV3-09",
+    "RV3-10",
+    "RV3-11",
+    "RV3-12",
+    "RV3-13"
+  ],
+  "exclusions": [
+    "DL-136 digest half (P2b)",
+    "db stream writer and extras (P4)",
+    "M8, M9 (D026)",
+    "version check in the REPLAY RUN",
+    "fate forms, retention",
+    "docs"
+  ],
+  "checks": [
+    "cargo test --no-fail-fast",
+    "cargo fmt --check",
+    "cargo clippy --offline --all-targets -- -D warnings",
+    "tests/slice5_syntax_test.py first",
+    "tests/record_v3_test.py",
+    "every tests/slice6_*_test.py",
+    "tests/stored_types_test.py",
+    "tests/redteam_c1_test.py",
+    "tests/arms_test.py",
+    "run.py once at TEST"
+  ]
+}
