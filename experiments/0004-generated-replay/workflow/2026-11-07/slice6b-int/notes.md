@@ -65,3 +65,40 @@ Result: 16 tests, 15 FAIL, 1 pass. Exit 1.
 
 - `elixirc --warnings-as-errors` exits 0 on unused-import warnings (Elixir 1.18.1, observed). An unused `is_integer` import does not fail the runtime test.
 - The Template run (random names) is not used (decision 10).
+
+## GREEN
+
+Changed file: `experiments/0001-syntax-to-beam/src/main.rs` only. Test file and fixture unchanged. Full output: [green-output.log](green-output.log).
+
+| Command | Result |
+|---|---|
+| `python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py` | 16 of 16 OK, 13 of 13 runtime subtests PASS |
+| `cargo fmt --check` | exit 0 |
+| `cargo clippy --offline --all-targets -- -D warnings` | exit 0 |
+| `cargo test --offline --no-fail-fast` | 27 pass (13 unit, 14 CLI). Before: 25 |
+| `slice3_types_test.py` | 69 OK |
+| `slice4_retire_test.py` | 87 OK |
+| `slice5_syntax_test.py` | 60 OK (includes the `payments.beaml` snapshot) |
+| `slice5_squash_test.py` | 24 OK |
+| `slice5_rewrite_test.py` | 5 OK |
+| `stored_types_test.py` | 33 OK |
+
+Code: `Node::Int(u32)` from `Token::Number` in `node()`. `check_type`, `pattern`, `expression`, `normalized` (`int:<n>` tag), `useful` (`other-int` sentinel) and `emit_node` know `Int`. `Int` is a reserved TYPE name, `is_integer` a reserved fn name. The `is_integer: 1` import and the `Int` validity clause are emitted only when a TYPE field, an enum argument, a fn parameter or a fn output has the TYPE `Int`.
+
+### Decisions
+
+| # | Class | Choice | Alternative | Reason |
+|---|---|---|---|---|
+| G1 | Undo | Close N1 in this step. A new helper `int_inside` finds `Int` at any depth of the EFFECT input TYPE: `Owner.field`, `Owner.Variant` or `Int` itself. | Check only the top-level fields | It is a small addition to the same check. D6B-03 then holds for nested and direct inputs. |
+| G2 | Undo | Direct `Int` input text: `effect payments.authorize: slice 6b sends String fields only, not Int`. Nested text names the holding record: `not J.n`. | A separate text for the direct case | One message pattern for every EFFECT input reject. |
+| G3 | Undo | Two new Rust unit tests: `int_literals_and_patterns` (the three plan sources, exact text) and `effect_input_has_no_int_also_nested` (N1, nested and direct). | N1 cases in the Python file | The caller asked for Rust unit tests. The Python file stays unchanged. |
+| G4 | Undo | Deviation from the plan. A clause column where one side is `Int` and the earlier clause has another TYPE gives `type mismatch: expected <earlier>, got <this>`. Sources without `Int` keep `inconsistent function signature`. | (a) Check every column against the earlier clause, for all TYPES. (b) Stop and report the test as wrong. | `test_int_literal_against_string_parameter` expects the type mismatch. Option (a) changes existing reject texts, which the plan forbids. The test is a valid contract, not a wrong test. |
+| G5 | Undo | `is_integer: 1` goes directly after `is_binary: 1` in the import list. The `Int` validity clause goes directly after the `String` clause. | Append at the end | Same group as the `String` guard. Order has no runtime effect. |
+| G6 | Undo | "Int is used" is read from TYPE definitions and fn signatures only. | Also scan bodies for literals | A literal in a body must match a TYPE in a signature or a field, so the scan finds it. |
+
+### Limits
+
+- **[Inference]** G4 is asymmetric: `String` against a record column still gives `inconsistent function signature`. A later step can unify the text when the plan allows a reject text change.
+- EFFECT failure records with an `Int` field are not checked here. They are step 2 (failure TYPES).
+- Compiler events: the test asserts that `.beaml/actions.jsonl` has no source path and no source text. The change adds no event fields.
+- The replay and arms tests were not run. They run in TEST.

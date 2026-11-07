@@ -121,6 +121,8 @@ fn lex(source: &str) -> Checked<Vec<(Token, Range<usize>)>> {
 #[derive(Clone, Debug)]
 enum Node {
     Text(String),
+    // An integer literal (slice 6b, D6B-02). No negative literal, no arithmetic (D6B-03).
+    Int(u32),
     Name(String),
     Call(String, Vec<Node>),
     Record(String, Vec<(String, Node)>),
@@ -349,6 +351,10 @@ impl Parser {
             Token::Text(s) => {
                 self.at += 1;
                 Node::Text(s)
+            }
+            Token::Number(n) => {
+                self.at += 1;
+                Node::Int(n)
             }
             Token::Word(_) => {
                 let name = self.word()?;
@@ -903,7 +909,7 @@ impl<'a> Checker<'a> {
             versions: BTreeMap::new(),
         };
         for (name, def) in &program.types {
-            if !upper(name) || name == "String" {
+            if !upper(name) || name == "String" || name == "Int" {
                 return Err(format!("invalid type name: {name}"));
             }
             match def {
@@ -978,6 +984,7 @@ impl<'a> Checker<'a> {
                 "throw",
                 "exit",
                 "is_binary",
+                "is_integer",
                 "is_map",
                 "map_size",
             ];
@@ -991,6 +998,15 @@ impl<'a> Checker<'a> {
                 args.push(checker.pattern(pattern, None, &mut vars)?);
             }
             checker.failure_types(&clause.failures)?;
+            // An Int column against an earlier clause is a type mismatch (slice 6b). Sources without Int
+            // keep "inconsistent function signature".
+            if let Some((previous, _)) = checker.signatures.get(&clause.name) {
+                for (ty, expected) in args.iter().zip(previous) {
+                    if ty == "Int" || expected == "Int" {
+                        checker.require_type(ty, expected)?;
+                    }
+                }
+            }
             let signature = (args, clause.output.clone());
             if let Some(previous) = checker
                 .signatures
@@ -1101,6 +1117,12 @@ impl<'a> Checker<'a> {
                 return Err(format!("unsupported http path in effect {name}"));
             }
             self.check_type(&effect.input, &mut Vec::new())?;
+            // D6B-03: no Int in an EFFECT input, also not in a nested TYPE.
+            if let Some(place) = self.int_inside(&effect.input) {
+                return Err(format!(
+                    "effect {name}: slice 6b sends String fields only, not {place}"
+                ));
+            }
             for (field, ty) in self.record(&effect.output)? {
                 if ty != "String" {
                     return Err(format!(
@@ -1128,8 +1150,27 @@ impl<'a> Checker<'a> {
         }
         Ok(())
     }
+    // The first place with the TYPE Int inside `ty`: `Owner.field`, `Owner.Variant` or `Int` itself.
+    fn int_inside(&self, ty: &str) -> Option<String> {
+        if ty == "Int" {
+            return Some(ty.into());
+        }
+        let here = |place: &str, t: &String| {
+            if t == "Int" {
+                Some(format!("{ty}.{place}"))
+            } else {
+                self.int_inside(t)
+            }
+        };
+        match self.program.types.get(ty)? {
+            Definition::Record(fields) => fields.iter().find_map(|(f, t)| here(f, t)),
+            Definition::Enum(variants) => variants
+                .iter()
+                .find_map(|(v, args)| args.iter().find_map(|t| here(v, t))),
+        }
+    }
     fn check_type(&self, name: &str, path: &mut Vec<String>) -> Checked<()> {
-        if name == "String" {
+        if name == "String" || name == "Int" {
             return Ok(());
         }
         if path.iter().any(|n| n == name) || path.len() > 32 {
@@ -1190,6 +1231,7 @@ impl<'a> Checker<'a> {
                 ty.clone()
             }
             Node::Text(_) => "String".into(),
+            Node::Int(_) => "Int".into(),
             Node::Name(name) => {
                 let ty = expected
                     .ok_or("a variable or wildcard parameter needs a type annotation")?
@@ -1242,6 +1284,7 @@ impl<'a> Checker<'a> {
     fn expression(&self, node: &Node, vars: &BTreeMap<String, String>) -> Checked<String> {
         match node {
             Node::Text(_) => Ok("String".into()),
+            Node::Int(_) => Ok("Int".into()),
             Node::Name(name) => vars
                 .get(name)
                 .cloned()
@@ -1342,6 +1385,7 @@ impl Checker<'_> {
         match node {
             Node::Annotated(inner, _) => self.normalized(inner, ty),
             Node::Text(s) => Pattern::Constructor(format!("text:{s}"), vec![]),
+            Node::Int(n) => Pattern::Constructor(format!("int:{n}"), vec![]),
             Node::Call(name, args) => Pattern::Constructor(
                 name.clone(),
                 args.iter()
@@ -1382,16 +1426,25 @@ impl Checker<'_> {
             return Ok(rows.is_empty());
         }
         let options: Vec<(String, Vec<String>)> = match &query[0] {
-            Pattern::Constructor(tag, _) if types[0] == "String" => vec![(tag.clone(), vec![])],
-            _ if types[0] == "String" => {
+            Pattern::Constructor(tag, _) if types[0] == "String" || types[0] == "Int" => {
+                vec![(tag.clone(), vec![])]
+            }
+            _ if types[0] == "String" || types[0] == "Int" => {
                 let mut tags = BTreeSet::new();
                 for row in rows {
                     if let Pattern::Constructor(tag, _) = &row[0] {
                         tags.insert(tag.clone());
                     }
                 }
-                // This sentinel is outside the text: prefix used for all string literals.
-                tags.insert("other-string".into());
+                // The sentinel is outside the text: and int: prefixes used for all literals.
+                tags.insert(
+                    if types[0] == "Int" {
+                        "other-int"
+                    } else {
+                        "other-string"
+                    }
+                    .into(),
+                );
                 tags.into_iter().map(|tag| (tag, vec![])).collect()
             }
             _ => match &self.program.types[&types[0]] {
@@ -1513,6 +1566,7 @@ impl Checker<'_> {
     fn emit_node(&self, node: &Node) -> String {
         match node {
             Node::Text(s) => binary(s),
+            Node::Int(n) => n.to_string(),
             Node::Name(name) if name == "_" => "_".into(),
             Node::Name(name) => format!("v_{name}"),
             Node::Annotated(n, _) => self.emit_node(n),
@@ -1550,10 +1604,22 @@ impl Checker<'_> {
         } else {
             ", defmodule: 2"
         };
+        // `Int` adds `is_integer` only where it is used, so that a String-only output stays byte-equal.
+        let int = self.program.types.values().any(|def| match def {
+            Definition::Record(fields) => fields.iter().any(|(_, t)| t == "Int"),
+            Definition::Enum(variants) => variants.iter().flat_map(|(_, a)| a).any(|t| t == "Int"),
+        }) || self
+            .signatures
+            .values()
+            .any(|(args, output)| output == "Int" || args.iter().any(|t| t == "Int"));
+        let is_integer = if int { " is_integer: 1," } else { "" };
         let mut out = format!(
-            "# Generated by experiment 0001. Not a stable ABI.\ndefmodule BeamlSpike do\n  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, map_size: 1, ==: 2, <>: 2, if: 2, raise: 2, def: 2, defp: 2{nested}]\n",
+            "# Generated by experiment 0001. Not a stable ABI.\ndefmodule BeamlSpike do\n  import Kernel, only: [and: 2, is_binary: 1,{is_integer} is_map: 1, map_size: 1, ==: 2, <>: 2, if: 2, raise: 2, def: 2, defp: 2{nested}]\n",
         );
         out.push_str("  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and String.valid?(v)\n");
+        if int {
+            out.push_str("  defp __beaml_valid__(v, <<73,110,116>>), do: is_integer(v)\n");
+        }
         for (name, def) in &self.program.types {
             match def {
                 Definition::Record(fields) => {
@@ -3746,5 +3812,36 @@ mod tests {
             "{written}"
         );
         let _ = std::fs::remove_dir_all(&directory);
+    }
+    #[test]
+    fn int_literals_and_patterns() {
+        assert!(
+            compile("fn f 0 -> String = \"zero\"\nfn f n: Int -> String = \"other\"\n").is_ok()
+        );
+        assert_eq!(
+            compile("fn f 0 -> String = \"zero\"\n").unwrap_err(),
+            "non-exhaustive function: f"
+        );
+        assert_eq!(
+            compile("fn g -> Int = \"x\"\n").unwrap_err(),
+            "type mismatch: expected Int, got String"
+        );
+    }
+    #[test]
+    fn effect_input_has_no_int_also_nested() {
+        // red-review.md N1 (slice 6b step 1): a nested Int field and Int as the direct input TYPE.
+        let tail = "effect payments.authorize I -> P ! O = http.post(\"payments/authorize\")\nfn g i: I -> P ! O = i |> payments.authorize\n";
+        let head = "type O { reason: String }\ntype P { id: String }\n";
+        assert_eq!(
+            compile(&format!(
+                "{head}type J {{ n: Int }}\ntype I {{ inner: J }}\n{tail}"
+            ))
+            .unwrap_err(),
+            "effect payments.authorize: slice 6b sends String fields only, not J.n"
+        );
+        assert_eq!(
+            compile(&format!("{head}{}", tail.replace(" I ", " Int "))).unwrap_err(),
+            "effect payments.authorize: slice 6b sends String fields only, not Int"
+        );
     }
 }
