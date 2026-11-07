@@ -1,0 +1,364 @@
+{
+  "slice": "6b",
+  "date": "2026-11-07",
+  "phase": "plan",
+  "decisions": "decisions.md",
+  "baseline": {
+    "head": "cd6c1211",
+    "cargo_test": {
+      "unit": 11,
+      "cli": 14,
+      "failed": 0
+    },
+    "cargo_fmt_check": "fail (4 hunks, pre-existing)",
+    "clippy": "fail (2 lints, pre-existing)",
+    "python": {
+      "slice3_types_test": 69,
+      "slice5_syntax_test": 60,
+      "slice5_squash_test": 24,
+      "slice5_rewrite_test": 5,
+      "stored_types_test": 33,
+      "slice4_retire_test": 87
+    },
+    "run_py": "not run in plan"
+  },
+  "owner_questions": [
+    {
+      "id": "Q6B-1",
+      "class": "Migrate",
+      "blocks": [
+        "decode-constructor"
+      ]
+    },
+    {
+      "id": "Q6B-2",
+      "class": "Migrate",
+      "blocks": [
+        "enum-only-way-in"
+      ]
+    },
+    {
+      "id": "Q6B-3",
+      "class": "Migrate",
+      "blocks": [],
+      "interim": "D6B-19 reject"
+    },
+    {
+      "id": "Q6B-4",
+      "class": "Answer",
+      "blocks": [],
+      "interim": "D6B-34 reject"
+    }
+  ],
+  "steps": [
+    {
+      "id": "hygiene",
+      "order": 0,
+      "name": "Baseline hygiene: cargo fmt and two clippy rewrites, full run.py baseline",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-hygiene/",
+      "depends_on": [],
+      "blocked_by_owner_question": null,
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs"
+      ],
+      "first_red_test": {
+        "kind": "no-test exception",
+        "reason": "no behavior change",
+        "alternative": "test counts equal baseline; generated output of example.beaml, payments.beaml, GEN orders.beaml byte-equal"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)"
+      ]
+    },
+    {
+      "id": "int",
+      "order": 1,
+      "name": "Int TYPE and integer literals",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-int/",
+      "depends_on": [
+        "hygiene"
+      ],
+      "blocked_by_owner_question": null,
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/int/int.beaml",
+        "experiments/0004-generated-replay/tests/slice6_int_test.py"
+      ],
+      "first_red_test": {
+        "test": "main.rs unit test int_literals_and_patterns",
+        "expect": "fn f 0 -> String = \"zero\"  fn f n: Int -> String = \"other\" compiles",
+        "today": "expected expression or pattern"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py"
+      ]
+    },
+    {
+      "id": "failure",
+      "order": 2,
+      "name": "Failure position for any TYPE, E1 body rule, overlap check with help line (DL-092, DL-093)",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-failure/",
+      "depends_on": [
+        "int"
+      ],
+      "blocked_by_owner_question": null,
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/failure/",
+        "experiments/0004-generated-replay/tests/slice6_failure_test.py"
+      ],
+      "first_red_test": {
+        "test": "main.rs unit test success_and_failure_types_never_overlap",
+        "expect": "-> String ! String and -> String ! Int | String fail with help line; -> String ! Int compiles",
+        "today": "unknown type: Int"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py"
+      ]
+    },
+    {
+      "id": "type-constructor",
+      "order": 3,
+      "name": "Record constructor fn TypeName, signature line, nominal constructor TYPES, record literal only inside the constructor (DL-092)",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-type-constructor/",
+      "depends_on": [
+        "failure"
+      ],
+      "blocked_by_owner_question": null,
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/type-constructor/",
+        "experiments/0004-generated-replay/tests/slice6_type_constructor_test.py"
+      ],
+      "first_red_test": {
+        "test": "main.rs unit test constructor_is_the_only_way_in",
+        "expect": "DL-092 fixture compiles; record literal outside the constructor and a structural twin are rejected",
+        "today": "invalid function name: NonZeroInt"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_type_constructor_test.py"
+      ]
+    },
+    {
+      "id": "enum",
+      "order": 4,
+      "name": "Enum literals, bare variants, enum constructor, several signatures, unreachable signature, one decode path (DL-082, DL-084, DL-085, DL-087, DL-088)",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-enum/",
+      "depends_on": [
+        "type-constructor"
+      ],
+      "blocked_by_owner_question": null,
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/enum/enum.beaml",
+        "experiments/0004-generated-replay/tests/slice6_enum_test.py"
+      ],
+      "first_red_test": {
+        "test": "main.rs unit test enum_literals_and_constructor",
+        "expect": "fixture compiles; literals plus constructor, superset signature and equal literals are rejected",
+        "today": "expected '(' at Authorized ="
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py"
+      ]
+    },
+    {
+      "id": "pipe",
+      "order": 5,
+      "name": "Pipe in any expression, constructors and variants as steps (DL-086)",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-pipe/",
+      "depends_on": [
+        "enum"
+      ],
+      "blocked_by_owner_question": null,
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/pipe/pipe.beaml",
+        "experiments/0004-generated-replay/tests/slice6_pipe_test.py"
+      ],
+      "first_red_test": {
+        "test": "main.rs unit test pipe_in_any_expression",
+        "expect": "reason |> DeclineReason |> Declined as a constructor clause body and build(p |> prepare, x) compile",
+        "today": "a function with a pipe body has one clause in slice 1 / expected ')'"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py",
+        "payments.beaml output byte-identical; bad/*.beaml messages unchanged"
+      ]
+    },
+    {
+      "id": "redacted",
+      "order": 6,
+      "name": "redacted fields and with <field> on EFFECTS (DL-059, DL-089)",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-redacted/",
+      "depends_on": [
+        "hygiene"
+      ],
+      "blocked_by_owner_question": null,
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/redacted/",
+        "experiments/0004-generated-replay/tests/slice6_redacted_test.py"
+      ],
+      "first_red_test": {
+        "test": "slice6_redacted_test.py R1",
+        "expect": "wire body without card_holder; with card_holder the wire body has it, but RESPONSE RECORD request, span input and event never do",
+        "today": "parse error at redacted"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_redacted_test.py",
+        "marker string not found in any run file"
+      ]
+    },
+    {
+      "id": "decode-literals",
+      "order": 7,
+      "name": "Decode of ENUM LITERALS from outside data, keep-value variant required (DL-062, DL-065, DL-082 L)",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-decode-literals/",
+      "depends_on": [
+        "enum",
+        "redacted"
+      ],
+      "blocked_by_owner_question": null,
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/decode-literals/",
+        "experiments/0004-generated-replay/tests/slice6_decode_literals_test.py"
+      ],
+      "first_red_test": {
+        "test": "slice6_decode_literals_test.py",
+        "expect": "\"ok\" -> Authorized, \"refunded\" -> Unknown(\"refunded\"), 7 -> typed reject decode; no keep-value variant -> compile error",
+        "today": "slice 1 decodes String fields only"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_decode_literals_test.py"
+      ]
+    },
+    {
+      "id": "decode-constructor",
+      "order": 8,
+      "name": "Decode through an enum constructor: keys from parameter names, first matching signature wins, keep-value check (DL-084, DL-085, DL-065)",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-decode-constructor/",
+      "depends_on": [
+        "pipe",
+        "decode-literals"
+      ],
+      "blocked_by_owner_question": "Q6B-1",
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/decode-constructor/",
+        "experiments/0004-generated-replay/tests/slice6_decode_constructor_test.py"
+      ],
+      "first_red_test": {
+        "test": "slice6_decode_constructor_test.py",
+        "expect": "declined body -> Declined(...); unmatched status -> Unknown(status); no signature keys -> typed reject; last clause that keeps no value -> compile error",
+        "today": "enum field not decodable"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_decode_constructor_test.py"
+      ]
+    },
+    {
+      "id": "enum-only-way-in",
+      "order": 9,
+      "name": "Variant expressions of an enum with a constructor only inside its clauses (only if Q6B-2 answers yes)",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-enum-only-way-in/",
+      "depends_on": [
+        "enum"
+      ],
+      "blocked_by_owner_question": "Q6B-2",
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs"
+      ],
+      "first_red_test": {
+        "test": "main.rs unit test enum_constructor_is_the_only_way_in",
+        "expect": "fn retry -> PaymentState = Pending outside the constructor is rejected",
+        "today": "compiles"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)"
+      ]
+    },
+    {
+      "id": "fmt",
+      "order": 10,
+      "name": "beaml fmt: VERSION MARK form (b), aligned clause and EFFECT columns (DL-081, DL-083, DL-013)",
+      "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6b-fmt/",
+      "depends_on": [
+        "int",
+        "failure",
+        "type-constructor",
+        "enum",
+        "pipe",
+        "redacted"
+      ],
+      "blocked_by_owner_question": null,
+      "files": [
+        "experiments/0001-syntax-to-beam/src/main.rs",
+        "experiments/0004-generated-replay/slice6/fmt/",
+        "experiments/0004-generated-replay/tests/slice6_fmt_test.py"
+      ],
+      "first_red_test": {
+        "test": "slice6_fmt_test.py",
+        "expect": "aligned -> and = columns; mark removed/written/kept per D6B-43; comments byte-equal; idempotent; compiled output equal except declaration offsets",
+        "today": "cannot read source (fmt read as a path)"
+      },
+      "checks": [
+        "cargo test --no-fail-fast (experiments/0001-syntax-to-beam)",
+        "cargo fmt --check",
+        "cargo clippy --offline --all-targets -- -D warnings",
+        "python3 -B experiments/0004-generated-replay/tests/{slice3_types,slice5_syntax,slice5_squash,slice5_rewrite,stored_types,slice4_retire}_test.py",
+        "python3 -B experiments/0004-generated-replay/run.py (TEST phase)",
+        "python3 -B experiments/0004-generated-replay/tests/slice6_fmt_test.py"
+      ]
+    }
+  ]
+}
