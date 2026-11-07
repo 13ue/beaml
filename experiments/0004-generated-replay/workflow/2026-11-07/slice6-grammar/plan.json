@@ -1,0 +1,68 @@
+{
+  "slice": "6a-grammar",
+  "date": "2026-11-07",
+  "ledger": "experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar",
+  "decisions": ["DL-082", "DL-084", "DL-085", "DL-086", "DL-089", "DL-092", "DL-093"],
+  "toolchain": {
+    "tree_sitter": "/private/tmp/beaml-zed-highlighting/tools/tree-sitter",
+    "tree_sitter_version": "0.26.5",
+    "on_path": false,
+    "preview_npx_checked": false,
+    "baseline": {"corpus": "17/17 pass", "highlight_files": "3/3 pass"}
+  },
+  "affected_files": [
+    "integrations/zed-beaml/grammar.js",
+    "integrations/zed-beaml/src/grammar.json",
+    "integrations/zed-beaml/src/node-types.json",
+    "integrations/zed-beaml/src/parser.c",
+    "integrations/zed-beaml/languages/beaml/highlights.scm",
+    "integrations/zed-beaml/test/corpus/constructors.txt",
+    "integrations/zed-beaml/test/highlight/constructors.beaml",
+    "integrations/zed-beaml/grammars/beaml.wasm",
+    "integrations/zed-beaml/README.md"
+  ],
+  "unchanged_expected": ["integrations/zed-beaml/preview.py"],
+  "first_failing_test": {
+    "file": "integrations/zed-beaml/test/corpus/constructors.txt",
+    "name": "Enum constructor with signatures and clauses",
+    "red_reason": "ERROR on enum literal '=' and on signature line without body"
+  },
+  "red_cases": [
+    "enum literal Authorized = \"ok\"",
+    "signature line without = body",
+    "integer pattern in a parameter",
+    "effect ... with card_holder",
+    "highlight: fn PaymentState name is constructor",
+    "highlight: bare variant body is constructor",
+    "highlight: uppercase pipe step is constructor",
+    "highlight: field after effect with is property"
+  ],
+  "guard_cases_pass_today": [
+    "fn f x: String -> String ! String = x",
+    "fn g p: P -> R = build(p |> prepare, x)",
+    "fn NonZeroInt n: Int -> NonZeroInt ! IsZero = NonZeroInt { value: n }"
+  ],
+  "minimal_changes": [
+    "variant_declaration: optional(seq('=', string))",
+    "function_clause: optional = body",
+    "_expression: add integer",
+    "effect_declaration: optional(seq('with', commaList(property)))",
+    "highlights.scm: uppercase/lowercase predicate pairs for fn name and pipe step; parent-scoped constructor captures for bare variants"
+  ],
+  "checks": [
+    "tree-sitter generate --abi 15 --js-runtime native",
+    "tree-sitter test",
+    "tree-sitter test --wasm",
+    "tree-sitter parse --wasm -q ../../experiments/0001-syntax-to-beam/example.beaml",
+    "tree-sitter build --wasm -o grammars/beaml.wasm",
+    "python3 integrations/zed-beaml/preview.py --chat integrations/zed-beaml/test/highlight/constructors.beaml"
+  ],
+  "test_first": {"applies": true, "reason": "parse trees and highlight captures are behavior; corpus and highlight tests"},
+  "exclusions": ["beaml fmt", "compiler main.rs", "semantic checks DL-085 DL-087 DL-088 DL-092 DL-093", "generics", "guards"],
+  "owner_questions": [],
+  "risks": [
+    "tree-sitter binary lives in /private/tmp and can disappear",
+    "preview.py npx download not checked in PLAN",
+    "capture order may differ between Zed and the CLI; use exclusive predicates"
+  ]
+}
