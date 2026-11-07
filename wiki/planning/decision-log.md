@@ -472,6 +472,11 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice; the agent interface is the core of the project, and DX cuts across all six parts (migration errors in the editor, traces beside the source).
 → Order (proposal): grammar (slice 6a), compiler for the decided forms, `beaml fmt` and `beaml check --json`, then a language server on that JSON with diagnostics and hover first; Zed first, then VS Code.
 
+**DL-097 · Repair · Build every decided item unattended; record every decision**
+→ Question: how does the pipeline run while the OWNER is away?
+→ Chose: workers build every item whose decisions are recorded (DL-062, DL-065, DL-081 to DL-093), one code-writing worker at a time, in bounded steps with a ledger each. A step stops at the first Migrate or Answer question and hands it back. Every decision of every class, Undo and Repair included, goes into the step's `notes.md` with its class, choice, alternative and reason. Repair decisions that change language behaviour or a check also get a decision-log entry at the end of the phase.
+→ Because: OWNER instruction of 2026-11-07. The OWNER must find no silent decision, small ones included.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
