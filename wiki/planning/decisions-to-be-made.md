@@ -270,7 +270,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D012 — Replay marker for a redacted field (Q6B-14)
 
-- **Status** OPEN
+- **Status** CLOSED by [DL-115](decision-log.md): A, a REPLAY RUN shows a redacted field as the atom `:redacted`.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** EXECUTION/REPLAY RUN, DL-105
@@ -291,7 +291,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D013 — `redacted` output only on a top-level String field (Q6B-15)
 
-- **Status** OPEN
+- **Status** CLOSED by [DL-116](decision-log.md): A, interim: `redacted` output only on String and Int fields without a constructor.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** LANGUAGE/COMPILATION, DL-102, DL-105, DL-106
