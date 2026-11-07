@@ -1,0 +1,6 @@
+// D9 (DL-112, D6B-182): a pipe step into an accessor fn, then a plain field.
+type Order { order_id: String  card_holder: redacted String }
+type Receipt { holder: String }
+
+fn holder Order { card_holder } -> String = card_holder
+fn receipt o: Order -> Receipt = Receipt { holder: o |> holder }

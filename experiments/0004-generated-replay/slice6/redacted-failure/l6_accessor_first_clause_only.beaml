@@ -1,0 +1,8 @@
+// L6 (limit, D6B-182): only the first clause returns the redacted value, so the fn is no accessor.
+type Order { order_id: String  card_holder: redacted String }
+type Receipt { holder: String }
+
+fn holder o: Order -> String
+fn holder Order { order_id: "x", card_holder } -> String = card_holder
+fn holder Order { order_id }                   -> String = order_id
+fn receipt o: Order -> Receipt = Receipt { holder: holder(o) }

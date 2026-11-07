@@ -4,7 +4,8 @@ Plan: workflow/2026-11-07/slice6b-redacted/plan.md, "Failure TYPE rule (6c)" and
 slice6b-redacted-failure/ (spec.md, notes.md). Fixtures: slice6/redacted-failure/, one case per file.
 RED cases (f*, d*): a direct copy of a redacted value into a place that is not redacted is a compile error with the
 exact text of D6B-67, D6B-175 to D6B-177. Guards (g*): allowed copies build. Limits (l*): derived values that the
-reach rule D6B-174 does not follow; they build, and the test name says that this is a limit, not a wanted outcome.
+reach rules D6B-174 and D6B-182 do not follow; they build, and each test name says that this is a limit, not a
+wanted outcome.
 Compile only: no runtime harness, so no fixture depends on a failure struct as a host value (red-team-01 B4).
 Expected values come from the plan, the decision log and notes.md, never from the new compiler.
 Run: python3 -B experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py [-k NAME]
@@ -72,11 +73,16 @@ RED = {
     "d4_enum_payload": hold_text("state", "card_holder", "Order", "TYPE", "State", "DL-112"),
     "d5_variant_pipe": hold_text("box", "card_holder", "Order", "TYPE", "State", "DL-112"),
     "d6_renamed_binding": record_text("receipt", "card_holder", "Order", "holder", "TYPE Receipt", "holder", "Receipt"),
+    # D6B-182: a call or pipe step into an accessor fn (every clause body is a direct redacted value).
+    "d8_call_accessor": record_text("receipt", "card_holder", "Order", "holder", "TYPE Receipt", "holder", "Receipt"),
+    "d9_pipe_accessor": record_text("receipt", "card_holder", "Order", "holder", "TYPE Receipt", "holder", "Receipt"),
     # D6B-177: F of T names the TYPE that declares the redacted field.
     "d7_nested_pattern": record_text("receipt", "holder", "Card", "holder", "TYPE Receipt", "holder", "Receipt"),
 }
 GUARDS = ["g1_redacted_target", "g2_failure_redacted_target", "g3_same_name_other_value", "g4_whole_record"]
-LIMITS = ["l1_concat", "l2_constructor_other_type", "l3_fn_builds_record", "l4_two_levels", "l5_success_body"]
+# l6, l7: "every clause" (D6B-174, D6B-182); a GREEN that reads one clause only rejects one of them.
+LIMITS = ["l1_concat", "l2_constructor_other_type", "l3_fn_builds_record", "l4_two_levels", "l5_success_body",
+          "l6_accessor_first_clause_only", "l7_identity_last_clause_only"]
 
 
 class RedactedFailureTest(unittest.TestCase):
@@ -122,7 +128,7 @@ class RedactedFailureTest(unittest.TestCase):
                 self.assert_reject(name, RED[name])
 
     def test_DL112_copies_everywhere_are_rejected(self):
-        """DL-112: every record literal and variant payload; D6B-174 reach of one identity fn."""
+        """DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level."""
         for name in sorted(n for n in RED if n.startswith("d")):
             with self.subTest(name):
                 self.assert_reject(name, RED[name])
@@ -134,7 +140,7 @@ class RedactedFailureTest(unittest.TestCase):
                 self.assert_builds(name)
 
     def test_limit_derived_values_are_not_checked(self):
-        """Records a limit, not a wanted outcome (plan F5, DL-112, D6B-174): derived values build."""
+        """Records a limit, not a wanted outcome (plan F5, DL-112, D6B-174, D6B-182): derived values build."""
         for name in LIMITS:
             with self.subTest(name):
                 self.assert_builds(name)

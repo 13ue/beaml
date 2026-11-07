@@ -323,3 +323,384 @@ b94547af5cfda93c02e1edaac951c7ead334faf785cfc049f476924fb19f72d1  experiments/00
 125673ee5182f3e51c4cba084f66b451f1f0c832077f835982c0468008b92a18  experiments/0004-generated-replay/slice6/redacted-failure/l4_two_levels.beaml
 2a2ee1886461faa152f3b4f87b8d37e3bdd02af69b8a13a09d1f16c220a5fd40  experiments/0004-generated-replay/slice6/redacted-failure/l5_success_body.beaml
 dd69934cd7d045730232988a6f798ce19a2d68e38b784a07439ae6a4d2092fac  experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py
+
+## RED repair run, 2026-11-07 (RED review O1, O2). Compiler: the same scratch build of HEAD 61eb8e81.
+$ BEAML_SPIKE=<scratch>/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py -v
+test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected)
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level. ... compiler: <scratch>/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+
+  test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d1_record_field]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level. ... FAIL
+  test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d2_pipe_identity]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level. ... FAIL
+  test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d3_call_identity]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level. ... FAIL
+  test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d4_enum_payload]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level. ... FAIL
+  test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d5_variant_pipe]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level. ... FAIL
+  test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d6_renamed_binding]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level. ... FAIL
+  test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d7_nested_pattern]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level. ... FAIL
+  test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d8_call_accessor]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level. ... FAIL
+  test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d9_pipe_accessor]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level. ... FAIL
+test_F1_failure_record_field_copy_is_rejected (__main__.RedactedFailureTest.test_F1_failure_record_field_copy_is_rejected)
+The first RED (plan 6c F1, D6B-67 a). ... FAIL
+test_allowed_copies_build (__main__.RedactedFailureTest.test_allowed_copies_build)
+G1, G2 (plan F2): a redacted target; G3: DL-113 same name, other value; G4 (plan F6): whole record. ... ok
+test_failure_type_copies_are_rejected (__main__.RedactedFailureTest.test_failure_type_copies_are_rejected)
+Plan F3, F4 and D6B-67 (c). ... 
+  test_failure_type_copies_are_rejected (__main__.RedactedFailureTest.test_failure_type_copies_are_rejected) [f3_failure_enum]
+Plan F3, F4 and D6B-67 (c). ... FAIL
+  test_failure_type_copies_are_rejected (__main__.RedactedFailureTest.test_failure_type_copies_are_rejected) [f4_failure_nested]
+Plan F3, F4 and D6B-67 (c). ... FAIL
+  test_failure_type_copies_are_rejected (__main__.RedactedFailureTest.test_failure_type_copies_are_rejected) [f7_failure_body]
+Plan F3, F4 and D6B-67 (c). ... FAIL
+test_fixture_set_is_complete (__main__.RedactedFailureTest.test_fixture_set_is_complete)
+Every fixture file belongs to exactly one group. ... ok
+test_fmt_keeps_every_fixture (__main__.RedactedFailureTest.test_fmt_keeps_every_fixture)
+fmt does not check the rule: each fixture is already formatted and stays byte-equal (exit 0). ... ok
+test_limit_derived_values_are_not_checked (__main__.RedactedFailureTest.test_limit_derived_values_are_not_checked)
+Records a limit, not a wanted outcome (plan F5, DL-112, D6B-174, D6B-182): derived values build. ... ok
+test_setup_red_sources_build_without_redacted (__main__.RedactedFailureTest.test_setup_red_sources_build_without_redacted)
+Setup control: each RED source builds when no field is redacted, so the RED reason is the rule only. ... ok
+
+======================================================================
+FAIL: test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d1_record_field]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 134, in test_DL112_copies_everywhere_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn receipt copies the redacte[162 chars]2)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn receipt copies the redacted field card_holder of Order into '
+-   'holder of the TYPE Receipt, which is not redacted',
+-   '  help: mark holder as redacted in Receipt, or do not copy the value '
+-   '(DL-112)']) : d1_record_field: exit and first two stderr lines
+
+======================================================================
+FAIL: test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d2_pipe_identity]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 134, in test_DL112_copies_everywhere_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn receipt copies the redacte[162 chars]2)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn receipt copies the redacted field card_holder of Order into '
+-   'holder of the TYPE Receipt, which is not redacted',
+-   '  help: mark holder as redacted in Receipt, or do not copy the value '
+-   '(DL-112)']) : d2_pipe_identity: exit and first two stderr lines
+
+======================================================================
+FAIL: test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d3_call_identity]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 134, in test_DL112_copies_everywhere_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn receipt copies the redacte[162 chars]2)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn receipt copies the redacted field card_holder of Order into '
+-   'holder of the TYPE Receipt, which is not redacted',
+-   '  help: mark holder as redacted in Receipt, or do not copy the value '
+-   '(DL-112)']) : d3_call_identity: exit and first two stderr lines
+
+======================================================================
+FAIL: test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d4_enum_payload]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 134, in test_DL112_copies_everywhere_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn state copies the redacted [122 chars]2)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn state copies the redacted field card_holder of Order into the '
+-   'TYPE State, which cannot hold a redacted value',
+-   '  help: do not copy the value (DL-112)']) : d4_enum_payload: exit and first two stderr lines
+
+======================================================================
+FAIL: test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d5_variant_pipe]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 134, in test_DL112_copies_everywhere_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn box copies the redacted fi[120 chars]2)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn box copies the redacted field card_holder of Order into the TYPE '
+-   'State, which cannot hold a redacted value',
+-   '  help: do not copy the value (DL-112)']) : d5_variant_pipe: exit and first two stderr lines
+
+======================================================================
+FAIL: test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d6_renamed_binding]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 134, in test_DL112_copies_everywhere_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn receipt copies the redacte[162 chars]2)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn receipt copies the redacted field card_holder of Order into '
+-   'holder of the TYPE Receipt, which is not redacted',
+-   '  help: mark holder as redacted in Receipt, or do not copy the value '
+-   '(DL-112)']) : d6_renamed_binding: exit and first two stderr lines
+
+======================================================================
+FAIL: test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d7_nested_pattern]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 134, in test_DL112_copies_everywhere_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn receipt copies the redacte[156 chars]2)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn receipt copies the redacted field holder of Card into holder of '
+-   'the TYPE Receipt, which is not redacted',
+-   '  help: mark holder as redacted in Receipt, or do not copy the value '
+-   '(DL-112)']) : d7_nested_pattern: exit and first two stderr lines
+
+======================================================================
+FAIL: test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d8_call_accessor]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 134, in test_DL112_copies_everywhere_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn receipt copies the redacte[162 chars]2)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn receipt copies the redacted field card_holder of Order into '
+-   'holder of the TYPE Receipt, which is not redacted',
+-   '  help: mark holder as redacted in Receipt, or do not copy the value '
+-   '(DL-112)']) : d8_call_accessor: exit and first two stderr lines
+
+======================================================================
+FAIL: test_DL112_copies_everywhere_are_rejected (__main__.RedactedFailureTest.test_DL112_copies_everywhere_are_rejected) [d9_pipe_accessor]
+DL-112: every record literal and variant payload; D6B-174 identity fn and D6B-182 accessor fn, one level.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 134, in test_DL112_copies_everywhere_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn receipt copies the redacte[162 chars]2)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn receipt copies the redacted field card_holder of Order into '
+-   'holder of the TYPE Receipt, which is not redacted',
+-   '  help: mark holder as redacted in Receipt, or do not copy the value '
+-   '(DL-112)']) : d9_pipe_accessor: exit and first two stderr lines
+
+======================================================================
+FAIL: test_F1_failure_record_field_copy_is_rejected (__main__.RedactedFailureTest.test_F1_failure_record_field_copy_is_rejected)
+The first RED (plan 6c F1, D6B-67 a).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 122, in test_F1_failure_record_field_copy_is_rejected
+    self.assert_reject("f1_failure_record", RED["f1_failure_record"])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn check copies the redacted [160 chars]5)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn check copies the redacted field card_holder of Order into reason '
+-   'of the failure TYPE Bad, which is not redacted',
+-   '  help: mark reason as redacted in Bad, or do not copy the value (DL-105)']) : f1_failure_record: exit and first two stderr lines
+
+======================================================================
+FAIL: test_failure_type_copies_are_rejected (__main__.RedactedFailureTest.test_failure_type_copies_are_rejected) [f3_failure_enum]
+Plan F3, F4 and D6B-67 (c).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 128, in test_failure_type_copies_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn check copies the redacted [128 chars]5)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn check copies the redacted field card_holder of Order into the '
+-   'failure TYPE Why, which cannot hold a redacted value',
+-   '  help: do not copy the value (DL-105)']) : f3_failure_enum: exit and first two stderr lines
+
+======================================================================
+FAIL: test_failure_type_copies_are_rejected (__main__.RedactedFailureTest.test_failure_type_copies_are_rejected) [f4_failure_nested]
+Plan F3, F4 and D6B-67 (c).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 128, in test_failure_type_copies_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn check copies the redacted [164 chars]5)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn check copies the redacted field card_holder of Order into '
+-   'inner.text of the failure TYPE Bad, which is not redacted',
+-   '  help: mark text as redacted in Inner, or do not copy the value (DL-105)']) : f4_failure_nested: exit and first two stderr lines
+
+======================================================================
+FAIL: test_failure_type_copies_are_rejected (__main__.RedactedFailureTest.test_failure_type_copies_are_rejected) [f7_failure_body]
+Plan F3, F4 and D6B-67 (c).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 128, in test_failure_type_copies_are_rejected
+    self.assert_reject(name, RED[name])
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py", line 111, in assert_reject
+    self.assertEqual((1, want), (code, lines[:2]), "%s: exit and first two stderr lines" % name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: fn check copies the redacted [131 chars]5)']) != (0, [])
+
+First differing element 0:
+1
+0
+
++ (0, [])
+- (1,
+-  ['error: fn check copies the redacted field card_holder of Order into the '
+-   'failure TYPE String, which cannot hold a redacted value',
+-   '  help: do not copy the value (DL-105)']) : f7_failure_body: exit and first two stderr lines
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.399s
+
+FAILED (failures=13)
+exit 1
+d3e7441d60cee18d300a6a8c75cdd8978022e096b18dbfb766624b7695223305  experiments/0004-generated-replay/slice6/redacted-failure/d1_record_field.beaml
+b7e435cd3a614f481a0a83d2b65547d66e8d4b54c183fedde8bac0d60cbc2d69  experiments/0004-generated-replay/slice6/redacted-failure/d2_pipe_identity.beaml
+7a729bd40189f77a5adf0baa732511fcd55c9b00a0045bd6fa08469e0c87be79  experiments/0004-generated-replay/slice6/redacted-failure/d3_call_identity.beaml
+6241c63e06b82b24c41b6f5bff0f7e5afbe1571c64bdcf433752c5fccb480ebb  experiments/0004-generated-replay/slice6/redacted-failure/d4_enum_payload.beaml
+c5a565d667538334868f27854fb7c23b387a821bb46445f27ce94a77c9031aaa  experiments/0004-generated-replay/slice6/redacted-failure/d5_variant_pipe.beaml
+3e59a2a6d84f8a3b8c3d1854e411d9a2954a03f87064792bc376b54eb2ffe7c1  experiments/0004-generated-replay/slice6/redacted-failure/d6_renamed_binding.beaml
+2d7da3665b53c942a4a26a5fbe0abcb723416e69bf0149202b4c2f2b790c69ca  experiments/0004-generated-replay/slice6/redacted-failure/d7_nested_pattern.beaml
+0a549efc8329b39a268cfede9e0b1cbb2d7f509a6eb4f914d7ec0aa19d0e1a01  experiments/0004-generated-replay/slice6/redacted-failure/d8_call_accessor.beaml
+6f35f10ecf605a1b05fa863d85b7df54f6964be50df445b723f0a095d7eb3971  experiments/0004-generated-replay/slice6/redacted-failure/d9_pipe_accessor.beaml
+1f8841bd7ba0f929c4d34bf009e67a4ee03dc7abf60e638944decabda4c7d59c  experiments/0004-generated-replay/slice6/redacted-failure/f1_failure_record.beaml
+e1f05855e20e8442c5d640ecac84f90fead72a41dca0e96f0737af377f3de72a  experiments/0004-generated-replay/slice6/redacted-failure/f3_failure_enum.beaml
+48687da13567437d562b2ae1492127cc40464a280a1235ba1b0c5c66a2e1ced1  experiments/0004-generated-replay/slice6/redacted-failure/f4_failure_nested.beaml
+91a84d3065a98ed28921dce6888f5b5d1a71ac5da6c8f6dbf913b4c163c08b56  experiments/0004-generated-replay/slice6/redacted-failure/f7_failure_body.beaml
+94747c0834ae59eaac33a198e302bf801b0c1fac4988f450b93a074b3526787f  experiments/0004-generated-replay/slice6/redacted-failure/g1_redacted_target.beaml
+2de95a7d2a0d564b4f7b2202909686d57160797dceb03cc7f678811ef3f8fb4a  experiments/0004-generated-replay/slice6/redacted-failure/g2_failure_redacted_target.beaml
+b94547af5cfda93c02e1edaac951c7ead334faf785cfc049f476924fb19f72d1  experiments/0004-generated-replay/slice6/redacted-failure/g3_same_name_other_value.beaml
+0f1f89bad7d8b06c8d8fc97976c7b73a6ae73a99a382ec2a7af7cdcef725f1c0  experiments/0004-generated-replay/slice6/redacted-failure/g4_whole_record.beaml
+6a4a55105458b41bc13c9c30be52dd388a773350e4ce701dc5028f73a25d12d6  experiments/0004-generated-replay/slice6/redacted-failure/l1_concat.beaml
+8cfaa13f0fdeaff1df125bd82aeff84b5349394d5a4cce6c833af14df3c316c2  experiments/0004-generated-replay/slice6/redacted-failure/l2_constructor_other_type.beaml
+2ff0eafa42c069c3d24fc10483d4b17170bced0f547ed13fc6f673deeedc750c  experiments/0004-generated-replay/slice6/redacted-failure/l3_fn_builds_record.beaml
+125673ee5182f3e51c4cba084f66b451f1f0c832077f835982c0468008b92a18  experiments/0004-generated-replay/slice6/redacted-failure/l4_two_levels.beaml
+caa25d0a781010dcea8540ed5a80a5dee6c4ded35a508c9be00bfa1e2ef551a6  experiments/0004-generated-replay/slice6/redacted-failure/l5_success_body.beaml
+434d6ced173cfe6c7926f51f2eb2e6a269beacfa27261c19fc8f978c927df880  experiments/0004-generated-replay/slice6/redacted-failure/l6_accessor_first_clause_only.beaml
+916c5178371acc7b357893ac373fa3ae191e980c8041f8098a0b07ce37acab31  experiments/0004-generated-replay/slice6/redacted-failure/l7_identity_last_clause_only.beaml
+21179f56079c73b562eee20c44e12e50b30178fe9202b50a670d0a2994ca1bee  experiments/0004-generated-replay/tests/slice6_redacted_failure_test.py
