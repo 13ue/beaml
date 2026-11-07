@@ -76,3 +76,51 @@ Result: 12 tests, 11 FAIL, 1 pass (the guard S14). Exit 1.
 - The pipe clause shape (S4) is checked at runtime only.
 - The unreachable rejects fail today at the constructor name. They prove the rule only after GREEN accepts enum constructors.
 - No test for the open points above.
+
+## RED repair
+
+Source: [red-review.md](red-review.md) (O1 high, O2 and O3 medium, open Undo points). Production file unchanged. `run.py` was not run. No commit.
+
+### Decisions
+
+| # | Class | Choice | Alternative | Reason |
+|---|---|---|---|---|
+| R1 | Repair | **Chose:** guard `test_effect_pipe_keeps_one_clause`. The orders source plus a two-clause lowercase `fn auth` whose whole-body pipes have the EFFECT step `payments.authorize`. It asserts the existing text `a function with a pipe body has one clause in slice 1: auth`. **Over:** no guard (step 5 tests it). **Because:** O1, the shortest GREEN deletes the whole check and every other test still passes. **Commits us to:** step 4 GREEN keeps this exact text for a several-clause `fn` with an EFFECT pipe body. | Assert a new text | The rule and its text exist today. D6B-28 keeps them for EFFECT pipes. |
+| R2 | Repair | **Chose:** GREEN may loosen the one-clause rule only for a whole-body pipe without an EFFECT step (S4: the pure pipe in an enum constructor clause). It must keep the rule, the text and `emit_chain` with spans for a whole-body pipe with an EFFECT step. **Over:** keep the rule for every lowercase `fn` and loosen it only in constructors. **Because:** D6B-28 says "every other pipe compiles to plain calls". The EFFECT step is the part that needs one clause. **Commits us to:** a pure pipe in a several-clause lowercase `fn` may compile after GREEN. No test asserts that in step 4. | Constructor-only loosening | D6B-28 text. Main agent to confirm if a constructor-only loosening is wanted. |
+| R3 | Undo | O2 reject `test_unreachable_signature_with_more_parameters_in_other_order`: `code: String`, then `extra: String, code: String`. S9 text. | No test | A prefix check passes the old test. D6B-23 compares a set. |
+| R4 | Undo | O2 accept `test_superset_with_other_names_is_reachable`: `code: String`, then `status: String, extra: String`. | No test | A TYPES-only check at a larger arity rejects a reachable signature. |
+| R5 | Undo | O3 reject `test_unreachable_clause_in_the_second_signature`: signature 2 `n: Int` with `n`, then `0`. Text `unreachable clause: Outcome`. | No test | Coverage per signature, not only for signature 1. |
+| R6 | Undo | Undo point "second payload variant without a literal": `Unknown(String)  Other(String)` in a literal enum. New text: `error: enum PaymentState: the variant Other has no literal, Unknown keeps the value already` and `  help: an enum with literals has at most one keep-value variant X(String)`. The second one in source order is the error. | No test | D6B-21 "at most one". Without it, decode can pick a wrong variant. |
+| R7 | Undo | Undo point "literal on the keep-value variant": `Unknown(String) = "x"` gives the S10 text with `Unknown`. | No test | The keep-value shape must not exempt a literal (DL-098). A wrong outcome: a literal that decode ignores. |
+| R8 | Undo | Undo point "equal TYPES call": runtime `test_runtime_equal_types_call_takes_the_first_signature`. `pick("zz")` gives `Other("zz")` (signature 1). Signature 2 gives `Approved` for every input. | Build check only | D6B-16. A wrong choice gives a wrong value, not a message. |
+
+### Deferred Undo points
+
+- Call `E(args)` that fits no signature: wrong outcome is a message, not a value.
+- Non-exhaustive signature group: it gives a message; only the text is open.
+- Bare uppercase name in a pattern that is no variant: it gives a message; only the text is open.
+- `duplicate name: new_PaymentState_1` against a user `fn`: a step 3 point (G7), outside the enum step.
+- A variant without a literal and without a payload in a literal enum: it gives a message; only the text is open.
+
+### Run
+
+Command: `python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py` (repository root). Full output: [red-output.log](red-output.log).
+Result: 19 tests, 17 FAIL, 2 pass (guards S14 and R1). Exit 1.
+
+| New test | Expected | Actual today |
+|---|---|---|
+| `test_effect_pipe_keeps_one_clause` | one-clause text | pass (guard R1) |
+| `test_superset_with_other_names_is_reachable` | exit 0 | `error: fn Outcome: a constructor needs a type Outcome` |
+| `test_runtime_equal_types_call_takes_the_first_signature` | 1 subtest PASS | stops at build, constructor error |
+| `test_unreachable_signature_with_more_parameters_in_other_order` | S9 text | constructor error |
+| `test_unreachable_clause_in_the_second_signature` | `unreachable clause: Outcome` | constructor error |
+| `test_second_keep_value_variant` | R6 text | `expected '(' at byte 31` |
+| `test_literal_on_the_keep_value_variant` | S10 text with `Unknown` | `expected '(' at byte 31` |
+
+- Production unchanged: `cargo test --offline --no-fail-fast` 29 pass (15 unit, 14 CLI). `slice6_int_test.py` 16 OK. `slice6_failure_test.py` 22 OK. `slice6_constructor_test.py` 25 OK.
+
+### Limits
+
+- R1 passes today because the one-clause check comes first. If GREEN drops the check, the source may fail at another check. The exact text still makes the guard fail, so this gives no false pass.
+- The rejects R3, R5 to R7 fail today before their rule. They prove the rule only after GREEN.
+- Step 5 RED: drop or mark as a guard the corpus clause in a several-clause constructor (red-review.md, step 5). The one-clause EFFECT rule is now in step 4 (R1).

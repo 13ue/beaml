@@ -21,7 +21,7 @@ Step 3 base: [slice6b-type-constructor/notes.md](../slice6b-type-constructor/not
 
 ## Pass rule
 
-- `python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py` (repository root): 12 of 12 pass, all runtime subtests pass, no ProbeSupport stub.
+- `python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py` (repository root): 19 of 19 pass (the guards S14 and R1 included), all runtime subtests pass, no ProbeSupport stub.
 - Every reject gives exit 1, no stdout and the exact text in the test.
 - `cargo test --offline --no-fail-fast`, `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings` pass.
 - `slice6_int_test.py`, `slice6_failure_test.py`, `slice6_constructor_test.py` and the slice 3 to 5 compile-level tests pass. The `payments.beaml` and orders outputs stay byte-identical.

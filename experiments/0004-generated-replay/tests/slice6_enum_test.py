@@ -54,6 +54,16 @@ OUTCOME_CODE = ("fn Outcome code: String -> Outcome\n"
                 'fn Outcome "ok" -> Outcome = Approved()\n'
                 "fn Outcome other -> Outcome = Other(other)\n")
 ANY_FN = "fn f x: String -> String = x\n"
+# RED repair O1: a several-clause lowercase fn whose whole-body pipe has an EFFECT step (D6B-28 keeps the rule).
+EFFECT_PIPE = (sc.ORDERS.read_text()
+               + "fn auth code: String, order: Order -> Payment ! PaymentError\n"
+               'fn auth "a", order -> Payment ! PaymentError = order |> payments.authorize\n'
+               "fn auth _, order -> Payment ! PaymentError = order |> prepare |> payments.authorize\n")
+# RED repair, Undo point: equal TYPES, other names. A code call takes signature 1 (D6B-16); signature 2 gives Approved.
+EQUAL_TYPES_CALL = (OUTCOME + OUTCOME_CODE + "fn Outcome status: String -> Outcome\n"
+                    "fn Outcome s -> Outcome = Approved()\n"
+                    "fn pick c: String -> Outcome = Outcome(c)\n")
+EQUAL_TYPES_CASES = {"call_takes_signature_1": 'BeamlSpike.pick("zz") == {"Outcome", "Other", ["zz"]}'}
 
 
 class Slice6Enum(unittest.TestCase):
@@ -104,6 +114,15 @@ class Slice6Enum(unittest.TestCase):
         self.assert_built(OUTCOME + OUTCOME_CODE + "fn Outcome status: String -> Outcome\n"
                           "fn Outcome s -> Outcome = Other(s)\n")
 
+    def test_superset_with_other_names_is_reachable(self):
+        # RED repair O2: no (name, TYPE) of signature 1 is in signature 2. A TYPES-only check rejects it. Today: constructor error.
+        self.assert_built(OUTCOME + OUTCOME_CODE + "fn Outcome status: String, extra: String -> Outcome\n"
+                          "fn Outcome s, _ -> Outcome = Other(s)\n")
+
+    def test_runtime_equal_types_call_takes_the_first_signature(self):
+        # RED repair, Undo point (D6B-16): a wrong choice gives a wrong value, not a message. Today: constructor error.
+        self.run_runtime(EQUAL_TYPES_CALL, EQUAL_TYPES_CASES)
+
     # Reject cases.
 
     def test_literals_and_constructor_on_one_enum(self):
@@ -136,6 +155,37 @@ class Slice6Enum(unittest.TestCase):
                              "unreachable signature: Outcome\n"
                              "  help: an earlier signature line of fn Outcome has a part of these parameters and "
                              "matches first; remove this one")
+
+    def test_unreachable_signature_with_more_parameters_in_other_order(self):
+        # RED repair O2: D6B-23 compares a set of (name, TYPE) pairs, not a prefix.
+        self.assert_rejected(OUTCOME + OUTCOME_CODE + "fn Outcome extra: String, code: String -> Outcome\n"
+                             "fn Outcome _, c -> Outcome = Other(c)\n",
+                             "unreachable signature: Outcome\n"
+                             "  help: an earlier signature line of fn Outcome has a part of these parameters and "
+                             "matches first; remove this one")
+
+    def test_unreachable_clause_in_the_second_signature(self):
+        # RED repair O3: coverage per signature, not only for signature 1.
+        self.assert_rejected(OUTCOME + OUTCOME_CODE + "fn Outcome n: Int -> Outcome\n"
+                             'fn Outcome n -> Outcome = Other("i")\n'
+                             "fn Outcome 0 -> Outcome = Approved()\n",
+                             "unreachable clause: Outcome")
+
+    def test_effect_pipe_keeps_one_clause(self):
+        # Guard, RED repair O1 (D6B-28). Passes today. It must still pass after GREEN.
+        self.assert_rejected(EFFECT_PIPE, "a function with a pipe body has one clause in slice 1: auth")
+
+    def test_second_keep_value_variant(self):
+        # RED repair, Undo point (D6B-21 "at most one"). Without it, decode can pick a wrong variant.
+        self.assert_rejected('enum PaymentState { Authorized = "ok"  Unknown(String)  Other(String) }\n' + ANY_FN,
+                             "error: enum PaymentState: the variant Other has no literal, Unknown keeps the value "
+                             "already\n  help: an enum with literals has at most one keep-value variant X(String)")
+
+    def test_literal_on_the_keep_value_variant(self):
+        # RED repair, Undo point (DL-098, S10 text). The keep-value shape must not exempt it.
+        self.assert_rejected('enum PaymentState { Authorized = "ok"  Unknown(String) = "x" }\n' + ANY_FN,
+                             "error: enum PaymentState: the variant Unknown has a payload and a literal\n"
+                             "  help: a variant has a payload or a literal, not both")
 
     def test_literal_on_a_payload_variant(self):
         # DL-098 grammar rule, D6B-21: a payload or a literal, not both.
