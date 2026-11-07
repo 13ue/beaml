@@ -616,6 +616,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: OWNER choice; compact, and the columns follow the values. B gets wide with long TYPE names.
 
+**DL-115 · Migrate · A REPLAY RUN shows a redacted field as the atom `:redacted` (Q6B-14, A)**
+→ Question: the record holds no value for a redacted field (DL-105). What does the host see for that field in a REPLAY RUN?
+→ Options: A, the atom `:redacted` in the field; the generated TYPE check accepts it only for a redacted field in a replay; B, the key is absent and the result carries a `redacted` list.
+→ Chose: A. The result keeps its shape; the marker says "there was a value, you may not see it". In BEAML code nobody sees the marker: without `with` the field is not readable, and with `with` the value only goes into an EFFECT, which a replay substitutes anyway.
+→ By: 13ue
+→ Because: OWNER choice. Known consequence: host code that branches on `is_binary` takes another branch in a replay; a pure step that computes with the value can raise. With DL-106 the host sees typed structs, where a marker atom fits.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
