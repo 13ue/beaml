@@ -62,3 +62,54 @@ Parse failures outside `results/`: `slice6/redacted/bad/enum_payload.beaml`, `sl
 → G6D-10 and `test_s5b` consistent, no objection. By: Opus (TEST slice6d/red-team)
 → Four parse failures outside `results/` not counted against 6d (two `bad/`, two pre-slice-6 sketches). By: Opus (TEST slice6d/red-team)
 → O3 and duplicate IDs noted, not blocking. By: Opus (TEST slice6d/red-team)
+
+## Re-check after TEST repair
+
+**Verdict: PASS.** By: Opus (TEST re-check slice6d), 2026-11-07, HEAD f9b9083c. One round, new evidence only. No commit. `main.rs` not edited. Compiler built in scratch from `git archive HEAD`, run with `BEAML_SPIKE`.
+
+### Checks
+
+| Check | Result | Label |
+|---|---|---|
+| O1 nested enum (`bad/nested_enum.beaml`) | exit 1, names `Line.channel`, help line | [Observed] |
+| O1 nested constructor (`bad/nested_constructor.beaml`) | exit 1, names `Line.amount`, help line | [Observed] |
+| O1 two levels down (scratch: `PlaceOrder.line: Line`, `Line.deep: Deep`) | enum: exit 1, names `Deep.channel`; constructor: exit 1, names `Deep.amount` | [Observed] |
+| Control: nested plain record two levels down, echo fixture | exit 0, `ui_echo` generated | [Observed] |
+| Control: top-level enum and constructor plus nested plain record accept a good event | `test_o1_...` passes in all 5 runs below | [Observed] |
+| Constructor TYPE with an enum parameter at the top level | exit 1 by the older S4 check; not a gap of the new loop | [Observed] |
+| `--stored` over the ENTRY stream, orders fixture with `channel` moved into a nested `Line` | exit 1 with the DL-144 text, empty stdout, no count line: the stored check never runs | [Observed] |
+| Stored values in that stderr | 0 of 9 stored String values | [Observed] |
+| O2: G6D-04 in `0005 .../owner-review.md` | Repair, "(GREEN slice6d, default, open)", raised from Undo by TEST O2 (committed in 2207c856) | [Observed] |
+| O3: D035 in `decisions-to-be-made.md` | two lines: R1 [Inference], entry `value_sha256` gap [Observed], both link this review | [Observed] |
+| RED log | `test-repair-red.log`: 2 failures before the fix, both `n10` subtests | [Observed] |
+
+### Entry test, five sequential runs
+
+`BEAML_SPIKE=<scratch> python3 -B -m unittest tests/slice6_entry_test.py` from the EXPERIMENT directory, nothing else of mine running:
+
+| Run | Result |
+|---|---|
+| 1 | OK, 19 tests, 9.4 s |
+| 2 | OK, 19 tests, 9.5 s |
+| 3 | OK, 19 tests, 8.9 s |
+| 4 | OK, 19 tests, 11.9 s |
+| 5 | OK, 19 tests, 9.6 s |
+
+- **[Observed]** The payments stub listens on port 0 (ephemeral), so a fixed-port collision is not the cause.
+- **[Unknown]** The cause of the 1 of 12 failure the worker saw. Not reproduced in 5 runs; no test name was captured. A product bug that fails 1 of 12 runs is unlikely in a deterministic compiler, so a harness or host race (shared `elixir` or `elixirc` load, other workers) is the more likely cause **[Inference]**. Next check: keep `-v` output of each `slice6-entry` step in `run.py` results, so a repeat names the test.
+
+### Objections
+
+None at critical or high. O1 is closed; O2 and O3 are recorded.
+
+- Note (medium): the flake is unexplained; see the next check above. Not blocking.
+
+### Decisions
+
+**Repair**
+→ PASS statt BLOCK, weil O1 builds red with the field name in all four probes and `--stored` never runs. By: Opus (TEST re-check slice6d)
+
+**Undo**
+→ O2 and O3 accepted as recorded. By: Opus (TEST re-check slice6d)
+→ Flake noted, not blocking (0 of 5, no product evidence). By: Opus (TEST re-check slice6d)
+→ Two-level help text ("move Deep.channel to the top level") not challenged: wording only. By: Opus (TEST re-check slice6d)
