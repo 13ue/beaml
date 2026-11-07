@@ -27,6 +27,10 @@ updated: 2026-11-07
 
 **[Proposal]** Candidates on the roadmap, concept only: entry points declared (`route`, `on`; closes the inward view of D018), policy on EFFECT lines (retry, timeout, idempotent), simple rules on a TYPE field (`where`), examples in the source as tests and replay fixtures, retention per TYPE (`keep N days`), trace resolution per subtree with a time limit (D018). Every new declaration needs a compiler semantics and keeps an expression escape hatch.
 
+## The inbound side (2026-11-07)
+
+**[Verified]** Slice 6d closes the vertical line on the inward side ([EXPERIMENT 0004 slice 6d](../../experiments/0004-generated-replay/README.md#slice-6d-the-entry-line-inbound-effect), DL-128, DL-130 to DL-134, DL-138). A UI EVENT enters through an ENTRY LINE written like an outbound EFFECT; the head TYPES must equal those of the target fn (`test_n10_rejects`). The COMPILER generates one host function `ui_<event>/1` with the root span, the decode and a `Rejected` struct for a bad form (`test_n1_entry_line_gives_one_function`, `test_n5_to_n9_orders_runtime`); a removed ENTRY LINE warns in the host build (`test_h2_host_build_without_the_entry_warns`). Each call of a flow target writes an ENTRY RECORD with its capture outcome, and `--stored` checks the accepted ones against a stricter constructor or a lost ENUM LITERAL (`test_s2_stricter_constructor_blocks`, `test_s3_removed_literal_blocks`); a removed ENTRY LINE with stored records blocks until a RETIRE LINE (`test_s5_removed_entry_line_with_stored_entries_blocks`, `test_s5b_retire_line_frees_the_removed_entry_line`). Limits: one ENTRY LINE per source, `ui.event` only, no enum or constructor field below the top level of the form TYPE, no full run after the TEST repair.
+
 ## Type changes against deployed data
 
 **[Requirement]** Owner decisions, 2026-11-06:

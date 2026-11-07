@@ -1948,3 +1948,94 @@ error: fn receipt copies the redacted field card_holder of Order into holder of 
 | --- | --- | --- | --- |
 | Old "14 of 14" and D10 limit lines kept, with a dated closing note | Repair | Chose: append. Over: delete. Because: each line is true for the run it names. Commits us to: a reader reads the note after the limit | Opus (docs red-team-01-repairs) |
 | One new section for the four repairs, plus short pointers in step 13 and the (f) DRIFT case | Undo | One place for the pin; the step text keeps its history | Opus (docs red-team-01-repairs) |
+
+## Slice 6d: the ENTRY LINE (inbound EFFECT)
+
+**[Verified]** 2026-11-07. GREEN `35c7e3bf`, TEST BLOCK (O1 high) at that commit, TEST repair `f9b9083c`, TEST re-check `545dded0`: PASS. Ledger: [slice6d-inbound-effect](workflow/2026-11-07/slice6d-inbound-effect/) ([plan](workflow/2026-11-07/slice6d-inbound-effect/plan.md), [decisions](workflow/2026-11-07/slice6d-inbound-effect/decisions.md), [RED plan](workflow/2026-11-07/slice6d-inbound-effect/red-plan.md), [GREEN](workflow/2026-11-07/slice6d-inbound-effect/green-output.md), [TEST and re-check](workflow/2026-11-07/slice6d-inbound-effect/review.md)). Tests: [`tests/slice6_entry_test.py`](tests/slice6_entry_test.py), fixtures [`slice6/entry/`](slice6/entry/).
+
+| Step | Owner |
+|---|---|
+| ENTRY LINE parse, drift rule, subset checks | BEAML (COMPILER) |
+| `ui_<event>/1`: root span, term check, decode, ENTRY RECORD write, target call | BEAML (generated Elixir) |
+| `Rejected` struct, `Replay.entry/2` | BEAML (generated Elixir) |
+| `--stored` over `entries.jsonl` | BEAML (COMPILER) |
+| `handle_event("place", params, socket)` calls `ui_place(params)` | host |
+| `Capture.write/2` stores the record, span stack | host (test stubs) |
+
+### ENTRY LINE form (DL-130)
+
+**[Verified]** An inbound EFFECT is written like an outbound EFFECT: head with input, output and failure TYPE, body with the inbound transport and the target fn. Corpus syntax only; comments are `//` (DL-132).
+
+```beaml
+// Enters the module. The host calls ui_place(params) from handle_event("place", params, socket).
+effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> place
+```
+
+- **[Verified]** Drift rule (DL-130, By: Fable, Repair): the head input, output and failure TYPE must equal those of the target fn. A difference, or a failure TYPE on one side and none on the other, is a compile error with the DL-130 text (`bad/drift_*.beaml`, `test_n10_rejects`).
+- **[Verified]** Checks (`test_n10_rejects`, 16 rows): one ENTRY LINE per source (D6B-147); name `namespace.operation`; transport `ui.event` only; the target is a declared fn, not a constructor (DL-120), with one parameter; the input TYPE has no constructor, MIGRATE CHAIN or VERSION MARK (D6B-130); a target that reaches an EFFECT must be the flow of that EFFECT (D6B-129); `ui_<event>` must be a free name; the TYPE name `Rejected` is reserved (DL-133).
+- **[Verified]** `beaml fmt` aligns an ENTRY LINE with the EFFECT rows (`test_n11_fmt_keeps_the_fixtures`, `test_n11b_...`).
+- **[Verified]** No other source changes a byte: N13 compares 122 tracked sources without an ENTRY LINE against the pre-6d compiler (`test_n13_...`). No EFFECT byte pin moved.
+
+### Host function and reject (DL-131, DL-133)
+
+- **[Verified]** One generated function per ENTRY LINE: `ui_<event>/1` (`ui_place/1` above). A removed ENTRY LINE gives an undefined-function warning in the host build, not an error (`test_h1_...`, `test_h2_...`; see Limits).
+- **[Verified]** A decode or constructor failure returns `{:error, %Rejected{reason: "decode" | "constructor"}}`, apart from the fn's failure TYPE. Inside the root span the reject raises, so the span outcome is `error`; no raise reaches the host (G6D-06; TEST probe).
+- **[Verified]** Today the struct is `BeamlSpike.Rejected` (one module per build). The DL-133 note names `<Module>.Rejected` for several modules per build (Q6E-2, default, open; slice 6e).
+
+### ENTRY RECORD (DL-138, DL-141, DL-142)
+
+**[Verified]** A flow target writes one ENTRY RECORD per call to `entries.jsonl`, after the decode and before the target call (G6D-07). 14 keys (`N8_entry_keys`). Redacted example, every value is a placeholder:
+
+```json
+{"version": 2, "trace_id": "<id>", "server_span_id": "<id>", "artifact_id": "<id>",
+ "operation": "ui.place", "attempt": 1, "value": {"<field>": "<value>"}, "redacted": [],
+ "unknown_keys": ["<host key>"], "unknown_fields": [], "value_sha256": "<sha256>",
+ "type": {"name": "PlaceOrder", "version": 1, "fields": [["<field>", "<TYPE>"]], "fingerprint": "<sha256>"},
+ "outcome": "accepted", "reason": null}
+```
+
+- **[Verified]** `outcome` is `"accepted"` or `"rejected"`; `reason` is `null`, `"decode"` or `"constructor"` (DL-141, OWNER confirmed). After a term check reject, `value` is `null` and `unknown_keys` is `[]`.
+- **[Verified]** `unknown_keys` holds the data keys the TYPE does not declare (a host key such as the CSRF token reaches no value); `unknown_fields` holds fields kept as `Unknown(...)` at capture (DL-142, OWNER confirmed).
+- **[Verified]** `Replay.entry/2` checks the operation and the digest, decodes the stored `value` and runs the flow (`test_n5_to_n9_orders_runtime`).
+
+### `--stored` over `entries.jsonl` (DL-134, DL-138)
+
+- **[Verified]** `--stored` reads `entries.jsonl` beside the snapshot file when it exists. Only accepted records of the ENTRY LINE run the DL-102 constructors and the DL-122 literal check (`test_s2_...`, `test_s3_...`, `test_s3b_...`). Rejected records are counted, not checked. A `null` value does not crash the check (`test_s1_...`).
+- **[Verified]** One count line on stderr, as a note: `N entries, K checked, M rejected at capture`. A block text names no stored value (DL-124, `test_s4_...`).
+- **[Verified]** Removed ENTRY LINE with stored ENTRY RECORDS: the DL-040 parity block `stored ENTRY RECORD of operation ui.place has no effect in the source`, with the count of all records (`test_s5_...`). The RETIRE LINE `retire ui.place keep 30 days` frees the build, with no DEAD LINE warning (`test_s5b_...`). A RETIRE LINE beside a kept ENTRY LINE gets the "still declares effect" text (G6D-10).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| Full `run.py`, [`results/20261107T220212948306Z`](results/20261107T220212948306Z/result.json), at `35c7e3bf`, before the TEST repair | pass, 34 of 34 steps; `slice6-entry` 18 tests; 1058 s |
+| TEST repair (O1), at `f9b9083c` | `slice6_entry_test.py` 19 OK; all 16 `slice6_*` files, `redteam_*`, `drift_test.py`, `slice5_syntax_test.py` OK; cargo clean; 21 + 14 |
+| TEST re-check, at `f9b9083c` | 5 of 5 sequential `slice6_entry_test.py` runs OK, 19 tests each; O1 probes exit 1 with the field name |
+| Host build | `elixirc --warnings-as-errors` compiles the generated module; good map gives the flow result, bad forms give `Rejected` |
+
+- **[Verified]** No full `run.py` ran after the TEST repair; the full-run evidence is from `35c7e3bf`.
+
+### Limits
+
+- **[Verified]** An enum or constructor field below the top level of the input TYPE is a compile error that names the field (`bad/nested_enum.beaml`, `bad/nested_constructor.beaml`; TEST O1, slice 6d limit under DL-144). Before the repair it built and rejected every event.
+- **[Inference]** Input and output that share a literal enum or a constructor TYPE, or the same TYPE, get duplicate helper defs. No fixture has it. Upgrade: emit each helper once per TYPE.
+- **[Inference]** A constructor or enum field deeper inside a top-level constructor TYPE is not walked; such a value rejects as `decode` (no crash).
+- **[Verified]** No DL-103 notes for ENTRY RECORDS. The count line says "1 entries" for one record.
+- **[Verified]** `elixirc --warnings-as-errors` exits 0 on warnings in Elixir 1.18.1; only `mix compile` honours it (R6D-11). The host tests read the warning text. Every 0004 runtime harness that relies on the flag gets no warning check.
+- **[Unknown]** One of 12 `slice6_entry_test.py` runs failed in the TEST repair loop; the test name was not captured and 0 of 5 later runs failed. Cause unknown. Next check: keep the `-v` output of the `slice6-entry` step in `run.py` results.
+- **[Unknown]** R1 (a captured reject that a looser rule accepts now) and the missing `value_sha256` check in `--stored` stay open in D035.
+
+### Built defaults (DL-139, DL-144)
+
+- G6D-03 (default, open): the ENTRY RECORD `type` key lists the fields in source order; the RESPONSE RECORD sorts them. Record format, so it waits for the OWNER (record format v3, DL-143).
+- G6D-04 (default, open): a pure target in a source with an outbound EFFECT writes no ENTRY RECORD and has no `Replay.entry`. Repair, raised from Undo by TEST O2.
+- G6D-12 (default, open): the input TYPE needs a keep-value variant for literal enum fields and `name: String` constructor signatures, with the outbound texts in the `effect <op>:` form. Not pinned by a test.
+- All three are listed in the [0005 OWNER review](../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) for an explicit sign-off.
+
+### Decisions (Decision4, DOCS slice 6d)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| One section for slice 6d, after the RED TEAM 01 repairs | Undo | Order of the build | Opus (docs slice6d) |
+| The ENTRY RECORD example uses placeholders only | Undo | No stored value or test MARKER in docs | Opus (docs slice6d) |
+| The full run of `35c7e3bf` stays the full-run evidence, labelled "before the TEST repair" | Repair | Chose: label it. Over: start a new full run. Because: docs phase runs no tests; the re-check covers the repair. Commits us to: the next full run confirms 19 entry tests | Opus (docs slice6d) |

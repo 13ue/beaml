@@ -425,3 +425,13 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [Roadmap page](../docs/index.html): the repairs in "Verified"; the B3 limit removed; "Decided, next" keeps D1 only.
 - **[Verified]** Limits: C2, C5 and D1 are answered, not built. **[Unknown]** The cause of the first `drift_test.py` crash in the GREEN run.
 
+## 2026-11-07: docs | slice 6d, the ENTRY LINE (inbound EFFECT)
+
+**[Verified]** Slice 6d passed TEST after one repair: GREEN `35c7e3bf`, TEST repair `f9b9083c` (O1: a nested enum or constructor field in the form TYPE is a compile error), re-check `545dded0` PASS ([ledger](../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/), [review](../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/review.md)). [Full run](../experiments/0004-generated-replay/results/20261107T220212948306Z/result.json) 34 of 34 at `35c7e3bf`, before the repair; after it, `slice6_entry_test.py` 19 OK and 5 of 5 re-check runs OK. No code change in this docs pass. By: Opus (docs slice6d)
+
+- [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#slice-6d-the-entry-line-inbound-effect): new section with the ENTRY LINE form, drift rule, `ui_<event>/1`, `Rejected`, ENTRY RECORD keys (placeholder example), `--stored` count line, RETIRE LINE, limits and the built defaults G6D-03, G6D-04, G6D-12 (default, open).
+- [Register](planning/research-and-development.md): new slice 6d row.
+- [Glossary](../GLOSSARY.md): ENTRY LINE and ENTRY RECORD rows now describe the built forms; RESPONSE RECORD no longer calls D024 open.
+- [Vertical integration](concepts/vertical-integration.md): new section on the inbound side.
+- [Roadmap page](../docs/index.html) and [root README](../README.md): slice 6d in Verified, with a compiled sample; next: record format v3, several EFFECTS, `db.*` transports.
+- **[Verified]** Limits: no full run after the TEST repair; `elixirc --warnings-as-errors` is no gate (R6D-11). **[Unknown]** The cause of one failed entry-test run of 12.

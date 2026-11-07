@@ -192,10 +192,13 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>A step gets a span when it is an effect or reaches one, transitively; the default span set is the effect path (DL-108, DL-119, slice 6b step 12)</li>
       <li><code>redacted</code> fields stay out of records, spans and events; an effect sends one only with <code>with &lt;field&gt;</code> (DL-059, DL-089, slice 6b step 6b)</li>
       <li>A direct copy of a redacted value into a plain field, a payload or a failure is a compile error (DL-105, DL-112, slice 6b step 6c). Limit: a derived copy is not checked</li>
+      <li>Entry points declared as inbound effects: an ENTRY LINE <code>effect ui.place PlaceForm -&gt; Payment ! PaymentError = ui.event("place") |&gt; place</code> generates <code>ui_place/1</code>, the decode of the UI params, the root span and an ENTRY RECORD; a bad form gives a <code>Rejected</code> struct; <code>--stored</code> checks the accepted entries (DL-128, DL-130 to DL-134, DL-138, slice 6d). Limit: an enum or constructor field below the top level of the form TYPE is a compile error</li>
     </ul></div>
     <div class="col"><h3>Decided, next</h3><ul>
       <li>Migration checks report counts per environment, never values</li>
-      <li>Entry points declared in the source as inbound effects (<code>on</code>), so every live function is reachable from a declaration and the entry opens the root span (DL-128)</li>
+      <li>Record format v3: one record format for every effect stream, response and entry records aligned (DL-143)</li>
+      <li>Several effects and ENTRY LINES per source, the module named from the source (slice 6e, planned)</li>
+      <li>Database transports <code>db.put</code>, <code>db.get</code>, <code>db.list</code> on one JSONB table, governed by <code>migrate</code> (DL-127, DL-129, DL-137; planned)</li>
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
       <li>Policy on effect lines: retry, timeout, idempotent (DL-126)</li>
@@ -262,6 +265,28 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
 <i class=m>// A copy into a plain field is a compile error (DL-112); this target is redacted.</i>
 <i class=k>fn</i> <i class=f>receipt</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=b>,</i> <i class=p>card_holder</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Receipt</i> <i class=o>=</i> <i class=t>Receipt</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id<i class=b>,</i> <i class=p>holder</i><i class=o>:</i> card_holder <i class=b>}</i></pre></div>
   <p class="note">Only the newest type is declared. The chain holds the history. <code>card_holder</code> is <code>redacted</code>: the effect sends it on the wire with <code>with</code>; the record, the span and the event never hold it. <code>receipt</code> copies it into a redacted field; a plain <code>holder</code> is a compile error (DL-112). This sample compiles with the compiler at git <code>5b7feb92</code> (<code>--stored</code> with an empty snapshot: exit 0, three dead-line warnings). Highlighted with the project grammar.</p>
+  <h3>The inbound side: an ENTRY LINE (slice 6d)</h3>
+  <div class="code"><pre><i class=m>// The form TYPE: the COMPILER decodes the UI params into it (String keys, DL-101).</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=b>{</i> <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>PlaceForm</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i>  <i class=p>channel</i><i class=o>:</i> <i class=t>Channel</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>Payment</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i>  <i class=p>status</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>type</i> <i class=t>PaymentError</i> <i class=b>{</i> <i class=p>reason</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+
+<i class=m>// Leaves the module: recorded live, substituted in a REPLAY RUN.</i>
+<i class=k>effect</i> <i class=f>payments.authorize</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i> <i class=f>http.post</i><i class=b>(</i><i class=s>&quot;payments/authorize&quot;</i><i class=b>)</i>
+
+<i class=m>// Enters the module: the host calls ui_place(params) (DL-130, DL-131).</i>
+<i class=m>// The head TYPES must equal those of fn place (drift rule). A bad form gives Rejected (DL-133).</i>
+<i class=k>effect</i> <i class=f>ui.place</i> <i class=t>PlaceForm</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i> <i class=f>ui.event</i><i class=b>(</i><i class=s>&quot;place&quot;</i><i class=b>)</i> <i class=o>|&gt;</i> <i class=f>place</i>
+
+<i class=k>fn</i> <i class=f>to_order</i> <i class=t>PlaceForm</i> <i class=b>{</i> <i class=p>order_id</i><i class=b>,</i> <i class=p>channel</i> <i class=b>}</i> <i class=o>-&gt;</i> <i class=t>Order</i> <i class=o>=</i> <i class=t>Order</i> <i class=b>{</i> <i class=p>order_id</i><i class=o>:</i> order_id <i class=b>}</i>
+
+<i class=k>fn</i> <i class=f>place</i> form<i class=o>:</i> <i class=t>PlaceForm</i> <i class=o>-&gt;</i> <i class=t>Payment</i> <i class=o>!</i> <i class=t>PaymentError</i> <i class=o>=</i>
+  form
+  <i class=o>|&gt;</i> <i class=f>to_order</i>
+  <i class=o>|&gt;</i> <i class=f>payments.authorize</i></pre></div>
+  <p class="note">An inbound effect is written like an outbound one (DL-130). The head TYPES must equal those of <code>fn place</code>; a difference is a compile error. The host calls the generated <code>ui_place(params)</code> from <code>handle_event</code> (DL-131); a form that fails the decode gives <code>{:error, %Rejected{reason: "decode"}}</code>, apart from <code>PaymentError</code> (DL-133). Each call writes one ENTRY RECORD with its capture outcome (DL-138, DL-141). This sample compiles with the compiler at git <code>545dded0</code> (<code>--stored</code> with an empty snapshot: exit 0) and <code>beaml fmt</code> keeps it. Highlighted with the project grammar.</p>
 </section>
 
 <footer>
