@@ -382,6 +382,10 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: (a). Over: (b) and (c).
 → Because: OWNER choice. The compiler checks only agreement (M1); `--remove-dead` still writes the mark when it removes steps (DL-071).
 
+**DL-081 · Migrate · `beaml fmt` writes the default mark form (b)**
+→ Chose: the compiler accepts any agreeing mark (DL-080); `beaml fmt` normalizes to option (b): it removes a mark when the chain is complete from v1 or when there is no chain, and writes the mark when the chain starts above v1. No warning. Over: a compiler warning.
+→ Because: OWNER choice; the formatter keeps one form without blocking work. `beaml fmt` does not exist yet; it also owns the alignment rule of DL-013.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
