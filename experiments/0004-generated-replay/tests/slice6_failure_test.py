@@ -40,6 +40,10 @@ def overlap(owner, success, failure=None, effect=False):
     return head + "\n" + help_line
 
 
+# Slice 1 code wraps each live pipe step in ProbeSupport.span/5. The runtime checks need only the value.
+# ponytail: stub; D6B-28 (step 5) removes spans from pure modules, then this stub has no caller.
+PROBE_SUPPORT_STUB = "defmodule ProbeSupport do\n  def span(_, _, _, _, f), do: f.()\nend\n"
+
 RUNTIME_HEAD = r'''
 invalid = fn fun ->
   try do
@@ -134,7 +138,9 @@ class Slice6Failure(unittest.TestCase):
         out = self.work / "beam"
         out.mkdir()
         (out / "generated.ex").write_text(stdout)
-        beam = subprocess.run(["elixirc", "--warnings-as-errors", "-o", str(out), str(out / "generated.ex")],
+        (out / "probe_support.ex").write_text(PROBE_SUPPORT_STUB)
+        beam = subprocess.run(["elixirc", "--warnings-as-errors", "-o", str(out), str(out / "generated.ex"),
+                               str(out / "probe_support.ex")],
                               capture_output=True, text=True)
         self.assertEqual(0, beam.returncode, "elixirc failed:\n" + beam.stdout + beam.stderr)
         listed = ",\n".join('  {"%s", fn -> %s end}' % item for item in cases.items())

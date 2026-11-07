@@ -106,3 +106,83 @@ Result: 22 tests, 21 FAIL, 1 pass (the guard). Exit 1.
 - Each new test fails for the reason that the review states. Observed above.
 - Production unchanged: `cargo test --offline --no-fail-fast` 27 pass (13 unit, 14 CLI). `slice6_int_test.py` 16 OK.
 - `run.py` was not run and no result directory changed (another worker runs the suite).
+
+## GREEN
+
+Commands and full output: [green-output.log](green-output.log). Changed file: `experiments/0001-syntax-to-beam/src/main.rs` only.
+
+### Result (observed)
+
+| Command | Result |
+|---|---|
+| `slice6_failure_test.py` | 22 tests, 18 pass, 4 FAIL (blocker below) |
+| `slice6_int_test.py` | 16 OK |
+| `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings` | pass |
+| `cargo test --offline --no-fail-fast` | 28 pass (14 unit, 14 CLI); one new unit test |
+| `stored_types_test.py`, `slice3_types_test.py`, `slice4_retire_test.py` | 33, 69, 87 OK |
+| `slice5_syntax_test.py`, `slice5_squash_test.py`, `slice5_rewrite_test.py` | 60, 24, 5 OK (the snapshots stay byte-equal) |
+
+### Blocker: the runtime harness has no `ProbeSupport`
+
+- **[Verified]** The 4 failures are the pipe subtests `piped_ends_in_failure`, `outer_passes_failure`, `outer_ok` and `test_runtime_pipe_ends_in_record_failure`.
+- **[Verified]** Cause: every live pipe step is emitted inside `ProbeSupport.span(...)` (slice 1 code, not changed here). The harness compiles only `generated.ex`. So the call raises `UndefinedFunctionError: ProbeSupport.span/5`, and the check gives FAIL.
+- **[Verified]** With a scratch stub `def span(_, _, _, _, f), do: f.()`, the same generated code gives `{:error, 7}`, `{:error, %BeamlSpike.Empty{}}`, `{:ok, "b"}` and `{:error, %BeamlSpike.Bad{reason: "q"}}`. These are the expected values.
+- **[Inference]** The test is wrong, not the GREEN: the RED check ran on hand-written modules without spans. The GREEN did not change the test (task rule).
+- Options for the main agent: (a) a RED repair adds a `ProbeSupport.span/5` stub to the harness; (b) a decision to emit no span in a pipe of a program without an EFFECT. Option (b) changes slice 1 behavior. Class of (b): Repair at least.
+
+### Decisions
+
+| # | Class | Choice | Alternative | Reason |
+|---|---|---|---|---|
+| G1 | Undo | `failure_types` uses `check_type`, so `String`, `Int`, records and enums pass. | A list of allowed kinds | D6B-04. `check_type` already gives `unknown type: X`. |
+| G2 | Undo | The variant help line is added in `failure_types` only. | In `check_type` for every TYPE position | RED decision 7. |
+| G3 | Undo | The R3 check is in `failure_types`, after `unique`. So `String \| String` keeps `duplicate name`. | A check in `overlap` | The guard test (RED decision 11). |
+| G4 | Undo | One `overlap` function for `fn` and EFFECT; a flag removes the "or remove" part for an EFFECT. | Two functions | Same text; RED decision 5. |
+| G5 | Undo | EFFECT order: failure TYPES, overlap, Int check (`int_inside`), then the `reason: String` rule. `! Int` on an EFFECT gives `slice 6b fails with String fields only, not Int`. | `unknown type: Int` from `record` | The task asks to reject `Int`; the new text names the cause. |
+| G6 | Undo | The `reason: String` rule uses `record(..).is_ok_and(..)`. A non-record EFFECT failure now gives `effect X needs one failure type with the field reason: String`, not `unknown type`. | Keep `record(..)?` | `String` is now a known TYPE; `unknown type: String` would be false. |
+| G7 | Undo | `validate` accepts a body of the output TYPE or of one failure TYPE (`same_type`). Else `type mismatch: expected O ! F1 \| F2, got T`. Without `!` the old text stays. | | RED decision 6. |
+| G8 | Undo | Emit recomputes the body TYPE (`body_type`) instead of a stored map. | A `RefCell` cache from `validate` | No new state; the check runs again, cheap. |
+| G9 | Undo | The struct name is the failure TYPE from the `!` list that the body TYPE matches, not the name of the body TYPE. | The body TYPE name | One failure TYPE gets one shape (D6B-07). R3 makes the match unique. |
+| G10 | Undo | A record literal body gives `%__MODULE__.F{field: v}` from the literal. Another record body (variable, call, pipe end) gives `%__MODULE__.F{field: Map.get(v, "field")}`. | A runtime converter function | Smallest code. Limit: a call body is evaluated once per field (`ponytail:` comment). |
+| G11 | Undo | `structs()` keeps record failure TYPES only. `emit_effect` and the new `emit_structs` use it. | Filter in `emit_effect` only | Also stops a `defmodule: 2` import for `! Int` only. |
+| G12 | Undo | Without an EFFECT, struct modules come directly after the `import` line. With an EFFECT they stay in `emit_effect` (D6B-07). | After the functions | A clause body builds the struct; the module must exist first. |
+| G13 | Undo | `emit_chain` takes `Option<&Clause>` instead of `fails: bool`. The REPLAY RUN passes the flow clause with owner `@parent`. | Keep `{:ok, last}` in the REPLAY RUN | A flow that ends in a failure TYPE gives the same `{:error, _}` in both runs. The payments and orders flows end in the output TYPE, so output stays byte-equal (observed). |
+| G14 | Undo | New unit test `success_and_failure_types_never_overlap` (plan first RED, RED decision 1). | No unit test | The plan names it. |
+
+### Checks
+
+- **[Verified]** G6 import rule (step 1 review): an `Int` failure literal needs no `is_integer`, because no check validates the `{:error, v}` value (RED decision 9). `fn f x: String -> String ! Int = 5` compiles and its runtime case passes.
+- **[Verified]** An EFFECT program (orders plus `fn extra "x" -> String ! Bad = Bad { reason: "x" }`) compiles in `elixirc` (exit 0), although the struct module comes after the clause. Not run.
+- **[Verified]** The action event code is not changed; the failure test checks that no source text or path is in the events.
+- `run.py` was not run (TEST runs it). No commit.
+
+### Limits
+
+- `elixirc` prints a typing warning ("clause will never match `{:ok, result}`") for a fn whose body is always a failure (`piped`). `--warnings-as-errors` does not stop on it in Elixir 1.18.1 (observed exit 0). A later Elixir can make it an error.
+- The R3 reject (DL-097) is not yet in the decision log; the RED repair says "at the end of the phase".
+
+## Harness repair
+
+Trigger: the GREEN blocker above. Changed file: `experiments/0004-generated-replay/tests/slice6_failure_test.py` only. `main.rs` is not changed.
+Commands and full output: [green-output.log](green-output.log), section "Harness repair rerun".
+
+### Result (observed)
+
+| Command | Result |
+|---|---|
+| `slice6_failure_test.py` | 22 tests, 22 OK |
+| `slice6_int_test.py` | 16 OK, not changed |
+
+### Decisions
+
+| # | Class | Decision |
+|---|---|---|
+| H1 | Repair | **Chose:** the test harness supplies a `ProbeSupport` stub, `def span(_, _, _, _, f), do: f.()`, for the runtime checks (option a). **Over:** no span in pure modules (option b). **Because:** option b is D6B-28 of step 5. It changes the slice 1 output inside step 2. **Commits us to:** step 5 D6B-28 removes the need for the stub. The stub stays harmless. Decision of the main agent. |
+| H2 | Undo | The stub is a constant `PROBE_SUPPORT_STUB` in the test. `run_runtime` writes it to `probe_support.ex` and compiles it with `generated.ex` in one `elixirc --warnings-as-errors` call. Alternative: define the module in `checks.exs`. Reason: the compile step then sees the module, so no undefined-module warning can come. |
+| H3 | Undo | The stub does not reuse the real `ProbeSupport` of EXPERIMENT 0002 or the arm tree of slices 2 to 5. Reason: those need a Mix project and capture processes. The runtime checks need only the value of `f.()`. |
+| H4 | Undo | `slice6_int_test.py` gets no stub. Reason: its 16 tests pass without it (observed). |
+
+### Limits
+
+- The stub does not check the span name, kind, order or function arguments. The arm tree tests of slices 2 to 5 check spans.
+- `run.py` was not run. No commit.

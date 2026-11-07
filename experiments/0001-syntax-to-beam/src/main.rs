@@ -997,7 +997,9 @@ impl<'a> Checker<'a> {
             for pattern in &clause.args {
                 args.push(checker.pattern(pattern, None, &mut vars)?);
             }
-            checker.failure_types(&clause.failures)?;
+            let owner = format!("fn {}", clause.name);
+            checker.failure_types(&owner, &clause.failures)?;
+            checker.overlap(&owner, &clause.output, &clause.failures, true)?;
             // An Int column against an earlier clause is a type mismatch (slice 6b). Sources without Int
             // keep "inconsistent function signature".
             if let Some((previous, _)) = checker.signatures.get(&clause.name) {
@@ -1042,16 +1044,57 @@ impl<'a> Checker<'a> {
         checker.retires()?;
         Ok(checker)
     }
-    fn failure_types(&self, failures: &[String]) -> Checked<()> {
+    // D6B-04: any TYPE after `!`. RED repair R3: two failure TYPES with equal fields are the same TYPE.
+    fn failure_types(&self, owner: &str, failures: &[String]) -> Checked<()> {
         unique(failures.iter().cloned())?;
-        for failure in failures {
-            // Each failure TYPE becomes a nested struct module next to `Replay` and `Http`.
+        for (index, failure) in failures.iter().enumerate() {
+            // Each record failure TYPE becomes a nested struct module next to `Replay` and `Http`.
             if failure == "Replay" || failure == "Http" {
                 return Err(format!("reserved failure type name: {failure}"));
             }
-            self.record(failure)?;
+            // D6B-10: a variant is no TYPE; the help line names its enum.
+            if let (Err(error), Some((owner, _))) = (
+                self.check_type(failure, &mut Vec::new()),
+                self.variants.get(failure),
+            ) {
+                return Err(format!(
+                    "{error}\n  help: {failure} is a variant of the enum {owner}, not a TYPE; write {owner}"
+                ));
+            }
+            self.check_type(failure, &mut Vec::new())?;
+            if let Some(same) = failures[..index]
+                .iter()
+                .find(|f| self.same_type(f, failure))
+            {
+                return Err(format!(
+                    "error: {owner}: the failure TYPE {same} is also a failure TYPE: {failure} has the same fields\n  help: remove {failure} after !"
+                ));
+            }
         }
         Ok(())
+    }
+    // DL-093 (E1), D6B-06, D6B-08: the success TYPE is never a failure TYPE, also structurally.
+    fn overlap(
+        &self,
+        owner: &str,
+        success: &str,
+        failures: &[String],
+        removable: bool,
+    ) -> Checked<()> {
+        let Some(failure) = failures.iter().find(|f| self.same_type(success, f)) else {
+            return Ok(());
+        };
+        let mut error =
+            format!("error: {owner}: the success TYPE {success} is also a failure TYPE");
+        if failure != success {
+            error.push_str(&format!(": {failure} has the same fields"));
+        }
+        error.push_str("\n  help: give the failure a TYPE of its own (for example type FError { reason: String })");
+        // An EFFECT needs one failure TYPE, so removing it is no fix.
+        if removable {
+            error.push_str(&format!(", or remove {failure} after !"));
+        }
+        Err(error)
     }
     // T1, T2 (slice 4): one RETIRE LINE per operation, and none for an operation with an `effect`.
     fn retires(&self) -> Checked<()> {
@@ -1131,13 +1174,20 @@ impl<'a> Checker<'a> {
                     ));
                 }
             }
-            self.failure_types(&effect.failures)?;
+            let owner = format!("effect {name}");
+            self.failure_types(&owner, &effect.failures)?;
+            self.overlap(&owner, &effect.output, &effect.failures, false)?;
+            // The failure struct gets only `reason`, so an Int field would stay nil (D6B-03).
+            if let Some(place) = effect.failures.iter().find_map(|f| self.int_inside(f)) {
+                return Err(format!(
+                    "effect {name}: slice 6b fails with String fields only, not {place}"
+                ));
+            }
             match effect.failures.as_slice() {
                 [failure]
-                    if self
-                        .record(failure)?
-                        .iter()
-                        .any(|(f, t)| f == "reason" && t == "String") => {}
+                    if self.record(failure).is_ok_and(|fields| {
+                        fields.iter().any(|(f, t)| f == "reason" && t == "String")
+                    }) => {}
                 _ => {
                     return Err(format!(
                         "effect {name} needs one failure type with the field reason: String"
@@ -1485,7 +1535,19 @@ impl Checker<'_> {
                 for (arg, ty) in clause.args.iter().zip(types) {
                     self.pattern(arg, Some(ty), &mut vars)?;
                 }
-                self.require_type(&self.body(clause, &vars)?, &clause.output)?;
+                let ty = self.body(clause, &vars)?;
+                // D6B-05: a body of a fn with `!` has the output TYPE or one failure TYPE.
+                if clause.failures.is_empty() {
+                    self.require_type(&ty, &clause.output)?;
+                } else if self.failure_of(clause, &ty).is_none()
+                    && !self.same_type(&ty, &clause.output)
+                {
+                    return Err(format!(
+                        "type mismatch: expected {} ! {}, got {ty}",
+                        clause.output,
+                        clause.failures.join(" | ")
+                    ));
+                }
                 let query: Vec<_> = clause
                     .args
                     .iter()
@@ -1616,6 +1678,10 @@ impl Checker<'_> {
         let mut out = format!(
             "# Generated by experiment 0001. Not a stable ABI.\ndefmodule BeamlSpike do\n  import Kernel, only: [and: 2, is_binary: 1,{is_integer} is_map: 1, map_size: 1, ==: 2, <>: 2, if: 2, raise: 2, def: 2, defp: 2{nested}]\n",
         );
+        // D6B-07: without an EFFECT, the failure structs come first, so that clause bodies can build them.
+        if self.program.effects.is_empty() {
+            out.push_str(&self.emit_structs());
+        }
         out.push_str("  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and String.valid?(v)\n");
         if int {
             out.push_str("  defp __beaml_valid__(v, <<73,110,116>>), do: is_integer(v)\n");
@@ -1687,12 +1753,18 @@ impl Checker<'_> {
                     out.push_str(&format!(
                         "  defp __beaml_{name}({params}) do\n    p0 = {}\n{}  end\n",
                         self.emit_node(head),
-                        self.emit_chain(steps, fails, service, "    ", Step::Live)
+                        self.emit_chain(
+                            steps,
+                            fails.then_some(clause),
+                            service,
+                            "    ",
+                            Step::Live
+                        )
                     ));
                 } else if fails {
                     out.push_str(&format!(
-                        "  defp __beaml_{name}({params}), do: {{:ok, {}}}\n",
-                        self.emit_node(&clause.body)
+                        "  defp __beaml_{name}({params}), do: {}\n",
+                        self.result(clause, &self.emit_node(&clause.body), "__MODULE__")
                     ));
                 } else {
                     out.push_str(&format!(
@@ -1789,11 +1861,76 @@ impl Checker<'_> {
             binary(&fingerprint(&fields))
         )
     }
-    // Failure TYPES named in any `!` list; each becomes a nested struct module.
+    // Record failure TYPES named in any `!` list; each becomes a nested struct module (D6B-04, D6B-07).
     fn structs(&self) -> BTreeSet<String> {
         let clauses = self.program.clauses.iter().map(|c| &c.failures);
         let effects = self.program.effects.iter().map(|e| &e.failures);
-        clauses.chain(effects).flatten().cloned().collect()
+        clauses
+            .chain(effects)
+            .flatten()
+            .filter(|f| self.record(f).is_ok())
+            .cloned()
+            .collect()
+    }
+    fn emit_structs(&self) -> String {
+        let mut out = String::new();
+        for failure in self.structs() {
+            let fields: Vec<String> = self
+                .record(&failure)
+                .expect("checked failure")
+                .iter()
+                .map(|(field, _)| format!(":{field}"))
+                .collect();
+            out.push_str(&format!(
+                "  defmodule {failure} do\n    import Kernel, only: [defstruct: 1]\n    defstruct [{}]\n  end\n",
+                fields.join(", ")
+            ));
+        }
+        out
+    }
+    // The failure TYPE of the `!` list that `ty` is (R3 makes it unique).
+    fn failure_of<'c>(&self, clause: &'c Clause, ty: &str) -> Option<&'c String> {
+        clause.failures.iter().find(|f| self.same_type(ty, f))
+    }
+    // The static TYPE of a clause body; validate checked it.
+    fn body_type(&self, clause: &Clause) -> String {
+        let mut vars = BTreeMap::new();
+        for (arg, ty) in clause.args.iter().zip(&self.signatures[&clause.name].0) {
+            self.pattern(arg, Some(ty), &mut vars)
+                .expect("checked pattern");
+        }
+        self.body(clause, &vars).expect("checked body")
+    }
+    // D6B-05, D6B-07: `{:ok, v}` for the output TYPE, `{:error, v}` for a failure TYPE. A record failure is the
+    // failure struct with atom keys: from the literal fields, else from the map `value`.
+    fn result(&self, clause: &Clause, value: &str, owner: &str) -> String {
+        let ty = self.body_type(clause);
+        let Some(failure) = self.failure_of(clause, &ty) else {
+            return format!("{{:ok, {value}}}");
+        };
+        let Ok(fields) = self.record(failure) else {
+            return format!("{{:error, {value}}}");
+        };
+        let literal = match &clause.body {
+            Node::Record(_, given) => Some(given),
+            _ => None,
+        };
+        // ponytail: a non-literal, non-variable value is evaluated once per field; bind it first if a body gets costly.
+        let fields: Vec<String> = fields
+            .iter()
+            .map(|(field, _)| match literal {
+                Some(given) => {
+                    let node = &given
+                        .iter()
+                        .find(|(n, _)| n == field)
+                        .expect("checked field")
+                        .1;
+                    format!("{field}: {}", self.emit_node(node))
+                }
+                None => format!("{field}: Map.get({value}, {})", binary(field)),
+            })
+            .collect();
+        format!("{{:error, %{owner}.{failure}{{{}}}}}", fields.join(", "))
     }
     // The one flow that calls the EFFECT: a one-clause fn whose pipe starts with its only parameter.
     fn flow(&self, effect: &Effect) -> Checked<&Clause> {
@@ -1832,7 +1969,7 @@ impl Checker<'_> {
     fn emit_chain(
         &self,
         steps: &[String],
-        fails: bool,
+        fails: Option<&Clause>,
         service: &str,
         indent: &str,
         mode: Step,
@@ -1915,10 +2052,9 @@ impl Checker<'_> {
             }
         }
         let last = format!("p{}", steps.len());
-        let result = if fails {
-            format!("{{:ok, {last}}}")
-        } else {
-            last
+        let result = match fails {
+            Some(clause) => self.result(clause, &last, owner),
+            None => last,
         };
         if matched {
             format!(
@@ -2065,18 +2201,7 @@ impl Checker<'_> {
             "{result_head}    case {decode}(a0{arity}) do\n      {{:ok, value, []}} ->\n        {{:ok, value}}\n\n      {{:ok, value, keys}} ->\n        :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n        {{:ok, value}}\n\n      :error ->\n        __beaml_fail_{elixir}({decode_reason})\n    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{failure}, reason: a0))\n  end\n  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {{:error, failure.error}}\n    end\n  end\n",
             decode_reason = binary("decode"),
         ));
-        for failure in self.structs() {
-            let fields: Vec<String> = self
-                .record(&failure)
-                .expect("checked failure")
-                .iter()
-                .map(|(field, _)| format!(":{field}"))
-                .collect();
-            out.push_str(&format!(
-                "  defmodule {failure} do\n    import Kernel, only: [defstruct: 1]\n    defstruct [{}]\n  end\n",
-                fields.join(", ")
-            ));
-        }
+        out.push_str(&self.emit_structs());
         out.push_str("  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n");
         out.push_str(HTTP);
         out.push_str(&format!(
@@ -2084,7 +2209,7 @@ impl Checker<'_> {
             operation = binary(name),
             retired = self.emit_retired(),
             type_version = self.emit_type_version(&effect.output),
-            chain = self.emit_chain(steps, true, service, "      ", Step::Replay),
+            chain = self.emit_chain(steps, Some(flow), service, "      ", Step::Replay),
         ));
         out
     }
@@ -3843,5 +3968,20 @@ mod tests {
             compile(&format!("{head}{}", tail.replace(" I ", " Int "))).unwrap_err(),
             "effect payments.authorize: slice 6b sends String fields only, not Int"
         );
+    }
+    #[test]
+    fn success_and_failure_types_never_overlap() {
+        // Plan step 2 first RED, DL-093 (E1).
+        for source in [
+            "fn f x: String -> String ! String = x\n",
+            "fn f x: String -> String ! Int | String = x\n",
+        ] {
+            let error = compile(source).unwrap_err();
+            assert!(
+                error.contains("success TYPE String") && error.contains("\n  help: "),
+                "{error}"
+            );
+        }
+        assert!(compile("fn f x: String -> String ! Int = 5\n").is_ok());
     }
 }
