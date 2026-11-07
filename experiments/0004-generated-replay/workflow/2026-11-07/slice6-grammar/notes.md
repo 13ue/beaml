@@ -184,3 +184,40 @@ rg -n '^\((function_clause|pipe right: \(identifier\))' languages/beaml/highligh
 
 - README items (Step 6) for the docs phase.
 - **[Unknown]** Zed applies the shared `#match?` to each alternative (PROPOSAL ULTRA Step 4). Not checked in Zed.
+
+## TEST
+
+**[Verified]** TEST phase, 2026-11-07. Fresh worker. Full output: [test-output.log](test-output.log). Summary: [test-result.json](test-result.json). No change to code or tests.
+
+### Results
+
+| Check | Result |
+|---|---|
+| `generate --abi 15 --js-runtime native` | exit 0. No change to tracked files. |
+| `test --rebuild` | 23/23 corpus, 4/4 highlight files, exit 0 |
+| `test --wasm --rebuild` | 23/23, 4/4, exit 0. `grammars/beaml.wasm` unchanged. |
+| Predicate `rg` check | prints nothing |
+| `rg 'ERROR\|MISSING'` on `constructors.txt` and on `parse constructors.beaml` | prints nothing |
+| `parse -q`, 3 `preview.py` DEFAULT sources | exit 0 each |
+| `preview.py --chat` (repository root, after `test --rebuild`) | exit 0, 3 sections, classes `b c f k m o p s t` |
+| `scripts/lint_wiki.py` | 81 files, 0 errors |
+| `slice5_syntax_test.py` | 60 tests, OK |
+
+- **[Verified]** Overall: pass. No check is `not_run`.
+- **[Verified]** `src/` is ignored by git. The only tracked generated file is `grammars/beaml.wasm`. It did not change.
+- **[Verified]** `parse` prints a warning on missing parser directories. The CLI uses the grammar in the work directory. The parse tree is present.
+
+### Decisions
+
+| Class | Choice | Alternative | Reason |
+|---|---|---|---|
+| Undo | No `build --wasm` in TEST | Rebuild `grammars/beaml.wasm` | Task names no build. A rebuild can change a tracked file. `test --wasm --rebuild` uses its own build. |
+| Undo | `npx --no-install` cache check before `preview.py` | Run `preview.py` directly | `preview.py` calls `npx -y`. A check stops an unplanned download. |
+| Undo | Log class counts of the preview, not the HTML | Keep the full fragment in the log | Short log. The fragment is repeatable from the command. |
+| Undo | Old 1375-file parse sweep not repeated | Repeat the GREEN sweep | Task names the 3 DEFAULT sources only. GREEN recorded the sweep. |
+
+### Process note
+
+- **[Verified]** EVENT: the grammar edits reached `main` in commit `4a691ec7`, one commit before the GREEN commit `971385ec`. The main agent staged a plan-check commit while the GREEN worker still wrote files.
+- Class Repair. The content is identical. The history is misleading: `4a691ec7` names the slice 6b plan check, but holds the slice 6a grammar.
+- Rule reaffirmed: do not use `git add -A` while a worker runs. Stage named paths only.

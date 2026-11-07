@@ -1,0 +1,223 @@
+# TEST output: slice 6a grammar, 2026-11-07
+# cwd: integrations/zed-beaml unless noted. TS=/private/tmp/beaml-zed-highlighting/tools/tree-sitter
+## git status --short (before)
+?? ../../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/test-output.log
+
+## $TS --version
+tree-sitter 0.26.5
+exit=0
+
+## $TS generate --abi 15 --js-runtime native
+exit=0
+
+## git status --short (after generate)
+?? ../../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/test-output.log
+
+## $TS test --rebuild
+  constructors:
+      1. ✓ [32mEnum constructor with signatures and clauses[0m
+      2. ✓ [32mRecord constructor with a failure TYPE[0m
+      3. ✓ [32mSignature with several failure TYPES[0m
+      4. ✓ [32mOverlap is no grammar error[0m
+      5. ✓ [32mPipe inside an argument[0m
+      6. ✓ [32mEffect releases a redacted field[0m
+  errors:
+      7. ✓ [32mInterface is no record keyword[0m
+      8. ✓ [32mPlain numbers in a MIGRATE STEP[0m
+      9. ✓ [32mVersion v0 on the type line[0m
+     10. ✓ [32mVersion with a leading zero in a MIGRATE STEP[0m
+  forms:
+     11. ✓ [32mRecord type with version mark and redacted field[0m
+     12. ✓ [32mEnum with plain and payload variants[0m
+     13. ✓ [32mEffect with dotted name and failure list[0m
+     14. ✓ [32mPipe in a function with a failure TYPE[0m
+     15. ✓ [32mMIGRATE CHAIN, several steps on one line[0m
+     16. ✓ [32mMIGRATE CHAIN with v numbers, multi-line, comments[0m
+     17. ✓ [32mRetire an operation[0m
+     18. ✓ [32mWith expression[0m
+     19. ✓ [32mKeywords stay identifiers outside their forms[0m
+  lexer:
+     20. ✓ [32mUnicode whitespace[0m
+     21. ✓ [32mA line comment stops at LF[0m
+  syntax:
+     22. ✓ [32mDeclarations[0m
+     23. ✓ [32mFunction clauses and nested patterns[0m
+
+syntax highlighting:
+      1. ✓ [32msyntax.beaml[0m (19 assertions)
+      2. ✓ [32mforms.beaml[0m (48 assertions)
+      3. ✓ [32mlexer.beaml[0m (2 assertions)
+      4. ✓ [32mconstructors.beaml[0m (11 assertions)
+Total parses: 23; successful parses: 23; failed parses: 0; success percentage: 100.00%; average speed: 6180 bytes/ms
+
+exit=0
+
+## $TS test --wasm --rebuild
+  constructors:
+      1. ✓ [32mEnum constructor with signatures and clauses[0m
+      2. ✓ [32mRecord constructor with a failure TYPE[0m
+      3. ✓ [32mSignature with several failure TYPES[0m
+      4. ✓ [32mOverlap is no grammar error[0m
+      5. ✓ [32mPipe inside an argument[0m
+      6. ✓ [32mEffect releases a redacted field[0m
+  errors:
+      7. ✓ [32mInterface is no record keyword[0m
+      8. ✓ [32mPlain numbers in a MIGRATE STEP[0m
+      9. ✓ [32mVersion v0 on the type line[0m
+     10. ✓ [32mVersion with a leading zero in a MIGRATE STEP[0m
+  forms:
+     11. ✓ [32mRecord type with version mark and redacted field[0m
+     12. ✓ [32mEnum with plain and payload variants[0m
+     13. ✓ [32mEffect with dotted name and failure list[0m
+     14. ✓ [32mPipe in a function with a failure TYPE[0m
+     15. ✓ [32mMIGRATE CHAIN, several steps on one line[0m
+     16. ✓ [32mMIGRATE CHAIN with v numbers, multi-line, comments[0m
+     17. ✓ [32mRetire an operation[0m
+     18. ✓ [32mWith expression[0m
+     19. ✓ [32mKeywords stay identifiers outside their forms[0m
+  lexer:
+     20. ✓ [32mUnicode whitespace[0m
+     21. ✓ [32mA line comment stops at LF[0m
+  syntax:
+     22. ✓ [32mDeclarations[0m
+     23. ✓ [32mFunction clauses and nested patterns[0m
+
+syntax highlighting:
+      1. ✓ [32msyntax.beaml[0m (19 assertions)
+      2. ✓ [32mforms.beaml[0m (48 assertions)
+      3. ✓ [32mlexer.beaml[0m (2 assertions)
+      4. ✓ [32mconstructors.beaml[0m (11 assertions)
+Total parses: 23; successful parses: 23; failed parses: 0; success percentage: 100.00%; average speed: 6913 bytes/ms
+
+exit=0
+
+## git status --short (after tests)
+?? ../../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/test-output.log
+
+## rg -n '^\((function_clause|pipe right: \(identifier\))' languages/beaml/highlights.scm  (expect no output, rg exit 1)
+exit=1
+
+## rg -n 'ERROR|MISSING' test/corpus/constructors.txt  (expect no output)
+exit=1
+
+## $TS parse test/highlight/constructors.beaml | rg 'ERROR|MISSING'  (expect no output)
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+exit=1
+
+## $TS parse -q ../../experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+exit=0
+
+## $TS parse -q ../../experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+exit=0
+
+## $TS parse -q ../../experiments/0001-syntax-to-beam/example.beaml
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+exit=0
+
+## npx --no-install tree-sitter-cli@0.26.5 --version (cache check)
+tree-sitter 0.26.5
+exit=0
+
+# cwd: repository root from here
+## python3 integrations/zed-beaml/preview.py --chat  (output: byte count, class counts)
+bytes=6495
+sections (class=h): 3
+class counts: 80 b 11 c 12 f 20 k 1 m 66 o 35 p 22 s 53 t
+exit=0
+
+## python3 scripts/lint_wiki.py
+Checked 81 maintained Markdown files; 0 error(s). PDF hash, bytes, page count and per-page text rechecked.
+Parsed raw JSON records; verified 6 explicitly retained capture hashes.
+Limits: inline Markdown links/headings only; original raw documents not linted; no external URL, semantic truth, security proof or runtime checks.
+exit=0
+
+## python3 experiments/0004-generated-replay/tests/slice5_syntax_test.py
+test_F01_B5_builds_and_equals_the_base_output (__main__.Fixture.test_F01_B5_builds_and_equals_the_base_output) ... base compiler: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-base-nxmj13lb/target/debug/beaml-spike
+compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_F02_fallback_error_names_every_declaration_word (__main__.Fixture.test_F02_fallback_error_names_every_declaration_word) ... ok
+test_F02_interface_is_an_error_with_a_help_line_at_each_position (__main__.Fixture.test_F02_interface_is_an_error_with_a_help_line_at_each_position) ... ok
+test_F03_plain_numbers_in_migrate_are_an_error (__main__.Fixture.test_F03_plain_numbers_in_migrate_are_an_error) ... ok
+test_F03b_mixed_numbers_name_v2 (__main__.Fixture.test_F03b_mixed_numbers_name_v2) ... ok
+test_F03b_plain_number_on_the_type_line_is_an_error (__main__.Fixture.test_F03b_plain_number_on_the_type_line_is_an_error) ... ok
+test_F03c_control_v_numbers_build (__main__.Fixture.test_F03c_control_v_numbers_build) ... ok
+test_F04_version_faults_on_the_type_line_and_in_migrate (__main__.Fixture.test_F04_version_faults_on_the_type_line_and_in_migrate) ... ok
+test_F05_fields_named_like_versions_stay_fields (__main__.Fixture.test_F05_fields_named_like_versions_stay_fields) ... ok
+test_F06_control_the_same_chain_with_another_mark_is_M1 (__main__.Fixture.test_F06_control_the_same_chain_with_another_mark_is_M1) ... ok
+test_F06_mark_beside_a_chain_from_v1_builds (__main__.Fixture.test_F06_mark_beside_a_chain_from_v1_builds) ... ok
+test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning (__main__.Fixture.test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning) ... ok
+test_F08_mark_below_the_chain_end_is_M1 (__main__.Fixture.test_F08_mark_below_the_chain_end_is_M1) ... ok
+test_F08b_mark_above_the_chain_end_is_M1 (__main__.Fixture.test_F08b_mark_above_the_chain_end_is_M1) ... ok
+test_F08c_chain_with_a_gap_is_an_error (__main__.Fixture.test_F08c_chain_with_a_gap_is_an_error) ... ok
+test_F09_M3_builds_and_writes_its_mark_as_the_version (__main__.Fixture.test_F09_M3_builds_and_writes_its_mark_as_the_version) ... ok
+test_F10_M3_with_older_records_names_the_missing_steps (__main__.Fixture.test_F10_M3_with_older_records_names_the_missing_steps) ... ok
+test_F11_M3_with_records_of_its_mark_builds_without_warning (__main__.Fixture.test_F11_M3_with_records_of_its_mark_builds_without_warning) ... ok
+test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark (__main__.Fixture.test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark) ... ok
+test_F12_control_the_same_record_against_a_higher_mark_builds (__main__.Fixture.test_F12_control_the_same_record_against_a_higher_mark_builds) ... ok
+test_F12_record_newer_than_the_mark_is_N1 (__main__.Fixture.test_F12_record_newer_than_the_mark_is_N1) ... ok
+test_F12b_lowered_mark_without_chain_is_N1 (__main__.Fixture.test_F12b_lowered_mark_without_chain_is_N1) ... ok
+test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1 (__main__.Fixture.test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1) ... ok
+test_F12d_record_of_another_name_newer_than_the_mark_is_N1 (__main__.Fixture.test_F12d_record_of_another_name_newer_than_the_mark_is_N1) ... ok
+test_F13_control_a_v2_record_against_mark_v1_is_N1 (__main__.Fixture.test_F13_control_a_v2_record_against_mark_v1_is_N1) ... ok
+test_F13_mark_v1_without_chain_builds (__main__.Fixture.test_F13_mark_v1_without_chain_builds) ... ok
+test_F14_chain_above_v1_without_mark_builds (__main__.Fixture.test_F14_chain_above_v1_without_mark_builds) ... ok
+test_F15_largest_version_has_no_newer_version_and_no_panic (__main__.Fixture.test_F15_largest_version_has_no_newer_version_and_no_panic) ... ok
+test_fixtures_equal_the_template_byte_for_byte (__main__.Fixture.test_fixtures_equal_the_template_byte_for_byte) ... ok
+test_A2_rewritten_sources_build_like_the_base (__main__.Rewrite.test_A2_rewritten_sources_build_like_the_base) ... ok
+test_A3_stored_fixtures_are_unchanged (__main__.Rewrite.test_A3_stored_fixtures_are_unchanged) ... ok
+test_P1_payments_snapshot_differs_in_one_offset_line_and_matches_the_build (__main__.Rewrite.test_P1_payments_snapshot_differs_in_one_offset_line_and_matches_the_build) ... ok
+test_F01_B5_builds_and_equals_the_base_output (__main__.Template.test_F01_B5_builds_and_equals_the_base_output) ... ok
+test_F02_fallback_error_names_every_declaration_word (__main__.Template.test_F02_fallback_error_names_every_declaration_word) ... ok
+test_F02_interface_is_an_error_with_a_help_line_at_each_position (__main__.Template.test_F02_interface_is_an_error_with_a_help_line_at_each_position) ... ok
+test_F03_plain_numbers_in_migrate_are_an_error (__main__.Template.test_F03_plain_numbers_in_migrate_are_an_error) ... ok
+test_F03b_mixed_numbers_name_v2 (__main__.Template.test_F03b_mixed_numbers_name_v2) ... ok
+test_F03b_plain_number_on_the_type_line_is_an_error (__main__.Template.test_F03b_plain_number_on_the_type_line_is_an_error) ... ok
+test_F03c_control_v_numbers_build (__main__.Template.test_F03c_control_v_numbers_build) ... ok
+test_F04_version_faults_on_the_type_line_and_in_migrate (__main__.Template.test_F04_version_faults_on_the_type_line_and_in_migrate) ... ok
+test_F05_fields_named_like_versions_stay_fields (__main__.Template.test_F05_fields_named_like_versions_stay_fields) ... ok
+test_F06_control_the_same_chain_with_another_mark_is_M1 (__main__.Template.test_F06_control_the_same_chain_with_another_mark_is_M1) ... ok
+test_F06_mark_beside_a_chain_from_v1_builds (__main__.Template.test_F06_mark_beside_a_chain_from_v1_builds) ... ok
+test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning (__main__.Template.test_F07_Q4s_with_records_of_its_chain_start_builds_without_warning) ... ok
+test_F08_mark_below_the_chain_end_is_M1 (__main__.Template.test_F08_mark_below_the_chain_end_is_M1) ... ok
+test_F08b_mark_above_the_chain_end_is_M1 (__main__.Template.test_F08b_mark_above_the_chain_end_is_M1) ... ok
+test_F08c_chain_with_a_gap_is_an_error (__main__.Template.test_F08c_chain_with_a_gap_is_an_error) ... ok
+test_F09_M3_builds_and_writes_its_mark_as_the_version (__main__.Template.test_F09_M3_builds_and_writes_its_mark_as_the_version) ... ok
+test_F10_M3_with_older_records_names_the_missing_steps (__main__.Template.test_F10_M3_with_older_records_names_the_missing_steps) ... ok
+test_F11_M3_with_records_of_its_mark_builds_without_warning (__main__.Template.test_F11_M3_with_records_of_its_mark_builds_without_warning) ... ok
+test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark (__main__.Template.test_F11b_other_fingerprint_gets_a_help_line_with_the_step_and_the_mark) ... ok
+test_F12_control_the_same_record_against_a_higher_mark_builds (__main__.Template.test_F12_control_the_same_record_against_a_higher_mark_builds) ... ok
+test_F12_record_newer_than_the_mark_is_N1 (__main__.Template.test_F12_record_newer_than_the_mark_is_N1) ... ok
+test_F12b_lowered_mark_without_chain_is_N1 (__main__.Template.test_F12b_lowered_mark_without_chain_is_N1) ... ok
+test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1 (__main__.Template.test_F12c_record_newer_than_a_source_without_mark_and_chain_is_N1) ... ok
+test_F12d_record_of_another_name_newer_than_the_mark_is_N1 (__main__.Template.test_F12d_record_of_another_name_newer_than_the_mark_is_N1) ... ok
+test_F13_control_a_v2_record_against_mark_v1_is_N1 (__main__.Template.test_F13_control_a_v2_record_against_mark_v1_is_N1) ... ok
+test_F13_mark_v1_without_chain_builds (__main__.Template.test_F13_mark_v1_without_chain_builds) ... ok
+test_F14_chain_above_v1_without_mark_builds (__main__.Template.test_F14_chain_above_v1_without_mark_builds) ... ok
+test_F15_largest_version_has_no_newer_version_and_no_panic (__main__.Template.test_F15_largest_version_has_no_newer_version_and_no_panic) ... ok
+
+----------------------------------------------------------------------
+Ran 60 tests in 4.355s
+
+OK
+exit=0
+
+## git status --short (end)
+?? experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/test-output.log

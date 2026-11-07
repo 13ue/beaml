@@ -1,0 +1,21 @@
+{
+  "phase": "TEST",
+  "slice": "6a grammar",
+  "date": "2026-11-07",
+  "toolchain": "tree-sitter 0.26.5 (/private/tmp/beaml-zed-highlighting/tools/tree-sitter); npx tree-sitter-cli 0.26.5 (cached)",
+  "checks": [
+    {"name": "generate", "command": "$TS generate --abi 15 --js-runtime native", "status": "pass", "detail": "exit 0. git status shows no change to tracked files (src/ is ignored, grammars/beaml.wasm unchanged)."},
+    {"name": "corpus and highlight, native", "command": "$TS test --rebuild", "status": "pass", "detail": "23/23 corpus, 4/4 highlight files (19 + 48 + 2 + 11 assertions), exit 0."},
+    {"name": "corpus and highlight, wasm", "command": "$TS test --wasm --rebuild", "status": "pass", "detail": "23/23 corpus, 4/4 highlight files, exit 0. grammars/beaml.wasm unchanged after the run."},
+    {"name": "predicate check", "command": "rg -n '^\\((function_clause|pipe right: \\(identifier\\))' languages/beaml/highlights.scm", "status": "pass", "detail": "No output (rg exit 1)."},
+    {"name": "ERROR/MISSING in corpus", "command": "rg -n 'ERROR|MISSING' test/corpus/constructors.txt", "status": "pass", "detail": "No output (rg exit 1)."},
+    {"name": "ERROR/MISSING in parse of constructors.beaml", "command": "$TS parse test/highlight/constructors.beaml | rg 'ERROR|MISSING'", "status": "pass", "detail": "No output (rg exit 1). Parse tree is present."},
+    {"name": "parse orders.beaml", "command": "$TS parse -q ../../experiments/0002-http-correlation/apps/orders_api/priv/orders.beaml", "status": "pass", "detail": "exit 0."},
+    {"name": "parse payments.beaml", "command": "$TS parse -q ../../experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml", "status": "pass", "detail": "exit 0."},
+    {"name": "parse example.beaml", "command": "$TS parse -q ../../experiments/0001-syntax-to-beam/example.beaml", "status": "pass", "detail": "exit 0."},
+    {"name": "chat preview", "command": "python3 integrations/zed-beaml/preview.py --chat", "status": "pass", "detail": "exit 0, 3 sections, 6495 bytes, classes b c f k m o p s t present. npx --no-install showed 0.26.5 cached."},
+    {"name": "wiki lint", "command": "python3 scripts/lint_wiki.py", "status": "pass", "detail": "81 files, 0 errors."},
+    {"name": "slice 5 syntax test", "command": "python3 experiments/0004-generated-replay/tests/slice5_syntax_test.py", "status": "pass", "detail": "60 tests, OK. Sanity check only; compiler unchanged."}
+  ],
+  "pass": true
+}
