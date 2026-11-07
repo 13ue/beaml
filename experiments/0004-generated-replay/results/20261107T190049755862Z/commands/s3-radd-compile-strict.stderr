@@ -1,0 +1,10 @@
+** (exit) exited in: GenServer.call(Mix.ProjectStack, {:update_stack, #Function<20.18924369/1 in Mix.ProjectStack.printable_app_name/0>}, :infinity)
+    ** (EXIT) no process: the process is not alive or there's no process currently associated with the given name, possibly because its application isn't started
+    (elixir 1.18.1) lib/gen_server.ex:1121: GenServer.call/3
+    (mix 1.18.1) lib/mix/shell/io.ex:15: Mix.Shell.IO.print_app/0
+    (mix 1.18.1) lib/mix/shell/io.ex:106: anonymous fn/3 in Mix.Shell.IO.cmd/2
+    (elixir 1.18.1) lib/system.ex:1145: System.do_port_byte/3
+    (elixir 1.18.1) lib/system.ex:1131: System.do_cmd/3
+    (mix 1.18.1) lib/mix/shell.ex:136: Mix.Shell.cmd/3
+    (mix 1.18.1) lib/mix/tasks/deps.compile.ex:238: Mix.Tasks.Deps.Compile.do_rebar3/2
+    (mix 1.18.1) lib/mix/tasks/deps.compile.ex:98: anonymous fn/4 in Mix.Tasks.Deps.Compile.compile/2

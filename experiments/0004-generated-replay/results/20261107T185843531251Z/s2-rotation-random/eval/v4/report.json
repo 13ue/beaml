@@ -1,0 +1,20 @@
+{
+  "result": {
+    "ok": {
+      "a_eemgtf": "X-v4",
+      "b_cankad": "Y-v4"
+    }
+  },
+  "unwatched": [],
+  "calls": {
+    ":gen_tcp.connect/4": 0,
+    ":json.decode/1": 1,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": 0,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 0,
+  "artifact": "9e9d4904ed92a6d09df62f99613ad82abe4ef6699e1394d20f03ffbc45a1a1ed"
+}

@@ -496,6 +496,12 @@ class Slice6Redacted(unittest.TestCase):
         stored = self.nested_stored()
         self.assertEqual(d6b_72("Order", 1, "card.holder", "request", stored, 1),
                          self.rejected(FIX / "orders_nested.beaml", ["--stored", str(stored)]))
+        with self.subTest("plain holder at another path"):
+            # RED re-check R1: the count is path-aware; a top-level `holder` is not `card.holder`, so no block.
+            record = json.loads(stored.read_text())
+            record["request"] = {"order_id": "order-1", "holder": STORED_HOLDER, "card": {"number": "4111"}}
+            stored.write_text(json.dumps(record, separators=(",", ":")) + "\n")
+            self.build(FIX / "orders_nested.beaml", ["--stored", str(stored)])
 
     def test_R8_count_and_first_line(self):
         clean = (EXPERIMENT / "stored" / "v1.jsonl").read_text().splitlines()[0]

@@ -99,3 +99,134 @@ By: Opus (RED repair, slice6b-redacted-fields) for every item in this section.
 ### Deferred edits
 
 - None.
+
+## GREEN
+
+Phase: GREEN, 2026-11-07. Base: HEAD 1dd6ad62. `run.py` not run. No commit.
+By: Opus (GREEN, slice6b-redacted-fields) for every item in this section.
+
+### Changes by function (`experiments/0001-syntax-to-beam/src/main.rs`)
+
+- `Program.redacted`, `Effect.with`: new data. The field TYPE stays plain; the mark is a (TYPE, field) pair.
+- `Parser::program`, `type`: reads `name: redacted TYPE` (D6B-29).
+- `Parser::type_word`: new. Enum payload, signature line, `add` and `drop` give the D6B-64 text and `  at byte N`.
+- `Parser::program`, `effect`: reads `with f1, f2` after `)` (D6B-31).
+- `Checker::effects`: the D6B-65 checks; the DL-116 walk at any depth of the output TYPE, before the slice 1 decode limit (D6B-154, D6B-157).
+- `Checker::type_versions`: the newest version writes `redacted T` (D6B-148). The `type` key, the fingerprint and the path check use it.
+- New `is_redacted`, `redacted_paths`, `redact`, `output_marks`.
+- `emit`: `__beaml_valid__` accepts `:redacted` for a marked output field only (DL-115). The live span head is the projection.
+- `emit_chain` (REPLAY RUN): the `request` compare and the span input use the projection. The result call gets `record["redacted"]`.
+- `emit_effect`: the client span input and `Replay.record` get the record projection. The wire gets the projection without the `with` names. New `__beaml_redact__` (only with a redacted field).
+- `emit_effect`, decode: `decode(a0, marked)` puts `:redacted` into each listed field before the TYPE check (DL-115).
+- `emit_effect`, projection: `value` drops a marked field. `redacted` lists it when present and valid (D6B-55). `__beaml_keys__` gives a dotted name per level for every EFFECT source (D6B-56 amendment, D6B-172).
+- `check_stored`: the D6B-72 block per (TYPE, operation, dotted path, place) with count and first line. Exact paths only (D6B-163). It shows also when the path check fails (D6B-149).
+- Test `slice6_redacted_test.py`: one subtest closes re-check R1. A top-level plain `holder` against `card.holder` builds (exit 0).
+
+### Results (observed)
+
+- `slice6_redacted_test.py`: 19 tests, OK.
+- slice 6: `constructor` 25, `decode_ctor` 8, `decode` 10, `effect_reach` 8, `enum` 20, `failure` 22, `fmt` 25, `host_struct` 3, `int` 16, `pipe` 12, `record` 5, `stored_elixir` 15, `struct_order` 3: OK.
+- `arms_test` 11, `drift_test` 5, `slice2_replay` 21, `slice3_replay` 31, `slice3_types` 69, `slice4_replay` 27, `slice4_retire` 87, `slice5_replay` 12, `slice5_rewrite` 5, `slice5_squash` 24, `slice5_syntax` 60, `stored_types` 33: OK.
+- `overlay_diff_test.py`: 1 failure, `experiments/0002-http-correlation/query.py: 211 lines, original 213`. The test calls no compiler; this step does not cause it (Q6B-10 scope).
+- `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings`: clean. `cargo test`: 21 and 14 passed.
+- Byte check (before D6B-172): 1956 of 1957 tracked `.beaml` sources outside `slice6/redacted/` give the same stdout and stderr as the HEAD build, so `payments.generated.snapshot` holds. The one change: `integrations/zed-beaml/test/highlight/constructors.beaml` has a `with` tail and now stops at a later check. Both builds reject it.
+- Grammar: `tree-sitter test --rebuild`: 23 of 23 parses, 4 highlight files pass. No grammar file changed.
+- No existing assertion changed.
+
+### Decisions
+
+#### Undo
+
+- D6B-166 · Undo · The mark is a (TYPE, field) set beside the plain field TYPE. Every other check sees the plain TYPE. By: Opus (GREEN, slice6b-redacted-fields)
+- D6B-167 · Undo · `with` names are part of the EFFECT declaration range (`beaml-declaration-v1`). By: Opus (GREEN, slice6b-redacted-fields)
+
+#### Repair
+
+- D6B-168 · Repair · Reversed by D6B-172 (see "GREEN re-pin"). Chose: the D6B-56 amendment (`__beaml_keys__`) only in a source with a redacted field. Over: every EFFECT source. Because: `slice6_pipe_test` pins the output digest of EFFECT sources, and the plan keeps sources without `redacted` byte-equal. Commits us to: a source without `redacted` keeps one name for an undeclared key; a `ponytail:` comment names the upgrade. By: Opus (GREEN, slice6b-redacted-fields)
+- D6B-169 · Repair · Chose: a compile error for a redacted output field of a TYPE with a MIGRATE CHAIN or a VERSION MARK, in the D6B-39 form. Over: a silent build. Because: the versioned decode does not mark, so every REPLAY RUN would give `decode`. Commits us to: the error goes when a `redact` form exists (DL-125). By: Opus (GREEN, slice6b-redacted-fields)
+- D6B-170 · Repair · Chose: no `Map.from_struct/1` call (D6B-71). Over: a call that never runs. Because: D6B-19 rejects a constructor TYPE in an EFFECT input at any depth, so no struct reaches the redaction; a struct also has atom keys, so a plain call would drop nothing. Commits us to: the step that lifts D6B-19 adds the call with key conversion. By: Opus (GREEN, slice6b-redacted-fields)
+- D6B-171 · Repair · Chose: `:redacted` is valid only for a marked field of the EFFECT output TYPE. Over: every redacted field. Because: DL-115 marks at replay only; an input never holds the atom. Commits us to: a TYPE that is input and output accepts the atom in its input too. By: Opus (GREEN, slice6b-redacted-fields)
+
+## GREEN re-pin (D6B-172)
+
+Phase: GREEN, 2026-11-07, on a coordinator decision. No commit.
+By: Opus (GREEN, slice6b-redacted-fields) for the work in this section.
+
+### Change
+
+- `emit_effect`, projection: `__beaml_keys__` is emitted for every EFFECT source. The `ponytail:` condition is gone.
+- `__beaml_keys__` and `__beaml_marked_E` are `def`, not `defp`. Reason: the clause parser of `slice6_effect_reach_test` reads each `defp __beaml_*` line as a BEAML clause (observed failure with `defp`: two extra clauses `keys__#1`, `keys__#2`).
+- Re-pinned stdout sha256 values (old pin = HEAD build output, new pin = this build): `tests/slice6_pipe_test.py` `EFFECT_OUTPUTS` (2), `tests/slice6_host_struct_test.py` `BYTE_GUARD` (36), `slice6/effect-reach/byte-guard.json` `sha256` (42). The `changed` flags stay, so the (71, 40) setup check holds. `slice6_struct_order_test` reuses `EFFECT_OUTPUTS`.
+- Earlier ledgers keep their old hashes (`slice6b-effect-reach/notes.md`, `red-output.log`).
+
+### Diff proof (observed)
+
+- Method: HEAD build and this build on every tracked `.beaml` source, `--stored stored/empty.jsonl`; `diff` of stdout.
+- 55 sources differ. 6 are in `slice6/redacted/` and the HEAD build rejects them (empty stdout). The other 49 differ in exactly 3 hunks each, and nothing else:
+  - add 2 lines: the two `def __beaml_keys__` clauses before `def __beaml_project_E`;
+  - change 1 line: the nested key list of a constructor field value (`Enum.map(Map.keys(...))` becomes `__beaml_keys__(...)`);
+  - change 1 line: the top-level `unknown_keys` list (`Map.keys(Map.drop(body, declared))` becomes `__beaml_keys__(..., <<>>)`).
+- A script matched every changed line against these 6 line forms: 49 of 49 pass, 0 hunks elsewhere.
+- Hunk locations per source (diff line numbers, old→new):
+
+  - `arms/gen/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `drift/N/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `drift/Q/orders.beaml`: 89a90,91, 104c106, 110c112
+  - `drift/R/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `slice2/N-chain/orders.beaml`: 128a129,130, 143c145, 149c151
+  - `slice2/N-statuz/orders.beaml`: 128a129,130, 143c145, 149c151
+  - `slice2/N2-chain/orders.beaml`: 128a129,130, 143c145, 149c151
+  - `slice2/N2/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `slice2/reuse/orders.beaml`: 140a141,142, 155c157, 161c163
+  - `slice2/rotation/orders.beaml`: 140a141,142, 155c157, 161c163
+  - `slice3/D-drop/orders.beaml`: 125a126,127, 140c142, 146c148
+  - `slice3/D/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `slice3/D15/orders.beaml`: 125a126,127, 140c142, 146c148
+  - `slice3/M/orders.beaml`: 135a136,137, 150c152, 156c158
+  - `slice3/R-add/orders.beaml`: 125a126,127, 140c142, 146c148
+  - `slice3/R2/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `slice3/RD/orders.beaml`: 131a132,133, 146c148, 152c154
+  - `slice3/RR/orders.beaml`: 134a135,136, 149c151, 155c157
+  - `slice3/SAR/orders.beaml`: 134a135,136, 149c151, 155c157
+  - `slice3/Z/orders.beaml`: 128a129,130, 143c145, 149c151
+  - `slice4/B/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `slice4/C2/orders.beaml`: 128a129,130, 143c145, 149c151
+  - `slice4/G+r/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `slice4/G+r0/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `slice4/G/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `slice4/Q4-crlf/orders.beaml`: 136a137,138, 151c153, 157c159
+  - `slice4/Q4-oneline/orders.beaml`: 136a137,138, 151c153, 157c159
+  - `slice4/Q4/orders.beaml`: 136a137,138, 151c153, 157c159
+  - `slice4/Q4g+r/orders.beaml`: 136a137,138, 151c153, 157c159
+  - `slice4/Q4s-crlf/orders.beaml`: 127a128,129, 142c144, 148c150
+  - `slice4/Q4s/orders.beaml`: 127a128,129, 142c144, 148c150
+  - `slice5/B5/orders.beaml`: 88a89,90, 103c105, 109c111
+  - `slice5/C2/orders.beaml`: 128a129,130, 143c145, 149c151
+  - `slice5/M3/orders.beaml`: 122a123,124, 137c139, 143c145
+  - `slice5/Q4-crlf/orders.beaml`: 136a137,138, 151c153, 157c159
+  - `slice5/Q4/orders.beaml`: 136a137,138, 151c153, 157c159
+  - `slice5/Q4s/orders.beaml`: 127a128,129, 142c144, 148c150
+  - `slice5/Q4z/orders.beaml`: 122a123,124, 137c139, 143c145
+  - `slice6/decode-ctor/orders.beaml`: 235a236,237, 250c252, 256c258
+  - `slice6/decode/orders.beaml`: 97a98,99, 112c114, 118c120
+  - `slice6/effect-reach/orders.beaml`: 310a311,312, 325c327, 331c333
+  - `slice6/fmt/clauses.beaml`: 193a194,195, 208c210, 214c216
+  - `slice6/fmt/marks.beaml`: 104a105,106, 119c121, 125c127
+  - `slice6/redacted/control.beaml`: 77a78,79, 92c94, 98c100
+  - `slice6/redacted/output_plain.beaml`: 77a78,79, 92c94, 98c100
+  - `slice6/stored-elixir/nested.beaml`: 297a298,299, 312c314, 318c320
+  - `slice6/stored-elixir/order.beaml`: 284a285,286, 299c301, 305c307
+  - `slice6/stored-elixir/pipe.beaml`: 270a271,272, 285c287, 291c293
+  - `slice6/stored-elixir/rec.beaml`: 275a276,277, 290c292, 296c298
+
+### Decision
+
+- D6B-173 · Undo · `__beaml_keys__` and `__beaml_marked_E` are public helpers (`def`), as `__beaml_redact__`, so that the `slice6_effect_reach_test` clause parser does not see them. By: Opus (GREEN, slice6b-redacted-fields)
+- D6B-172 · Repair · Chose: the dotted `unknown_keys` form (D6B-56 amendment) for every EFFECT source. Over: only sources with a redacted field (D6B-168). Because: one record shape for every source. Commits us to: new pins in `slice6_pipe_test`, `slice6_host_struct_test` and `byte-guard.json`; the plan line "sources without `redacted` stay byte-equal" no longer holds for EFFECT sources. By: Fable (main agent, GREEN coordination); built by Opus (GREEN, slice6b-redacted-fields)
+
+### Results after the re-pin (observed)
+
+- slice 6: `constructor` 25, `decode_ctor` 8, `decode` 10, `effect_reach` 8, `enum` 20, `failure` 22, `fmt` 25, `host_struct` 3, `int` 16, `pipe` 12, `record` 5, `redacted` 19, `stored_elixir` 15, `struct_order` 3: OK.
+- `arms_test` 11, `drift_test` 5: OK.
+- `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings`: clean. `cargo test`: 21 and 14 passed.
+- slice 2 to 5 tests were not run again after the re-pin.

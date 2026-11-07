@@ -1,0 +1,28 @@
+==> mime
+Compiling 1 file (.ex)
+Generated mime app
+===> Analyzing applications...
+===> Compiling telemetry
+==> plug_crypto
+Compiling 5 files (.ex)
+Generated plug_crypto app
+===> Analyzing applications...
+===> Compiling ranch
+==> plug
+Compiling 1 file (.erl)
+Compiling 42 files (.ex)
+Generated plug app
+===> Analyzing applications...
+===> Compiling cowlib
+===> Analyzing applications...
+===> Compiling cowboy
+=INFO REPORT==== 7-Nov-2026::20:01:02.250948 ===
+SIGTERM received - shutting down
+
+
+20:01:02.250 [notice] SIGTERM received - shutting down
+
+
+20:01:02.253 [notice] SIGTERM received - shutting down
+
+{exit,{noproc,{gen_server,call,[elixir_config,{get_and_put,at_exit,[]},infinity]}},[{gen_server,call,3,[{file,"gen_server.erl"},{line,1222}]},{'Elixir.Kernel.CLI',at_exit,1,[{file,"lib/kernel/cli.ex"},{line,126}]},{'Elixir.Kernel.CLI',run,1,[{file,"lib/kernel/cli.ex"},{line,58}]},{init,start_it,1,[]},{init,start_em,1,[]},{init,do_boot,3,[]}]}
