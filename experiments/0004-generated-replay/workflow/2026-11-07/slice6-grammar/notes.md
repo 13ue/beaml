@@ -136,3 +136,51 @@ rg -n '^\((function_clause|pipe right: \(identifier\))' languages/beaml/highligh
 | Undo | Mutation on the current grammar only | Also probe a GREEN-like grammar | Task scope. Probe shows the mechanism is closed. |
 | Undo | `rg` check on bare `function_clause` and `pipe right: (identifier)` patterns | `rg` on every capture pattern | Most patterns (keywords, `string`) need no predicate. The review asks only for these two. |
 | Undo | Count fixed to 11, hash updated | Keep old row | The file has 11 assertions and changed. |
+
+## GREEN
+
+**[Verified]** GREEN phase, 2026-11-07. Fresh worker. Full output: [green-output.log](green-output.log). No change to the test files (hashes equal the Solve table).
+
+### Change
+
+- `grammar.js`: the 4 edits of PROPOSAL ULTRA Step 3, word for word. Comments added for DL-082 (variant literal), DL-084 (signature line) and DL-089 (`with` release).
+- `languages/beaml/highlights.scm`: PROPOSAL ULTRA Step 4, word for word. The old `(call name: (identifier) @constructor)` pattern is deleted. The shared uppercase block is at the end of the file.
+- `src/` regenerated. `grammars/beaml.wasm` rebuilt.
+
+### Results
+
+| Check | Result |
+|---|---|
+| `generate --abi 15 --js-runtime native` | exit 0, no conflict |
+| `test --rebuild` | 23/23 corpus, 4/4 highlight files (19 + 48 + 2 + 11 assertions), exit 0 |
+| `build --wasm -o grammars/beaml.wasm` | exit 0 |
+| `test --wasm --rebuild` | 23/23, 4/4, exit 0 |
+| Predicate `rg` check | prints nothing |
+| `rg 'ERROR\|MISSING'` on `constructors.txt` and on `parse constructors.beaml` | prints nothing |
+| `parse -q` and `parse --wasm -q`, 3 `preview.py` DEFAULT sources | exit 0 each |
+| `parse -q`, 1375 `.beaml` files under `experiments/` | 277 clean, 1098 with ERROR, 0 MISSING |
+| `test --rebuild`, then `preview.py --chat constructors.beaml` | `c` on `PaymentState` (name), `Authorized`, `Unknown`, `DeclineReason`, `Declined`, `Pending`. `p` on `card_holder`. `f` on `g`, `build`, `prepare` |
+
+- **[Verified]** All 1098 failing files have a line that starts with `interface` (DL-074). They are old sketches and result copies in `0002`, `0003` and `0004` `results/`.
+- **[Verified]** Swap check: with `interface ` replaced by `type ` in scratch copies, 1097 of 1098 parse with 0 ERROR. The last one is `experiments/0004-generated-replay/syntax-options.beaml`: an undecided `effect name { ... }` block sketch (OPTION A).
+- **[Inference]** No failure comes from a GREEN form. A run of the old grammar on the same files was not done, to keep the shared parser cache clean.
+
+### Event
+
+- **[Verified]** Commit `4a691ec7` (slice 6b plan check, from another agent) holds the GREEN edits and a partial `green-output.log`. GREEN did not commit. The log diff is against `e70a95c3`.
+
+### Decisions
+
+| Class | Choice | Alternative | Reason |
+|---|---|---|---|
+| Undo | Apply PROPOSAL ULTRA Steps 3 and 4 with no deviation | Change the query or grammar | All checks pass. No deviation needed. |
+| Undo | Skip the README items of Step 6 | Add them in GREEN | Task names `grammar.js` and `highlights.scm`. README belongs to the docs phase. |
+| Undo | Parse `-type f` files only | Parse every path that ends in `.beaml` | Two `.beaml` paths are directories. The first run stopped at one of them. |
+| Undo | Classify failures by `interface` lines and a swap check | Build the old grammar and compare | Old-grammar probe writes the shared cache (red-review note 2). |
+| Undo | No mutation check on the bare-variant capture | Remove the capture and rerun | RED repair closed the borrowed class with ` // anchor`. Run 4 showed assertions 5 and 7 fail on the old query, which has no bare-variant capture. |
+| Undo | Use the cached `npx` CLI for `preview.py` | Record a blocker | `npx --no-install` shows 0.26.5 is cached. No download. |
+
+### Open points
+
+- README items (Step 6) for the docs phase.
+- **[Unknown]** Zed applies the shared `#match?` to each alternative (PROPOSAL ULTRA Step 4). Not checked in Zed.
