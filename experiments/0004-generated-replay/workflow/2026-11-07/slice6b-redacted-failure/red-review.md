@@ -55,3 +55,42 @@ Inputs: [spec.md](spec.md), [notes.md](notes.md) D6B-174 to D6B-181, [red-output
 ## Limits of this review
 
 - Compile only, one round. The accessor probe source stays in the scratch directory; no file in the repo tree changed except this review. By: Opus (RED review, slice6b-redacted-failure)
+
+## Re-check after repair (4c801844)
+
+Phase: RED re-check, 2026-11-07. Base: HEAD 4c801844. Fresh context. One round. Only this section changed. `run.py` not run. No commit.
+
+**Verdict: PASS** (O1 resolved; O2 resolved; two new medium objections, noted). By: Opus (RED re-check, slice6b-redacted-failure)
+
+### Re-run
+
+- **[Observed]** Scratch build of HEAD (`git archive HEAD experiments/0001-syntax-to-beam`, `cargo build --offline`), passed by `BEAML_SPIKE`. `Ran 8 tests`, `FAILED (failures=13)`. The 13 failing subtests are F1, f3, f4, f7 and d1 to d9. All 13 are `(0, [])`. The 5 guard methods pass. Equal to `red-output.log`. By: Opus (RED re-check, slice6b-redacted-failure)
+- **[Observed]** The SHA-256 of d8, d9, l5, l6, l7 and the test file are equal to the hashes in `red-output.log`. By: Opus (RED re-check, slice6b-redacted-failure)
+
+### O1: accessor reach (D6B-182)
+
+- **[Observed]** `d8` (`holder(o)`) and `d9` (`o |> holder`) expect the D6B-175 text through `record_text`: `error: fn receipt copies the redacted field card_holder of Order into holder of the TYPE Receipt, which is not redacted` and the help `(DL-112)`. This is the text that O1 asked for. By: Opus (RED re-check, slice6b-redacted-failure)
+- **[Observed]** `l5` (the accessor alone) stays in `LIMITS` and builds. D6B-178 is withdrawn in notes.md; DL-112 is not narrowed. O1 is resolved. By: Opus (RED re-check, slice6b-redacted-failure)
+
+### O2: every clause (D6B-183)
+
+- **[Observed]** `l6` and `l7` build today (exit 0). By: Opus (RED re-check, slice6b-redacted-failure)
+- **[Inference]** `l6`: the first clause returns `card_holder`. A first-clause-only or any-clause accessor rule rejects `l6`. `l7`: the last clause `s -> s` is the identity. An any-clause identity rule rejects `l7`. So each wrong rule fails one limit. By: Opus (RED re-check, slice6b-redacted-failure)
+- **[Observed]** Probe: an identity clause before a literal clause is `unreachable clause: same` (exit 1). So for identity fns, first-clause-only equals every-clause on a program that builds; only `l7` order is possible. O2 is resolved. By: Opus (RED re-check, slice6b-redacted-failure)
+
+### Fixture dependencies (question 5)
+
+- **[Observed]** Every fixture uses the `redacted` field form of step 6b. The test passes `--stored stored/empty.jsonl` (step 13) to each build; that file is tracked. Both are at HEAD. No fixture uses a step 6b or step 13 behaviour beyond that. By: Opus (RED re-check, slice6b-redacted-failure)
+
+### Objections
+
+- **N1 · medium · noted.** No limit pins a last-clause-only accessor rule. Probe (scratch): `fn holder Order { order_id: "x" } -> String = "x"` then `fn holder Order { card_holder } -> String = card_holder`, then `Receipt { holder: holder(o) }`. Exit 0 today. A GREEN that reads only the last clause for accessors passes all 13 RED and all 7 limits, and then rejects this program. Unlike identity fns, an accessor can have the qualifying clause last. Resolving test: limit `l8_accessor_last_clause_only` with that source, `assert_builds`. By: Opus (RED re-check, slice6b-redacted-failure)
+- **N2 · medium · noted.** No guard for an accessor result in a redacted field. `g1` covers only a pattern-bound name. Probe (scratch): `Receipt { holder: holder(o) }` with `holder: redacted String` in `Receipt`. Exit 0 today. A GREEN that rejects every accessor call in a record literal, without the target check, passes the RED. Resolving test: guard `g5_accessor_redacted_target`, `assert_builds`. A second probe, `o |> holder |> Holder` (accessor into a constructor), also builds today; it is a limit like `l2`, and a fixture for it is optional. By: Opus (RED re-check, slice6b-redacted-failure)
+
+### Counts
+
+- 13 RED subtests in 3 methods, all `(0, [])`. 4 guards, 7 limits, 13 setup controls, `fmt` and set check pass. 2 objections: 0 high, 2 medium. By: Opus (RED re-check, slice6b-redacted-failure)
+
+### Limits of this re-check
+
+- Compile only, one round. Probe sources stay in the scratch directory. By: Opus (RED re-check, slice6b-redacted-failure)
