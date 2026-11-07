@@ -376,6 +376,28 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Next check: 12b RED, `fn Settled order: Order -> Settled ! PaymentError = order |> payments.authorize |> Done` under the chosen option.
 
+## D017 — The `--stored` check and a constructor that fails in a pipe step (Q6B-19)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** LANGUAGE/COMPILATION, DL-101, DL-102
+- **Decision trigger** Before slice 6b closes (review D1, RV1).
+
+**[Observed]** The `--stored` check reads only the static body TYPE of the first matching constructor clause (G7). Review probe 6: `fn Amount value, c -> Amount ! NoCurrency = value |> cur |> Amount` with a stored record `amount: {"value":"","currency":"EUR"}` gives exit 0 and empty stderr. The runtime decode of the same body gives the reject `constructor`. The control record with a literal failure clause gives exit 1. **[Verified]** DL-102 says such a record blocks the build; DL-101 says the decode calls the constructor. The check therefore gives a false pass against DL-102. [review D1, probe 6](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-decode-constructor/review.md), [notes G7, P11](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-decode-constructor/notes.md)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| a, compiler evaluates | The compiler interprets constructor clause bodies for the `--stored` check: an evaluator in the compiler for the constructor subset. | No new build tool. A second semantics beside the generated Elixir; the two can drift. Grows with each new body form. |
+| b, build runs the generated constructor | The build runs the generated Elixir constructor over the stored values. | One semantics: the check equals the REPLAY RUN. Needs an Elixir toolchain at build time; the tests already have one. Slower build. |
+| c, restrict the forms | A constructor clause used in a decode may only use forms the static check understands (no failing pipe steps). Other forms are a compile error with help. | Smallest change; no false pass. Removes syntax that compiles today; each new form needs the check first. |
+
+**[Unknown]** Not built. By: Opus (DOCS, Q6B-19).
+
+**[Proposal]** Next check: review probe 6 as the RED test under the chosen option; it must give exit 1 or the compile error. By: Opus (DOCS, Q6B-19).
+
 ## Answered 2026-11-07
 
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.
