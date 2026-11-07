@@ -855,6 +855,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: DL-122 tells "unknown already at capture" from "literal lost today" by `unknown_fields`; without it an old `Unknown` value blocks the build by mistake. Parity with the RESPONSE RECORD.
 → Effect: R6D-05 closes as confirmed.
 
+**DL-143 · Migrate · One record format for every EFFECT stream; the RESPONSE RECORD is aligned to it in its own repair step before EXPERIMENT 0005 (slice 6d record format, sign-off 3 of 3)**
+→ Question: RESPONSE RECORD (outbound HTTP) and ENTRY RECORD (inbound UI event) differ in their payload keys, and the RESPONSE RECORD has no `outcome`, `reason` or `redacted`. The database stream (DL-129) comes next.
+→ Options: A, one format with a common core (head keys, `value` + `value_sha256`, `outcome` + `reason`, `unknown_keys` + `unknown_fields`, `redacted`, a span id) and transport-specific extras (`status`, `request`); the RESPONSE RECORD is aligned in its own repair step with the byte-pin proof, before EXPERIMENT 0005; B, two formats stay, every new stream decides again; C, align now inside slice 6d.
+→ Chose: A.
+→ By: 13ue
+→ Because (OWNER): BEAML shall support any number of EFFECT transports; a transport is an interface against the language and must be implementable generically later. One record format is part of that interface. C gives slice 6d two goals.
+→ Effect: a new step "record format v3" after slice 6d TEST: common core, transport extras, `--stored` and the REPLAY RUN read one shape, the four byte-pin sites move with a diff proof. The database stream gets the format from the start. Roadmap note: "EFFECT transport as an interface" (DL-126 candidate, later).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

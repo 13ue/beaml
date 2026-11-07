@@ -694,6 +694,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## Answered 2026-11-07
 
+- [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).
 - [DL-140](decision-log.md): M2, a known-to-known variant change blocks; a `map` MIGRATE STEP is forced (A).
 - [DL-139](decision-log.md): M6, a slice may build and pin a Migrate default, except syntax and record formats (B with a limit).
 - [DL-137](decision-log.md): D020, one `migrate` block governs RESPONSE RECORDS and database rows (A).
