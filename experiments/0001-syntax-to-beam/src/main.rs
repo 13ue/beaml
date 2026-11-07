@@ -128,7 +128,7 @@ enum Node {
     Record(String, Vec<(String, Node)>),
     Plus(Box<Node>, Box<Node>),
     Annotated(Box<Node>, String),
-    // `head |> step |> step`: only a whole function body (slice 1).
+    // `head |> step |> step`: a clause body, a call argument or a record field value (DL-086).
     Pipe(Box<Node>, Vec<String>),
 }
 
@@ -382,7 +382,7 @@ impl Parser {
                     let mut args = Vec::new();
                     if !self.eat(')') {
                         loop {
-                            args.push(self.node(depth + 1)?);
+                            args.push(self.piped(depth + 1)?);
                             if self.eat(')') {
                                 break;
                             }
@@ -396,7 +396,7 @@ impl Parser {
                         loop {
                             let field = self.word()?;
                             let value = if self.eat(':') {
-                                self.node(depth + 1)?
+                                self.piped(depth + 1)?
                             } else {
                                 Node::Name(field.clone())
                             };
@@ -424,6 +424,19 @@ impl Parser {
             node = Node::Plus(Box::new(node), Box::new(self.node(depth + 1)?));
         }
         Ok(node)
+    }
+    // D6B-25: `|>` binds weaker than `+`; a pipe ends at `,`, `)` and `}`. Steps are bare names.
+    fn piped(&mut self, depth: usize) -> Checked<Node> {
+        let node = self.node(depth)?;
+        if self.peek() != &Token::Pipe {
+            return Ok(node);
+        }
+        let mut steps = Vec::new();
+        while self.peek() == &Token::Pipe {
+            self.at += 1;
+            steps.push(self.dotted()?);
+        }
+        Ok(Node::Pipe(Box::new(node), steps))
     }
     fn program(mut self) -> Checked<Program> {
         let mut program = Program::default();
@@ -578,15 +591,7 @@ impl Parser {
                         });
                         continue;
                     }
-                    let mut body = self.node(0)?;
-                    if self.peek() == &Token::Pipe {
-                        let mut steps = Vec::new();
-                        while self.peek() == &Token::Pipe {
-                            self.at += 1;
-                            steps.push(self.dotted()?);
-                        }
-                        body = Node::Pipe(Box::new(body), steps);
-                    }
+                    let body = self.piped(0)?;
                     program.clauses.push(Clause {
                         name,
                         key,
@@ -1701,7 +1706,7 @@ impl<'a> Checker<'a> {
             Node::Annotated(_, _) => {
                 Err("type annotations are only supported on parameters".into())
             }
-            Node::Pipe(_, _) => Err("a pipe is only supported as a whole function body".into()),
+            Node::Pipe(head, steps) => Ok(self.steps(self.expression(head, vars)?, steps, None)?.0),
         }
     }
     // The signature key a call `name(args)` takes: for a constructor `fn T`, the first signature whose arity
@@ -1728,10 +1733,34 @@ impl<'a> Checker<'a> {
         clause: &Clause,
         vars: &BTreeMap<String, String>,
     ) -> Checked<(String, Vec<String>)> {
-        let Node::Pipe(head, steps) = &clause.body else {
-            return Ok((self.expression(&clause.body, vars)?, Vec::new()));
+        // D6B-27: `expression` knows no fn name; the clause adds it to a nested pipe error.
+        let named = |e: String| {
+            if e.starts_with("a nested pipe has the ") {
+                format!(
+                    "error: fn {}: {e}\n  help: make the pipe the whole body",
+                    clause.name
+                )
+            } else {
+                e
+            }
         };
-        let mut ty = self.expression(head, vars)?;
+        let Node::Pipe(head, steps) = &clause.body else {
+            return Ok((
+                self.expression(&clause.body, vars).map_err(named)?,
+                Vec::new(),
+            ));
+        };
+        let ty = self.expression(head, vars).map_err(named)?;
+        self.steps(ty, steps, Some(clause))
+    }
+    // The steps from the head TYPE `ty`. `clause` is the fn of a whole-body pipe (the `!` rule); a nested pipe
+    // (None) has no EFFECT step and no failing step (D6B-27).
+    fn steps(
+        &self,
+        mut ty: String,
+        steps: &[String],
+        clause: Option<&Clause>,
+    ) -> Checked<(String, Vec<String>)> {
         let mut targets = Vec::new();
         let none = Vec::new();
         for step in steps {
@@ -1752,6 +1781,12 @@ impl<'a> Checker<'a> {
             } else {
                 return Err(format!("unknown pipe step: {step}"));
             };
+            if clause.is_none() && self.effect(step).is_some() {
+                return Err(format!("a nested pipe has the EFFECT step {step}"));
+            }
+            if clause.is_none() && !failures.is_empty() {
+                return Err(format!("a nested pipe has the failing step {step}"));
+            }
             targets.push(
                 if self.variants.contains_key(step) || self.effect(step).is_some() {
                     step.clone()
@@ -1764,13 +1799,13 @@ impl<'a> Checker<'a> {
                     "type mismatch in pipe step {step}: expected {input}, got {ty}"
                 ));
             }
-            for failure in failures {
-                if !clause.failures.contains(failure) {
-                    return Err(format!(
-                        "pipe step {step} can fail with {failure}, which is not in the ! list of {}",
-                        clause.name
-                    ));
-                }
+            if let Some(clause) = clause
+                && let Some(failure) = failures.iter().find(|f| !clause.failures.contains(f))
+            {
+                return Err(format!(
+                    "pipe step {step} can fail with {failure}, which is not in the ! list of {}",
+                    clause.name
+                ));
             }
             ty = output.clone();
         }
@@ -1994,7 +2029,21 @@ impl Checker<'_> {
                 self.emit_node(a, vars),
                 self.emit_node(b, vars)
             ),
-            Node::Pipe(_, _) => unreachable!("a pipe is emitted as a whole function body"),
+            // D6B-28: a nested pipe is plain nested calls; validate rejected EFFECT and failing steps.
+            Node::Pipe(head, steps) => {
+                let ty = self.expression(head, vars).expect("checked head");
+                let (_, targets) = self.steps(ty, steps, None).expect("checked pipe");
+                targets
+                    .iter()
+                    .fold(self.emit_node(head, vars), |value, step| {
+                        match self.variants.get(step) {
+                            Some((owner, _)) => {
+                                format!("{{{}, {}, [{value}]}}", binary(owner), binary(step))
+                            }
+                            None => format!("__MODULE__.{}({value})", elixir_name(step)),
+                        }
+                    })
+            }
             Node::Record(_, fields) => format!(
                 "%{{{}}}",
                 fields
@@ -4407,6 +4456,25 @@ mod tests {
             compile("enum S { A = \"a\" }\nfn S c: String -> S\nfn S c -> S = A\n")
                 .unwrap_err()
                 .starts_with("error: enum S has literals and a constructor")
+        );
+    }
+
+    #[test]
+    fn pipe_in_any_expression() {
+        // DL-086, D6B-25, D6B-27: a nested pipe is nested calls; `+` binds first; no failing nested step.
+        let head = "fn f s: String -> String = s\nfn j a: String, b: String -> String = a\n";
+        let out = compile(&format!(
+            "{head}fn g a: String -> String = j(a + a |> f, a)\n"
+        ))
+        .unwrap();
+        assert!(out.contains("__MODULE__.j(__MODULE__.f((v_a <> v_a)), v_a)"));
+        let fail = "type Z {}\ntype N { v: String }\nfn N s: String -> N ! Z\nfn N s -> N ! Z = N { v: s }\n";
+        assert!(
+            compile(&format!(
+                "{fail}type B {{ n: N }}\nfn w s: String -> B ! Z = B {{ n: s |> N }}\n"
+            ))
+            .unwrap_err()
+            .starts_with("error: fn w: a nested pipe has the failing step N\n")
         );
     }
 }

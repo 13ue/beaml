@@ -1,0 +1,104 @@
+# Slice 6b step 5 GREEN output. Repository root. Compiler: experiments/0001-syntax-to-beam/target/debug/beaml-spike.
+# Toolchain: cargo 1.94.0 (85eff7c80 2026-01-15), rustc 1.94.0 (4a4ef493e 2026-03-02), Elixir 1.18.1 (compiled with Erlang/OTP 27), Python 3.13.12
+
+## 1. Rerun on HEAD 44a90819 (before any change, original test file sha256 523b2405...61c8)
+$ git show HEAD:.../slice6_pipe_test.py | sha256sum: 523b2405657f94df0c9fb0a05e1056d7eb889d69370c5062d31fda5d424061c8
+$ python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py   (HEAD test file, HEAD compiler)
+test_bad_fixtures_keep_their_texts (__main__.Slice6Pipe.test_bad_fixtures_keep_their_texts) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+test_effect_fixture_outputs_stay_byte_equal (__main__.Slice6Pipe.test_effect_fixture_outputs_stay_byte_equal) ... ok
+test_effect_step_in_an_argument_pipe (__main__.Slice6Pipe.test_effect_step_in_an_argument_pipe) ... FAIL
+test_failing_step_in_an_argument_pipe (__main__.Slice6Pipe.test_failing_step_in_an_argument_pipe) ... FAIL
+test_failing_step_without_a_matching_failure (__main__.Slice6Pipe.test_failing_step_without_a_matching_failure) ... ok
+test_lowercase_non_fn_step_in_an_argument_pipe (__main__.Slice6Pipe.test_lowercase_non_fn_step_in_an_argument_pipe) ... FAIL
+test_pipe_fixture_compiles_to_plain_calls (__main__.Slice6Pipe.test_pipe_fixture_compiles_to_plain_calls) ... FAIL
+test_runtime_pipe (__main__.Slice6Pipe.test_runtime_pipe) ... FAIL
+test_variant_step_with_a_wrong_payload_type (__main__.Slice6Pipe.test_variant_step_with_a_wrong_payload_type) ... ok
+test_variant_step_with_two_payloads (__main__.Slice6Pipe.test_variant_step_with_two_payloads) ... ok
+test_variant_step_without_a_payload (__main__.Slice6Pipe.test_variant_step_without_a_payload) ... ok
+AssertionError: Tuples differ: (1, '', 'error: fn wrap: a nested pipe has the EF[63 chars]ody') != (1, '', "expected ',' at byte 944")
+AssertionError: Tuples differ: (1, '', 'error: fn w: a nested pipe has the faili[53 chars]ody') != (1, '', "expected ',' at byte 290")
+AssertionError: Tuples differ: (1, '', 'unknown pipe step: x') != (1, '', "expected ',' at byte 189")
+AssertionError: Tuples differ: (0, True) != (1, False)
+AssertionError: Tuples differ: (0, True) != (1, False)
+Ran 11 tests in 0.406s
+FAILED (failures=5)
+
+## 2. O2 test added (record field nested pipe). RED on HEAD compiler
+test file sha256 ed5f959084d22715fe284dcdc8795bc27be8dc34afb677436147a88b0becd2cb
+$ python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py -k record_field_pipe
+test_failing_step_in_a_record_field_pipe (__main__.Slice6Pipe.test_failing_step_in_a_record_field_pipe) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+AssertionError: Tuples differ: (1, '', 'error: fn w: a nested pipe has the faili[53 chars]ody') != (1, '', "expected ',' at byte 268")
++ (1, '', "expected ',' at byte 268")
+- (1,
+Ran 1 test in 0.273s
+FAILED (failures=1)
+
+## 3. GREEN: main.rs changed. Commands from the repository root.
+main.rs sha256 c4e4b54f0bd65ccf6feb9a08061a333e72c20a8b213e045fb7439b938d7f308c
+$ cargo build --offline (in experiments/0001-syntax-to-beam)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.00s
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py
+Ran 12 tests in 1.503s
+OK
+Ran 12 tests in 1.052s
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py
+Ran 16 tests in 1.028s
+OK
+Ran 16 tests in 1.015s
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py
+Ran 22 tests in 2.447s
+OK
+Ran 22 tests in 2.419s
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py
+Ran 25 tests in 3.132s
+OK
+Ran 25 tests in 3.149s
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py
+Ran 20 tests in 2.399s
+OK
+Ran 20 tests in 2.409s
+OK
+
+$ cargo fmt --check (in experiments/0001-syntax-to-beam)
+fmt: clean
+
+$ cargo clippy --offline --all-targets -- -D warnings (in experiments/0001-syntax-to-beam)
+    Checking beaml-spike v0.1.0 (/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.90s
+
+$ cargo test --offline --no-fail-fast (in experiments/0001-syntax-to-beam)
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+$ python3 -B experiments/0004-generated-replay/tests/stored_types_test.py
+Ran 33 tests in 0.485s
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice3_types_test.py
+Ran 69 tests in 0.688s
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice4_retire_test.py
+Ran 87 tests in 1.007s
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice5_syntax_test.py
+Ran 60 tests in 4.389s
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice5_squash_test.py
+Ran 24 tests in 0.781s
+OK
+
+$ python3 -B experiments/0004-generated-replay/tests/slice5_rewrite_test.py
+Ran 5 tests in 2.735s
+OK

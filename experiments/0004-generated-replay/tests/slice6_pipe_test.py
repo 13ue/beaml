@@ -93,6 +93,12 @@ class Slice6Pipe(unittest.TestCase):
                              "fn w n: Int -> NonZeroInt ! IsZero = keep(n |> NonZeroInt)\n",
                              "error: fn w: a nested pipe has the failing step NonZeroInt\n" + NESTED_HELP)
 
+    def test_failing_step_in_a_record_field_pipe(self):
+        # RED review O2: the D6B-27 check also covers a record field value, not only a call argument.
+        self.assert_rejected(HEAD + "type B { v: NonZeroInt }\n"
+                             "fn w n: Int -> B ! IsZero = B { v: n |> NonZeroInt }\n",
+                             "error: fn w: a nested pipe has the failing step NonZeroInt\n" + NESTED_HELP)
+
     # Reject cases: the `!` rule and the step kinds (DL-086, D6B-26).
 
     def test_failing_step_without_a_matching_failure(self):
