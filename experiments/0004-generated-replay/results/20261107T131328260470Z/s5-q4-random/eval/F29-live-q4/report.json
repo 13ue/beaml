@@ -1,0 +1,86 @@
+{
+  "result": {
+    "ok": {
+      "v288219717790": "order-1",
+      "v747667223680": "settled",
+      "x_kmgatn": "r-9"
+    }
+  },
+  "unwatched": [
+    "{OrdersBeamlSpike, :payments_authorize, 1}"
+  ],
+  "calls": {
+    ":gen_tcp.connect/4": 1,
+    ":json.decode/1": 2,
+    "OrdersApi.Router.call/2": 0,
+    "OrdersBeamlSpike.finish/1": 1,
+    "OrdersBeamlSpike.payments_authorize/1": "nil",
+    "OrdersBeamlSpike.payments_oqfgzbyv/1": 1,
+    "OrdersBeamlSpike.prepare/1": 1,
+    "ProbeSupport.valid_payment!/2": 0
+  },
+  "transport": 1,
+  "artifact": "6ffbadd19ca5e9408983f4a0e88b90d23e570671c9c6c3f190f6882b8fd437de",
+  "spans": [
+    {
+      "attributes": {
+        "function": "prepare",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "c160c3e795e2eb4711070fca23349be96425b0204119536760ba9d1a91b0ece5",
+        "outcome": "ok"
+      },
+      "name": "orders.prepare",
+      "service": "orders",
+      "kind": "internal",
+      "trace_id": "ccd1fbcb0afc2aa37527119575860add",
+      "span_id": "2aa8247a013ad6d4",
+      "end_time": -576460751513429625,
+      "end_time_unix_nano": 1794057356071924375,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time": -576460751516434958,
+      "start_time_unix_nano": 1794057356068919042
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.payments.oqfgzbyv",
+      "service": "orders",
+      "kind": "client",
+      "trace_id": "fedfd251b240054b34a1c633f3746034",
+      "span_id": "6ef75943519c1056",
+      "end_time": -576460751505827417,
+      "end_time_unix_nano": 1794057356079526583,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time": -576460751509641125,
+      "start_time_unix_nano": 1794057356075712875
+    },
+    {
+      "attributes": {
+        "function": "finish",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "c160c3e795e2eb4711070fca23349be96425b0204119536760ba9d1a91b0ece5",
+        "outcome": "ok"
+      },
+      "name": "orders.finish",
+      "service": "orders",
+      "kind": "internal",
+      "trace_id": "8bf6794f17b2f00e9dc5e5bca0aa7ecc",
+      "span_id": "63270110cb435f1b",
+      "end_time": -576460751505519167,
+      "end_time_unix_nano": 1794057356079834833,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time": -576460751505556375,
+      "start_time_unix_nano": 1794057356079797625
+    }
+  ]
+}

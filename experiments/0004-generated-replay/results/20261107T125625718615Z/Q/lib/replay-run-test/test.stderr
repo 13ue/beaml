@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-hej9rph7/Q/lib/experiments/0003-source-linked-replay/tests/replay_run_test.py", line 352, in <module>
+    test_separate_runner_replays_first_call_and_rejects_invalid_records(run, result)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-hej9rph7/Q/lib/experiments/0003-source-linked-replay/tests/replay_run_test.py", line 254, in test_separate_runner_replays_first_call_and_rejects_invalid_records
+    process, port, _ = start("orders", run / "stub", stub.server_address[1])
+                       ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-hej9rph7/Q/lib/experiments/0003-source-linked-replay/tests/replay_run_test.py", line 179, in start
+    port = json.loads((out / "ready.json").read_text())["port"]
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Caskroom/miniconda/base/lib/python3.13/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Caskroom/miniconda/base/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Caskroom/miniconda/base/lib/python3.13/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)

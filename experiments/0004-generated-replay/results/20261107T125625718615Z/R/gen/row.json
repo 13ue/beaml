@@ -1,0 +1,39 @@
+{
+  "evidence": {
+    "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T125625718615Z/R/gen/build_output.txt",
+    "build_exit_code": 0,
+    "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T125625718615Z/R/gen/new_live/observed.json",
+    "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T125625718615Z/R/gen/pre_change/report.json"
+  },
+  "notes": {
+    "new_live": {
+      "expected_accept": true,
+      "cause": "host_validation ArgumentError"
+    },
+    "pre_change": {
+      "expected_accept": false,
+      "host_validation": "nil"
+    }
+  },
+  "build": "correct_accept",
+  "new_live": "false_reject",
+  "pre_change": "typed_reject",
+  "manual_change_sites": 0,
+  "domain_validation_sites": 1,
+  "test_expectation_sites": 2,
+  "repaired": {
+    "exit_code": 0,
+    "status": "pass",
+    "assertions": {
+      "a1_record_bytes_equal_sent_bytes": true,
+      "replay_first_call": true,
+      "replay_a1_noncanonical_body": true,
+      "replay_missing_response": true,
+      "replay_operation_mismatch": true,
+      "replay_attempt_mismatch": true,
+      "replay_body_digest_mismatch": true,
+      "replay_status_mismatch": true,
+      "replay_request_mismatch": true
+    }
+  }
+}

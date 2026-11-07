@@ -1,0 +1,8 @@
+test_table_rows_name_original_lines (__main__.ChangeTableMatchesOriginals.test_table_rows_name_original_lines) ... ok
+test_overlay_copies_equal_change_table_gen (__main__.OverlayCopiesEqualChangeTable.test_overlay_copies_equal_change_table_gen) ... ok
+test_overlay_copies_equal_change_table_lib (__main__.OverlayCopiesEqualChangeTable.test_overlay_copies_equal_change_table_lib) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.004s
+
+OK

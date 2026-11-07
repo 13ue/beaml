@@ -1,0 +1,54 @@
+# Slice 6b step 5 TEST. HEAD cd379ff0, clean tree at start. Repository root.
+
+## cargo (in experiments/0001-syntax-to-beam)
+$ cargo fmt --check
+exit 0
+$ cargo clippy --offline --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.32s
+exit 
+$ cargo test --no-fail-fast
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+exit 
+cargo 1.94.0 (85eff7c80 2026-01-15)
+rustc 1.94.0 (4a4ef493e 2026-03-02)
+clippy_exit=0
+test_exit=0
+
+## slice6 tests and wiki lint
+$ python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py
+Ran 16 tests in 1.142s
+OK
+exit 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py
+Ran 22 tests in 2.628s
+OK
+exit 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py
+Ran 25 tests in 4.172s
+OK
+exit 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py
+Ran 20 tests in 2.937s
+OK
+exit 0
+$ python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py
+Ran 12 tests in 1.157s
+OK
+exit 0
+$ python3 scripts/lint_wiki.py
+Checked 81 maintained Markdown files; 0 error(s). PDF hash, bytes, page count and per-page text rechecked.
+Parsed raw JSON records; verified 6 explicitly retained capture hashes.
+Limits: inline Markdown links/headings only; original raw documents not linted; no external URL, semantic truth, security proof or runtime checks.
+exit 0
+
+## $ python3 experiments/0001-syntax-to-beam/run.py
+EXPERIMENT 0001: pass (experiments/0001-syntax-to-beam/results/20261107T125335683454Z/result.json)
+
+## $ python3 experiments/0004-generated-replay/run.py
+{"run": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261107T125253417865Z", "status": "pass"}
+python3 experiments/0004-generated-replay/run.py  421.26s user 577.38s system 70% cpu 23:30.52 total
+EXIT 0
+
+## Note
+Another worker added untracked files (slice6b-struct-order, slice6_struct_order_test.py) during the run. main.rs and the tested files stayed at HEAD.

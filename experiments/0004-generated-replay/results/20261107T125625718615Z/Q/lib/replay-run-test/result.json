@@ -1,0 +1,68 @@
+{
+  "test": "test_separate_runner_replays_first_call_and_rejects_invalid_records",
+  "command": [
+    "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+    "experiments/0003-source-linked-replay/tests/replay_run_test.py"
+  ],
+  "cwd": "/private/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-hej9rph7/Q/lib",
+  "status": "fail",
+  "steps": [
+    {
+      "ts": "2026-11-07T13:02:04.201701+00:00",
+      "action": "start",
+      "result": "running"
+    },
+    {
+      "ts": "2026-11-07T13:02:24.546593+00:00",
+      "action": "step",
+      "result": "fresh_releases_match_archived_beams"
+    },
+    {
+      "ts": "2026-11-07T13:02:24.600866+00:00",
+      "action": "step",
+      "result": "receipt_1_verified"
+    },
+    {
+      "ts": "2026-11-07T13:02:24.649694+00:00",
+      "action": "step",
+      "result": "receipt_2_verified"
+    },
+    {
+      "ts": "2026-11-07T13:02:26.726771+00:00",
+      "action": "step",
+      "result": "live_baseline_and_records_verified"
+    }
+  ],
+  "release_exits": {
+    "payments": 0,
+    "orders": 0
+  },
+  "baseline": {
+    "receipts": [
+      {
+        "call": 1,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "7cc8f4c26bf9df642e2df4a16909986c"
+      },
+      {
+        "call": 2,
+        "status": 200,
+        "body": {
+          "order_id": "order-1",
+          "status": "authorized"
+        },
+        "trace_id": "368586aa6b322f9923ae801a37c3dd46"
+      }
+    ],
+    "live_transport_attempts": [
+      1,
+      2
+    ],
+    "response_records": 2,
+    "responses_sha256": "65b905b74339addf9e5ad5082f625420b40f214614131d642fcdf89d8aa061e4"
+  }
+}

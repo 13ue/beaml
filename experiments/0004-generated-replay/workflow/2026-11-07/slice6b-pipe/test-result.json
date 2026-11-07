@@ -1,0 +1,21 @@
+{
+  "step": "slice6b-pipe",
+  "phase": "TEST",
+  "head": "cd379ff0",
+  "toolchain": {"cargo": "1.94.0", "rustc": "1.94.0", "elixir": "1.18.1 (OTP 27)", "python": "3.13.12"},
+  "results": [
+    {"command": "cargo fmt --check", "status": "pass", "exit": 0},
+    {"command": "cargo clippy --offline --all-targets -- -D warnings", "status": "pass", "exit": 0},
+    {"command": "cargo test --no-fail-fast", "status": "pass", "exit": 0, "tests": "17 unit, 14 CLI"},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py", "status": "pass", "tests": 16},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_failure_test.py", "status": "pass", "tests": 22},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_constructor_test.py", "status": "pass", "tests": 25},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_enum_test.py", "status": "pass", "tests": 20},
+    {"command": "python3 -B experiments/0004-generated-replay/tests/slice6_pipe_test.py", "status": "pass", "tests": 12},
+    {"command": "python3 experiments/0001-syntax-to-beam/run.py", "status": "pass", "exit": 0, "result": "experiments/0001-syntax-to-beam/results/20261107T125335683454Z/result.json"},
+    {"command": "python3 experiments/0004-generated-replay/run.py", "status": "pass", "exit": 0, "steps": 15, "duration_s": 1410, "result": "experiments/0004-generated-replay/results/20261107T125253417865Z/result.json"},
+    {"command": "python3 scripts/lint_wiki.py", "status": "pass", "exit": 0, "errors": 0}
+  ],
+  "not_run": [],
+  "verdict": "pass"
+}
