@@ -162,7 +162,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D007 — Removed or changed ENUM LITERAL in stored records (Q6B-8)
 
-- **Status** OPEN
+- **Status** CLOSED by [DL-122](decision-log.md): A, a stored value whose literal is removed blocks the build until a MIGRATE STEP declares the fate (interim block).
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** EXECUTION, DL-102, DL-103
@@ -446,6 +446,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - [DL-102](decision-log.md): replay rule, a stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate.
 - [DL-103](decision-log.md): replay rule, a mapping change that only resolves Unknown values needs no MIGRATE STEP.
 - [DL-117](decision-log.md): Q6B-16, `T.new/1` takes one map with atom keys, also for one parameter.
+- [DL-122](decision-log.md): Q6B-8, a removed or changed ENUM LITERAL with stored values blocks the build (interim).
 - [DL-121](decision-log.md): Q6B-19, the `--stored` check runs the generated Elixir constructor over the stored values.
 - [DL-120](decision-log.md): Q6B-18, a constructor is pure; reaching an EFFECT is a compile error.
 - [DL-119](decision-log.md): Q6B-17, span default is the EFFECT path per step (S); the resolution becomes an OBSERVATORY setting (D018).

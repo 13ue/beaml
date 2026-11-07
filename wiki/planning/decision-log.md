@@ -670,6 +670,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: one semantics from source to production: the code that checks old data at build time is the code that runs in production. a would be a second evaluator that drifts with every new form; c would make the language grow at two speeds. The Elixir toolchain is already a build requirement of the EXPERIMENT. D019 (Rust NIF backend) stays open as an architecture question and does not change this contract.
 → Effect: a new slice 6b step "stored check through Elixir" (plan, RED from review probe 6: exit 1 with the reject text, GREEN, TEST). Build time grows by one Elixir compile and one run over the records; the step measures it. Closes D017. P11 closes with that step.
 
+**DL-122 · Migrate · A removed or changed ENUM LITERAL with stored values blocks the build (Q6B-8, A)**
+→ Question: when an ENUM LITERAL is removed, or its String changes, a stored record with that value replays as the KEEP-VALUE VARIANT (`Unknown("pending")`). DL-102 does not fire (no rule failed) and DL-103 does not count (it counts only Unknown to known). The deploy changes the replay result with no block and no count. What holds?
+→ Options: A, block under DL-102 until a MIGRATE STEP declares the fate; B, count and report, do not block; C, no check, the `Unknown` promise covers it.
+→ Chose: A. The `--stored` check treats a stored value whose literal no longer exists as a DL-102 hit: a compile error that names the enum, the lost literal, the count of records and the help line "declare the fate in a MIGRATE STEP". Interim, as in DL-116: no MIGRATE STEP form exists for this case yet (D6B-39), so the block holds until the fate syntax arrives.
+→ By: 13ue
+→ Because: a lost meaning in stored data is the same case as a failed rule (DL-102): yesterday stored, today read differently. A loud compile error over a silent change, in line with DL-102, DL-112 and DL-116.
+→ Effect: a small slice 6b step (RED: fixture with a stored value whose literal is removed, `--stored` exit 1 with the text; GREEN in the static pass of `--stored`, also reachable from step 13). Closes D007. The fate syntax concept (quarantine, redact, retire per TYPE VERSION) lifts the interim.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
