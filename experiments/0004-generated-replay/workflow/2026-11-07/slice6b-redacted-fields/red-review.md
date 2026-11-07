@@ -68,3 +68,59 @@ Inputs: [spec.md](spec.md), [notes.md](notes.md) D6B-148 to D6B-162, [red-output
 
 - Release path, `run.py` proxy and the real OTel/Logger handlers are not reviewed (plan L1, L2).
 - The OTel undefined-call claim is an inference from `--warnings-as-errors`; not run.
+
+## Re-check after repair (edbdfb07)
+
+Phase: RED re-check, 2026-11-07. Base: HEAD edbdfb07. Fresh context. Scope: the repair of O1 and O2 only. Scratch build of HEAD (`git archive HEAD experiments/0001-syntax-to-beam`, `cargo build --offline`), passed by `BEAML_SPIKE`. `run.py` not run. No repo file changed except this section. No commit.
+Inputs: [notes.md](notes.md) "RED repair" (D6B-163 to D6B-165), [red-output.log](red-output.log) (last section), `git show edbdfb07` of `tests/slice6_redacted_test.py` and `slice6/redacted/orders_nested.beaml`, DL-105, DL-111, plan D6B-31, D6B-56, D6B-72.
+
+**Verdict: PASS** (no critical or high objection; one medium noted). O1 resolved, O2 resolved. By: Opus (RED re-check, slice6b-redacted-fields)
+
+### Re-run
+
+- **[Observed]** Exit 1, `Ran 19 tests`, `FAILED (failures=23)`. 15 methods fail, the 4 controls pass. Equal to `red-output.log`. By: Opus (RED re-check, slice6b-redacted-fields)
+- **[Observed]** `test_N1_nested_redacted_input_field_reaches_no_channel` stops in `build`: `expected ':' at byte 271` (the `redacted` inside `Card`). `test_R8_nested_stored_request_value` gets the same parse error instead of the D6B-72 text. Parse reason only. By: Opus (RED re-check, slice6b-redacted-fields)
+
+### False pass: a GREEN that removes top-level keys only (O1)
+
+- **[Observed]** Simulation in a scratch copy of the test: the N1 flow and the nested `--stored` check run against `orders_nested.beaml` without `redacted`. With no top-level redacted field, this is equal to a GREEN that removes top-level keys only. By: Opus (RED re-check, slice6b-redacted-fields)
+- **[Observed]** Each channel fails: By: Opus (RED re-check, slice6b-redacted-fields)
+  - wire: `assert_wire` fails (keys `card.holder` present).
+  - record `request`: `N1_record_request_has_no_holder` FAIL.
+  - replay with the full nested input: `N1_request_with_holder_is_request_mismatch` FAIL (no `:request_mismatch`).
+  - span input at depth: `key holder found in spans.txt`.
+  - scan: MARKER found in `responses.jsonl` and `spans.txt`.
+  - nested R8: the build passes (exit 0), so the D6B-72 count at depth fails.
+- **[Observed]** `events.txt` holds no `holder` key in the simulation, so the event check alone does not separate the two GREENs; the scan covers that file. By: Opus (RED re-check, slice6b-redacted-fields)
+- **[Inference]** A GREEN that drops the whole `card` record fails `assert_wire` (`card.number` expected). By: Opus (RED re-check, slice6b-redacted-fields)
+
+### Masked failure messages (O2)
+
+- **[Observed]** The simulation failures print labels and key names only. The run log holds no MARKER in plain, hex, base64 or decimal form. By: Opus (RED re-check, slice6b-redacted-fields)
+- **[Observed]** A forced case in the scratch copy prints the MARKER from Elixir as plain text, as the inspect of its byte list, as lower-case hex and as base64, then fails. The subtest message shows `<M>` for each form (12 replacements). No MARKER form is in that log. By: Opus (RED re-check, slice6b-redacted-fields)
+- **[Observed]** The `assertEqual`, `assertIn` and `assertNotIn` calls on wire, response, span and event data are now `assertTrue` with a label (D6B-165). By: Opus (RED re-check, slice6b-redacted-fields)
+
+### D6B-163 against D6B-56 and D6B-72
+
+- **[Observed]** D6B-72: "a key that is redacted in the input TYPE ... at any depth of the declared fields", "one error per TYPE, operation, field and place". D6B-163 takes T as the EFFECT input TYPE (`Order`) and F as the dotted path `card.holder`. This agrees with the D6B-72 wording and with the D6B-56 dotted name per level. By: Opus (RED re-check, slice6b-redacted-fields)
+- **[Observed]** D6B-31: no `with` for a nested field; N1 has no `with` case (D6B-164). Consistent. By: Opus (RED re-check, slice6b-redacted-fields)
+- **[Inference]** The help line `redact card.holder` uses a dotted fate path. DL-111 states the `redact f` syntax is a sketch, so this text is a test expectation, not a syntax decision. By: Opus (RED re-check, slice6b-redacted-fields)
+
+### Objections
+
+#### R1 · Medium · The nested R8 does not separate a path-aware count from a leaf-name count
+
+- **[Observed]** The nested stored `request` has one key named `holder`, at `card.holder`. No case has a plain key named `holder` at another path. By: Opus (RED re-check, slice6b-redacted-fields)
+- Consequence: **[Inference]** a GREEN that flags every stored key whose leaf name is a redacted field name, at any path, passes. It blocks too much (a loud false block), it does not leak. By: Opus (RED re-check, slice6b-redacted-fields)
+- Resolving test: **[Proposal]** add a plain `holder` field to `Order` in a second fixture, or add a stored record whose `request` holds only a top-level plain `holder`; expect no D6B-72 hit for it. Not a block. By: Opus (RED re-check, slice6b-redacted-fields)
+
+### Counts
+
+- 19 methods: 15 fail (23 failures with subtests), 4 controls pass. By: Opus (RED re-check, slice6b-redacted-fields)
+- Top-level-only simulation: 6 of 6 nested checks fail (wire, record `request`, replay mismatch, span, scan, nested R8). By: Opus (RED re-check, slice6b-redacted-fields)
+- Masking: 4 of 4 forced MARKER forms masked in the Elixir output. By: Opus (RED re-check, slice6b-redacted-fields)
+
+### Limits
+
+- The simulation stands in for a GREEN; no GREEN exists yet.
+- Upper-case hex and JSON `\u` escapes stay outside the scan and the mask (low, dropped in the first round).
