@@ -1,0 +1,5 @@
+
+17:24:00.353 [info] Exporter ProbeSupport.Exporter successfully initialized
+
+17:24:00.610 [info] probe observation
+REPLAY {"result":{"error":"%OrdersBeamlSpike.PaymentError{reason: \"decode\"}"},"unwatched":[],"calls":{":gen_tcp.connect/4":1,":json.decode/1":2,"OrdersApi.Router.call/2":0,"OrdersBeamlSpike.finish/1":0,"OrdersBeamlSpike.payments_authorize/1":1,"OrdersBeamlSpike.prepare/1":1,"ProbeSupport.valid_payment!/2":0},"transport":1,"artifact":"21202ff66a499e01d482595c0e3a05c58ba0733ce2ed0a3ff126d4a8ba4489ab"}

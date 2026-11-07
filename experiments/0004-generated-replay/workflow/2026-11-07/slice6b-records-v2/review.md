@@ -149,3 +149,56 @@ Scratch source (not retained in the repository): `Payment { order_id: String not
 
 **Migrate**
 - → RV6A-1 repair, option A (a status 200 Q derivative) or option B (record that Q has no repair evidence). The main agent or the OWNER chooses. By: Opus (TEST/review, slice6b-records-v2)
+
+## Re-check after RV6A-1 (52550d4f)
+
+Fresh-context check of the RV6A-1 fix (`run.py` `repair_releases`, `repaired_replay`). No source or test change. By: Opus (re-check RV6A-1, slice6b-records-v2)
+
+### Runs (Python 3, from the repository root)
+
+| Command | Result | Result dir |
+|---|---|---|
+| `python3 -B experiments/0004-generated-replay/run.py` | 14 of 14 steps pass, status `pass` (12.5 min) | `results/20261107T161752613981Z` (DRIFT: `results/20261107T161820272952Z`) |
+| `unittest discover -p drift_test.py` | 5 of 5 OK (98.6 s) | DRIFT: `results/20261107T163033117603Z` |
+| `unittest discover -p slice6_<name>_test.py`, the ten 6a files | 146 of 146 OK | none |
+| `unittest discover -p slice6_host_struct_test.py` | 19 failures | none |
+
+- **[Observed]** `slice6_host_struct_test.py` is the step 11 RED of commit `bd8cb895` ("19 cases fail"). It is not a 6a file. The failures are the expected RED. By: Opus (re-check RV6A-1, slice6b-records-v2)
+
+### DRIFT evidence of the full run (`results/20261107T161820272952Z`)
+
+| Row | Edited files | Rebuilds (exit) | Record | Request | Replay result | Host | 0003 copy |
+|---|---|---|---|---|---|---|---|
+| R | `probe_support.ex`, 0003 `replay_run_test.py` | `repair-release-orders` 0, `repair-release-payments` 0 | version 2, status 200 | `order_id` | `ok` | `ok` | no |
+| N | same | same | version 2, status 200 | `order_id` | `ok` | `ok` | no |
+| Q | same | same | version 2, status 200 | `order_id`, `channel` | `ok` | `ok` | no |
+
+- **[Observed]** Each row: `repaired.exit_code` 0, report `eval_exit_code` 0, every command of the row log exit 0. `repaired_all` true.
+- **[Inference]** The Q status changed from 400 (RED run `20261107T161111078093Z`, Orders rebuild only) to 200 with the Payments rebuild. The rebuild is the cause, and the repaired `valid_order!/1` clause now runs. By: Opus (re-check RV6A-1, slice6b-records-v2)
+
+### False-pass hunt
+
+- **Empty release set.** **[Observed]** All three `arms/gen/repair/*.json` edit `experiments/0002-http-correlation/apps/probe_support/lib/probe_support.ex`; `repair_releases` gives `['orders', 'payments']`. A test-only edit gives `[]` (correct). **[Observed]** An edit of the umbrella `config/*.exs` or `mix.exs` also gives `[]`, so the release stays stale. No repair spec edits these files today. The tightened D6B-96 check (status 200, `ok`, host `ok`) fails when a stale release changes the result. Dropped as low. By: Opus (re-check RV6A-1, slice6b-records-v2)
+- **Unchecked rebuild exit.** **[Observed]** `repaired_replay` returns `{"exit_code": code}` at the first rebuild with a non-zero exit; `drift_test.py` then fails on `repaired.exit_code`. Inside the DRIFT the exit is checked. See RC1 for the full suite. By: Opus (re-check RV6A-1, slice6b-records-v2)
+
+### Objections
+
+**RC1 · medium · The full suite does not read `repaired_all`** (sharpens RV6A-2)
+- **[Observed]** `drift()` sets `status` from the freeze only (`run.py` line 609). `run.py drift` exits 0 when `repaired_all` is false. The full-suite `drift` step judges only that exit code.
+- **[Inference]** A failed repair rebuild gives `repaired_all` false and a full-suite `pass`. Only `drift_test.py` catches it, and `run.py` does not run that file (RV6A-2).
+- **[Observed]** It hides no failure today: `repaired_all` true, `drift_test.py` 5 of 5.
+- **Smallest test:** in the docs/TEST phase, make `drift()` status `fail` when `repaired_all` is false, or add `drift_test.py` to `SLICE_TESTS`. By: Opus (re-check RV6A-1, slice6b-records-v2)
+
+### Verdict
+
+- **RV6A-1: closed.** R, N and Q give status 200, `ok` and host `ok` from a rebuild of both releases; no 0003 copy runs. By: Opus (re-check RV6A-1, slice6b-records-v2)
+- **RV6A-2: stays open (medium)** for the docs/TEST phase, with RC1 added. No block. By: Opus (re-check RV6A-1, slice6b-records-v2)
+
+### Decisions
+
+**Undo**
+- → Ran `slice6_host_struct_test.py` too, and labelled it the step 11 RED, not a 6a regression. By: Opus (re-check RV6A-1, slice6b-records-v2)
+- → Dropped the umbrella `config`/`mix.exs` gap as low. By: Opus (re-check RV6A-1, slice6b-records-v2)
+
+**Repair**
+- → **Chose:** RC1 medium. **Over:** high. **Because:** `drift_test.py` catches a failed rebuild and passes today. **Commits us to:** a fix of RV6A-2 and RC1 in the docs/TEST phase. By: Opus (re-check RV6A-1, slice6b-records-v2)

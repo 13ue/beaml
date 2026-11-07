@@ -1,0 +1,145 @@
+{
+  "reply": [
+    502,
+    {
+      "error": "downstream_failure"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "exchanges": [
+    {
+      "path": "/payments/authorize",
+      "request": "{\"order_id\":\"order-1\"}",
+      "status": 200,
+      "body_base64": "eyJvcmRlcl9pZCI6Im9yZGVyLTEiLCJzdGF0ZSI6ImF1dGhvcml6ZWQifQ=="
+    }
+  ],
+  "records": [
+    {
+      "status": 200,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "state",
+            "String"
+          ]
+        ],
+        "fingerprint": "3b3f668244c9beb39e9142421a34cfd5cc52e5299ecd9970e802ddd919496324"
+      },
+      "value": {
+        "order_id": "order-1",
+        "state": "authorized"
+      },
+      "version": 2,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "trace_id": "13c6ccca87831405ccce674912bbafb9",
+      "unknown_keys": [],
+      "artifact_id": "4e2da515f7ca7b695741eec4f72a6e3f5e2d09854c01bcecef9bf3f1077d36de",
+      "attempt": 1,
+      "client_span_id": "a1d24068307bad8d",
+      "redacted": [],
+      "value_sha256": "6c7b19e371cce9dc76cc4e7fcaa623c5d0bbdb224dd21c4d1d1386bf60c27294"
+    }
+  ],
+  "spans": [
+    {
+      "attributes": {
+        "function": "prepare",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "2328e120be71edd51e4d7375b4155c8173ccd8eb66228b43d7f7ca0b9d1858fb",
+        "outcome": "ok"
+      },
+      "name": "orders.prepare",
+      "service": "orders",
+      "start_time": -576460751395270459,
+      "kind": "internal",
+      "span_id": "1b88b496fdb631b6",
+      "trace_id": "13c6ccca87831405ccce674912bbafb9",
+      "end_time": -576460751394869000,
+      "end_time_unix_nano": 1794069095614716000,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "4b53098e6ce0d152",
+      "start_time_unix_nano": 1794069095614314541
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "start_time": -576460751394547917,
+      "kind": "client",
+      "span_id": "a1d24068307bad8d",
+      "trace_id": "13c6ccca87831405ccce674912bbafb9",
+      "end_time": -576460751392271375,
+      "end_time_unix_nano": 1794069095617313625,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "4b53098e6ce0d152",
+      "start_time_unix_nano": 1794069095615037083
+    },
+    {
+      "attributes": {
+        "function": "finish",
+        "source": "apps/orders_api/priv/orders.beaml",
+        "order_id": "order-1",
+        "source_hash": "2328e120be71edd51e4d7375b4155c8173ccd8eb66228b43d7f7ca0b9d1858fb",
+        "outcome": "ok"
+      },
+      "name": "orders.finish",
+      "service": "orders",
+      "start_time": -576460751392093334,
+      "kind": "internal",
+      "span_id": "45dbd7e5c442e2dd",
+      "trace_id": "13c6ccca87831405ccce674912bbafb9",
+      "end_time": -576460751392082167,
+      "end_time_unix_nano": 1794069095617502833,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "4b53098e6ce0d152",
+      "start_time_unix_nano": 1794069095617491666
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460751395603250,
+      "kind": "server",
+      "span_id": "4b53098e6ce0d152",
+      "trace_id": "13c6ccca87831405ccce674912bbafb9",
+      "end_time": -576460751391957042,
+      "end_time_unix_nano": 1794069095617627958,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1794069095613981750
+    }
+  ],
+  "flow_probe": {
+    "result": {
+      "ok": {
+        "order_id": "order-1",
+        "state": "authorized"
+      }
+    },
+    "host_validation": "ArgumentError",
+    "transport": 1,
+    "eval_exit_code": 0
+  }
+}
