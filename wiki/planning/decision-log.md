@@ -459,6 +459,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Kept: every form reports only TYPE VERSIONS, fingerprints and counts, never values (DL-032). `--stored PATH` stays for tests and offline builds.
 → Open: how the build gets access to the nodes (network, credentials, which environments).
 
+**DL-095 · Repair · Roadmap structure follows the six parts of vertical integration**
+→ Question: how is the public roadmap organized?
+→ Options: A, one section per part of vertical integration (type system, types at runtime, typed errors, modules, tests and evals, production); B, milestones in time order.
+→ Chose: A. Each part shows its state (verified, decided, concept) and its next steps. The roadmap lives in README.md and on a small GitHub Pages site.
+→ Because: OWNER choice; the six parts are the owner goal (see wiki/concepts/vertical-integration.md), and progress is visible per part.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
