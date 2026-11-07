@@ -1,0 +1,7 @@
+// Slice 6 db reject (N12): db.list returns a TYPE with one LIST TYPE field (Q5-3).
+type Order { order_id: String label: String }
+type OrderQuery {}
+type StoreError { reason: String }
+effect orders.list OrderQuery -> Order ! StoreError = db.list("records")
+
+fn list_orders q: OrderQuery -> Order ! StoreError = q |> orders.list

@@ -38,7 +38,7 @@ ENTRY_FIX = EXPERIMENT / "slice6" / "entry"
 EMPTY = ["--stored", str(EXPERIMENT / "stored" / "empty.jsonl")]
 # N13 (D6B-212): the P3 base. At RED this is HEAD 545dded0 (P2 not landed). After P2 GREEN it moves to the P2 pin
 # commit (RV3-14); a pin sub-step in this step moves it to its GREEN hash.
-BASE = "545dded0"
+BASE = "ca09d361"  # N13: the record format v3 GREEN commit (RV3-14)
 TIMEOUT = 90
 ex = sr.ex
 

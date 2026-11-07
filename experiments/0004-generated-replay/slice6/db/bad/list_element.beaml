@@ -1,0 +1,8 @@
+// Slice 6 db reject (N12): a LIST TYPE needs a record TYPE inside the brackets.
+type Order { order_id: String label: String }
+type OrderQuery {}
+type OrderList { items: [String] }
+type StoreError { reason: String }
+effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
+
+fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list

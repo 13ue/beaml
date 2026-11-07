@@ -1,0 +1,18 @@
+// Slice 6 db variant plain: a String-only ROW TYPE, TYPE VERSION 1 (N5 control, PDB-31).
+type Order { order_id: String label: String }
+type OrderKey { order_id: String }
+type OrderQuery {}
+type OrderList { items: [Order] }
+type StoreError { reason: String }
+
+effect orders.save Order      -> Order ! StoreError     = db.put("records")
+effect orders.load OrderKey   -> Order ! StoreError     = db.get("records")
+effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
+
+effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> list_orders
+
+fn save o: Order -> Order ! StoreError = o |> orders.save
+
+fn load k: OrderKey -> Order ! StoreError = k |> orders.load
+
+fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list

@@ -1,0 +1,8 @@
+// Slice 6 db reject (N12): the db.list query TYPE has no fields (Q5-2).
+type Order { order_id: String label: String }
+type OrderKey { order_id: String }
+type OrderList { items: [Order] }
+type StoreError { reason: String }
+effect orders.list OrderKey -> OrderList ! StoreError = db.list("records")
+
+fn list_orders q: OrderKey -> OrderList ! StoreError = q |> orders.list

@@ -37,7 +37,7 @@ BASE = "f29e3f12"
 # PIN, the step 6b compiler (D6B-172: dotted unknown_keys in every EFFECT source, 237a4578..461d024e), pins the
 # bytes; before: 237a4578 (step 12, DL-119), 0747c315 (step 6a).
 PRE_6A = "4a7cffba"
-PIN = "461d024e"
+PIN = "ca09d361"
 U32_MAX = 4294967295
 NO_PATH = "no path from the stored TYPE VERSION"
 FALLBACK = "expected type, enum, effect, migrate, retire or fn"

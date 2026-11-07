@@ -1,0 +1,7 @@
+// Slice 6 db reject (N12): db.put returns its input TYPE.
+type Order { order_id: String label: String }
+type OrderKey { order_id: String }
+type StoreError { reason: String }
+effect orders.save Order -> OrderKey ! StoreError = db.put("records")
+
+fn save o: Order -> OrderKey ! StoreError = o |> orders.save
