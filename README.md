@@ -12,6 +12,20 @@ Start with the [specification knowledge coverage audit](wiki/planning/specificat
 
 The [current typed replay target](wiki/sources/typed-replay-requirement.md) expands the historical specification. The [typed error/replay design](wiki/concepts/typed-errors-and-replay.md) covers source/build inputs, execution history, capture completeness and isolated reproduction. The [event-flow map](wiki/concepts/event-flows-and-backpressure.md) evaluates Broadway/Kafka with explicit failure and acknowledgment gates. These remain researched proposals; a logging envelope alone does not fulfill full replay.
 
+## Roadmap
+
+BEAML owns the whole path from source to production, so that agents make fewer errors. The roadmap follows the seven parts of that goal. Details and evidence: the [roadmap page](docs/index.html), the [vertical integration concept](wiki/concepts/vertical-integration.md) and the [decision log](wiki/planning/decision-log.md).
+
+| Part | State | Next step |
+|---|---|---|
+| 1. Type system and compiler | Verified in part: records, variants, nested patterns compile to Elixir | One `type` form with constructors, enum constructors, pipes (DL-082 to DL-092) |
+| 2. Types at runtime | Verified in part: TYPE VERSIONS, MIGRATE CHAIN, retire, dead lines (experiment 0004) | Live query of production TYPE VERSIONS (DL-094) |
+| 3. Typed errors | Decided: `-> T ! E1 \| E2`, no overlap (DL-093) | Implement the failure position in the compiler |
+| 4. Modules follow the file system | Concept | Decide the module form |
+| 5. Tests and evals for agents | Verified in part: source-linked REPLAY RUN (experiment 0003) | Decide the test syntax |
+| 6. Production | Verified in part: HTTP correlation (0002), isolated replay (0003) | `redacted` across the stack (DL-059, DL-089) |
+| 7. Developer and agent experience | Verified in part: grammar, Zed extension, help lines | Grammar for the decided forms (slice 6a), then `beaml fmt`, `beaml check --json`, a language server (DL-096) |
+
 ## Local use
 
 Use the proposed [glossary](GLOSSARY.md) for scoped working terms and the [context map](wiki/planning/context-map.md) for candidate ownership and translation boundaries. These are reviewable conventions, not adopted implementation or a complete language grammar.
