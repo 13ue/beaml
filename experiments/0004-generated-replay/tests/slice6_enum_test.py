@@ -35,14 +35,14 @@ LITERAL_CASES = {
 CONSTRUCTOR_CASES = {
     "pair_ok": 'BeamlSpike.new_PaymentState_1("ok", "") == {"PaymentState", "Authorized", []}',
     "pair_declined_pipe": ('BeamlSpike.new_PaymentState_1("declined", "card") == '
-                           '{"PaymentState", "Declined", [%{"text" => "card"}]}'),
+                           '{"PaymentState", "Declined", [%BeamlSpike.DeclineReason{text: "card"}]}'),
     "pair_unknown": 'BeamlSpike.new_PaymentState_1("x", "") == {"PaymentState", "Unknown", ["x"]}',
     "pair_input_rejects": 'invalid.(fn -> BeamlSpike.new_PaymentState_1(1, "") end)',
     "code_ok": 'BeamlSpike.new_PaymentState_2("ok") == {"PaymentState", "Authorized", []}',
     "code_unknown": 'BeamlSpike.new_PaymentState_2("zz") == {"PaymentState", "Unknown", ["zz"]}',
     "int_zero": 'BeamlSpike.new_PaymentState_3(0) == {"PaymentState", "Pending", []}',
     "int_other": 'BeamlSpike.new_PaymentState_3(5) == {"PaymentState", "Unknown", ["int"]}',
-    "call_pair": 'BeamlSpike.from_pair("declined", "cvc") == {"PaymentState", "Declined", [%{"text" => "cvc"}]}',
+    "call_pair": 'BeamlSpike.from_pair("declined", "cvc") == {"PaymentState", "Declined", [%BeamlSpike.DeclineReason{text: "cvc"}]}',
     "call_code": 'BeamlSpike.from_code("ok") == {"PaymentState", "Authorized", []}',
     "call_int": 'BeamlSpike.from_int(0) == {"PaymentState", "Pending", []}',
     "bare_variant_in_fn": 'BeamlSpike.pending() == {"PaymentState", "Pending", []}',

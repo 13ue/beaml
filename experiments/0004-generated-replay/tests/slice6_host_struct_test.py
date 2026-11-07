@@ -40,6 +40,8 @@ CASES = {
     "h1_string_key_map_rejected": 'invalid.(fn -> BeamlSpike.keep(%{"value" => 4}) end)',
     # H1g (guard): an atom-key map without __struct__ is not the struct either.
     "h1g_atom_key_map_rejected": "invalid.(fn -> BeamlSpike.keep(%{value: 4}) end)",
+    # M2 (RED review, GREEN tightening): the struct with a wrong field TYPE is not a NonZeroInt.
+    "m2_struct_wrong_field_type_rejected": 'invalid.(fn -> BeamlSpike.keep(st.(%s, value: "4")) end)' % NZ,
     "h1_struct_passes": "s = st.(%s, value: 4)\nBeamlSpike.keep(s) == s" % NZ,
     # H2 under DL-117: one map with atom keys, the parameter name n of the signature.
     "h2_new_ok": "%s.new(%%{n: 3}) == {:ok, st.(%s, value: 3)}" % (NZ, NZ),
@@ -51,6 +53,8 @@ CASES = {
     "h2_new_extra_atom_key": "%s.new(%%{n: 3, m: 4}) == %s" % (NZ, no_signature("NonZeroInt")),
     # H3 (nested field, D6B-76). A valid value, so a GREEN that runs the constructor on the map cannot pass.
     "h3_nested_map_rejected": 'invalid.(fn -> BeamlSpike.unbox(%{"n" => %{"value" => 4}}) end)',
+    # M2: a nested atom-key map of the struct shape is not the struct.
+    "m2_nested_atom_key_map_rejected": "invalid.(fn -> BeamlSpike.unbox(%{\"n\" => %{value: 4}}) end)",
     "h3_nested_struct_passes": '{:ok, s} = %s.new(%%{n: 4})\nBeamlSpike.unbox(%%{"n" => s}) == s' % NZ,
     # H3e (enum payload depth, plan O2). The tag is the binary form that the compiler writes.
     "h3e_payload_map_rejected": 'invalid.(fn -> BeamlSpike.wrapped({"Wrap", "Has", [%{"value" => 4}]}) end)',

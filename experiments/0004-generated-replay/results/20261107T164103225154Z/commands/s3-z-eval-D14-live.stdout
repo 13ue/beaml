@@ -1,0 +1,5 @@
+
+17:42:02.984 [info] Exporter ProbeSupport.Exporter successfully initialized
+
+17:42:03.249 [info] probe observation
+REPLAY {"result":{"ok":{"order_id":"order-1","status":"authorized"}},"unwatched":[],"calls":{":gen_tcp.connect/4":1,":json.decode/1":2,"OrdersApi.Router.call/2":0,"OrdersBeamlSpike.finish/1":1,"OrdersBeamlSpike.payments_authorize/1":1,"OrdersBeamlSpike.prepare/1":1,"ProbeSupport.valid_payment!/2":0},"transport":1,"artifact":"d6513cf0d5902725161c942a57150af8beb878d24285a797fc887f781bbfc2a6"}

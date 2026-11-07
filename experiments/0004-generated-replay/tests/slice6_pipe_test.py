@@ -26,13 +26,13 @@ PIPE_CASES = {
     "argument_ends_at_comma": 'BeamlSpike.g(%{"id" => "a"}, "t") == %{"id" => "a!", "tag" => "t"}',
     "argument_ends_at_paren": 'BeamlSpike.last("a", "c") == "c-(a)"',
     "plus_binds_stronger": 'BeamlSpike.cat("a", "b", "c") == "(ab)-c"',
-    "record_field_in_constructor": 'BeamlSpike.new_Pair_1("x", "y") == %{"a" => "(x)", "b" => "y"}',
+    "record_field_in_constructor": 'BeamlSpike.new_Pair_1("x", "y") == %BeamlSpike.Pair{a: "(x)", b: "y"}',
     "variant_step_in_record_field": ('BeamlSpike.box("r") == '
                                      '%{"note" => "r", "state" => {"Outcome", "Declined", ["(r)"]}}'),
     "failing_step_first_clause": "BeamlSpike.pick(\"a\", 0) == {:error, %BeamlSpike.IsZero{}}",
     "failing_step_stops_the_pipe": "BeamlSpike.pick(\"b\", 0) == {:error, %BeamlSpike.IsZero{}}",
-    "first_clause_ok": 'BeamlSpike.pick("a", 2) == {:ok, %{"value" => 2}}',
-    "second_clause_ok": 'BeamlSpike.pick("b", 3) == {:ok, %{"value" => 3}}',
+    "first_clause_ok": 'BeamlSpike.pick("a", 2) == {:ok, %BeamlSpike.NonZeroInt{value: 2}}',
+    "second_clause_ok": 'BeamlSpike.pick("b", 3) == {:ok, %BeamlSpike.NonZeroInt{value: 3}}',
 }
 
 NESTED_HELP = "  help: make the pipe the whole body"

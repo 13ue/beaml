@@ -49,7 +49,7 @@ end
 attr = fn key -> Process.get({:attr, key}) end
 '''
 
-EUR = '%{"value" => "12.50", "currency" => "EUR"}'
+EUR = '%BeamlSpike.Amount{value: "12.50", currency: "EUR"}'
 
 
 def ok(state, amount=EUR):
@@ -68,7 +68,7 @@ LIVE_CASES = {
     # D6B-48, DL-085: signature 1 matches when both keys are present with String values; first clause match wins.
     "two_keys_ok_is_authorized": ('live.(st.("ok", ""), eur) == %s and attr.(:unknown_fields) == nil'
                                   % ok(v("Authorized"))),
-    "declined_via_pipe": 'live.(st.("declined", "card"), eur) == %s' % ok(v("Declined", '%{"text" => "card"}')),
+    "declined_via_pipe": 'live.(st.("declined", "card"), eur) == %s' % ok(v("Declined", '%BeamlSpike.DeclineReason{text: "card"}')),
     # DL-065, D6B-37 (step 7 form): the keep-value variant names the field in unknown_fields, never the value.
     "other_status_is_unknown": ('live.(st.("refunded", ""), eur) == %s and attr.(:unknown_fields) == ["state"]'
                                 % ok(v("Unknown", '"refunded"'))),
@@ -96,7 +96,7 @@ LIVE_CASES = {
                                               '%{"order_id" => "order-1", "state" => st.("ok", ""), "amount" => eur}'),
 }
 REPLAY_CASES = {
-    "replay_declined": 'replay.("%s", 2) == %s' % (STORED, ok(v("Declined", '%{"text" => "card"}'))),
+    "replay_declined": 'replay.("%s", 2) == %s' % (STORED, ok(v("Declined", '%BeamlSpike.DeclineReason{text: "card"}'))),
     "replay_scalar": 'replay.("%s", 3) == %s' % (STORED, ok(v("Pending"))),
 }
 

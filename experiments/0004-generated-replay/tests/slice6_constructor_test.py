@@ -41,21 +41,21 @@ def effect_reject(position, ty="NonZeroInt"):
 
 NONZERO_CASES = {
     "constructor_zero_fails": "BeamlSpike.new_NonZeroInt_1(0) == {:error, %BeamlSpike.IsZero{}}",
-    "constructor_ok": 'BeamlSpike.new_NonZeroInt_1(3) == {:ok, %{"value" => 3}}',
+    "constructor_ok": 'BeamlSpike.new_NonZeroInt_1(3) == {:ok, %BeamlSpike.NonZeroInt{value: 3}}',
     "constructor_input_rejects": 'invalid.(fn -> BeamlSpike.new_NonZeroInt_1("3") end)',
     "wrap_zero_fails": "BeamlSpike.wrap(0) == {:error, %BeamlSpike.IsZero{}}",
-    "wrap_ok": 'BeamlSpike.wrap(5) == {:ok, %{"value" => 5}}',
-    "read_pattern": 'BeamlSpike.read(%{"value" => 4}) == 4',
-    "keep_passes": 'BeamlSpike.keep(%{"value" => 4}) == %{"value" => 4}',
+    "wrap_ok": 'BeamlSpike.wrap(5) == {:ok, %BeamlSpike.NonZeroInt{value: 5}}',
+    "read_pattern": 'BeamlSpike.read(%BeamlSpike.NonZeroInt{value: 4}) == 4',
+    "keep_passes": 'BeamlSpike.keep(%BeamlSpike.NonZeroInt{value: 4}) == %BeamlSpike.NonZeroInt{value: 4}',
 }
 PLAIN_CASES = {
     "plain_zero_fails": "BeamlSpike.new_NonZeroInt_1(0) == {:error, %BeamlSpike.IsZero{}}",
-    "plain_ok": 'BeamlSpike.new_NonZeroInt_1(2) == {:ok, %{"value" => 2}}',
+    "plain_ok": 'BeamlSpike.new_NonZeroInt_1(2) == {:ok, %BeamlSpike.NonZeroInt{value: 2}}',
 }
 # RED repair, objection 3: a constructor without `!` called as `F(r)` (plan step 3 code list).
 CALL_SOURCE = ("type F { reason: String }\nfn F r: String -> F = F { reason: r }\n"
                "fn mk r: String -> F = F(r)\n")
-CALL_CASES = {"call_form": 'BeamlSpike.mk("x") == %{"reason" => "x"}'}
+CALL_CASES = {"call_form": 'BeamlSpike.mk("x") == %BeamlSpike.F{reason: "x"}'}
 # D6B-28: the step 2 fixture keeps its values without spans and without a stub.
 BODY_PIPE_CASES = {k: v for k, v in sf.BODY_CASES.items() if k.startswith(("piped", "outer"))}
 
@@ -93,16 +93,17 @@ class Slice6Constructor(unittest.TestCase):
         self.assert_lines(self.assert_built(NONZERO), [
             "def new_NonZeroInt_1(a0) do",
             "defp __beaml_new_NonZeroInt_1(0), do: {:error, %__MODULE__.IsZero{}}",
-            "defp __beaml_new_NonZeroInt_1(v_n), do: {:ok, %%{%s => v_n}}" % b("value"),
+            "defp __beaml_new_NonZeroInt_1(v_n), do: {:ok, %__MODULE__.NonZeroInt{value: v_n}}",
             "with {:ok, p1} <- __MODULE__.new_NonZeroInt_1(p0) do",
             "defmodule IsZero do",
-        ], absent=["def NonZeroInt(a0) do", "defmodule NonZeroInt do"])
+            "defmodule NonZeroInt do",
+        ], absent=["def NonZeroInt(a0) do"])
 
     def test_plain_fixture_compiles(self):
         # The corpus form without a signature line. Today: "invalid function name: NonZeroInt".
         self.assert_lines(self.assert_built(PLAIN), [
             "defp __beaml_new_NonZeroInt_1(0), do: {:error, %__MODULE__.IsZero{}}",
-            "defp __beaml_new_NonZeroInt_1(v_n), do: {:ok, %%{%s => v_n}}" % b("value"),
+            "defp __beaml_new_NonZeroInt_1(v_n), do: {:ok, %__MODULE__.NonZeroInt{value: v_n}}",
         ])
 
     def test_runtime_nonzero(self):
