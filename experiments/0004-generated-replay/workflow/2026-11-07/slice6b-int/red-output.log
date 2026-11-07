@@ -1,0 +1,398 @@
+# RED run, slice 6b step 1 (slice6b-int), 2026-11-07T10:43:12Z
+# HEAD 713e8cdc, production unchanged
+# toolchain: cargo 1.94.0 (85eff7c80 2026-01-15), Elixir 1.18.1 (compiled with Erlang/OTP 27)
+# fixture sha256: e25c4a3c69559268e10c16de7c68d75681987aee752c5f77baa2c2e3806de5c9
+# test sha256: 2043a3983f31c32c328eeba9a909303d2f1918a3f4606c191a4878373a083c9d
+$ python3 -B experiments/0004-generated-replay/tests/slice6_int_test.py
+test_equal_literals_are_unreachable (__main__.Slice6Int.test_equal_literals_are_unreachable) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+FAIL
+test_fixture_compiles_to_the_planned_shape (__main__.Slice6Int.test_fixture_compiles_to_the_planned_shape) ... FAIL
+test_int_body_for_string_output (__main__.Slice6Int.test_int_body_for_string_output) ... FAIL
+test_int_is_not_a_declared_type_name (__main__.Slice6Int.test_int_is_not_a_declared_type_name) ... FAIL
+test_int_literal_against_string_parameter (__main__.Slice6Int.test_int_literal_against_string_parameter) ... FAIL
+test_int_output_and_literal_expression_compile (__main__.Slice6Int.test_int_output_and_literal_expression_compile) ... FAIL
+test_is_integer_is_a_reserved_function_name (__main__.Slice6Int.test_is_integer_is_a_reserved_function_name) ... FAIL
+test_literal_after_catch_all_is_unreachable (__main__.Slice6Int.test_literal_after_catch_all_is_unreachable) ... FAIL
+test_literal_alone_is_non_exhaustive (__main__.Slice6Int.test_literal_alone_is_non_exhaustive) ... FAIL
+test_literal_clause_and_int_parameter_compile (__main__.Slice6Int.test_literal_clause_and_int_parameter_compile) ... FAIL
+test_no_int_in_effect_input (__main__.Slice6Int.test_no_int_in_effect_input) ... FAIL
+test_no_int_in_effect_output (__main__.Slice6Int.test_no_int_in_effect_output) ... FAIL
+test_no_negative_literal (__main__.Slice6Int.test_no_negative_literal) ... ok
+test_no_plus_on_int (__main__.Slice6Int.test_no_plus_on_int) ... FAIL
+test_runtime (__main__.Slice6Int.test_runtime) ... FAIL
+test_string_body_for_int_output (__main__.Slice6Int.test_string_body_for_int_output) ... FAIL
+
+======================================================================
+FAIL: test_equal_literals_are_unreachable (__main__.Slice6Int.test_equal_literals_are_unreachable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 167, in test_equal_literals_are_unreachable
+    self.assert_rejected('fn f 0 -> String = "a"\nfn f 0 -> String = "b"\nfn f n: Int -> String = "c"\n',
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "unreachable clause: f")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'unreachable clause: f') != (1, '', 'expected expression or pattern at byte 5')
+
+First differing element 2:
+'unreachable clause: f'
+'expected expression or pattern at byte 5'
+
+- (1, '', 'unreachable clause: f')
++ (1, '', 'expected expression or pattern at byte 5') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_fixture_compiles_to_the_planned_shape (__main__.Slice6Int.test_fixture_compiles_to_the_planned_shape)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 113, in test_fixture_compiles_to_the_planned_shape
+    stdout = self.assert_built(FIXTURE)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 101, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected expression or pattern at byte 127
+
+
+======================================================================
+FAIL: test_int_body_for_string_output (__main__.Slice6Int.test_int_body_for_string_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 157, in test_int_body_for_string_output
+    self.assert_rejected("fn g -> String = 5\n", "type mismatch: expected String, got Int")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'type mismatch: expected String, got Int') != (1, '', 'expected expression or pattern at byte 17')
+
+First differing element 2:
+'type mismatch: expected String, got Int'
+'expected expression or pattern at byte 17'
+
+- (1, '', 'type mismatch: expected String, got Int')
++ (1, '', 'expected expression or pattern at byte 17') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_int_is_not_a_declared_type_name (__main__.Slice6Int.test_int_is_not_a_declared_type_name)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 180, in test_int_is_not_a_declared_type_name
+    self.assert_rejected("type Int { n: String }\nfn g x: Int -> Int = x\n", "invalid type name: Int")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'invalid type name: Int') != (0, '# Generated by experiment 0001. Not a[797 chars], '')
+
+First differing element 0:
+1
+0
+
+- (1, '', 'invalid type name: Int')
++ (0,
++  '# Generated by experiment 0001. Not a stable ABI.\n'
++  'defmodule BeamlSpike do\n'
++  '  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, map_size: 1, ==: 2, '
++  '<>: 2, if: 2, raise: 2, def: 2, defp: 2]\n'
++  '  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and '
++  'String.valid?(v)\n'
++  '  defp __beaml_valid__(v, <<73,110,116>>) when is_map(v) and map_size(v) == '
++  '1, do: __beaml_valid__(Map.get(v, <<110>>), <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(_, _), do: false\n'
++  '  def g(a0) do\n'
++  '    if __beaml_valid__(a0, <<73,110,116>>) do\n'
++  '      result = __beaml_g(a0)\n'
++  '      if __beaml_valid__(result, <<73,110,116>>), do: result, else: '
++  'raise(ArgumentError, "invalid BEAML output")\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 g 23 45\n'
++  '  defp __beaml_g(v_x), do: v_x\n'
++  'end\n',
++  '') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_int_literal_against_string_parameter (__main__.Slice6Int.test_int_literal_against_string_parameter)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 160, in test_int_literal_against_string_parameter
+    self.assert_rejected('fn f s: String -> String = s\nfn f 0 -> String = "z"\n',
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "type mismatch: expected String, got Int")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'type mismatch: expected String, got Int') != (1, '', 'expected expression or pattern at byte 34')
+
+First differing element 2:
+'type mismatch: expected String, got Int'
+'expected expression or pattern at byte 34'
+
+- (1, '', 'type mismatch: expected String, got Int')
++ (1, '', 'expected expression or pattern at byte 34') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_int_output_and_literal_expression_compile (__main__.Slice6Int.test_int_output_and_literal_expression_compile)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 129, in test_int_output_and_literal_expression_compile
+    self.assert_built("fn seven -> Int = 7\n")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 101, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected expression or pattern at byte 18
+
+
+======================================================================
+FAIL: test_is_integer_is_a_reserved_function_name (__main__.Slice6Int.test_is_integer_is_a_reserved_function_name)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 184, in test_is_integer_is_a_reserved_function_name
+    self.assert_rejected("fn is_integer s: String -> String = s\n", "invalid function name: is_integer")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'invalid function name: is_integer') != (0, '# Generated by experiment 0001. Not a[707 chars], '')
+
+First differing element 0:
+1
+0
+
+- (1, '', 'invalid function name: is_integer')
++ (0,
++  '# Generated by experiment 0001. Not a stable ABI.\n'
++  'defmodule BeamlSpike do\n'
++  '  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, map_size: 1, ==: 2, '
++  '<>: 2, if: 2, raise: 2, def: 2, defp: 2]\n'
++  '  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and '
++  'String.valid?(v)\n'
++  '  defp __beaml_valid__(_, _), do: false\n'
++  '  def is_integer(a0) do\n'
++  '    if __beaml_valid__(a0, <<83,116,114,105,110,103>>) do\n'
++  '      result = __beaml_is_integer(a0)\n'
++  '      if __beaml_valid__(result, <<83,116,114,105,110,103>>), do: result, '
++  'else: raise(ArgumentError, "invalid BEAML output")\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 is_integer 0 37\n'
++  '  defp __beaml_is_integer(v_s), do: v_s\n'
++  'end\n',
++  '') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_literal_after_catch_all_is_unreachable (__main__.Slice6Int.test_literal_after_catch_all_is_unreachable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 164, in test_literal_after_catch_all_is_unreachable
+    self.assert_rejected('fn f n: Int -> String = "a"\nfn f 0 -> String = "b"\n', "unreachable clause: f")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'unreachable clause: f') != (1, '', 'expected expression or pattern at byte 33')
+
+First differing element 2:
+'unreachable clause: f'
+'expected expression or pattern at byte 33'
+
+- (1, '', 'unreachable clause: f')
++ (1, '', 'expected expression or pattern at byte 33') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_literal_alone_is_non_exhaustive (__main__.Slice6Int.test_literal_alone_is_non_exhaustive)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 150, in test_literal_alone_is_non_exhaustive
+    self.assert_rejected('fn f 0 -> String = "zero"\n', "non-exhaustive function: f")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'non-exhaustive function: f') != (1, '', 'expected expression or pattern at byte 5')
+
+First differing element 2:
+'non-exhaustive function: f'
+'expected expression or pattern at byte 5'
+
+- (1, '', 'non-exhaustive function: f')
++ (1, '', 'expected expression or pattern at byte 5') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_literal_clause_and_int_parameter_compile (__main__.Slice6Int.test_literal_clause_and_int_parameter_compile)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 126, in test_literal_clause_and_int_parameter_compile
+    self.assert_built('fn f 0 -> String = "zero"\nfn f n: Int -> String = "other"\n')
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 101, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected expression or pattern at byte 5
+
+
+======================================================================
+FAIL: test_no_int_in_effect_input (__main__.Slice6Int.test_no_int_in_effect_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 193, in test_no_int_in_effect_input
+    self.assert_rejected("type O { reason: String }\ntype P { id: String }\ntype I { n: Int }\n" + EFFECT_TAIL,
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "effect payments.authorize: slice 6b sends String fields only, not I.n")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'effect payments.authorize: slice 6b sends String fields only, not I.n') != (1, '', 'unknown type: Int')
+
+First differing element 2:
+'effect payments.authorize: slice 6b sends String fields only, not I.n'
+'unknown type: Int'
+
+- (1, '', 'effect payments.authorize: slice 6b sends String fields only, not I.n')
++ (1, '', 'unknown type: Int') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_no_int_in_effect_output (__main__.Slice6Int.test_no_int_in_effect_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 188, in test_no_int_in_effect_output
+    self.assert_rejected("type O { reason: String }\ntype P { n: Int }\ntype I { id: String }\n" + EFFECT_TAIL,
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "effect payments.authorize: slice 1 decodes String fields only, not P.n")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'effect payments.authorize: slice 1 decode[26 chars]P.n') != (1, '', 'unknown type: Int')
+
+First differing element 2:
+'effect payments.authorize: slice 1 decodes String fields only, not P.n'
+'unknown type: Int'
+
++ (1, '', 'unknown type: Int')
+- (1,
+-  '',
+-  'effect payments.authorize: slice 1 decodes String fields only, not P.n') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_no_plus_on_int (__main__.Slice6Int.test_no_plus_on_int)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 172, in test_no_plus_on_int
+    self.assert_rejected("fn g -> Int = 1 + 2\n", "type mismatch: expected String, got Int")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'type mismatch: expected String, got Int') != (1, '', 'expected expression or pattern at byte 14')
+
+First differing element 2:
+'type mismatch: expected String, got Int'
+'expected expression or pattern at byte 14'
+
+- (1, '', 'type mismatch: expected String, got Int')
++ (1, '', 'expected expression or pattern at byte 14') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_runtime (__main__.Slice6Int.test_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 132, in test_runtime
+    stdout = self.assert_built(FIXTURE)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 101, in assert_built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected expression or pattern at byte 127
+
+
+======================================================================
+FAIL: test_string_body_for_int_output (__main__.Slice6Int.test_string_body_for_int_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 154, in test_string_body_for_int_output
+    self.assert_rejected('fn g -> Int = "x"\n', "type mismatch: expected Int, got String")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_int_test.py", line 107, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'type mismatch: expected Int, got String') != (1, '', 'unknown type: Int')
+
+First differing element 2:
+'type mismatch: expected Int, got String'
+'unknown type: Int'
+
+- (1, '', 'type mismatch: expected Int, got String')
++ (1, '', 'unknown type: Int') : expected exit 1, no stdout and the exact message
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.309s
+
+FAILED (failures=15)
+# exit 1

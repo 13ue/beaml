@@ -1,0 +1,15 @@
+// EXPERIMENT 0004 slice 6b step 1: the Int TYPE and integer literals (plan step 1, D6B-02, D6B-03).
+type Box { n: Int }
+
+fn f 0 -> String = "zero"
+fn f n: Int -> String = "other"
+
+fn size Box { n: 0 } -> String = "empty"
+fn size Box { n: _ } -> String = "full"
+
+fn pick 0, s: String -> String = s
+fn pick _: Int, _: String -> String = "other"
+
+fn seven -> Int = 7
+fn unbox Box { n } -> Int = n
+fn wrap n: Int -> Box = Box { n: n }
