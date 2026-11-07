@@ -595,6 +595,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice; with PII what counts is what lies in the store, and a keep window would leave the value there for weeks. This is also the first concrete answer to "lazy or eager": for redaction, eager.
 → Open: the syntax `redact f` is a sketch; `quarantine` is a sketched fate (DL-102), no keyword exists yet.
 
+**DL-112 · Answer · A direct copy of a redacted value into a non-redacted field is a compile error everywhere (Q6B-12, A)**
+→ Question: `Receipt { holder: card_holder }` turns a redacted value into a plain field; the next EFFECT needs no `with`, so the value reaches the wire, the span and the record. DL-105 named only failure TYPES.
+→ Options: A, the 6c check applies to every record literal and variant payload; B, failure TYPES only now, other copies wait for the flow check.
+→ Chose: A. The help line asks to mark the target field `redacted` or not to copy the value. Only the direct copy is caught; a derived value (`"" + card_holder`) is the implicit flow, a later compiler target (DL-029).
+→ By: 13ue
+→ Because: OWNER choice; who copies PII declares it. The evidence and challenges are in `wiki/planning/decisions-to-be-made.md` (D010).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
