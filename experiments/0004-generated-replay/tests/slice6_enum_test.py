@@ -201,6 +201,17 @@ class Slice6Enum(unittest.TestCase):
                              'error: enum PaymentState: the literal "ok" of Pending is unreachable, Authorized has it '
                              "first\n  help: give each variant a literal of its own")
 
+    def test_generated_constructor_name_clash(self):
+        # Step 3 review G7 (D6B-15): a user fn with a generated name new_T_k is a duplicate name.
+        cases = {
+            "new_F_1": ("type F { r: String }\nfn F r: String -> F = F { r: r }\n"
+                        "fn new_F_1 r: String -> String = r\n"),
+            "new_PaymentState_3": CONSTRUCTOR.read_text() + "fn new_PaymentState_3 n: Int -> Int = n\n",
+        }
+        for name, source in cases.items():
+            with self.subTest(name):
+                self.assert_rejected(source, "duplicate name: " + name)
+
     def test_lowercase_fn_keeps_one_signature_line(self):
         # Guard, D6B-14: several signatures only for constructors. Passes today.
         self.assert_rejected("fn f a: String -> String\nfn f a -> String = a\n"

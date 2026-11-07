@@ -140,6 +140,8 @@ enum Definition {
 #[derive(Clone, Debug)]
 struct Clause {
     name: String,
+    // The signature this clause belongs to: the fn name, or `T#k` for signature k of a constructor `fn T` (D6B-13).
+    key: String,
     args: Vec<Node>,
     output: String,
     failures: Vec<String>,
@@ -150,6 +152,7 @@ struct Clause {
 #[derive(Clone, Debug)]
 struct SignatureLine {
     name: String,
+    key: String,
     args: Vec<Node>,
     output: String,
     failures: Vec<String>,
@@ -204,6 +207,8 @@ struct Program {
     retires: Vec<Retire>,
     // Slice 5: the VERSION MARK `type T vN { ... }` per record TYPE that has one (DL-070, DL-071).
     marks: BTreeMap<String, u32>,
+    // Slice 6b (DL-082): the ENUM LITERALS `V = "text"` per enum, in source order (D6B-21).
+    literals: BTreeMap<String, Vec<(String, String)>>,
     // Slice 5: the byte end of the TYPE name in each `type` declaration (where `--remove-dead` writes a mark).
     name_ends: BTreeMap<String, usize>,
 }
@@ -406,6 +411,9 @@ impl Parser {
                         }
                     }
                     Node::Record(name, fields)
+                } else if upper(&name) {
+                    // D6B-20: a bare uppercase name is a variant `A()`, never a variable.
+                    Node::Call(name, Vec::new())
                 } else {
                     Node::Name(name)
                 }
@@ -419,6 +427,7 @@ impl Parser {
     }
     fn program(mut self) -> Checked<Program> {
         let mut program = Program::default();
+        let mut keys: BTreeMap<String, String> = BTreeMap::new();
         while self.peek() != &Token::End {
             let start = self.tokens[self.at].1.start;
             match self.word()?.as_str() {
@@ -481,11 +490,12 @@ impl Parser {
                     let name = self.word()?;
                     self.expect('{')?;
                     let mut variants = Vec::new();
+                    let mut literals = Vec::new();
                     while !self.eat('}') {
                         let variant = self.word()?;
-                        self.expect('(')?;
+                        // D6B-20: a bare variant `A` is `A()`.
                         let mut args = Vec::new();
-                        if !self.eat(')') {
+                        if self.eat('(') && !self.eat(')') {
                             loop {
                                 args.push(self.word()?);
                                 if self.eat(')') {
@@ -494,8 +504,18 @@ impl Parser {
                                 self.expect(',')?;
                             }
                         }
+                        if self.eat('=') {
+                            let Token::Text(literal) = self.peek().clone() else {
+                                return Err(self.error("expected a string literal after '='"));
+                            };
+                            self.at += 1;
+                            literals.push((variant.clone(), literal));
+                        }
                         variants.push((variant, args));
                         self.eat(',');
+                    }
+                    if !literals.is_empty() {
+                        program.literals.insert(name.clone(), literals);
                     }
                     if program
                         .types
@@ -507,6 +527,12 @@ impl Parser {
                 }
                 "fn" => {
                     let name = self.word()?;
+                    // D6B-13, D6B-15: signature k of a constructor `fn T` is `T#k`; its clauses follow it.
+                    let key = if !upper(&name) {
+                        name.clone()
+                    } else {
+                        keys.get(&name).cloned().unwrap_or(format!("{name}#1"))
+                    };
                     let mut args = Vec::new();
                     if self.peek() != &Token::Arrow {
                         loop {
@@ -531,8 +557,20 @@ impl Parser {
                                 "error: fn {name}: a signature line has name: TYPE parameters only"
                             ));
                         }
+                        let key = if upper(&name) {
+                            let k = program
+                                .signature_lines
+                                .iter()
+                                .filter(|l| l.name == name)
+                                .count();
+                            format!("{name}#{}", k + 1)
+                        } else {
+                            key
+                        };
+                        keys.insert(name.clone(), key.clone());
                         program.signature_lines.push(SignatureLine {
                             name,
+                            key,
                             args,
                             output,
                             failures,
@@ -551,6 +589,7 @@ impl Parser {
                     }
                     program.clauses.push(Clause {
                         name,
+                        key,
                         args,
                         output,
                         failures,
@@ -719,13 +758,16 @@ struct Checker<'a> {
     // TYPES with a constructor `fn T` (DL-092): nominal TYPES (D6B-17).
     constructors: BTreeSet<String>,
 }
-// The Elixir name of a fn: a constructor `fn T` is `new_T_1` (D6B-15).
-fn elixir_name(name: &str) -> String {
-    if upper(name) {
-        format!("new_{name}_1")
-    } else {
-        name.to_string()
+// The Elixir name of a signature key: signature k of a constructor `fn T` (`T#k`) is `new_T_k` (D6B-15).
+fn elixir_name(key: &str) -> String {
+    match key.split_once('#') {
+        Some((name, k)) => format!("new_{name}_{k}"),
+        None => key.to_string(),
     }
+}
+// The BEAML fn name of a signature key.
+fn display(key: &str) -> &str {
+    key.split('#').next().unwrap_or(key)
 }
 
 // The MIGRATE CHAIN check: MIGRATE STEPS `1 -> 2 -> ...` without gaps per TYPE. Old TYPE VERSIONS are
@@ -980,6 +1022,9 @@ impl<'a> Checker<'a> {
                             return Err(format!("invalid or duplicate constructor: {variant}"));
                         }
                     }
+                    if let Some(literals) = program.literals.get(name) {
+                        checker.literal_rules(name, variants, literals)?;
+                    }
                 }
             }
         }
@@ -990,9 +1035,9 @@ impl<'a> Checker<'a> {
         if program.clauses.is_empty() {
             return Err("expected at least one function".into());
         }
-        // D6B-12, D6B-14: a signature line gives the parameter TYPES; an equal second one is unreachable.
+        // D6B-12, D6B-14: a signature line gives the parameter TYPES. A constructor has one signature per line.
         let mut lines: BTreeMap<&str, usize> = BTreeMap::new();
-        for line in &program.signature_lines {
+        for (index, line) in program.signature_lines.iter().enumerate() {
             checker.fn_name(&line.name, &line.output)?;
             checker.check_type(&line.output, &mut Vec::new())?;
             let mut vars = BTreeMap::new();
@@ -1004,22 +1049,54 @@ impl<'a> Checker<'a> {
             checker.failure_types(&owner, &line.failures)?;
             checker.overlap(&owner, &line.output, &line.failures, true)?;
             let signature = (args, line.output.clone());
-            if lines.insert(&line.name, line.start).is_some() {
-                // ponytail: one signature per fn in step 3; step 4 (D6B-23) adds several signatures.
-                if checker.signatures.get(&line.name) == Some(&signature)
-                    && checker.failures.get(&line.name) == Some(&line.failures)
+            let unreachable = |help: &str| {
+                format!(
+                    "unreachable signature: {0}\n  help: an earlier signature line of fn {0} {help}; remove this one",
+                    line.name
+                )
+            };
+            lines.entry(&line.name).or_insert(line.start);
+            if upper(&line.name) {
+                // D6B-23: unreachable when every (name, TYPE) of an earlier signature line is also in this one.
+                let pairs = |l: &SignatureLine| -> Vec<(String, String)> {
+                    l.args
+                        .iter()
+                        .filter_map(|a| match a {
+                            Node::Annotated(inner, ty) => match inner.as_ref() {
+                                Node::Name(n) => Some((n.clone(), ty.clone())),
+                                _ => None,
+                            },
+                            _ => None,
+                        })
+                        .collect()
+                };
+                let mine = pairs(line);
+                for earlier in program.signature_lines[..index]
+                    .iter()
+                    .filter(|l| l.name == line.name)
                 {
-                    return Err(format!(
-                        "unreachable signature: {0}\n  help: an earlier signature line of fn {0} has the same parameters; remove this one",
-                        line.name
-                    ));
+                    let theirs = pairs(earlier);
+                    if theirs.iter().all(|p| mine.contains(p)) {
+                        return Err(unreachable(if theirs.len() == mine.len() {
+                            "has the same parameters"
+                        } else {
+                            "has a part of these parameters and matches first"
+                        }));
+                    }
+                }
+            } else if checker.signatures.contains_key(&line.key) {
+                // D6B-14: a lowercase fn has one signature line.
+                if checker.signatures.get(&line.key) == Some(&signature)
+                    && checker.failures.get(&line.key) == Some(&line.failures)
+                {
+                    return Err(unreachable("has the same parameters"));
                 }
                 return Err(format!("inconsistent function signature: {}", line.name));
             }
-            checker.signatures.insert(line.name.clone(), signature);
+            checker.signatures.insert(line.key.clone(), signature);
             checker
                 .failures
-                .insert(line.name.clone(), line.failures.clone());
+                .insert(line.key.clone(), line.failures.clone());
         }
         for clause in &program.clauses {
             checker.fn_name(&clause.name, &clause.output)?;
@@ -1034,7 +1111,7 @@ impl<'a> Checker<'a> {
             checker.check_type(&clause.output, &mut Vec::new())?;
             let mut vars = BTreeMap::new();
             let mut args = Vec::new();
-            let given = line.map(|_| checker.signatures[&clause.name].0.clone());
+            let given = line.map(|_| checker.signatures[&clause.key].0.clone());
             for (index, pattern) in clause.args.iter().enumerate() {
                 let expected = given.as_ref().and_then(|types| types.get(index));
                 args.push(checker.pattern(pattern, expected.map(String::as_str), &mut vars)?);
@@ -1044,7 +1121,7 @@ impl<'a> Checker<'a> {
             checker.overlap(&owner, &clause.output, &clause.failures, true)?;
             // An Int column against an earlier clause is a type mismatch (slice 6b). Sources without Int
             // keep "inconsistent function signature".
-            if let Some((previous, _)) = checker.signatures.get(&clause.name) {
+            if let Some((previous, _)) = checker.signatures.get(&clause.key) {
                 for (ty, expected) in args.iter().zip(previous) {
                     if ty == "Int" || expected == "Int" {
                         checker.require_type(ty, expected)?;
@@ -1054,21 +1131,23 @@ impl<'a> Checker<'a> {
             let signature = (args, clause.output.clone());
             if let Some(previous) = checker
                 .signatures
-                .insert(clause.name.clone(), signature.clone())
+                .insert(clause.key.clone(), signature.clone())
                 && previous != signature
             {
                 return Err(format!("inconsistent function signature: {}", clause.name));
             }
             if let Some(previous) = checker
                 .failures
-                .insert(clause.name.clone(), clause.failures.clone())
+                .insert(clause.key.clone(), clause.failures.clone())
                 && previous != clause.failures
             {
                 return Err(format!("inconsistent function signature: {}", clause.name));
             }
         }
         for clause in &program.clauses {
-            if matches!(clause.body, Node::Pipe(..))
+            // D6B-28: the one-clause rule stays for a whole-body pipe with an EFFECT step.
+            let effect_step = matches!(&clause.body, Node::Pipe(_, steps) if steps.iter().any(|s| checker.effect(s).is_some()));
+            if effect_step
                 && program
                     .clauses
                     .iter()
@@ -1086,10 +1165,10 @@ impl<'a> Checker<'a> {
         checker.retires()?;
         Ok(checker)
     }
-    // A lowercase fn name, or a constructor `fn T` of a record `type T` that returns T (D6B-11).
+    // A lowercase fn name, or a constructor `fn T` of a `type T` or an `enum T` that returns T (D6B-11).
     fn fn_name(&self, name: &str, output: &str) -> Checked<()> {
         if upper(name) {
-            if !matches!(self.program.types.get(name), Some(Definition::Record(_))) {
+            if !self.program.types.contains_key(name) {
                 return Err(format!(
                     "error: fn {name}: a constructor needs a type {name}\n  help: declare type {name} {{ ... }}, or write the fn name in lowercase"
                 ));
@@ -1145,9 +1224,63 @@ impl<'a> Checker<'a> {
         if !lower(name) || reserved.contains(&name) {
             return Err(format!("invalid function name: {name}"));
         }
-        // `new_T_1` is the Elixir name of the constructor `fn T`.
-        if self.constructors.iter().any(|c| elixir_name(c) == name) {
+        // `new_T_k` is the Elixir name of signature k of the constructor `fn T`.
+        let program = self.program;
+        let mut keys = (program.clauses.iter().map(|c| &c.key))
+            .chain(program.signature_lines.iter().map(|l| &l.key));
+        if keys.any(|k| k.contains('#') && elixir_name(k) == name) {
             return Err(format!("duplicate name: {name}"));
+        }
+        Ok(())
+    }
+    // D6B-21, D6B-22, D6B-23: an enum with literals has no constructor; every variant has its own literal and
+    // no payload, except one keep-value variant X(String) without a literal (found by its shape).
+    fn literal_rules(
+        &self,
+        name: &str,
+        variants: &[(String, Vec<String>)],
+        literals: &[(String, String)],
+    ) -> Checked<()> {
+        if self.constructors.contains(name) {
+            return Err(format!(
+                "error: enum {name} has literals and a constructor\n  help: keep the literals for a 1:1 mapping or the constructor fn {name}, not both"
+            ));
+        }
+        let mut keep: Option<&str> = None;
+        for (index, (variant, args)) in variants.iter().enumerate() {
+            let literal = literals.iter().find(|(v, _)| v == variant).map(|(_, l)| l);
+            match literal {
+                Some(_) if !args.is_empty() => {
+                    return Err(format!(
+                        "error: enum {name}: the variant {variant} has a payload and a literal\n  help: a variant has a payload or a literal, not both"
+                    ));
+                }
+                Some(literal) => {
+                    let first = variants[..index]
+                        .iter()
+                        .find(|(v, _)| literals.iter().any(|(w, l)| w == v && l == literal));
+                    if let Some((first, _)) = first {
+                        return Err(format!(
+                            "error: enum {name}: the literal {} of {variant} is unreachable, {first} has it first\n  help: give each variant a literal of its own",
+                            json_string(literal)
+                        ));
+                    }
+                }
+                None if args.as_slice() == ["String"] => {
+                    if let Some(keep) = keep {
+                        return Err(format!(
+                            "error: enum {name}: the variant {variant} has no literal, {keep} keeps the value already\n  help: an enum with literals has at most one keep-value variant X(String)"
+                        ));
+                    }
+                    keep = Some(variant);
+                }
+                // ponytail: text not fixed by a test (step 4 notes, open Undo point).
+                None => {
+                    return Err(format!(
+                        "error: enum {name}: the variant {variant} has no literal\n  help: give {variant} a literal, or make it the one keep-value variant X(String)"
+                    ));
+                }
+            }
         }
         Ok(())
     }
@@ -1351,7 +1484,7 @@ impl<'a> Checker<'a> {
         let children: Vec<&Node> = match node {
             Node::Record(ty, fields) => {
                 if self.constructors.contains(ty) && ty != owner {
-                    let how = if self.failures[ty].is_empty() {
+                    let how = if self.failures[&format!("{ty}#1")].is_empty() {
                         format!("as a call {ty}(...)")
                     } else {
                         "as a pipe step, because it can fail".into()
@@ -1539,11 +1672,20 @@ impl<'a> Checker<'a> {
                 let (types, output) = if let Some((owner, args)) = self.variants.get(name) {
                     (args, owner)
                 } else {
+                    let key = if upper(name) {
+                        let given = args
+                            .iter()
+                            .map(|a| self.expression(a, vars))
+                            .collect::<Checked<Vec<_>>>()?;
+                        self.pick(name, &given)
+                    } else {
+                        name.clone()
+                    };
                     let (args, output) = self
                         .signatures
-                        .get(name)
+                        .get(&key)
                         .ok_or(format!("unknown function: {name}"))?;
-                    if !self.failures[name].is_empty() {
+                    if !self.failures[&key].is_empty() {
                         return Err(format!("{name} can fail: call it as a pipe step"));
                     }
                     (args, output)
@@ -1562,24 +1704,61 @@ impl<'a> Checker<'a> {
             Node::Pipe(_, _) => Err("a pipe is only supported as a whole function body".into()),
         }
     }
-    // Pipe check: each step is a known one-argument fn or an EFFECT, its input TYPE is the
-    // previous output TYPE, and each of its failure TYPES is in the `!` list of the enclosing fn.
-    fn body(&self, clause: &Clause, vars: &BTreeMap<String, String>) -> Checked<String> {
+    // The signature key a call `name(args)` takes: for a constructor `fn T`, the first signature whose arity
+    // and TYPES fit, else signature 1 (its checks then give the error); for a lowercase fn, the name (D6B-16).
+    fn pick(&self, name: &str, given: &[String]) -> String {
+        if !upper(name) {
+            return name.into();
+        }
+        (1..)
+            .map(|k| format!("{name}#{k}"))
+            .take_while(|key| self.signatures.contains_key(key))
+            .find(|key| {
+                let types = &self.signatures[key].0;
+                types.len() == given.len()
+                    && types.iter().zip(given).all(|(t, g)| self.same_type(g, t))
+            })
+            .unwrap_or(format!("{name}#1"))
+    }
+    // Pipe check: each step is a known one-argument fn, a constructor, a variant with one payload or an
+    // EFFECT; its input TYPE is the previous output TYPE, and each of its failure TYPES is in the `!` list
+    // of the enclosing fn. Also gives the step targets: the signature key, variant or EFFECT name.
+    fn body(
+        &self,
+        clause: &Clause,
+        vars: &BTreeMap<String, String>,
+    ) -> Checked<(String, Vec<String>)> {
         let Node::Pipe(head, steps) = &clause.body else {
-            return self.expression(&clause.body, vars);
+            return Ok((self.expression(&clause.body, vars)?, Vec::new()));
         };
         let mut ty = self.expression(head, vars)?;
+        let mut targets = Vec::new();
+        let none = Vec::new();
         for step in steps {
+            let key = self.pick(step, std::slice::from_ref(&ty));
             let (input, output, failures) = if let Some(effect) = self.effect(step) {
                 (&effect.input, &effect.output, &effect.failures)
-            } else if let Some((args, output)) = self.signatures.get(step) {
+            } else if let Some((owner, args)) = self.variants.get(step) {
+                // D6B-26: a variant with exactly one payload.
                 if args.len() != 1 {
                     return Err(format!("pipe step {step} must take one argument"));
                 }
-                (&args[0], output, &self.failures[step])
+                (&args[0], owner, &none)
+            } else if let Some((args, output)) = self.signatures.get(&key) {
+                if args.len() != 1 {
+                    return Err(format!("pipe step {step} must take one argument"));
+                }
+                (&args[0], output, &self.failures[&key])
             } else {
                 return Err(format!("unknown pipe step: {step}"));
             };
+            targets.push(
+                if self.variants.contains_key(step) || self.effect(step).is_some() {
+                    step.clone()
+                } else {
+                    key
+                },
+            );
             if !self.same_type(&ty, input) {
                 return Err(format!(
                     "type mismatch in pipe step {step}: expected {input}, got {ty}"
@@ -1595,7 +1774,7 @@ impl<'a> Checker<'a> {
             }
             ty = output.clone();
         }
-        Ok(ty)
+        Ok((ty, targets))
     }
 }
 
@@ -1702,16 +1881,17 @@ impl Checker<'_> {
         Ok(false)
     }
     fn validate(&self) -> Checked<()> {
-        for (name, (types, _)) in &self.signatures {
+        for (key, (types, _)) in &self.signatures {
+            let name = display(key);
             let mut rows = Vec::new();
             let mut budget = 20_000;
-            for clause in self.program.clauses.iter().filter(|c| &c.name == name) {
+            for clause in self.program.clauses.iter().filter(|c| &c.key == key) {
                 let mut vars = BTreeMap::new();
                 for (arg, ty) in clause.args.iter().zip(types) {
                     self.pattern(arg, Some(ty), &mut vars)?;
                 }
                 self.literals(&clause.body, name)?;
-                let ty = self.body(clause, &vars)?;
+                let (ty, _) = self.body(clause, &vars)?;
                 // D6B-05: a body of a fn with `!` has the output TYPE or one failure TYPE.
                 if clause.failures.is_empty() {
                     self.require_type(&ty, &clause.output)?;
@@ -1801,33 +1981,45 @@ fn omit_unused(node: &Node, used: &BTreeSet<String>) -> Node {
     }
 }
 impl Checker<'_> {
-    fn emit_node(&self, node: &Node) -> String {
+    // `vars` types the arguments of a constructor call, which picks the signature (D6B-16).
+    fn emit_node(&self, node: &Node, vars: &BTreeMap<String, String>) -> String {
         match node {
             Node::Text(s) => binary(s),
             Node::Int(n) => n.to_string(),
             Node::Name(name) if name == "_" => "_".into(),
             Node::Name(name) => format!("v_{name}"),
-            Node::Annotated(n, _) => self.emit_node(n),
-            Node::Plus(a, b) => format!("({} <> {})", self.emit_node(a), self.emit_node(b)),
+            Node::Annotated(n, _) => self.emit_node(n, vars),
+            Node::Plus(a, b) => format!(
+                "({} <> {})",
+                self.emit_node(a, vars),
+                self.emit_node(b, vars)
+            ),
             Node::Pipe(_, _) => unreachable!("a pipe is emitted as a whole function body"),
             Node::Record(_, fields) => format!(
                 "%{{{}}}",
                 fields
                     .iter()
-                    .map(|(n, v)| format!("{} => {}", binary(n), self.emit_node(v)))
+                    .map(|(n, v)| format!("{} => {}", binary(n), self.emit_node(v, vars)))
                     .collect::<Vec<_>>()
                     .join(", ")
             ),
-            Node::Call(name, args) => {
-                let args = args
+            Node::Call(name, nodes) => {
+                let args = nodes
                     .iter()
-                    .map(|n| self.emit_node(n))
+                    .map(|n| self.emit_node(n, vars))
                     .collect::<Vec<_>>()
                     .join(", ");
                 if let Some((owner, _)) = self.variants.get(name) {
                     format!("{{{}, {}, [{}]}}", binary(owner), binary(name), args)
                 } else {
-                    format!("__MODULE__.{}({args})", elixir_name(name))
+                    let given: Vec<String> = nodes
+                        .iter()
+                        .map(|n| self.expression(n, vars).expect("checked call"))
+                        .collect();
+                    format!(
+                        "__MODULE__.{}({args})",
+                        elixir_name(&self.pick(name, &given))
+                    )
                 }
             }
         }
@@ -1898,22 +2090,23 @@ impl Checker<'_> {
             }
         }
         out.push_str("  defp __beaml_valid__(_, _), do: false\n");
-        for (name, (types, output)) in &self.signatures {
-            let fun = elixir_name(name);
+        for (key, (types, output)) in &self.signatures {
+            let fun = elixir_name(key);
+            let name = display(key);
             let args: Vec<_> = (0..types.len()).map(|i| format!("a{i}")).collect();
             let checks: Vec<_> = args
                 .iter()
                 .zip(types)
                 .map(|(a, t)| format!("__beaml_valid__({a}, {})", binary(t)))
                 .collect();
-            let fails = !self.failures[name].is_empty();
+            let fails = !self.failures[key].is_empty();
             if fails {
                 // `name/n` of a function that can fail: `{:ok, value}` or `{:error, error}`.
                 out.push_str(&format!("  def {fun}({}) do\n    if {} do\n      case __beaml_{fun}({}) do\n        {{:ok, result}} ->\n          if __beaml_valid__(result, {}), do: {{:ok, result}}, else: raise(ArgumentError, \"invalid BEAML output\")\n\n        {{:error, error}} ->\n          {{:error, error}}\n      end\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n", args.join(", "), if checks.is_empty() { "true".into() } else { checks.join(" and ") }, args.join(", "), binary(output)));
             } else {
                 out.push_str(&format!("  def {fun}({}) do\n    if {} do\n      result = __beaml_{fun}({})\n      if __beaml_valid__(result, {}), do: result, else: raise(ArgumentError, \"invalid BEAML output\")\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n", args.join(", "), if checks.is_empty() { "true".into() } else { checks.join(" and ") }, args.join(", "), binary(output)));
             }
-            for clause in self.program.clauses.iter().filter(|c| &c.name == name) {
+            for clause in self.program.clauses.iter().filter(|c| &c.key == key) {
                 out.push_str(&format!(
                     "  # beaml-declaration-v1 {name} {} {}\n",
                     clause.source_range.start, clause.source_range.end
@@ -1923,15 +2116,16 @@ impl Checker<'_> {
                 let params = clause
                     .args
                     .iter()
-                    .map(|n| self.emit_node(&omit_unused(n, &used)))
+                    .map(|n| self.emit_node(&omit_unused(n, &used), &BTreeMap::new()))
                     .collect::<Vec<_>>()
                     .join(", ");
-                if let Node::Pipe(head, steps) = &clause.body {
+                let vars = self.vars(clause);
+                if let Node::Pipe(head, _) = &clause.body {
                     out.push_str(&format!(
                         "  defp __beaml_{fun}({params}) do\n    p0 = {}\n{}  end\n",
-                        self.emit_node(head),
+                        self.emit_node(head, &vars),
                         self.emit_chain(
-                            steps,
+                            &self.body_type(clause).1,
                             fails.then_some(clause),
                             service,
                             "    ",
@@ -1941,12 +2135,12 @@ impl Checker<'_> {
                 } else if fails {
                     out.push_str(&format!(
                         "  defp __beaml_{fun}({params}), do: {}\n",
-                        self.result(clause, &self.emit_node(&clause.body), "__MODULE__")
+                        self.result(clause, &self.emit_node(&clause.body, &vars), "__MODULE__")
                     ));
                 } else {
                     out.push_str(&format!(
                         "  defp __beaml_{fun}({params}), do: {}\n",
-                        self.emit_node(&clause.body)
+                        self.emit_node(&clause.body, &vars)
                     ));
                 }
             }
@@ -2069,19 +2263,23 @@ impl Checker<'_> {
     fn failure_of<'c>(&self, clause: &'c Clause, ty: &str) -> Option<&'c String> {
         clause.failures.iter().find(|f| self.same_type(ty, f))
     }
-    // The static TYPE of a clause body; validate checked it.
-    fn body_type(&self, clause: &Clause) -> String {
+    // The parameter TYPES of a clause; validate checked them.
+    fn vars(&self, clause: &Clause) -> BTreeMap<String, String> {
         let mut vars = BTreeMap::new();
-        for (arg, ty) in clause.args.iter().zip(&self.signatures[&clause.name].0) {
+        for (arg, ty) in clause.args.iter().zip(&self.signatures[&clause.key].0) {
             self.pattern(arg, Some(ty), &mut vars)
                 .expect("checked pattern");
         }
-        self.body(clause, &vars).expect("checked body")
+        vars
+    }
+    // The static TYPE of a clause body and its pipe step targets; validate checked it.
+    fn body_type(&self, clause: &Clause) -> (String, Vec<String>) {
+        self.body(clause, &self.vars(clause)).expect("checked body")
     }
     // D6B-05, D6B-07: `{:ok, v}` for the output TYPE, `{:error, v}` for a failure TYPE. A record failure is the
     // failure struct with atom keys: from the literal fields, else from the map `value`.
     fn result(&self, clause: &Clause, value: &str, owner: &str) -> String {
-        let ty = self.body_type(clause);
+        let (ty, _) = self.body_type(clause);
         let Some(failure) = self.failure_of(clause, &ty) else {
             return format!("{{:ok, {value}}}");
         };
@@ -2102,7 +2300,7 @@ impl Checker<'_> {
                         .find(|(n, _)| n == field)
                         .expect("checked field")
                         .1;
-                    format!("{field}: {}", self.emit_node(node))
+                    format!("{field}: {}", self.emit_node(node, &self.vars(clause)))
                 }
                 None => format!("{field}: Map.get({value}, {})", binary(field)),
             })
@@ -2199,8 +2397,15 @@ impl Checker<'_> {
                 matched = true;
                 continue;
             }
-            let failing = !self.failures[step].is_empty();
-            let call = format!("{owner}.{}({input})", elixir_name(step));
+            let failing = self.failures.get(step).is_some_and(|f| !f.is_empty());
+            let call = match self.variants.get(step) {
+                // D6B-26: a variant step builds the variant from its one payload.
+                Some((enum_name, _)) => {
+                    format!("{{{}, {}, [{input}]}}", binary(enum_name), binary(step))
+                }
+                None => format!("{owner}.{}({input})", elixir_name(step)),
+            };
+            let step = display(step);
             let expression = match (mode, steps.get(index + 1).and_then(|s| self.effect(s))) {
                 (Step::Replay, _) => call,
                 (Step::Live, _) if !spans => call,
@@ -2256,9 +2461,6 @@ impl Checker<'_> {
         let namespace = name.split('.').next().unwrap();
         let decode = decode_name(&effect.output);
         let flow = self.flow(effect).expect("checked flow");
-        let Node::Pipe(_, steps) = &flow.body else {
-            unreachable!()
-        };
         let mut out = format!(
             "  # beaml-declaration-v1 {name} {} {}\n",
             effect.source_range.start, effect.source_range.end
@@ -2389,7 +2591,7 @@ impl Checker<'_> {
             operation = binary(name),
             retired = self.emit_retired(),
             type_version = self.emit_type_version(&effect.output),
-            chain = self.emit_chain(steps, Some(flow), service, "      ", Step::Replay),
+            chain = self.emit_chain(&self.body_type(flow).1, Some(flow), service, "      ", Step::Replay),
         ));
         out
     }
@@ -4185,6 +4387,26 @@ mod tests {
             ))
             .unwrap_err(),
             "type mismatch: expected NonZeroInt, got Plain"
+        );
+    }
+    #[test]
+    fn enum_literals_and_constructor() {
+        // DL-088, D6B-15, D6B-23: literals or a constructor; one Elixir function per signature.
+        assert!(compile("enum S { A = \"a\"  K(String) }\nfn f -> S = A\n").is_ok());
+        let head = "enum S { A  K(String) }\nfn S c: String -> S\nfn S \"a\" -> S = A\nfn S c -> S = K(c)\n";
+        let out = compile(&format!("{head}fn S n: Int -> S\nfn S n -> S = A\n")).unwrap();
+        assert!(out.contains("def new_S_1(a0) do") && out.contains("def new_S_2(a0) do"));
+        assert!(
+            compile(&format!(
+                "{head}fn S c: String, d: String -> S\nfn S c, _ -> S = K(c)\n"
+            ))
+            .unwrap_err()
+            .starts_with("unreachable signature: S")
+        );
+        assert!(
+            compile("enum S { A = \"a\" }\nfn S c: String -> S\nfn S c -> S = A\n")
+                .unwrap_err()
+                .starts_with("error: enum S has literals and a constructor")
         );
     }
 }

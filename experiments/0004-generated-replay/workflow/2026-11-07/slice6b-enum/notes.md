@@ -124,3 +124,70 @@ Result: 19 tests, 17 FAIL, 2 pass (guards S14 and R1). Exit 1.
 - R1 passes today because the one-clause check comes first. If GREEN drops the check, the source may fail at another check. The exact text still makes the guard fail, so this gives no false pass.
 - The rejects R3, R5 to R7 fail today before their rule. They prove the rule only after GREEN.
 - Step 5 RED: drop or mark as a guard the corpus clause in a several-clause constructor (red-review.md, step 5). The one-clause EFFECT rule is now in step 4 (R1).
+
+## GREEN
+
+Commands and full output: [green-output.log](green-output.log). Changed files: `experiments/0001-syntax-to-beam/src/main.rs` and one new test in `tests/slice6_enum_test.py` (G7, added before the `main.rs` change). The fixtures are not changed. `run.py` was not run. No commit.
+
+### G7 test first (RED)
+
+- New test `test_generated_constructor_name_clash` (step 3 review, defect 1, V2). Two subtests: `fn new_F_1` beside the record constructor `fn F`, and `fn new_PaymentState_3` beside the enum constructor fixture. Both expect `duplicate name: <name>`.
+- RED run before the `main.rs` change: `new_F_1` passes (step 3 G7 check, a guard). `new_PaymentState_3` fails with `expected '(' at byte 240` (no bare variant yet). Exit 1.
+
+### Result (observed)
+
+| Command | Result |
+|---|---|
+| `slice6_enum_test.py` | 20 tests, 20 OK (19 of the spec plus G7), all runtime subtests PASS, no ProbeSupport stub |
+| `slice6_int_test.py`, `slice6_failure_test.py`, `slice6_constructor_test.py` | 16, 22, 25 OK |
+| `cargo fmt --check`, `cargo clippy --offline --all-targets -- -D warnings` | pass |
+| `cargo test --offline --no-fail-fast` | 30 pass (16 unit, 14 CLI); one new unit test `enum_literals_and_constructor` (S1) |
+| `stored_types_test.py`, `slice3_types_test.py`, `slice4_retire_test.py` | 33, 69, 87 OK |
+| `slice5_syntax_test.py`, `slice5_squash_test.py`, `slice5_rewrite_test.py` | 60, 24, 5 OK |
+| Byte-equal check: HEAD compiler (scratch build) against the GREEN compiler | `payments.beaml` and `arms/gen/orders.beaml` byte-equal; every slice6 fixture that HEAD compiles is byte-equal |
+
+### Decisions
+
+| # | Class | Choice | Alternative | Reason |
+|---|---|---|---|---|
+| E1 | Repair | **Chose:** each clause and signature line gets a KEY in the parser: the fn name, or `T#k` for signature k of an uppercase `fn T`. A clause takes the KEY of the nearest earlier signature line of its name (D6B-13). The checker maps (`signatures`, `failures`), coverage and emit use the KEY. Messages use the BEAML name. **Over:** a new map per constructor with a list of signatures. **Because:** every existing check and emit loop stays one loop per KEY; coverage per signature (DL-087, R5) follows. **Commits us to:** `elixir_name("T#k") = new_T_k`; a record constructor is `T#1` (output unchanged). | List of signatures per name | Smallest change to name-keyed code. |
+| E2 | Undo | A bare uppercase name is `A()` already in the parser (D6B-20). Variables are lowercase, so no source changes its meaning. A bare uppercase name that is no variant gives the existing texts (`not a constructor pattern: X`, `unknown function: X`). | Resolve in the checker | One line. Open Undo point "bare name in a pattern" keeps today's text. |
+| E3 | Undo | ENUM LITERALS are stored in `Program.literals` (enum, variant, text). `Definition::Enum` is unchanged. | Change `Definition::Enum` | Literals are only checked in step 4; no emit (S17). |
+| E4 | Repair | **Chose:** the literal rules run once per literal enum in the TYPE loop, in this order per variant: DL-088 first, then payload and literal (S10), duplicate literal (S11), second keep-value variant (R6), else a variant without a literal: `error: enum E: the variant V has no literal` / `  help: give V a literal, or make it the one keep-value variant X(String)`. **Over:** no check for a variant without a literal. **Because:** D6B-21 "every variant has a literal". Without it, decode (step 7) has no value for that variant. **Commits us to:** a text without a test (`ponytail:` comment); the open Undo point stays open for its text. | No check | D6B-21. |
+| E5 | Repair | **Chose:** D6B-23 for every uppercase `fn`: line B is unreachable when every `(name, TYPE)` of an earlier line A is in B, as a set. Equal sets give the S8 text, a superset the S9 text. A record constructor may now have several different signature lines (step 3 G4 `inconsistent function signature` is gone for uppercase names). **Over:** several signatures only for enum constructors. **Because:** D6B-14 and D6B-15 say "constructors", not "enum constructors"; one rule is less code. **Commits us to:** a record constructor with two lines compiles to `new_T_1` and `new_T_2`. No test asserts this. | Enum only | D6B-14, D6B-15. |
+| E6 | Undo | A lowercase `fn` keeps step 3 behaviour: a second equal line gives the S8 text, a second other line `inconsistent function signature` (S14 guard). | | D6B-14. |
+| E7 | Repair | **Chose:** `pick`: a call `T(args)` and a pipe step `\|> T` take the first signature KEY whose arity and TYPES fit (`same_type`). With no fit, signature 1 is taken and its checks give today's texts (`call arity mismatch: T`, `type mismatch: ...`, `pipe step T must take one argument`). **Over:** a new text that names the argument TYPES (D6B-16). **Because:** the text is an open Undo point without a test; today's texts name the failed check. **Commits us to:** the D6B-16 text stays open. | New text | Open point. |
+| E8 | Undo | `emit_node` gets the clause variables, so that a constructor call in a body picks the same signature at emit as at the check. Patterns get an empty map (they hold no calls to a `fn`). | Store picks in the checker | No mutable state in the checker. |
+| E9 | Repair | **Chose:** `body` returns the pipe step targets (a KEY, a variant or an EFFECT name). `emit_chain` emits these targets. A variant step emits `{"E", "V", [pN]}` (D6B-26, one payload only). Span and event names use the BEAML name. **Over:** resolve the targets again in `emit_chain`. **Because:** one place resolves; the live and the replay chain use it. **Commits us to:** a variant step never fails and has no span. | Resolve twice | S4. |
+| E10 | Repair | **Chose:** the one-clause rule stays only for a whole-body pipe with an EFFECT step, with its text (R1, R2, D6B-28). A pure pipe may stand in a several-clause `fn`, lowercase or constructor. **Over:** loosen only in constructors. **Because:** R2 allows it; D6B-28 text. **Commits us to:** a pure pipe in a several-clause lowercase `fn` compiles (probe in green-output.log; no test). | Constructor only | R2. |
+| E11 | Undo | The `duplicate name` check (G7) compares a lowercase name with the Elixir name of every constructor KEY (`new_T_k`), from the parsed program. | Only `new_T_1` | k > 1 is new in step 4. |
+| E12 | Undo | `fn_name` accepts an uppercase `fn T` when `T` is a `type` or an `enum`. The text for neither stays. | | Step 3 G5 point closed. |
+| E13 | Undo | Unit test `enum_literals_and_constructor` (S1): a literal enum compiles; two signatures give `new_S_1` and `new_S_2`; a superset line is unreachable; literals and a constructor is the DL-088 error. | No unit test | S1 says it comes with GREEN. |
+
+### Deviations
+
+- The spec pass rule says 19 of 19. The file now has 20 tests: the G7 test of the step 3 review (task). All 20 pass.
+- The orders byte-equal check uses `arms/gen/orders.beaml` with `stored/empty.jsonl` (the CLI test fixture). Its hash differs from the step 3 log line; the step 3 log does not name its orders source. Both compilers give byte-equal output here.
+
+### Probes (observed, scratch sources, not retained)
+
+| Source | Output |
+|---|---|
+| pure pipe in a two-clause lowercase `fn` | exit 0 (E10) |
+| variant without payload as a pipe step | `pipe step A must take one argument` |
+| call `S(n)` with `n: Int`, only a String signature | `type mismatch: expected String, got Int` (E7) |
+| `enum P { A = "a"  B }` | E4 text |
+| record `type F` with two signature lines `r: String`, `n: Int` | exit 0, `def new_F_1(a0)` and `def new_F_2(a0)` (E5) |
+| bare uppercase `X` in a pattern | `not a constructor pattern: X` |
+
+### Checks
+
+- **[Verified]** Action events: the event code is not changed. The harness checks on every compile that no source text and no path are in the events.
+- **[Verified]** `slice6/pipe/pipe.beaml` (step 5) gives the same message with HEAD and GREEN.
+
+### Limits
+
+- **[Unknown]** Open Undo texts stay open: call that fits no signature (D6B-16), non-exhaustive signature group (`non-exhaustive function: E`), variant without a literal (E4 text untested).
+- No test for several signatures of a record constructor (E5), for a pure pipe in a several-clause lowercase `fn` (E10) or for a wrong payload TYPE at a variant step.
+- D6B-51 (enum without a decode path in an EFFECT output) is not built (no plan step).
+- Step 5 RED: the corpus clause in a several-clause constructor now compiles (red-review.md, "Step 5 after S4").
