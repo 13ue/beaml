@@ -118,3 +118,7 @@ Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/
 
 - **order_v2 error text** names `orders.save` and `Order.amount` (built D6B-39 text for a chained row TYPE with a constructor field). By: Opus (RED db-transport, default, open).
 - **N25b error text** names `TYPE Order v1` and the field `channel` (DL-122 text for a list item). By: Opus (RED db-transport, default, open).
+
+## Count-line print rule: one question for both streams (merged after the P4b RED review)
+
+- **QV3-7 / rows count line**: RESPONSE RECORDS print the two count lines only when M > 0 (QV3-7 A); ROW SNAPSHOTS always print `rows: N rows, K checked, M not decodable` (P4b default A). One rule should decide both: is a printed count the proof that the check ran (always print, B for records), or is silence the normal case (A for both, then N20b loses its "3 checked" proof)? By: Fable (merged question, default: as built, open).

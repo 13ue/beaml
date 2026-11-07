@@ -57,3 +57,60 @@ BEAML_SPIKE=<scratch>/head/target/debug/beaml-spike python3 -B experiments/0004-
 **Repair**
 → M1 test in P4b RED or TEST statt a P4a re-RED, weil the StoreError reason is pinned and GREEN shares one reason path. → By: Opus (RED review db-transport) · Repair
 → M2 owner-review lines statt red-plan only, weil `(default, open)` lines must reach the OWNER. → By: Opus (RED review db-transport) · Repair
+
+# RED review: DB TRANSPORTS, part P4b (`--stored` over ROW SNAPSHOTS)
+
+**Verdict: PASS.** No critical or high objection. Two medium notes below.
+2026-11-08. By: Opus (RED review db-stored), fresh context, one round. Inputs: [plan.md](plan.md) with both repairs, [decisions.md](decisions.md), [red-plan.md](red-plan.md#p4b---stored-over-the-row-snapshot), [red-output.md](red-output.md#p4b-run), `tests/slice6_db_stored_test.py`, `slice6/db/stored/`, `stricter/`, `put_only/`, the 0005 [owner review](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) "P4b RED defaults".
+
+## Run (observed)
+
+```
+git archive HEAD experiments/0001-syntax-to-beam | tar -x -C <scratch>     # HEAD 158ba4e1
+cargo build --offline --quiet --manifest-path <scratch>/experiments/0001-syntax-to-beam/Cargo.toml --target-dir <scratch>/target
+BEAML_SPIKE=<scratch>/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_db_stored_test.py
+```
+
+- **[Observed]** `Ran 40 tests`, `FAILED (failures=43, skipped=3)`. `N24_sample_meta_form` passes (guard). Skips: N28b, N30, N30b with their reasons.
+- **[Observed]** Every failure is `unsupported token at byte 301 / 562 / 603 / 609 / 660` (the `[` of a LIST TYPE) or `unsupported effect kind: db.put` (`put_only/`). No P2 or P3 text. Same split as red-output.md.
+
+## Checks
+
+| Question | Finding |
+|---|---|
+| (1) Counts | **[Observed]** 40 tests, 43 red, 3 skipped, 1 guard green. |
+| (2) `snapshot-meta.json` | **[Observed]** N24 pins `row_count` 3 beside 2 rows (block) and 2 beside 2 (build); no meta builds in every other case. The sample guard pins the P5-19 keys, `table`, sorted `row_ids` equal to the rows, `row_count` = lines, digests. **[Verified]** PDB-22: the compiler reads `row_count` only, so no compiler test can fail on another database or a stale snapshot of equal count; that tie is 0005 N8c (ids and count against `psql`), host side. Limit, not a RED gap. `row_count` below the lines is untested: note M2. |
+| (3) Read order | **[Observed]** One test per edge: name before version (`Invoice` v7 counted), digest before version (bad digest + off-chain counted), version before DL-101 (off-chain `0` row under `stricter/`: path text, no constructor text), chain before DL-101 (`N20_chain_rows_build`: the v1 row lacks `note`). Each fails only for a reader that swaps that pair. **[Inference]** Digest before DL-101 holds by transitivity for a sequential reader; name versus digest is not observable (both counted). Low, dropped. |
+| (4) QV3-8 B for rows | **[Observed]** A skip-all reader fails: N17, N20b and N24 pin `K checked` exactly; N18, N19, N20 need a checked row to block. A reader that checks rejected rows fails N21b (off-chain rejected counted) and the `stricter/` rejected row (builds, `0 checked, 1`). |
+| (5) Three `(default, open)` items | **[Observed]** All three stand in the owner review lines 103 to 105. Orphan rule: both halves pinned (N21 `Invoice` of `orders.save` counted; N28 control `Order` of `orders.import` checked; N28 blocks). Rows line versus QV3-7 A: note M1. |
+| (6) Skips | **[Verified]** Honest. M5 (RETIRE LINE for rows) is parked by D036, plan "Parked items"; a RED would invent the syntax. DL-140 needs the stored variant, which a ROW CORE does not hold (plan Inference line 241); a swap is not observable, so no red test can be written today. |
+| (7) DL-124 | **[Observed]** No expected text or constant holds a stored value: texts name TYPE, field, operation, constructor error and paths only. N26 scans every value String of 5 characters or more, every row id, trace id and span id the test wrote; each subtest needs its anchor in stderr. `compile()` scans the action log with the same list and the `--stored` path; N27 asserts the log exists. No test value appears in red-plan.md, red-output.md or the owner review P4b lines. |
+
+## Notes (medium, no block)
+
+**M1. Count-line policy is one OWNER question, not two rules.** Three count lines now differ: the ENTRY line always prints, the RESPONSE pair prints when M > 0 (QV3-7 A), the rows line always prints (owner review line 105, A). QV3-7 A rests only on "no existing stderr assertion moves"; its own challenge says a clean file shows no proof that the check ran. That challenge is the reason for rows A: under B for rows, N17, N20b (`3 checked`) and N24 lose their proof, and a reader that drops the `Note` rows passes. No P4b test depends on the QV3-7 choice (the N25 control has M = 1).
+→ Resolving step: merge owner review line 105 with the QV3-7 "big" line into one question: "Does each `--stored` count line print on every success (QV3-7 B, rows A) or only when M > 0 (QV3-7 A, rows B)?", with the N20b consequence stated. Text-only; no test change.
+
+**M2. N24 tests one direction only.** PDB-22 says "differs"; N24 has `row_count` 3 beside 2 lines. A GREEN that checks `row_count > lines` passes and misses extra rows (a rows.jsonl with appended or duplicated lines).
+→ Resolving test: `N24_row_count_below_lines_blocks`: 2 rows, `row_count` 1, exit 1 with `error: rows.jsonl holds 2 rows but snapshot-meta.json counts 1; the ROW SNAPSHOT is partial`. Add in the P4b TEST phase or a RED top-up.
+
+## Dropped (low)
+
+- Digest before DL-101 not pinned directly (transitive, see check 3).
+- `row_ids` not compared with the rows' `row_id` (PDB-22 reads the count only; PDB-21 writes one new directory per build).
+- N22 uses a source with both `db.get` and `db.list`; a `db.get`-only or `db.list`-only source is untested.
+- N23 has no case for `source` with another value than `"db"`.
+- `N24_sample_builds` does not add the sample values to the N26/N27 word list.
+
+## Decisions
+
+**Undo**
+→ Verdict PASS; M1 and M2 noted, not blocking. → By: Opus (RED review db-stored) · Undo
+→ Ran HEAD 158ba4e1, not b0a27004 (the RED run); same test file. → By: Opus (RED review db-stored) · Undo
+→ Database and staleness left to 0005 N8c (PDB-22 limit). → By: Opus (RED review db-stored) · Undo
+→ Three skips accepted as honest blocks. → By: Opus (RED review db-stored) · Undo
+→ Five low gaps dropped. → By: Opus (RED review db-stored) · Undo
+
+**Repair**
+→ M1 as one merged owner question statt two separate default lines, weil one rule (proof that the check ran) decides both lines. → By: Opus (RED review db-stored) · Repair
+→ M2 test in TEST or a top-up statt a BLOCK, weil `!=` is the natural build and the false pass needs a `>` check. → By: Opus (RED review db-stored) · Repair
