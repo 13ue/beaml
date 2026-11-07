@@ -68,9 +68,9 @@ def value_sha256(value, unknown_keys=(), redacted=()):
 
 
 def with_value(record, value, unknown_keys=(), redacted=()):
-    """D6B-68: a version 2 RESPONSE RECORD derivative with another `value` and a recomputed `value_sha256`."""
+    """D6B-68: a version 3 RESPONSE RECORD derivative (DL-143) with another `value` and a recomputed `value_sha256`."""
     record = {k: v for k, v in record.items() if k not in BODY_KEYS}
-    return dict(record, version=2, value=value, redacted=sorted(redacted), unknown_keys=sorted(unknown_keys),
+    return dict(record, version=3, value=value, redacted=sorted(redacted), unknown_keys=sorted(unknown_keys),
                 value_sha256=value_sha256(value, unknown_keys, redacted))
 
 

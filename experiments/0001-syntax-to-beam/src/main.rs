@@ -3623,18 +3623,19 @@ impl Checker<'_> {
         out.push_str("  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n");
         out.push_str(HTTP);
         out.push_str(&format!(
-            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n      {{value, unknown_keys{marked}}} = @parent.__beaml_project_{elixir}(bytes)\n{unknown}\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 2,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        value: value,\n        redacted: {redacted},\n        unknown_keys: unknown_keys,\n        value_sha256: digest(value, unknown_keys, {redacted}),\n{fields_key}        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{entry}{REPLAY_HELPERS}  end\n",
+            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n      {{value, unknown_keys{marked}}} = @parent.__beaml_project_{elixir}(bytes)\n\n      {{unknown_fields, outcome, reason}} =\n        case @parent.{decode}(bytes) do\n          {fields}\n          :error -> {{[], \"rejected\", \"decode\"}}{ctor_capture}\n        end\n\n      {{outcome, reason}} = if status == 200, do: {{outcome, reason}}, else: {{\"rejected\", \"status\"}}\n\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 3,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        value: value,\n        redacted: {redacted},\n        unknown_keys: unknown_keys,\n        value_sha256: digest(value, unknown_keys, {redacted}),\n        unknown_fields: unknown_fields,\n        type: {type_version},\n        outcome: outcome,\n        reason: reason\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{entry}{REPLAY_HELPERS}  end\n",
             entry = self.emit_replay_entry(flow),
             operation = binary(name),
             marked = if marks.is_empty() { "" } else { ", redacted" },
             redacted = if marks.is_empty() { "[]" } else { "redacted" },
-            // Step 7 (notes.md S4): the RESPONSE RECORD key `unknown_fields` holds field names only.
-            unknown = if keeps.is_empty() {
-                String::new()
+            // Step 7 (notes.md S4): `unknown_fields` holds field names only. DL-143 (QV3-4 A): `outcome` and
+            // `reason` from the status, then the decode, then the constructor; `unknown_fields` always.
+            fields = if keeps.is_empty() {
+                "{:ok, _, _} -> {[], \"accepted\", :null}".to_string()
             } else {
-                format!("      unknown_fields =\n        case @parent.{decode}(bytes) do\n          {{:ok, decoded, _}} -> @parent.{unknown_fields}(decoded)\n          _ -> []\n        end\n")
+                format!("{{:ok, decoded, _}} -> {{@parent.{unknown_fields}(decoded), \"accepted\", :null}}")
             },
-            fields_key = if keeps.is_empty() { "" } else { "        unknown_fields: unknown_fields,\n" },
+            ctor_capture = if ctor_fields.is_empty() { "" } else { "\n          {:error, reason} -> {[], \"rejected\", reason}" },
             retired = self.emit_retired(),
             type_version = self.emit_type_version(&effect.output),
             chain = self.emit_chain(
@@ -3972,7 +3973,7 @@ impl Checker<'_> {
             binary(&fingerprint(type_fields))
         );
         format!(
-            "\n    def entry_record(bytes, decoded) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n      {{value, unknown_keys}} = if bytes == nil, do: {{:null, []}}, else: @parent.__beaml_project_{elixir}(bytes)\n\n      {{fields, outcome, reason}} =\n        case decoded do\n          {fields}\n          :error -> {{[], \"rejected\", \"decode\"}}{ctor_capture}\n        end\n\n      ProbeSupport.Capture.write(\"entries\", %{{\n        version: 2,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        server_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        value: value,\n        redacted: [],\n        unknown_keys: unknown_keys,\n        unknown_fields: fields,\n        value_sha256: digest(value, unknown_keys, []),\n        type: {type_key},\n        outcome: outcome,\n        reason: reason\n      }})\n    end\n\n    def entry(record, records) do\n      with :ok <- expect(record[\"operation\"], {operation}, :operation_mismatch),\n           {{:ok, bytes, _keys}} <- body(record) do\n        case @parent.{decode}(bytes) do\n          {{:ok, value, _}} -> run(value, record[\"trace_id\"], records)\n          :error -> {{:error, @parent.__beaml_rejected__({decode_reason})}}{ctor_replay}\n        end\n      end\n    end\n",
+            "\n    def entry_record(bytes, decoded) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n      {{value, unknown_keys}} = if bytes == nil, do: {{:null, []}}, else: @parent.__beaml_project_{elixir}(bytes)\n\n      {{fields, outcome, reason}} =\n        case decoded do\n          {fields}\n          :error -> {{[], \"rejected\", \"decode\"}}{ctor_capture}\n        end\n\n      ProbeSupport.Capture.write(\"entries\", %{{\n        version: 3,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        value: value,\n        redacted: [],\n        unknown_keys: unknown_keys,\n        unknown_fields: fields,\n        value_sha256: digest(value, unknown_keys, []),\n        type: {type_key},\n        outcome: outcome,\n        reason: reason\n      }})\n    end\n\n    def entry(record, records) do\n      with :ok <- expect(record[\"operation\"], {operation}, :operation_mismatch),\n           {{:ok, bytes, _keys}} <- body(record) do\n        case @parent.{decode}(bytes) do\n          {{:ok, value, _}} -> run(value, record[\"trace_id\"], records)\n          :error -> {{:error, @parent.__beaml_rejected__({decode_reason})}}{ctor_replay}\n        end\n      end\n    end\n",
             operation = binary(op),
             decode_reason = binary("decode"),
         )
@@ -4004,6 +4005,18 @@ impl Checker<'_> {
             let at = format!("record source: {source}:{number} (line {number})");
             let record = parse_json(line)
                 .ok_or_else(|| format!("error: stored ENTRY RECORD is not JSON\n  {at}"))?;
+            // DL-143 (RV3-06): this build reads ENTRY RECORD version 3 only.
+            let version = match record.get("version") {
+                Some(Json::Number(n)) if n == "3" => None,
+                Some(Json::Number(n)) => Some(n.as_str()),
+                None => Some("none"),
+                Some(_) => Some("malformed"),
+            };
+            if let Some(v) = version {
+                return Err(format!(
+                    "error: stored ENTRY RECORD has record version {v}; this build reads record version 3 only (DL-143)\n  {at}"
+                ));
+            }
             let op = record
                 .get("operation")
                 .and_then(Json::text)
@@ -4723,6 +4736,8 @@ impl Checker<'_> {
         let mut calls: Vec<(FieldKey, usize, String, Vec<String>)> = Vec::new();
         // D6B-72, D6B-163: per (TYPE, operation, dotted path, place): (records that hold a value there, first line).
         let mut held: BTreeMap<(String, String, String, &str), (usize, usize)> = BTreeMap::new();
+        // DL-143 (QV3-7 A, QV3-8 B): records, checked records, records rejected at capture.
+        let (mut total, mut checked, mut rejected) = (0, 0, 0);
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             if line.trim().is_empty() {
@@ -4731,26 +4746,32 @@ impl Checker<'_> {
             let at = format!("record source: {source}:{number} (line {number})");
             let record = parse_json(line)
                 .ok_or_else(|| format!("error: stored RESPONSE RECORD is not JSON\n  {at}"))?;
-            // D6B-59 (plan repair O1): this build reads RESPONSE RECORD version 2 only.
+            // D6B-59, DL-143: this build reads RESPONSE RECORD version 3 only.
             let version = match record.get("version") {
-                Some(Json::Number(n)) if n == "2" => None,
+                Some(Json::Number(n)) if n == "3" => None,
                 Some(Json::Number(n)) => Some(n.as_str()),
                 None => Some("none"),
                 Some(_) => Some("malformed"),
             };
             if let Some(v) = version {
                 return Err(format!(
-                    "error: stored RESPONSE RECORD has record version {v}; this build reads record version 2 only (DL-105)\n  {at}"
+                    "error: stored RESPONSE RECORD has record version {v}; this build reads record version 3 only (DL-143)\n  {at}"
                 ));
             }
+            let accepted = match record.get("outcome").and_then(Json::text) {
+                Some("accepted") => true,
+                Some("rejected") => false,
+                _ => {
+                    return Err(format!(
+                        "error: stored RESPONSE RECORD has no capture outcome accepted or rejected (DL-138)\n  {at}"
+                    ));
+                }
+            };
+            total += 1;
+            rejected += usize::from(!accepted);
             let stored = stored_version(&record).map_err(|e| format!("error: {e}\n  {at}"))?;
             snapshot.operations.insert(stored.operation.clone());
             if let Some(effect) = self.effect(&stored.operation) {
-                let oldest = snapshot
-                    .oldest
-                    .entry(effect.output.clone())
-                    .or_insert(stored.version);
-                *oldest = (*oldest).min(stored.version);
                 for (place, ty) in [("request", &effect.input), ("value", &effect.output)] {
                     for path in self.redacted_paths(ty) {
                         let mut at = record.get(place);
@@ -4763,6 +4784,16 @@ impl Checker<'_> {
                         }
                     }
                 }
+                // QV3-8 B (DL-136): a record rejected at capture skips the value, path and W2 checks.
+                if !accepted {
+                    continue;
+                }
+                checked += 1;
+                let oldest = snapshot
+                    .oldest
+                    .entry(effect.output.clone())
+                    .or_insert(stored.version);
+                *oldest = (*oldest).min(stored.version);
                 let literal_fields = self.literal_fields(&effect.output);
                 let ctor_fields = self.ctor_fields(&effect.output);
                 if stored.name == effect.output
@@ -4942,6 +4973,12 @@ impl Checker<'_> {
             ));
         }
         if errors.is_empty() {
+            if rejected > 0 {
+                snapshot.notes.push(format!(
+                    "{total} records, {checked} checked, {rejected} rejected at capture"
+                ));
+                snapshot.notes.push("digest not verified (P2b)".to_string());
+            }
             Ok(snapshot)
         } else {
             Err(errors.join("\n"))

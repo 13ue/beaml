@@ -47,7 +47,7 @@ PLACE_TYPE = {"name": "PlaceOrder", "version": 1, "fields": PLACE_FIELDS,
               "fingerprint": hashlib.sha256(json.dumps(sorted(PLACE_FIELDS), separators=(",", ":")).encode()).hexdigest()}
 # D6B-135 keys, plus unknown_fields (red-plan R6D-05: DL-122 needs it to tell a kept value from a lost literal), plus
 # outcome and reason (DL-138, R6D-13): "accepted" with reason null, or "rejected" with "decode" or "constructor".
-ENTRY_KEYS = sorted(["version", "trace_id", "server_span_id", "artifact_id", "operation", "attempt", "value", "redacted",
+ENTRY_KEYS = sorted(["version", "trace_id", "span_id", "artifact_id", "operation", "attempt", "value", "redacted",
                      "unknown_keys", "unknown_fields", "value_sha256", "type", "outcome", "reason"])
 TOKEN = "csrf-token-value-6d"  # a host value outside the input TYPE; it must reach no record
 
@@ -238,7 +238,7 @@ ORDERS_CASES = {
     "N8_entry_fields": ('(%s |> elem(2) |> entries.() |> hd() |> Map.take(%s)) == %s' % (
         CSRF, ex(["version", "operation", "attempt", "value", "redacted", "unknown_keys", "unknown_fields",
                   "value_sha256", "type", "outcome", "reason"]),
-        ex({"version": 2, "operation": "ui.place", "attempt": 1, "value": GOOD, "redacted": [],
+        ex({"version": 3, "operation": "ui.place", "attempt": 1, "value": GOOD, "redacted": [],
             "unknown_keys": ["_csrf_token"], "unknown_fields": [],
             "value_sha256": st.value_sha256(GOOD, ["_csrf_token"]), "type": PLACE_TYPE,
             "outcome": "accepted", "reason": None}))),

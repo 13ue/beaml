@@ -35,9 +35,9 @@ NOT_JSON_BODY = b'not json'
 NON_ASCII = {"order_id": "order-1", "status": "autorisé ✓ \U0001f600"}
 NON_ASCII_BODY = json.dumps(NON_ASCII, ensure_ascii=False).encode()
 BODY_KEYS = ("body_base64", "body_length", "body_sha256")
-# D6B-53, sorted. `unknown_fields` only where step 7 writes it; arms/gen/orders.beaml has no enum, so none here.
-RECORD_KEYS = ["artifact_id", "attempt", "client_span_id", "operation", "redacted", "request", "status", "trace_id",
-               "type", "unknown_keys", "value", "value_sha256", "version"]
+# D6B-53 with DL-143 (record version 3), sorted: the 14-key core plus the HTTP extras `request`, `status`.
+RECORD_KEYS = ["artifact_id", "attempt", "operation", "outcome", "reason", "redacted", "request", "span_id", "status",
+               "trace_id", "type", "unknown_fields", "unknown_keys", "value", "value_sha256", "version"]
 
 
 def b(data):
@@ -77,7 +77,7 @@ U, M, MX, N, R, V = (b(UNKNOWN_KEY_BODY), b(MISSING_KEY_BODY), b(MISSING_KEY_EXT
                      b(REORDERED_BODY), b(VALID_BODY))
 CASES = {
     # P1: the writer shape (D6B-53, D6B-54, D6B-55, D6B-56, D6B-58).
-    "P1_version_is_2": 'stored.(200, %s)["version"] == 2' % U,
+    "P1_version_is_3": 'stored.(200, %s)["version"] == 3' % U,
     "P1_value_is_the_declared_keys": 'stored.(200, %s)["value"] == %s' % (U, ex(PAYMENT)),
     "P1_redacted_is_empty": 'stored.(200, %s)["redacted"] == []' % U,
     "P1_unknown_keys_are_names": 'stored.(200, %s)["unknown_keys"] == %s' % (U, ex(["fraud_score"])),
@@ -106,7 +106,7 @@ CASES = {
     "P3_failed_decode_replays_as_decode": 'replay.(stored.(200, %s)) == %s' % (M, DECODE_ERROR),
     # P4: a body that is not JSON gives `value: null`; a 503 body gets the same projection (D6B-54, D6B-57).
     "P4_not_json_value_is_null": ('Map.fetch(stored.(200, %s), "value") == {:ok, :null} and '
-                                  'stored.(200, %s)["unknown_keys"] == [] and stored.(200, %s)["version"] == 2'
+                                  'stored.(200, %s)["unknown_keys"] == [] and stored.(200, %s)["version"] == 3'
                                   % (N, N, N)),
     "P4_not_json_digest": 'stored.(200, %s)["value_sha256"] == %s' % (N, ex(st.value_sha256(None))),
     "P4_status_503_same_projection": ('stored.(503, %s)["value"] == %s and stored.(503, %s)["value_sha256"] == %s'
@@ -120,7 +120,7 @@ CASES = {
 
 def version_error(version, source, line=1):
     """D6B-59 text (plan repair O1)."""
-    return ("error: stored RESPONSE RECORD has record version %s; this build reads record version 2 only (DL-105)\n"
+    return ("error: stored RESPONSE RECORD has record version %s; this build reads record version 3 only (DL-143)\n"
             "  record source: %s:%d (line %d)" % (version, source, line, line))
 
 
@@ -135,7 +135,7 @@ class Slice6Record(unittest.TestCase):
         self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
                          "expected exit 1, no stdout and the exact message")
 
-    def test_runtime_record_version_2(self):
+    def test_runtime_record_version_3(self):
         self.run_runtime(CASES, source=ORDERS, script=HELPERS, stored=sf.EMPTY_STORED)
 
     def test_P6_version_1_record_blocks_the_build(self):
@@ -147,13 +147,13 @@ class Slice6Record(unittest.TestCase):
         stored.write_text(json.dumps(record, separators=(",", ":")) + "\n")
         self.assert_rejected(stored, version_error("none", stored))
 
-    def test_P6_version_1_record_after_a_version_2_record_blocks_at_its_line(self):
+    def test_P6_version_1_record_after_a_version_3_record_blocks_at_its_line(self):
         stored = self.work / "stored-mixed.jsonl"
         stored.write_text((EXPERIMENT / "stored" / "v1.jsonl").read_text() + V1_LINE + "\n")
         self.assert_rejected(stored, version_error(1, stored, 2))
 
-    def test_P6_version_2_record_builds(self):
-        # Guard: the converted stored/v1.jsonl (version 2, TYPE VERSION Payment 1) is no version error.
+    def test_P6_version_3_record_builds(self):
+        # Guard: the converted stored/v1.jsonl (version 3, TYPE VERSION Payment 1) is no version error.
         code, stdout, stderr = self.compile(EXPERIMENT / "slice2" / "N-chain" / "orders.beaml",
                                             ["--stored", str(EXPERIMENT / "stored" / "v1.jsonl")])
         self.assertEqual((0, ""), (code, stderr.strip()))

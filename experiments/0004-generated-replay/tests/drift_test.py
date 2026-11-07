@@ -195,7 +195,7 @@ def repaired_problems(derivative, row, run_dir):
     if record_path is None or report_path is None:
         return problems
     record = json.loads(record_path.read_text())
-    if record.get("version") != 2:
+    if record.get("version") != 3:
         problems.append("%s: replayed record version %r" % (where, record.get("version")))
     report = json.loads(report_path.read_text())
     # RC6A-1: the eval ran, and the record comes from a new live call of this row (not baseline, not new_live).

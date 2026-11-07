@@ -36,7 +36,7 @@ import slice6_record_test as sr  # noqa: E402
 import slice6_redacted_test as srd  # noqa: E402
 import stored_types_test as st  # noqa: E402
 
-P2_BASE = "31d83754"  # the HEAD at RED; V18 and V18b compile with it (git archive build)
+P2_BASE = "545dded0"  # HEAD at GREEN start (RED: 31d83754); V18 and V18b compile with it (git archive build)
 LEDGER = EXPERIMENT / "workflow" / "2026-11-07" / "record-format-v3"
 FIX = EXPERIMENT / "slice6" / "record-v3"
 ORDERS = EXPERIMENT / "arms" / "gen" / "orders.beaml"
@@ -291,6 +291,28 @@ class RecordV3(unittest.TestCase):
         code, stdout, stderr = self.compile(REDACTED, ["--stored", str(stored)])
         self.assertEqual((1, "", srd.d6b_72("Order", 1, "card_holder", "request", stored, 1)),
                          (code, stdout, without_counts(stderr)))
+
+    def test_O1_orphan_check_reads_a_rejected_record(self):
+        # RED review O1: a rejected record of an operation with no EFFECT and no RETIRE LINE still blocks (DL-040).
+        record = dict(json.loads((FIX / "stored-503-nopath.jsonl").read_text()), operation="payments.gone")
+        stored = self.write("orphan/stored.jsonl", json.dumps(record, separators=(",", ":")) + "\n")
+        twin = self.write("twin/orphan.jsonl", json.dumps(to_v2(record), separators=(",", ":")) + "\n")
+        _, _, base = self.compile(CTOR, ["--stored", str(twin)], s5.compiler_at(P2_BASE))
+        self.assertIn("has no effect in the source", base, "setup: " + base)
+        code, stdout, stderr = self.compile(CTOR, ["--stored", str(stored)])
+        self.assertEqual((1, "", base.strip().replace(str(twin), str(stored))), (code, stdout, without_counts(stderr)))
+
+    def test_O2_missing_or_unknown_outcome_blocks(self):
+        # RED review O2: only "accepted" or "rejected" passes; anything else is the DL-138 error, not a skip.
+        record = json.loads((FIX / "stored-accepted-nopath.jsonl").read_text())
+        for name, outcome in (("missing", None), ("unknown", "maybe")):
+            with self.subTest(name):
+                changed = {k: v for k, v in record.items() if k != "outcome"}
+                if outcome:
+                    changed["outcome"] = outcome
+                stored = self.write("outcome/%s.jsonl" % name, json.dumps(changed, separators=(",", ":")) + "\n")
+                self.assert_rejected(CTOR, stored, "error: stored RESPONSE RECORD has no capture outcome accepted or "
+                                     "rejected (DL-138)\n  record source: %s:1 (line 1)" % stored)
 
     def test_N2_w2_skips_a_rejected_record(self):
         # Re-check N2: a rejected v1 record leaves snapshot.oldest, so `migrate Payment v1 -> v2` is a DEAD LINE.

@@ -804,6 +804,9 @@ class Rewrite(unittest.TestCase):
     def test_A3_stored_fixtures_are_unchanged(self):
         # Guard, not RED: every stored fixture keeps its records. Slice 6b step 6a (D6B-69) converts each record to
         # version 2 in place: the BASE record with its body as `value` (st.with_value) equals the record now.
+        # RECORD FORMAT v3 (DL-143) converts that version 2 record once more with convert_v3.py (QV3-5 A).
+        sys.path.insert(0, str(EXPERIMENT / "workflow" / "2026-11-07" / "record-format-v3"))
+        import convert_v3
         prefix = EXPERIMENT_REL + "/stored/"
         names = [n for n in git("ls-tree", "-r", "--name-only", BASE, "--", prefix).decode().splitlines()
                  if n.endswith(".jsonl")]
@@ -812,7 +815,8 @@ class Rewrite(unittest.TestCase):
         for name in names:
             with self.subTest(file=name):
                 old = [json.loads(line) for line in git("show", "%s:%s" % (BASE, name)).decode().splitlines()]
-                converted = [st.with_value(r, json.loads(base64.b64decode(r["body_base64"])), r["unknown_keys"])
+                converted = [convert_v3.convert(dict(st.with_value(r, json.loads(base64.b64decode(r["body_base64"])),
+                                                                   r["unknown_keys"]), version=2), False)
                              for r in old]
                 self.assertEqual(converted, [json.loads(line) for line in (REPO / name).read_text().splitlines()])
 
