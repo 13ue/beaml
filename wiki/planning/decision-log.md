@@ -646,6 +646,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: DRIFT (f) is the evidence that a TYPE change repairs through the generated code; that evidence does not need the 0003 copy. One record form (DL-110) means one replay path.
 → Commits us to: the step 6a GREEN changes `run.py` DRIFT repair accordingly; the README DRIFT section follows in the docs phase.
 
+**DL-119 · Migrate · Span default is the EFFECT path per step; the span resolution becomes an OBSERVATORY setting (Q6B-17, S)**
+→ Question: DL-108 says spans follow an EFFECT transitively. Which steps of a reaching pipe get a span: every step of the pipe (P), only steps that are or reach an EFFECT (S), or a hybrid (H)?
+→ Options: P, S, H as in D015; E, every call, also pure functions that reach no EFFECT.
+→ Chose: S as the default. A step gets a span only when it is an EFFECT or reaches one. Spans nest by call, so the trace is a tree. The resolution itself is not a compiler rule: the compiler knows the whole call tree, and which spans a run writes becomes a runtime setting of the OBSERVATORY (part 4), see D018. P, H and E are candidate settings there, not language rules.
+→ By: 13ue
+→ Because: a default must not be opinionated; the EFFECT path is the smallest set that still shows every contact with the world. The OWNER wants full resolution on demand, per part of an application and for a limited time, and an opt-out that writes no data. DL-108 looked only outward (calls an EFFECT); seen inward, every live function in a web application lies on a path from an inbound EFFECT, so a fixed "pure steps stay silent" rule would hide live code. That rule now holds for the default only.
+→ Effect: step 12 E2 builds S; the GEN query and the fixtures change as the plan says. D015 closes. D018 opens with the OBSERVATORY notes.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

@@ -334,7 +334,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D015 — Which steps of a reaching pipe get a span (Q6B-17)
 
-- **Status** OPEN
+- **Status** CLOSED by [DL-119](decision-log.md): S as the default; the resolution becomes an OBSERVATORY setting, see D018.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** EXECUTION/OBSERVATORY, DL-108, D6B-28
@@ -398,6 +398,27 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Next check: review probe 6 as the RED test under the chosen option; it must give exit 1 or the compile error. By: Opus (DOCS, Q6B-19).
 
+## D018 — Span resolution as an OBSERVATORY setting (notes for part 4)
+
+- **Status** OPEN, not before the OBSERVATORY slice
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** EXECUTION/OBSERVATORY, DL-108, DL-119
+- **Decision trigger** Before the first OBSERVATORY slice plans its settings.
+
+**[Requirement]** From the OWNER walk-through of Q6B-17 (2026-11-07), to keep for the OBSERVATORY design:
+
+- The trace is a tree. Spans nest by call, as the code nests. A dashboard shows level 0 (the public API or the inbound EFFECT) and opens deeper levels on demand.
+- The span resolution is a setting, not a compiler rule. The compiler instruments every call; the setting decides which spans a run writes.
+- Three settings are needed: a default resolution for the whole application; an opt-out per part ("write no data here"); an opt-in to full resolution per part, limited in time (for example one day, to measure one question in production).
+- The default is the EFFECT path per step (DL-119, option S). P (every step of a reaching pipe), H (hybrid) and E (every call, also pure functions) are candidate settings, not defaults.
+- Seen inward, every live function in a web application lies on a path from an inbound EFFECT (request, message, timer). A function on no such path is dead code. "Pure steps stay silent" (DL-108) therefore holds for the default only.
+- A span carries name, duration, parent, result TYPE and failure TYPE. Never values, source text, paths or PII (DL-105 projection applies).
+
+**[Proposal]** Open questions for that slice: the address of a setting (module, function, or subtree from an entry); the cost of one flag check per call when a part is off (`persistent_term` or a compile-time variant); hot pure loops under E (one span per call versus per recursion step, or sampling); how a time-limited opt-in expires; where the setting lives (BEAML source, deploy config, or a live command). By: Fable (walk-through, 2026-11-07).
+
+**[Unknown]** Not built. No OBSERVATORY slice is planned yet beyond the roadmap row.
+
 ## Answered 2026-11-07
 
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.
@@ -406,4 +427,5 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - [DL-102](decision-log.md): replay rule, a stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate.
 - [DL-103](decision-log.md): replay rule, a mapping change that only resolves Unknown values needs no MIGRATE STEP.
 - [DL-117](decision-log.md): Q6B-16, `T.new/1` takes one map with atom keys, also for one parameter.
+- [DL-119](decision-log.md): Q6B-17, span default is the EFFECT path per step (S); the resolution becomes an OBSERVATORY setting (D018).
 - [DL-104](decision-log.md): Q6B-5, `beaml fmt` never changes the TYPE VERSION.
