@@ -609,6 +609,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: OWNER choice. The evidence and challenges are in `wiki/planning/decisions-to-be-made.md` (D011). Limit: the record then holds a value that the input marks as PII; that is a declared choice, not an accident.
 
+**DL-114 · Migrate · `beaml fmt`: a signature line ends an alignment group (Q6B-9, A)**
+→ Question: DL-083 aligns consecutive clauses of one fn as a table. What happens to a signature line without body above the clauses?
+→ Options: A, the signature line stays as written and ends the group; only the clauses below align; B, the signature line is the header row of the table, its parameter columns set the widths.
+→ Chose: A. Built in slice 6b step 10; the fixture `slice6/fmt/header` encodes it.
+→ By: 13ue
+→ Because: OWNER choice; compact, and the columns follow the values. B gets wide with long TYPE names.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
