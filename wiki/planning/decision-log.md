@@ -419,6 +419,10 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: a constructor signature or a function clause that an earlier one always matches first does not compile. Over: a warning.
 → Because: OWNER choice; with "first match wins" (DL-085) such a line is dead and misleading.
 
+**DL-088 · Migrate · One decode path per enum**
+→ Chose: an `enum` with literals and a constructor function at the same time is a compile error. Over: the constructor wins; literals first, then the constructor.
+→ Because: OWNER choice; exactly one way to build each enum from outside data.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
