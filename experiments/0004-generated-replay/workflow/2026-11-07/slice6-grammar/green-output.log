@@ -1,0 +1,73 @@
+# GREEN output: slice 6a grammar, 2026-11-07
+# cwd: integrations/zed-beaml. TS=/private/tmp/beaml-zed-highlighting/tools/tree-sitter
+## $TS --version
+tree-sitter 0.26.5
+exit=0
+
+## $TS generate --abi 15 --js-runtime native
+exit=0
+
+## $TS test --rebuild
+  constructors:
+      1. ✓ [32mEnum constructor with signatures and clauses[0m
+      2. ✓ [32mRecord constructor with a failure TYPE[0m
+      3. ✓ [32mSignature with several failure TYPES[0m
+      4. ✓ [32mOverlap is no grammar error[0m
+      5. ✓ [32mPipe inside an argument[0m
+      6. ✓ [32mEffect releases a redacted field[0m
+  errors:
+      7. ✓ [32mInterface is no record keyword[0m
+      8. ✓ [32mPlain numbers in a MIGRATE STEP[0m
+      9. ✓ [32mVersion v0 on the type line[0m
+     10. ✓ [32mVersion with a leading zero in a MIGRATE STEP[0m
+  forms:
+     11. ✓ [32mRecord type with version mark and redacted field[0m
+     12. ✓ [32mEnum with plain and payload variants[0m
+     13. ✓ [32mEffect with dotted name and failure list[0m
+     14. ✓ [32mPipe in a function with a failure TYPE[0m
+     15. ✓ [32mMIGRATE CHAIN, several steps on one line[0m
+     16. ✓ [32mMIGRATE CHAIN with v numbers, multi-line, comments[0m
+     17. ✓ [32mRetire an operation[0m
+     18. ✓ [32mWith expression[0m
+     19. ✓ [32mKeywords stay identifiers outside their forms[0m
+  lexer:
+     20. ✓ [32mUnicode whitespace[0m
+     21. ✓ [32mA line comment stops at LF[0m
+  syntax:
+     22. ✓ [32mDeclarations[0m
+     23. ✓ [32mFunction clauses and nested patterns[0m
+
+syntax highlighting:
+      1. ✓ [32msyntax.beaml[0m (19 assertions)
+      2. ✓ [32mforms.beaml[0m (48 assertions)
+      3. ✓ [32mlexer.beaml[0m (2 assertions)
+      4. ✓ [32mconstructors.beaml[0m (11 assertions)
+Total parses: 23; successful parses: 23; failed parses: 0; success percentage: 100.00%; average speed: 5753 bytes/ms
+
+exit=0
+
+## $TS build --wasm -o grammars/beaml.wasm
+exit=0
+
+## $TS test --wasm --rebuild
+
+syntax highlighting:
+      1. ✓ [32msyntax.beaml[0m (19 assertions)
+      2. ✓ [32mforms.beaml[0m (48 assertions)
+      3. ✓ [32mlexer.beaml[0m (2 assertions)
+      4. ✓ [32mconstructors.beaml[0m (11 assertions)
+Total parses: 23; successful parses: 23; failed parses: 0; success percentage: 100.00%; average speed: 6180 bytes/ms
+
+exit=
+
+## $TS test --wasm --rebuild (exit code only, output above)
+exit=0
+
+## Predicate check: rg -n '^\((function_clause|pipe right: \(identifier\))' languages/beaml/highlights.scm (must print nothing)
+rg exit=1 (1 = no match)
+
+## rg -n 'ERROR|MISSING' test/corpus/constructors.txt (must print nothing)
+rg exit=1
+
+## $TS parse test/highlight/constructors.beaml | rg 'ERROR|MISSING' (must print nothing)
+rg exit=1

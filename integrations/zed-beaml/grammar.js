@@ -34,10 +34,15 @@ module.exports = grammar({
     enum_declaration: ($) =>
       seq("enum", field("name", $.type), "{", repeat(seq($.variant_declaration, optional(","))), "}"),
 
+    // A variant has a payload or an ENUM LITERAL, not both: `Unknown(String)`, `Authorized = "ok"` (DL-082).
     variant_declaration: ($) =>
-      seq($.constructor, optional(seq(token.immediate("("), optional(commaList($.type)), ")"))),
+      seq(
+        $.constructor,
+        optional(choice(seq(token.immediate("("), optional(commaList($.type)), ")"), seq("=", $.string))),
+      ),
 
     // `effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")` (DL-013, DL-015).
+    // `... with card_holder` releases redacted fields (DL-089).
     effect_declaration: ($) =>
       seq(
         "effect",
@@ -48,6 +53,7 @@ module.exports = grammar({
         optional($.failures),
         "=",
         field("body", $._expression),
+        optional(seq("with", commaList($.property))),
       ),
 
     // MIGRATE CHAIN step: `migrate Payment v1 -> v2 { ... }` (DL-022, DL-072). A plain number is no VERSION (DL-074).
@@ -75,6 +81,7 @@ module.exports = grammar({
     // `retire payments.authorize keep 30 days` (DL-055, DL-057).
     retire_declaration: ($) => seq("retire", field("name", $._name), "keep", field("duration", $.integer), "days"),
 
+    // A signature line is a clause without a body (DL-084).
     function_clause: ($) =>
       seq(
         "fn",
@@ -83,8 +90,7 @@ module.exports = grammar({
         "->",
         field("return_type", $.type),
         optional($.failures),
-        "=",
-        field("body", $._expression),
+        optional(seq("=", field("body", $._expression))),
       ),
 
     // `! A | B` failure TYPES (DL-015).
@@ -97,7 +103,7 @@ module.exports = grammar({
     qualified_name: ($) => seq($.identifier, repeat1(seq(token.immediate("."), $.identifier))),
 
     _expression: ($) =>
-      choice($.identifier, $.qualified_name, $.string, $.call, $.record, $.concatenation, $.pipe, $.with_expression),
+      choice($.identifier, $.qualified_name, $.string, $.integer, $.call, $.record, $.concatenation, $.pipe, $.with_expression),
 
     call: ($) =>
       seq(field("name", $._name), token.immediate("("), optional(commaList($._expression)), ")"),
