@@ -404,6 +404,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice; the `type` stays plain.
 → Open: how the decode picks one of several signatures; lists as an external return TYPE (later).
 
+**DL-085 · Migrate · The first matching signature wins**
+→ Question: a constructor has several signatures; which one does the decode use?
+→ Options: S1, the one whose keys are all in the body (longest first); S2, one per TYPE VERSION; S3, exactly one may match, else a compile error.
+→ Chose: top to bottom, the first signature that matches is used, like Elixir function clauses. Over: S1 longest match, S2, S3.
+→ Because: OWNER choice; the order in the source is the rule.
+→ Note: a signature below one whose keys are a subset of it can never match; the compiler can report it, as Elixir reports a clause that cannot match.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
