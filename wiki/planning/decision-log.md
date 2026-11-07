@@ -386,6 +386,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: the compiler accepts any agreeing mark (DL-080); `beaml fmt` normalizes to option (b): it removes a mark when the chain is complete from v1 or when there is no chain, and writes the mark when the chain starts above v1. No warning. Over: a compiler warning.
 → Because: OWNER choice; the formatter keeps one form without blocking work. `beaml fmt` does not exist yet; it also owns the alignment rule of DL-013.
 
+**DL-082 · Migrate · String to variant: enum literals or an enum constructor** (narrows DL-062: literals in an `enum` become legal)
+→ Question: how does the decode of outside data map a String to an `enum` variant?
+→ Options: by signature (the one `fn String -> E`); C2, by name (a function named like the enum, a constructor); C3, named on the field; L, literals in the enum.
+→ Chose: both L and C2. L: `enum PaymentState { Authorized = "ok"  Pending = "pending"  Unknown(String) }` for a 1:1 mapping. C2: a constructor function named like the enum, with any logic and several inputs, e.g. `fn PaymentState "ok", _ -> PaymentState = Authorized`. The last clause over outside data keeps the value (DL-065).
+→ Because: OWNER choice. L is the short form for the simple case; the constructor covers several spellings, several fields and variants with a payload.
+→ Open: how a constructor with several inputs gets its body keys; what happens when an enum has both literals and a constructor.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
