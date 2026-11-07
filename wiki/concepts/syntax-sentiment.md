@@ -78,13 +78,13 @@ updated: 2026-11-07
 
 ## 8. How to use this page
 
-**[Requirement]** OWNER decision of 2026-11-07 ([DL-140](../planning/decision-log.md)): the research is ingested. Its tensions and gaps are not decided now. They stay open and visible as D026 to D033 in [decisions to be made](../planning/decisions-to-be-made.md). Trigger: after the first example applications are built, not too late and not too early. Goal: BEAML wants the best syntax ever built and wants to innovate; this research stays present in every syntax decision.
+**[Requirement]** OWNER decision of 2026-11-07 ([DL-145](../planning/decision-log.md)): the research is ingested. Its tensions and gaps are not decided now. They stay open and visible as D026 to D033 in [decisions to be made](../planning/decisions-to-be-made.md). Trigger: after the first example applications are built, not too late and not too early. Goal: BEAML wants the best syntax ever built and wants to innovate; this research stays present in every syntax decision.
 
 **[Proposal]** At every syntax decision, read sections 5 to 7 of this page. Name the row the decision touches. When the decision moves a tension or a gap, link the decision-log entry from the open item.
 
 ## 9. BAML as the nearest precedent
 
-**[Verified]** Source: the [BAML syntax reception research](../sources/baml-syntax-reception-2026.md) of 2026-11-07, captured under [raw/research/2026-11-07-baml-syntax-sentiment/](../../raw/research/2026-11-07-baml-syntax-sentiment/CAPTURE.md). Taken up at the OWNER's instruction ([DL-141](../planning/decision-log.md)). BAML is BoundaryML's language, a technical precedent already on [BAML language and tooling](baml-language-and-tooling.md); this section is about how its syntax is received.
+**[Verified]** Source: the [BAML syntax reception research](../sources/baml-syntax-reception-2026.md) of 2026-11-07, captured under [raw/research/2026-11-07-baml-syntax-sentiment/](../../raw/research/2026-11-07-baml-syntax-sentiment/CAPTURE.md). Taken up at the OWNER's instruction ([DL-146](../planning/decision-log.md)). BAML is BoundaryML's language, a technical precedent already on [BAML language and tooling](baml-language-and-tooling.md); this section is about how its syntax is received.
 
 **[Verified]** What BAML's syntax is praised for ([praise table](../../raw/research/2026-11-07-baml-syntax-sentiment/baml-reception.md#2-what-people-praise)):
 

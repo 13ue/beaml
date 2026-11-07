@@ -57,4 +57,4 @@ updated: 2026-11-07
 
 ## Use in this repository
 
-**[Verified]** The OWNER decided on 2026-11-07 to ingest this research and to decide its tensions after the first example applications ([DL-140](../planning/decision-log.md), open items D026 to D033 in [decisions to be made](../planning/decisions-to-be-made.md)). See the [syntax sentiment concept](../concepts/syntax-sentiment.md), the [source registry](README.md) and the [syntax spike requirement](syntax-spike-requirement.md).
+**[Verified]** The OWNER decided on 2026-11-07 to ingest this research and to decide its tensions after the first example applications ([DL-145](../planning/decision-log.md), open items D026 to D033 in [decisions to be made](../planning/decisions-to-be-made.md)). See the [syntax sentiment concept](../concepts/syntax-sentiment.md), the [source registry](README.md) and the [syntax spike requirement](syntax-spike-requirement.md).

@@ -813,7 +813,8 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Effect: DL-097 is extended, not replaced. A built default carries `By: Opus (default, open)` in the log and in the ledger; the OWNER's answer closes it as "confirmed" or "repaired". The main agent decides the limit per question and records that call with `By: Fable`.
 → OWNER addition (13ue, same day): every built default is presented to the OWNER explicitly, as its own question with a picture and the options, never only as a line in a list or a log. The OWNER must never find a built default by chance. A built default stays open until the OWNER has signed it off; the main agent repeats the question in every later walk-through until the OWNER confirms or changes it. Silence is not a sign-off (see DL-107).
 
-**DL-140 · Repair · Ingest the PL syntax sentiment research; decide its tensions after the first example applications**
+**DL-145 · Repair · Ingest the PL syntax sentiment research; decide its tensions after the first example applications**
+→ ID note: first written as DL-140 by a parallel session; renumbered to DL-145 on 2026-11-07 because DL-140 was already taken (M2). References in the syntax pages updated.
 → Question: ingest the PL syntax sentiment research (loved and hated features, BEAML lens) into the wiki, and when to decide its tensions and gaps?
 → Options: ingest now and decide the tensions now; ingest now and decide them after the first example applications; keep it as temporary research outside the wiki.
 → Chose: ingest now, decide the tensions after the first example applications.
@@ -822,7 +823,8 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Trigger: research handed back 2026-11-07.
 → Effect: capture under `raw/research/2026-11-07-pl-syntax-sentiment/`, [source page](../sources/pl-syntax-sentiment-2026.md), [concept page](../concepts/syntax-sentiment.md); eight open items D026 to D033 in [decisions to be made](decisions-to-be-made.md), each with trigger "after the first example applications".
 
-**DL-141 · Repair · Take BAML up as a topic in the syntax sentiment research**
+**DL-146 · Repair · Take BAML up as a topic in the syntax sentiment research**
+→ ID note: first written as DL-141 by a parallel session; renumbered to DL-146 on 2026-11-07 (DL-141 is the ENTRY RECORD sign-off).
 → Question: take BAML (BoundaryML's language) up as a topic in the syntax sentiment research?
 → Options: yes, as a syntax precedent and a name question; no, the technical precedent pages suffice.
 → Chose: yes.
