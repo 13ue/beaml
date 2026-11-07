@@ -458,12 +458,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice; P2 is the simplest start and always current. The other forms are optimizations of the same data.
 → Kept: every form reports only TYPE VERSIONS, fingerprints and counts, never values (DL-032). `--stored PATH` stays for tests and offline builds.
 → Open: how the build gets access to the nodes (network, credentials, which environments).
+→ By: 13ue
 
 **DL-095 · Repair · Roadmap structure follows the six parts of vertical integration**
 → Question: how is the public roadmap organized?
 → Options: A, one section per part of vertical integration (type system, types at runtime, typed errors, modules, tests and evals, production); B, milestones in time order.
 → Chose: A. Each part shows its state (verified, decided, concept) and its next steps. The roadmap lives in README.md and on a small GitHub Pages site.
 → Because: OWNER choice; the six parts are the owner goal (see wiki/concepts/vertical-integration.md), and progress is visible per part.
+→ By: 13ue
 
 **DL-096 · Repair · Developer and agent experience is the seventh roadmap part**
 → Question: where do the language server, formatter, editor integration and CLI sit on the roadmap?
@@ -471,11 +473,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: a seventh part, "Developer and agent experience" (DX and AX). It is maintained with every other part, not as a later phase. The CLI and its JSON output are the agent interface; the editor shows the same facts to people.
 → Because: OWNER choice; the agent interface is the core of the project, and DX cuts across all six parts (migration errors in the editor, traces beside the source).
 → Order (proposal): grammar (slice 6a), compiler for the decided forms, `beaml fmt` and `beaml check --json`, then a language server on that JSON with diagnostics and hover first; Zed first, then VS Code.
+→ By: 13ue
 
 **DL-097 · Repair · Build every decided item unattended; record every decision**
 → Question: how does the pipeline run while the OWNER is away?
 → Chose: workers build every item whose decisions are recorded (DL-062, DL-065, DL-081 to DL-093), one code-writing worker at a time, in bounded steps with a ledger each. A step stops at the first Migrate or Answer question and hands it back. Every decision of every class, Undo and Repair included, goes into the step's `notes.md` with its class, choice, alternative and reason. Repair decisions that change language behaviour or a check also get a decision-log entry at the end of the phase.
 → Because: OWNER instruction of 2026-11-07. The OWNER must find no silent decision, small ones included.
+→ By: 13ue
 
 **DL-098 · Repair · Slice 6a grammar: worker decisions**
 → Chose: a signature line is a `fn` clause with an optional `= body` (DL-084). Over: a separate signature rule.
@@ -486,6 +490,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: highlight tests put ` // anchor` after a target at the end of a line. Over: a test that passes on a borrowed class.
 → Chose: every `tree-sitter test` runs with `--rebuild`. Over: the shared cache, which gave a false pass in RED.
 → Because: smallest grammar that parses the decided forms. Details: [slice 6a ledger](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/notes.md), [review](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6-grammar/review.md).
+→ By: Opus (slice 6a workers), accepted by Fable
 
 **DL-099 · Migrate · Enum constructor inputs come from the field's own value (Q6B-1, B)**
 → Question: a field `state: PaymentState` has a constructor with parameters `status` and `decline_reason` (DL-084). From which JSON object does the decode read these keys?
@@ -493,6 +498,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: B. The wire shape follows the TYPE structure. A flat body is declared with a constructor on the parent record, whose parameters are the flat wire keys (DL-092: the constructor is the way in).
 → Because: OWNER choice after analysis. Under A the field list no longer describes the wire shape, so the fingerprint, the derived old TYPE VERSIONS and `unknown_keys` need extra rules; under B the per-level rule of today holds, and literal and constructor read the same place. B can express A, A cannot express B.
 → Unblocks: slice 6b step 8 (decode through an enum constructor). The call form of a constructor with several arguments inside a record constructor is a sketch, not decided.
+→ By: 13ue
 
 **DL-100 · Migrate · An enum constructor is the decode path only (Q6B-2, B)**
 → Question: does an enum constructor (`fn PaymentState …`) make itself the only way to build the variants of its enum, as a record constructor does (DL-092)?
@@ -500,6 +506,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: B. Code writes `Pending`; the constructor maps wire values to variants. Patterns stay free in both.
 → Because: OWNER choice. Variants are finite and named, so they are valid by construction; a record constructor checks values, an enum constructor only translates. Under A code would need the wire string (`"pending"`) to build a variant, which is outside knowledge, not domain knowledge.
 → Effect: slice 6b step 9 (enum only-way-in check) is dropped. Step 4 builds no restriction.
+→ By: 13ue
 
 **DL-101 · Migrate · The decode of outside data calls the record constructor (Q6B-3, A)**
 → Question: a record TYPE with a constructor (DL-092) stands in an EFFECT position. Does the generated decode call the constructor?
@@ -508,6 +515,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice; the compiler knows every stage, so it also checks this one. B needs a raw TYPE per checked TYPE.
 → Commits us to: the replay questions on stored records (D6B-30, D6B-32, D6B-38) include a changed constructor against stored RESPONSE RECORDS: a new check can make an old record fail at replay. The OWNER wants that thought through together with those questions.
 → Open: the reject reason for a constructor failure in a decode (`decode` or a reason of its own).
+→ By: 13ue
 
 **DL-102 · Migrate · A stored record that fails a new rule blocks the build until a MIGRATE STEP declares its fate**
 → Question: a TYPE keeps its field shape but gets a new rule (a record constructor, DL-101; a changed enum mapping, DL-082), and a stored RESPONSE RECORD of an earlier deploy fails that rule today. What does the build do, and what does a REPLAY RUN show?
@@ -517,6 +525,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice. A failing old record is the same situation as a missing MIGRATE STEP: the compiler sees it, so it must block (DL-031). Quarantine is no guess and no fallback: the record is not reinterpreted, it waits.
 → Supersedes: D6B-38 (count only) and D6B-32/D6B-30 need a new reading in the plan. The syntax of `quarantine` and of `retire` for a TYPE VERSION is a sketch, not decided.
 → Open: a mapping change that does not fail but changes the outcome (an old `Unknown("refunded")` that a new literal maps to `Refunded`): is that a hit that needs a step, or a plain improvement?
+→ By: 13ue
 
 **DL-103 · Migrate · A mapping change that only resolves Unknown values needs no MIGRATE STEP**
 → Question: a new ENUM LITERAL or constructor clause maps a wire value that an older deploy kept as `Unknown(value)`. The stored record does not fail; its outcome changes (`Unknown("refunded")` becomes `Refunded`). Is that a hit under DL-102?
@@ -524,12 +533,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: relaxed. `Unknown` is the declared promise to keep the value until a rule exists; the new variant is that rule. The build reports the count of resolved records per environment and does not block.
 → Because: OWNER choice. DL-065 keeps the value for exactly this case.
 → Limit: a change that moves a value from one known variant to another known variant is not covered here; it fails no record either, and stays open until a case shows up.
+→ By: 13ue
 
 **DL-104 · Migrate · `beaml fmt` never changes the TYPE VERSION (Q6B-5, A; narrows DL-081)**
 → Question: DL-081 says `fmt` removes a VERSION MARK when there is no chain. After a SQUASH the mark is the only source of the version (`type Payment v3 { }`), and `v1` without a chain selects the versioned decode while `type Payment { }` selects the slice 1 form.
 → Options: A, `fmt` never changes the newest version or the decode form: it removes a mark only when the chain already implies it, keeps a mark without a chain (`v3` and `v1` alike), writes a mark when the chain starts above v1; B, make `type T { }` mean `v1` everywhere (every record versioned), then `v1` is redundant.
 → Chose: A. The plan default D6B-43 holds. B is a separate decision for later (an own slice: it changes the output of every unversioned TYPE).
 → Because: OWNER choice; a formatter must not renumber stored records or switch a decode form. The literal DL-081 text is superseded for the no-chain case.
+→ By: 13ue
 
 **DL-105 · Answer · The RESPONSE RECORD holds the typed projection, never the raw body (Q6B-4, O2)**
 → Question: a `redacted` field in an EFFECT output TYPE is a core feature and must be allowed. Today the RESPONSE RECORD stores the raw response body (`body_base64`), so it holds the redacted value and every undeclared key the service echoes. What does the record hold?
@@ -538,6 +549,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice after the walkthrough. Privacy is structural, not a filter: a value that is never stored cannot leak. A compile error (the interim D6B-34) would forbid a basic feature and still not protect the raw body against echoes.
 → Consequences: the RESPONSE RECORD contract changes (`value`, `redacted`, `unknown_keys`, a digest of the projection; names are a sketch); the replay compare uses the projection; a decode change cannot be replayed against an old raw body. A failure TYPE may carry a redacted field only when that field is `redacted` there too. Derived values (`"Hello " + c.holder`) are PII by flow; the implicit-flow check stays a later compiler target.
 → Supersedes: D6B-34 (compile error) and the D6B-30/D6B-32 readings in the plan; step 6 of slice 6b is replanned on this basis.
+→ By: 13ue
 
 **DL-106 · Migrate · The generated wrapper is the only entry for constructor TYPES at the host (Q6B-6, B)**
 → Question: in generated Elixir a host could pass `%{"value" => 0}` where BEAML requires `NonZeroInt`; the wrapper checked the shape, not the rule. Does "the constructor is the only way in" (DL-092) also cover host calls?
@@ -546,6 +558,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: OWNER choice. The TYPE holds up to the last boundary the compiler generates; this removes the accidental error (a map that happens to fit).
 → Limit, stated: Elixir has no private constructors, so a host can still write the struct literal on purpose. B stops the accidental forgery, not a deliberate one. Anything beyond that is a separate decision.
 → Effect: a new slice 6b step (struct codegen, `new/1`, the input check); the step 3 tests that expect `{:ok, %{"value" => 3}}` change to the struct form.
+→ By: 13ue
+
+**DL-107 · Repair · Every decision names who made it**
+→ Chose: from this entry on, every decision in this log, in a step ledger (`notes.md`, `decisions.md`) and in a review carries a `By:` line: `13ue` for the OWNER, or the model that decided (`Fable` for the main agent, `Opus` for a worker, with the phase and ledger). Earlier entries are attributed by class: Migrate and Answer choices were made by `13ue`; Undo and Repair choices by the agent of that phase, which its ledger names.
+→ By: 13ue (rule), Fable (the backfill-by-class reading).
+→ Because: OWNER instruction of 2026-11-07. A decision without an author cannot be questioned or revisited.
 
 ### Process
 

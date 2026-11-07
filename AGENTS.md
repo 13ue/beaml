@@ -31,7 +31,7 @@ Keep event logging enabled in normal CLI runs. Never record source text, secrets
 
 Record new open R&D decisions in [Decisions to be made](wiki/planning/decisions-to-be-made.md).
 Record every closed decision in the append-only [decision log](wiki/planning/decision-log.md): question, options, choice, reason, trigger and a link to the detail.
-Give each decision a stable ID, owner, evidence and next check. Link related pages to that entry.
+Give each decision a stable ID, owner, evidence and next check. Every decision also names who made it (`By:`): `13ue` for the OWNER, or the model that decided (for example `Fable` for the main agent, `Opus` for a worker) with its phase. Link related pages to that entry.
 
 ## Visual communication
 
