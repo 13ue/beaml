@@ -11,10 +11,21 @@ Every entry carries a `By:` line (DL-107). The worker records each taken default
 - **Context.** **[Verified]** DL-108: "Pure steps stay silent; steps on a path to an EFFECT get a span". **[Verified]** Today every step of a pipe with a direct EFFECT step has a span, pure steps included: `prepare` in `order |> prepare |> payments.authorize` has the span `orders.prepare`, and the log `payment_request_prepared` is inside it. **[Verified]** The GEN arm query expects both (`arms/gen/overlay/experiments/0002-http-correlation/query.py`, lines 11 and 17). The DL-108 text can mean the pipe or the step.
 - **Option P, per pipe.** A whole-body pipe in which any step is or reaches an EFFECT gets a span on every step, as a direct EFFECT pipe does today. "Pure steps" means the steps inside a pure fn. No existing byte changes.
 - **Option S, per step.** Only a step that is or reaches an EFFECT gets a span. `prepare` and every step after the EFFECT lose their spans; the prepared log moves to the parent span. About 50 EFFECT sources change bytes, the step 5 hash guards and the GEN `query.py` rows change, and the `run.py` GEN release check changes.
+- **Option H, hybrid.** A pipe with a direct EFFECT step keeps today's spans (P). A pipe that reaches an EFFECT only indirectly gets spans on its reaching steps only (S). No existing byte changes; the GEN `query.py` rows stay. Challenge: two span rules in one compiler. By: Opus (PLAN REPAIR, slice6b-effect-reach) (plan check, Q6B-17)
 - **Challenges.** P puts spans on pure work next to an EFFECT (the trace shows `prepare` time). S gives a smaller trace but removes a span that slices 1 to 5 tested and that the 0002 probe reads.
 - **Why Migrate.** The trace contract of every EFFECT flow, the arm evidence and the 0002 query.
 - **Interim.** RED uses P for E1, E3 to E10; E1 holds under both options. E2 waits.
 - By: open, decided later by `13ue`. Question by Opus (PLAN, slice6b-effect-reach).
+
+### Q6B-18 · Migrate · A constructor that reaches an EFFECT (was D6B-91; blocks 12b)
+
+- **Context.** **[Observed by the planner]** An enum constructor can be the EFFECT flow today, and it compiles. **[Verified by the plan check]** DL-092, DL-100, DL-101 and DL-108 do not restrict what a constructor calls. A reject removes syntax that compiles today.
+- **Option a.** Reject every constructor that reaches an EFFECT (the old D6B-91 default).
+- **Option b.** Reject only where the compiler calls the constructor itself: a decode field, the step 8 `--stored` check, the host `T.new`.
+- **Option c.** Allow it, give it spans; the REPLAY RUN substitutes the inner EFFECT.
+- **Why Migrate.** A source with an EFFECT in a constructor stops compiling, or changes its replay, without an OWNER choice.
+- **Smallest test (12b RED, after the answer).** `fn Settled order: Order -> Settled ! PaymentError = order |> payments.authorize |> Done` gives the chosen result.
+- By: open, OWNER. Raised by Opus (PLAN REPAIR, slice6b-effect-reach) on plan check O1.
 
 ## Undo and Repair defaults
 
@@ -39,6 +50,7 @@ By: Opus (PLAN, slice6b-effect-reach)
 **D6B-88 · Repair · The span input is `p0` only for a plain record head; else `nil`.**
 Chose: the compiler knows the head TYPE; for a String, an Int, an enum or a constructor TYPE (a struct after step 11) it passes `nil`. Over: always `p0`. Because: `ProbeSupport.span/5` reads `order["order_id"]`, which raises for these values; today the head is always an EFFECT input record. Commits us to: such spans have `order_id: nil`. 6b redacts a plain record head as before.
 By: Opus (PLAN, slice6b-effect-reach)
+Plan repair (O3): known consequence: the GEN `query.py` selects spans by `attributes.order_id`, so a helper span with `nil` leaves the per-order trace; the inner EFFECT spans stay. E6 tests it. Alternative recorded: the nearest plain-record step input (`p0` if the head is a plain record, else the step input `pN` if its TYPE is a plain record, else `nil`); same bytes for every existing source. Class of the alternative: Repair (no existing byte changes, a later switch is a worker change). Default kept. By: Opus (PLAN REPAIR, slice6b-effect-reach)
 
 **D6B-89 · Undo · The prepared log stays on the step directly before a direct EFFECT step.**
 An indirect step gets no `<output>_request_prepared` log. Alternative: a log before every reaching step. Reason: the log names the EFFECT output; the indirect step is not the preparation of a request.
@@ -48,7 +60,10 @@ By: Opus (PLAN, slice6b-effect-reach)
 `ProbeSupport.span(<<"service.step">>, :internal, INPUT, <<"step">>, fn -> CALL end)`; a failing step binds `{:ok, pN} <- ...`. Alternative: a new span kind. Reason: same code path in `emit_chain`; the trace already reads this form.
 By: Opus (PLAN, slice6b-effect-reach)
 
-**D6B-91 · Repair · A constructor that reaches an EFFECT is a compile error (built in follow-up 12b).**
+**D6B-91 · Raised to Migrate as Q6B-18 (plan repair O1). Not a default any more; kept as the record of option a.**
+By: Opus (PLAN REPAIR, slice6b-effect-reach)
+
+**D6B-91 (original) · Repair · A constructor that reaches an EFFECT is a compile error (built in follow-up 12b).**
 Chose: `error: fn T: a constructor cannot reach an EFFECT (it reaches E)`, `  help: call the EFFECT in a lowercase fn, then pipe its result into fn T`. Over: allow it and give it spans. Because: the decode calls constructors (DL-101), so a live decode and a REPLAY RUN would call an EFFECT, and the step 8 `--stored` check runs constructors in Rust without EFFECTS. Observed today: an enum constructor can be the EFFECT flow. Commits us to: a new reject; a later lift is a Repair, a later ban after use would be Migrate. Decision-log entry at the end of 12b.
 By: Opus (PLAN, slice6b-effect-reach)
 

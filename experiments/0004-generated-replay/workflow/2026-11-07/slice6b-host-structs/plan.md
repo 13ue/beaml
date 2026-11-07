@@ -29,17 +29,26 @@ By: Opus (PLAN, slice6b-host-structs) for every proposal in this file (DL-107).
 
 ## First failing test: `tests/slice6_host_struct_test.py`
 
-Harness: the step 3 runtime harness (generated module only, `elixirc --warnings-as-errors`, `elixir` asserts, no ProbeSupport). Fixture `slice6/host-structs/nonzero.beaml` = `slice6/constructor/nonzero.beaml` plus `type Plain { value: Int }`, `fn same p: Plain -> Plain = p`, `type Box { n: NonZeroInt }`, `fn unbox Box { n } -> NonZeroInt = n`, and the D6B-77 fn `fn twice n: Int -> String ! NonZeroInt | IsZero = n |> NonZeroInt`.
+Harness: the step 3 runtime harness (generated module only, `elixirc --warnings-as-errors`, `elixir` asserts, no ProbeSupport). Fixture `slice6/host-structs/nonzero.beaml` = `slice6/constructor/nonzero.beaml` plus `type Plain { value: Int }`, `fn same p: Plain -> Plain = p`, `type Box { n: NonZeroInt }`, `fn unbox Box { n } -> NonZeroInt = n`, the D6B-77 fn `fn twice n: Int -> String ! NonZeroInt | IsZero = n |> NonZeroInt`, and (plan repair O2) `enum Wrap { Has(NonZeroInt) }`, `fn wrapped w: Wrap -> Wrap = w`.
 
-- **H1 (first RED).** `BeamlSpike.keep(%{"value" => 0})` raises `ArgumentError` with `invalid BEAML input`. Today (observed in the step 3 test `keep_passes`): it returns the map.
+- **H1 (first RED).** `BeamlSpike.keep(%{"value" => 4})` raises `ArgumentError` with `invalid BEAML input`. The value is valid, so a GREEN that runs the constructor on the map cannot pass. Today (observed in the step 3 test `keep_passes`): it returns the map. By: Opus (PLAN REPAIR, slice6b-host-structs) (O1)
+- **H1g (guard, passes before and after).** `BeamlSpike.keep(%{value: 4})` (atom keys, no `__struct__`) raises `invalid BEAML input`. It fails on a GREEN that checks atom keys without `is_struct`. By: Opus (PLAN REPAIR, slice6b-host-structs) (O1)
 - **H2.** `BeamlSpike.NonZeroInt.new(3) == {:ok, %BeamlSpike.NonZeroInt{value: 3}}`; `BeamlSpike.NonZeroInt.new(0) == {:error, %BeamlSpike.IsZero{}}`; `BeamlSpike.NonZeroInt.new("3")` raises `invalid BEAML input`. Today: `BeamlSpike.NonZeroInt` does not exist.
 - **H3 (nested).** `BeamlSpike.unbox(%{"n" => %{"value" => 0}})` raises `invalid BEAML input`; `BeamlSpike.unbox(%{"n" => s})` with `{:ok, s} = BeamlSpike.NonZeroInt.new(4)` returns `s`.
+- **H3e (enum payload depth, D6B-76).** `BeamlSpike.wrapped({"Wrap", "Has", [%{"value" => 4}]})` raises `invalid BEAML input` (tag in the binary form that the compiler writes); the same tuple with the struct from `NonZeroInt.new(4)` returns it. By: Opus (PLAN REPAIR, slice6b-host-structs) (O2)
 - **H4 (success values).** `BeamlSpike.wrap(5) == {:ok, %BeamlSpike.NonZeroInt{value: 5}}`.
 - **H5 (plain record keeps its form).** `BeamlSpike.same(%{"value" => 0}) == %{"value" => 0}`.
-- **H6 (failure through a pipe, D6B-77).** `BeamlSpike.twice(4) == {:error, %BeamlSpike.NonZeroInt{value: 4}}`; `BeamlSpike.twice(0) == {:error, %BeamlSpike.IsZero{}}`.
+- **H6 (guard, passes before and after; not a RED; failure through a pipe, D6B-77).** `BeamlSpike.twice(4) == {:error, %BeamlSpike.NonZeroInt{value: 4}}`; `BeamlSpike.twice(0) == {:error, %BeamlSpike.IsZero{}}`. Today `result()` rebuilds the struct from a String-key map, so H6 passes; it fails on a GREEN that forgets D6B-77. By: Opus (PLAN REPAIR, slice6b-host-structs) (O3)
 - **H7 (stated limit, DL-106).** `test_limit_deliberate_struct_literal_is_not_caught`: `BeamlSpike.keep(%BeamlSpike.NonZeroInt{value: 0})` returns the struct. The test name and its docstring say that it records the limit, not a wanted outcome.
 - **H8 (byte guard).** Every source without a record constructor gives byte-equal output against the pre-step compiler (a `git archive` build of the base commit, as step 5 S12 and step 8). At least: `arms/gen/orders.beaml`, `slice2/reuse/orders.beaml`, all `slice2` to `slice5` sources, `slice6/int`, `slice6/failure`, `slice6/decode`, `slice6/enum/enum.beaml`, and `payments.beaml` against `tests/payments.generated.snapshot`.
 - **H9 (Q6B-16, waits for the answer).** `BeamlSpike.Pair.new(...)` for the two-parameter constructor of `pipe.beaml`. The form follows Q6B-16. Before the answer, H9 is an open case, not a pass.
+
+## Plan repair
+
+- O1: H1 uses the valid value `4`; guard H1g adds the atom-key map. By: Opus (PLAN REPAIR, slice6b-host-structs)
+- O2: H3e adds the enum payload depth `Wrap { Has(NonZeroInt) }`. By: Opus (PLAN REPAIR, slice6b-host-structs)
+- O3: H6 is labelled a guard. The RED review does not count it as RED. By: Opus (PLAN REPAIR, slice6b-host-structs)
+- Q6B-16 gets option C (keyword list), see [decisions.md](decisions.md). By: Opus (PLAN REPAIR, slice6b-host-structs)
 
 ## Existing assertions that change (each by name)
 

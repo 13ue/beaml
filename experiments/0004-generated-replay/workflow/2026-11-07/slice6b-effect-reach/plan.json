@@ -34,7 +34,7 @@
       "6c"
     ],
     "reason": "after 6a: option S changes GEN span bytes and DL-110 ends the LIB comparison at 6a; after 11: span input rule sees structs; before 6b: 6b redacts every spanned pipe in one place",
-    "follow_up": "12b, D6B-91 constructor that reaches an EFFECT is a compile error"
+    "follow_up": "12b, blocked until Q6B-18 (was D6B-91)"
   },
   "owner_questions": [
     {
@@ -43,12 +43,27 @@
       "topic": "which steps of a reaching pipe get a span",
       "options": [
         "P: every step of a pipe in which any step is or reaches an EFFECT (today's form, no byte change)",
-        "S: only steps that are or reach an EFFECT (pure steps lose spans, about 50 EFFECT sources and GEN query.py change)"
+        "S: only steps that are or reach an EFFECT (pure steps lose spans, about 50 EFFECT sources and GEN query.py change)",
+        "H: hybrid, direct EFFECT pipes keep today's spans, indirect pipes span only reaching steps, no existing byte changes"
       ],
       "blocks": [
         "E2"
       ],
       "by": "open (13ue)"
+    },
+    {
+      "id": "Q6B-18",
+      "class": "Migrate",
+      "topic": "a constructor that reaches an EFFECT (was D6B-91)",
+      "options": [
+        "a: reject every reaching constructor",
+        "b: reject only where the compiler calls it (decode)",
+        "c: allow with spans and REPLAY RUN substitution"
+      ],
+      "blocks": [
+        "12b"
+      ],
+      "by": "open (OWNER)"
     }
   ],
   "defaults": [
@@ -59,7 +74,6 @@
     "D6B-88",
     "D6B-89",
     "D6B-90",
-    "D6B-91",
     "D6B-92",
     "D6B-93",
     "D6B-94",
@@ -81,9 +95,10 @@
     "E3": "pure fn pipe and pure module stay silent",
     "E4": "mutual recursion that reaches",
     "E5": "pure recursion stays silent",
-    "E6": "span input nil for a non-record head (D6B-88)",
+    "E6": "span input nil for a non-record head (D6B-88); outer by_id spans have order_id nil, inner place spans keep it",
     "E7": "one-clause rule text kept; several-clause indirect fn compiles",
     "E8": "byte guard: every existing source byte-equal under option P",
+    "E4c": "3-deep chain c1 -> c2 -> c3 -> place; a fixed two-pass loop fails",
     "E9": "unit test effect_reach_is_transitive",
     "E10": "no source text or path in events"
   },
@@ -113,5 +128,19 @@
     "beaml check --json reach output (note only)",
     "other DL-108 users",
     "integrations/zed-beaml/"
-  ]
+  ],
+  "plan_repair": {
+    "by": "Opus (PLAN REPAIR, slice6b-effect-reach)",
+    "objections": [
+      "O1",
+      "O2",
+      "O3"
+    ],
+    "owner_options_added": [
+      "Q6B-17 H"
+    ],
+    "owner_questions_added": [
+      "Q6B-18"
+    ]
+  }
 }

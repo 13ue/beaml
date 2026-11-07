@@ -345,3 +345,7 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 ## 2026-11-07: slice 6b steps 11 and 12 plan
 
 **[Proposal]** Planned [step 11](../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-host-structs/plan.md) (DL-106, host structs) and [step 12](../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-effect-reach/plan.md) (DL-108, EFFECT reach); added D012 to D015 (Q6B-14 to Q6B-17) to [decisions to be made](planning/decisions-to-be-made.md). Nothing was run.
+
+## 2026-11-07: slice 6b steps 11 and 12 plan repair
+
+**[Proposal]** Repaired the [step 11](../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-host-structs/plan.md#plan-repair) and [step 12](../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-effect-reach/plan.md#plan-repair) plans on plan check O1 to O3; added Q6B-16 C, Q6B-17 H and D016 (Q6B-18, 12b blocked); closed D005, D006, D008 to D011 in [decisions to be made](planning/decisions-to-be-made.md). Nothing was run.

@@ -119,7 +119,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D005 — Forged constructor values at the generated public wrapper (Q6B-6)
 
-- **Status** OPEN
+- **Status** CLOSED 2026-11-07 by [DL-106](decision-log.md) (Q6B-6, B: the generated wrapper is the only entry). Record kept below.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** LANGUAGE/COMPILATION, host call boundary
@@ -140,7 +140,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D006 — Spans for a pipe that reaches an EFFECT through a fn (Q6B-7)
 
-- **Status** OPEN
+- **Status** CLOSED 2026-11-07 by [DL-108](decision-log.md) (Q6B-7, C: a span follows the EFFECT, transitively). Record kept below.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** EXECUTION/OBSERVATORY, D6B-28
@@ -184,7 +184,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D008 — GEN arm and the 0003 RESPONSE RECORD contract (Q6B-10)
 
-- **Status** OPEN
+- **Status** CLOSED 2026-11-07 by [DL-110](decision-log.md) (Q6B-10, B: the GEN against LIB comparison ends before the projection records). Record kept below.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** EXPERIMENT 0004 evidence base, GEN against LIB comparison
@@ -206,7 +206,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D009 — A field that becomes redacted while stored records hold its value (Q6B-11)
 
-- **Status** OPEN
+- **Status** CLOSED 2026-11-07 by [DL-111](decision-log.md) (Q6B-11, 1A + 2A: a new TYPE VERSION, eager removal). Record kept below.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** EXECUTION/REPLAY RUN, stored records, DL-029, DL-102
@@ -231,7 +231,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D010 — Direct copy of a redacted value into a non-failure TYPE (Q6B-12)
 
-- **Status** OPEN
+- **Status** CLOSED 2026-11-07 by [DL-112](decision-log.md) (Q6B-12, A: a direct copy is a compile error everywhere). Record kept below.
 - **Decision owner** OWNER
 - **Class** Answer
 - **Scope** LANGUAGE/COMPILATION, DL-105 failure TYPE rule
@@ -250,7 +250,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D011 — Redacted input field and same-named plain output field (Q6B-13)
 
-- **Status** OPEN
+- **Status** CLOSED 2026-11-07 by [DL-113](decision-log.md) (Q6B-13, C: the declaration decides). Record kept below.
 - **Decision owner** OWNER
 - **Class** Answer
 - **Scope** LANGUAGE/COMPILATION, DL-089, DL-105
@@ -326,6 +326,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 |---|---|---|
 | A, positional | `T.new/n` with the parameters in order; the first accepting signature wins. | `new/1` holds only for one parameter. |
 | B, one map | Always `T.new/1`; several parameters as a map with the parameter names as String keys, as in the decode (DL-099). | One-parameter and several-parameter signatures read the argument differently. |
+| C, keyword list | `Pair.new(x: "x", y: "y")`; named and order-free. | Atom names at the host; differs from the String-key decode form (DL-099). By: Opus (PLAN REPAIR, slice6b-host-structs). |
 
 **[Unknown]** Not built. By: Opus (PLAN, slice6b-host-structs).
 
@@ -347,10 +348,33 @@ type OrderResult = Ok(Order) | Error(OrderError)
 |---|---|---|
 | P, per pipe | Every step of a pipe in which any step is or reaches an EFFECT. | No byte change. Pure work next to an EFFECT has spans. |
 | S, per step | Only steps that are or reach an EFFECT. | About 50 EFFECT sources, the hash guards and the GEN query change. |
+| H, hybrid | Direct EFFECT pipes keep today's spans; indirect pipes span only reaching steps. | No existing byte changes. Two span rules in one compiler. By: Opus (PLAN REPAIR, slice6b-effect-reach). |
 
 **[Unknown]** Not built. By: Opus (PLAN, slice6b-effect-reach).
 
 **[Proposal]** Next check: step 12 E2, span count of `checkout` under each option.
+
+## D016 — A constructor that reaches an EFFECT (Q6B-18)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** LANGUAGE/COMPILATION, DL-092, DL-101, DL-108
+- **Decision trigger** Before step 12b RED. 12b is blocked until the answer.
+
+**[Observed]** An enum constructor can be the EFFECT flow today, and it compiles. **[Verified]** DL-092, DL-100, DL-101 and DL-108 do not restrict what a constructor calls. [Q6B-18](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-effect-reach/decisions.md), [plan check O1](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6b-effect-reach/plan-review.md)
+
+**[Proposal]** Options:
+
+| Option | Meaning | Trade-off |
+|---|---|---|
+| a, reject all | Every constructor that reaches an EFFECT is a compile error. | Removes syntax that compiles today. |
+| b, reject where the compiler calls it | Reject only in a decode field, the step 8 `--stored` check and the host `T.new`. | Keeps source use; two contexts for one constructor. |
+| c, allow | Spans on the constructor; the REPLAY RUN substitutes the inner EFFECT. | A decode can call an EFFECT. |
+
+**[Unknown]** Not built. By: Opus (PLAN REPAIR, slice6b-effect-reach).
+
+**[Proposal]** Next check: 12b RED, `fn Settled order: Order -> Settled ! PaymentError = order |> payments.authorize |> Done` under the chosen option.
 
 ## Answered 2026-11-07
 

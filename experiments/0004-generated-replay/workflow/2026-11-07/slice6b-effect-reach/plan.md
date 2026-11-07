@@ -25,24 +25,32 @@ By: Opus (PLAN, slice6b-effect-reach) for every proposal in this file (DL-107).
 2. **Span rule** (D6B-86, Q6B-17). A whole-body pipe gets spans when one of its steps is an EFFECT or reaches one. Which steps of that pipe get a span is Q6B-17. Default for RED: option P, every step of such a pipe, as today.
 3. **Pure fns stay silent.** A pipe whose steps reach no EFFECT keeps plain calls (D6B-28 for pure pipes stays). A pure module has no `ProbeSupport` call.
 4. **One-clause rule** (D6B-87). Unchanged: only for a pipe with a direct EFFECT step. A pipe that reaches an EFFECT indirectly may stand in a several-clause fn and gets spans per clause.
-5. **Span input** (D6B-88). `p0` when the pipe head TYPE is a plain record; else `nil`.
+5. **Span input** (D6B-88). `p0` when the pipe head TYPE is a plain record; else `nil`. Known consequence: such spans have `order_id: nil`, and the GEN `query.py` drops them from the per-order trace (E6 tests it). Alternative recorded in D6B-88.
 6. **`ProbeSupport` in every module on the path** (D6B-92). One source is one module today, so this is the one module. The service-name check stays as it is.
 7. **REPLAY RUN** (D6B-93). Unchanged. It replays the EFFECT flow only.
 
 ## First failing test: `tests/slice6_effect_reach_test.py`
 
-Harness: build asserts on the generated text; runtime with the release-free stubs of step 7 (`slice6_decode_test.STUBS`) and a `ProbeSupport.span/5` stub that reads `order["order_id"]` like the real one, then appends the span name to a file in the RUN DIRECTORY. Fixture `slice6/effect-reach/orders.beaml`: the GEN orders source plus `tag`, `checkout`, `ping`/`pong`, the pure cycle `a`/`b`, `to_order` and `by_id` below.
+Harness: build asserts on the generated text; runtime with the release-free stubs of step 7 (`slice6_decode_test.STUBS`) and a `ProbeSupport.span/5` stub that reads `order["order_id"]` like the real one, then appends the span name to a file in the RUN DIRECTORY. Fixture `slice6/effect-reach/orders.beaml`: the GEN orders source plus `tag`, `checkout`, `ping`/`pong`, the pure cycle `a`/`b`, `to_order`, `by_id` and the chain `c1`/`c2`/`c3` below.
 
 - **E1 (first RED).** `fn checkout order: Order -> Payment ! PaymentError = order |> prepare |> place |> tag`. The `checkout` clause holds `{:ok, p2} <- ProbeSupport.span(<<"orders.place">>, :internal, p0, <<"place">>, fn -> __MODULE__.place(p1) end)` (exact text, binaries as the compiler writes them). Today (observed in the probe): `{:ok, p2} <- __MODULE__.place(p1)`, no span.
 - **E2 (waits for Q6B-17).** The spans of the pure steps `prepare` and `tag` in `checkout`: present under option P, absent under option S. Before the answer, E2 is an open case, not a pass.
 - **E3 (pure stays silent).** A pure fn with a pipe (`fn label p: Payment -> String = p |> status_of`) has no `ProbeSupport` in its clause. `slice6/pipe/pipe.beaml` (a pure module) has zero `ProbeSupport` lines (guard, step 5 S14). `test_pure_pipe_beside_an_effect_has_no_span` (step 3) stays green.
 - **E4 (recursion reaches).** `pong` has two clauses: one pipes into `ping`, one into `place`; `ping` pipes into `pong`. Both get the span of their reaching step. The fixture puts `ping` before `pong` in the source, so a memo that caches "in progress" as "no reach" gives a false result for `ping`.
 - **E5 (pure recursion stays silent).** `fn a o: Order -> Order = o |> b`, `fn b o: Order -> Order = o |> a`: no span. This catches a bias "in progress counts as reach".
-- **E6 (span input, D6B-88).** `fn by_id id: String -> Payment ! PaymentError = id |> to_order |> place`: the spans get `nil` as input, not `p0`. Runtime `by_id("order-1")` with the Access-faithful stub gives `{:ok, payment}`. Today (inference): no span; with the span and `p0` it raises in the stub.
+- **E6 (span input, D6B-88).** `fn by_id id: String -> Payment ! PaymentError = id |> to_order |> place`: the spans get `nil` as input, not `p0`. Runtime `by_id("order-1")` with the Access-faithful stub gives `{:ok, payment}`. Today (inference): no span; with the span and `p0` it raises in the stub. Known consequence (O3): the stub records `order_id` per span; assert that the outer `by_id` spans carry `order_id: nil` and the inner `place` spans keep `"order-1"`. By: Opus (PLAN REPAIR, slice6b-effect-reach)
 - **E7 (one-clause rule).** `test_effect_pipe_keeps_one_clause` (step 4) keeps its exact text. `pong` (two clauses, indirect) compiles.
 - **E8 (byte guard).** Under option P every existing source gives byte-equal output against the pre-step compiler (`git archive` build of the base commit): every `slice2` to `slice6`, `arms`, `bad`, `drift`, `examples` source that compiles, and `payments.beaml` against its snapshot. The step 5 hash guards (S12) stay. Only the new fixture differs.
-- **E9 (unit test).** `effect_reach_is_transitive` in `main.rs`: the reach map of the fixture: `place` and `checkout` and `ping` and `pong` and `by_id` map to `{payments.authorize}`; `prepare`, `tag`, `a`, `b`, `to_order`, `label` map to the empty set.
+- **E4c (3-deep chain, O2).** In this source order: `fn c1 o: Order -> Payment ! PaymentError = o |> c2`, `fn c2 ... = o |> c3`, `fn c3 ... = o |> place`. `c1` gets the span of its step `c2`. A fixed two-pass loop gives no span for `c1`. By: Opus (PLAN REPAIR, slice6b-effect-reach)
+- **E9 (unit test).** `effect_reach_is_transitive` in `main.rs`: the reach map of the fixture: `place` and `checkout` and `ping` and `pong` and `by_id`, `c1`, `c2`, `c3` map to `{payments.authorize}`; `prepare`, `tag`, `a`, `b`, `to_order`, `label` map to the empty set.
 - **E10 (events).** No source text and no path in `.beaml/actions.jsonl` (the existing harness check).
+
+## Plan repair
+
+- O1: D6B-91 is raised to the OWNER as Q6B-18 (Migrate). 12b is blocked until the answer. By: Opus (PLAN REPAIR, slice6b-effect-reach)
+- O2: E4c adds the 3-deep chain `c1 → c2 → c3 → place`; E9 includes it. By: Opus (PLAN REPAIR, slice6b-effect-reach)
+- O3: D6B-88 records the alternative "nearest plain-record step input" (Repair). The default stays; E6 asserts the `order_id: nil` loss. By: Opus (PLAN REPAIR, slice6b-effect-reach)
+- Q6B-17 gets option H (hybrid), see [decisions.md](decisions.md). Under H, `checkout` has no direct EFFECT step, so E2 expects the S form for it. By: Opus (PLAN REPAIR, slice6b-effect-reach)
 
 ## Byte changes
 
@@ -56,7 +64,7 @@ Harness: build asserts on the generated text; runtime with the release-free stub
   - **After step 11.** D6B-88 treats a struct head as a non-plain record. With step 11 first, E6 can add a struct head case.
   - **Before 6b.** 6b redacts the span input (D6B-32). With step 12 first, 6b covers every spanned pipe in one place, indirect pipes included. Hand-off to 6b: add one indirect span case to R2.
   - 6c is independent of step 12.
-- **Follow-up 12b (D6B-91).** A constructor that reaches an EFFECT becomes a compile error, in its own mini-step after step 12 GREEN (one concern each).
+- **Follow-up 12b (Q6B-18, was D6B-91).** **Blocked until the OWNER answers Q6B-18.** Options: (a) reject every reaching constructor, (b) reject only where the compiler calls it (decode), (c) allow with spans and REPLAY RUN substitution. By: Opus (PLAN REPAIR, slice6b-effect-reach) (O1)
 
 ## Checks
 

@@ -37,7 +37,8 @@
       "topic": "form of T.new for several parameters or signatures",
       "options": [
         "A: T.new/n positional, first accepting signature in source order",
-        "B: always T.new/1, a map with parameter names as String keys for several parameters (decode form)"
+        "B: always T.new/1, a map with parameter names as String keys for several parameters (decode form)",
+        "C: keyword list, Pair.new(x: \"x\", y: \"y\")"
       ],
       "blocks": [
         "H9"
@@ -70,16 +71,18 @@
   "first_red": {
     "test": "H1",
     "file": "tests/slice6_host_struct_test.py",
-    "assert": "BeamlSpike.keep(%{\"value\" => 0}) raises ArgumentError invalid BEAML input",
+    "assert": "BeamlSpike.keep(%{\"value\" => 4}) raises ArgumentError invalid BEAML input",
     "today": "returns the map (step 3 keep_passes)"
   },
   "tests": {
-    "H1": "forged map rejected at the wrapper",
+    "H1": "valid-value map %{\"value\" => 4} rejected at the wrapper",
+    "H1g": "guard: atom-key map %{value: 4} rejected (passes before and after)",
     "H2": "NonZeroInt.new/1 ok, error, invalid input",
     "H3": "nested field needs the struct",
+    "H3e": "enum payload depth: Wrap.Has with a map rejected",
     "H4": "wrap(5) gives the struct",
     "H5": "plain record keeps the map form",
-    "H6": "constructor TYPE failure through a pipe keeps its fields (D6B-77)",
+    "H6": "guard (passes before and after): constructor TYPE failure through a pipe keeps its fields (D6B-77)",
     "H7": "limit: deliberate struct literal is not caught",
     "H8": "byte guard for sources without a record constructor",
     "H9": "several-parameter T.new, waits for Q6B-16"
@@ -140,5 +143,16 @@
     "constructor TYPES in EFFECT inputs and failures (D6B-19)",
     "struct module name collisions (D6B-81)",
     "integrations/zed-beaml/"
-  ]
+  ],
+  "plan_repair": {
+    "by": "Opus (PLAN REPAIR, slice6b-host-structs)",
+    "objections": [
+      "O1",
+      "O2",
+      "O3"
+    ],
+    "owner_options_added": [
+      "Q6B-16 C"
+    ]
+  }
 }
