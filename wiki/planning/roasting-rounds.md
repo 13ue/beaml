@@ -2,7 +2,7 @@
 id: planning-roasting-rounds
 kind: review-record
 status: open-objections
-updated: 2026-11-06
+updated: 2026-11-07
 ---
 
 # BEAML roasting rounds
@@ -165,3 +165,75 @@ Use no third service. Keep production durability and composed replay outside thi
 
 **[Verified]** The initial Elixir backend and the two passed EXPERIMENTS answer their bounded questions.
 **[Unknown]** This review did not run a competitor, measure performance, test security or inspect all BAML features. No owner disposition on these objections is recorded.
+
+## Round 4 — RED TEAM 01 over the compiler and EXPERIMENT 0004 (2026-11-07)
+
+Target: git HEAD `7ee5c89e`: the BEAML compiler (EXPERIMENT 0001), EXPERIMENT 0004 slices 1 to 6b, the tree-sitter grammar, the decision log and the Pages site.
+Method: a lead (Fable) and three Opus workers (correctness, boundary, design), two rounds, scratch builds only, no full `run.py` run, no code or test changed.
+See the [consolidated report](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/report.md) and the [capture](../../raw/requirements/2026-11-07-roasting-round-4-red-team-01.md).
+Counts: high 6, medium 13, low 4, critical 0. Every disposition below is pending. No OWNER decision is inferred.
+
+### 1. The `--stored` check and the REPLAY RUN read different records
+
+Category: implementation. Severity: high. Disposition: pending. Disposition rationale: null.
+
+**[Verified]** `check_stored` never reads `status`; `Replay.run` stops at `status_mismatch` before it reads `value`. A 503 record beside valid records gives exit 1 with the DL-102 text and the MIGRATE STEP help ([C2](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/rt-correctness.md)). DL-121 claims "the check result equals the REPLAY RUN result".
+**[Verified]** The same gap: a tampered `value_sha256` passes the check and never replays (C5).
+**[Inference]** One recorded Payments outage blocks every later build; nothing changed, so no MIGRATE STEP helps.
+Resolving test: a mixed snapshot (200, 503, 503 without `value`, bad digest); the `--stored` verdict equals the `Replay.run` class per record.
+
+### 2. An enum constructor with a failure TYPE breaks the Elixir pass for valid records
+
+Category: implementation. Severity: high. Disposition: pending. Disposition rationale: null.
+
+**[Verified]** The DRIVER matches only `{:ok, %{__struct__: ^ok}}`; an enum constructor returns a tuple; the child exits 1 and the build blocks with the run error (C1, [B1](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/rt-boundary.md)). A non-record failure TYPE gives the run error instead of the DL-102 text (B2). No test covers the DRIVER; `elixir_results_are_strict` tests the Rust line parser only.
+**[Verified]** P9 in the step 8 ledger named the case and nobody closed it.
+Resolving test: one DRIVER test per return shape (record, enum, scalar failure), with one valid and one failing record.
+
+### 3. The DRIFT status ignores outcome classes; a crash run is `pass`
+
+Category: evidence quality. Severity: high. Disposition: pending. Disposition rationale: null.
+
+**[Verified]** `run.py:609` sets the status from the freeze only; `drift_test.py` is not in the STEPS and asserts no expected class. The retained run `results/20261107T171545190446Z` has `untyped_crash` on R, N and Q with `status: pass` and is named nowhere (C3).
+**[Verified]** "Recorded, not asserted" is the slice 1 Undo D12 and README line 1561 states the limit for 6a. The full `run.py` runs no slice 6 file (C4); "full suite 14 of 14" stands beside slice 6 results without a limit line in the log, the register and the README ([D10](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/rt-design.md)).
+**[Inference]** A compiler regression that crashes the generated flow gives `pass`. **[Unknown]** The cause of the crash in that run.
+Resolving test: pin the observed classes per derivative; fail `run.py drift` on a build failure or `repaired_all` false; add the slice 6 files to `run.py`.
+
+### 4. A swapped ENUM LITERAL passes `--stored` and replays as another variant
+
+Category: specification gap. Severity: high. Disposition: pending. Disposition rationale: null.
+
+**[Verified]** `main.rs:3851` blocks only a String that is no current literal. The swap `Authorized = "pending"  Pending = "ok"` gives exit 0; `Replay.run` flips the variants (D1, confirmed by rt-correctness R2-1). The same for an enum constructor, with and without `!`.
+**[Verified]** The DL-103 limit ("moves a value from one known variant to another ... stays open until a case shows up") and README line 1770 (D6B-109) have no register entry.
+Resolving test: the swap fixture with `--stored`, expect exit 1 with the DL-122 text, or a counted note, by OWNER choice.
+
+### 5. The DL-102 help line names an exit that the compiler refuses
+
+Category: agent trap. Severity: high. Disposition: pending. Disposition rationale: null.
+
+**[Verified]** The help says "declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION"; a MIGRATE STEP on that TYPE gives the D6B-39 error, because every DL-102 hit sits on a TYPE with an enum or constructor field (D2, confirmed by rt-correctness R2-2 and rt-boundary). D6B-39 is a plan default with no DL entry and no line in the fate concept.
+Resolving step: the help names the slice 6b exit as the DL-122 help does; the fate concept names "lift D6B-39" as a prerequisite.
+
+### 6. DL-125 misstates DL-116; a FATE OPERATION cannot lift it
+
+Category: decision consistency. Severity: high. Disposition: pending. Disposition rationale: null.
+
+**[Verified]** DL-125 names "a redacted field without a constructor (DL-116)"; DL-116 blocks the redacted field on a constructor TYPE. [The fate concept](../concepts/migrate-fates.md) says `redact` lifts DL-116 because "the rule does not run over an absent value"; that is DL-116 option B, which the OWNER rejected ("B would make a replay silently skip a rule") (D3).
+Resolving step: DL-116 leaves the DL-125 list; a new OWNER question on a rule over an absent value.
+
+### Noted (medium and low)
+
+**[Verified]** Medium: the slice 6d entry REPLAY RUN diverges from live on every failure and input TYPE change (D4); `retire` means delete in the concept and leave the replay set in DL-125 (D5); `vertical-integration.md` lines 60 and 69 contradict DL-102, DL-121, DL-122 (D6); slice 6d plans to build Migrate defaults before the OWNER answers (D7); RESPONSE RECORD covers the ENTRY RECORD by definition, ENTRY LINE, ENTRY RECORD and OBSERVATORY have no glossary row (D8); `.beaml/actions.jsonl` loses events under parallel runs, 396 of 13203 lines invalid (B3); one TYPE has two host shapes, failure struct against String-key map (B4); `%{s | value: 0}` and a forged `__struct__` map pass the host check (B5); DL-032 "counts, not identities" against DL-124 per-record lines (B6); `docs/index.html` sample does not compile and shows built items as not built (B7, D9).
+Low: tampered digest (C5), byte guard hashes edited by hand pass the count guard (R2-5), the grammar reserves `with` that the compiler accepts (B8), `--stored` trusts the first `elixir` on PATH (B9).
+
+### Checked and sound
+
+**[Verified]** Nominal checks, constructor bypass, DL-120 reach reject, `T.new/1` key cases, the Elixir child failure modes (absent, endless, crash, partial output), `value_sha256` writer and reader, step 12 byte guard derivation and span assertions, exact stderr assertions, no stored value in any error text, span attribute or event, 68 accepted sources parse with 0 ERROR nodes, DL-108 against DL-119, DL-106 against DL-117, DL-105 against DL-124, DL-120 against DL-128.
+
+### Open questions for the OWNER (Migrate, pending)
+
+M1 replayable records in `--stored`; M2 known-to-known literal remap; M3 DL-125 scope; M4 D6B-39 against the DL-102 help; M5 `retire` semantics; M6 slice 6d defaults; M7 DRIFT status and coverage claims; M8 failure struct at the host; M9 record lines against DL-032. Options in the [report](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/report.md#decisions-decision4).
+
+### Deliberately not challenged
+
+**[Unknown]** The redacted-fields work in progress was not read. No full `run.py` run. No competitor, no performance and no security test. The `"none"` span ids in 0002 host code were not probed.
