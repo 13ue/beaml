@@ -692,6 +692,16 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Unknown]** Pronunciation of BAML; trademark status of BAML and BEAML (no register searched); whether a reader confuses the two in practice. By: Fable (INGEST, baml-reception).
 
+## D026 — RED TEAM 01 questions M3, M4, M5, M8, M9 (parked by the OWNER)
+
+- **Status** OPEN, parked 2026-11-07 by the OWNER ("later, in detail"); M1, M2, M6, M7 are answered (DL-136, DL-140, DL-139, DL-135).
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** fate forms (DL-125, DL-137, DL-140), the DL-102 help text, the host value rule, block text size
+- **Decision trigger** Before the fate slice starts (M3, M4, M5) and before the record format v3 step (M8, M9). The main agent opens each as its own question with a picture (DL-139 rule).
+
+**[Verified]** Options and evidence: [red team report](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/report.md), Migrate list. M3 needs a fresh explanation of DL-116 for the OWNER (asked for on 2026-11-07).
+
 ## Answered 2026-11-07
 
 - [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).
