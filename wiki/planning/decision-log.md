@@ -565,6 +565,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue (rule), Fable (the backfill-by-class reading).
 → Because: OWNER instruction of 2026-11-07. A decision without an author cannot be questioned or revisited.
 
+**DL-108 · Migrate · A span follows the effect, transitively; reachability is inferred (Q6B-7, C)**
+→ Question: since slice 6b step 3 (D6B-28) a pipe gets spans only when an EFFECT step stands in it. A pipe that reaches an EFFECT through another `fn` lost its spans, so the trace broke at every helper.
+→ Options: A, keep (span only where the EFFECT step is visible); B, span every pipe in a module with an EFFECT; C, a step gets a span when it can reach an EFFECT transitively (the compiler knows the call graph).
+→ Chose: C. The compiler infers for every `fn` which EFFECTS it can reach. Pure steps stay silent; steps on a path to an EFFECT get a span; `ProbeSupport` goes into every module on such a path. Reachability is inferred, not declared; a declared form in the signature is a later decision, after modules (roadmap part 4).
+→ By: 13ue
+→ Because: OWNER choice for maximum vertical integration. The same reachability feeds replay (pure `fn`s need no capture), tests and evals (pure `fn`s run without stubs), the PII flow check (EFFECTS are the sinks), dead-EFFECT detection and the IDE hover.
+→ Effect: a new slice 6b step (call graph with recursion; spans per reachability; generated outputs with indirect pipes change, Repair). Higher-order functions do not exist yet; when they come, the graph needs an approximation.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
