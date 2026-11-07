@@ -429,6 +429,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: R3, in the form `effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize") with card_holder`. Spans, logs and records never hold the value (DL-029).
 → Because: OWNER choice; the safe default needs no extra work, and every release of a redacted value is visible at the effect.
 
+**DL-090 · Migrate · User-defined wrapper types with a constructor (T1)**
+→ Question: how is a type such as `NonZeroInt` defined?
+→ Options: T1, a wrapper type `type NonZeroInt(Int)` with hand-written constructor clauses; T2, a condition in the type (`where self != 0`) and a generated constructor; plus the earlier N2, a condition on `Int` at the parameter.
+→ Chose: T1. A wrapper is a real type: an `Int` is not a `NonZeroInt`; the constructor is the only way in and may fail with a declared failure TYPE. Over: T2 and N2.
+→ Because: OWNER choice; the same form as the enum constructor (DL-082), any check logic is possible.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
