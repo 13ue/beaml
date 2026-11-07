@@ -1,0 +1,823 @@
+test_h1_host_build_with_the_entry_has_no_warning (__main__.Slice6Entry.test_h1_host_build_with_the_entry_has_no_warning) ... compiler: /private/tmp/claude-502/-Users-lennart-Projects-beaml/5a9e3a40-d152-4a88-a91b-9ddd9a8f3732/scratchpad/red6d-head/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+FAIL
+test_h2_host_build_without_the_entry_warns (__main__.Slice6Entry.test_h2_host_build_without_the_entry_warns) ... ok
+test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) ... 
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [drift_input] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [drift_output] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [drift_failure] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [drift_failure_head_none] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [drift_failure_fn_none] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [two_entries] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [transport_route] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [constructor_target] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [two_params] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [not_flow] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [name_taken] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [rejected_reserved] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [input_constructor] ... FAIL
+  test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [input_version_mark] ... FAIL
+test_n11_fmt_keeps_the_fixtures (__main__.Slice6Entry.test_n11_fmt_keeps_the_fixtures) ... 
+  test_n11_fmt_keeps_the_fixtures (__main__.Slice6Entry.test_n11_fmt_keeps_the_fixtures) [orders.beaml] ... FAIL
+  test_n11_fmt_keeps_the_fixtures (__main__.Slice6Entry.test_n11_fmt_keeps_the_fixtures) [echo.beaml] ... FAIL
+  test_n11_fmt_keeps_the_fixtures (__main__.Slice6Entry.test_n11_fmt_keeps_the_fixtures) [count.beaml] ... FAIL
+test_n11b_fmt_normalizes_the_head_like_an_effect_line (__main__.Slice6Entry.test_n11b_fmt_normalizes_the_head_like_an_effect_line) ... FAIL
+test_n13_sources_without_an_entry_keep_their_bytes (__main__.Slice6Entry.test_n13_sources_without_an_entry_keep_their_bytes) ... compiler 857fb310: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-857fb310-b0f03gfc/target/debug/beaml-spike
+ok
+test_n1_entry_line_gives_one_function (__main__.Slice6Entry.test_n1_entry_line_gives_one_function) ... 
+  test_n1_entry_line_gives_one_function (__main__.Slice6Entry.test_n1_entry_line_gives_one_function) [orders.beaml] ... FAIL
+  test_n1_entry_line_gives_one_function (__main__.Slice6Entry.test_n1_entry_line_gives_one_function) [echo.beaml] ... FAIL
+  test_n1_entry_line_gives_one_function (__main__.Slice6Entry.test_n1_entry_line_gives_one_function) [count.beaml] ... FAIL
+test_n1b_event_name_is_free_text (__main__.Slice6Entry.test_n1b_event_name_is_free_text) ... FAIL
+test_n2_to_n5_echo_runtime (__main__.Slice6Entry.test_n2_to_n5_echo_runtime) ... FAIL
+test_n4_count_runtime (__main__.Slice6Entry.test_n4_count_runtime) ... FAIL
+test_n5_to_n9_orders_runtime (__main__.Slice6Entry.test_n5_to_n9_orders_runtime) ... FAIL
+test_s1_stored_entry_records_build (__main__.Slice6Entry.test_s1_stored_entry_records_build) ... FAIL
+test_s2_stricter_constructor_blocks (__main__.Slice6Entry.test_s2_stricter_constructor_blocks) ... FAIL
+test_s3_removed_literal_blocks (__main__.Slice6Entry.test_s3_removed_literal_blocks) ... FAIL
+test_s3b_changed_literal_blocks (__main__.Slice6Entry.test_s3b_changed_literal_blocks) ... FAIL
+test_s4_no_stored_value_in_output (__main__.Slice6Entry.test_s4_no_stored_value_in_output) ... 
+  test_s4_no_stored_value_in_output (__main__.Slice6Entry.test_s4_no_stored_value_in_output) [ctor] ... FAIL
+  test_s4_no_stored_value_in_output (__main__.Slice6Entry.test_s4_no_stored_value_in_output) [literal] ... FAIL
+
+======================================================================
+FAIL: test_h1_host_build_with_the_entry_has_no_warning (__main__.Slice6Entry.test_h1_host_build_with_the_entry_has_no_warning)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 344, in test_h1_host_build_with_the_entry_has_no_warning
+    stdout, _ = self.built(ORDERS, EMPTY)
+                ~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 285, in built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected identifier at byte 957
+
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [drift_input]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.place: the input TYPE is [143 chars]ace') != (1, '', 'expected identifier at byte 940')
+
+First differing element 2:
+'error: effect ui.place: the input TYPE is [142 chars]lace'
+'expected identifier at byte 940'
+
++ (1, '', 'expected identifier at byte 940')
+- (1,
+-  '',
+-  'error: effect ui.place: the input TYPE is Order in the head but PlaceOrder '
+-  'in fn place (DL-130)\n'
+-  '  help: write the input, output and failure TYPE of fn place in the head of '
+-  'effect ui.place') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [drift_output]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.place: the output TYPE is[141 chars]ace') != (1, '', 'expected identifier at byte 944')
+
+First differing element 2:
+'error: effect ui.place: the output TYPE is[140 chars]lace'
+'expected identifier at byte 944'
+
++ (1, '', 'expected identifier at byte 944')
+- (1,
+-  '',
+-  'error: effect ui.place: the output TYPE is Order in the head but Payment in '
+-  'fn place (DL-130)\n'
+-  '  help: write the input, output and failure TYPE of fn place in the head of '
+-  'effect ui.place') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [drift_failure]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.place: the failure TYPE i[150 chars]ace') != (1, '', 'expected identifier at byte 976')
+
+First differing element 2:
+'error: effect ui.place: the failure TYPE i[149 chars]lace'
+'expected identifier at byte 976'
+
++ (1, '', 'expected identifier at byte 976')
+- (1,
+-  '',
+-  'error: effect ui.place: the failure TYPE is Declined in the head but '
+-  'PaymentError in fn place (DL-130)\n'
+-  '  help: write the input, output and failure TYPE of fn place in the head of '
+-  'effect ui.place') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [drift_failure_head_none]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.place: the failure TYPE i[146 chars]ace') != (1, '', 'expected identifier at byte 935')
+
+First differing element 2:
+'error: effect ui.place: the failure TYPE i[145 chars]lace'
+'expected identifier at byte 935'
+
++ (1, '', 'expected identifier at byte 935')
+- (1,
+-  '',
+-  'error: effect ui.place: the failure TYPE is none in the head but '
+-  'PaymentError in fn place (DL-130)\n'
+-  '  help: write the input, output and failure TYPE of fn place in the head of '
+-  'effect ui.place') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [drift_failure_fn_none]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.echo: the failure TYPE is[140 chars]cho') != (1, '', 'expected identifier at byte 573')
+
+First differing element 2:
+'error: effect ui.echo: the failure TYPE is[139 chars]echo'
+'expected identifier at byte 573'
+
++ (1, '', 'expected identifier at byte 573')
+- (1,
+-  '',
+-  'error: effect ui.echo: the failure TYPE is NoCurrency in the head but none '
+-  'in fn echo (DL-130)\n'
+-  '  help: write the input, output and failure TYPE of fn echo in the head of '
+-  'effect ui.echo') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [two_entries]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.again: slice 6d supports [32 chars]47)') != (1, '', 'expected identifier at byte 929')
+
+First differing element 2:
+'error: effect ui.again: slice 6d supports one ENTRY LINE per source (D6B-147)'
+'expected identifier at byte 929'
+
++ (1, '', 'expected identifier at byte 929')
+- (1,
+-  '',
+-  'error: effect ui.again: slice 6d supports one ENTRY LINE per source '
+-  '(D6B-147)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [transport_route]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.place: slice 6d supports [64 chars]er)') != (1, '', 'expected identifier at byte 947')
+
+First differing element 2:
+'error: effect ui.place: slice 6d supports [63 chars]ter)'
+'expected identifier at byte 947'
+
++ (1, '', 'expected identifier at byte 947')
+- (1,
+-  '',
+-  'error: effect ui.place: slice 6d supports the inbound transport ui.event '
+-  'only (HTTP route entries come later)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [constructor_target]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.amount: Amount is a const[38 chars]20)') != (1, '', 'expected identifier at byte 560')
+
+First differing element 2:
+'error: effect ui.amount: Amount is a const[37 chars]120)'
+'expected identifier at byte 560'
+
++ (1, '', 'expected identifier at byte 560')
+- (1,
+-  '',
+-  'error: effect ui.amount: Amount is a constructor; an ENTRY LINE calls a fn '
+-  '(DL-120)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [two_params]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.echo: fn two must take one parameter') != (1, '', 'expected identifier at byte 547')
+
+First differing element 2:
+'error: effect ui.echo: fn two must take one parameter'
+'expected identifier at byte 547'
+
+- (1, '', 'error: effect ui.echo: fn two must take one parameter')
++ (1, '', 'expected identifier at byte 547') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [not_flow]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.place: fn checkout reache[69 chars]nly') != (1, '', 'expected identifier at byte 954')
+
+First differing element 2:
+'error: effect ui.place: fn checkout reache[68 chars]only'
+'expected identifier at byte 954'
+
++ (1, '', 'expected identifier at byte 954')
+- (1,
+-  '',
+-  'error: effect ui.place: fn checkout reaches payments.authorize but is not '
+-  'its flow; slice 6d replays the flow only') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [name_taken]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'duplicate name: ui_place') != (1, '', 'expected identifier at byte 934')
+
+First differing element 2:
+'duplicate name: ui_place'
+'expected identifier at byte 934'
+
+- (1, '', 'duplicate name: ui_place')
++ (1, '', 'expected identifier at byte 934') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [rejected_reserved]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.place: the TYPE name Reje[44 chars]33)') != (1, '', 'expected identifier at byte 934')
+
+First differing element 2:
+'error: effect ui.place: the TYPE name Reje[43 chars]133)'
+'expected identifier at byte 934'
+
++ (1, '', 'expected identifier at byte 934')
+- (1,
+-  '',
+-  'error: effect ui.place: the TYPE name Rejected is reserved next to an ENTRY '
+-  'LINE (DL-133)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [input_constructor]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.keep: Amount has a constr[45 chars]30)') != (1, '', 'expected identifier at byte 540')
+
+First differing element 2:
+'error: effect ui.keep: Amount has a constr[44 chars]130)'
+'expected identifier at byte 540'
+
++ (1, '', 'expected identifier at byte 540')
+- (1,
+-  '',
+-  'error: effect ui.keep: Amount has a constructor; slice 6d decodes a plain '
+-  'record (D6B-130)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) [input_version_mark]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 363, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect ui.count: Count has a MIGRAT[71 chars]30)') != (1, '', 'expected identifier at byte 149')
+
+First differing element 2:
+'error: effect ui.count: Count has a MIGRAT[70 chars]130)'
+'expected identifier at byte 149'
+
++ (1, '', 'expected identifier at byte 149')
+- (1,
+-  '',
+-  'error: effect ui.count: Count has a MIGRATE CHAIN or a VERSION MARK; slice '
+-  '6d decodes the newest TYPE only (D6B-130)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n11_fmt_keeps_the_fixtures (__main__.Slice6Entry.test_n11_fmt_keeps_the_fixtures) [orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 380, in test_n11_fmt_keeps_the_fixtures
+    self.assertEqual((0, source.read_text()), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6d: the ENTRY LINE, an inbou[1140 chars]e\n') != (1, '// Slice 6d: the ENTRY LINE, an inbou[1140 chars]e\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6d: the ENTRY LINE, an inbound EFFECT (DL-128, DL-130, DL-131, '
+   'DL-133, DL-134).\n'
+   'type NoCurrency {}\n'
+   'type Amount { value: String currency: String }\n'
+   'fn Amount value: String, currency: String -> Amount ! NoCurrency\n'
+   'fn Amount _, "" -> Amount ! NoCurrency = NoCurrency {}\n'
+   'fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, '
+   'currency: currency }\n'
+   '\n'
+   'enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }\n'
+   '\n'
+   'type PlaceOrder { order_id: String amount: Amount channel: Channel }\n'
+   'type Order { order_id: String }\n'
+   'type Payment { order_id: String status: String }\n'
+   'type PaymentError { reason: String }\n'
+   '\n'
+   '// Leaves the module. Recorded live, substituted in a REPLAY RUN.\n'
+   'effect payments.authorize Order -> Payment ! PaymentError = '
+   'http.post("payments/authorize")\n'
+   '\n'
+   '// Enters the module. The host calls ui_place(params) from '
+   'handle_event("place", params, socket).\n'
+   'effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> '
+   'place\n'
+   '\n'
+   'fn to_order PlaceOrder { order_id, amount, channel } -> Order = Order { '
+   'order_id: order_id }\n'
+   '\n'
+   'fn place p: PlaceOrder -> Payment ! PaymentError =\n'
+   '  p\n'
+   '  |> to_order\n'
+   '  |> payments.authorize\n') : expected identifier at byte 957
+
+
+======================================================================
+FAIL: test_n11_fmt_keeps_the_fixtures (__main__.Slice6Entry.test_n11_fmt_keeps_the_fixtures) [echo.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 380, in test_n11_fmt_keeps_the_fixtures
+    self.assertEqual((0, source.read_text()), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6d: a pure ENTRY LINE target[616 chars]p\n') != (1, '// Slice 6d: a pure ENTRY LINE target[616 chars]p\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6d: a pure ENTRY LINE target. It shows the decoded value (no '
+   'outbound EFFECT, no ENTRY RECORD, D6B-136).\n'
+   'type NoCurrency {}\n'
+   'type Amount { value: String currency: String }\n'
+   'fn Amount value: String, currency: String -> Amount ! NoCurrency\n'
+   'fn Amount _, "" -> Amount ! NoCurrency = NoCurrency {}\n'
+   'fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, '
+   'currency: currency }\n'
+   '\n'
+   'enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }\n'
+   '\n'
+   'type PlaceOrder { order_id: String amount: Amount channel: Channel }\n'
+   '\n'
+   'effect ui.echo PlaceOrder -> PlaceOrder = ui.event("echo") |> echo\n'
+   '\n'
+   'fn echo p: PlaceOrder -> PlaceOrder = p\n') : expected identifier at byte 593
+
+
+======================================================================
+FAIL: test_n11_fmt_keeps_the_fixtures (__main__.Slice6Entry.test_n11_fmt_keeps_the_fixtures) [count.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 380, in test_n11_fmt_keeps_the_fixtures
+    self.assertEqual((0, source.read_text()), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6d: an Int field in the inpu[165 chars]c\n') != (1, '// Slice 6d: an Int field in the inpu[165 chars]c\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6d: an Int field in the input TYPE. No String-to-Int coercion '
+   '(D6B-144).\n'
+   'type Count { qty: Int }\n'
+   '\n'
+   'effect ui.count Count -> Count = ui.event("count") |> count\n'
+   '\n'
+   'fn count c: Count -> Count = c\n') : expected identifier at byte 158
+
+
+======================================================================
+FAIL: test_n11b_fmt_normalizes_the_head_like_an_effect_line (__main__.Slice6Entry.test_n11b_fmt_normalizes_the_head_like_an_effect_line)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 385, in test_n11b_fmt_normalizes_the_head_like_an_effect_line
+    self.assertEqual((0, ORDERS.read_text()), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6d: the ENTRY LINE, an inbou[1140 chars]e\n') != (1, '// Slice 6d: the ENTRY LINE, an inbou[1145 chars]e\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6d: the ENTRY LINE, an inbound EFFECT (DL-128, DL-130, DL-131, '
+   'DL-133, DL-134).\n'
+   'type NoCurrency {}\n'
+   'type Amount { value: String currency: String }\n'
+   'fn Amount value: String, currency: String -> Amount ! NoCurrency\n'
+   'fn Amount _, "" -> Amount ! NoCurrency = NoCurrency {}\n'
+   'fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, '
+   'currency: currency }\n'
+   '\n'
+   'enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }\n'
+   '\n'
+   'type PlaceOrder { order_id: String amount: Amount channel: Channel }\n'
+   'type Order { order_id: String }\n'
+   'type Payment { order_id: String status: String }\n'
+   'type PaymentError { reason: String }\n'
+   '\n'
+   '// Leaves the module. Recorded live, substituted in a REPLAY RUN.\n'
+   'effect payments.authorize Order -> Payment ! PaymentError = '
+   'http.post("payments/authorize")\n'
+   '\n'
+   '// Enters the module. The host calls ui_place(params) from '
+   'handle_event("place", params, socket).\n'
+-  'effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> '
+?                                                          ---------------------
+
++  'effect ui.place PlaceOrder   -> Payment ! PaymentError    = '
+?                              ++                          +++
+
+-  'place\n'
++  'ui.event("place") |> place\n'
+   '\n'
+   'fn to_order PlaceOrder { order_id, amount, channel } -> Order = Order { '
+   'order_id: order_id }\n'
+   '\n'
+   'fn place p: PlaceOrder -> Payment ! PaymentError =\n'
+   '  p\n'
+   '  |> to_order\n'
+   '  |> payments.authorize\n') : expected identifier at byte 962
+
+
+======================================================================
+FAIL: test_n1_entry_line_gives_one_function (__main__.Slice6Entry.test_n1_entry_line_gives_one_function) [orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 323, in test_n1_entry_line_gives_one_function
+    stdout, stderr = self.built(source, extra)
+                     ~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 285, in built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected identifier at byte 957
+
+
+======================================================================
+FAIL: test_n1_entry_line_gives_one_function (__main__.Slice6Entry.test_n1_entry_line_gives_one_function) [echo.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 323, in test_n1_entry_line_gives_one_function
+    stdout, stderr = self.built(source, extra)
+                     ~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 285, in built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected identifier at byte 593
+
+
+======================================================================
+FAIL: test_n1_entry_line_gives_one_function (__main__.Slice6Entry.test_n1_entry_line_gives_one_function) [count.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 323, in test_n1_entry_line_gives_one_function
+    stdout, stderr = self.built(source, extra)
+                     ~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 285, in built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected identifier at byte 158
+
+
+======================================================================
+FAIL: test_n1b_event_name_is_free_text (__main__.Slice6Entry.test_n1b_event_name_is_free_text)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 328, in test_n1b_event_name_is_free_text
+    self.built(ECHO.read_text().replace('ui.event("echo")', 'ui.event("echo-order")'))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 285, in built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected identifier at byte 599
+
+
+======================================================================
+FAIL: test_n2_to_n5_echo_runtime (__main__.Slice6Entry.test_n2_to_n5_echo_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 333, in test_n2_to_n5_echo_runtime
+    self.runtime(ECHO, ECHO_CASES)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 304, in runtime
+    stdout, _ = self.built(source, extra)
+                ~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 285, in built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected identifier at byte 593
+
+
+======================================================================
+FAIL: test_n4_count_runtime (__main__.Slice6Entry.test_n4_count_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 336, in test_n4_count_runtime
+    self.runtime(COUNT, COUNT_CASES)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 304, in runtime
+    stdout, _ = self.built(source, extra)
+                ~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 285, in built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected identifier at byte 158
+
+
+======================================================================
+FAIL: test_n5_to_n9_orders_runtime (__main__.Slice6Entry.test_n5_to_n9_orders_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 339, in test_n5_to_n9_orders_runtime
+    self.runtime(ORDERS, ORDERS_CASES, EMPTY)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 304, in runtime
+    stdout, _ = self.built(source, extra)
+                ~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 285, in built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected identifier at byte 957
+
+
+======================================================================
+FAIL: test_s1_stored_entry_records_build (__main__.Slice6Entry.test_s1_stored_entry_records_build)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 391, in test_s1_stored_entry_records_build
+    _, stderr = self.built(ORDERS, ["--stored", str(STORED)])
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 285, in built
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: expected identifier at byte 957
+
+
+======================================================================
+FAIL: test_s2_stricter_constructor_blocks (__main__.Slice6Entry.test_s2_stricter_constructor_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 397, in test_s2_stricter_constructor_blocks
+    self.assertEqual((1, "", CTOR_BLOCK), (code, stdout, stderr.strip()))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE PlaceOrder: 3 stored ENTRY REC[320 chars]02)') != (1, '', 'expected identifier at byte 1015')
+
+First differing element 2:
+'error: TYPE PlaceOrder: 3 stored ENTRY REC[319 chars]102)'
+'expected identifier at byte 1015'
+
++ (1, '', 'expected identifier at byte 1015')
+- (1,
+-  '',
+-  'error: TYPE PlaceOrder: 3 stored ENTRY RECORDS of operation ui.place fail '
+-  'the constructor of Amount for field amount with NoCurrency\n'
+-  '  record source: '
+-  '/Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/entry/stored/entries.jsonl:1 '
+-  '(line 1)\n'
+-  '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
+-  'VERSION of PlaceOrder (DL-102)')
+
+======================================================================
+FAIL: test_s3_removed_literal_blocks (__main__.Slice6Entry.test_s3_removed_literal_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 402, in test_s3_removed_literal_blocks
+    self.assertEqual((1, "", LITERAL_BLOCK), (code, stdout, stderr.strip()))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE PlaceOrder v1: 1 stored ENTRY [403 chars]nel') != (1, '', 'expected identifier at byte 936')
+
+First differing element 2:
+'error: TYPE PlaceOrder v1: 1 stored ENTRY [402 chars]nnel'
+'expected identifier at byte 936'
+
++ (1, '', 'expected identifier at byte 936')
+- (1,
+-  '',
+-  'error: TYPE PlaceOrder v1: 1 stored ENTRY RECORD of operation ui.place has a '
+-  'value of field channel that is no ENUM LITERAL of Channel now (DL-122)\n'
+-  '  record source: '
+-  '/Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/entry/stored/entries.jsonl:2 '
+-  '(line 2)\n'
+-  '  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE '
+-  'STEP form for an enum field (D6B-39), so restore the removed or changed ENUM '
+-  'LITERAL of Channel')
+
+======================================================================
+FAIL: test_s3b_changed_literal_blocks (__main__.Slice6Entry.test_s3b_changed_literal_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 407, in test_s3b_changed_literal_blocks
+    self.assertEqual((1, "", LITERAL_BLOCK), (code, stdout, stderr.strip()))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE PlaceOrder v1: 1 stored ENTRY [403 chars]nel') != (1, '', 'expected identifier at byte 953')
+
+First differing element 2:
+'error: TYPE PlaceOrder v1: 1 stored ENTRY [402 chars]nnel'
+'expected identifier at byte 953'
+
++ (1, '', 'expected identifier at byte 953')
+- (1,
+-  '',
+-  'error: TYPE PlaceOrder v1: 1 stored ENTRY RECORD of operation ui.place has a '
+-  'value of field channel that is no ENUM LITERAL of Channel now (DL-122)\n'
+-  '  record source: '
+-  '/Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/entry/stored/entries.jsonl:2 '
+-  '(line 2)\n'
+-  '  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE '
+-  'STEP form for an enum field (D6B-39), so restore the removed or changed ENUM '
+-  'LITERAL of Channel')
+
+======================================================================
+FAIL: test_s4_no_stored_value_in_output (__main__.Slice6Entry.test_s4_no_stored_value_in_output) [ctor]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 416, in test_s4_no_stored_value_in_output
+    self.assertEqual((1, True, []), (code, "stored ENTRY RECORD" in stderr,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     [w for w in STORED_WORDS if w in stderr]), stderr)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, True, []) != (1, False, [])
+
+First differing element 1:
+True
+False
+
+- (1, True, [])
++ (1, False, []) : expected identifier at byte 1015
+
+
+======================================================================
+FAIL: test_s4_no_stored_value_in_output (__main__.Slice6Entry.test_s4_no_stored_value_in_output) [literal]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_entry_test.py", line 416, in test_s4_no_stored_value_in_output
+    self.assertEqual((1, True, []), (code, "stored ENTRY RECORD" in stderr,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     [w for w in STORED_WORDS if w in stderr]), stderr)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, True, []) != (1, False, [])
+
+First differing element 1:
+True
+False
+
+- (1, True, [])
++ (1, False, []) : expected identifier at byte 936
+
+
+----------------------------------------------------------------------
+Ran 16 tests in 4.750s
+
+FAILED (failures=32)

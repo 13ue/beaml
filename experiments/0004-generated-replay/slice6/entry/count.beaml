@@ -1,0 +1,6 @@
+// Slice 6d: an Int field in the input TYPE. No String-to-Int coercion (D6B-144).
+type Count { qty: Int }
+
+effect ui.count Count -> Count = ui.event("count") |> count
+
+fn count c: Count -> Count = c

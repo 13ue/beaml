@@ -1,0 +1,26 @@
+// Slice 6d: the ENTRY LINE, an inbound EFFECT (DL-128, DL-130, DL-131, DL-133, DL-134).
+type NoCurrency {}
+type Amount { value: String currency: String }
+fn Amount value: String, currency: String -> Amount ! NoCurrency
+fn Amount _, "" -> Amount ! NoCurrency = NoCurrency {}
+fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, currency: currency }
+
+enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }
+
+type PlaceOrder { order_id: String amount: Amount channel: Channel }
+type Order { order_id: String }
+type Payment { order_id: String status: String }
+type PaymentError { reason: String }
+
+// Leaves the module. Recorded live, substituted in a REPLAY RUN.
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+// Enters the module. The host calls ui_place(params) from handle_event("place", params, socket).
+effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> place
+
+fn to_order PlaceOrder { order_id, amount, channel } -> Order = Order { order_id: order_id }
+
+fn place p: PlaceOrder -> Payment ! PaymentError =
+  p
+  |> to_order
+  |> payments.authorize

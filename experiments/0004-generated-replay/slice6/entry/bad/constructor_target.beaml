@@ -1,0 +1,14 @@
+// Slice 6d reject case: the target is a constructor (D6B-129, DL-120).
+type NoCurrency {}
+type Amount { value: String currency: String }
+fn Amount value: String, currency: String -> Amount ! NoCurrency
+fn Amount _, "" -> Amount ! NoCurrency = NoCurrency {}
+fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, currency: currency }
+
+enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }
+
+type PlaceOrder { order_id: String amount: Amount channel: Channel }
+
+effect ui.amount Amount -> Amount ! NoCurrency = ui.event("amount") |> Amount
+
+fn echo p: PlaceOrder -> PlaceOrder = p

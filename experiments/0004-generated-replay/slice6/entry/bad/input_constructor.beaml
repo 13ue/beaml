@@ -1,0 +1,15 @@
+// Slice 6d reject case: the input TYPE has a constructor (D6B-130).
+type NoCurrency {}
+type Amount { value: String currency: String }
+fn Amount value: String, currency: String -> Amount ! NoCurrency
+fn Amount _, "" -> Amount ! NoCurrency = NoCurrency {}
+fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, currency: currency }
+
+enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }
+
+type PlaceOrder { order_id: String amount: Amount channel: Channel }
+
+effect ui.keep Amount -> Amount = ui.event("keep") |> keep
+
+fn echo p: PlaceOrder -> PlaceOrder = p
+fn keep a: Amount -> Amount = a
