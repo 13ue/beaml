@@ -623,6 +623,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: OWNER choice. Known consequence: host code that branches on `is_binary` takes another branch in a replay; a pure step that computes with the value can raise. With DL-106 the host sees typed structs, where a marker atom fits.
 
+**DL-116 · Migrate · Interim: `redacted` in an EFFECT output only on String and Int fields without a constructor (Q6B-15, A)**
+→ Question: the record holds no value for a redacted field (DL-105), so DL-102 cannot run a constructor or literal rule over an old value, and a replay decode cannot call a constructor with the marker. Which field TYPES may be redacted in an EFFECT output?
+→ Options: A, interim compile error for every redacted output field that is not a String or Int field of a TYPE without a constructor; nested fields allowed because each level stands for itself; B, any TYPE, with replay and DL-102 skipping the rules of a marked field.
+→ Chose: A. The error text names it as a slice limit with a help line. B would make a replay silently skip a rule.
+→ By: 13ue
+→ Because: OWNER choice, in line with every earlier choice: a loud compile error over a silent gap. Lifted when a rule over an absent value is defined.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
