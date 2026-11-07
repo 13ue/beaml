@@ -522,7 +522,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D024 — Stored ENTRY RECORDS and the DL-102 build check (Q6D-4)
 
-- **Status** OPEN
+- **Status** CLOSED, [DL-134](decision-log.md): option A, `--stored` also checks ENTRY RECORDS, By: 13ue, 2026-11-07
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** LANGUAGE/COMPILATION, `--stored`, DL-102, DL-122, D020
@@ -557,6 +557,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## Answered 2026-11-07
 
+- [DL-134](decision-log.md): Q6D-4, `--stored` also checks stored ENTRY RECORDS (A).
 - [DL-133](decision-log.md): Q6D-3, a decode reject is a generated `Rejected` struct (A).
 - [DL-131](decision-log.md): Q6D-2, the host calls one generated function per ENTRY LINE (A).
 - [DL-130](decision-log.md): Q6D-1, the ENTRY LINE is an `effect` line with head TYPEs, inbound like outbound (E').

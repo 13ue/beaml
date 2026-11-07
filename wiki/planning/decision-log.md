@@ -766,6 +766,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: the UI must tell "the form is broken" from "the flow failed"; B merges both into one struct and fails for a fn without `!`; C is no TYPE, a host pattern on structs misses it.
 → Effect: D023 closed. Slice 6d generates the `Rejected` struct once per build; reasons are `"decode"` and `"constructor"` (D6B-132, D6B-143).
 
+**DL-134 · Migrate · `--stored` also checks stored ENTRY RECORDS; DL-102 covers every record stream (Q6D-4, option A)**
+→ Question: when the input TYPE of an ENTRY LINE gets a stricter constructor or loses an ENUM LITERAL, does the build see the stored UI events?
+→ Options: A, `beaml build --stored` also reads `entries.jsonl` and runs the field constructors and literals of the input TYPE over each stored value; a failure blocks the build until a MIGRATE STEP names the fate (DL-102, DL-122); B, no build check over ENTRY RECORDS in slice 6d, the gap stays recorded as interim (D6B-146).
+→ Chose: A.
+→ By: 13ue
+→ Because: every later record stream copies this answer. B keeps the build green while stored events break at the REPLAY RUN, which breaks the vertical line at the first inbound stream.
+→ Effect: D024 closed. Slice 6d adds the `--stored` case for ENTRY RECORDS and an N-test; the DL-124 text rule applies (no stored value is printed). The MIGRATE STEP forms of DL-125 apply to entry fields.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
