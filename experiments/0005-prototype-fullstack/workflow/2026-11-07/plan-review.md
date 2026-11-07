@@ -81,3 +81,73 @@ By: Opus (plan check exp0005) for every line of this file.
 **Migrate (OWNER chooses)**
 → O1: P2 avoids M8 and M9, or P2 waits for D026 · By: Opus (plan check exp0005), decided nothing
 → Q5-10 row value shape: A projection only · B v3 core in the row · By: Opus (plan check exp0005), decided nothing
+
+## Re-check after plan repair (2026-11-07)
+
+**Verdict: PASS** (O1, O2, O3 closed; two medium notes, no block).
+Phase: one re-check round of the plan repair (plan.md "Plan repair (after plan check), 2026-11-07", decisions.md Q5-10 and P5-18 to P5-25, owner-review.md). Fresh context, new evidence only.
+By: Opus (plan re-check exp0005) for every line of this section.
+
+### Evidence read
+
+- **[Verified]** M8 and M9 option texts, [red team report](../../../0004-generated-replay/workflow/2026-11-07/red-team-01/report.md) lines 148 and 149: M8 is whether a failure struct is accepted as an input value of its TYPE (B4, the host value rule); M9 is whether a build block prints per-record lines or caps them (B6, DL-032 against DL-124).
+- **[Verified]** DL-144 Effect: "a step that needs one of them builds the smallest form that avoids it or marks the test as blocked". D026 trigger: the main agent opens M8 and M9 before the record format v3 step.
+- **[Verified]** DL-127 option J: "every row a record as in the JSONL store today". DL-143 Effect: "The database stream gets the format from the start." DL-144 lifts the DL-139 record-format limit for 0005 and wants such defaults marked big.
+
+### Answers
+
+**(1) O1 closed.**
+→ M8 is a decode rule for fn inputs
+→ M9 is a line count in block text
+→ Record keys touch neither one
+→ Stop rule for a P2 worker: present (P5-18)
+→ Avoidance matches DL-144; listed in owner-review.md
+⠀⠀↳ The D026 question itself is still open
+
+**(2) O2 closed.**
+→ New file per build: no reused file
+→ Ids and count equal a fresh `psql` read
+→ N8b changes the data, the exit follows
+⠀⠀↳ A stale copy cannot follow the delete
+→ Remaining gap: see medium M-b
+
+**(3) O3 closed.**
+→ N7b writes a version-2 row through the page
+→ The list shows the v1 and v2 rows together
+→ `to_order` change named in the variant diff
+→ Path gap after Q5-10: see medium M-a
+
+**(4) Q5-10 default B.**
+→ Consistent with DL-127 J and DL-143
+→ Listed under "Big" in owner-review.md, with `By: Fable (default, open)`
+
+**(5) Parked items.**
+→ No new default decides M3, M4, M5, M8 or M9
+→ The `redacted` core key comes from DL-143, not from M3
+
+### Notes (medium, not blocking)
+
+**M-a · medium · Row paths in N4, N6, N7, N7b do not follow Q5-10 B.**
+- Evidence: the repair changes only the N2 expectation to `value.value`. N7b asserts `value.note = ""`; N7 seeds a v1 row by SQL in an unnamed shape; N4 says "stored as `"tv"`". Under B the projection is at `value.value`, and the seed must be a v3 core.
+- Consequence: the RED worker must guess the paths; a wrong path fails loudly (no false pass).
+- Resolving change: state in RED that every row assertion and the N7 seed use the v3 core shape (`value.value.note`, `value.value.channel`).
+- → By: Opus (plan re-check exp0005) · class Repair
+
+**M-b · medium · N8c does not bind the snapshot database to the database of the submit.**
+- Evidence: N8c compares the snapshot with a `psql` read, and N8b deletes by SQL, but the plan does not name the database for each. Only N7 asserts its own row id is in the snapshot. A leftover `order-zero` row in `proto_dev` from an earlier run, with the page writing to `proto_test`, passes N8, N8b and N8c.
+- Consequence: the live read is proven, but not that the row from this run's submit caused the block.
+- Resolving change: N8 asserts the row id of this run's `order-zero` submit is in the N8 snapshot. `snapshot-meta.json` database name equals the Repo database of the submit step. The run starts with an empty `records` table.
+- → By: Opus (plan re-check exp0005) · class Repair
+
+### Decisions
+
+**Repair**
+→ PASS statt BLOCK, weil O1 to O3 are closed and both notes are medium · By: Opus (plan re-check exp0005)
+→ M-b as medium statt high, weil the live read is proven and N2 proves the page write · By: Opus (plan re-check exp0005)
+→ M-a as medium statt high, weil a wrong path fails loudly · By: Opus (plan re-check exp0005)
+
+**Undo**
+→ Read only; no file changed except this section · By: Opus (plan re-check exp0005)
+
+**Migrate (OWNER chooses)**
+→ D026 M8 and M9 stay open; P2 avoids them under DL-144 · By: Opus (plan re-check exp0005), decided nothing
