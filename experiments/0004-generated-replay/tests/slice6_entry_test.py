@@ -37,7 +37,7 @@ BAD = FIX / "bad"
 STORED = FIX / "stored" / "responses.jsonl"  # empty; entries.jsonl beside it: 3 accepted, 2 rejected at capture
 ENTRIES = FIX / "stored" / "entries.jsonl"
 EMPTY = ["--stored", str(EXPERIMENT / "stored" / "empty.jsonl")]  # no entries.jsonl beside it
-BASE = "ca09d361"  # N13: the record format v3 GREEN commit (RV3-14)
+BASE = "ce190054"  # N13: the multi-effect GREEN commit (RV3-14 rule)
 ENTRY_LINE = 'effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> place\n'
 TIMEOUT = 90  # step 13: every compiler run has a time limit
 ex = sr.ex

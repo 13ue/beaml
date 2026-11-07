@@ -356,6 +356,9 @@ class RecordV3(unittest.TestCase):
 
     # V18: the diff proof against the P2 base compiler (plan "Pin sites and diff proof", RV3-14).
 
+    @unittest.skip("V18 was the one-time P2 diff proof; it passed at ca09d361 (green-output.md hunk list). "
+                   "After the multi-effect GREEN (ce190054) ENTRY LINE sources change by design; the per-step byte "
+                   "guards (N13 BASE, P4_BASE, the four outbound pins) carry the proof from here. By: Fable (Undo).")
     def test_V18_only_the_two_writers_change(self):
         listed = subprocess.run(["git", "-C", str(REPO), "ls-files", "experiments/0001-syntax-to-beam/*.beaml",
                                  "experiments/0002-http-correlation/apps/*.beaml",
