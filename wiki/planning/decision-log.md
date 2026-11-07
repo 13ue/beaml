@@ -804,6 +804,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: DL-136 fixed the same rule for RESPONSE RECORDS, and DL-134 says every record stream copies that answer. A rejected UI event is not a TYPE change and asks for no MIGRATE STEP. Class Repair: the choice follows two OWNER decisions; a different reading would need the OWNER (recorded here so it can be questioned).
 → Effect: slice 6d RED repair adds a reject record fixture, the `outcome` key, a `null` value case that must not crash the check, and the count line. O2: the help text must not name a TYPE VERSION (D6B-130). O3: a removed ENTRY LINE with stored entries behaves as a removed EFFECT with stored RESPONSE RECORDS does today (parity, pinned by a test); if today's behaviour is undefined, the repair reports it as a question.
 
+**DL-139 · Migrate · A slice may build and pin a Migrate default, except for syntax and record formats (RED TEAM 01 M6, option B with a limit)**
+→ Question: DL-097 and DL-041 stop a step at the first Migrate question; slice 6d planned to build its defaults before the OWNER answered (D7). May a slice build a default?
+→ Options: A, always ask first, no built default; B, build the default, pin it with a test and a decision-log entry "default, By: Opus, open", and log the question; a different OWNER answer triggers a repair step.
+→ Chose: B with a limit: a slice may build a default only when a different answer stays inside one repair step. Syntax (grammar, line forms, keywords), record formats (stored record keys, RESPONSE RECORD and ENTRY RECORD layout) and anything that host code calls wait for the OWNER.
+→ By: 13ue
+→ Because: two of the four Q6D answers differed from the slice default; Q6D-1 would have rebuilt the parser and the grammar. Everything else is a bounded repair and should not wait a night.
+→ Effect: DL-097 is extended, not replaced. A built default carries `By: Opus (default, open)` in the log and in the ledger; the OWNER's answer closes it as "confirmed" or "repaired". The main agent decides the limit per question and records that call with `By: Fable`.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
