@@ -811,6 +811,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: two of the four Q6D answers differed from the slice default; Q6D-1 would have rebuilt the parser and the grammar. Everything else is a bounded repair and should not wait a night.
 → Effect: DL-097 is extended, not replaced. A built default carries `By: Opus (default, open)` in the log and in the ledger; the OWNER's answer closes it as "confirmed" or "repaired". The main agent decides the limit per question and records that call with `By: Fable`.
+→ OWNER addition (13ue, same day): every built default is presented to the OWNER explicitly, as its own question with a picture and the options, never only as a line in a list or a log. The OWNER must never find a built default by chance.
 
 ### Process
 

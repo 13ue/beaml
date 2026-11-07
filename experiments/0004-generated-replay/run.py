@@ -80,8 +80,15 @@ STEPS = [
 ]
 # Slices 2-5: one step per test file, serially, after the slice 1 steps (step name = file name without `_test.py`).
 SLICE_TESTS = ("stored_types", "slice2_replay", "slice3_types", "slice3_replay", "slice4_retire", "slice4_replay",
-               "slice5_syntax", "slice5_squash", "slice5_replay", "slice5_rewrite")
+               "slice5_syntax", "slice5_squash", "slice5_replay", "slice5_rewrite",
+               # D6B-190 (DL-135, M7 option A): every slice 6 file and the DRIFT checks join the full run.
+               "slice6_int", "slice6_failure", "slice6_constructor", "slice6_enum", "slice6_pipe", "slice6_decode",
+               "slice6_decode_ctor", "slice6_fmt", "slice6_host_struct", "slice6_effect_reach", "slice6_record",
+               "slice6_redacted", "slice6_redacted_failure", "slice6_stored_elixir", "slice6_struct_order",
+               "slice6_entry", "redteam_c1", "redteam_b3", "redteam_c3")
 STEPS += [(name.replace("_", "-"), [sys.executable, "-B", TESTS + name + "_test.py"]) for name in SLICE_TESTS]
+# Not "drift": that step name owns drift.stdout and the result.json summary.
+STEPS.append(("drift-test", [sys.executable, "-B", TESTS + "drift_test.py"]))
 # File classes of a repair hunk (README "Replay lines and manual change sites").
 DOMAIN_FILES = (HTTP_PATH + "/apps/probe_support/lib/probe_support.ex",)
 TEST_FILES = tuple([HTTP_PATH + "/query.py"] + [REPLAY_PATH + "/tests/" + n for n in arm_tree.TEST_NAMES])
@@ -522,6 +529,22 @@ def repaired_replay(tree, arm, out, commands, edited):
 
 # ---------------------------------------------------------------------------------------------- drift
 
+# D6B-189 (DL-135, M7 option A): the expected GEN classes per derivative (build, new_live, pre_change).
+# 58 of 61 retained runs give these rows. A wanted class change moves this pin and drift_test.PIN together.
+DRIFT_PIN = {"R": ("correct_accept", "false_reject", "typed_reject"),
+             "N": ("correct_accept", "false_reject", "typed_reject"),
+             "Q": ("correct_accept", "typed_reject", "typed_reject")}
+
+
+def drift_status(summary):
+    """pass only for a verified freeze, every repair replay green and every GEN row equal to DRIFT_PIN."""
+    rows = {d: (summary.get("drift", {}).get(d) or {}).get("gen") or {} for d in DRIFT_PIN}
+    ok = (summary.get("freeze", {}).get("status") == "pass" and summary.get("repaired_all") is True
+          and all(tuple(rows[d].get(k) for k in ("build", "new_live", "pre_change")) == DRIFT_PIN[d]
+                  for d in DRIFT_PIN))
+    return "pass" if ok else "fail"
+
+
 def drift():
     started = utc()
     run = RESULTS / started.strftime("%Y%m%dT%H%M%S%fZ")
@@ -606,7 +629,7 @@ def drift():
     repaired = all(summary["drift"][d][a].get("repaired", {}).get("exit_code") == 0
                    for d in DERIVATIVES for a in ARMS if summary["drift"][d][a]["build"] != "compile_error")
     summary["repaired_all"] = repaired
-    summary["status"] = "pass" if summary["freeze"]["status"] == "pass" else "fail"
+    summary["status"] = drift_status(summary)
     save(run / "drift.json", summary)
     event("finish", TARGET + "-drift", summary["status"], repaired_all=repaired)
     bus("artifact", path=str(run))
