@@ -873,6 +873,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because (OWNER, 2026-11-07 evening): "free run, record every decision, we go through it tomorrow in detail; tell me the bigger ones explicitly."
 → Effect: the pipeline runs PLAN → plan check → RED → RED review → GREEN → TEST → docs for 0005 and its prerequisites (slice 6d GREEN/TEST, record format v3, the `db.*` transport step) without a stop at Migrate. Answer-class questions still stop (nothing in 0005 reaches people outside the team: the PROTOTYPE runs locally, no deploy, no real data). Parked D036 items stay parked; a step that needs one of them builds the smallest form that avoids it or marks the test as blocked.
 
+**DL-147 · Repair · A RED test file joins `run.py` in its GREEN commit, not before**
+→ Question: after DL-135 every slice 6 test file runs in the full `run.py`, so an open RED file turns the whole run `fail` and the run cannot tell an expected RED from a regression (TEST v3/multi O2, 2026-11-08).
+→ Chose: a RED file is listed in `run.py` by the GREEN commit that makes it pass; until then it runs by hand in RED, RED review and GREEN. Over: an expected-RED table in `run.py` (a second source of truth for the same counts), or keeping RED files out of version control.
+→ By: Fable (after the TEST v3/multi review, Opus)
+→ Because: the full run must mean "everything listed passes"; a table of expected failures is a pin that drifts. The multi-effect GREEN listed the two db RED files early; the P4 GREEN closes that.
+→ Effect: `redteam_c3_test` C4 keeps "every slice 6 file"; the rule reads "every slice 6 file that has a GREEN". The C4 test may need that wording; the P4 GREEN checks it.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
