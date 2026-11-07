@@ -1,0 +1,15 @@
+// Slice 6b step 7: decode of ENUM LITERALS (DL-082 L, DL-065, D6B-35, D6B-36).
+type Order { order_id: String }
+enum PaymentState { Authorized = "ok"  Pending = "pending"  Unknown(String) }
+type Payment { order_id: String state: PaymentState }
+type PaymentError { reason: String }
+
+// Leaves the module. Recorded live, substituted in a REPLAY RUN.
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")
+
+fn prepare Order { order_id } -> Order = Order { order_id: order_id + "" }
+
+fn place order: Order -> Payment ! PaymentError =
+  order
+  |> prepare
+  |> payments.authorize

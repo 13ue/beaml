@@ -1,0 +1,223 @@
+# Command (repository root): BEAML_SPIKE=<scratch>/basef74b/experiments/0001-syntax-to-beam/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_decode_test.py
+# Baseline: commit f74be40c, git archive copy, cargo build --offline. Exit 1.
+compiler: <scratch>/basef74b/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+FFFFFFFF
+======================================================================
+FAIL: test_enum_output_field_with_a_chain (__main__.Slice6Decode.test_enum_output_field_with_a_chain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 197, in test_enum_output_field_with_a_chain
+    self.assert_rejected(CHAIN, VERSIONED, EMPTY)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 138, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect payments.authorize: the enum[196 chars]eld') != (1, '', 'effect payments.authorize: slice 1 decodes[35 chars]ate')
+
+First differing element 2:
+'error: effect payments.authorize: the enum[195 chars]ield'
+'effect payments.authorize: slice 1 decodes[34 chars]tate'
+
+  (1,
+   '',
++  'effect payments.authorize: slice 1 decodes String fields only, not '
++  'Payment.state')
+-  'error: effect payments.authorize: the enum field Payment.state cannot stand '
+-  'in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n'
+-  '  help: remove the MIGRATE CHAIN and the VERSION MARK of Payment, or make '
+-  'state a String field') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_enum_output_field_with_a_version_mark (__main__.Slice6Decode.test_enum_output_field_with_a_version_mark)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 200, in test_enum_output_field_with_a_version_mark
+    self.assert_rejected(MARK, VERSIONED, EMPTY)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 138, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect payments.authorize: the enum[196 chars]eld') != (1, '', 'effect payments.authorize: slice 1 decodes[35 chars]ate')
+
+First differing element 2:
+'error: effect payments.authorize: the enum[195 chars]ield'
+'effect payments.authorize: slice 1 decodes[34 chars]tate'
+
+  (1,
+   '',
++  'effect payments.authorize: slice 1 decodes String fields only, not '
++  'Payment.state')
+-  'error: effect payments.authorize: the enum field Payment.state cannot stand '
+-  'in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n'
+-  '  help: remove the MIGRATE CHAIN and the VERSION MARK of Payment, or make '
+-  'state a String field') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_output_enum_without_keep_value_variant (__main__.Slice6Decode.test_output_enum_without_keep_value_variant)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 192, in test_output_enum_without_keep_value_variant
+    self.assert_rejected(NO_KEEP, (
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+        "error: effect payments.authorize: the enum PaymentState of Payment.state has no keep-value variant "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "(DL-065)\n  help: add the variant Unknown(String) to enum PaymentState"), EMPTY)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 138, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect payments.authorize: the enum[124 chars]ate') != (1, '', 'effect payments.authorize: slice 1 decodes[35 chars]ate')
+
+First differing element 2:
+'error: effect payments.authorize: the enum[123 chars]tate'
+'effect payments.authorize: slice 1 decodes[34 chars]tate'
+
+  (1,
+   '',
++  'effect payments.authorize: slice 1 decodes String fields only, not '
++  'Payment.state')
+-  'error: effect payments.authorize: the enum PaymentState of Payment.state has '
+-  'no keep-value variant (DL-065)\n'
+-  '  help: add the variant Unknown(String) to enum PaymentState') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_resolved_unknown_reports_the_count (__main__.Slice6Decode.test_resolved_unknown_reports_the_count)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 169, in test_resolved_unknown_reports_the_count
+    _, stderr = self.build(RESOLVED)
+                ~~~~~~~~~~^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 132, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: effect payments.authorize: slice 1 decodes String fields only, not Payment.state
+
+
+======================================================================
+FAIL: test_runtime_live_decode (__main__.Slice6Decode.test_runtime_live_decode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 174, in test_runtime_live_decode
+    self.run_runtime(LIVE_CASES)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 142, in run_runtime
+    stdout, _ = self.build(STORED)
+                ~~~~~~~~~~^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 132, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: effect payments.authorize: slice 1 decodes String fields only, not Payment.state
+
+
+======================================================================
+FAIL: test_runtime_replay (__main__.Slice6Decode.test_runtime_replay)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 177, in test_runtime_replay
+    self.run_runtime(REPLAY_CASES)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 142, in run_runtime
+    stdout, _ = self.build(STORED)
+                ~~~~~~~~~~^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 132, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: effect payments.authorize: slice 1 decodes String fields only, not Payment.state
+
+
+======================================================================
+FAIL: test_stored_value_without_a_variant_blocks (__main__.Slice6Decode.test_stored_value_without_a_variant_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 183, in test_stored_value_without_a_variant_blocks
+    self.assert_rejected(ORDERS, (
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+        "error: TYPE Payment: 2 stored RESPONSE RECORDS of operation payments.authorize have no variant of "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        "  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Payment (DL-102)"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ) % FAIL, ["--stored", str(FAIL)])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 138, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Payment: 2 stored RESPONSE REC[309 chars]02)') != (1, '', 'effect payments.authorize: slice 1 decodes[35 chars]ate')
+
+First differing element 2:
+'error: TYPE Payment: 2 stored RESPONSE REC[308 chars]102)'
+'effect payments.authorize: slice 1 decodes[34 chars]tate'
+
+  (1,
+   '',
++  'effect payments.authorize: slice 1 decodes String fields only, not '
++  'Payment.state')
+-  'error: TYPE Payment: 2 stored RESPONSE RECORDS of operation '
+-  'payments.authorize have no variant of PaymentState for field state\n'
+-  '  record source: '
+-  '/Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/decode/stored-fail.jsonl:2 '
+-  '(line 2)\n'
+-  '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
+-  'VERSION of Payment (DL-102)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_stored_values_all_resolve (__main__.Slice6Decode.test_stored_values_all_resolve)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 162, in test_stored_values_all_resolve
+    stdout, stderr = self.build(STORED)
+                     ~~~~~~~~~~^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_decode_test.py", line 132, in build
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and Elixir on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and Elixir on stdout; stderr: effect payments.authorize: slice 1 decodes String fields only, not Payment.state
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.134s
+
+FAILED (failures=8)
