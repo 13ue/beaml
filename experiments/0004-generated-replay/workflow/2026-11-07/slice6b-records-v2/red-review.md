@@ -101,3 +101,84 @@ By: Opus (RED review, slice6b-records-v2)
 - → O2 and O3 accepted. By: Opus (RED review, slice6b-records-v2)
 - → D6B-62 to D6B-67 out of 6a scope, no test needed. By: Opus (RED review, slice6b-records-v2)
 - → Leave the review run result directory untracked, not deleted. By: Opus (RED review, slice6b-records-v2)
+
+## Re-check after repair (5dd0f18b)
+
+**[Proposal]** Fresh-context re-check, 2026-11-07. Target: commit `5dd0f18b` (RED repair) only. One round.
+By: Opus (RED re-check, slice6b-records-v2) for every judgement in this section.
+
+### Verdict
+
+**PASS** with two medium notes (RC6A-1, RC6A-2). RR6A-1 and RR6A-2 are closed.
+By: Opus (RED re-check, slice6b-records-v2)
+
+### Commands and counts (repository root, `main.rs` unchanged)
+
+| Command | Observed | Repair notes | Match |
+|---|---|---|---|
+| `python3 -B experiments/0004-generated-replay/tests/drift_test.py` | 5 tests, FAILED (failures=2), 293 s. Fail: `test_f_6a_drift_has_gen_rows_only` (7 problems: `lib` in `drift` R, N, Q, `baseline`, `sites`; dirs `lib`, `R/lib`, `N/lib`, `Q/lib`), `test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree` (12 problems: per R, N, Q the `replay-run-test` command runs the 0003 copy, `repaired.argv` is `None`, no `record`, no `report`). Pass: fixture guard, freeze case, D24 case | 2 failures, same reasons | yes |
+| `python3 -B experiments/0004-generated-replay/tests/slice6_record_test.py` | 5 tests, FAILED (failures=21): 18 of 23 runtime cases, 3 P6. `P1_key_set_is_D6B_53` FAIL. 5 runtime guards PASS | 21 (18 + 3) | yes |
+
+- **[Observed]** Each failure has the stated reason. No import error, no setup error.
+- **[Observed]** The DRIFT run wrote `experiments/0004-generated-replay/results/20261107T151614400807Z/` (untracked). This re-check leaves it untracked.
+
+By: Opus (RED re-check, slice6b-records-v2)
+
+### Check 1: RR6A-1 closed
+
+- **[Observed]** Both new DRIFT cases fail today for the stated reasons (table above). Scenario A of RR6A-1 now fails: a GREEN that leaves the 0003 copy run fails the command log check and the `repaired` keys. Scenario B now has a reviewed RED: `ARMS_NAMES = ("gen",)`.
+- **[Observed]** `spec.md` section "DRIFT change" names DRIFT in the acceptance.
+- **[Observed]** The R and N rows of the earlier run (`results/20261107T150832940455Z`) have a 200 record, flow result `ok` and `host_validation` `ArgumentError` before the repair. The check "`ok` needs `host_validation: ok`" therefore fails for a replay with the unrepaired release. A GREEN that skips the rebuild after the repair (`probe_support.ex` changes) fails for R and N. **[Inference]** Q (record status 400, expected `error`) does not separate repaired from unrepaired; R and N carry that evidence.
+
+By: Opus (RED re-check, slice6b-records-v2)
+
+### Check 2: false-pass hunt on D6B-96
+
+- **[Observed]** Copy of the baseline record fails: the baseline record has the undrifted TYPE, its replay with the drifted runner gives the `pre_change` typed reject (`error`), but the record status is 200, so `ok` is expected.
+- **[Observed]** Hidden LIB: the case checks summary keys and the `lib` dirs in the run dir only. A LIB run that writes elsewhere stays invisible. **[Inference]** Consequence is run time only, no wrong evidence: `repaired_all`, `sites` and the rows read GEN only. Dropped (low).
+- Two gaps remain: RC6A-1 and RC6A-2.
+
+By: Opus (RED re-check, slice6b-records-v2)
+
+### Check 3: key set
+
+- **[Verified]** `RECORD_KEYS` is a literal list of 13 keys in the test. It equals the plan table "RESPONSE RECORD, version 2 (6a)" (`slice6b-redacted/plan.md`): `version`, the 7 unchanged keys, `request`, `value`, `redacted`, `unknown_keys`, `value_sha256`; body keys removed. The 7 unchanged keys equal the version 1 keys of `slice6/record/stored-v1.jsonl` minus the body keys and `version`. The list does not come from the writer. `unknown_fields` is left out with a reason (no enum in the test source).
+
+By: Opus (RED re-check, slice6b-records-v2)
+
+### Check 4: D6B-96 against DL-118 and the README
+
+- **[Verified]** D6B-96 agrees with DL-118: GEN rows only, GEN replay of the repaired tree, no 0003 copy run, `repaired_all` from that replay. Hunk counting stays (`manual_change_sites` is still asserted).
+- **[Observed]** The README (f) DRIFT text says "Per arm", and the slice 1 pass rule compares GEN with LIB sites. `run.py` docstring step 4 and `readme-change.md` line 23 still say the 0003 replay and "no change". DL-118 moves the README text to the docs phase; DL-110 ends the comparison. **[Inference]** GREEN can satisfy D6B-96 and DL-118 at the same time. No contradiction blocks GREEN. The docs phase must update these texts.
+
+By: Opus (RED re-check, slice6b-records-v2)
+
+### Objections
+
+#### RC6A-1 · medium · `repaired` evidence is not tied to a run command or to the repaired live call
+
+- **[Observed]** `repaired_problems` checks the shape of `argv`, but not that this `argv` is in `commands/commands.json` with exit 0. It checks that `record` is a version 2 file in the run dir, but not that its `trace_id` is in the `responses.jsonl` of a live call after the repair. `report` can be any JSON file in the run dir.
+- **Failing scenario.** GREEN writes `repaired` with a static `argv` and a hand-written `report.json` (`{"result": {"ok": ...}, "host_validation": "ok"}`) next to a copy of the `new_live` record. All D6B-96 checks pass, and no replay ran in the repaired tree.
+- **[Inference]** This needs a deliberate fake; an honest replay without the rebuild fails (check 1). Medium, not high.
+- **Smallest test.** In `repaired_problems`: `repaired.argv` equals the `argv` of one entry of the row command log with `exit_code` 0; `report["eval_exit_code"] == 0`; the record `trace_id` differs from the baseline and `new_live` record and is in a `responses.jsonl` under the row dir.
+
+By: Opus (RED re-check, slice6b-records-v2)
+
+#### RC6A-2 · medium · the D6B-96 case passes empty when no GEN row builds
+
+- **[Observed]** The case skips each row with `build_exit_code != 0`. `run.py` computes `repaired_all` as `all(...)` over built rows, which is `true` for none. The D24 case accepts `compile_error` as a class.
+- **Failing scenario.** A GREEN change makes the three DRIFT builds fail (for example a generator change hit only by the drifted sources). All DRIFT cases pass, and D6B-96 has no evidence.
+- **[Inference]** `arms_test.py` catches a general GEN build break, so only a DRIFT-only break slips through. Medium.
+- **Smallest test.** Assert that the R, N and Q GEN rows build (they all built in the earlier runs), or at least R and N, which carry the repair evidence.
+
+By: Opus (RED re-check, slice6b-records-v2)
+
+### Decisions
+
+**Repair**
+- → PASS instead of BLOCK, because both objections need a deliberate fake or a DRIFT-only build break; an honest GREEN path cannot pass falsely. By: Opus (RED re-check, slice6b-records-v2)
+- → Hidden LIB run dropped (low), because it cannot change any GEN evidence. By: Opus (RED re-check, slice6b-records-v2)
+
+**Undo**
+- → README, `run.py` docstring and `readme-change.md` texts left to the docs phase (DL-118). By: Opus (RED re-check, slice6b-records-v2)
+- → Leave `results/20261107T151614400807Z` untracked. By: Opus (RED re-check, slice6b-records-v2)
