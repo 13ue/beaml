@@ -110,3 +110,54 @@ Chose: one write with `outcome` and `reason` from the decode result. Over: write
 **Migrate**
 
 → None new. G6D-03 joins R2 (DL-139 record layout) for the OWNER walk-through under DL-144: built default, open.
+
+## TEST repair, 2026-11-07
+
+By: Opus (GREEN repair slice6d), after the TEST BLOCK in [review.md](review.md) (O1 high, O2 and O3 medium). Rulings: Fable, under DL-144. No commit.
+
+**O1 RED** ([test-repair-red.log](test-repair-red.log)). Compiler from `git archive HEAD` (9f101f95), run through `BEAML_SPIKE`.
+- **[Observed]** `test_n10_rejects [nested_enum]` and `[nested_constructor]`: exit 0 with Elixir on stdout, expected exit 1 and the limit text. Genuine behavior RED.
+- **[Observed]** Control `test_o1_top_level_enum_and_constructor_and_nested_record_accept_a_good_event` passes at HEAD and after GREEN (a guard against an over-wide check, not a RED).
+
+**O1 GREEN, diff summary**
+- `main.rs` (+24): `entries()` walks the plain record fields below the top level of the input TYPE; an enum or constructor field there is a compile error. Top-level constructor TYPEs are not walked (their decode is the constructor call).
+- Text: `error: effect <op>: the <enum|constructor> field <T>.<field> below the top level of <input> is a slice 6d limit (DL-144)` and `help: move <T>.<field> to the top level of <input>; slice 6d decodes enum and constructor fields at the top level only`.
+- `slice6/entry/bad/nested_enum.beaml`, `bad/nested_constructor.beaml` (new); `slice6_entry_test.py` (+18): two BAD_CASES rows, the `nested` text helper, the control test.
+- **[Observed]** Probe (scratch): a field two levels down (`PlaceOrder.line.inner.channel`) names `Inner.channel`, exit 1.
+- The limit note above ("same limit as the outbound decode") is superseded: the inbound case is now a build error, as outbound.
+
+**Checks (observed, after GREEN)**
+
+| Check | Result |
+|---|---|
+| `cargo fmt --check` | clean |
+| `cargo clippy --offline --all-targets -- -D warnings` | clean |
+| `cargo test --offline --no-fail-fast` | 21 + 14 passed |
+| `slice6_entry_test.py` | 19 OK (was 18; N10 has 16 rows, N13 green) |
+| `slice5_syntax_test.py` | 60 OK |
+| `slice6_*_test.py` (16 files) | all OK: constructor 25, decode_ctor 8, decode 10, effect_reach 8, entry 19, enum 20, failure 22, fmt 25, host_struct 3, int 16, pipe 12, record 5, redacted_failure 8, redacted 20, stored_elixir 15, struct_order 3 |
+| `redteam_b3` / `redteam_c1` / `redteam_c3` | 1 / 8 / 5 OK |
+| `drift_test.py` | 7 OK |
+| `scripts/lint_wiki.py` | 0 errors |
+
+- **[Observed]** No EFFECT byte changed: the five pin sites are untouched and their tests pass (slice5 PIN, pipe EFFECT_OUTPUTS, host_struct BYTE_GUARD, `effect-reach/byte-guard.json` through effect_reach, entry N13 BASE).
+- **[Observed]** One of 12 `slice6_entry_test.py` runs failed (1 failure, in the loop over all suites); the next 11 runs passed. The failing test was not captured. **[Unknown]** cause; a parallel worker or the N7 closed-port probe are candidates. Not reproduced.
+- Full `run.py` not run (task rule).
+
+**O2.** G6D-04 is Repair `(default, open)`, listed with G6D-03 and G6D-12 under "Slice 6d built defaults" in [owner-review.md](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md).
+
+**O3.** R1 and the ENTRY stream digest gap (`check_entries` does not verify `value_sha256`) are appended to D035 in [decisions to be made](../../../../../wiki/planning/decisions-to-be-made.md).
+
+### Decisions
+
+**Repair**
+→ O1: nested enum or constructor field is a compile error statt decode it, weil the error is the smaller repair (TEST O1, ruling). By: Opus (GREEN repair slice6d)
+→ Any enum below the top level is blocked, literal or not, statt literal enums only, weil a plain enum there has no decode either. By: Opus (GREEN repair slice6d)
+→ G6D-04 raised Undo to Repair, `(default, open)`. By: Fable (ruling O2), recorded by Opus (GREEN repair slice6d)
+
+**Undo**
+→ The limit text cites DL-144 (the ruling's frame), not a new ID. By: Opus (GREEN repair slice6d)
+→ Top-level constructor TYPEs are not walked for nested fields. By: Opus (GREEN repair slice6d)
+→ The control also holds a nested plain record (the TEST accepted case). By: Opus (GREEN repair slice6d)
+→ O3: R1 and the digest gap appended to D035. By: Fable (ruling O3), recorded by Opus (GREEN repair slice6d)
+→ The single unreproduced entry-test failure is recorded, not chased. By: Opus (GREEN repair slice6d)

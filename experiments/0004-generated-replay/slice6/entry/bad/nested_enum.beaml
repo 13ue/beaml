@@ -1,0 +1,9 @@
+// Slice 6d reject case: an enum field below the top level of the input TYPE (TEST O1, DL-144).
+enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }
+
+type Line { channel: Channel }
+type PlaceOrder { order_id: String line: Line }
+
+effect ui.echo PlaceOrder -> PlaceOrder = ui.event("echo") |> echo
+
+fn echo p: PlaceOrder -> PlaceOrder = p

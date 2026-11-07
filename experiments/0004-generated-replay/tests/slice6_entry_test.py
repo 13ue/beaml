@@ -58,6 +58,12 @@ def drift(op, role, head, fn, target):
             % (op, role, head, fn, target, target, op))
 
 
+def nested(kind, field):
+    return ("error: effect ui.echo: the %s field %s below the top level of PlaceOrder is a slice 6d limit (DL-144)\n"
+            "  help: move %s to the top level of PlaceOrder; slice 6d decodes enum and constructor fields at the top "
+            "level only" % (kind, field, field))
+
+
 BAD_CASES = {
     "drift_input": drift("ui.place", "input", "Order", "PlaceOrder", "place"),
     "drift_output": drift("ui.place", "output", "Order", "Payment", "place"),
@@ -76,6 +82,9 @@ BAD_CASES = {
     "input_constructor": "error: effect ui.keep: Amount has a constructor; slice 6d decodes a plain record (D6B-130)",
     "input_version_mark": ("error: effect ui.count: Count has a MIGRATE CHAIN or a VERSION MARK; slice 6d decodes the "
                            "newest TYPE only (D6B-130)"),
+    # TEST O1 (DL-144): an enum or constructor field below the top level is a build error, not a run-time reject.
+    "nested_enum": nested("enum", "Line.channel"),
+    "nested_constructor": nested("constructor", "Line.amount"),
 }
 
 # DL-134 texts: the DL-102 and DL-122 texts of RESPONSE RECORDS with ENTRY RECORD (DL-124: never a stored value).
@@ -382,6 +391,15 @@ class Slice6Entry(unittest.TestCase):
                 code, stdout, stderr = self.compile(BAD / ("%s.beaml" % name), EMPTY)
                 self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
                                  "expected exit 1, no stdout and the exact message")
+
+    def test_o1_top_level_enum_and_constructor_and_nested_record_accept_a_good_event(self):
+        # TEST O1 control: the nested limit leaves top-level enum and constructor fields and a nested plain record.
+        source = ECHO.read_text().replace("type PlaceOrder { order_id: String", "type Line { note: String }\n"
+                                          "type PlaceOrder { line: Line order_id: String")
+        self.assertIn("line: Line", source, "setup: the echo fixture lost its PlaceOrder TYPE")
+        self.runtime(source, {"O1_control_good_event": (
+            'match?({:ok, %{"line" => %{"note" => "n"}, "amount" => %BeamlSpike.Amount{}, '
+            '"channel" => {"Channel", "Web", []}}}, BeamlSpike.ui_echo(Map.put(good, "line", %{"note" => "n"})))')})
 
     # N11 (R6D-06): fmt treats the ENTRY LINE like an EFFECT line.
 

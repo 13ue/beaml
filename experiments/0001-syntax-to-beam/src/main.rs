@@ -2517,6 +2517,30 @@ impl Checker<'_> {
                     self.ctor_keeps(op, input, field, ty)?;
                 }
             }
+            // TEST O1 (DL-144): the decode maps an enum or constructor field at the top level only, so a deeper one
+            // is a build error, not a reject of every event. check_type has already rejected recursive TYPES.
+            let mut nested: Vec<&String> = self.record(input)?.iter().map(|(_, t)| t).collect();
+            nested.retain(|t| !self.constructors.contains(*t));
+            let mut next = 0;
+            while let Some(ty) = nested.get(next).copied() {
+                next += 1;
+                let Some(Definition::Record(fields)) = self.program.types.get(ty) else {
+                    continue;
+                };
+                for (field, t) in fields {
+                    let kind = match self.program.types.get(t) {
+                        _ if self.constructors.contains(t) => "constructor",
+                        Some(Definition::Enum(_)) => "enum",
+                        _ => {
+                            nested.push(t);
+                            continue;
+                        }
+                    };
+                    return error(format!(
+                        "the {kind} field {ty}.{field} below the top level of {input} is a slice 6d limit (DL-144)\n  help: move {ty}.{field} to the top level of {input}; slice 6d decodes enum and constructor fields at the top level only"
+                    ));
+                }
+            }
             for reached in &self.reach[target] {
                 let effect = self.effect(reached).expect("reached effect");
                 if &self.flow(effect)?.name != target {

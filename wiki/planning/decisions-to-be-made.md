@@ -713,6 +713,8 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Next check** At the record format v3 (P2) TEST commit.
 
 **[Proposal]** Question: Build the second half of [DL-136](decision-log.md): a stored record with a bad `value_sha256` is counted and not checked, for both streams. P2 (record format v3) builds only the `outcome` half. Until P2b lands, the P2 count line is followed by `digest not verified (P2b)`. Ledger: [record-format-v3 plan repair](../../experiments/0004-generated-replay/workflow/2026-11-07/record-format-v3/plan.md#plan-repair-after-plan-check-2026-11-07) (RV3-07, RV3-15). By: Fable (ruling O3 under DL-144).
+- **[Inference]** Carried from slice 6d TEST O3: R1, a captured reject that a looser rule accepts now, is not reported; one test covers both streams. Ledger: [slice 6d review](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/review.md) (O3). By: Fable (ruling O3 under DL-144).
+- **[Observed]** Carried from slice 6d TEST O3: `check_entries` does not verify `value_sha256` of a stored ENTRY RECORD (the C5 gap of the ENTRY stream); `Replay.entry` rejects a bad digest. Ledger: [slice 6d review](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/review.md) (O3). By: Fable (ruling O3 under DL-144).
 
 ## Answered 2026-11-07
 
