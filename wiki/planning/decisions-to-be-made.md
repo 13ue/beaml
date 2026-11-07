@@ -420,6 +420,24 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Unknown]** Not built. No OBSERVATORY slice is planned yet beyond the roadmap row.
 
+## D019 — Backend of the pure core: generated Elixir or Rust NIFs
+
+- **Status** OPEN, research note from the Q6B-19 walk-through (2026-11-07)
+- **Decision owner** OWNER
+- **Class** Migrate (architecture, roadmap parts 1 and 2)
+- **Scope** LANGUAGE/COMPILATION, EXECUTION, DL-120, D017
+- **Decision trigger** When a build must run without an Elixir toolchain, or when constructor performance is measured as a problem. Not a precondition for D017 (Q6B-19).
+
+**[Proposal]** The idea: the COMPILER emits the pure core (constructors and every function they reach; DL-120 makes that core pure) as Rust, loaded into the BEAM as a NIF (Rustler). The `--stored` check then runs the same Rust code inside the compiler process. One semantics, no Elixir at build time.
+
+**[Inference]** Against it: two code generators in one compiler (Elixir for pipes and EFFECTs, Rust for the core), so every shared form needs two emitters; a NIF call costs about 1 to 3 µs for term marshalling, and small pattern-matching clauses are often faster in Elixir; a native library per target platform (rustler_precompiled builds a matrix of 8 targets by 2 NIF versions); hot code upgrade of NIF libraries needs extra lifecycle care; NIF code is dark to BEAM tracing, which matters under a full-resolution OBSERVATORY setting (D018); the BEAM cannot preempt native code, so the core must stay short per call. For it: one semantics for build check and runtime, a fast in-process build check, no Elixir toolchain at build, deterministic replay. By: Fable (research, 2026-11-07).
+
+**[Verified]** Sources read on 2026-11-07: Dashbit, "Introducing Rustler Precompiled" (dashbit.co/blog/rustler-precompiled); rustler_precompiled precompilation guide (hexdocs.pm/rustler_precompiled/precompilation_guide.html); localize performance guide on NIF boundary cost (hexdocs.pm/localize/performance.html); otter-nif crate docs on NIF lifecycle (docs.rs/crate/otter-nif/0.3.1); Fly.io, "Elixir and Rust is a good mix". Numbers are third-party, not measured on BEAML output.
+
+**[Unknown]** Not built. No spike exists. The smallest spike: one constructor TYPE emitted as a Rustler NIF, the `--stored` check calling the same Rust function, one benchmark of `new/1` against the generated Elixir.
+
+**[Proposal]** Options when the trigger fires: (1) keep the generated Elixir as the one backend and run the build check with it (D017 option b); (2) Rust NIF for the pure core as sketched; (3) a third form not yet named. The OWNER chooses.
+
 ## Answered 2026-11-07
 
 - [DL-099](decision-log.md): Q6B-1, enum constructor inputs come from the field's own value.
