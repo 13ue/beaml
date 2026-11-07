@@ -839,6 +839,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: "stored yesterday, read differently today" is the DL-122 reason, and the OWNER wants the mapping declared, never implicit. C punishes a typo fix with a version jump.
 → Effect: `--stored` compares the variant a stored value took under the stored source with the variant it takes now (needs the stored version's literal table, or the record's decoded variant); a difference blocks. The same for enum constructors with swapped clauses. D6B-109 and the DL-103 limit close. Slice: with the DL-125 fate forms.
 
+**DL-141 · Migrate · The ENTRY RECORD carries `outcome` and `reason` as two fixed keys (slice 6d record format, sign-off 1 of 3)**
+→ Question: DL-138 gives every ENTRY RECORD a capture outcome. How does it stand in the record? The RED worker built two keys (R6D-13); under DL-139 a record format needs the OWNER's sign-off.
+→ Options: A, `outcome` (`"accepted"` or `"rejected"`) and `reason` (`null`, `"decode"` or `"constructor"`) in every record; B, one key with the reason in the value (`"rejected:decode"`); C, no outcome, only `value: null` on a reject.
+→ Chose: A. The built default is confirmed.
+→ By: 13ue
+→ Because: every record has the same key set, `--stored` filters on one key, a later reason needs no format change. B puts a second grammar into a value. C cannot tell a reject from an accepted empty value.
+→ Effect: R6D-13 closes as confirmed. Sign-off 2 (`unknown_fields`) and 3 (one format for both streams) follow.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
