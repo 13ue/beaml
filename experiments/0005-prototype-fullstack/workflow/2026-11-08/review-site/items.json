@@ -47,11 +47,11 @@
  {
   "group": "02-order-chain",
   "id": "QM4-1",
-  "status": "default",
+  "status": "decided",
   "page": "eingang",
   "added": "2026-11-08T09:19:32Z",
   "source": "m4-plan",
-  "by": "Opus (PLAN m4-lift, Default, offen)"
+  "by": "Opus (PLAN m4-lift, Default, offen); entschieden 13ue: A"
  },
  {
   "group": "02-order-chain",
@@ -74,11 +74,11 @@
  {
   "group": "02-order-chain",
   "id": "QM4-4",
-  "status": "default",
+  "status": "decided",
   "page": "eingang",
   "added": "2026-11-08T09:19:32Z",
   "source": "m4-plan",
-  "by": "Opus (PLAN m4-lift, Default, offen)"
+  "by": "Opus (PLAN m4-lift, Default, offen); entschieden 13ue: B, rename geht"
  },
  {
   "group": "02-order-chain",

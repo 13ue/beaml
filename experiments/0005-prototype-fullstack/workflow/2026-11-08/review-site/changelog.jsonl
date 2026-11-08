@@ -133,3 +133,5 @@
 {"ts": "2026-11-08T10:11:29Z", "id": "ENUM-V1-DECL", "page": "eingang", "change": "moved to Eingang", "by": "build.py (eingefroren)"}
 {"ts": "2026-11-08T10:14:17Z", "id": "M5", "page": "11-parked", "change": "status decided", "by": "OWNER; entschieden 13ue: B, BEAML löscht nach N Tagen"}
 {"ts": "2026-11-08T10:28:23Z", "id": "D035", "page": "07-record-v3", "change": "status decided", "by": "Fable (Ruling O3 unter DL-144); entschieden 13ue: A, Build blockt"}
+{"ts": "2026-11-08T10:35:58Z", "id": "QM4-1", "page": "eingang", "change": "status decided", "by": "Opus (PLAN m4-lift, Default, offen); entschieden 13ue: A"}
+{"ts": "2026-11-08T10:35:58Z", "id": "QM4-4", "page": "eingang", "change": "status decided", "by": "Opus (PLAN m4-lift, Default, offen); entschieden 13ue: B, rename geht"}
