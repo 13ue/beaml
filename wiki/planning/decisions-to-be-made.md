@@ -781,7 +781,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D042 — Lazy recheck of a rule over a REDACTED FIELD (M3 follow-up)
 
-- **Status** OPEN (OWNER idea, 2026-11-08; dissolves most of M3 under DL-155)
+- **Status** OPEN, narrowed 2026-11-08: the "redacted only on versioned constructor TYPES" half is decided as DL-160; M3 closes as A; open here is only the form of the lazy recheck outcome
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** a redacted value is absent from records, so the build cannot check a stricter rule over it. With DL-155 the stricter rule is a new TYPE VERSION; old values are `T v1`. Idea: the check runs lazily where the value exists (the host app, on read or re-entry), declared by a fate line (`recheck f`, sketch). Totality end to end: the compiler lists every place the outcome "old value fails the new rule" can reach (ENTRY LINE, generated function, page, replay, records, observability) and the host must handle it.

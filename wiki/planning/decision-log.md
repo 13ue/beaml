@@ -966,6 +966,15 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: a row and a RESPONSE RECORD are the same thing to `--stored`; one reader for both.
 
+**DL-160 · Migrate · `redacted` only on constructor TYPES with a TYPE VERSION, never on a primitive field**
+→ Question: which fields may be redacted. DL-116 (interim) allowed only plain String or Int fields without a constructor. The OWNER's rule of 2026-11-08: the opposite.
+→ Chose: a REDACTED FIELD must have a named constructor TYPE (`body: redacted Body` with `type Body { text: String }` and its `fn Body` clauses), never a bare `String` or `Int`. The TYPE carries its version (v1 from the start, DL-155), so every stored record says which rule its hidden value passed. A stricter rule is a new version with a fate line; no rule ever runs over an absent value, so `redact` never skips a rule (M3 = A follows).
+→ Options: A DL-116 as is (primitives only) · B any field · C constructor TYPES only.
+→ Chose: C.
+→ By: 13ue (2026-11-08, "nur komplexe Typen mit Version"; confirmed when the main agent had recorded it only as the open item D042)
+→ Because: the history of a hidden value is then complete in code: TYPE, version, rule. A primitive has no version and no rule, so nothing could be said about its old values.
+→ Effect: supersedes DL-116 (its interim limit turns into this rule; the 6b error text changes to "a redacted field needs a constructor TYPE"); M3 closes as A (DL-125 list loses DL-116; `redact f` means "field absent from now on"); D042 keeps only the lazy recheck form (how the app reports an old hidden value that fails the new rule). Built in the fate slice (fates-b, with `redact`) or a small step before it; the `redacted-failure` fixtures (26) change.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
