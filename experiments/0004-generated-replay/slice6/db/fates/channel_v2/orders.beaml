@@ -1,4 +1,5 @@
 // Slice 6 db fates channel_v2: Channel v2 maps the stored literal "app" to Mobile on purpose (F2, S2, DL-155).
+// The previous declaration stays while v1 values exist (DL-155, DL-161).
 type BadAmount {}
 type Amount {
   value: String
@@ -9,6 +10,11 @@ fn Amount value: String, currency: String -> Amount ! BadAmount
 fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
 fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
 
+enum Channel v1 {
+  Web = "web"
+  App = "app"
+  Unknown(String)
+}
 enum Channel v2 {
   Web = "web"
   Mobile = "mobile"

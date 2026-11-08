@@ -127,7 +127,7 @@ Because: a live body is not stored data; quarantine is a fate of stored values.
 Over: map over constructor results. Because: D041 is open; this works under A, B and C. Commits us to: under D041 C a later step.
 → By: Opus (PLAN fates)
 
-**PF-24 · Undo · `redact f` means "the field becomes absent"; it never skips a rule; DL-116 stays (M3 lean A).**
+**PF-24 · Undo · Superseded by DL-160 (By: 13ue; RED repair R-5, 2026-11-08).** Original text: `redact f` means "the field becomes absent"; it never skips a rule; DL-116 stays (M3 lean A).
 Because: the task and the D042 note. Built only in fates-b.
 → By: Opus (PLAN fates)
 
@@ -282,3 +282,87 @@ Because: a3 copies the same forms into 0005 (`variants/stricter_v1/`, `variants/
 → **Quarantine of a lost literal:** may `quarantine channel` park rows whose channel literal is gone, beside `map`? RF-03 makes it an error for now.
 → **QF-2:** a1 builds the default A (the nested TYPE VERSION is source-only; a fate line counts by today's rule). Open.
 → **QF-5 texts:** the help and `fate:` texts of RF-01 to RF-09 are RED defaults, not OWNER texts. Open.
+
+## OWNER and main-agent decisions during GREEN fates-a1 (2026-11-08)
+
+**DL-162 · Migrate (OWNER) · `quarantine` may park a lost ENUM LITERAL; supersedes RF-03 and the QUAR-LITERAL card.**
+Forms: bare `quarantine "fax"` in the enum step, `quarantine channel "fax"` in the owner step; a map line and a
+quarantine line on one literal is an error; a bare `quarantine channel` (field only) on an enum field stays an error.
+→ By: 13ue (DL-162)
+
+**Q1 ruling · Repair · The DL-161 previous literal table comes from an older declaration in the source (form A).**
+`enum Channel v1 { … }` stays beside `enum Channel v2 { … }` while v1 values exist. An enum chain without the older
+declaration is an error (`enum Channel v1 is not declared; …`), never a silent gap. Forms B (literal changes in the step)
+and C (lock file, previous artifact) are not built. OWNER card ENUM-V1-DECL opened.
+→ By: Fable (ruling on DL-155 wording), class Repair, OWNER card ENUM-V1-DECL opened
+
+**Q2 ruling · Undo · One `fate:` line form for every fate line (the RED form of PF-13 / RF-01).**
+→ By: Fable (ruling on Q2)
+
+## GREEN decisions (fates-a1, 2026-11-08)
+
+By: Opus (GREEN fates-a1) for every entry below. Evidence: [green-output.md](green-output.md).
+
+**GF-01 · Repair · An older enum declaration needs its MIGRATE STEP: `enum Channel v1 has no MIGRATE STEP to v2; add migrate Channel v1 -> v2 { ... } or remove enum Channel v1 (DL-155)`.**
+Over: accept an unused old declaration. Because: an old table without a step is a dead declaration and cannot be read.
+Commits us to: F5 `old_declaration_without_step`.
+
+**GF-02 · Repair · The swap check uses the table of the version before the newest (the `from` of the last enum step) for every stored value.**
+Over: per-value enum versions. Because: QF-2 A (built default) keeps the nested version source-only, so a stored value
+does not say its enum version. Limit: in a chain of two or more enum steps, a value of an older version is compared with
+the last table only. Commits us to: QF-2 decides the upgrade.
+
+**GF-03 · Repair · A moved literal blocks with one DL-140 block per literal that names the literal, the old and the new variant: `… has the ENUM LITERAL "web" of field channel, which was Web in enum Channel v1 and is App now (DL-140)` and `help: declare the fate of "web" in migrate Channel v1 -> v2 (DL-161): map "web" -> <Variant> or quarantine "web"`.**
+Over: the DL-122 text with a placeholder. Because: both literals are source text in the two declarations (DL-124 holds);
+the task asks that the block names both. Text is a default (QF-5 open).
+
+**GF-04 · Repair · A fate line on a current literal is valid only when the literal moved since the previous declaration; otherwise: `"web" is a current ENUM LITERAL of Channel that keeps its variant; a fate line names a literal that left or moved (DL-161)`.**
+Over: the RED text "a swap waits for the previous literal table (DL-140, QF-8)". Because: DL-161 builds the table.
+A map line on a literal that no declaration holds (F2 `"tablet"`) stays valid (no check).
+
+**GF-05 · Repair · `fate:` lines print beside a block too, before the block lines.**
+Over: print them only when the build passes. Because: S2d (R-1) asks for the count beside the `"tablet"` block; a parked
+row stays visible in the report. RF-10 left this open.
+
+**GF-06 · Repair · Help texts at the sites without a fates-a exit.** A failed rule of an ENUM CONSTRUCTOR:
+`help: no fate line covers an ENUM CONSTRUCTOR yet (D041 open); restore the constructor rule of fn E that reads these records`
+(new; RF-09 named only the no-signature case). Over: the no-signature text for both. Because: "restore a signature" is
+wrong for a failed rule. Commits us to: redteam_c1 C1d, C1e pin it.
+
+**GF-07 · Repair · ENTRY RECORDS use the same literal, constructor, help and fate code as rows and RESPONSE RECORDS (`check_entries` fills a `ValueChecks` and calls `value_errors`).**
+Over: a third copy. Because: one rule per DL-134; the entry texts were already the same form. Limit: entries still skip
+the shape and DL-103 checks (they fill only the literal and constructor maps).
+
+**GF-08 · Undo · V18b re-pin: five pairs change only their help line (`HELP_REPIN` in record_v3_test.py), not four.**
+The fifth, `stored-elixir/order.jsonl`, is a failed `Amount` rule; the plan missed it. `decode/stored-fail` keeps its
+text. Also V14b and the help constants in eight test files (list in green-output.md).
+
+**GF-09 · Undo · `quarantine` and `map` lines emit no Elixir in a1 (`ponytail:` at the emit site).** A hit fate line
+stops the build (RF-01), so no generated module runs with them. fates-a2 builds the decode.
+
+**GF-10 · Undo · The parse error for an unknown MIGRATE word names the fate words: `… a MIGRATE CHANGE is rename, add or drop, a fate line is quarantine, map, redact or retire`.**
+No test pins the old text (searched).
+
+**GF-11 · Repair · Not built in a1: the SQUASH block of the Q1 ruling ("removing `enum E v1` and the step is allowed only when the snapshot holds no v1 value").**
+Because: a stored value does not carry its enum version (QF-2 A), so the build cannot count v1 values; a removal that
+leaves a lost or moved literal is already blocked by DL-122 / DL-140 through the `enum E v2` mark alone (S3 enum case).
+Commits us to: the main agent decides whether that suffices or a QF-2 record format is needed.
+
+**GF-12 · Undo · `fmt` (HEAD rule DL-104) removes `type Amount v2` / `type Order v3` from a chain that starts at v1; `enum E vN` marks stay.**
+Not changed in a1 (a4 owns fmt). The three fixtures stay unformatted on purpose (S3 needs the mark). A second `fmt`
+run prints nothing.
+
+**GF-13 · Repair · QM4-1 text retired with DL-166: no step keeps it.**
+`renamed_onto` fires only for `rename`; `drop` and `add` of a non-String field stop earlier at K6 / K4 ("supports String
+fields only"). With DL-166 (By: 13ue) the check and its text are deleted; K4 / K6 stay the only error for such fields.
+Not built in a1: DL-166 is step a1b (fresh worker after the a1 commit).
+→ By: Fable (ruling on DL-166 scope, Repair), observed by Opus (GREEN fates-a1)
+
+**GF-14 · Undo · The PF-05 K8 text moves `slice3_types_test.py` `EMPTY_STEP` (a token check) to `… rename, add, drop or fate line`.**
+Found by the first full run (slice3-types failed only there).
+
+## Open OWNER lines after GREEN a1
+
+→ **ENUM-V1-DECL** (opened by Fable): the older enum declaration in the source (Q1 ruling).
+→ **QF-2** (built default A): nested versions are source-only; also limits GF-02 and GF-11.
+→ **QF-5** texts: the helps, `fate:` lines, stop lines, GF-03, GF-04, GF-06 are defaults.

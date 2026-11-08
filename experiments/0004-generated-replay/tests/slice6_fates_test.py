@@ -27,16 +27,25 @@ import slice6_db_test as sd  # noqa: E402
 FATES = sd.FIX / "fates"
 STRICTER_V1, AMOUNT_V2, TWO_CTOR = (FATES / n / "orders.beaml" for n in ("stricter_v1", "amount_v2", "two_ctor"))
 CHANNEL_V1, CHANNEL_V2, ORDER_MAP = (FATES / n / "orders.beaml" for n in ("channel_v1", "channel_v2", "order_map"))
+CHANNEL_SWAP = FATES / "channel_swap" / "orders.beaml"  # DL-161: Web and App swap their literals at v2
 DECODE = sd.EXPERIMENT / "slice6" / "decode"
 DECODE_CTOR = sd.EXPERIMENT / "slice6" / "decode-ctor"
 type_of, row, db_record, counted = sd.type_of, sds.row, sds.db_record, sds.counted
 WIRE1, ZERO, APP, EUR = sd.WIRE1, sds.ZERO, sds.APP, sd.EUR
 PLACE_TYPE = type_of("PlaceForm", 1, [["order_id", "String"], ["amount", "Amount"], ["channel", "Channel"]])
+ORDER_V3 = type_of("Order", 3, [["order_id", "String"], ["amount", "Amount"], ["channel", "Channel"], ["note", "String"]])
 TIP_ORDER = type_of("Order", 1, [["order_id", "String"], ["amount", "Amount"], ["tip", "Tip"], ["channel", "Channel"]])
 NO_CURRENCY = dict(WIRE1, order_id="order-nocur", amount={"value": "12.50", "currency": ""})
 BOTH = {"order_id": "order-both", "amount": {"value": "0", "currency": "EUR"}, "channel": "tv"}
 FORM_ZERO = {"order_id": "order-form-zero", "amount": {"value": "0", "currency": "EUR"}, "channel": "web"}
 FORM_APP = {"order_id": "order-form-app", "amount": EUR, "channel": "app"}
+ZERO2 = dict(ZERO, order_id="order-zero-two")
+TABLET = dict(WIRE1, order_id="order-tablet", channel="tablet")
+WEB_ROW = dict(WIRE1, order_id="order-web")
+# DL-155 (ruling by Fable on Q1, DL-161): the previous enum declaration stays in the source while v1 values exist.
+V1_DECL = 'enum Channel v1 {\n  Web = "web"\n  App = "app"\n  Unknown(String)\n}\n'
+NO_V1_DECL = "error: enum Channel v1 is not declared; keep the previous declaration while v1 values exist (DL-155)"
+ENUM_STEP_ONLY = "migrate Channel v1 -> v2: an enum MIGRATE STEP holds bare map and quarantine lines only (PF-06, DL-162)"
 
 Q_LINE = "migrate Amount v1 -> v2 { quarantine value }"
 M_LINE = 'migrate Channel v1 -> v2 { map "app" -> Mobile }'
@@ -100,8 +109,10 @@ def entry(value, unknown_fields=()):
 
 
 AMT, CH, OM = AMOUNT_V2.read_text(), CHANNEL_V2.read_text(), ORDER_MAP.read_text()
-BARE_AND_QUALIFIED = swap(swap(OM, "enum Channel {", "enum Channel v2 {"), "  Unknown(String)\n}\n",
-                          "  Unknown(String)\n}\n" + M_LINE + "\n")
+SW = CHANNEL_SWAP.read_text()
+SW_LINE = 'migrate Channel v1 -> v2 { quarantine "fax" }'
+BARE_AND_QUALIFIED = swap(swap(OM, "  Unknown(String)\n}\n", "  Unknown(String)\n}\n" + M_LINE + "\n"),
+                          "enum Channel {", V1_DECL + "enum Channel v2 {")
 NOT_LAST = swap(OM, 'migrate Order v1 -> v2 { add note: String = "" }\n' + QM_LINE,
                 'migrate Order v1 -> v2 { add note: String = "", map channel "app" -> Mobile }\n'
                 "migrate Order v2 -> v3 { drop legacy: String }")
@@ -121,9 +132,10 @@ REJECTS = {
                               "migrate Order v2 -> v3: quarantine amount: write the quarantine line in the MIGRATE STEP "
                               "of the constructor TYPE: type Amount v2 and migrate Amount v1 -> v2 "
                               "{ quarantine <parameter> } (QF-3 A)"),
+    # DL-162 (supersedes RF-03): a quarantine line on an enum field names the literal.
     "quarantine_enum_field": (OM, QM_LINE, "migrate Order v2 -> v3 { quarantine channel }",
-                              'migrate Order v2 -> v3: quarantine channel: quarantine of an enum field is not built; '
-                              'write map channel "<old literal>" -> <Variant>'),
+                              'migrate Order v2 -> v3: quarantine channel: a quarantine line on an enum field names the '
+                              'literal: quarantine channel "<old literal>" (DL-162)'),
     "map_no_field": (OM, QM_LINE, 'migrate Order v2 -> v3 { map nope "app" -> Mobile }',
                      "migrate Order v2 -> v3: map nope names no field of Order"),
     "map_not_enum_field": (OM, QM_LINE, 'migrate Order v2 -> v3 { map order_id "app" -> Mobile }',
@@ -133,9 +145,37 @@ REJECTS = {
     "map_keep_value_variant": (CH, M_LINE, 'migrate Channel v1 -> v2 { map "app" -> Unknown }',
                                'migrate Channel v1 -> v2: map "app" -> Unknown: Unknown carries a payload; map to a '
                                'variant without payload (QF-6 A)'),
+    # DL-161: a fate line on a current literal is valid only when the literal moved to another variant.
     "map_current_literal": (CH, M_LINE, 'migrate Channel v1 -> v2 { map "web" -> Mobile }',
-                            'migrate Channel v1 -> v2: map "web" -> Mobile: "web" is a current ENUM LITERAL of Channel; '
-                            'a swap waits for the previous literal table (DL-140, QF-8)'),
+                            'migrate Channel v1 -> v2: map "web" -> Mobile: "web" is a current ENUM LITERAL of Channel '
+                            'that keeps its variant; a fate line names a literal that left or moved (DL-161)'),
+    "quarantine_current_literal": (CH, M_LINE, 'migrate Channel v1 -> v2 { quarantine "web" }',
+                                   'migrate Channel v1 -> v2: quarantine "web": "web" is a current ENUM LITERAL of '
+                                   'Channel that keeps its variant; a fate line names a literal that left or moved '
+                                   '(DL-161)'),
+    "map_current_literal_qualified": (OM, QM_LINE, 'migrate Order v2 -> v3 { map channel "web" -> Mobile }',
+                                      'migrate Order v2 -> v3: map channel "web" -> Mobile: "web" is a current ENUM '
+                                      'LITERAL of Channel that keeps its variant; a fate line names a literal that '
+                                      'left or moved (DL-161)'),
+    # DL-162: a map line and a quarantine line on one literal.
+    "map_and_quarantine_bare": (CH, M_LINE, 'migrate Channel v1 -> v2 { map "app" -> Mobile, quarantine "app" }',
+                                'migrate Channel v1 -> v2: "app" has a map line and a quarantine line; keep one '
+                                '(DL-162)'),
+    "map_and_quarantine_qualified": (OM, QM_LINE,
+                                     'migrate Order v2 -> v3 { map channel "app" -> Mobile, quarantine channel "app" }',
+                                     'migrate Order v2 -> v3: "app" of field channel has a map line and a quarantine '
+                                     'line; keep one (DL-162)'),
+    "bare_quarantine_in_record_step": (OM, QM_LINE, 'migrate Order v2 -> v3 { quarantine "app" }',
+                                       'migrate Order v2 -> v3: a bare quarantine stands only in the MIGRATE STEP of '
+                                       'an enum; write quarantine <field> "app"'),
+    "quarantine_literal_not_enum_field": (OM, QM_LINE, 'migrate Order v2 -> v3 { quarantine order_id "app" }',
+                                          "migrate Order v2 -> v3: quarantine order_id: the field order_id is no "
+                                          "literal enum field"),
+    # DL-155 (ruling by Fable on Q1): an enum chain needs its previous declaration; an old declaration needs its step.
+    "enum_chain_without_old_declaration": (CH, V1_DECL, "", NO_V1_DECL[len("error: "):]),
+    "old_declaration_without_step": (CH, M_LINE + "\n", "",
+                                     "enum Channel v1 has no MIGRATE STEP to v2; add migrate Channel v1 -> v2 "
+                                     "{ ... } or remove enum Channel v1 (DL-155)"),
     "map_enum_constructor": (CTOR_ENUM, None, None,
                              "migrate PaymentState v1 -> v2: map: PaymentState has an ENUM CONSTRUCTOR; map works on "
                              "ENUM LITERALS only (D041 open)"),
@@ -158,9 +198,9 @@ REJECTS = {
     "fate_not_in_last_step": (NOT_LAST, None, None,
                               "migrate Order v1 -> v2: a fate line stands only in the last MIGRATE STEP of Order (v3)"),
     "enum_step_add": (CH, M_LINE, 'migrate Channel v1 -> v2 { add label: String = "" }',
-                      "migrate Channel v1 -> v2: an enum MIGRATE STEP holds bare map lines only (PF-06)"),
+                      ENUM_STEP_ONLY),
     "enum_step_qualified_map": (CH, M_LINE, 'migrate Channel v1 -> v2 { map channel "app" -> Mobile }',
-                                "migrate Channel v1 -> v2: an enum MIGRATE STEP holds bare map lines only (PF-06)"),
+                                ENUM_STEP_ONLY),
 }
 # QF-6 A: a payload after the map target is a parse error.
 PAYLOAD_PARSE = re.compile(r"(error: )?a map target takes no payload \(QF-6 A\) at byte \d+")
@@ -275,13 +315,22 @@ class Fates(unittest.TestCase):
             with self.subTest(name):
                 code, stdout, got, _ = self.run_stored(source, rows=rows)
                 self.assertEqual((0, True, [counted(1, 1, 0)]), (code, "defmodule Orders do" in stdout, got))
-        with self.subTest("order_map"):
-            code, stdout, got, _ = self.run_stored(ORDER_MAP, rows=rows)
-            self.assertEqual((0, True, []), (code, "defmodule Orders do" in stdout,
-                                             [l for l in got if l.startswith("warning: DEAD LINE: " + QM_STEP)]),
-                             "\n".join(got))
+        with self.subTest("order_map"):  # RED repair R-3: Order v3 rows only, so the W2 rule fires on v1 -> v2
+            v3 = [row(dict(WIRE1, note=""), ORDER_V3)]
+            code, stdout, got, _ = self.run_stored(ORDER_MAP, rows=v3)
+            self.assertEqual((0, True, True, []), (
+                code, "defmodule Orders do" in stdout, "warning: DEAD LINE: migrate Order v1 -> v2" in got,
+                [l for l in got if l.startswith("warning: DEAD LINE: " + QM_STEP)]), "\n".join(got))
 
     def test_F7b_remove_dead_keeps_a_fate_step(self):
+        with self.subTest("order_map: the dead v1 -> v2 step goes, the fate step stays"):  # RED repair R-3
+            resp, _ = self.snapshot([row(dict(WIRE1, note=""), ORDER_V3)])
+            path = self.work / "dead" / "order_map" / "orders.beaml"
+            path.parent.mkdir(parents=True)
+            path.write_text(OM)
+            code, _, stderr = self.compile(path, ["--stored", str(resp), "--remove-dead", "--assume-complete"])
+            after = path.read_text()
+            self.assertEqual((0, False, True), (code, "migrate Order v1 -> v2" in after, QM_LINE in after), stderr)
         cases = {"control drop step": (swap(AMT, Q_LINE, "migrate Amount v1 -> v2 { drop note: String }"), False),
                  "quarantine step": (AMT, True)}
         for name, (text, kept) in cases.items():
@@ -304,8 +353,20 @@ class Fates(unittest.TestCase):
     # S1 to S1f (DL-102, DL-155, PF-12): quarantine over rows, RESPONSE RECORDS and ENTRY RECORDS.
 
     def test_S1_quarantine_lifts_the_constructor_block_over_rows(self):
-        self.assert_fated(AMOUNT_V2, [fate(1, "ROW", "table records", "quarantined", Q_STEP, "quarantine value")],
-                          [NOT_BUILT_Q], rows_line=counted(2, 2, 0), rows=[row(WIRE1), row(ZERO)])
+        with self.subTest("one row"):
+            self.assert_fated(AMOUNT_V2, [fate(1, "ROW", "table records", "quarantined", Q_STEP, "quarantine value")],
+                              [NOT_BUILT_Q], rows_line=counted(2, 2, 0), rows=[row(WIRE1), row(ZERO)])
+        with self.subTest("two rows (RED repair R-2)"):
+            self.assert_fated(AMOUNT_V2, [fate(2, "ROW", "table records", "quarantined", Q_STEP, "quarantine value")],
+                              [NOT_BUILT_Q], rows_line=counted(3, 3, 0), rows=[row(ZERO), row(WIRE1), row(ZERO2)])
+        with self.subTest("rows and RESPONSE RECORDS (RED repair R-2)"):
+            rec = db_record("orders.list", sds.list_items(WIRE1, ZERO), sd.LIST_TYPE, {})
+            code, stdout, got, _ = self.run_stored(AMOUNT_V2, rows=[row(ZERO2)], responses=[rec])
+            fates = {fate(1, "ROW", "table records", "quarantined", Q_STEP, "quarantine value"),
+                     fate(1, "RESPONSE RECORD", "operation orders.list", "quarantined", Q_STEP, "quarantine value")}
+            lines = told(got)
+            self.assertEqual((1, "", fates, [NOT_BUILT_Q], 3), (code, stdout, set(lines[:-1]), lines[-1:], len(lines)),
+                             "\n".join(got))
 
     def test_S1b_control_without_the_line_blocks_with_the_version_help(self):
         cases = {
@@ -329,8 +390,17 @@ class Fates(unittest.TestCase):
 
     def test_S1c_quarantine_over_response_records(self):
         rec = db_record("orders.list", sds.list_items(WIRE1, ZERO), sd.LIST_TYPE, {})
-        self.assert_fated(AMOUNT_V2, [fate(1, "RESPONSE RECORD", "operation orders.list", "quarantined", Q_STEP,
-                                           "quarantine value")], [NOT_BUILT_Q], responses=[rec])
+        with self.subTest("one failing item"):
+            self.assert_fated(AMOUNT_V2, [fate(1, "RESPONSE RECORD", "operation orders.list", "quarantined", Q_STEP,
+                                               "quarantine value")], [NOT_BUILT_Q], responses=[rec])
+        with self.subTest("two failing items count once (PF-17, RED repair R-2)"):
+            two = db_record("orders.list", sds.list_items(ZERO, WIRE1, ZERO2), sd.LIST_TYPE, {})
+            self.assert_fated(AMOUNT_V2, [fate(1, "RESPONSE RECORD", "operation orders.list", "quarantined", Q_STEP,
+                                               "quarantine value")], [NOT_BUILT_Q], responses=[two])
+        with self.subTest("two records"):
+            two = db_record("orders.list", sds.list_items(ZERO2), sd.LIST_TYPE, {})
+            self.assert_fated(AMOUNT_V2, [fate(2, "RESPONSE RECORD", "operation orders.list", "quarantined", Q_STEP,
+                                               "quarantine value")], [NOT_BUILT_Q], responses=[rec, two])
 
     def test_S1d_quarantine_over_entry_records(self):
         self.assert_fated(AMOUNT_V2, [fate(1, "ENTRY RECORD", "operation ui.place", "quarantined", Q_STEP,
@@ -366,6 +436,13 @@ class Fates(unittest.TestCase):
             self.assert_fated(ORDER_MAP, [fate(1, "ROW", "table records", "mapped", QM_STEP,
                                                'map channel "app" -> Mobile')], [NOT_BUILT_M], rows=[row(APP)])
 
+    def test_S2d_map_lifts_only_its_literal(self):
+        """RED repair R-1: a lost "tablet" beside the mapped "app" still blocks; the map line counts 1."""
+        code, stdout, got, paths = self.run_stored(CHANNEL_V2, rows=[row(APP), row(TABLET)])
+        expected = ([fate(1, "ROW", "table records", "mapped", M_STEP, 'map "app" -> Mobile')]
+                    + literal_block("Order", "ROW", "table records", paths["rows"], 2) + [help_m("Channel", 2)])
+        self.assertEqual((1, "", expected), (code, stdout, told(got)), "\n".join(got))
+
     def test_S2b_control_without_map_blocks_with_the_version_help(self):
         cases = {
             "rows": ({"rows": [row(APP)]},
@@ -398,7 +475,7 @@ class Fates(unittest.TestCase):
             "type mark without a step": (swap(AMT, Q_LINE + "\n", ""), [row(ZERO)], lambda p: ctor_block(
                 "table records", "ROW", "Order", "Amount", "amount", "BadAmount", p["rows"], 1)
                 + [help_q("Amount", 2, "value")]),
-            "enum mark without a step": (swap(CH, M_LINE + "\n", ""), [row(APP)], lambda p: literal_block(
+            "enum mark without a step": (swap(swap(CH, M_LINE + "\n", ""), V1_DECL, ""), [row(APP)], lambda p: literal_block(
                 "Order", "ROW", "table records", p["rows"], 1) + [help_m("Channel", 2)]),
         }
         for name, (source, rows, block) in cases.items():
@@ -429,7 +506,10 @@ class Fates(unittest.TestCase):
                 _, _, got, _ = self.run_stored(source, **kw)
                 text = "\n".join(got)
                 # The anchor must stand in stderr, so a parse error cannot pass this test.
-                self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+                # RED repair R-4: stored Strings under 5 chars that are no source text of these lines.
+                short = [w for w in ('"0"', "EUR", "tv", "order-") if w in text]
+                self.assertEqual((True, [], []), (anchor in text, [w for w in sorted(self.words) if w in text], short),
+                                 text)
 
     # S5 (plan repair 5): the help where no fates-a line lifts the block.
 
@@ -453,6 +533,107 @@ class Fates(unittest.TestCase):
                                       "have no variant of PaymentState for field state",
                                       "  record source: %s:2 (line 2)" % fail, OLD_DL102_HELP % "Payment"]),
                              (code, stdout, told(stderr.strip().splitlines())))
+
+    def test_S5b_quarantine_lifts_no_decode_or_shape_fault(self):
+        """RED repair R-1: under amount_v2 a no-signature or shape fault still blocks, with no fate line."""
+        with self.subTest("no signature (a decode fault)"):
+            self.assert_block(AMOUNT_V2, lambda p: [
+                "error: TYPE Order: 1 stored ROW of table records matches no signature of Amount for field amount",
+                "  record source: %s:1 (line 1)" % p["rows"], NO_SIGNATURE_HELP % ("Amount", "Amount")],
+                rows=[row(dict(WIRE1, order_id="order-string", amount="12.50"))])
+        with self.subTest("no String value (a shape fault)"):
+            self.assert_block(AMOUNT_V2, lambda p: [
+                "error: TYPE Order: 1 stored ROW of table records has no String value for field order_id",
+                "  record source: %s:1 (line 1)" % p["rows"], OLD_DL102_HELP % "Order"],
+                rows=[row(dict(ZERO, order_id=7))])
+
+    # W1 to W5 (DL-140, DL-161): a literal that moved to another variant blocks until a fate line names it.
+
+    def moved(self, literal, old, new, source, lines):
+        return (['error: TYPE Order v1: %d stored ROW%s of table records %s the ENUM LITERAL "%s" of field channel, '
+                 "which was %s in enum Channel v1 and is %s now (DL-140)"
+                 % (len(lines), "" if len(lines) == 1 else "S", "has" if len(lines) == 1 else "have", literal, old, new)]
+                + ["  record source: %s:%d (line %d)" % (source, n, n) for n in lines]
+                + ['  help: declare the fate of "%s" in migrate Channel v1 -> v2 (DL-161): map "%s" -> <Variant> or '
+                   'quarantine "%s"' % (literal, literal, literal)])
+
+    def test_W1_swap_blocks_and_names_both_literals(self):
+        code, stdout, got, paths = self.run_stored(CHANNEL_SWAP, rows=[row(WEB_ROW), row(APP), row(WIRE1)])
+        expected = (self.moved("app", "App", "Web", paths["rows"], [2])
+                    + self.moved("web", "Web", "App", paths["rows"], [1, 3]))
+        self.assertEqual((1, "", expected), (code, stdout, told(got)), "\n".join(got))
+
+    def test_W2_swap_with_both_fate_lines_is_lifted(self):
+        rows = [row(WEB_ROW), row(APP)]
+        with self.subTest("two map lines"):
+            text = swap(SW, SW_LINE, 'migrate Channel v1 -> v2 { map "web" -> App, map "app" -> Web, quarantine "fax" }')
+            self.assert_fated(self.orders(text), [
+                fate(1, "ROW", "table records", "mapped", M_STEP, 'map "app" -> Web'),
+                fate(1, "ROW", "table records", "mapped", M_STEP, 'map "web" -> App')], [NOT_BUILT_M],
+                rows_line=counted(2, 2, 0), rows=rows)
+        with self.subTest("two quarantine lines (DL-162)"):
+            text = swap(SW, SW_LINE, 'migrate Channel v1 -> v2 { quarantine "web", quarantine "app", quarantine "fax" }')
+            self.assert_fated(self.orders(text), [
+                fate(1, "ROW", "table records", "quarantined", M_STEP, 'quarantine "app"'),
+                fate(1, "ROW", "table records", "quarantined", M_STEP, 'quarantine "web"')], [NOT_BUILT_Q],
+                rows_line=counted(2, 2, 0), rows=rows)
+        with self.subTest("one line only: the other literal still blocks"):
+            text = swap(SW, SW_LINE, 'migrate Channel v1 -> v2 { map "web" -> App, quarantine "fax" }')
+            code, stdout, got, paths = self.run_stored(self.orders(text), rows=rows)
+            expected = ([fate(1, "ROW", "table records", "mapped", M_STEP, 'map "web" -> App')]
+                        + self.moved("app", "App", "Web", paths["rows"], [2]))
+            self.assertEqual((1, "", expected), (code, stdout, told(got)), "\n".join(got))
+
+    def test_W3_swap_without_stored_values_is_free(self):
+        """DL-155 gate: no stored value of the field, no block; the fate step is no DEAD LINE."""
+        with self.subTest("no rows"):
+            code, stdout, got, _ = self.run_stored(CHANNEL_SWAP)
+            self.assertEqual((0, True, [counted(0, 0, 0)]), (code, "defmodule Orders do" in stdout, got))
+        with self.subTest("a kept value only"):
+            kept = row(dict(WIRE1, channel="tv"), unknown_fields=["channel"])  # kept, no literal now: no DL-103 note
+            code, stdout, got, _ = self.run_stored(CHANNEL_SWAP, rows=[kept])
+            self.assertEqual((0, True, [counted(1, 1, 0)]), (code, "defmodule Orders do" in stdout, got))
+
+    def test_W4_the_previous_table_comes_from_the_previous_declaration(self):
+        """DL-161: without enum Channel v1 in the source the swap check cannot run; the build says so."""
+        old = 'enum Channel v1 {\n  Web = "web"\n  App = "app"\n  Fax = "fax"\n  Unknown(String)\n}\n'
+        code, stdout, stderr = self.compile(self.orders(swap(SW, old, "")))
+        self.assertEqual((1, "", NO_V1_DECL), (code, stdout, stderr.strip()))
+        with self.subTest("the old table decides: no swap when v1 had the same literals"):
+            same = swap(SW, old, 'enum Channel v1 {\n  Web = "app"\n  App = "web"\n  Fax = "fax"\n  Unknown(String)\n}\n')
+            code, stdout, got, _ = self.run_stored(self.orders(same), rows=[row(WEB_ROW), row(APP)])
+            self.assertEqual((0, True, [counted(2, 2, 0)]), (code, "defmodule Orders do" in stdout, got))
+
+    # Q1 to Q4 (DL-162): quarantine parks a lost ENUM LITERAL.
+
+    def test_Q1_bare_quarantine_parks_a_lost_literal(self):
+        text = swap(CH, M_LINE, 'migrate Channel v1 -> v2 { quarantine "app" }')
+        with self.subTest("rows"):
+            self.assert_fated(self.orders(text), [fate(1, "ROW", "table records", "quarantined", M_STEP,
+                                                       'quarantine "app"')], [NOT_BUILT_Q],
+                              rows_line=counted(2, 2, 0), rows=[row(WIRE1), row(APP)])
+        with self.subTest("ENTRY RECORDS"):
+            self.assert_fated(self.orders(text), [fate(1, "ENTRY RECORD", "operation ui.place", "quarantined", M_STEP,
+                                                       'quarantine "app"')], [NOT_BUILT_Q], entries=[entry(FORM_APP)])
+
+    def test_Q2_qualified_quarantine_parks_a_lost_literal(self):
+        text = swap(OM, QM_LINE, 'migrate Order v2 -> v3 { quarantine channel "app" }')
+        self.assert_fated(self.orders(text), [fate(1, "ROW", "table records", "quarantined", QM_STEP,
+                                                   'quarantine channel "app"')], [NOT_BUILT_Q], rows=[row(APP)])
+
+    def test_Q3_quarantine_of_one_literal_lifts_only_that_literal(self):
+        text = swap(CH, M_LINE, 'migrate Channel v1 -> v2 { quarantine "app" }')
+        code, stdout, got, paths = self.run_stored(self.orders(text), rows=[row(APP), row(TABLET)])
+        expected = ([fate(1, "ROW", "table records", "quarantined", M_STEP, 'quarantine "app"')]
+                    + literal_block("Order", "ROW", "table records", paths["rows"], 2) + [help_m("Channel", 2)])
+        self.assertEqual((1, "", expected), (code, stdout, told(got)), "\n".join(got))
+
+    def test_Q4_quarantine_and_map_lines_print_both_stop_lines(self):
+        text = swap(CH, M_LINE, 'migrate Channel v1 -> v2 { map "app" -> Mobile, quarantine "tablet" }')
+        self.assert_fated(self.orders(text), [
+            fate(1, "ROW", "table records", "mapped", M_STEP, 'map "app" -> Mobile'),
+            fate(1, "ROW", "table records", "quarantined", M_STEP, 'quarantine "tablet"')], [NOT_BUILT_Q, NOT_BUILT_M],
+            rows=[row(APP), row(TABLET)])
 
 
 if __name__ == "__main__":

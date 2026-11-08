@@ -88,17 +88,18 @@ BAD_CASES = {
 }
 
 # DL-134 texts: the DL-102 and DL-122 texts of RESPONSE RECORDS with ENTRY RECORD (DL-124: never a stored value).
-# DL-138 (O2, R6D-14): the DL-102 help names no TYPE VERSION, because D6B-130 bans a MIGRATE CHAIN on the input TYPE.
+# fates-a1 (DL-155, PF-12): the help names the next TYPE VERSION of the nested constructor TYPE and enum (supersedes the
+# DL-138 O2 text; the input TYPE itself still cannot migrate, D6B-130).
 CTOR_BLOCK = ("error: TYPE PlaceOrder: 3 stored ENTRY RECORDS of operation ui.place fail the constructor of Amount for "
               "field amount with NoCurrency\n"
               "  record source: %s:1 (line 1)\n"
-              "  help: declare the fate of these records in a MIGRATE STEP (DL-102); slice 6d has no MIGRATE STEP for an input "
-              "TYPE (D6B-130), so restore the constructor rule of Amount" % ENTRIES)
+              "  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v2 and migrate Amount v1 -> v2 "
+              "{ quarantine currency }" % ENTRIES)
 LITERAL_BLOCK = ("error: TYPE PlaceOrder v1: 1 stored ENTRY RECORD of operation ui.place has a value of field channel "
                  "that is no ENUM LITERAL of Channel now (DL-122)\n"
                  "  record source: %s:2 (line 2)\n"
-                 "  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field "
-                 "(D6B-39), so restore the removed or changed ENUM LITERAL of Channel" % ENTRIES)
+                 '  help: declare the next TYPE VERSION and a fate (DL-155): enum Channel v2 and migrate Channel v1 -> v2 '
+                 '{ map "<old literal>" -> <Variant> }' % ENTRIES)
 # DL-138: lines 4 and 5 of entries.jsonl are rejected at capture; --stored skips them and counts them.
 COUNT_LINE = "5 entries, 3 checked, 2 rejected at capture"
 # O3 (R6D-15): parity with a removed EFFECT (slice 4 E01; probe in red-output.md, RED repair).

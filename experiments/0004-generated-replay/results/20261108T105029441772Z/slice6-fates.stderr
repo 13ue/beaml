@@ -1,0 +1,42 @@
+test_F1_quarantine_line_builds (__main__.Fates.test_F1_quarantine_line_builds) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_F2_enum_version_and_bare_map_build (__main__.Fates.test_F2_enum_version_and_bare_map_build) ... ok
+test_F3_qualified_map_builds (__main__.Fates.test_F3_qualified_map_builds) ... ok
+test_F4_fate_only_step_is_valid (__main__.Fates.test_F4_fate_only_step_is_valid) ... ok
+test_F5_rejects (__main__.Fates.test_F5_rejects) ... ok
+test_F6_redact_and_retire_parse_and_wait (__main__.Fates.test_F6_redact_and_retire_parse_and_wait) ... ok
+test_F7_no_dead_line_for_a_fate_step (__main__.Fates.test_F7_no_dead_line_for_a_fate_step) ... ok
+test_F7b_remove_dead_keeps_a_fate_step (__main__.Fates.test_F7b_remove_dead_keeps_a_fate_step) ... ok
+test_F8_enum_mark_disagrees_with_its_chain (__main__.Fates.test_F8_enum_mark_disagrees_with_its_chain) ... ok
+test_Q1_bare_quarantine_parks_a_lost_literal (__main__.Fates.test_Q1_bare_quarantine_parks_a_lost_literal) ... ok
+test_Q2_qualified_quarantine_parks_a_lost_literal (__main__.Fates.test_Q2_qualified_quarantine_parks_a_lost_literal) ... ok
+test_Q3_quarantine_of_one_literal_lifts_only_that_literal (__main__.Fates.test_Q3_quarantine_of_one_literal_lifts_only_that_literal) ... ok
+test_Q4_quarantine_and_map_lines_print_both_stop_lines (__main__.Fates.test_Q4_quarantine_and_map_lines_print_both_stop_lines) ... ok
+test_S1_quarantine_lifts_the_constructor_block_over_rows (__main__.Fates.test_S1_quarantine_lifts_the_constructor_block_over_rows) ... ok
+test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) ... ok
+test_S1c_quarantine_over_response_records (__main__.Fates.test_S1c_quarantine_over_response_records) ... ok
+test_S1d_quarantine_over_entry_records (__main__.Fates.test_S1d_quarantine_over_entry_records) ... ok
+test_S1e_line_lifts_only_its_type (__main__.Fates.test_S1e_line_lifts_only_its_type) ... ok
+test_S1f_a_quarantined_value_with_a_lost_literal_still_blocks (__main__.Fates.test_S1f_a_quarantined_value_with_a_lost_literal_still_blocks) ... ok
+test_S2_map_lifts_the_lost_literal_block (__main__.Fates.test_S2_map_lifts_the_lost_literal_block) ... ok
+test_S2b_control_without_map_blocks_with_the_version_help (__main__.Fates.test_S2b_control_without_map_blocks_with_the_version_help) ... ok
+test_S2c_kept_value_is_neither_mapped_nor_blocked (__main__.Fates.test_S2c_kept_value_is_neither_mapped_nor_blocked) ... ok
+test_S2d_map_lifts_only_its_literal (__main__.Fates.test_S2d_map_lifts_only_its_literal)
+RED repair R-1: a lost "tablet" beside the mapped "app" still blocks; the map line counts 1. ... ok
+test_S3_gate_affected_values_need_the_next_version (__main__.Fates.test_S3_gate_affected_values_need_the_next_version) ... ok
+test_S3b_gate_without_affected_values_is_free (__main__.Fates.test_S3b_gate_without_affected_values_is_free) ... ok
+test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) ... ok
+test_S5_help_where_no_fate_line_lifts_the_block (__main__.Fates.test_S5_help_where_no_fate_line_lifts_the_block) ... ok
+test_S5b_quarantine_lifts_no_decode_or_shape_fault (__main__.Fates.test_S5b_quarantine_lifts_no_decode_or_shape_fault)
+RED repair R-1: under amount_v2 a no-signature or shape fault still blocks, with no fate line. ... ok
+test_W1_swap_blocks_and_names_both_literals (__main__.Fates.test_W1_swap_blocks_and_names_both_literals) ... ok
+test_W2_swap_with_both_fate_lines_is_lifted (__main__.Fates.test_W2_swap_with_both_fate_lines_is_lifted) ... ok
+test_W3_swap_without_stored_values_is_free (__main__.Fates.test_W3_swap_without_stored_values_is_free)
+DL-155 gate: no stored value of the field, no block; the fate step is no DEAD LINE. ... ok
+test_W4_the_previous_table_comes_from_the_previous_declaration (__main__.Fates.test_W4_the_previous_table_comes_from_the_previous_declaration)
+DL-161: without enum Channel v1 in the source the swap check cannot run; the build says so. ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 28.298s
+
+OK

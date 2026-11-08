@@ -43,7 +43,7 @@ TEMPLATE = {"status": 200, "version": 3, "request": {"order_id": "order-1"}, "op
             "unknown_fields": [], "redacted": []}
 FAILS = ("error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize fails the constructor of "
          "PaymentState for field state with Bad\n"
-         "  record source: %s:%d (line %d)\n" + sdc.HELP_MIGRATE)
+         "  record source: %s:%d (line %d)\n" + sdc.HELP_ENUM_FAIL)
 
 
 def record(state):

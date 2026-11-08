@@ -49,8 +49,11 @@ UNKNOWN_STORE = ("error: stored ROWS unknown: a source with db.get or db.list ne
                  "(an unknown store is not an empty store)")
 # PDB-32, PDB-36: the built RESPONSE RECORD help, compared as a prefix up to the DL reference (one site, M4 open).
 HELP_PREFIX = "  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order"
-LITERAL_HELP = ("  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field "
-                "(D6B-39), so restore the removed or changed ENUM LITERAL of Channel")
+# fates-a1 (DL-155, PF-15): the help of a failed constructor rule and of a lost ENUM LITERAL names the version form.
+CTOR_HELP_PREFIX = ("  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v2 and migrate Amount v1 -> v2 "
+                    "{ quarantine ")
+LITERAL_HELP = ('  help: declare the next TYPE VERSION and a fate (DL-155): enum Channel v2 and migrate Channel v1 -> v2 '
+                '{ map "<old literal>" -> <Variant> }')
 
 
 def counted(n, k, m):
@@ -169,7 +172,7 @@ class Slice6DbStored(unittest.TestCase):
         code, stdout, got, rows_path, _ = self.blocked(STRICTER, rows=[row(ZERO)])
         self.assertEqual((1, "", ["error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for "
                                   "field amount with BadAmount", "  record source: %s:1 (line 1)" % rows_path], True),
-                         (code, stdout, got[:2], len(got) == 3 and got[2].startswith(HELP_PREFIX)), "\n".join(got))
+                         (code, stdout, got[:2], len(got) == 3 and got[2].startswith(CTOR_HELP_PREFIX)), "\n".join(got))
 
     def test_N18b_two_rows_fail_counted_with_the_first_line(self):
         code, _, got, rows_path, _ = self.blocked(STRICTER, rows=[row(WIRE1), row(ZERO), row(dict(ZERO, order_id="order-zero-2"))])
@@ -332,7 +335,7 @@ class Slice6DbStored(unittest.TestCase):
         self.assertEqual((1, "", ["error: TYPE Order: 1 stored RESPONSE RECORD of operation orders.list fails the "
                                   "constructor of Amount for field amount with BadAmount",
                                   "  record source: %s:1 (line 1)" % resp], True),
-                         (code, stdout, got[:2], len(got) == 3 and got[2].startswith(HELP_PREFIX)), "\n".join(got))
+                         (code, stdout, got[:2], len(got) == 3 and got[2].startswith(CTOR_HELP_PREFIX)), "\n".join(got))
 
     def test_N25_save_record_constructor_blocks(self):
         rec = db_record("orders.save", ZERO, sd.ORDER_TYPE, ZERO)

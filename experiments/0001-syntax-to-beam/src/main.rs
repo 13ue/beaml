@@ -215,7 +215,52 @@ enum Change {
     // The constant is `Ok(text)` for a string literal, `Err(token text)` for any other token (K3).
     Add(String, String, Result<String, String>),
     Drop(String, String),
+    // fates-a1 (DL-125, DL-162): `quarantine f`, `quarantine "old"`, `quarantine f "old"`.
+    Quarantine(Option<String>, Option<String>),
+    // fates-a1 (DL-125, QF-7 ruled): `map "old" -> V` (enum step) or `map f "old" -> V` (owner TYPE step).
+    Map(Option<String>, String, String),
+    // PF-09: parsed, rejected by the checker until fates-b.
+    Redact(String),
+    Retire(String, u32),
 }
+impl Change {
+    fn fate(&self) -> bool {
+        !matches!(
+            self,
+            Change::Rename(..) | Change::Add(..) | Change::Drop(..)
+        )
+    }
+}
+// The source text of a fate line, for messages (DL-124: source text only).
+fn fate_text(change: &Change) -> String {
+    let lit = |l: &str| json_string(l);
+    match change {
+        Change::Quarantine(Some(f), None) => format!("quarantine {f}"),
+        Change::Quarantine(None, Some(l)) => format!("quarantine {}", lit(l)),
+        Change::Quarantine(Some(f), Some(l)) => format!("quarantine {f} {}", lit(l)),
+        Change::Map(None, l, v) => format!("map {} -> {v}", lit(l)),
+        Change::Map(Some(f), l, v) => format!("map {f} {} -> {v}", lit(l)),
+        Change::Redact(f) => format!("redact {f}"),
+        Change::Retire(f, n) => format!("retire {f} keep {n} days"),
+        _ => String::new(),
+    }
+}
+// A fate line that a stored value hits: (step label, line text, `quarantined` or `mapped`).
+type Fate = (String, String, &'static str);
+enum Literal {
+    Fine,
+    Lost,
+    Moved(String, String),
+    Fated(Fate),
+}
+fn variant_of<'t>(table: &'t [(String, String)], literal: &str) -> Option<&'t str> {
+    table
+        .iter()
+        .find(|(_, l)| l == literal)
+        .map(|(v, _)| v.as_str())
+}
+// An enum declaration: its variants and its ENUM LITERALS.
+type EnumTable = (Vec<(String, Vec<String>)>, Vec<(String, String)>);
 #[derive(Default)]
 struct Program {
     types: BTreeMap<String, Definition>,
@@ -229,6 +274,10 @@ struct Program {
     marks: BTreeMap<String, u32>,
     // Slice 6b (DL-082): the ENUM LITERALS `V = "text"` per enum, in source order (D6B-21).
     literals: BTreeMap<String, Vec<(String, String)>>,
+    // fates-a1 (DL-155): the VERSION MARK `enum E vN { ... }`, and the older declarations `enum E vK` that stay in the
+    // source while stored values of vK exist (ruling on DL-161: the previous literal table comes from them).
+    enum_marks: BTreeMap<String, u32>,
+    old_enums: BTreeMap<String, BTreeMap<u32, EnumTable>>,
     // Slice 6b step 6b (D6B-29): the (TYPE, field) pairs declared `name: redacted TYPE`.
     redacted: BTreeSet<(String, String)>,
     // Slice 5: the byte end of the TYPE name in each `type` declaration (where `--remove-dead` writes a mark).
@@ -374,8 +423,62 @@ impl Parser {
                 self.expect(':')?;
                 Ok(Change::Drop(field, self.type_word()?))
             }
+            "quarantine" => {
+                self.at += 1;
+                let field = match self.peek() {
+                    Token::Word(_) => Some(self.word()?),
+                    _ => None,
+                };
+                let literal = match self.peek().clone() {
+                    Token::Text(text) => {
+                        self.at += 1;
+                        Some(text)
+                    }
+                    _ if field.is_some() => None,
+                    _ => return Err(self.error("quarantine: expected a field or a string literal")),
+                };
+                Ok(Change::Quarantine(field, literal))
+            }
+            "map" => {
+                self.at += 1;
+                let field = match self.peek() {
+                    Token::Word(_) => Some(self.word()?),
+                    _ => None,
+                };
+                let Token::Text(old) = self.peek().clone() else {
+                    return Err(self.error("map: expected the old ENUM LITERAL as a string literal"));
+                };
+                self.at += 1;
+                self.arrow()?;
+                let variant = self.word()?;
+                if self.peek() == &Token::Symbol('(') {
+                    return Err(self.error("a map target takes no payload (QF-6 A)"));
+                }
+                Ok(Change::Map(field, old, variant))
+            }
+            "redact" => {
+                self.at += 1;
+                Ok(Change::Redact(self.word()?))
+            }
+            "retire" => {
+                self.at += 1;
+                let field = self.word()?;
+                if !matches!(self.peek(), Token::Word(w) if w == "keep") {
+                    return Err(self.error(&format!("retire {field}: expected keep <n> days")));
+                }
+                self.at += 1;
+                let Token::Number(days) = self.peek().clone() else {
+                    return Err(self.error(&format!("retire {field} keep: expected number of days")));
+                };
+                self.at += 1;
+                if !matches!(self.peek(), Token::Word(w) if w == "days") {
+                    return Err(self.error(&format!("retire {field} keep {days}: keep supports days only")));
+                }
+                self.at += 1;
+                Ok(Change::Retire(field, days))
+            }
             other => Err(self.error(&format!(
-                "unsupported migrate step: {other}; a MIGRATE CHANGE is rename, add or drop"
+                "unsupported migrate step: {other}; a MIGRATE CHANGE is rename, add or drop, a fate line is quarantine, map, redact or retire"
             ))),
         }
     }
@@ -549,6 +652,16 @@ impl Parser {
                 }
                 "enum" => {
                     let name = self.word()?;
+                    // fates-a1 (DL-155): the optional VERSION MARK `enum E vN {`, as on `type` (DL-072, DL-074).
+                    let mark = match self.peek().clone() {
+                        Token::Word(word) => {
+                            let mark = version_word(&word)
+                                .map_err(|e| self.error(&format!("enum {name} {e}")))?;
+                            self.at += 1;
+                            Some(mark)
+                        }
+                        _ => None,
+                    };
                     self.expect('{')?;
                     let mut variants = Vec::new();
                     let mut literals = Vec::new();
@@ -575,8 +688,39 @@ impl Parser {
                         variants.push((variant, args));
                         self.eat(',');
                     }
+                    // DL-155, ruling on DL-161: two marked declarations of one enum; the newest is the enum, the
+                    // older ones keep their literal tables for the `--stored` swap check.
+                    let newest = program.enum_marks.get(&name).copied();
+                    if let (Some(m), Some(n)) = (mark, newest)
+                        && m != n
+                        && matches!(program.types.get(&name), Some(Definition::Enum(_)))
+                    {
+                        let mut table = (variants, literals);
+                        if m > n {
+                            let Some(Definition::Enum(v)) = program
+                                .types
+                                .insert(name.clone(), Definition::Enum(table.0))
+                            else {
+                                unreachable!()
+                            };
+                            let l = program.literals.remove(&name).unwrap_or_default();
+                            if !table.1.is_empty() {
+                                program.literals.insert(name.clone(), table.1);
+                            }
+                            program.enum_marks.insert(name.clone(), m);
+                            table = (v, l);
+                        }
+                        let old = program.old_enums.entry(name).or_default();
+                        if old.insert(m.min(n), table).is_some() {
+                            return Err(self.error("duplicate type"));
+                        }
+                        continue;
+                    }
                     if !literals.is_empty() {
                         program.literals.insert(name.clone(), literals);
+                    }
+                    if let Some(mark) = mark {
+                        program.enum_marks.insert(name.clone(), mark);
                     }
                     if program
                         .types
@@ -870,8 +1014,14 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
     }
     let mut versions = BTreeMap::new();
     for (name, steps) in chains {
-        let Some(Definition::Record(newest)) = program.types.get(name) else {
-            return Err(format!("migrate {name}: unknown type: {name}"));
+        let newest = match program.types.get(name) {
+            Some(Definition::Record(newest)) => newest,
+            // fates-a1 (DL-155, PF-06): an enum chain holds bare map and quarantine lines; no TYPE VERSIONS derive.
+            Some(Definition::Enum(_)) => {
+                enum_chain(program, name, &steps)?;
+                continue;
+            }
+            None => return Err(format!("migrate {name}: unknown type: {name}")),
         };
         // Slice 4: a MIGRATE CHAIN starts at any version k >= 1 (its first MIGRATE STEP `k -> k+1`).
         let start = u64::from(steps[0].from);
@@ -896,25 +1046,24 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
         let mark = program.marks.get(name).copied();
         mark_form_allowed(name, mark, Some((steps[0].from, end)))?;
         if let Some(mark) = mark {
-            mark_agrees(name, mark, end)?;
+            mark_agrees("type", name, mark, end)?;
         }
         let mut chain = vec![newest.clone()];
         for step in steps.iter().rev() {
             let current = chain.last().unwrap();
             let (a, b) = (step.from, step.to);
             let label = format!("migrate {name} v{a} -> v{b}");
-            // K8: an empty MIGRATE STEP.
+            // K8: an empty MIGRATE STEP (PF-05: a fate line counts).
             if step.changes.is_empty() {
-                return Err(format!(
-                    "{label}: a MIGRATE STEP needs at least one rename, add or drop"
-                ));
+                return Err(empty_step(&label));
             }
-            // K7: one field name at most once per MIGRATE STEP (both names of a `rename`).
+            // K7: one field name at most once per MIGRATE STEP (both names of a `rename`). Fate lines: `Checker::fates`.
             let mut seen = BTreeSet::new();
             for change in &step.changes {
                 let names: Vec<&String> = match change {
                     Change::Rename(old, new) => vec![old, new],
                     Change::Add(field, _, _) | Change::Drop(field, _) => vec![field],
+                    _ => vec![],
                 };
                 for field in names {
                     if !seen.insert(field.clone()) {
@@ -998,6 +1147,8 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
                         }
                         previous.push((field.clone(), ty.clone()));
                     }
+                    // A fate line keeps the fields (DL-125); its checks run in `Checker::fates`.
+                    _ => {}
                 }
             }
             chain.push(previous);
@@ -1013,6 +1164,47 @@ fn derive_versions(program: &Program) -> Checked<Versions> {
     Ok(versions)
 }
 
+fn empty_step(label: &str) -> String {
+    format!("{label}: a MIGRATE STEP needs at least one rename, add, drop or fate line")
+}
+
+// fates-a1 (DL-155, PF-06, ruling on DL-161): the chain of an enum. No gaps, the mark agrees, the steps hold bare
+// `map` and `quarantine "old"` lines only, and every `from` version keeps its declaration in the source.
+fn enum_chain(program: &Program, name: &str, steps: &[&Migration]) -> Checked<()> {
+    let start = steps[0].from;
+    for (index, step) in steps.iter().enumerate() {
+        let from = u64::from(start) + index as u64;
+        if u64::from(step.from) != from || u64::from(step.to) != from + 1 {
+            return Err(format!(
+                "migrate {name} v{} -> v{}: the MIGRATE CHAIN of {name} must count without gaps from its first MIGRATE STEP, expected v{from} -> v{}",
+                step.from,
+                step.to,
+                from + 1
+            ));
+        }
+        let label = format!("migrate {name} v{} -> v{}", step.from, step.to);
+        if step.changes.is_empty() {
+            return Err(empty_step(&label));
+        }
+        let bare = |c: &Change| {
+            matches!(
+                c,
+                Change::Map(None, _, _) | Change::Quarantine(None, Some(_))
+            )
+        };
+        if !step.changes.iter().all(bare) {
+            return Err(format!(
+                "{label}: an enum MIGRATE STEP holds bare map and quarantine lines only (PF-06, DL-162)"
+            ));
+        }
+    }
+    let end = steps.last().unwrap().to;
+    if let Some(&mark) = program.enum_marks.get(name) {
+        mark_agrees("enum", name, mark, end)?;
+    }
+    Ok(())
+}
+
 // O7 answered (DL-080, option (a)): which VERSION MARK forms are legal. `chain` is (first `from`, last `to`) of the
 // MIGRATE CHAIN of `name`, if it has one. Every mark that agrees with the chain is legal (the agreement is error M1,
 // `mark_agrees`), a mark without a chain is legal, and a chain without a mark is legal, also when it starts above
@@ -1023,24 +1215,24 @@ fn mark_form_allowed(_name: &str, _mark: Option<u32>, _chain: Option<(u32, u32)>
 }
 
 // Error M1 (slice 5, DL-071): a VERSION MARK and a MIGRATE CHAIN must agree. A source check, before `--stored`.
-fn mark_agrees(name: &str, mark: u32, end: u32) -> Checked<()> {
+fn mark_agrees(kind: &str, name: &str, mark: u32, end: u32) -> Checked<()> {
     if mark == end {
         return Ok(());
     }
     let help = if mark < end {
-        format!("write: type {name} v{end}")
+        format!("write: {kind} {name} v{end}")
     } else if u64::from(mark) == u64::from(end) + 1 {
         format!(
-            "add migrate {name} v{end} -> v{mark} {{ ... }}, or write type {name} v{end} if no record of v{mark} exists"
+            "add migrate {name} v{end} -> v{mark} {{ ... }}, or write {kind} {name} v{end} if no record of v{mark} exists"
         )
     } else {
         format!(
-            "add migrate {name} v{end} -> v{} {{ ... }} and the next MIGRATE STEPS to v{mark}, or write type {name} v{end} if no record newer than v{end} exists",
+            "add migrate {name} v{end} -> v{} {{ ... }} and the next MIGRATE STEPS to v{mark}, or write {kind} {name} v{end} if no record newer than v{end} exists",
             end + 1
         )
     };
     Err(format!(
-        "error: type {name} v{mark} disagrees with its MIGRATE CHAIN: the last MIGRATE STEP is migrate {name} v{} -> v{end}\n  help: the VERSION MARK and the MIGRATE CHAIN must agree; {help}",
+        "error: {kind} {name} v{mark} disagrees with its MIGRATE CHAIN: the last MIGRATE STEP is migrate {name} v{} -> v{end}\n  help: the VERSION MARK and the MIGRATE CHAIN must agree; {help}",
         end - 1
     ))
 }
@@ -1151,6 +1343,7 @@ impl<'a> Checker<'a> {
             checker.check_type(name, &mut Vec::new())?;
         }
         checker.versions = derive_versions(program)?;
+        checker.fates()?;
         if program.clauses.is_empty() {
             return Err("expected at least one function".into());
         }
@@ -1283,6 +1476,297 @@ impl<'a> Checker<'a> {
         checker.effects()?;
         checker.retires()?;
         Ok(checker)
+    }
+    // fates-a1 (PF-07 to PF-11, RF-02 to RF-06, DL-161, DL-162): the checks of the fate lines and of the older enum
+    // declarations. One compile error per wrong form.
+    fn fates(&self) -> Checked<()> {
+        let program = self.program;
+        for step in &program.migrations {
+            let name = &step.type_name;
+            let label = format!("migrate {name} v{} -> v{}", step.from, step.to);
+            if !step.changes.iter().any(Change::fate) {
+                continue;
+            }
+            let is_enum = matches!(program.types.get(name), Some(Definition::Enum(_)));
+            if self.migrations(name).last().map(|m| m.from) != Some(step.from) {
+                let newest = if is_enum {
+                    self.enum_newest(name)
+                } else {
+                    self.newest_version(name)
+                };
+                return Err(format!(
+                    "{label}: a fate line stands only in the last MIGRATE STEP of {name} (v{newest})"
+                ));
+            }
+            let field_type = |f: &str| {
+                self.record(name)
+                    .ok()
+                    .and_then(|fields| fields.iter().find(|(g, _)| g == f))
+                    .map(|(_, t)| t.clone())
+            };
+            let mut quarantined: Vec<&String> = Vec::new();
+            let mut lines: BTreeMap<(Option<&String>, &String), bool> = BTreeMap::new();
+            for change in step.changes.iter().filter(|c| c.fate()) {
+                let text = fate_text(change);
+                match change {
+                    Change::Redact(f) => {
+                        return Err(format!(
+                            "{label}: redact {f}: the meaning for stored values is not built yet (fates-b, QF-9)"
+                        ));
+                    }
+                    Change::Retire(f, n) => {
+                        return Err(format!(
+                            "{label}: retire {f} keep {n} days: the meaning for stored values waits on M5 (QF-4)"
+                        ));
+                    }
+                    Change::Quarantine(Some(f), None) => {
+                        let Some(ty) = field_type(f) else {
+                            return Err(format!(
+                                "{label}: quarantine {f} names no field of {name}"
+                            ));
+                        };
+                        if quarantined.contains(&f) {
+                            return Err(format!("{label}: two fate lines name the field {f}"));
+                        }
+                        if self.constructors.contains(name) {
+                            if !quarantined.is_empty() {
+                                return Err(format!(
+                                    "{label}: one quarantine line per constructor TYPE; {name} has two (PF-11)"
+                                ));
+                            }
+                        } else if self.constructors.contains(&ty) {
+                            let n = self.newest_version(&ty);
+                            return Err(format!(
+                                "{label}: quarantine {f}: write the quarantine line in the MIGRATE STEP of the constructor TYPE: type {ty} v{} and migrate {ty} v{n} -> v{} {{ quarantine <parameter> }} (QF-3 A)",
+                                n + 1,
+                                n + 1
+                            ));
+                        } else if program.literals.contains_key(&ty) {
+                            return Err(format!(
+                                "{label}: quarantine {f}: a quarantine line on an enum field names the literal: quarantine {f} \"<old literal>\" (DL-162)"
+                            ));
+                        } else {
+                            return Err(format!(
+                                "{label}: quarantine {f}: the field {f} has no rule to fail (no constructor, no ENUM LITERAL)"
+                            ));
+                        }
+                        quarantined.push(f);
+                    }
+                    Change::Quarantine(None, Some(l)) | Change::Map(None, l, _) => {
+                        if !is_enum {
+                            let rest = match change {
+                                Change::Map(_, _, v) => {
+                                    format!("map <field> {} -> {v}", json_string(l))
+                                }
+                                _ => format!("quarantine <field> {}", json_string(l)),
+                            };
+                            let word = if matches!(change, Change::Map(..)) {
+                                "map"
+                            } else {
+                                "quarantine"
+                            };
+                            return Err(format!(
+                                "{label}: a bare {word} stands only in the MIGRATE STEP of an enum; write {rest}"
+                            ));
+                        }
+                        self.fate_literal(&label, &text, name, change)?;
+                        self.fate_once(&label, &mut lines, None, l, change)?;
+                    }
+                    Change::Quarantine(Some(f), Some(l)) | Change::Map(Some(f), l, _) => {
+                        let word = if matches!(change, Change::Map(..)) {
+                            "map"
+                        } else {
+                            "quarantine"
+                        };
+                        let Some(ty) = field_type(f) else {
+                            return Err(format!("{label}: {word} {f} names no field of {name}"));
+                        };
+                        if !program.literals.contains_key(&ty) {
+                            if matches!(program.types.get(&ty), Some(Definition::Enum(_)))
+                                && self.constructors.contains(&ty)
+                            {
+                                self.fate_literal(&label, &text, &ty, change)?;
+                            }
+                            return Err(format!(
+                                "{label}: {word} {f}: the field {f} is no literal enum field"
+                            ));
+                        }
+                        self.fate_literal(&label, &text, &ty, change)?;
+                        self.fate_once(&label, &mut lines, Some(f), l, change)?;
+                        // RF-05: one literal has one fate line, in the enum step or in the owner step.
+                        let bare = |c: &Change| matches!(c, Change::Map(None, m, _) | Change::Quarantine(None, Some(m)) if m == l);
+                        if let Some(other) = self.migrations(&ty).last()
+                            && let Some(c) = other.changes.iter().find(|c| bare(c))
+                        {
+                            let word = if matches!(c, Change::Map(..)) {
+                                "map"
+                            } else {
+                                "quarantine"
+                            };
+                            return Err(format!(
+                                "{label}: {text}: {} has a {word} line in migrate {ty} v{} -> v{} too; keep one",
+                                json_string(l),
+                                other.from,
+                                other.to
+                            ));
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        // Ruling on DL-161 (DL-155): an enum chain keeps the declaration of every older version; an older
+        // declaration needs its step.
+        for (name, olds) in &program.old_enums {
+            for (version, (variants, literals)) in olds {
+                if !literals.is_empty() {
+                    self.literal_rules(name, variants, literals)?;
+                }
+                if !self.migrations(name).iter().any(|m| m.from == *version) {
+                    return Err(format!(
+                        "error: enum {name} v{version} has no MIGRATE STEP to v{}; add migrate {name} v{version} -> v{} {{ ... }} or remove enum {name} v{version} (DL-155)",
+                        version + 1,
+                        version + 1
+                    ));
+                }
+            }
+        }
+        for step in &program.migrations {
+            let name = &step.type_name;
+            if matches!(program.types.get(name), Some(Definition::Enum(_)))
+                && !program
+                    .old_enums
+                    .get(name)
+                    .is_some_and(|o| o.contains_key(&step.from))
+            {
+                let v = step.from;
+                return Err(format!(
+                    "error: enum {name} v{v} is not declared; keep the previous declaration while v{v} values exist (DL-155)"
+                ));
+            }
+        }
+        Ok(())
+    }
+    // The checks of one `map "old" -> V` or `quarantine "old"` line on the enum `e`.
+    fn fate_literal(&self, label: &str, text: &str, e: &str, change: &Change) -> Checked<()> {
+        let word = if matches!(change, Change::Map(..)) {
+            "map"
+        } else {
+            "quarantine"
+        };
+        if self.constructors.contains(e) {
+            return Err(format!(
+                "{label}: {word}: {e} has an ENUM CONSTRUCTOR; map works on ENUM LITERALS only (D041 open)"
+            ));
+        }
+        let (Change::Map(_, l, _) | Change::Quarantine(_, Some(l))) = change else {
+            return Ok(());
+        };
+        if let Change::Map(_, _, v) = change {
+            let Some(Definition::Enum(variants)) = self.program.types.get(e) else {
+                return Ok(());
+            };
+            match variants.iter().find(|(w, _)| w == v) {
+                None => return Err(format!("{label}: {text}: {v} is no variant of {e}")),
+                Some((_, args)) if !args.is_empty() => {
+                    return Err(format!(
+                        "{label}: {text}: {v} carries a payload; map to a variant without payload (QF-6 A)"
+                    ));
+                }
+                _ => {}
+            }
+        }
+        let now = variant_of(&self.program.literals[e], l);
+        let before = self.prev_table(e).and_then(|t| variant_of(t, l));
+        if now.is_some() && (before.is_none() || before == now) {
+            return Err(format!(
+                "{label}: {text}: {} is a current ENUM LITERAL of {e} that keeps its variant; a fate line names a literal that left or moved (DL-161)",
+                json_string(l)
+            ));
+        }
+        Ok(())
+    }
+    // RF-04, DL-162: one fate line per (field, literal) in a step.
+    fn fate_once<'c>(
+        &self,
+        label: &str,
+        lines: &mut BTreeMap<(Option<&'c String>, &'c String), bool>,
+        field: Option<&'c String>,
+        literal: &'c String,
+        change: &Change,
+    ) -> Checked<()> {
+        let map = matches!(change, Change::Map(..));
+        let of = field.map_or(String::new(), |f| format!(" of field {f}"));
+        let l = json_string(literal);
+        match lines.insert((field, literal), map) {
+            Some(before) if before == map => Err(format!(
+                "{label}: two {} lines name {l}{of}",
+                if map { "map" } else { "quarantine" }
+            )),
+            Some(_) => Err(format!(
+                "{label}: {l}{of} has a map line and a quarantine line; keep one (DL-162)"
+            )),
+            None => Ok(()),
+        }
+    }
+    // fates-a1 (DL-155): the newest version of an enum: its mark, else the `to` of its last step, else 1.
+    fn enum_newest(&self, name: &str) -> u32 {
+        (self.program.enum_marks.get(name).copied())
+            .or_else(|| self.migrations(name).last().map(|m| m.to))
+            .unwrap_or(1)
+    }
+    // Ruling on DL-161: the literal table of the version before the newest, from its declaration in the source.
+    fn prev_table(&self, e: &str) -> Option<&Vec<(String, String)>> {
+        let step = *self.migrations(e).last()?;
+        self.program.old_enums.get(e)?.get(&step.from).map(|t| &t.1)
+    }
+    // The fate line in the last MIGRATE STEP of `name` that `pick` selects: (step label, line text, verb).
+    fn fate_in(&self, name: &str, pick: impl Fn(&Change) -> bool) -> Option<Fate> {
+        let step = *self.migrations(name).last()?;
+        let change = step.changes.iter().find(|c| pick(c))?;
+        let verb = if matches!(change, Change::Map(..)) {
+            "mapped"
+        } else {
+            "quarantined"
+        };
+        Some((
+            format!("migrate {name} v{} -> v{}", step.from, step.to),
+            fate_text(change),
+            verb,
+        ))
+    }
+    // The fate line that names a stored literal of `owner.field` (enum `e`): bare in the enum step, else qualified in
+    // the owner step.
+    fn literal_fate(&self, owner: &str, field: &str, e: &str, literal: &str) -> Option<Fate> {
+        self.fate_in(e, |c| matches!(c, Change::Map(None, l, _) | Change::Quarantine(None, Some(l)) if l == literal))
+            .or_else(|| {
+                self.fate_in(owner, |c| matches!(c, Change::Map(Some(f), l, _) | Change::Quarantine(Some(f), Some(l)) if f == field && l == literal))
+            })
+    }
+    // DL-102, DL-140, DL-161: what a stored String of a literal enum field means now.
+    fn literal_verdict(
+        &self,
+        owner: &str,
+        field: &str,
+        e: &str,
+        text: Option<&str>,
+        kept: bool,
+    ) -> Literal {
+        let Some(text) = text.filter(|_| !kept) else {
+            return Literal::Fine;
+        };
+        let moved = match variant_of(&self.program.literals[e], text) {
+            None => None,
+            Some(now) => match self.prev_table(e).and_then(|t| variant_of(t, text)) {
+                Some(before) if before != now => Some((before.to_string(), now.to_string())),
+                _ => return Literal::Fine,
+            },
+        };
+        match (self.literal_fate(owner, field, e, text), moved) {
+            (Some(fate), _) => Literal::Fated(fate),
+            (None, Some((before, now))) => Literal::Moved(before, now),
+            (None, None) => Literal::Lost,
+        }
     }
     // A lowercase fn name, or a constructor `fn T` of a `type T` or an `enum T` that returns T (D6B-11).
     fn fn_name(&self, name: &str, output: &str) -> Checked<()> {
@@ -4361,6 +4845,8 @@ impl Checker<'_> {
                         "    value = if {guard}, do: Map.delete(value, {field}), else: value\n\n",
                         field = binary(field)
                     ),
+                    // ponytail: fate lines emit nothing in a1; a hit fate line stops the build (DL-157). fates-a2.
+                    _ => String::new(),
                 });
             }
         }
@@ -4592,9 +5078,8 @@ impl Checker<'_> {
     ) -> Checked<String> {
         let (mut total, mut checked, mut rejected) = (0, 0, 0);
         let mut orphans: BTreeMap<String, (usize, usize)> = BTreeMap::new();
-        let mut lost: BTreeMap<(String, String, String, String), Vec<usize>> = BTreeMap::new();
-        let mut faults: BTreeMap<(FieldKey, Option<String>), (usize, usize)> = BTreeMap::new();
-        let mut calls: Vec<(FieldKey, usize, String, Vec<String>)> = Vec::new();
+        // fates-a1: the literal and constructor checks of the rows and RESPONSE RECORDS (one help and fate rule).
+        let mut checks = ValueChecks::default();
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             if line.trim().is_empty() {
@@ -4648,26 +5133,47 @@ impl Checker<'_> {
                 Some(Json::List(names)) => names.iter().any(|n| n.text() == Some(field)),
                 _ => false,
             };
+            let place = format!("operation {op}");
+            let version = self.newest_version(ty);
             for (field, enum_name) in self.literal_fields(ty) {
-                let value = body.and_then(|b| b.get(&field)).and_then(Json::text);
-                let literal = value.is_some_and(|text| {
-                    self.program.literals[&enum_name]
-                        .iter()
-                        .any(|(_, l)| l == text)
-                });
-                if value.is_some() && !literal && !kept(&field) {
-                    lost.entry((ty.clone(), op.clone(), field, enum_name))
+                let text = body.and_then(|b| b.get(&field)).and_then(Json::text);
+                match self.literal_verdict(ty, &field, &enum_name, text, kept(&field)) {
+                    Literal::Fine => {}
+                    Literal::Lost => checks
+                        .lost
+                        .entry((ty.clone(), version, place.clone(), field, enum_name))
                         .or_default()
-                        .push(number);
+                        .push(number),
+                    Literal::Moved(before, now) => {
+                        let key = (ty.clone(), version, place.clone(), field, enum_name);
+                        let key = (
+                            key.0,
+                            key.1,
+                            key.2,
+                            key.3,
+                            key.4,
+                            text.unwrap_or_default().into(),
+                        );
+                        checks
+                            .moved
+                            .entry(key)
+                            .or_insert((before, now, Vec::new()))
+                            .2
+                            .push(number);
+                    }
+                    Literal::Fated((step, line, verb)) => {
+                        let at = (place.clone(), step, line, verb);
+                        checks.fated.entry(at).or_default().insert(number);
+                    }
                 }
             }
             for (field, ctor) in self.ctor_fields(ty) {
                 let value = body.and_then(|b| b.get(&field));
-                let key = (ty.clone(), op.clone(), field, ctor);
+                let key = (ty.clone(), place.clone(), field, ctor);
                 match self.ctor_pick(&key.3, value) {
-                    None => faults.entry((key, None)).or_insert((0, number)).0 += 1,
+                    None => checks.faults.entry((key, None)).or_insert((0, number)).0 += 1,
                     Some((sig, inputs)) if !self.failures[&sig].is_empty() => {
-                        calls.push((key, number, sig, inputs))
+                        checks.calls.push((key, number, sig, inputs))
                     }
                     Some(_) => {}
                 }
@@ -4684,75 +5190,8 @@ impl Checker<'_> {
                 .collect::<Vec<_>>()
                 .join("\n"));
         }
-        let plural = |n: usize| if n == 1 { "" } else { "S" };
-        let mut errors = Vec::new();
-        for ((ty, op, field, enum_name), lines) in &lost {
-            let one = lines.len() == 1;
-            errors.push(format!(
-                "error: TYPE {ty} v{}: {} stored ENTRY RECORD{} of operation {op} {} of field {field} that {} no ENUM LITERAL of {enum_name} now (DL-122)\n{}\n  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of {enum_name}",
-                self.newest_version(ty),
-                lines.len(),
-                plural(lines.len()),
-                if one { "has a value" } else { "have values" },
-                if one { "is" } else { "are" },
-                lines
-                    .iter()
-                    .map(|n| format!("  record source: {source}:{n} (line {n})"))
-                    .collect::<Vec<_>>()
-                    .join("\n")
-            ));
-        }
-        // D6B-105: Elixir starts only when the static pass gives no error.
-        if errors.is_empty() && !faults.keys().any(|(_, r)| r.is_none()) && !calls.is_empty() {
-            let failures: Vec<&[String]> = calls
-                .iter()
-                .map(|c| self.failures[&c.2].as_slice())
-                .collect();
-            let stdin = format!(
-                "{{\"module\":{},\"name\":{},\"calls\":[{}]}}",
-                json_string(code),
-                json_string(&self.module),
-                calls
-                    .iter()
-                    .map(|(key, _, sig, inputs)| format!(
-                        "[{},{},[{}]]",
-                        json_string(&elixir_name(sig)),
-                        json_string(&key.3),
-                        inputs
-                            .iter()
-                            .map(|i| json_string(i))
-                            .collect::<Vec<_>>()
-                            .join(",")
-                    ))
-                    .collect::<Vec<_>>()
-                    .join(",")
-            );
-            for ((key, number, _, _), verdict) in calls.iter().zip(run_elixir(&stdin, &failures)?) {
-                if let Some(failure) = verdict {
-                    faults
-                        .entry((key.clone(), Some(failure)))
-                        .or_insert((0, *number))
-                        .0 += 1;
-                }
-            }
-        }
-        for (((ty, op, field, ctor), reason), (failed, line)) in &faults {
-            let one = *failed == 1;
-            let what = match reason {
-                Some(failure) => format!(
-                    "{} the constructor of {ctor} for field {field} with {failure}",
-                    if one { "fails" } else { "fail" }
-                ),
-                None => format!(
-                    "{} no signature of {ctor} for field {field}",
-                    if one { "matches" } else { "match" }
-                ),
-            };
-            errors.push(format!(
-                "error: TYPE {ty}: {failed} stored ENTRY RECORD{} of operation {op} {what}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP (DL-102); slice 6d has no MIGRATE STEP for an input TYPE (D6B-130), so restore the constructor rule of {ctor}",
-                plural(*failed)
-            ));
-        }
+        let errors =
+            self.value_errors(checks, source, code, "ENTRY RECORD", &mut snapshot.notes)?;
         if !errors.is_empty() {
             return Err(errors.join("\n"));
         }
@@ -5353,6 +5792,9 @@ struct Snapshot {
 // (TYPE, operation, field, enum) of a literal enum field in the `--stored` check.
 type FieldKey = (String, String, String, String);
 
+// (TYPE, TYPE VERSION, place, field, enum, literal) of a moved ENUM LITERAL (DL-140, DL-161).
+type MovedKey = (String, u32, String, String, String, String);
+
 // The DL-102, DL-103 and DL-122 findings over stored values; keys hold the place (`operation <op>`, `table records`).
 #[derive(Default)]
 struct ValueChecks {
@@ -5369,6 +5811,13 @@ struct ValueChecks {
     // 0005 P4c (DL-102, DL-124): per (TYPE, place, field) of a String field without a String value: (failed
     // records, first failed line, last counted line; a list record counts once, not per item).
     strings: BTreeMap<(String, String, String), (usize, usize, usize)>,
+    // DL-140, DL-161: per (TYPE, TYPE VERSION, place, field, enum, literal) of a literal that moved to another variant
+    // since the previous declaration: (variant before, variant now, record lines).
+    moved: BTreeMap<MovedKey, (String, String, Vec<usize>)>,
+    // fates-a1 (PF-13): per (place, step label, fate line, verb): the record lines that the fate line lifts.
+    fated: BTreeMap<(String, String, String, &'static str), BTreeSet<usize>>,
+    // PF-21: per (field key, failure TYPE) the parameter that the first failing clause tests by a pattern.
+    params: BTreeMap<(FieldKey, String), String>,
 }
 
 // A DEAD LINE: its byte range in the source, its form (`retire ...` or `migrate T a -> b`) and why it is dead.
@@ -5387,6 +5836,14 @@ struct StoredVersion {
     version: u32,
     fingerprint: String,
     fields: Vec<(String, String)>,
+}
+
+fn record_lines(source: &str, lines: &[usize]) -> String {
+    lines
+        .iter()
+        .map(|n| format!("  record source: {source}:{n} (line {n})"))
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 fn show_fields(fields: &[(String, String)]) -> String {
@@ -5676,9 +6133,12 @@ impl Checker<'_> {
                     .any(|(_, l)| l == text)
             });
             let resolved = literal && kept(&field);
-            // DL-122: a String that is no current literal and was not kept was an ENUM LITERAL at capture.
-            if value.and_then(Json::text).is_some() && !literal && !kept(&field) {
-                checks
+            // DL-122: a String that is no current literal and was not kept was an ENUM LITERAL at capture. DL-140,
+            // DL-161: a literal that moved to another variant since the previous declaration. A fate line lifts both.
+            let text = value.and_then(Json::text);
+            match self.literal_verdict(ty, &field, &enum_name, text, kept(&field)) {
+                Literal::Fine => {}
+                Literal::Lost => checks
                     .lost
                     .entry((
                         ty.to_string(),
@@ -5688,7 +6148,30 @@ impl Checker<'_> {
                         enum_name.clone(),
                     ))
                     .or_default()
-                    .push(number);
+                    .push(number),
+                Literal::Moved(before, now) => {
+                    let key = (
+                        ty.to_string(),
+                        version,
+                        place.to_string(),
+                        field.clone(),
+                        enum_name.clone(),
+                        text.unwrap_or_default().to_string(),
+                    );
+                    checks
+                        .moved
+                        .entry(key)
+                        .or_insert((before, now, Vec::new()))
+                        .2
+                        .push(number);
+                }
+                Literal::Fated((step, line, verb)) => {
+                    checks
+                        .fated
+                        .entry((place.to_string(), step, line, verb))
+                        .or_default()
+                        .insert(number);
+                }
             }
             let entry = checks
                 .mapped
@@ -5751,16 +6234,32 @@ impl Checker<'_> {
         for ((ty, version, op, field, enum_name), lines) in &checks.lost {
             let one = lines.len() == 1;
             errors.push(format!(
-                "error: TYPE {ty} v{version}: {} stored {noun}{} of {op} {} of field {field} that {} no ENUM LITERAL of {enum_name} now (DL-122)\n{}\n  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of {enum_name}",
+                "error: TYPE {ty} v{version}: {} stored {noun}{} of {op} {} of field {field} that {} no ENUM LITERAL of {enum_name} now (DL-122)\n{}\n{}",
                 lines.len(),
                 plural(lines.len()),
                 if one { "has a value" } else { "have values" },
                 if one { "is" } else { "are" },
-                lines
-                    .iter()
-                    .map(|n| format!("  record source: {source}:{n} (line {n})"))
-                    .collect::<Vec<_>>()
-                    .join("\n")
+                record_lines(source, lines),
+                self.help_literal(enum_name)
+            ));
+        }
+        for ((ty, version, op, field, enum_name, literal), (before, now, lines)) in &checks.moved {
+            let one = lines.len() == 1;
+            let step = self
+                .migrations(enum_name)
+                .last()
+                .map(|m| (m.from, m.to))
+                .unwrap_or((1, 2));
+            let l = json_string(literal);
+            errors.push(format!(
+                "error: TYPE {ty} v{version}: {} stored {noun}{} of {op} {} the ENUM LITERAL {l} of field {field}, which was {before} in enum {enum_name} v{} and is {now} now (DL-140)\n{}\n  help: declare the fate of {l} in migrate {enum_name} v{} -> v{} (DL-161): map {l} -> <Variant> or quarantine {l}",
+                lines.len(),
+                plural(lines.len()),
+                if one { "has" } else { "have" },
+                step.0,
+                record_lines(source, lines),
+                step.0,
+                step.1
             ));
         }
         // D6B-105: Elixir starts only when the static pass gives no error.
@@ -5793,19 +6292,32 @@ impl Checker<'_> {
                     .collect::<Vec<_>>()
                     .join(",")
             );
-            for ((key, number, _, _), verdict) in
+            for ((key, number, sig, inputs), verdict) in
                 checks.calls.iter().zip(run_elixir(&stdin, &failures)?)
             {
-                if let Some(failure) = verdict {
-                    checks
-                        .faults
-                        .entry((key.clone(), Some(failure)))
-                        .or_insert((0, *number))
-                        .0 += 1;
+                let Some(failure) = verdict else {
+                    continue;
+                };
+                // DL-102, DL-155, PF-12: a `quarantine` line of the constructor TYPE lifts its failed rule.
+                if let Some((step, line, verb)) = self.ctor_fate(&key.3) {
+                    let at = (key.1.clone(), step, line, verb);
+                    checks.fated.entry(at).or_default().insert(*number);
+                    continue;
                 }
+                let param = self.failing_param(&key.3, sig, inputs);
+                checks
+                    .params
+                    .entry((key.clone(), failure.clone()))
+                    .or_insert(param);
+                checks
+                    .faults
+                    .entry((key.clone(), Some(failure)))
+                    .or_insert((0, *number))
+                    .0 += 1;
             }
         }
-        for (((ty, op, field, ctor), reason), (failed, line)) in &checks.faults {
+        for ((key, reason), (failed, line)) in &checks.faults {
+            let (ty, op, field, ctor) = key;
             let one = *failed == 1;
             let what = match reason {
                 Some(failure) => format!(
@@ -5817,12 +6329,90 @@ impl Checker<'_> {
                     if one { "matches" } else { "match" }
                 ),
             };
+            // Plan repair 5, RF-09: the DL-155 help only where a fates-a line lifts the block.
+            let enum_ctor = matches!(self.program.types.get(ctor), Some(Definition::Enum(_)));
+            let help = match (reason, enum_ctor) {
+                (Some(_), true) => format!(
+                    "  help: no fate line covers an ENUM CONSTRUCTOR yet (D041 open); restore the constructor rule of fn {ctor} that reads these records"
+                ),
+                (None, true) => format!(
+                    "  help: no fate line covers an ENUM CONSTRUCTOR yet (D041 open); restore a signature of fn {ctor} that reads these records"
+                ),
+                (None, false) => format!(
+                    "  help: no fate line covers a value that matches no signature of {ctor} (a decode fault); restore a signature of fn {ctor} that reads these records"
+                ),
+                (Some(failure), false) => {
+                    let n = self.newest_version(ctor);
+                    let param = &checks.params[&(key.clone(), failure.clone())];
+                    format!(
+                        "  help: declare the next TYPE VERSION and a fate (DL-155): type {ctor} v{} and migrate {ctor} v{n} -> v{} {{ quarantine {param} }}",
+                        n + 1,
+                        n + 1
+                    )
+                }
+            };
             errors.push(format!(
-                "error: TYPE {ty}: {failed} stored {noun}{} of {op} {what}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of {ty} (DL-102)",
+                "error: TYPE {ty}: {failed} stored {noun}{} of {op} {what}\n  record source: {source}:{line} (line {line})\n{help}",
                 plural(*failed)
             ));
         }
+        // PF-13: one `fate:` line per (place, step, line), counted by record; beside a block, or before the count line.
+        let fates: Vec<String> = checks
+            .fated
+            .iter()
+            .map(|((op, step, line, verb), records)| {
+                format!(
+                    "fate: {} stored {noun}{} of {op} {verb} by {step} ({line})",
+                    records.len(),
+                    plural(records.len())
+                )
+            })
+            .collect();
+        if errors.is_empty() {
+            notes.extend(fates);
+        } else {
+            errors.splice(0..0, fates);
+        }
         Ok(errors)
+    }
+    // DL-155 help for a lost ENUM LITERAL; the old String is a stored value and stays a placeholder (DL-124).
+    fn help_literal(&self, e: &str) -> String {
+        let n = self.enum_newest(e);
+        format!(
+            "  help: declare the next TYPE VERSION and a fate (DL-155): enum {e} v{} and migrate {e} v{n} -> v{} {{ map \"<old literal>\" -> <Variant> }}",
+            n + 1,
+            n + 1
+        )
+    }
+    // The `quarantine f` line in the last MIGRATE STEP of the constructor TYPE `ctor` (form A, QF-3 ruled).
+    fn ctor_fate(&self, ctor: &str) -> Option<Fate> {
+        self.record(ctor).ok()?;
+        self.fate_in(ctor, |c| matches!(c, Change::Quarantine(Some(_), None)))
+    }
+    // PF-21: the first parameter with a literal pattern in the first clause of `sig` that matches `inputs`, else the
+    // first parameter. ponytail: a Rust mirror of the clause order, for the help text only.
+    fn failing_param(&self, ctor: &str, sig: &str, inputs: &[String]) -> String {
+        let names = (self.ctor_signatures(ctor).unwrap_or_default())
+            .into_iter()
+            .find(|(k, _)| k == sig)
+            .map(|(_, n)| n)
+            .unwrap_or_default();
+        let fits = |arg: &Node, input: &String| match arg {
+            Node::Text(t) => t == input,
+            Node::Int(n) => n.to_string() == *input,
+            _ => true,
+        };
+        let clause = (self.program.clauses.iter())
+            .filter(|c| c.key == sig)
+            .find(|c| c.args.iter().zip(inputs).all(|(a, i)| fits(a, i)));
+        let at = clause
+            .and_then(|c| {
+                c.args
+                    .iter()
+                    .position(|a| matches!(a, Node::Text(_) | Node::Int(_)))
+            })
+            .unwrap_or(0);
+        names.get(at).or(names.first()).cloned().unwrap_or_default()
     }
     // Step 8 (D6B-48, DL-101): the first signature of `fn T` whose keys all hold Strings (one parameter: the field
     // value is the String), with its inputs. None: no signature matches.
@@ -5866,7 +6456,9 @@ impl Checker<'_> {
         }
         for step in &self.program.migrations {
             let name = &step.type_name;
-            let needed = snapshot.oldest.get(name).is_some_and(|v| *v <= step.from);
+            // Ruling on O1: a step with a fate line is never a DEAD LINE (its rows may be nested or parked).
+            let needed = step.changes.iter().any(Change::fate)
+                || snapshot.oldest.get(name).is_some_and(|v| *v <= step.from);
             if !needed {
                 dead.push(Dead {
                     range: step.source_range.clone(),
@@ -6427,6 +7019,24 @@ fn build_with_refusals(
                 .any(|e| e.kind == "db.get" || e.kind == "db.list")
             {
                 return Err("error: stored ROWS unknown: a source with db.get or db.list needs rows.jsonl beside --stored (an unknown store is not an empty store)".into());
+            }
+            // Ruling on O2 (RF-01): a1 lifts the block and counts, then stops until fates-a2 builds the run-time side.
+            let hit = |verb: &str| {
+                (snapshot.notes.iter()).any(|n| n.starts_with("fate: ") && n.contains(verb))
+            };
+            let mut stop = Vec::new();
+            if hit(" quarantined by ") {
+                stop.push("error: a quarantine line is hit, but quarantine at run time is not built yet (fates-a2, DL-157)");
+            }
+            if hit(" mapped by ") {
+                stop.push(
+                    "error: a map line is hit, but map at run time is not built yet (fates-a2)",
+                );
+            }
+            if !stop.is_empty() {
+                let mut lines = snapshot.notes.clone();
+                lines.extend(stop.into_iter().map(String::from));
+                return Err(lines.join("\n"));
             }
             (
                 checker.dead_lines(&snapshot),

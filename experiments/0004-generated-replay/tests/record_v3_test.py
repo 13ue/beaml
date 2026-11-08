@@ -165,6 +165,15 @@ PAIRS = {
     "slice6/stored-elixir/rec-loop.jsonl": [],
     "slice6/entry/stored/entries.jsonl": ["slice6/entry/orders.beaml"],
 }
+# fates-a1 GREEN (plan repair 4, two-commit rule): five pairs change only their DL-102 help line to the DL-155 help
+# (RF-09). The plan listed four; stored-elixir/order.jsonl (a failed Amount rule) is the fifth. decode/stored-fail keeps.
+HELP_REPIN = {
+    "slice6/decode-ctor/stored-fail.jsonl": sdc.help_quarantine("Amount", "currency"),
+    "slice6/decode-ctor/stored-nomatch.jsonl": sdc.HELP_ENUM_NOMATCH,
+    "slice6/stored-elixir/order.jsonl": sdc.help_quarantine("Amount", "value"),
+    "slice6/stored-elixir/nested-fail.jsonl": sdc.help_quarantine("Amount", "value"),
+    "slice6/stored-elixir/pipe-fail.jsonl": sdc.help_quarantine("Amount", "value"),
+}
 STORED_WORDS = se.STORED_WORDS + (srd.STORED_HOLDER, "order-1", "pending")
 # V18: the only generated functions whose lines may change (plan, "Pin sites and diff proof").
 ALLOWED = ("def record(request, status, bytes)", "def entry_record(bytes, decoded)")
@@ -257,7 +266,8 @@ class RecordV3(unittest.TestCase):
         stored = FIX / "stored-mixed-fail.jsonl"
         code, stdout, stderr = self.compile(CTOR, ["--stored", str(stored)])
         block = ("error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize fails the constructor of "
-                 "Amount for field amount with NoCurrency\n  record source: %s:1 (line 1)\n%s" % (stored, sdc.HELP_MIGRATE))
+                 "Amount for field amount with NoCurrency\n  record source: %s:1 (line 1)\n%s"
+                 % (stored, sdc.help_quarantine("Amount", "currency")))
         self.assertEqual((1, "", block), (code, stdout, without_counts(stderr)))
 
     def test_V14c_response_count_lines_before_the_entry_count_line(self):
@@ -401,6 +411,9 @@ class RecordV3(unittest.TestCase):
         code, _, stderr = self.compile(REPO / "experiments/0004-generated-replay" / relative, ["--stored", str(stored)],
                                        s5.compiler_at(P2_BASE))
         expected = (code, stderr.replace(str(original.parent), str(tracked.parent)))
+        if name in HELP_REPIN:
+            self.assertEqual(1, expected[1].splitlines().count(sdc.HELP_MIGRATE), "setup: the base help line")
+            expected = (code, expected[1].replace(sdc.HELP_MIGRATE, HELP_REPIN[name]))
         new = self.compile(REPO / "experiments/0004-generated-replay" / relative, ["--stored", str(tracked_stored)])
         self.assertEqual(expected, (new[0], new[2]))
         return new[2]

@@ -31,7 +31,7 @@ DROP_STRING_ONLY = "drop supports String fields only"
 NOT_IN = "not in"
 STILL_IN = "still in"
 TWO_TIMES = "two times"
-EMPTY_STEP = "at least one rename, add or drop"
+EMPTY_STEP = "at least one rename, add, drop or fate line"
 PLACEHOLDER = "<constant>"
 
 

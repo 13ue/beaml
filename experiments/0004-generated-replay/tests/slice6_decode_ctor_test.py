@@ -159,6 +159,23 @@ def input_enum_reject(place, enum):
 
 
 HELP_MIGRATE = "  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Payment (DL-102)"
+# fates-a1 (DL-155, QF-5 A, PF-21, RF-09): the help per DL-102 site. HELP_MIGRATE stays for the shape faults.
+
+
+def help_quarantine(ctor, param, newest=1):
+    return ("  help: declare the next TYPE VERSION and a fate (DL-155): type %s v%d and migrate %s v%d -> v%d "
+            "{ quarantine %s }" % (ctor, newest + 1, ctor, newest, newest + 1, param))
+
+
+def help_literal(enum, newest=1):
+    return ('  help: declare the next TYPE VERSION and a fate (DL-155): enum %s v%d and migrate %s v%d -> v%d '
+            '{ map "<old literal>" -> <Variant> }' % (enum, newest + 1, enum, newest, newest + 1))
+
+
+HELP_ENUM_NOMATCH = ("  help: no fate line covers an ENUM CONSTRUCTOR yet (D041 open); restore a signature of fn "
+                     "PaymentState that reads these records")
+HELP_ENUM_FAIL = ("  help: no fate line covers an ENUM CONSTRUCTOR yet (D041 open); restore the constructor rule of fn "
+                  "PaymentState that reads these records")
 
 
 class Slice6DecodeCtor(unittest.TestCase):
@@ -214,14 +231,14 @@ class Slice6DecodeCtor(unittest.TestCase):
         self.assert_rejected(ORDERS, (
             "error: TYPE Payment: 2 stored RESPONSE RECORDS of operation payments.authorize fail the constructor of "
             "Amount for field amount with NoCurrency\n"
-            "  record source: %s:2 (line 2)\n" + HELP_MIGRATE) % FAIL, ["--stored", str(FAIL)])
+            "  record source: %s:2 (line 2)\n" + help_quarantine("Amount", "currency")) % FAIL, ["--stored", str(FAIL)])
 
     def test_stored_record_matches_no_signature(self):
         # DL-102 over an enum constructor: no signature matches. notes.md S9.
         self.assert_rejected(ORDERS, (
             "error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize matches no signature of "
             "PaymentState for field state\n"
-            "  record source: %s:2 (line 2)\n" + HELP_MIGRATE) % NOMATCH, ["--stored", str(NOMATCH)])
+            "  record source: %s:2 (line 2)\n" + HELP_ENUM_NOMATCH) % NOMATCH, ["--stored", str(NOMATCH)])
 
     def test_last_clause_does_not_keep_the_value(self):
         # D6B-50 (DL-065). notes.md S10.

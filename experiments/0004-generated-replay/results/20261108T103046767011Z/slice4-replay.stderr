@@ -1,0 +1,32 @@
+test_E02_retired_metadata_names_the_operation_and_keep_days (__main__.FixtureNames.test_E02_retired_metadata_names_the_operation_and_keep_days) ... ok
+test_E03_retired_record_gives_the_typed_Retired_reject (__main__.FixtureNames.test_E03_retired_record_gives_the_typed_Retired_reject) ... ok
+test_E03b_record_of_the_live_operation_replays_beside_a_retire_line (__main__.FixtureNames.test_E03b_record_of_the_live_operation_replays_beside_a_retire_line) ... ok
+test_E04_live_call_through_place_records_the_new_operation (__main__.FixtureNames.test_E04_live_call_through_place_records_the_new_operation) ... ok
+test_E07_keep_0_days_metadata (__main__.FixtureNames.test_E07_keep_0_days_metadata) ... ok
+test_E07_keep_0_days_reject_and_snapshot_unchanged (__main__.FixtureNames.test_E07_keep_0_days_reject_and_snapshot_unchanged) ... ok
+test_E10_no_record_gives_missing_response (__main__.FixtureNames.test_E10_no_record_gives_missing_response) ... ok
+test_E10_record_of_another_operation_gives_operation_mismatch (__main__.FixtureNames.test_E10_record_of_another_operation_gives_operation_mismatch) ... ok
+test_E10_retired_record_without_effect_gives_Retired (__main__.FixtureNames.test_E10_retired_record_without_effect_gives_Retired) ... ok
+test_E15b_version_3_records_give_the_same_value_on_Q4_and_Q4s (__main__.FixtureNames.test_E15b_version_3_records_give_the_same_value_on_Q4_and_Q4s) ... ok
+test_E17b_version_1_record_on_Q4s_is_a_typed_decode_reject (__main__.FixtureNames.test_E17b_version_1_record_on_Q4s_is_a_typed_decode_reject) ... ok
+test_build_gr_compiles_with_warnings_as_errors (__main__.FixtureNames.test_build_gr_compiles_with_warnings_as_errors) ... ok
+test_E02_retired_metadata_names_the_operation_and_keep_days (__main__.RandomNames.test_E02_retired_metadata_names_the_operation_and_keep_days) ... ok
+test_E03_retired_record_gives_the_typed_Retired_reject (__main__.RandomNames.test_E03_retired_record_gives_the_typed_Retired_reject) ... ok
+test_E03b_record_of_the_live_operation_replays_beside_a_retire_line (__main__.RandomNames.test_E03b_record_of_the_live_operation_replays_beside_a_retire_line) ... ok
+test_E04_live_call_through_place_records_the_new_operation (__main__.RandomNames.test_E04_live_call_through_place_records_the_new_operation) ... ok
+test_E07_keep_0_days_metadata (__main__.RandomNames.test_E07_keep_0_days_metadata) ... ok
+test_E07_keep_0_days_reject_and_snapshot_unchanged (__main__.RandomNames.test_E07_keep_0_days_reject_and_snapshot_unchanged) ... ok
+test_E10_no_record_gives_missing_response (__main__.RandomNames.test_E10_no_record_gives_missing_response) ... ok
+test_E10_record_of_another_operation_gives_operation_mismatch (__main__.RandomNames.test_E10_record_of_another_operation_gives_operation_mismatch) ... ok
+test_E10_retired_record_without_effect_gives_Retired (__main__.RandomNames.test_E10_retired_record_without_effect_gives_Retired) ... ok
+test_E15b_version_3_records_give_the_same_value_on_Q4_and_Q4s (__main__.RandomNames.test_E15b_version_3_records_give_the_same_value_on_Q4_and_Q4s) ... ok
+test_E17b_version_1_record_on_Q4s_is_a_typed_decode_reject (__main__.RandomNames.test_E17b_version_1_record_on_Q4s_is_a_typed_decode_reject) ... ok
+test_build_gr_compiles_with_warnings_as_errors (__main__.RandomNames.test_build_gr_compiles_with_warnings_as_errors) ... ok
+test_control_originals_unchanged_by_slice_4_runs (__main__.ZzHarness.test_control_originals_unchanged_by_slice_4_runs) ... ok
+test_every_gen_build_of_this_run_passed_stored (__main__.ZzHarness.test_every_gen_build_of_this_run_passed_stored) ... ok
+test_every_gen_tree_has_a_record_snapshot (__main__.ZzHarness.test_every_gen_tree_has_a_record_snapshot) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 177.296s
+
+OK

@@ -70,3 +70,26 @@ fail on it. Result: [red-output.md](red-output.md), "Depth probe".
 
 R1 to R8 (run-time decode, REPLAY RUN, `db.get`, R1b, R1c, R5b, R8), N9 and N9b, T1, T2, T2b, G1. a2 RED changes S1,
 S1c, S1d, S2 and the S2c pair to exit 0 and removes `NOT_BUILT_Q` and `NOT_BUILT_M`.
+
+## RED repair after RED review (2026-11-08)
+
+**[Proposal]** Applied before any `main.rs` change, by: Opus (GREEN fates-a1). Inputs: [red-review.md](red-review.md)
+repairs R-1 to R-5, DL-161 (By: 13ue), DL-162 (By: 13ue), the ruling of Fable on the DL-161 form (Q1: the previous
+declaration stays in the source) and on the count-line text (Q2: one `fate:` form). Run on HEAD `fae530bd`:
+[red-repair-run-head.log](red-repair-run-head.log), summary in [green-output.md](green-output.md).
+
+| Repair | Test change |
+|---|---|
+| R-1 | S5b (new): under `amount_v2` a no-signature row and a shape-fault row block, no `fate:` line. S2d (new): `channel_v2` with `"app"` and a lost `"tablet"`: count 1, the `"tablet"` row blocks with the `enum Channel v3` help |
+| R-2 | S1 subTests: two rows give `fate: 2 stored ROWS`; rows plus a RESPONSE RECORD give both lines (as a set). S1c subTests: one list record with two failing items counts once; two records count 2 |
+| R-3 | F7 `order_map`: rows of `Order v3` only; control `warning: DEAD LINE: migrate Order v1 -> v2`; no DEAD LINE on `v2 -> v3`. F7b: `--remove-dead --assume-complete` removes `v1 -> v2` and keeps the fate step |
+| R-4 | S4: no `"0"`, `EUR`, `tv` or `order-` in the checked lines |
+| R-5 | decisions.md: PF-24 marked superseded by DL-160 |
+| DL-161 | fixture `channel_swap/` (`enum Channel v1` with Web, App, Fax; `enum Channel v2 { Web = "app"  App = "web" … }`; `quarantine "fax"`). W1: rows with `"web"` and `"app"` block, one DL-140 block per literal, both literals named (source text). W2: both `map` lines (or both `quarantine` lines, DL-162) lift; one line only leaves the other block. W3: no stored value (or a kept value) is free. W4: without `enum Channel v1` the build says so; a v1 table equal to v2 gives no block |
+| DL-161 form | `channel_v2/` keeps `enum Channel v1 { … }` beside `enum Channel v2`. F5 new: an enum chain without the old declaration; an old declaration without a step. `map_current_literal` text: a fate line on a current literal needs a moved literal (DL-161). S3 "enum mark without a step" removes the old declaration too |
+| DL-162 | Q1: bare `quarantine "app"` parks rows and ENTRY RECORDS; Q2: `quarantine channel "app"` in the owner step; Q3: it lifts only its literal; Q4: map and quarantine hits print both stop lines. F5 new: map plus quarantine on one literal (bare, qualified), bare quarantine in a record step, `quarantine order_id "app"`, `quarantine "web"` on an unchanged literal. `quarantine channel` text names the DL-162 form (supersedes RF-03). The enum-step text names `quarantine` (PF-06, DL-162) |
+
+Count-line form (Q2 ruling): every fate line prints `fate: N stored NOUN[S] of PLACE quarantined|mapped by migrate E vA -> vB (LINE)`.
+Result on HEAD: 32 tests, 32 fail, 89 failing subTests or tests, 0 errors. Every new form fails on the parser
+(`unsupported migrate step`, `expected '{'`); the guards (S3b `stricter_v1`, `channel_v1`; S5 "no variant"; the F7
+setup controls) pass, as before.

@@ -85,7 +85,7 @@ SLICE_TESTS = ("stored_types", "slice2_replay", "slice3_types", "slice3_replay",
                "slice6_int", "slice6_failure", "slice6_constructor", "slice6_enum", "slice6_pipe", "slice6_decode",
                "slice6_decode_ctor", "slice6_fmt", "slice6_host_struct", "slice6_effect_reach", "slice6_record",
                "slice6_redacted", "slice6_redacted_failure", "slice6_stored_elixir", "slice6_struct_order",
-               "slice6_entry", "slice6_multi", "slice6_db", "slice6_db_stored", "slice6_m4",
+               "slice6_entry", "slice6_multi", "slice6_db", "slice6_db_stored", "slice6_m4", "slice6_fates",
                "record_v3", "redteam_c1", "redteam_b3", "redteam_c3")
 STEPS += [(name.replace("_", "-"), [sys.executable, "-B", TESTS + name + "_test.py"]) for name in SLICE_TESTS]
 # Not "drift": that step name owns drift.stdout and the result.json summary.

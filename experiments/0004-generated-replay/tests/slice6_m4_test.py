@@ -205,7 +205,7 @@ class M4Db(unittest.TestCase):
         code, stdout, got, rows_path, _ = self.blocked(ORDER_V2, rows=[sds.row(zero, ORDER_V1)])
         self.assertEqual((1, "", ["error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for "
                                   "field amount with BadAmount", "  record source: %s:1 (line 1)" % rows_path], True),
-                         (code, stdout, got[:2], len(got) == 3 and got[2].startswith(sds.HELP_PREFIX)), "\n".join(got))
+                         (code, stdout, got[:2], len(got) == 3 and got[2].startswith(sds.CTOR_HELP_PREFIX)), "\n".join(got))
 
     def test_N34_v1_record_of_a_chained_output_builds(self):
         rec = sds.db_record("orders.load", WIRE1, ORDER_V1, {"order_id": "order-1"})

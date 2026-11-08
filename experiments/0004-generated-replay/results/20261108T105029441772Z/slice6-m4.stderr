@@ -1,0 +1,20 @@
+test_N12_rename_rejects (__main__.M4Db.test_N12_rename_rejects) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_N33_order_v2_builds (__main__.M4Db.test_N33_order_v2_builds) ... ok
+test_N33_order_v2_runtime (__main__.M4Db.test_N33_order_v2_runtime) ... ok
+test_N33_order_v2_steps_before_the_tail (__main__.M4Db.test_N33_order_v2_steps_before_the_tail) ... ok
+test_N34_control_kept_v1_value_builds (__main__.M4Db.test_N34_control_kept_v1_value_builds) ... ok
+test_N34_order_v2_rows_of_both_versions_build (__main__.M4Db.test_N34_order_v2_rows_of_both_versions_build) ... ok
+test_N34_v1_record_of_a_chained_output_builds (__main__.M4Db.test_N34_v1_record_of_a_chained_output_builds) ... ok
+test_N34_v1_row_constructor_blocks (__main__.M4Db.test_N34_v1_row_constructor_blocks) ... ok
+test_N34_v1_row_lost_literal_blocks (__main__.M4Db.test_N34_v1_row_lost_literal_blocks) ... ok
+test_chained_constructor_output_reads_a_v1_body (__main__.M4Decode.test_chained_constructor_output_reads_a_v1_body) ... ok
+test_chained_enum_output_reads_a_v1_body (__main__.M4Decode.test_chained_enum_output_reads_a_v1_body) ... ok
+test_enum_output_field_rename_in_a_chain (__main__.M4Decode.test_enum_output_field_rename_in_a_chain) ... ok
+test_enum_output_field_with_a_version_mark_builds (__main__.M4Decode.test_enum_output_field_with_a_version_mark_builds) ... ok
+test_redacted_output_field_with_a_chain_still_rejects (__main__.M4Decode.test_redacted_output_field_with_a_chain_still_rejects) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 4.442s
+
+OK

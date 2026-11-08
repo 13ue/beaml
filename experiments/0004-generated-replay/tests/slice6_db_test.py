@@ -380,8 +380,8 @@ S13 = (EXPERIMENT / "bad" / "unsupported_effect_kind.beaml",
 LITERAL_BLOCK = ("error: TYPE Order v1: 1 stored RESPONSE RECORD of operation orders.list has a value of field channel "
                  "that is no ENUM LITERAL of Channel now (DL-122)\n"
                  "  record source: %s:1 (line 1)\n"
-                 "  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field "
-                 "(D6B-39), so restore the removed or changed ENUM LITERAL of Channel")
+                 '  help: declare the next TYPE VERSION and a fate (DL-155): enum Channel v2 and migrate Channel v1 -> v2 '
+                 '{ map "<old literal>" -> <Variant> }')
 
 
 def list_record(channel, unknown_fields=()):

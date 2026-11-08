@@ -38,7 +38,7 @@ NOMATCH = sdc.NOMATCH
 # Plan E1: the step 8 DL-102 block text, count 1, first record line.
 CTOR_FAILS = ("error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize fails the constructor of "
               "Amount for field amount with NoCurrency\n"
-              "  record source: %s:1 (line 1)\n" + sdc.HELP_MIGRATE)
+              "  record source: %s:1 (line 1)\n" + sdc.help_quarantine("Amount", "value"))
 # Contract 5 (D6B-106): no pass without Elixir.
 NO_ELIXIR = ("error: the --stored check runs the constructors over the stored values in Elixir (DL-121): elixir is not "
              "on PATH\n"
@@ -49,9 +49,7 @@ RUN_ERROR = ("error: the --stored check: the Elixir run of the generated constru
 # Contract 2, repaired (D6B-124, DL-124): never the stored String.
 LOST_LITERAL = ("error: TYPE Payment v1: 1 stored RESPONSE RECORD of operation payments.authorize has a value of field "
                 "state that is no ENUM LITERAL of PaymentState now (DL-122)\n"
-                "  record source: %s:2 (line 2)\n"
-                "  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field "
-                "(D6B-39), so restore the removed or changed ENUM LITERAL of PaymentState") % sd.STORED
+                "  record source: %s:2 (line 2)\n" + sdc.help_literal("PaymentState")) % sd.STORED
 RESOLVED_NOTE = ("note: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize kept a value of field "
                  "state that a literal of PaymentState maps now (DL-103)")
 LITERAL = 'Pending = "pending"  '
@@ -154,7 +152,7 @@ class Slice6StoredElixir(unittest.TestCase):
         self.assertEqual((1, "", (
             "error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize matches no signature of "
             "PaymentState for field state\n"
-            "  record source: %s:2 (line 2)\n" + sdc.HELP_MIGRATE) % NOMATCH), (code, stdout, stderr.strip()))
+            "  record source: %s:2 (line 2)\n" + sdc.HELP_ENUM_NOMATCH) % NOMATCH), (code, stdout, stderr.strip()))
         self.assertEqual([], self.events())
 
     def test_e7_no_stored_value_in_output(self):
