@@ -173,20 +173,20 @@
  {
   "group": "02b-fates",
   "id": "QA2-1",
-  "status": "default",
+  "status": "open",
   "page": "eingang",
   "added": "2026-11-08T13:10:00Z",
   "source": "fates-a2 plan 2026-11-08",
-  "by": "Opus (Plan fates-a2)"
+  "by": "Opus (Plan fates-a2); Record-Format wartet auf 13ue (DL-139)"
  },
  {
   "group": "02b-fates",
   "id": "QA2-2",
-  "status": "default",
+  "status": "open",
   "page": "eingang",
   "added": "2026-11-08T13:10:00Z",
   "source": "fates-a2 plan 2026-11-08",
-  "by": "Opus (Plan fates-a2)"
+  "by": "Opus (Plan fates-a2); Host-Aufruf wartet auf 13ue (DL-139)"
  },
  {
   "group": "02b-fates",

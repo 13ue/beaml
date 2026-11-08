@@ -1,0 +1,14 @@
+<p class="lead">Deine Wahl QF-2 = B (DL-168): die Versionen der inneren TYPES stehen in Zeile und Record. Jetzt geht es nur um die genaue Form. Record-Formate wartet auf dich (DL-139).</p>
+<h3>Zeile mit Entwurf 4 (Kern, gekürzt)</h3>
+<pre class="j">{ <span class="k2">"version"</span>: <span class="n">4</span>,
+  <span class="k2">"type"</span>: { <span class="k2">"name"</span>: <span class="v">"Order"</span>, <span class="k2">"version"</span>: <span class="n">1</span>,
+            <span class="k2">"nested"</span>: { <span class="k2">"amount"</span>: <span class="n">2</span>, <span class="k2">"channel"</span>: <span class="n">1</span> } },
+  <span class="k2">"value"</span>: { <span class="k2">"order_id"</span>: <span class="v">"o-1"</span>, <span class="k2">"amount"</span>: { <span class="k2">"value"</span>: <span class="v">"5"</span>, <span class="k2">"currency"</span>: <span class="v">"EUR"</span> }, <span class="k2">"channel"</span>: <span class="v">"web"</span> },
+  <span class="k2">"value_sha256"</span>: <span class="v">"…"</span> }</pre>
+<h3>Liste: jedes Listenfeld trägt die Version seines Elements</h3>
+<pre class="j"><span class="k2">"type"</span>: { <span class="k2">"name"</span>: <span class="v">"OrderList"</span>, <span class="k2">"version"</span>: <span class="n">1</span>,
+          <span class="k2">"nested"</span>: { <span class="k2">"items"</span>: { <span class="k2">"version"</span>: <span class="n">1</span>, <span class="k2">"nested"</span>: { <span class="k2">"amount"</span>: <span class="n">2</span>, <span class="k2">"channel"</span>: <span class="n">1</span> } } } }</pre>
+<div class="card must"><b>Die Lücke in A</b><br>Der Digest prüft nur <code>value</code>. Ändert jemand per SQL <code>"amount": 2</code> zu <code>1</code>, merkt das niemand: der Wert wird dann nach der alten Regel gelesen.</div>
+<div class="card"><b>A</b> (Default): <code>nested</code> steht immer da, <code>{}</code> wenn leer; Digest nur über <code>value</code>; Leser streng, kein Rückfall auf Entwurf 3.</div>
+<div class="card"><b>B</b>: wie A, aber <code>nested</code> fehlt, wenn leer. Kürzer, aber der Leser muss „fehlt“ und „leer“ gleich behandeln.</div>
+<div class="card ok"><b>C</b>: wie A, aber der Digest deckt <code>type</code> mit <code>nested</code> mit. Schließt die Lücke. Kostet: alle Digests ändern sich einmal (in a2a ohnehin), P2b-Prüfung rechnet über mehr.</div>
