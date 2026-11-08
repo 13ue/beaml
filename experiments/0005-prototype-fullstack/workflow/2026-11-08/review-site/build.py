@@ -343,6 +343,27 @@ migrate Amount v1 -> v2 {
   quarantine value
 }
 ''')], [("A", "Zeile hebt nur die Regel des genannten Felds; mehrere Zeilen erlaubt", True), ("B", "ein nacktes `quarantine` pro TYPE, ohne Feldname", False), ("C", "so lassen wie in a1 gebaut", False)], dl="DL-172", source="fates-a1 TEST 2026-11-08", added="2026-11-08T11:45:00Z"),
+          it("QUAR-CLAUSE", "Welche Klausel hebt eine `quarantine`-Zeile?", "default", "Opus/Fable (Plan und Check fates-a1b)",
+             ["Frage 1: eine Klausel prüft zwei Felder. Default: eine Zeile für eines der beiden reicht",
+              "Frage 2: die Catch-all-Klausel schlägt fehl. Default: nie geparkt, der Build sperrt (DL-150)",
+              S + "Grund: Catch-all prüft kein Feld; sonst parkt `quarantine value` einen currency-Fehler",
+              "Gebaut mit Schritt a1b"],
+             "", [beaml('''
+type Amount v2 {
+  value: String
+  currency: String
+}
+
+fn Amount value: String, currency: String -> Amount ! BadAmount
+// prüft beide Felder: `quarantine value` oder `quarantine currency` hebt sie
+fn Amount "",            ""               -> Amount ! BadAmount = BadAmount {}
+// Catch-all: keine Zeile hebt sie
+fn Amount value,         currency         -> Amount ! BadAmount = check(value, currency)
+
+migrate Amount v1 -> v2 {
+  quarantine value
+}
+''')], [("A", "Defaults wie oben", True), ("B", "Zeile muss alle geprüften Felder nennen", False), ("C", "Catch-all hebt nach erstem Parameter", False)], source="fates-a1b plan 2026-11-08", added="2026-11-08T12:30:00Z"),
           it("VERSION-RULE", "Versionsregel: Änderung plus betroffene Werte = neue Version", "decided", "13ue (2026-11-08, nach drei Beispielen)",
              ["Build prüft live: fällt ein gespeicherter Wert anders?",
               "Nein: Änderung frei, keine neue Version",
@@ -1089,7 +1110,7 @@ def changelog(ans, now):
 TIER = {1: "Q5-2 Q5-5 Q5-7 QDB-3 QDB-5 QDB-7 PDB-18 TEST-O1 P4c-text G6D-12 TEXTS SNAP-SET STORED-ARG NOTES Q6E-3 ORPHAN OFFCHAIN "
            "ROW-FIELDS RESV QF-5 QV3-1 QV3-2 QV3-3 QV3-5 QV3-6 QM4-2".split(),
         2: "Q5-3 Q5-4 Q5-6 Q5-9 Q6E-1 Q6E-2 Q6E-4 QDB-1 QDB-2 QDB-4 QDB-6b QV3-4 QV3-7 QV3-8 COUNT G6D-03 G6D-04 P4c P4c-http "
-           "CTOR-ROW GET QF-2 ENUM-V1-DECL QUAR-FIELD Q5-1".split(),
+           "CTOR-ROW GET QF-2 ENUM-V1-DECL QUAR-FIELD QUAR-CLAUSE Q5-1".split(),
         3: "D025 D038 D039 D040 D041 D042 BLOCKS".split()}
 TIER_TITLE = {1: "Reine Implementierung, so lassen", 2: "Kurze Wahl, eine Zeile", 3: "Braucht Bild oder Gespräch"}
 TIER_LEAD = {1: "Keine Wirkung auf Sprache, Format oder Host-Namen.", 2: "Eine Wahl zwischen zwei, drei kurzen Optionen.",

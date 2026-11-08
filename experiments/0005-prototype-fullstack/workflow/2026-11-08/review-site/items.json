@@ -154,6 +154,15 @@
  },
  {
   "group": "02b-fates",
+  "id": "QUAR-CLAUSE",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T12:30:00Z",
+  "source": "fates-a1b plan 2026-11-08",
+  "by": "Opus/Fable (Plan und Check fates-a1b)"
+ },
+ {
+  "group": "02b-fates",
   "id": "VERSION-RULE",
   "status": "decided",
   "page": "eingang",

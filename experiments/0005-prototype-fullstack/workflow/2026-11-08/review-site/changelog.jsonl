@@ -147,3 +147,5 @@
 {"ts": "2026-11-08T10:53:29Z", "id": "QF-2", "page": "eingang", "change": "status decided", "by": "Opus (PLAN fates, Default); entschieden 13ue: B, verschachtelte Versionen in der Zeile"}
 {"ts": "2026-11-08T11:31:24Z", "id": "QUAR-FIELD", "page": "eingang", "change": "added", "by": "fates-a1 TEST 2026-11-08"}
 {"ts": "2026-11-08T11:31:24Z", "id": "QUAR-FIELD", "page": "eingang", "change": "moved to Eingang", "by": "build.py (eingefroren)"}
+{"ts": "2026-11-08T11:41:26Z", "id": "QUAR-CLAUSE", "page": "eingang", "change": "added", "by": "fates-a1b plan 2026-11-08"}
+{"ts": "2026-11-08T11:41:26Z", "id": "QUAR-CLAUSE", "page": "eingang", "change": "moved to Eingang", "by": "build.py (eingefroren)"}
