@@ -22,13 +22,15 @@ def beaml(code):
 
 def ex(code):
     """Hand-colored Elixir: keywords, atoms, strings, comments."""
-    s = html.escape(code.strip("\n"))
-    s = re.sub(r"(#[^\n]*)", r"<i class=m>\1</i>", s)
-    s = re.sub(r"(&quot;[^&]*?&quot;)", r"<i class=s>\1</i>", s)
-    s = re.sub(r"(?<![\w:])(:[a-z_]+)", r"<i class=c>\1</i>", s)
-    s = re.sub(r"\b(def|defmodule|do|end|case|fn|when)\b", r"<i class=k>\1</i>", s)
-    s = re.sub(r"\b([A-Z][A-Za-z]+(?:\.[A-Z][A-Za-z]+)*)\b", r"<i class=t>\1</i>", s)
-    return "<pre>" + s + "</pre>"
+    out = []
+    for line in html.escape(code.strip("\n")).split("\n"):
+        s, hash_, comment = line.partition("#")  # ponytail: a "#" inside a string would start a comment; none in the snippets
+        s = re.sub(r"(&quot;[^&]*?&quot;)", r"<i class=s>\1</i>", s)
+        s = re.sub(r"(?<![\w:])(:[a-z_]+)", r"<i class=c>\1</i>", s)
+        s = re.sub(r"\b(def|defmodule|do|end|case|fn|when)\b", r"<i class=k>\1</i>", s)
+        s = re.sub(r"\b([A-Z][A-Za-z]+(?:\.[A-Z][A-Za-z]+)*)\b", r"<i class=t>\1</i>", s)
+        out.append(s + (f"<i class=m>#{comment}</i>" if hash_ else ""))
+    return "<pre>" + "\n".join(out) + "</pre>"
 
 
 def text(s):
@@ -46,331 +48,675 @@ def group(slug, title, lead, items):
     G.append(dict(slug=slug, title=title, lead=lead, items=items))
 
 
+S = "\u2800\u2800↳ "  # prefix of a real sub-point in a `what` list
+
+
 def it(id, title, status, by, what, why="", code=(), options=(), note="", dl=""):
+    """`what`: a list of short bullets (rendered as → lines), or one plain string."""
     return dict(id=id, title=title, status=status, by=by, what=what, why=why, code=list(code), options=list(options), note=note, dl=dl)
 
 
 # ---------------------------------------------------------------- 1
 group("01-review", "Schlussreview Slice 6: drei hohe Einwände",
-      "Der Devil's Advocate hat am Ende des Slice drei Einwände mit Stufe hoch stehen lassen. Jeder braucht eine Entscheidung von dir. Sie stehen vor allen anderen Punkten.",
+      "Am Ende von Slice 6 hat der Devil's Advocate (ein Gegen-Prüfer) drei Einwände gefunden. Alle drei sind hoch eingestuft. Zwei hast du entschieden, einer ist offen.",
       [
           it("A1", "Der PASS beweist weniger als die These", "decided", "Opus (Schlussreview); entschieden 13ue: B",
-             "Die These lautet: BEAML trägt die Kette vom Formular bis zur Zeile in Postgres. Gebaut und grün ist davon nur die String-Kette `Note`. Der echte `Order`-Pfad mit `Amount` und `Channel` wartet auf M4. Ein vertauschtes `Channel`-Literal baut noch (DL-140 ist beschlossen, nicht gebaut). Aus einem Block kommt man nur per SQL-Delete heraus. Die v2→v3-Umstellung lief über ein Python-Skript.",
-             "Wenn README und Register weiter „PASS“ sagen, liest ein Dritter mehr hinein als gezeigt wurde.",
+             ["These: BEAML trägt die ganze Kette.",
+              "Kette = Formular → BEAML → Zeile in Postgres.",
+              "Gebaut und grün: nur die Kette für `Note`.",
+              "`Note` hat nur Text-Felder (String).",
+              "`Order` mit `Amount` und `Channel` wartet auf M4.",
+              "Vertauschte `Channel`-Werte bauen noch durch.",
+              S + "DL-140 beschlossen, nicht gebaut",
+              "Block = der Build bricht mit Fehler ab.",
+              "Aus einem Block hilft nur SQL-Delete.",
+              "Fate-Form = Zeile im `migrate`: was mit alten Daten passiert.",
+              "Fate-Formen gibt es noch nicht.",
+              "Umstellung v2 → v3 lief per Python-Skript."],
+             "Sagt das README weiter „PASS“, liest man mehr hinein als gezeigt.",
              [beaml('''
-// Das läuft heute durch die ganze Kette:
+// Läuft heute durch die ganze Kette:
+
 type Note { text: String }
-// Das wartet auf M4 (Konstruktor- und Enum-Feld in einer Zeile):
-type Order { order_id: String amount: Amount channel: Channel }
+
+// Wartet auf M4 (Konstruktor- und Enum-Feld):
+
+type Order {
+  order_id: String
+  amount: Amount
+  channel: Channel
+}
 ''')],
-             [("A", "PASS-Wortlaut behalten", False),
-              ("B", "Anspruch eingrenzen: „String-Kette, Blocks bewiesen, noch keine Fate-Form“ in README, Register und Pages", False)], dl="DL-149"),
+             [("A", "Wort „PASS“ so lassen", False),
+              ("B", "Anspruch enger fassen: „nur String-Kette, Blocks bewiesen, noch keine Fate-Form“ in README, Register und Seiten", False)], dl="DL-149"),
           it("A2", "Eine nicht dekodierbare Zeile bricht die Listenseite", "decided", "Opus (Schlussreview); entschieden 13ue: A",
-             "Der Build zählt eine kaputte Zeile (falscher Digest, SQL-`UPDATE` ohne neuen Digest) als „nicht dekodierbar“ und geht durch. Zur Laufzeit scheitert dann der ganze `db.list`-Aufruf (QDB-4 A: eine schlechte Zeile, keine Liste).",
-             "Der Build sagt grün, die Seite /orders ist leer oder rot. Das ist genau der Fall, den BEAML verhindern soll.",
+             ["STORED ROW = gespeicherte Zeile in der Tabelle `records`.",
+              "Nicht dekodierbar = BEAML kann die Zeile nicht lesen.",
+              S + "z. B. falscher Digest (Prüfsumme)",
+              S + "z. B. SQL-`UPDATE` von Hand",
+              "Der Build zählt so eine Zeile nur.",
+              "Der Build bleibt grün.",
+              "`db.list` = lädt alle Zeilen für eine Liste.",
+              "Zur Laufzeit scheitert `db.list` dann ganz (QDB-4).",
+              "Folge: Seite /orders leer oder rot."],
+             "Genau diesen Fall soll BEAML verhindern.",
              [],
-             [("A", "Build blockt bei einer nicht dekodierbaren Zeile", False),
-              ("B", "`db.list` überspringt die Zeile und meldet sie", False),
-              ("C", "Ausfall hinnehmen (wie gebaut)", True)],
+             [("A", "Build bricht ab bei einer nicht dekodierbaren Zeile", False),
+              ("B", "`db.list` lässt die Zeile weg und meldet sie", False),
+              ("C", "Ausfall hinnehmen (so gebaut)", True)],
              note="Hängt mit QDB-4 und P4c zusammen (Seite „Zeilen“).", dl="DL-150"),
-          it("A3", "Der Compiler prüft nicht, woher der Zeilen-Snapshot kommt", "open", "Opus (Schlussreview)",
-             "`--stored` liest `rows.jsonl` und daneben `snapshot-meta.json`. Fehlt die Meta-Datei, exit 0. Gelesen wird nur `row_count`. `run.py run` setzt die Datenbank zurück und prüft gegen 0 Zeilen.",
-             "Ein Build gegen die falsche oder leere Datenbank sieht aus wie ein Build gegen Produktion.",
+          it("A3", "Der Compiler prüft nicht, woher der Zeilen-Snapshot kommt", "decided", "Opus (Schlussreview); entschieden 13ue: B",
+             ["`--stored` = Build-Prüfung gegen gespeicherte Daten.",
+              "ROW SNAPSHOT = Kopie der Zeilen als Datei `rows.jsonl`.",
+              "Daneben liegt `snapshot-meta.json`.",
+              "Fehlt diese Datei: trotzdem grün (exit 0).",
+              "Gelesen wird nur `row_count` (Zahl der Zeilen).",
+              "`run.py run` leert vorher die Datenbank.",
+              S + "geprüft wird gegen 0 Zeilen"],
+             "Ein Build gegen leere Daten sieht aus wie gegen echte.",
              [],
              [("A", "Compiler verlangt die Meta-Datei und prüft Datenbankname und Abfragezeit", False),
-              ("B", "`--stored` fragt die Tabelle selbst live ab (DL-127-Wortlaut)", False),
-              ("C", "wie gebaut, nur die Host-Prüfung N8c", True)]),
+              ("B", "`--stored` fragt die Tabelle selbst ab (so steht es in DL-127)", False),
+              ("C", "so lassen, nur die Prüfung im Host (N8c)", True)], dl="DL-151"),
       ])
 
 # ---------------------------------------------------------------- 2
 group("02-order-chain", "M4: die echte Order-Kette",
-      "Alles hier dreht sich um eine Regel: D6B-39 verbietet in einem verketteten TYPE ein Konstruktor- oder Enum-Feld. Darum läuft der `Order`-Pfad noch nicht über Zeilen.",
+      "Hier bremst eine Regel alles: D6B-39. Sie verbietet bestimmte Felder in einem TYPE mit `migrate`. Darum läuft `Order` noch nicht über gespeicherte Zeilen.",
       [
           it("M4", "Darf eine verkettete Zeile Amount und Channel tragen?", "parked", "OWNER geparkt (D036); gebauter Stand Fable (Repair)",
-             "Ein `migrate Order v1 -> v2` wäre heute ein Build-Fehler, weil `Order` die Felder `amount: Amount` (Konstruktor) und `channel: Channel` (Enum) hat. Gebaut ist: nichts geändert, D6B-39 gilt, Test N18 pinnt den heutigen Hilfetext.",
-             "Kritischer Pfad: ohne M4 kein `Order`-Chain, und mit M3 und M5 auch keine Fate-Formen (N9).",
+             ["TYPE = Bauplan eines Werts, z. B. `Order`.",
+              "TYPE VERSION = Stand eines TYPE beim Speichern (v1, v2 …).",
+              "MIGRATE CHAIN = die `migrate`-Schritte eines TYPE.",
+              S + "liest alte Zeilen in die neue Form",
+              "Regel D6B-39: in so einer Kette kein Konstruktor-Feld, kein Enum-Feld.",
+              "Konstruktor-Feld = Feld mit eigener Prüf-`fn`, z. B. `amount: Amount`.",
+              "Enum-Feld = Feld mit festen Werten, z. B. `channel: Channel`.",
+              "`Order` hat beide: also Build-Fehler.",
+              "Gebaut: nichts geändert, D6B-39 gilt.",
+              "Test N18 hält den heutigen Hilfetext fest.",
+              "FATE OPERATION = Zeile im `migrate`: was mit alten Daten passiert."],
+             "Ohne M4 keine `Order`-Kette; mit M3 und M5 auch keine Fate-Formen (N9).",
              [beaml('''
-type Amount { value: String currency: String }
-enum Channel { Web = "web"  App = "app"  Unknown(String) }
-type Order { order_id: String amount: Amount channel: Channel }
-// Heute ein Build-Fehler, sobald eine Kette dranhängt:
-type Order v2 { order_id: String amount: Amount channel: Channel note: String }
+type Amount {
+  value: String
+  currency: String
+}
+
+enum Channel {
+  Web = "web"
+  App = "app"
+  Unknown(String)
+}
+
+// Heute ein Build-Fehler, sobald migrate dranhängt:
+
+type Order {
+  order_id: String
+  amount: Amount
+  channel: Channel
+  note: String
+}
+
 migrate Order v1 -> v2 { add note: String = "" }
 ''')],
-             [("A", "D6B-39 bleibt; der DL-102-Hilfetext sagt „stelle die vorige Klausel oder das Literal wieder her“", False),
-              ("B", "D6B-39 vor der ersten FATE OPERATION aufheben", False)]),
+             [("A", "D6B-39 bleibt. Der Hilfetext (DL-102) sagt: „stelle die vorige Klausel oder das Literal wieder her“", False),
+              ("B", "D6B-39 aufheben, noch vor der ersten FATE OPERATION", False)]),
           it("QDB-8", "Der verkettete Lesepfad läuft solange auf Note", "default", "Fable (Default, offen)",
-             "Weil `Order` nicht verkettet werden darf, prüfen die Tests N7/N7b die MIGRATE CHAIN über Zeilen an einem String-TYPE `Note { text: String }`. Das ist gebaut und grün (`note_v2`: v1-Zeilen migrieren beim Lesen, keine DDL).",
+             ["`Order` darf heute keine Kette haben (M4).",
+              "Also prüfen die Tests N7/N7b die MIGRATE CHAIN an `Note`.",
+              "`Note` hat nur String-Felder.",
+              "Gebaut und grün (Variante `note_v2`).",
+              "Alte v1-Zeilen werden beim Lesen zu v2.",
+              "Keine Änderung an der Tabelle nötig (keine DDL)."],
              "",
              [beaml('''
-type Note v2 { text: String tag: String }
+type Note {
+  text: String
+  tag: String
+}
+
 migrate Note v1 -> v2 { add tag: String = "" }
 ''')],
-             [("A", "N7/N7b auf M4 blocken", False),
-              ("B", "String-TYPE `Note` mit eigener Kette", True),
+             [("A", "Tests N7/N7b warten auf M4", False),
+              ("B", "eigener String-TYPE `Note` mit eigener Kette", True),
               ("C", "M4 jetzt beantworten", False)]),
           it("N9", "Der strengere Amount braucht eine Fate-Form", "parked", "OWNER geparkt (über M3, M4, M5)",
-             "Die Variante `stricter` lehnt Beträge ohne Währung ab. `--stored` blockt den Build gegen echte Zeilen, wie gewollt. Der kleinste Ausweg wäre `quarantine amount`; die Form gibt es noch nicht.",
-             "Heute kommt man nur mit einem SQL-Delete aus dem Block.",
+             ["Variante `stricter`: `Amount` wird strenger.",
+              "Neu: der Betrag `\"0\"` wird abgelehnt.",
+              "Alte Zeilen mit `\"0\"` blocken dann den Build.",
+              "Das ist so gewollt.",
+              "Kleinster Ausweg: `quarantine amount`.",
+              S + "alte Werte beiseite stellen, mit Grund",
+              "Diese Form gibt es noch nicht."],
+             "Heute hilft nur ein SQL-Delete.",
              [beaml('''
-fn Amount _, "" -> Amount ! BadAmount = BadAmount {}
-// Eine gespeicherte Zeile mit currency "" blockt jetzt den Build.
+type BadAmount {}
+
+type Amount {
+  value: String
+  currency: String
+}
+
+// Variante stricter: die Zeile mit "0" ist neu.
+
+fn Amount value: String, currency: String -> Amount ! BadAmount
+fn Amount "0",           _                -> Amount ! BadAmount = BadAmount {}
+fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
+fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
 ''')],
              []),
       ])
 
 # ---------------------------------------------------------------- 3
 group("03-encoder", "Wie eine Seite einen BEAML-Wert anzeigt",
-      "Die Listenseite muss aus dem BEAML-Wert `Order` etwas machen, das HEEx rendern kann. Die Frage ist, welche Funktion der Host dafür ruft.",
+      "Die Seite /orders zeigt gespeicherte Bestellungen. Die Vorlage (HEEx) braucht dafür einfache Werte. Frage: welche Funktion ruft der Host dafür?",
       [
           it("ENC", "Der Host ruft `Orders.__beaml_encode_order/1`", "default", "Opus (GREEN exp0005); C konkretisiert von Opus (TEST)",
-             "Die Seite /orders ruft heute den compiler-internen Encoder. Das ist der kleinste Weg: keine Compiler-Änderung, das Literal `\"web\"` bleibt in BEAML. Aber ein Doppelunterstrich-Name ist ein Interface gegen die Sprache, das wir nie versprochen haben.",
-             "Jede Umbenennung im Compiler bricht die App still.",
+             ["Host = die Phoenix-App um den erzeugten Code.",
+              "Encoder = macht aus `Order` eine einfache Map.",
+              "Heute ruft /orders `Orders.__beaml_encode_order/1`.",
+              "Zwei Unterstriche = intern im Compiler.",
+              "Vorteil: keine Compiler-Änderung.",
+              "Vorteil: das Literal `\"web\"` bleibt in BEAML.",
+              "Nachteil: diesen Namen haben wir nie versprochen."],
+             "Benennt der Compiler ihn um, bricht die App still.",
              [ex('''
-# order_list_live.ex, mount/3
+# order_list_live.ex, in mount/3
+
 {:ok, assign(socket, items: Enum.map(items, &Orders.__beaml_encode_order/1))}
 '''), beaml('''
-// Option C: der Compiler erzeugt pro TYPE eine öffentliche Projektion
-// (Name noch offen, z. B. project_order/1). Kein neues Schlüsselwort.
-type Order { order_id: String amount: Amount channel: Channel }
+// Option C: der Compiler erzeugt pro TYPE eine öffentliche Funktion.
+
+// Name noch offen, z. B. project_order/1. Kein neues Schlüsselwort.
+
+type Order {
+  order_id: String
+  amount: Amount
+  channel: Channel
+}
 ''')],
-             [("A", "Host ruft den generierten internen Encoder", True),
-              ("B", "Host matcht das Enum-Tupel selbst", False),
+             [("A", "Host ruft den erzeugten internen Encoder", True),
+              ("B", "Host zerlegt den Enum-Wert selbst", False),
               ("C", "Compiler erzeugt eine öffentliche `project_<type>/1`", False)]),
       ])
 
 # ---------------------------------------------------------------- 4
 group("04-rows", "Zeilen: Inhalt und Form-Prüfung",
-      "Was steht in einer gespeicherten Zeile, und was prüft `--stored` daran?",
+      "Eine Zeile ist ein gespeicherter Wert in Postgres. Hier: was in ihr steht. Und was der Build an ihr prüft.",
       [
           it("Q5-10", "Was steht im `value` einer Zeile?", "default", "Fable (Default, offen)",
-             "Gebaut: die Zeile trägt den Record-Kern v3 (version, trace_id, operation, type, value, value_sha256, …), nicht nur die nackte Projektion. So ist eine Zeile dasselbe Ding wie ein RESPONSE RECORD und `--stored` liest beide mit einem Leser (DL-127, DL-143).",
+             ["STORED ROW = eine Zeile der Tabelle `records`.",
+              "`db.put` schreibt sie.",
+              "Frage: was steht in der Spalte `value`?",
+              "RECORD CORE = die 14 festen Schlüssel jedes Records.",
+              S + "z. B. `version`, `type`, `value`",
+              "Gebaut: der ganze RECORD CORE, Version 3.",
+              "RESPONSE RECORD = aufgezeichnete Antwort eines Aufrufs.",
+              "So ist eine Zeile wie ein RESPONSE RECORD.",
+              "`--stored` liest beide mit einem Leser (DL-127, DL-143)."],
              "",
              [],
-             [("A", "nackte Projektion", False), ("B", "Record-Kern v3 in der Zeile", True)]),
+             [("A", "nur der Wert selbst (nackte Projektion)", False), ("B", "RECORD CORE v3 in der Zeile", True)]),
           it("P4c", "Fehlendes oder falsch getyptes String-Feld in einer Zeile", "default", "Fable (Default, offen)",
-             "Vorher: eine Zeile ohne das Feld `text` galt als geprüft und `db.list` fiel zur Laufzeit. Jetzt blockt der Build mit dem DL-102-Text. Eine Zeile wird an ihrer eigenen gespeicherten TYPE VERSION geprüft (TEST-Repair).",
+             ["Fall: einer Zeile fehlt ein String-Feld.",
+              S + "oder der Wert ist kein String",
+              "Vorher: Build grün, `db.list` scheitert später.",
+              "Block = der Build bricht mit Fehler ab.",
+              "Jetzt: der Build blockt mit dem DL-102-Text.",
+              "TYPE VERSION = Stand des TYPE beim Speichern.",
+              "Geprüft wird gegen die TYPE VERSION der Zeile."],
              "",
              [],
-             [("A", "Build blockt mit DL-102-Text", True), ("B", "als nicht dekodierbar zählen", False)]),
+             [("A", "Build blockt mit DL-102-Text", True),
+              ("B", "als nicht dekodierbar zählen (BEAML kann sie nicht lesen)", False)]),
           it("P4c-http", "Dieselbe Lücke bei http RESPONSE RECORDS", "default", "Opus (GREEN P4c); auf Migrate gehoben vom TEST-Review",
-             "Für http-Records bleibt die Lücke offen: ein Record mit fehlendem String-Feld geht durch. Ein Guard N32e hält den Stand fest.",
+             ["Gleiche Lücke bei http RESPONSE RECORDS.",
+              "Dort fehlt die Prüfung noch.",
+              "Ein Record ohne String-Feld geht durch.",
+              "Test N32e hält diesen Stand fest."],
              "",
              [],
-             [("A", "Lücke behalten", True), ("B", "http nach dem Versions-Fix mit prüfen", False)]),
+             [("A", "Lücke so lassen", True), ("B", "http mitprüfen, nach dem Versions-Fix", False)]),
           it("P4c-text", "Ein Fehlertext für beide Fälle", "default", "Opus (RED P4c)",
-             "Fehlender Schlüssel und Nicht-String-Wert geben denselben Text: `TYPE <T>: 1 stored ROW of table <t> has no String value for field <f>` plus Quelle und DL-102-Hilfezeile.",
+             ["Zwei Fehler, ein Text:",
+              S + "Schlüssel fehlt",
+              S + "Wert ist kein String",
+              "Text: `TYPE <T>: 1 stored ROW of table <t> has no String value for field <f>`",
+              "Dazu: Quelle und DL-102-Hilfezeile."],
              "", [], [("A", "ein Text", True), ("B", "zwei Texte", False)]),
           it("QDB-4", "Eine schlechte Zeile lässt den ganzen `db.list` fallen", "default", "Opus (PLAN db-transport)",
-             "Gebaut: `db.list` gibt `{:error, decode}` zurück, sobald eine Zeile nicht dekodiert. Das ist der Laufzeitteil von A2.",
-             "", [], [("A", "wie gebaut", True)]),
+             ["`db.list` = lädt viele Zeilen auf einmal.",
+              "Ist eine davon nicht lesbar: Fehler für alle.",
+              "Rückgabe dann `{:error, decode}`.",
+              "Das ist die Laufzeit-Hälfte von A2."],
+             "", [], [("A", "so gebaut", True)]),
           it("QDB-3", "Neueste Zeile gewinnt bei `db.get`", "default", "Opus (PLAN db-transport)",
-             "Mehrere Zeilen zum selben Schlüssel: die zuletzt geschriebene zählt.", "", [], [("A", "wie gebaut", True)]),
+             ["`db.get` = lädt eine Zeile über einen Schlüssel.",
+              "Mehrere Zeilen mit gleichem Schlüssel?",
+              "Die zuletzt geschriebene gewinnt."],
+             "", [], [("A", "so gebaut", True)]),
       ])
 
 # ---------------------------------------------------------------- 5
 group("05-names", "Namen: Modul, Rejected, reservierte Namen",
-      "Welche Namen erzeugt der Compiler, und welche darf der Host nicht benutzen?",
+      "Der Compiler erzeugt Elixir-Module. Hier: wie sie heißen. Und welche Namen gesperrt sind.",
       [
           it("Q6E-1", "Welche Quellen heißen nach dem Dateinamen?", "default", "Opus (PLAN multi-effect)",
-             "`orders.beaml` erzeugt heute `defmodule Orders`, aber nur, wenn die Datei eine ENTRY LINE hat. Alle anderen Quellen heißen weiter `BeamlSpike`. Grund: sonst wandern alle sechs Byte-Pins.",
+             ["ENTRY LINE = Zeile, über die eine Seite BEAML ruft.",
+              "`orders.beaml` wird zu `defmodule Orders`.",
+              "Aber nur, wenn die Datei eine ENTRY LINE hat.",
+              "Andere Quellen heißen weiter `BeamlSpike`.",
+              "Byte-Pin = Test, der erzeugte Bytes festhält.",
+              "Grund: sonst ändern sich alle sechs Byte-Pins."],
              "Zwei Regeln für einen Namen sind schwer zu erklären.",
              [beaml('''
-// orders.beaml  ->  defmodule Orders (hat eine ENTRY LINE)
+// orders.beaml wird defmodule Orders, denn hier steht eine ENTRY LINE:
+
 effect ui.place PlaceForm -> Order ! StoreError = ui.event("place") |> place
 ''')],
-             [("A", "jede Quelle (alle Byte-Pins wandern)", False), ("C", "nur eine Quelle mit ENTRY LINE", True)]),
+             [("A", "jede Quelle (alle Byte-Pins ändern sich)", False), ("C", "nur eine Quelle mit ENTRY LINE", True)]),
           it("Q6E-2", "Wo wohnt das `Rejected`-Struct?", "default", "Opus (PLAN multi-effect)",
-             "Gebaut: `Orders.Rejected{reason: \"decode\"}`. DL-133 hatte die Form mit `BeamlSpike.Rejected` benannt; die Docs merken das an.",
-             "", [ex('''{:error, %Orders.Rejected{reason: "decode"}}''')],
-             [("A", "`<Modul>.Rejected`", True), ("B", "ein festes `BeamlSpike.Rejected`", False)]),
+             ["`Rejected` = Fehlerwert bei abgelehnter Eingabe.",
+              "Gebaut: `Orders.Rejected{reason: \"decode\"}`.",
+              "DL-133 nannte die Form `BeamlSpike.Rejected`.",
+              "Die Docs merken den Unterschied an."],
+             "", [ex('''
+# Rückgabe, wenn BEAML die Eingabe nicht lesen kann:
+
+{:error, %Orders.Rejected{reason: "decode"}}
+''')],
+             [("A", "`<Modul>.Rejected`, also `Orders.Rejected`", True), ("B", "immer `BeamlSpike.Rejected`", False)]),
           it("Q5-6", "Modulname aus dem Dateinamen, keine `module`-Zeile", "default", "Opus (PLAN exp0005)",
-             "Kein neues Schlüsselwort. Der Stamm `orders` wird `Orders`.", "", [],
-             [("A", "aus dem Dateinamen", True), ("B", "eine `module`-Zeile", False)]),
+             ["Der Modulname kommt aus dem Dateinamen.",
+              "`orders.beaml` → `Orders`.",
+              "Kein neues Schlüsselwort `module`."], "", [],
+             [("A", "aus dem Dateinamen", True), ("B", "eigene `module`-Zeile", False)]),
           it("RESV", "`BeamlDb` und `System` sind als Modulname gesperrt", "default", "Opus (GREEN db-transport)",
-             "Eine Datei `beaml_db.beaml` gäbe das Modul `BeamlDb`, das der erzeugte Code selbst ruft. Build-Fehler, wie D6B-203 für `System`.", "", [],
-             [("A", "wie gebaut", True)]),
+             ["Datei `beaml_db.beaml` gäbe Modul `BeamlDb`.",
+              "Den Namen ruft der erzeugte Code selbst.",
+              "Darum: Build-Fehler.",
+              "Gleiche Regel wie D6B-203.",
+              "`System` ist auch gesperrt."], "", [],
+             [("A", "so gebaut", True)]),
       ])
 
 # ---------------------------------------------------------------- 6
 group("06-db", "Datenbank-Transporte",
-      "Wie `db.put`, `db.get` und `db.list` den Host rufen, was dabei aufgezeichnet wird und wie `--stored` an die Zeilen kommt.",
+      "BEAML spricht über drei Aufrufe mit der Datenbank: `db.put`, `db.get`, `db.list`. Hier: wie der Host sie liefert. Was dabei aufgezeichnet wird. Und wie `--stored` an die Zeilen kommt.",
       [
           it("QDB-2", "Die Host-Signaturen", "default", "Opus (PLAN db-transport); JSON von Fable (Repair)",
-             "Gebaut: `BeamlDb.put(table, {type, version}, json)`, `get/3`, `list/3`. Der erzeugte Code kodiert den Kern mit OTP `:json`; `get` und `list` geben JSON-Binaries zurück. Ein fester Modulname, kein Behaviour.",
-             "Der Host muss genau dieses Modul mit genau diesen drei Funktionen liefern.",
+             ["Host = die Phoenix-App um den erzeugten Code.",
+              "Er liefert das Modul `BeamlDb`.",
+              "Drei Funktionen: `put/3`, `get/3`, `list/3`.",
+              "BEAML schickt JSON (OTP `:json`).",
+              "`get` und `list` geben JSON zurück.",
+              "Fester Modulname, kein Behaviour.",
+              S + "Behaviour = Elixir-Vertrag für ein Modul"],
+             "Der Host muss genau diese drei Funktionen liefern.",
              [beaml('''
 effect orders.save Order -> Order ! StoreError = db.put("records")
+
 effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
 '''), ex('''
-defmodule Proto.BeamlDb do
-  def put(table, {type, version}, json), do: ...   # {:ok, json} | {:error, reason}
-  def get(table, {type, version}, key_json), do: ...
-  def list(table, {type, version}, query_json), do: ...
+# app/lib/proto/beaml_db.ex (Köpfe, ohne Rumpf)
+
+defmodule BeamlDb do
+  def put("records", {type, version}, json), do: ...
+
+  def get("records", type, key), do: ...
+
+  def list("records", type, _query), do: ...
 end
 ''')],
-             [("A", "fest `BeamlDb.put/3, get/3, list/3`", True), ("B", "konfiguriertes Modul mit Behaviour (Q5-8 B) / `put/4` (QDB-2 B)", False)]),
+             [("A", "fest: `BeamlDb.put/3`, `get/3`, `list/3`", True),
+              ("B", "eigenes Modul per Konfiguration, mit Behaviour (Q5-8 B), oder `put/4` (QDB-2 B)", False)]),
           it("QDB-6b", "Ein gescheiterter db-Aufruf schreibt ein rejected-Record", "default", "Fable (Default, offen)",
-             "Bei http schreibt ein Transportfehler kein Record. Bei db schon: `outcome: rejected, reason: transport`. Zwei Ströme, zwei Regeln.", "", [],
-             [("A", "ja, ein rejected-Record", True), ("B", "kein Record, wie http", False)]),
+             ["Record = eine aufgezeichnete Zeile pro Aufruf.",
+              "http, Transportfehler: kein Record.",
+              "db, Fehler: ein Record mit `outcome: rejected`.",
+              S + "dazu `reason: transport`",
+              "Zwei Ströme, zwei Regeln."], "", [],
+             [("A", "ja, ein rejected-Record", True), ("B", "kein Record, wie bei http", False)]),
           it("QDB-1", "Der Schlüssel von `db.get` ist ein String-Feld des Key-TYPE", "default", "Opus (PLAN db-transport)",
-             "Der Key-TYPE hat genau ein String-Feld, dessen Name ist der Schlüssel. Q5-1 (Zeilen-`id` statt TYPE-Feld) ist damit B. In 0005 ungenutzt.", "",
+             ["`db.get` = lädt eine Zeile über einen Schlüssel.",
+              "Key-TYPE = TYPE mit genau einem String-Feld.",
+              "Der Name dieses Felds ist der Schlüssel.",
+              "Damit ist Q5-1 entschieden: B (TYPE-Feld, nicht Zeilen-`id`).",
+              "In 0005 nicht benutzt."], "",
              [beaml('''
 type OrderKey { order_id: String }
+
 effect orders.get OrderKey -> Order ! StoreError = db.get("records")
 ''')],
-             [("A", "ein String-Feld im Key-TYPE", True), ("B", "Schlüssel im Aufruf / Zeilen-id", False)]),
+             [("A", "ein String-Feld im Key-TYPE", True), ("B", "Schlüssel im Aufruf, oder Zeilen-`id`", False)]),
           it("GET", "`BeamlDb.get/3` sucht mit `@>` Containment", "default", "Opus (GREEN exp0005)",
-             "Gebaut, ungenutzt: Key-Map als JSON, `value->'value' @> key`, neueste Zeile, `{:ok, nil}` wenn keine. TEST O2: migrierte Felder werden nicht gefunden; ein leerer Schlüssel trifft jede Zeile.",
-             "", [], [("A", "Containment, neueste Zeile", True), ("B", "ein Feld pro Aufruf mit Unique-Index", False)]),
+             ["So sucht der Host bei `db.get`.",
+              "Der Schlüssel kommt als Map.",
+              "Postgres-Suche: `value->'value' @> key`.",
+              S + "`@>` heißt „enthält“",
+              "Neueste Zeile gewinnt.",
+              "Keine Zeile: `{:ok, nil}`.",
+              "Gebaut, aber nicht benutzt.",
+              "TEST O2 fand zwei Lücken:",
+              S + "migrierte Felder findet er nicht",
+              S + "leerer Schlüssel trifft jede Zeile"],
+             "", [], [("A", "„enthält“-Suche, neueste Zeile", True), ("B", "ein Feld pro Aufruf, mit eindeutigem Index", False)]),
           it("QDB-5", "db-Aufrufe landen im Strom `responses`", "default", "Opus (PLAN db-transport)",
-             "Kein eigener Strom. Kern v3 plus `request`.", "", [], [("A", "Strom `responses`", True), ("B", "eigener Strom mit Zeilenreferenzen", False)]),
+             ["Jeder db-Aufruf wird aufgezeichnet.",
+              "Strom = eine Datei mit Records, eine Zeile je Record.",
+              "Ziel: der Strom `responses`, wie bei http.",
+              "Inhalt: RECORD CORE v3 plus `request`."], "", [],
+             [("A", "Strom `responses`", True), ("B", "eigener Strom mit Verweisen auf Zeilen", False)]),
           it("QDB-7", "Der ROW SNAPSHOT: `rows.jsonl` plus `snapshot-meta.json`", "default", "Opus (PLAN db-transport)",
-             "`mix beaml.stored DIR` schreibt die Zeilen als JSONL neben die Records; `row_count` in der Meta wird geprüft. Siehe A3.", "", [],
-             [("A", "`rows.jsonl` daneben, Meta geprüft", True), ("B", "eine gemischte Datei", False)]),
+             ["ROW SNAPSHOT = Kopie der Zeilen als Datei.",
+              "`mix beaml.stored DIR` schreibt `rows.jsonl`.",
+              "Daneben: `snapshot-meta.json` mit `row_count`.",
+              "`row_count` muss zur Zahl der Zeilen passen.",
+              "Siehe A3."], "", [],
+             [("A", "`rows.jsonl` daneben, Meta geprüft", True), ("B", "alles in einer gemischten Datei", False)]),
           it("Q5-4", "`--stored` über Postgres läuft über eine Host-Task", "default", "Opus (PLAN exp0005)",
-             "Der Compiler ruft kein `psql`. Der Host schreibt den Snapshot, der Compiler liest Dateien.", "", [],
+             ["`--stored` = Build-Prüfung gegen gespeicherte Daten.",
+              "Der Compiler ruft kein `psql`.",
+              "Der Host schreibt den Snapshot.",
+              "Der Compiler liest nur Dateien."], "", [],
              [("A", "Compiler ruft `psql`", False), ("B", "Host-Task `mix beaml.stored` schreibt den Snapshot", True)]),
           it("STORED-ARG", "`mix beaml.stored DIR` nimmt das Snapshot-Verzeichnis", "default", "Opus (RED exp0005)",
-             "Ein Argument. `run.py` ruft danach den Compiler.", "", [],
-             [("A", "Verzeichnis, run.py ruft den Compiler", True), ("B", "Quelle, die Task ruft den Compiler", False)]),
+             ["Die Task `mix beaml.stored` nimmt ein Argument.",
+              "Das Argument: das Snapshot-Verzeichnis.",
+              "Danach ruft `run.py` den Compiler."], "", [],
+             [("A", "Verzeichnis; `run.py` ruft den Compiler", True), ("B", "BEAML-Quelle; die Task ruft den Compiler", False)]),
           it("SNAP-SET", "`--stored` liest nur die Zeilen, keine alten Capture-Records", "default", "Opus (RED exp0005)",
-             "`mix beaml.stored` schreibt ein leeres `responses.jsonl`. Die Capture-Dateien früherer Läufe (Q5-7 A) sind kein Store.", "", [],
-             [("A", "nur STORED ROWS", True), ("B", "auch Capture-Records früherer Läufe", False)]),
+             ["`--stored` liest nur STORED ROWS.",
+              "`mix beaml.stored` schreibt ein leeres `responses.jsonl`.",
+              "Aufzeichnungen früherer Läufe zählen nicht.",
+              "Grund: sie sind kein Speicher (Q5-7 A)."], "", [],
+             [("A", "nur STORED ROWS", True), ("B", "auch Aufzeichnungen früherer Läufe", False)]),
           it("Q5-7", "Capture-Ströme als JSONL pro Lauf", "default", "Opus (PLAN exp0005)",
-             "Keine Tabelle `records` für die Aufzeichnung.", "", [], [("A", "JSONL pro Lauf", True), ("B", "Zeilen in `records`", False)]),
+             ["Aufzeichnung pro Lauf als JSONL-Dateien.",
+              "JSONL = eine JSON-Zeile pro Record.",
+              "Keine Tabelle `records` dafür."], "", [],
+             [("A", "JSONL pro Lauf", True), ("B", "Zeilen in der Tabelle `records`", False)]),
           it("Q5-2", "`db.list`: neueste zuerst, 100, fest im Host", "default", "Opus (PLAN exp0005)",
-             "`OrderQuery {}` ist leer. Reihenfolge und Limit stehen im Host.", "", [],
+             ["`db.list` liefert die neuesten 100 zuerst.",
+              "Das steht fest im Host.",
+              "`OrderQuery {}` hat keine Felder."], "", [],
              [("A", "fest im Host", True), ("B", "Felder in `OrderQuery`", False)]),
           it("ORPHAN", "Verwaiste Zeilen blocken wie verwaiste Records", "default", "Opus (RED db-stored)",
-             "Eine Zeile, deren `operation` keinen EFFECT und keine RETIRE LINE mehr hat, blockt mit dem DL-040-Text und der Hilfe `declare: retire <op> keep <n> days`. Eine RETIRE LINE gibt die Zeilen frei (gezählt, nicht geprüft). Was `retire` für Zeilen bedeutet, bleibt M5.", "", [],
-             [("A", "blocken mit DL-040-Text", True), ("B", "nur auf operation blocken", False), ("C", "als nicht dekodierbar zählen", False)]),
+             ["EFFECT = eine `effect`-Zeile, z. B. `orders.save`.",
+              "Verwaiste Zeile = ihre `operation` hat keinen EFFECT mehr.",
+              S + "und keine RETIRE LINE",
+              "RETIRE LINE = `retire <op> keep <n> days`.",
+              S + "absichtlich stillgelegt, Daten n Tage halten",
+              "Verwaiste Zeile: der Build blockt (DL-040-Text).",
+              "Hilfe: `declare: retire <op> keep <n> days`.",
+              "Mit RETIRE LINE: Zeilen gezählt, nicht geprüft.",
+              "Was `retire` für Zeilen heißt: offen (M5)."], "", [],
+             [("A", "blocken mit DL-040-Text", True), ("B", "nur nach `operation` blocken", False),
+              ("C", "nur zählen, als „nicht dekodierbar“", False)]),
           it("OFFCHAIN", "Eine Zeile einer TYPE VERSION ohne Kette blockt", "default", "Opus (RED db-stored)",
-             "Eine akzeptierte Zeile `Note v3`, wenn es nur `v1 -> v2` gibt: Pfadtext, Build blockt.", "", [],
-             [("A", "blocken mit Pfadtext", True), ("B", "als nicht dekodierbar zählen", False)]),
+             ["Beispiel: eine angenommene Zeile `Note v3`.",
+              "Es gibt aber nur `migrate Note v1 -> v2`.",
+              "Kein Weg von v3 zur heutigen Form.",
+              "Der Build blockt mit dem Pfad-Text."], "", [],
+             [("A", "blocken mit Pfad-Text", True), ("B", "nur zählen, als „nicht dekodierbar“", False)]),
       ])
 
 # ---------------------------------------------------------------- 7
 group("07-record-v3", "Record-Format v3",
-      "Ein Format für alle Ströme (DL-143). Die acht Fragen, die der Plan als Default entschieden hat, und die Zählzeilen-Regel.",
+      "Ein Record ist eine aufgezeichnete Zeile pro Aufruf. Seit DL-143 haben alle Ströme ein Format: Version 3. Hier: die acht Default-Fragen dazu.",
       [
           it("CORE", "Der Kern: 14 Schlüssel", "decided", "13ue (DL-141 bis DL-143)",
-             "version 3, trace_id, span_id, artifact_id, operation, attempt, type, value, value_sha256, redacted, unknown_keys, unknown_fields, outcome, reason. http hängt `request` und `status` an.", "", [], [], dl="DL-143"),
-          it("QV3-1", "Marker `version: 3`", "default", "Opus (PLAN record-v3)", "Kein `format`-Schlüssel, kein Dateiname.", "", [],
-             [("A", "`version: 3`", True), ("B", "`format`-Schlüssel", False), ("C", "Dateiname", False)]),
-          it("QV3-2", "Ein `span_id`", "default", "Opus (PLAN record-v3)", "Keine Client/Server-Trennung, kein `span_kind`.", "", [],
-             [("A", "ein `span_id`", True), ("B", "Client- und Server-Span als Extras", False), ("C", "`span_id` plus `span_kind`", False)]),
-          it("QV3-3", "Transport-Extras flach", "default", "Opus (PLAN record-v3)", "`status` und `request` stehen oben, nicht unter `transport: {}`.", "", [],
-             [("A", "flach", True), ("B", "verschachtelt", False)]),
+             ["RECORD CORE = 14 Schlüssel in jedem Record:",
+              S + "`version` (3), `trace_id`, `span_id`",
+              S + "`artifact_id`, `operation`, `attempt`",
+              S + "`type`, `value`, `value_sha256`",
+              S + "`redacted`, `unknown_keys`",
+              S + "`unknown_fields`, `outcome`, `reason`",
+              "http hängt `request` und `status` an."], "", [], [], dl="DL-143"),
+          it("QV3-1", "Marker `version: 3`", "default", "Opus (PLAN record-v3)",
+             ["Woran erkennt man Version 3?",
+              "Am Schlüssel `version: 3`.",
+              "Kein `format`-Schlüssel, nicht am Dateinamen."], "", [],
+             [("A", "`version: 3`", True), ("B", "eigener Schlüssel `format`", False), ("C", "am Dateinamen", False)]),
+          it("QV3-2", "Ein `span_id`", "default", "Opus (PLAN record-v3)",
+             ["Trace = Spur eines Aufrufs durch das System.",
+              "Span = ein Abschnitt dieser Spur.",
+              "Jeder Record hat genau ein `span_id`.",
+              "Keine Trennung Client / Server, kein `span_kind`."], "", [],
+             [("A", "ein `span_id`", True), ("B", "je ein Span für Client und Server, als Zusatz", False), ("C", "`span_id` plus `span_kind`", False)]),
+          it("QV3-3", "Transport-Extras flach", "default", "Opus (PLAN record-v3)",
+             ["Zusatz-Schlüssel bei http: `status`, `request`.",
+              "Sie stehen oben, neben dem Kern.",
+              "Nicht verschachtelt unter `transport: {}`."], "", [],
+             [("A", "flach, oben", True), ("B", "verschachtelt unter `transport`", False)]),
           it("QV3-4", "`outcome`/`reason`: erst Status, dann Decode", "default", "Opus (PLAN record-v3)",
-             "`reason` ist `status`, `decode` oder `constructor`, gleich dem Live-Fehlergrund. Weiter als der DL-136-Wortlaut.", "", [],
-             [("A", "Status, dann Decode", True), ("B", "nur Status", False)]),
+             ["`outcome` = angenommen oder abgelehnt.",
+              "`reason` = warum abgelehnt.",
+              "Decode = Antwort in einen BEAML-Wert lesen.",
+              "Werte: `status`, `decode` oder `constructor`.",
+              "Erst zählt der Status, dann der Decode.",
+              "Gleich wie der Fehlergrund zur Laufzeit.",
+              "Das geht weiter als der Text von DL-136."], "", [],
+             [("A", "erst Status, dann Decode", True), ("B", "nur Status", False)]),
           it("QV3-5", "Alte v2-Dateien einmal umgeschrieben", "default", "Opus (PLAN record-v3)",
-             "15 Fixtures per `convert_v3.py`. Der Leser kennt nur v3.", "", [],
-             [("A", "einmaliges Umschreiben, Leser nur v3", True), ("B", "Leser nimmt v2 und v3", False)]),
+             ["Alte Dateien im Format v2: 15 Test-Dateien.",
+              "Einmal umgeschrieben mit `convert_v3.py`.",
+              "Der Leser kennt nur noch v3."], "", [],
+             [("A", "einmal umschreiben, Leser nur v3", True), ("B", "Leser nimmt v2 und v3", False)]),
           it("QV3-6", "Der Digest deckt `redacted`, `unknown_keys`, `value`", "default", "Opus (PLAN record-v3)",
-             "Nicht `unknown_fields`, `outcome`, `reason` (D6B-58 unverändert).", "", [],
-             [("A", "drei Schlüssel", True), ("B", "auch outcome/reason/unknown_fields", False)]),
+             ["Digest = Prüfsumme (`value_sha256`).",
+              "Sie deckt `redacted`, `unknown_keys`, `value`.",
+              "Nicht: `unknown_fields`, `outcome`, `reason`.",
+              "So wie bisher (D6B-58)."], "", [],
+             [("A", "drei Schlüssel", True), ("B", "auch `outcome`, `reason`, `unknown_fields`", False)]),
           it("QV3-8", "Ein rejected RESPONSE RECORD überspringt auch Pfad- und Versionszählung", "default", "Opus (PLAN-Repair record-v3); groß durch Fable",
-             "Ein Ausfall ist keine TYPE-Änderung (DL-136 Because). Verwaist- und Held-Prüfungen lesen trotzdem jedes Record.", "", [],
-             [("A", "nur die Wertprüfungen überspringen", False), ("B", "auch TYPE-Pfad und W2-Versionszählung", True)]),
+             ["RESPONSE RECORD = aufgezeichnete Antwort eines Aufrufs.",
+              "rejected = der Aufruf schlug fehl.",
+              S + "kein Status 200, oder abgelehnt",
+              "`--stored` überspringt dann die Wertprüfungen.",
+              "Gebaut: auch TYPE-Pfad und Versionszählung.",
+              "Grund: ein Ausfall ändert keinen TYPE (DL-136).",
+              "Verwaist- und Held-Prüfungen lesen trotzdem jedes Record."], "", [],
+             [("A", "nur die Wertprüfungen überspringen", False), ("B", "auch TYPE-Pfad und Versionszählung (W2)", True)]),
           it("COUNT", "Die Zählzeilen-Regel: wann drucken?", "default", "Fable (zusammengelegt); Zeilen-Zeile Opus (RED db-stored)",
-             "RESPONSE RECORDS drucken `N records, K checked, M rejected at capture` nur wenn M > 0. ROW SNAPSHOTS drucken `rows: N rows, K checked, M not decodable` immer. Zwei Regeln für dieselbe Frage: ist eine gedruckte Zahl der Beweis, dass die Prüfung lief, oder ist Stille der Normalfall?",
-             "Bei A verliert der Test N20b seinen Beweis „3 checked“.", [],
-             [("A", "Stille ist normal (beide nur bei M > 0)", False), ("B", "gedruckte Zahl beweist die Prüfung (beide immer)", False), ("—", "gebaut: geteilt, A für Records, B für Zeilen", True)]),
+             ["Zählzeile = Zeile mit Zahlen nach `--stored`.",
+              "RESPONSE RECORDS: nur wenn M > 0.",
+              S + "`N records, K checked, M rejected at capture`",
+              "ROW SNAPSHOT: immer.",
+              S + "`rows: N rows, K checked, M not decodable`",
+              "Zwei Regeln für dieselbe Frage:",
+              "Beweist eine Zahl, dass geprüft wurde?",
+              "Oder ist Stille der Normalfall?"],
+             "Bei A verliert Test N20b seinen Beweis „3 checked“.", [],
+             [("A", "Stille ist normal: beide nur bei M > 0", False), ("B", "Zahl beweist die Prüfung: beide immer", False), ("—", "gebaut: geteilt, A für Records, B für Zeilen", True)]),
           it("D035", "Digest-Hälfte von DL-136 (P2b)", "open", "Fable (Ruling O3 unter DL-144)",
-             "Ein falscher `value_sha256` wird gezählt, nicht geprüft. P2 druckt `digest not verified (P2b)`. Bauen oder offen lassen?", "", [],
+             ["Digest = Prüfsumme `value_sha256`.",
+              "DL-136 hat eine Digest-Hälfte.",
+              "Falscher Digest: nur gezählt, nicht geprüft.",
+              "P2 druckt `digest not verified (P2b)`.",
+              "Frage: in Schritt P2b bauen oder offen lassen?"], "", [],
              [("A", "in Schritt P2b bauen", False), ("B", "offen lassen", False)]),
           it("PDB-18", "`unknown_fields` einer Liste heißen `items.<i>.<feld>`", "default", "Fable (Flag)",
-             "", "", [], [("A", "wie gebaut", True)]),
+             ["Gilt für Records von `db.list`.",
+              "Ein Eintrag in `unknown_fields` nennt den Pfad.",
+              "Form: `items.<i>.<feld>`.",
+              S + "`<i>` = Platz in der Liste"], "", [], [("A", "so gebaut", True)]),
       ])
 
 # ---------------------------------------------------------------- 8
 group("08-entry", "ENTRY LINE und Seiten",
-      "Was die ENTRY LINE aufzeichnet und wie die drei Seiten der Demo-App sie rufen.",
+      "Die ENTRY LINE ist der Eingang von der Web-Seite in BEAML. Hier: was sie aufzeichnet. Und wie die drei Seiten der Demo-App sie rufen.",
       [
           it("ENTRY", "Die ENTRY LINE", "decided", "13ue (DL-130, DL-131)",
-             "Auswärts-Form, ein erzeugtes `ui_<event>/1` pro Zeile, Drift zwischen Kopf und Funktion ist ein Compile-Fehler.",
+             ["ENTRY LINE = Eingang von der Web-Seite in BEAML.",
+              "Sie sieht aus wie ein `effect`, nur nach innen.",
+              "Pro Zeile erzeugt der Compiler `ui_<event>/1`.",
+              "Die LiveView-Seite ruft diese Funktion.",
+              "Kopf und Ziel-`fn` brauchen dieselben TYPES.",
+              S + "sonst Compile-Fehler (Drift-Regel)"],
              "", [beaml('''
 effect ui.place PlaceForm -> Order ! StoreError = ui.event("place") |> place
 '''), ex('''
 def handle_event("place", params, socket) do
   case Orders.ui_place(params) do
     {:ok, _order} -> {:noreply, push_navigate(socket, to: ~p"/orders")}
+
     {:error, failure} -> ...
   end
 end
 ''')], [], dl="DL-130"),
           it("G6D-04", "Ein reines ENTRY-Ziel schreibt kein ENTRY RECORD", "default", "Opus (GREEN slice6d); Repair durch Fable (TEST O2)",
-             "Zielt die ENTRY LINE auf eine Funktion ohne auswärtigen EFFECT, in einer Datei, die sonst EFFECTS hat, gibt es kein ENTRY RECORD und kein `Replay.entry`. Diese UI-Events erreichen keinen `--stored`-Check und keinen REPLAY RUN. Die Begründung (kein `Replay`-Modul) gilt dort nicht.",
-             "", [], [("A", "wie gebaut", True), ("B", "ENTRY RECORD auch dort schreiben", False)]),
+             ["ENTRY RECORD = Aufzeichnung eines Aufrufs über die ENTRY LINE.",
+              "Fall: die Ziel-`fn` ruft keinen EFFECT nach außen.",
+              "Die Datei hat aber andere EFFECTS.",
+              "Dann: kein ENTRY RECORD, kein `Replay.entry`.",
+              "REPLAY RUN = Lauf mit aufgezeichneten Antworten statt echter Aufrufe.",
+              "Folge: kein `--stored`-Check, kein REPLAY RUN.",
+              "Der alte Grund (kein `Replay`-Modul) gilt hier nicht."],
+             "", [], [("A", "so gebaut", True), ("B", "auch dort ein ENTRY RECORD schreiben", False)]),
           it("G6D-03", "ENTRY RECORD `type` in Quellreihenfolge", "default", "Opus (GREEN slice6d)",
-             "Ein RESPONSE RECORD sortiert die Felder, ein ENTRY RECORD nicht. Der Fingerprint sortiert in beiden.", "", [],
-             [("A", "Quellreihenfolge", True), ("B", "sortiert wie RESPONSE RECORD", False)]),
+             ["Der Schlüssel `type` nennt die Felder.",
+              "ENTRY RECORD: Felder wie in der Quelle.",
+              "RESPONSE RECORD: Felder sortiert.",
+              "RESPONSE RECORD = aufgezeichnete Antwort nach außen.",
+              "Der Fingerprint sortiert in beiden.",
+              S + "Fingerprint = Kennung der TYPE-Form"], "", [],
+             [("A", "Reihenfolge wie in der Quelle", True), ("B", "sortiert, wie beim RESPONSE RECORD", False)]),
           it("G6D-12", "Literal-Enum im Eingabe-TYPE braucht eine Keep-Value-Variante", "default", "Opus (GREEN slice6d)",
-             "Wie `Unknown(String)` bei `Channel`. Kein Test pinnt das.", "", [beaml('''
-enum Channel { Web = "web"  App = "app"  Unknown(String) }
-''')], [("A", "wie gebaut", True)]),
+             ["Literal-Enum = Enum mit festen Text-Werten.",
+              "Im Eingabe-TYPE braucht es eine Auffang-Variante.",
+              "Wie `Unknown(String)` bei `Channel`.",
+              "Sie behält unbekannte Werte.",
+              "Konstruktoren brauchen dort `name: String`-Signaturen.",
+              "Kein Test hält das fest."], "", [beaml('''
+enum Channel {
+  Web = "web"
+  App = "app"
+  Unknown(String)
+}
+''')], [("A", "so gebaut", True)]),
           it("Q5-9", "Die Listenseite lädt über eine zweite ENTRY LINE aus `mount`", "default", "Opus (PLAN exp0005)",
-             "Kein neuer Transport `ui.mount`. `mount/3` ruft `Orders.ui_orders(%{})`.", "", [beaml('''
+             ["Die Liste /orders lädt beim Öffnen.",
+              "`mount/3` ruft `Orders.ui_orders(%{})`.",
+              "Dafür gibt es eine zweite ENTRY LINE `ui.orders`.",
+              "Kein neuer Transport `ui.mount`."], "", [beaml('''
 effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> list_orders
-''')], [("A", "zweite ENTRY LINE aus `mount`", True), ("B", "neuer Transport `ui.mount`", False)]),
+''')], [("A", "zweite ENTRY LINE, aus `mount` gerufen", True), ("B", "neuer Transport `ui.mount`", False)]),
           it("NOTES", "Eine Seite /notes mit Formular und Liste", "default", "Opus (GREEN exp0005)",
-             "Anders als /orders/new und /orders. Nach dem Absenden `push_navigate` auf dieselbe Seite.", "", [],
-             [("A", "eine Seite", True), ("B", "`/notes/new` und `/notes`", False)]),
+             ["Eine Seite /notes: Formular und Liste.",
+              "Bei Bestellungen sind es zwei Seiten.",
+              S + "/orders/new und /orders",
+              "Nach dem Absenden lädt /notes neu.",
+              S + "per `push_navigate`"], "", [],
+             [("A", "eine Seite", True), ("B", "zwei Seiten: `/notes/new` und `/notes`", False)]),
       ])
 
 # ---------------------------------------------------------------- 9
 group("09-syntax", "Syntax-Regeln",
-      "Regeln, die in der Sprache sichtbar sind. Sie sind am teuersten zu ändern.",
+      "Regeln, die man in der Sprache sieht. Sie später zu ändern ist am teuersten.",
       [
-          it("COMMENT", "Kommentare nur mit `//`", "decided", "13ue (DL-132)", "", "", [beaml('''// so, und nur so''')], [], dl="DL-132"),
+          it("COMMENT", "Kommentare nur mit `//`", "decided", "13ue (DL-132)",
+             ["Ein Kommentar beginnt mit `//`.",
+              "Keine andere Form."], "", [beaml('''// so, und nur so''')], [], dl="DL-132"),
           it("Q5-3", "Listen als Feldform `[Order]`", "default", "Opus (PLAN exp0005)",
-             "Kein eigenes `list`-Schlüsselwort. Die Grammatik kennt `[T]`.", "", [beaml('''
+             ["Liste von Werten: Feldform `[T]`.",
+              "Beispiel: `items: [Order]`.",
+              "Kein eigenes Schlüsselwort `list`."], "", [beaml('''
 type OrderList { items: [Order] }
-''')], [("A", "`items: [Order]`", True), ("B", "ein `list`-Schlüsselwort", False)]),
+''')], [("A", "`items: [Order]`", True), ("B", "Schlüsselwort `list`", False)]),
           it("CTOR-ROW", "Konstruktor-Feld in einer Zeile: erste Signatur nimmt genau die String-Felder", "default", "Opus (GREEN db-transport)",
-             "Der Encoder schreibt die Struct-Felder, der Decoder liest die erste passende Signatur. Jede andere erste Signatur wäre nicht rücklesbar: Build-Fehler.", "", [beaml('''
-type Amount { value: String currency: String }
+             ["Konstruktor = `fn` mit TYPE-Namen, prüft Werte.",
+              "Fall: so ein Feld steht in einer Zeile.",
+              "Encoder schreibt die Felder des Structs.",
+              "Decoder liest über die erste Signatur.",
+              "Also muss sie genau die String-Felder nehmen.",
+              "Sonst: Build-Fehler, die Zeile wäre nicht lesbar."], "", [beaml('''
+type BadAmount {}
+
+type Amount {
+  value: String
+  currency: String
+}
+
+// Die erste Signatur nimmt genau value und currency:
+
 fn Amount value: String, currency: String -> Amount ! BadAmount
-// Die erste Signatur muss genau value und currency nehmen.
-''')], [("A", "diese Regel", True), ("B", "nach Signaturnamen kodieren", False), ("C", "erlauben und Zeilen verlieren", False)]),
+fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
+fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
+''')], [("A", "diese Regel", True), ("B", "nach Namen der Signatur kodieren", False), ("C", "erlauben und Zeilen verlieren", False)]),
           it("ROW-FIELDS", "Zeilen-Felder: String, Literal-Enum mit Keep-Variante, Konstruktor-Records", "default", "Opus (GREEN db-transport)",
-             "Int und verschachtelte Records sind in einer Zeile ein Build-Fehler („slice 1 decodes String fields only“).", "", [],
-             [("A", "wie gebaut", True)]),
+             ["Erlaubt in einer Zeile:",
+              S + "String",
+              S + "Literal-Enum mit Auffang-Variante",
+              S + "Konstruktor-Records",
+              "Int und verschachtelte Records: Build-Fehler.",
+              "Text: „slice 1 decodes String fields only“."], "", [],
+             [("A", "so gebaut", True)]),
           it("Q6E-4", "Ein EFFECT pro Flow", "default", "Opus (PLAN multi-effect)",
-             "`place` kann nicht zahlen und speichern in einem Flow.", "", [],
-             [("A", "einer", True), ("B", "mehrere, Records nach operation gewählt", False)]),
+             ["EFFECT = eine `effect`-Zeile, ein Aufruf nach außen.",
+              "Flow = eine `fn`, die Schritte verkettet, z. B. `place`.",
+              "Pro Flow nur ein EFFECT.",
+              "`place` kann nicht zahlen und speichern zugleich."], "", [],
+             [("A", "einer", True), ("B", "mehrere; Records nach `operation` gewählt", False)]),
           it("Q6E-3", "`Replay.run(operation, …)` bei mehreren EFFECTS", "default", "Opus (PLAN multi-effect)",
-             "Der Replay wählt den EFFECT über das erste Argument.", "", [], [("A", "wie gebaut", True)]),
+             ["REPLAY RUN = Lauf mit aufgezeichneten Antworten.",
+              "Fall: Datei mit mehreren EFFECTS.",
+              "`Replay.run(operation, …)` wählt über das erste Argument."], "", [], [("A", "so gebaut", True)]),
           it("D025", "Alternative Form mit `=` und `|` für enum und type", "open", "13ue (notiert)",
-             "Du wolltest später prüfen, ob `enum X = A | B` und `type X = { … }` auch erlaubt sein sollen. Nur notiert, nicht geplant.", "", [], []),
+             ["Idee: eine zweite Schreibweise.",
+              S + "`enum X = A | B`",
+              S + "`type X = { … }`",
+              "Du wolltest das später prüfen.",
+              "Nur notiert, nicht geplant."], "", [], []),
           it("TEXTS", "Zwei Fehlertexte sind als Default gepinnt", "default", "Opus (RED db-transport)",
-             "`order_v2` nennt `orders.save` und `Order.amount` (D6B-39). N25b nennt `TYPE Order v1` und das Feld `channel` (DL-122).", "", [], [("A", "wie gebaut", True)]),
+             ["Zwei Fehlertexte sind als Default festgehalten:",
+              "`order_v2` nennt `orders.save` und `Order.amount` (D6B-39).",
+              "N25b nennt `TYPE Order v1` und das Feld `channel` (DL-122)."], "", [], [("A", "so gebaut", True)]),
       ])
 
 # ---------------------------------------------------------------- 10
 group("10-misc", "Kleines",
-      "Defaults ohne Sprach- oder Formatwirkung.",
+      "Kleine Defaults. Sie ändern weder Sprache noch Format.",
       [
           it("Q5-5", "Erzeugter Code liegt in git", "default", "Opus (PLAN exp0005)",
-             "`app/lib/generated/orders.ex` ist eingecheckt, kein Mix-Compiler nach `_build`.", "", [],
+             ["Erzeugter Code = `app/lib/generated/orders.ex`.",
+              "Die Datei liegt in git.",
+              "Kein Mix-Compiler, der nach `_build` schreibt."], "", [],
              [("A", "in git", True), ("B", "Mix-Compiler", False)]),
           it("TEST-O1", "`run.py run` setzt `proto_dev` zurück", "default", "Opus (TEST exp0005)",
-             "Der Lauf leert die Datenbank und prüft `orders.ex` gegen 0 Zeilen. Das README sagt es. Siehe A3.", "", [],
-             [("A", "Reset behalten", True), ("B", "eigener Build-Schritt mit Dev-Zeilen", False)]),
+             ["`run.py run` leert die Datenbank `proto_dev`.",
+              "Dann prüft er `orders.ex` gegen 0 Zeilen.",
+              "Das README sagt das.",
+              "Siehe A3."], "", [],
+             [("A", "Leeren behalten", True), ("B", "eigener Build-Schritt mit Dev-Zeilen", False)]),
           it("DL-147", "Eine RED-Datei kommt erst mit ihrem GREEN in `run.py`", "decided", "Fable",
-             "Sonst fällt der Gesamtlauf, solange RED offen ist.", "", [], [], dl="DL-147"),
+             ["RED = neuer Test, zuerst rot.",
+              "GREEN = der Code, der ihn grün macht.",
+              "Die RED-Datei kommt erst mit GREEN in `run.py`.",
+              "Sonst fällt der Gesamtlauf, solange RED offen ist."], "", [], [], dl="DL-147"),
       ])
 
 # ---------------------------------------------------------------- 11
 group("11-parked", "Geparkt (D036)",
-      "Von dir am 2026-11-07 geparkt. Hier nur, damit die Liste vollständig ist; M4 steht auf seiner eigenen Seite.",
+      "Diese Punkte hast du am 2026-11-07 geparkt. Sie stehen hier, damit die Liste vollständig ist. M4 hat eine eigene Seite.",
       [
-          it("M3", "Fate-Formen und DL-116", "parked", "OWNER", "Braucht zuerst eine frische Erklärung. Ohne M3 kein Ausweg aus einem Block außer SQL.", "", [], []),
-          it("M5", "Was `retire` bedeutet, auch für Zeilen", "parked", "OWNER", "N28b pinnt den heutigen Stand; die Orphan-Hilfe druckt `retire <op> keep <n> days`.", "", [], []),
-          it("M8", "Failure-Struct am Host", "parked", "OWNER", "P2 hat es vermieden (P5-18).", "", [], []),
-          it("M9", "Record-Zeilen in einem Blocktext", "parked", "OWNER", "P2 hat es vermieden.", "", [], []),
+          it("M3", "Fate-Formen und DL-116", "parked", "OWNER",
+             ["Fate-Form = Zeile im `migrate`: was mit alten Daten passiert.",
+              S + "`redact`, `quarantine`, `retire`, `map`",
+              "Braucht zuerst eine frische Erklärung.",
+              "Ohne M3: aus einem Block nur per SQL."], "", [], []),
+          it("M5", "Was `retire` bedeutet, auch für Zeilen", "parked", "OWNER",
+             ["`retire` = absichtlich stilllegen, Daten eine Zeit halten.",
+              "Offen: was das für Zeilen heißt.",
+              "Test N28b hält den heutigen Stand fest.",
+              "Die Orphan-Hilfe druckt `retire <op> keep <n> days`."], "", [], []),
+          it("M8", "Failure-Struct am Host", "parked", "OWNER",
+             ["Frage: ein eigenes Failure-Struct am Host.",
+              "P2 hat das umgangen (P5-18)."], "", [], []),
+          it("M9", "Record-Zeilen in einem Blocktext", "parked", "OWNER",
+             ["Frage: Record-Zeilen im Text eines Blocks.",
+              "P2 hat das umgangen."], "", [], []),
       ])
 
 # ---------------------------------------------------------------- 12
@@ -475,6 +821,8 @@ ol.opts li{cursor:pointer}ol.opts li:hover{background:var(--bg)}ol.opts li.chose
 .fbt{flex:1;font:14px/1.4 system-ui;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);resize:vertical;min-height:36px}
 .fbs{font-size:12px;color:var(--mut);align-self:center;white-space:nowrap}
 .ans{font-size:13px;margin-top:8px}.ans .a{border-left:3px solid var(--ok);padding:2px 10px;margin:4px 0}.ans .a time{color:var(--mut);margin-right:6px}
+ul.arrows{list-style:none;padding-left:0;margin:8px 0}ul.arrows li{margin:2px 0}ul.arrows li::before{content:"→ "}ul.arrows li.sub::before{content:none}
+pre{padding:14px 16px;line-height:1.7}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin:12px 0}
 """
 LABEL = dict(decided="entschieden", open="offen", default="Default, gebaut", parked="geparkt")
@@ -489,8 +837,10 @@ def page(title, body, prev=None, nxt=None):
 def render_item(x):
     st = x["status"]
     h = [f'<section class="card" id="{html.escape(x["id"])}"><h2><span class="id">{html.escape(x["id"])}</span> {text(x["title"])} <span class="badge {st}">{LABEL[st]}{(" · " + x["dl"]) if x["dl"] else ""}</span></h2>']
-    if x["what"]:
+    if isinstance(x["what"], str) and x["what"]:
         h.append(f'<p>{text(x["what"])}</p>')
+    elif x["what"]:
+        h.append('<ul class="arrows">' + "".join(f'<li class="sub">{text(w)}</li>' if w.startswith(S) else f'<li>{text(w)}</li>' for w in x["what"]) + '</ul>')
     if x["why"]:
         h.append(f'<p class="why">{text(x["why"])}</p>')
     h += x["code"]
