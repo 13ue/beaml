@@ -72,3 +72,29 @@ No failure comes from a compile error, a missing dep or a test typo: all test fi
 → **[Unknown]** The page markup and the `mix beaml.stored` contract are pinned by these tests; GREEN may find a LiveView detail (flash rendering, `push_navigate` return) that needs a test repair.
 → **[Inference]** N7 read, N7b and N11 fail through earlier steps; their own assertions run first after GREEN.
 → Result files hold the OS account name in paths (as in earlier runs). No stored value, no secret in any note.
+
+## RED repair (2026-11-08, after the [RED review](red-review.md) BLOCK)
+
+**[Verified]** By: Opus (RED repair exp0005) for every line of this section. Not committed.
+
+**Changes**
+→ O1: helper `through_beaml!/3` in `app/test/support/prototype.ex`; N5, N7 read, N7b call it
+⠀⠀↳ N5: `ui.orders` + `orders.list`, items `order-2`, `order-1`
+⠀⠀↳ N7: `ui.notes` + `notes.list`, value `items` with `tag ""`
+⠀⠀↳ N7b: list mount, submit (`ui.note` + `notes.save`, one pair), list of v1 and v2
+→ O2: `run.py` `acceptance()`: 20 expected pairs, all `pass`, only N9 blocked; `stored-note_v2` `row_count` 2; no DEAD LINE in `gen-note_v2.stderr`
+→ O3: N13 scans `config/**/*.exs` and `lib/**/*.{ex,exs,heex}`; `key: "`, `= "`, `@attr "`; keys `secret_key_base`, `signing_salt`, `password`, `token`
+
+**Run [20261108T002308453139Z](../../results/20261108T002308453139Z/result.json)** (HEAD compiler in scratch, sha256 `c4ce83ab…`, debug build)
+→ Status `fail`, exit 1. Steps as in the RED run.
+→ `use_case_counts`: 18 fail, 1 pass (N13), 1 blocked (N9). Same set and error kinds as the RED run.
+→ `acceptance`: 18 use-case lines plus `stored-note_v2: no snapshot-meta (FileNotFoundError)`.
+→ Test steps: phase A 26 tests, 10 failures; n8 4; n7_seed 1; n7_read 3. No compile warning.
+→ Self-check of `acceptance()` (scratch): full pass set gives `[]`; a missing pair, a failed pair and a DEAD LINE each give one line.
+→ Self-check of the N13 pattern: four literal forms match; `get_csrf_token: 0`, the csrf meta tag, a bare `secret_key_base =` and the MFA salt do not.
+→ db-up `20261108T002301074743Z`, db-down `20261108T002315527305Z`: pass. The cluster is stopped.
+
+**Limits**
+→ **[Inference]** The new O1 asserts run only after GREEN adds the routes; today N5, N7 and N7b fail earlier.
+→ **[Inference]** `through_beaml!/3` matches pairs, not a count of one: LiveViewTest may mount twice (dead and live render).
+→ **[Inference]** EXPECTED holds the test names: a GREEN test rename needs a matching `run.py` line.

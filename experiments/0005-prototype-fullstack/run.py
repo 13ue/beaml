@@ -6,6 +6,7 @@ python3 -B run.py [run] | db-up | db-down | db-reset | smoke
 (BEAML_SPIKE or a cargo build of 0001), db-reset, stored + gen of app/beaml/orders.beaml (a live ROW SNAPSHOT by
 `mix beaml.stored`, Q5-4 B, then the compiler with --stored), compile, the N-TESTS in mix test, then the phases n8,
 n7_seed, gen note_v2, n7_read, and gen orders.beaml again. Every step runs and is recorded; one failed step fails the run.
+The run also fails unless every N-TEST of EXPECTED passes (N9 blocked) and the note_v2 snapshot holds 2 rows, no DEAD LINE.
 
 Every call writes results/<UTC>/ with commands, toolchain versions and result.json.
 The database is a local pg_ctl cluster: trust auth, Unix socket only, no password (P5-01, P5-02, P5-22, P5-23).
@@ -214,7 +215,13 @@ def main(command):
                 else:
                     GENERATED.write_bytes(original)
         result["use_cases"] = use_cases(run)
-        return all(oks) and result["steps"][-1]["status"] == "pass"
+        result["acceptance"] = acceptance(run, result["use_cases"])
+        counts = {}
+        for c in result["use_cases"]:
+            key = c["result"].split(":")[0]
+            counts[key] = counts.get(key, 0) + 1
+        result["use_case_counts"] = counts
+        return all(oks) and result["steps"][-1]["status"] == "pass" and not result["acceptance"]
 
     try:
         if command == "run":
@@ -249,6 +256,49 @@ def main(command):
              meta={"status": result["status"], "steps": len(result["steps"])})
     print(json.dumps({"run": str(run), "status": result["status"]}))
     return 0 if result["status"] == "pass" else 1
+
+
+# RED repair O2: the acceptance set (plan.md "Acceptance"). Every pair must pass; only N9 is blocked.
+BLOCKED = {"N9": "blocked: fate slice (D036)"}
+EXPECTED = {("exp0005-" + u, "test " + t) for u, t in [
+    ("N1", "N1 orders.beaml generates the module Orders and the host builds without a warning"),
+    ("N2", "N2 a form submit writes one Order row through db.put"),
+    ("N2c", "N2c the reason of the row is a JSON null"),
+    ("N3", "N3 the submit writes one ENTRY RECORD and one db record with one trace"),
+    ("N4", "N4 a constructor reject writes no row and no db record"),
+    ("N4", "N4 an unknown channel is accepted and stored as its text"),
+    ("N5", "N5 the list page shows both orders through db.list, newest first"),
+    ("N6", "N6 an Unknown channel lists as its text"),
+    ("N7", "N7 note_v2 builds against a live Note v1 row and an Order row"),
+    ("N7", "N7 the v1 row lists through the MIGRATE CHAIN with tag empty and stays version 1"),
+    ("N7b", "N7b a submit under v2 writes a version 2 row and the list shows v1 and v2"),
+    ("N8", "N8 a stricter Amount blocks the build against the live row and prints no stored value"),
+    ("N8", "N8 control: the same live row builds under orders.beaml"),
+    ("N8b", "N8b the stricter build passes after the row is deleted by SQL"),
+    ("N8c", "N8c the snapshot holds exactly the live row ids of this instant"),
+    ("N9", "N9 quarantine amount frees the stricter build and the list omits order-zero"),
+    ("N10", "N10 a removed ui.place line stops the host build at Orders.ui_place/1"),
+    ("N11", "N11 a TYPE change reached the table and the DDL did not move"),
+    ("N12", "N12 the host writes one action event per action and no value"),
+    ("N13", "N13 git holds no database dir, no env file and no secret literal in config or lib")]}
+
+
+def acceptance(run, cases):
+    """The use-case set and run.py's own pre-gen-note_v2 snapshot. Returns problems: counts and names, no values."""
+    got = {(c["use_case"], c["test"]): c["result"] for c in cases}
+    problems = ["missing: " + "; ".join(sorted(u for u, _ in EXPECTED - set(got)))] if EXPECTED - set(got) else []
+    problems += ["unexpected: " + u for u, _ in sorted(set(got) - EXPECTED)]
+    problems += ["%s: %s" % (u, r) for (u, t), r in sorted(got.items())
+                 if (u, t) in EXPECTED and r != BLOCKED.get(u[len("exp0005-"):], "pass")]
+    meta, err = run / "stored-note_v2" / "snapshot-meta.json", run / "gen-note_v2.stderr"
+    try:
+        if json.loads(meta.read_text())["row_count"] != 2:
+            problems.append("stored-note_v2: row_count is not 2")
+    except Exception as error:
+        problems.append("stored-note_v2: no snapshot-meta (%s)" % type(error).__name__)
+    if not err.is_file() or "DEAD LINE" in err.read_text():
+        problems.append("gen-note_v2: no stderr or a DEAD LINE")
+    return problems
 
 
 def use_cases(run):

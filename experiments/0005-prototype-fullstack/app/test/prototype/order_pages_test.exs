@@ -88,10 +88,15 @@ defmodule Proto.Prototype.OrderPagesTest do
     assert {:error, {:live_redirect, _}} = place(conn, good())
     assert {:error, {:live_redirect, _}} = place(conn, Map.put(good(), "order_id", "order-2"))
 
+    marks = marks()
     {:ok, _view, html} = live(conn, "/orders")
     assert {first, _} = :binary.match(html, "order-2")
     assert {second, _} = :binary.match(html, "order-1")
     assert first < second
+
+    # RED repair O1: the page read went through Orders.ui_orders/1 and db.list, not SQL.
+    for db <- through_beaml!("ui.orders", "orders.list", marks),
+        do: assert(Enum.map(db["value"]["items"], & &1["order_id"]) == ["order-2", "order-1"])
   end
 
   @tag use_case: "N6"

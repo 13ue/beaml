@@ -53,21 +53,40 @@ defmodule Proto.Prototype.NotesReadTest do
     conn: conn
   } do
     v2_module!()
+    marks = marks()
     {:ok, view, _} = live(conn, "/notes")
     assert has_element?(view, ~s([data-note][data-tag=""]), "note-1")
+
+    # RED repair O1: the v1 row came through Orders.ui_notes/1, db.list and the chain default tag "".
+    for db <- through_beaml!("ui.notes", "notes.list", marks),
+        do: assert(db["value"] == %{"items" => [%{"text" => "note-1", "tag" => ""}]})
+
     assert [{_, 1, %{"text" => "note-1"}}] = notes(rows())
   end
 
   @tag use_case: "N7b"
   test "N7b a submit under v2 writes a version 2 row and the list shows v1 and v2", %{conn: conn} do
     v2_module!()
+    marks = marks()
     {:ok, view, _} = live(conn, "/notes")
+    through_beaml!("ui.notes", "notes.list", marks)
+    marks = marks()
     view |> form("#note", note: %{"text" => "note-2"}) |> render_submit()
+    # RED repair O1: one submit, one ENTRY RECORD and one notes.save record with one trace.
+    assert [_] = through_beaml!("ui.note", "notes.save", marks)
 
     assert [{_, 1, %{"text" => "note-1"}}, {_, 2, %{"text" => "note-2", "tag" => ""}}] =
              notes(rows())
 
+    marks = marks()
     {:ok, view, _} = live(conn, "/notes")
+
+    for db <- through_beaml!("ui.notes", "notes.list", marks),
+        do:
+          assert(
+            Enum.sort(db["value"]["items"]) ==
+              [%{"text" => "note-1", "tag" => ""}, %{"text" => "note-2", "tag" => ""}]
+          )
 
     for text <- ["note-1", "note-2"],
         do: assert(has_element?(view, ~s([data-note][data-tag=""]), text))

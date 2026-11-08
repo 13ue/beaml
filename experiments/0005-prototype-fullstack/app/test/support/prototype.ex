@@ -86,6 +86,28 @@ defmodule Proto.Prototype do
   def records_since(kind, offset),
     do: kind |> capture_file() |> lines_since(offset) |> Enum.map(&Jason.decode!/1)
 
+  @doc "The offsets of the `entries` and `responses` capture streams, for `through_beaml!/3`."
+  def marks, do: {mark(capture_file("entries")), mark(capture_file("responses"))}
+
+  @doc """
+  RED repair O1: proves a page action ran through BEAML since `marks`. Every new ENTRY RECORD is ENTRY_OP,
+  every new db record is DB_OP, all `accepted` with version 3, and each ENTRY RECORD shares its `trace_id` with
+  exactly one db record. A mount may run twice (dead and live render), so pairs are matched, not counted.
+  Returns the db records. Asserts compare operations, outcomes and trace ids only.
+  """
+  def through_beaml!(entry_op, db_op, {entries, responses}) do
+    es = records_since("entries", entries)
+    ds = records_since("responses", responses)
+    assert es != [], "no #{entry_op} ENTRY RECORD: the page did not call the ENTRY LINE"
+    assert Enum.uniq(Enum.map(es, & &1["operation"])) == [entry_op]
+    assert Enum.uniq(Enum.map(ds, & &1["operation"])) == [db_op]
+    assert Enum.uniq(Enum.map(es ++ ds, &{&1["version"], &1["outcome"]})) == [{3, "accepted"}]
+    traces = Enum.map(es, & &1["trace_id"])
+    assert traces == Enum.uniq(traces) and Enum.all?(traces, &(&1 =~ ~r/\A[0-9a-f]{32}\z/))
+    assert Enum.sort(traces) == Enum.sort(Enum.map(ds, & &1["trace_id"]))
+    ds
+  end
+
   # --- the live ROW SNAPSHOT (Q5-4 B, P5-19) and the compiler ----------------------------------
 
   @doc """

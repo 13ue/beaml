@@ -16,7 +16,7 @@ By: Opus (RED exp0005) for every line of this file.
 | `app/test/prototype/notes_test.exs` | N7 seed (phase `n7_seed`); N7, N7b, N11 (phase `n7_read`) |
 | `app/test/prototype/secrets_test.exs` | N13 (guard) |
 | `app/test/prototype/fate_test.exs` | N9, `@tag skip: "blocked: fate slice (D036)"` |
-| `app/test/support/prototype.ex` | helpers: rows by SQL, capture and action log offsets, live snapshot + provenance (N8c), compiler call, N11 DDL check, host copy build |
+| `app/test/support/prototype.ex` | helpers: rows by SQL, capture and action log offsets, `through_beaml!/3` (RED repair O1), live snapshot + provenance (N8c), compiler call, N11 DDL check, host copy build |
 | `app/test/support/use_case_formatter.ex` | ExUnit formatter: use-case events to `<repo>/.beaml/actions.jsonl` and `<run>/use-cases.jsonl` |
 | `app/test/support/data_case.ex` | tag `committed` (`:truncate`, `:keep`): `sandbox: false` owner (P5-14) |
 | `app/test/test_helper.exs` | excludes `:phase`; adds the formatter |
@@ -31,10 +31,10 @@ By: Opus (RED exp0005) for every line of this file.
 | N2c | order_pages N2c (`jsonb_typeof(value->'reason') = 'null'`) | A | no route |
 | N3 | order_pages N3 | A | no route |
 | N4 | order_pages N4 reject, N4 `tv` | A | no route |
-| N5 | order_pages N5 (`order-2` before `order-1`) | A | no route |
+| N5 | order_pages N5 (`order-2` before `order-1`; `ui.orders` + `orders.list` pairs, accepted, one trace each, items `order-2`, `order-1`) | A | no route |
 | N6 | order_pages N6 | A | no route |
-| N7 | notes seed N7 (live build of note_v2: `rows: 2 rows, 2 checked, 0 not decodable`), notes read N7 | n7_seed under orders; n7_read under note_v2 | no route; no Note v2 module (gen needs `mix beaml.stored`) |
-| N7b | notes read N7b (`rows: 3 rows, 3 checked, 0 not decodable`) | n7_read | no Note v2 module |
+| N7 | notes seed N7 (live build of note_v2: `rows: 2 rows, 2 checked, 0 not decodable`), notes read N7 (`ui.notes` + `notes.list` pairs, value `items` `[{text note-1, tag ""}]`) | n7_seed under orders; n7_read under note_v2 | no route; no Note v2 module (gen needs `mix beaml.stored`) |
+| N7b | notes read N7b (`ui.notes`/`notes.list` on both mounts, one `ui.note` + `notes.save` pair on submit, both items `tag ""`; `rows: 3 rows, 3 checked, 0 not decodable`) | n7_read | no Note v2 module |
 | N8 | stored N8 (exact P4 first line, no `order-zero`, trace or span id in stderr, N11 check) and N8 control | n8 under orders | no route |
 | N8b | stored N8b (delete by SQL, stricter exit 0) | n8 | no route |
 | N8c | in every `snapshot!` (files new, meta keys, ids and count equal a `psql` read) and stored N8c | n8, n7_seed, n7_read, A | no route / no task |
@@ -42,7 +42,7 @@ By: Opus (RED exp0005) for every line of this file.
 | N10 | build_test N10 (names `Orders.ui_place/1`, not `Orders.ui_orders/1`, no `BeamlDb`) | A, copy with no_place | no `mix beaml.stored` |
 | N11 | notes read N11 (a Note v1 and v2 row exist, then migrations and columns equal the scaffold) and in N8 | n7_read, n8 | no Note rows (earlier phases fail) |
 | N12 | order_pages N12 (`place` events `ok`, `rejected:constructor`; no value, path, source text) | A | no route |
-| N13 | secrets_test N13 | A | **passes today**: a guard, no behaviour RED |
+| N13 | secrets_test N13 (`config/**/*.exs`, `lib/**/*.{ex,exs,heex}`; `:`, `=` and `@attr` forms; RED repair O3) | A | **passes today**: a guard, no behaviour RED |
 
 ## run.py `run` (default)
 
@@ -52,12 +52,13 @@ By: Opus (RED exp0005) for every line of this file.
 4. `test-n8`, `test-n7_seed` (`--only phase:<p> --seed 0`), `stored`/`gen` of `note_v2`, `compile-note_v2`, `test-n7_read`, `db-reset`.
 5. Finally `stored`/`gen` of orders.beaml again; old bytes restored when it fails. `use_cases` in result.json from `<run>/use-cases.jsonl`.
 
-Every step runs and is recorded; one failed step fails the run. A phase test checks that its module is the right one (N7: `Orders.Note` has `tag`).
+Every step runs and is recorded; one failed step fails the run. RED repair O2: the run also fails unless `acceptance()` is empty: the 20 EXPECTED pairs all `pass`, only N9 `blocked: fate slice (D036)`, `stored-note_v2/snapshot-meta.json` `row_count` 2, no DEAD LINE in `gen-note_v2.stderr`. A phase test checks that its module is the right one (N7: `Orders.Note` has `tag`).
 
 ## Host contract pinned by these tests (for GREEN)
 
 → `mix beaml.stored DIR`: writes `DIR/rows.jsonl` (each row `value` + `"source":"db"`, `"row_id"`), an empty `DIR/responses.jsonl`, `DIR/snapshot-meta.json` (`table`, `database`, `query_time`, `row_count`, `row_ids`)
 → Routes `/orders/new` (form `#place`, `order[...]`, event `place`), `/orders` (`[data-order]` items), `/notes` (form `#note`, `note[text]`, `[data-note]`, `data-tag` when the field exists)
+→ List pages and the note submit call the ENTRY LINES: one ENTRY RECORD and one db record per call, `accepted`, one `trace_id` (RED repair O1)
 → Place: success `push_navigate` to `/orders`; reject flash `form rejected: <reason>`
 → Action events: `source: "ui"`, `action` = UI EVENT name; a mount with no entry call logs `mount`
 
@@ -97,3 +98,17 @@ All → By: Opus (RED exp0005)
 **Migrate-looking (default, open, in [owner-review.md](../2026-11-07/owner-review.md#0005-red-defaults))**
 → The snapshot `responses.jsonl` is empty: `--stored` checks rows only, not the per-run capture records. → By: Opus (RED exp0005, default, open)
 → `mix beaml.stored DIR` argument and file set as the host-called form of Q5-4 B. → By: Opus (RED exp0005, default, open)
+
+## RED repair decisions (2026-11-08)
+
+**Repair**
+→ O1 capture proof on N5, N7, N7b statt page-only reads, weil a SQL host passed. Commits us to: GREEN list pages call `ui_orders/1`, `ui_notes/1`. → By: Fable (task), Opus (RED repair exp0005)
+→ O2 run status from the use-case set statt exit codes only, weil a skipped test passed. Commits us to: a test rename moves EXPECTED. → By: Fable (task), Opus (RED repair exp0005)
+→ O3 N13 over config and lib, three literal forms statt `config/*.exs` `:` only, weil a `lib/` literal passed. Commits us to: no `token: "` literal in lib. → By: Fable (task), Opus (RED repair exp0005)
+
+**Undo**
+→ Pairs by `trace_id` statt exactly one record per mount, weil LiveViewTest may mount twice → By: Opus (RED repair exp0005)
+→ N5 also checks the `orders.list` item order → By: Opus (RED repair exp0005)
+→ N7b list values compared sorted (order not pinned for notes) → By: Opus (RED repair exp0005)
+→ N13 test name gains "or lib" → By: Opus (RED repair exp0005)
+→ `result.json` gains `acceptance` and `use_case_counts` → By: Opus (RED repair exp0005)
