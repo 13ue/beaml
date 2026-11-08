@@ -946,6 +946,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue (2026-11-08)
 → Because: the demo app gets its complete loop first (block → fate → green); production reading follows.
 
+**DL-157 · Migrate · A quarantined row is skipped on read by default and counted; fetching quarantined values is a later option**
+→ Question: QF-1 of the fates plan: what the running app gets when `db.list` or `db.get` meets a row that a `quarantine f` line parks. Options: A skip and count, call stays `accepted`, a new record reason `quarantined` for the skipped rows · B return the value with a mark (D042 form) · C the whole call fails with `reason: quarantined`.
+→ Chose: A as the default. Later an explicit option lets a caller fetch quarantined values too. The skipped rows are counted, in the build report and at run time, so a page never claims "10 orders" while it shows 5: the host can learn the skipped count (how the count reaches the host is a plan question for fates-a2: a field on the list result or a second return value).
+→ By: 13ue (2026-11-08)
+→ Because: a parked row must not break the list (DL-150 covers broken rows at build time) and must not pass as a normal value; skip plus honest count is the smallest total form. The record format gains the reason word `quarantined` (fifth reason beside `transport`, `decode`, `constructor`, `not_found`); the OWNER accepted the question as asked.
+→ Effect: fates-a2 RED pins: list skips and counts, get of a quarantined key returns `{:ok, nil}` plus count or a typed not-found with reason `quarantined` (plan option), replay skips, record reason `quarantined` on the skipped rows. D042 B (value with mark) stays the option for the later fetch.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
