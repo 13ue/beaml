@@ -267,3 +267,53 @@ the GREEN worker stops and reports before re-pinning (fates plan, Byte-pin impac
 
 ### Answer
 (none)
+
+## Repairs (after plan check, before a2a RED)
+
+**[Proposal]** Rulings on [plan-review.md](plan-review.md), 2026-11-08. By: Fable (main agent, plan repair fates-a2).
+Written into this file by the a2a RED worker (By: Opus, RED fates-a2a) as instructed; the rulings are Fable's.
+
+### O1 (high): accepted, list fields keep nested versions
+
+- A LIST field `items: [Order]` holds an object for its element TYPE in `type.nested`. One entry per field:
+  `{"version": <element TYPE VERSION>, "nested": <the element TYPE's own nested map>}`.
+- Exact shape of the db.list call record of `orders.list` (`OrderList`):
+  ```
+  "type": {"name": "OrderList", "version": 1, "fields": [["items", "[Order]"]], "fingerprint": "...",
+           "nested": {"items": {"version": 1, "nested": {"amount": 1, "channel": 1}}}}
+  ```
+- A direct constructor or enum field keeps an Int: `"amount": 1`. A TYPE with no such field has `"nested": {}`.
+- The writer knows all of it at compile time (newest versions), so it stays a constant beside `emit_type_key`.
+- R5, R6 (a2b) and V4g (a2a) read the element versions from this object; no reader guesses a version. A missing entry,
+  an entry of the wrong kind or a version below 1 is a malformed TYPE VERSION (V4e).
+
+### O2: a2b only
+
+- O2 belongs to a2b (OWNER card QA2-3). a2a writes no count key and no per-row record. Nothing changes in a2a.
+
+### O3 (medium): taken
+
+- The 0005 use case of a2a is **N16** (N15 is P2b): "N16 a live row carries type.nested (DL-168)".
+- The 0005 support assertion `app/test/support/prototype.ex` line ~104 (`[{3, "accepted"}]` in `through_beaml!`)
+  is in the a2a move list (GREEN changes it to `{4, "accepted"}`).
+- R3c (a stored newest-version `"app"` stays `Unknown("app")`) is a run-time decode case: a2b. Its `--stored` half
+  (a v2 row with `"app"` is a lost literal, not mapped) is a2a scope and stands as a subtest of V4g.
+- V4f2 is added: a stored nested version newer than the source's newest blocks; its text offers no MIGRATE STEP.
+
+### QA2-1 default stays
+
+- `nested` is always present (`{}` when empty), not under `value_sha256` or `fingerprint`; strict reader, no v3
+  fallback. The OWNER sign is still needed before a2a GREEN (DL-139).
+- **Note: a hand edit of `nested` is not covered by the digest.** What catches it:
+  - an edit to a version that the source does not declare: the SQUASH block (V4f) or the newer-version block (V4f2);
+  - a malformed edit (a String, 0, a missing entry, a wrong LIST entry): `malformed TYPE VERSION` (V4e); for a ROW
+    that is a "not decodable" count, as for every malformed ROW TYPE VERSION today;
+  - an edit between two declared versions (for example `amount` 2 → 1): **nothing**. The value is then read at the
+    edited version, and a fate line of that step can park or map it. [Inference] Only a digest over `type` (QA2-1 C,
+    touches P2b) would catch it.
+
+### Decisions
+→ O1 accepted: LIST entry `{version, nested}`, no version guess. By: Fable (plan repair fates-a2)
+→ O2 moved to a2b (QA2-3). By: Fable (plan repair fates-a2)
+→ O3: N16, prototype.ex in the move list, R3c run-time half to a2b, V4f2 added. By: Fable (plan repair fates-a2)
+→ QA2-1 default kept; hand-edit note added. By: Fable (plan repair fates-a2)

@@ -1,5 +1,5 @@
 defmodule Proto.Prototype.StoredTest do
-  # EXPERIMENT 0005 N8, N8b, N8c, N11, N15 (plan.md, "Plan repair" O2). Phase n8: run.py runs it under the generated
+  # EXPERIMENT 0005 N8, N8b, N8c, N11, N15, N16 (plan.md, "Plan repair" O2). Phase n8: run.py runs it under the generated
   # orders.beaml with committed rows: mix test --only phase:n8 --seed 0. Every build reads a fresh live ROW
   # SNAPSHOT through mix beaml.stored; snapshot! checks its provenance (N8c) each time.
   use ProtoWeb.ConnCase, async: false
@@ -89,6 +89,21 @@ defmodule Proto.Prototype.StoredTest do
     Proto.Repo.query!("DELETE FROM records WHERE id = $1", [id])
     assert {0, _, [line], _} = live_build(nil, "n15-control")
     assert line == counted(0, 0, 0)
+  end
+
+  @tag use_case: "N16"
+  test "N16 a live row carries type.nested (DL-168)", %{conn: conn} do
+    # fates-a2a (DL-168, record format draft 4): the row core and its ROW SNAPSHOT line hold version 4 and
+    # type.nested with the TYPE VERSION of Amount and Channel; the build reads the snapshot.
+    place(conn, good())
+    assert [{_id, "Order", 1, core}] = rows()
+    {code, _out, lines, dir} = live_build(nil, "n16")
+    [line] = dir |> Path.join("rows.jsonl") |> File.read!() |> String.split("\n", trim: true)
+    snap = Jason.decode!(line)
+    want = {4, %{"amount" => 1, "channel" => 1}}
+
+    assert {code, lines, {core["version"], core["type"]["nested"]}, {snap["version"], snap["type"]["nested"]}} ==
+             {0, [counted(1, 1, 0)], want, want}
   end
 
   @tag use_case: "N8c"

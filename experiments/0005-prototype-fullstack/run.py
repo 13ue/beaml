@@ -299,7 +299,8 @@ EXPECTED = {("exp0005-" + u, "test " + t) for u, t in [
     ("N12", "N12 the host writes one action event per action and no value"),
     ("N13", "N13 git holds no database dir, no env file and no secret literal in config or lib"),
     ("N14", N14),
-    ("N15", "N15 an SQL edit of a row value without a new digest blocks the build")]}
+    ("N15", "N15 an SQL edit of a row value without a new digest blocks the build"),
+    ("N16", "N16 a live row carries type.nested (DL-168)")]}
 
 
 def acceptance(run, cases):

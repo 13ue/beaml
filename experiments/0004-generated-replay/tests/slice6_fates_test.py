@@ -11,9 +11,13 @@ Expected texts come from the plan, the rulings and the RED decisions, never from
 slice6/db/fates/ (db sources, N13 filter); wrong forms stay inline. A compile error may carry an `error: ` prefix or not
 (both forms exist in main.rs today); the tests accept both and pin the rest exactly.
 DL-147: this file joins run.py in the GREEN commit (step slice6-fates).
+fates-a2a (DL-168, ledger workflow/2026-11-08/fates-a2/: plan.md "Repairs", red-plan.md): record format draft 4
+(`version: 4`, `type.nested`), the strict `--stored` reader, the SQUASH block and the fate selection by nested version.
+The V4 records are built here with draft4()/draft3(), so the cases hold before and after the sd.core() rewrite.
 Run: python3 -B experiments/0004-generated-replay/tests/slice6_fates_test.py [-k NAME]
 Scratch compiler: BEAML_SPIKE=<git archive HEAD build>/target/release/beaml-spike (other workers write main.rs).
 """
+import copy
 import json
 from pathlib import Path
 import re
@@ -692,6 +696,237 @@ class Fates(unittest.TestCase):
             fate(1, "ROW", "table records", "mapped", M_STEP, 'map "app" -> Mobile'),
             fate(1, "ROW", "table records", "quarantined", M_STEP, 'quarantine "tablet"')], [NOT_BUILT_Q, NOT_BUILT_M],
             rows=[row(APP), row(TABLET)])
+
+
+# fates-a2a (DL-168, plan.md "Repairs"): draft 4. `nested` maps each direct constructor or enum field to the TYPE VERSION
+# of its TYPE; a LIST field holds {"version": <element TYPE VERSION>, "nested": <its own nested>} (review O1).
+N_ORDER = {"amount": 1, "channel": 1}
+AMOUNT2, CHANNEL2 = dict(N_ORDER, amount=2), dict(N_ORDER, channel=2)
+
+
+def items_nested(nested, version=1):
+    return {"items": {"version": version, "nested": nested}}
+
+
+def draft4(record, nested):
+    """The record in format draft 4: version 4 and type.nested; the digest stays (QA2-1: nested is not under it)."""
+    out = copy.deepcopy(record)
+    out["version"] = 4
+    out["type"] = dict(out["type"], nested=nested)
+    return out
+
+
+def draft3(record):
+    """The record in format v3 (no type.nested), whatever sd.core() writes."""
+    out = copy.deepcopy(record)
+    out["version"] = 3
+    out["type"] = {k: v for k, v in out["type"].items() if k != "nested"}
+    return out
+
+
+def strict(kind):
+    return "error: stored %s has record version 3; this build reads record version 4 only (DL-168)" % kind
+
+
+MALFORMED = "error: stored RESPONSE RECORD has a malformed TYPE VERSION"
+# SQUASH block (GF-11, DL-155); the text is the plan default (plan.md section 2).
+SQUASH = ("error: stored %s holds Channel v1 in field channel; the source declares no Channel v1. Keep enum Channel v1 "
+          "and migrate Channel v1 -> v2 while v1 values are stored (SQUASH, DL-155)")
+# Review O3, V4f2 (RED decision RA-04): a stored version newer than the source; the help offers no MIGRATE STEP.
+NEWER = ("error: stored ROW holds Channel v2 in field channel; the source declares no Channel v2. The source is older "
+         "than the stored values; build from a source that declares Channel v2 (DL-155)")
+SQ = swap(swap(CH, M_LINE + "\n", ""), V1_DECL, "")  # enum Channel v2, no step, no v1 declaration (S3 form)
+FORM_WEB = dict(WIRE1, order_id="order-form-web")
+ORDERS_DB = sd.ORDERS
+
+
+def want(setup, actual, expected):
+    """A runtime case that prints the actual term when it differs (as slice6_m4_test)."""
+    return "%s; r = %s; if r == %s, do: true, else: r" % (setup, actual, expected)
+
+
+def head(nested):
+    return "{4, %s}" % sd.ex(nested)
+
+
+VN = '{r["version"], r["type"]["nested"]}'
+CORE_VN = '{last_core.()["version"], last_core.()["type"]["nested"]}'
+ENTRY_OF = 'Process.put(:captures, []); %s; [r] = for {"entries", e} <- Process.get(:captures), do: rt.(e)'
+V4_ORDERS_CASES = {
+    # V4a: the ROW CORE of db.put.
+    "V4a_row_core": want("fresh.(); Orders.save(o1.())", CORE_VN, head(N_ORDER)),
+    # V4b: the db call records (save, load, list, a rejected save) and an ENTRY RECORD without such fields ({}).
+    "V4b_save_record": want("fresh.(); Orders.save(o1.()); [r] = resp.()", VN, head(N_ORDER)),
+    "V4b_load_record": want("fresh.(); Orders.save(o1.()); Process.put(:captures, []); Orders.load(key1); [r] = resp.()",
+                            VN, head(N_ORDER)),
+    "V4b_list_record": want("fresh.(); Orders.save(o1.()); Process.put(:captures, []); Orders.list_orders(%{}); "
+                            "[r] = resp.()", VN, head(items_nested(N_ORDER))),
+    "V4b_rejected_record": want("fresh.(); BeamlDb.mode(:down); Orders.save(o1.()); BeamlDb.mode(:ok); [r] = resp.()",
+                                VN, head(N_ORDER)),
+    "V4b_entry_record_empty_nested": want("fresh.(); " + ENTRY_OF % "Orders.ui_orders(%{})", VN, head({})),
+}
+V4_AMOUNT_CASES = {
+    # V4c: the VERSION MARK of Amount moves nested.amount; the ROW head stays {"Order", 1}.
+    "V4c_row_core_follows_the_mark": want("fresh.(); Orders.orders_save(o1.()); [{_, h, _}] = puts.()",
+                                          '{h, %s}' % CORE_VN, '{{"Order", 1}, %s}' % head(AMOUNT2)),
+    "V4c_entry_record_follows_the_mark": want("fresh.(); " + ENTRY_OF % ("Orders.ui_place(%s)" % sd.ex(WIRE1)), VN,
+                                              head(AMOUNT2)),
+    "V4c_list_record_follows_the_mark": want("fresh.(); Orders.orders_save(o1.()); Process.put(:captures, []); "
+                                             "Orders.list_orders(%{}); [r] = resp.()", VN,
+                                             head(items_nested(AMOUNT2))),
+    "V4c_string_only_row_has_empty_nested": want('fresh.(); Orders.save_note(%{"text" => "hello"})',
+                                                 CORE_VN, head({})),
+    # V4i (guard, passes before and after): value_sha256 is the digest of the value only (QA2-1: not over nested).
+    "V4i_digest_does_not_cover_nested": want("fresh.(); Orders.orders_save(o1.())", 'last_core.()["value_sha256"]',
+                                             sd.ex(sd.st.value_sha256(WIRE1))),
+}
+V4_CHANNEL_CASES = {
+    "V4c_enum_mark_moves_nested_channel": want("fresh.(); Orders.orders_save(o1.())", CORE_VN,
+                                               head(CHANNEL2)),
+}
+
+
+class FatesA2a(unittest.TestCase):
+    """fates-a2a RED (plan.md section 2 and "Repairs"). Each case fails at HEAD; red-output.md names the reason."""
+    maxDiff = None
+    setUp, compile, built, snapshot = Fates.setUp, Fates.compile, Fates.built, Fates.snapshot
+    orders, run_stored, assert_fated, assert_block, moved = (Fates.orders, Fates.run_stored, Fates.assert_fated,
+                                                             Fates.assert_block, Fates.moved)
+    runtime = sd.Slice6Db.runtime
+
+    def lines(self, source, **kw):
+        code, stdout, got, paths = self.run_stored(source, **kw)
+        return code, stdout, [l for l in got if not l.startswith("rows: ")], paths, got
+
+    # V4a to V4c, V4i: the generated writers (one Elixir run per source).
+
+    def test_V4ab_records_are_draft4_with_nested(self):
+        self.runtime(ORDERS_DB, V4_ORDERS_CASES)
+
+    def test_V4c_nested_follows_the_mark(self):
+        with self.subTest("type Amount v2"):
+            self.runtime(AMOUNT_V2, V4_AMOUNT_CASES)
+        with self.subTest("enum Channel v2"):
+            self.runtime(CHANNEL_V2, V4_CHANNEL_CASES)
+
+    # V4d: --stored reads draft 4 only (three readers); a draft 4 store builds.
+
+    def test_V4d_stored_reads_draft4_only(self):
+        cases = {
+            "ROW": (ORDERS_DB, {"rows": [draft3(row(WIRE1))]}, "rows", "ROW"),
+            "RESPONSE RECORD": (ORDERS_DB, {"responses": [draft3(db_record("orders.save", WIRE1, sd.ORDER_TYPE, WIRE1))]},
+                                "resp", "RESPONSE RECORD"),
+            "ENTRY RECORD": (AMOUNT_V2, {"entries": [draft3(entry(FORM_WEB))]}, "entries", "ENTRY RECORD"),
+        }
+        for name, (source, kw, place, kind) in cases.items():
+            with self.subTest(name):
+                code, stdout, got, paths, _ = self.lines(source, **kw)
+                self.assertEqual((1, "", [strict(kind), "  record source: %s:1 (line 1)" % paths[place]]),
+                                 (code, stdout, got))
+        with self.subTest("control: draft 4 rows build"):
+            code, stdout, _, _, got = self.lines(ORDERS_DB, rows=[draft4(row(WIRE1), N_ORDER), draft4(row(sd.WIRE2), N_ORDER)])
+            self.assertEqual((0, True, [counted(2, 2, 0)]), (code, "defmodule Orders do" in stdout, got))
+        with self.subTest("control: draft 4 records build"):
+            code, stdout, _, _, got = self.lines(AMOUNT_V2, entries=[draft4(entry(FORM_WEB), N_ORDER)], responses=[
+                draft4(db_record("orders.list", sds.list_items(WIRE1), sd.LIST_TYPE, {}), items_nested(N_ORDER))])
+            self.assertEqual((0, True, []), (code, "defmodule Orders do" in stdout,
+                                             [l for l in got if l.startswith("error")]), "\n".join(got))
+
+    # V4e: a draft 4 core without a readable nested map is a malformed TYPE VERSION (QA2-1 strict, review O1).
+
+    def test_V4e_v4_without_nested_is_malformed(self):
+        save = db_record("orders.save", WIRE1, sd.ORDER_TYPE, WIRE1)
+        listed = db_record("orders.list", sds.list_items(WIRE1), sd.LIST_TYPE, {})
+        no_nested = draft4(save, N_ORDER)
+        del no_nested["type"]["nested"]
+        cases = {
+            "no nested": no_nested,
+            "a String version": draft4(save, dict(N_ORDER, amount="1")),
+            "version 0": draft4(save, dict(N_ORDER, amount=0)),
+            "a field without its version (no guess)": draft4(save, {"amount": 1}),
+            "a LIST field as an Int": draft4(listed, {"items": 1}),
+            "a LIST field without its element version": draft4(listed, {"items": {"nested": N_ORDER}}),
+            "a LIST field with a malformed element nested": draft4(listed, items_nested(dict(N_ORDER, channel="1"))),
+        }
+        for name, record in cases.items():
+            with self.subTest(name):
+                code, stdout, got, paths, _ = self.lines(ORDERS_DB, responses=[record])
+                self.assertEqual((1, "", [MALFORMED, "  record source: %s:1 (line 1)" % paths["resp"]]),
+                                 (code, stdout, got))
+        with self.subTest("ROW without nested: counted not decodable (as every malformed ROW TYPE VERSION)"):
+            bad = draft4(row(WIRE1), N_ORDER)
+            del bad["type"]["nested"]
+            code, stdout, _, _, got = self.lines(ORDERS_DB, rows=[bad])
+            self.assertEqual((0, True, [counted(1, 0, 1)]), (code, "defmodule Orders do" in stdout, got))
+
+    # V4f, V4f2: a stored nested version that the source does not declare blocks (SQUASH, GF-11, review O3).
+
+    def test_V4f_undeclared_nested_version_blocks(self):
+        cases = {
+            "ROW": ({"rows": [draft4(row(WIRE1), N_ORDER)]}, "rows", "ROW"),
+            "ENTRY RECORD": ({"entries": [draft4(entry(FORM_WEB), N_ORDER)]}, "entries", "ENTRY RECORD"),
+        }
+        for name, (kw, place, kind) in cases.items():
+            with self.subTest(name):
+                code, stdout, got, paths, _ = self.lines(self.orders(SQ), **kw)
+                self.assertEqual((1, "", [SQUASH % kind, "  record source: %s:1 (line 1)" % paths[place]]),
+                                 (code, stdout, told(got)))
+        with self.subTest("RESPONSE RECORD: a LIST item (review O1)"):
+            rec = draft4(db_record("orders.list", sds.list_items(WIRE1), sd.LIST_TYPE, {}), items_nested(N_ORDER))
+            code, stdout, got, _, _ = self.lines(self.orders(SQ), responses=[rec])
+            self.assertEqual((1, "", True), (code, stdout, any(l.startswith(
+                "error: stored RESPONSE RECORD holds Channel v1 in field ") for l in got)), "\n".join(got))
+        with self.subTest("control: nested channel 2 builds"):
+            code, stdout, _, _, got = self.lines(self.orders(SQ), rows=[draft4(row(WIRE1), CHANNEL2)])
+            self.assertEqual((0, True, [counted(1, 1, 0)]), (code, "defmodule Orders do" in stdout, got))
+
+    def test_V4f2_a_newer_stored_version_blocks(self):
+        code, stdout, got, paths, _ = self.lines(CHANNEL_V1, rows=[draft4(row(WIRE1), CHANNEL2)])
+        self.assertEqual((1, "", [NEWER, "  record source: %s:1 (line 1)" % paths["rows"]], False),
+                         (code, stdout, told(got), any("migrate Channel" in l for l in got)), "\n".join(got))
+
+    # V4g: a fate line acts only on stored values whose nested version is below the step's `to` (PA2-05, review O1).
+
+    def test_V4g_fate_skips_values_at_the_new_version(self):
+        lst = lambda nested: draft4(db_record("orders.list", sds.list_items(WIRE1, ZERO), sd.LIST_TYPE, {}),
+                                    items_nested(nested))
+        blocks = {
+            "ROW": ({"rows": [draft4(row(ZERO), AMOUNT2)]}, "table records", "ROW", "Order", "rows"),
+            "RESPONSE RECORD (LIST item)": ({"responses": [lst(AMOUNT2)]}, "operation orders.list", "RESPONSE RECORD",
+                                            "Order", "resp"),
+            "ENTRY RECORD": ({"entries": [draft4(entry(FORM_ZERO), AMOUNT2)]}, "operation ui.place", "ENTRY RECORD",
+                             "PlaceForm", "entries"),
+        }
+        for name, (kw, place, noun, ty, at) in blocks.items():
+            with self.subTest("v2 value blocks: " + name):
+                self.assert_block(AMOUNT_V2, lambda p: ctor_block(place, noun, ty, "Amount", "amount", "BadAmount",
+                                                                  p[at], 1) + [help_q("Amount", 2, "value")], **kw)
+        controls = {
+            "ROW": ({"rows": [draft4(row(ZERO), N_ORDER)]}, "ROW", "table records"),
+            "RESPONSE RECORD (LIST item)": ({"responses": [lst(N_ORDER)]}, "RESPONSE RECORD", "operation orders.list"),
+            "ENTRY RECORD": ({"entries": [draft4(entry(FORM_ZERO), N_ORDER)]}, "ENTRY RECORD", "operation ui.place"),
+        }
+        for name, (kw, noun, place) in controls.items():
+            with self.subTest("control: v1 value is quarantined: " + name):
+                self.assert_fated(AMOUNT_V2, [fate(1, noun, place, "quarantined", Q_STEP, "quarantine value")],
+                                  [NOT_BUILT_Q], **kw)
+        with self.subTest("map: a v2 \"app\" is a lost literal, not mapped (R3c, --stored half)"):
+            self.assert_block(CHANNEL_V2, lambda p: literal_block("Order", "ROW", "table records", p["rows"], 1)
+                              + [help_m("Channel", 2)], rows=[draft4(row(APP), CHANNEL2)])
+        with self.subTest("control: map acts on a v1 \"app\""):
+            self.assert_fated(CHANNEL_V2, [fate(1, "ROW", "table records", "mapped", M_STEP, 'map "app" -> Mobile')],
+                              [NOT_BUILT_M], rows=[draft4(row(APP), N_ORDER)])
+
+    # V4h (GF-02, one-step form): the swap check reads the table of the stored nested version. The two-step form of
+    # the plan cannot be written (red-plan.md RA-02): it goes to fates-b.
+
+    def test_V4h_swap_reads_the_stored_version_table(self):
+        with self.subTest("a v2 \"web\" is App at v2: no move"):
+            code, stdout, _, _, got = self.lines(CHANNEL_SWAP, rows=[draft4(row(WEB_ROW), CHANNEL2)])
+            self.assertEqual((0, True, [counted(1, 1, 0)]), (code, "defmodule Orders do" in stdout, got))
+        with self.subTest("control: a v1 \"web\" moved from Web to App"):
+            code, stdout, got, paths, _ = self.lines(CHANNEL_SWAP, rows=[draft4(row(WEB_ROW), N_ORDER)])
+            self.assertEqual((1, "", self.moved("web", "Web", "App", paths["rows"], [1])), (code, stdout, told(got)))
 
 
 if __name__ == "__main__":
