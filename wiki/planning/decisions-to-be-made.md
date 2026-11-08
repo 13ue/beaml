@@ -707,7 +707,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D035 — P2b: the DL-136 digest half for stored records
 
-- **Status** OPEN
+- **Status** CLOSED 2026-11-08: A, DL-164 (step P2b after fates-a1)
 - **Decision owner** Fable and workers under DL-144 (free run)
 - **Class** Repair
 - **Scope** `--stored` over RESPONSE RECORDS and ENTRY RECORDS

@@ -996,6 +996,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Evidence: observed: the RETIRE LINE exists and governs RESPONSE RECORDS (records leave the checked and replay set, the file stays); for rows it parses and frees orphan rows (P4b GREEN). Observed: the language team round split on exactly this (W2 "the build never deletes" vs W1/W3 "retention is a privacy policy of the language", DL-055, DL-111). Unknown: the age source for a row (the ROW SNAPSHOT has no time key, QF-4). Inferred: nothing unmakes a deletion, so the class is Answer; the OWNER decided.
 → Effect: fates-b plan: (1) the age source (row `inserted_at` from the table, or a time key in the ROW CORE written by `db.put`; live `--stored` reads it, DL-151); (2) who executes: the generated code on a host call (`<Module>.retire/0` or a scheduled job, D046) or the build itself (the build runs on a developer machine: a deletion from there needs an explicit flag and a count; option for the plan); (3) every deletion writes a record without values (count, operation, version, age window) so the REPLAY and the observability stack see it; (4) the build report prints the due count before any deletion ("dry run" in `--stored`); (5) `retire f keep N days` on a field (DL-125) means the field value leaves the row after N days (set absent), same rules. Supersedes the P4b default "RETIRE LINE frees the rows, meaning M5". D036: M5 answered; M8, M9 stay.
 
+**DL-164 · Migrate · A stored record or row with a wrong digest blocks the build (DL-136 digest half, P2b)**
+→ Question: D035. A build the digest check now: a `value_sha256` that does not match the content is a build error with count and source · B keep counting only.
+→ Chose: A.
+→ By: 13ue (2026-11-08, "auf jeden Fall soll es den Build blocken")
+→ Because: a changed value with an old digest is a hand edit or corruption; the build must not pass it (same line as DL-150).
+→ Effect: small step P2b after fates-a1: `--stored` verifies the digest of every checked record and row (QV3-6 scope: `redacted`, `unknown_keys`, `value`), prints the count, blocks with the record source; the `digest not verified (P2b)` line goes; the fate forms apply (a quarantine line may park such rows: plan option). D035 closed. The format number: the OWNER asked why "v3" before any release; proposal recorded: internal draft numbering stays, the first release restarts at 1 with a one-time rewrite; pages say "Record-Format (Entwurf 3)". Not decided.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
