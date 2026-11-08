@@ -499,3 +499,4 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - 2026-11-08 · OWNER idea capture 2: 0005 as living REFERENCE APP and end-to-end desk; D048. By: Fable.
 - 2026-11-08 · DL-158: 0005 is the living REFERENCE APP; implement-step gets the step 'land in 0005'. By: Fable after OWNER.
 - 2026-11-08 · OWNER idea capture 3: PubSub and sockets as hard-typed EFFECTS; D049, roadmap line. By: Fable.
+- 2026-11-08 · OWNER idea capture 4: study Gleam for typed OTP; research task under D049. By: Fable.

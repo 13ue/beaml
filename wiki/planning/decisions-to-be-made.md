@@ -853,6 +853,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Class** Migrate
 - **Scope** Phoenix.PubSub topics, channels and LiveView socket events as EFFECTS with typed messages: a topic carries one BEAML TYPE (or an enum of message TYPES), publish is an outbound EFFECT, subscribe/receive is an inbound ENTRY LINE like `ui.event`, socket pushes are outbound. Every message is a record in the streams (format v3), replayable; TYPE VERSIONS apply to messages in flight (an old subscriber reads a new message: the MIGRATE CHAIN on read, as for rows). Tackled with D046 (OTP, GenServer).
 - **Decision trigger** the first EXPERIMENT with a second process or a live update on a page (the 0005 orders list updating on a new order would be the smallest case)
+- **Research first (OWNER)** study Gleam: `gleam_otp` and `gleam_erlang` (typed `Subject(msg)`, actors, selectors, supervision) as the closest prior art for hard-typed messages on the BEAM; source page with excerpts and limits before any BEAML form.
 - **Next check** a concept page sketch: `effect orders.changed Order -> Order ! PubError = pubsub.publish("orders")` and `effect ui.live Order -> Order ! … = pubsub.subscribe("orders") |> refresh` as forms to compare (sketch, not built)
 
 **[Proposal]** Smallest 0005 case: `/orders` refreshes when another session places an order; one topic, one TYPE, records for publish and receive, the trace spans both. Open: what "hard typed" means for a topic shared by two modules (D040, D044), and backpressure (event-flows page).

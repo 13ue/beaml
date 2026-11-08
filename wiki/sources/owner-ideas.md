@@ -16,6 +16,7 @@ updated: 2026-11-08
 | 2026-11-08 | [owner-ideas-walkthrough](../../raw/requirements/2026-11-08-owner-ideas-walkthrough.md) | D037 walk-through, M3/M4, roadmap | D039, D040, D042, D044, D045, D046, D047, DL-155, DL-156 |
 | 2026-11-08 | [owner-ideas-reference-app](../../raw/requirements/2026-11-08-owner-ideas-reference-app.md) | demo app as living reference, end-to-end setup, benchmarks | D048 |
 | 2026-11-08 | [owner-ideas-pubsub-sockets](../../raw/requirements/2026-11-08-owner-ideas-pubsub-sockets.md) | PubSub and sockets as typed EFFECTS, with OTP | D046, D049 |
+| 2026-11-08 | [owner-ideas-gleam](../../raw/requirements/2026-11-08-owner-ideas-gleam.md) | study Gleam for typed OTP and messages | D046, D049, research task |
 
 ## How a capture is made
 
