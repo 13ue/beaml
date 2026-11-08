@@ -5303,8 +5303,8 @@ struct ValueChecks {
     // D6B-102: the constructor calls for the Elixir run: (field key, line, signature key, inputs).
     calls: Vec<(FieldKey, usize, String, Vec<String>)>,
     // 0005 P4c (DL-102, DL-124): per (TYPE, place, field) of a String field without a String value: (failed
-    // records, first failed line).
-    strings: BTreeMap<(String, String, String), (usize, usize)>,
+    // records, first failed line, last counted line; a list record counts once, not per item).
+    strings: BTreeMap<(String, String, String), (usize, usize, usize)>,
 }
 
 // A DEAD LINE: its byte range in the source, its form (`retire ...` or `migrate T a -> b`) and why it is dead.
@@ -5580,12 +5580,15 @@ impl Checker<'_> {
         body: Option<&Json>,
         kept: &dyn Fn(&str) -> bool,
     ) {
-        // 0005 P4c: each String field of a ROW TYPE at its newest TYPE VERSION holds a String (an older version
-        // reads by the MIGRATE CHAIN; a redacted field is absent from the projection). http records stay unchecked.
+        // 0005 P4c: each String field of a ROW TYPE holds a String, by the fields of the stored TYPE VERSION (P4c
+        // TEST O1; a version off the chain gets the path text). A redacted field is absent from the projection.
+        // http records stay unchecked (O3, Migrate, default A, open).
         let row =
             (self.program.effects.iter()).any(|e| e.kind != "http.post" && self.row_type(e) == ty);
-        if row && version == self.newest_version(ty) {
-            for (field, t) in self.record(ty).cloned().unwrap_or_default() {
+        let fields = (version.checked_sub(self.chain_start(ty)))
+            .and_then(|i| self.type_versions(ty).get(i as usize).cloned());
+        if row {
+            for (field, t) in fields.unwrap_or_default() {
                 if t == "String"
                     && !self.is_redacted(ty, &field)
                     && body
@@ -5594,7 +5597,10 @@ impl Checker<'_> {
                         .is_none()
                 {
                     let key = (ty.to_string(), place.to_string(), field);
-                    checks.strings.entry(key).or_insert((0, number)).0 += 1;
+                    let entry = checks.strings.entry(key).or_insert((0, number, 0));
+                    if entry.2 != number {
+                        (entry.0, entry.2) = (entry.0 + 1, number);
+                    }
                 }
             }
         }
@@ -5657,7 +5663,7 @@ impl Checker<'_> {
     ) -> Checked<Vec<String>> {
         let mut errors = Vec::new();
         let plural = |n: usize| if n == 1 { "" } else { "S" };
-        for ((ty, op, field), (failed, line)) in &checks.strings {
+        for ((ty, op, field), (failed, line, _)) in &checks.strings {
             errors.push(format!(
                 "error: TYPE {ty}: {failed} stored {noun}{} of {op} {} no String value for field {field}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of {ty} (DL-102)",
                 plural(*failed),

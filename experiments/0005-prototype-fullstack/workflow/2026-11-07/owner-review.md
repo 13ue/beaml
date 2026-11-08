@@ -49,6 +49,7 @@ Line format: **ID** · one sentence · options · built default · `By:`.
 ### 8 · The row shape check (P4c)
 
 → **P4c** · A stored row or RESPONSE RECORD with a missing or wrong-type String field passes `--stored` and fails `db.list` at run time. · A block the build with the DL-102 text · B count it as not decodable. · Built: A in progress (RED `b15c1e6d`, GREEN running). · By: Fable (default, open).
+→ http RESPONSE RECORD shape check: A keep the gap (built) · B check http after the version fix; default A, By: Opus (GREEN P4c, default, open), raised to Migrate by the TEST review
 
 ### 9 · ENTRY RECORD (G6D-03, G6D-04)
 

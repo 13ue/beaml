@@ -462,9 +462,11 @@ class Slice6DbStored(unittest.TestCase):
 
     def test_N32c_response_record_shape_blocks(self):
         # The same two faults in a db.list RESPONSE RECORD (item 0), beside an empty rows.jsonl.
-        for name, value in {"missing": self.NO_ID, "wrong_type": self.INT_ID}.items():
+        # P4c TEST repair O2: `item_1` pins every item (a check of item 0 only passes the first two).
+        cases = {"missing": [self.NO_ID], "wrong_type": [self.INT_ID], "item_1": [WIRE1, self.NO_ID]}
+        for name, items in cases.items():
             with self.subTest(name):
-                rec = db_record("orders.list", list_items(value), sd.LIST_TYPE, {})
+                rec = db_record("orders.list", list_items(*items), sd.LIST_TYPE, {})
                 code, stdout, got, _, resp = self.blocked(ORDERS, rows=[], responses=[rec])
                 self.assertEqual((1, ""), (code, stdout), "\n".join(got))
                 self.assert_shape_block("RESPONSE RECORD", "operation orders.list", got, resp)
@@ -477,6 +479,41 @@ class Slice6DbStored(unittest.TestCase):
         Two items, so a check of item 0 only stays visible in a later case if needed."""
         rec = db_record("orders.list", list_items(WIRE1, WIRE2), sd.LIST_TYPE, {})
         self.assert_built(ORDERS, [counted(0, 0, 0)], rows=[], responses=[rec])
+
+    def test_N32c_two_bad_items_count_one_record(self):
+        """P4c TEST repair O2: the text counts RESPONSE RECORDS, not items; one record with two bad items is 1."""
+        rec = db_record("orders.list", list_items(self.NO_ID, self.INT_ID), sd.LIST_TYPE, {})
+        code, stdout, got, _, resp = self.blocked(ORDERS, rows=[], responses=[rec])
+        self.assertEqual((1, ""), (code, stdout), "\n".join(got))
+        self.assert_shape_block("RESPONSE RECORD", "operation orders.list", got, resp)
+
+    def test_N32d_old_version_row_shape_blocks(self):
+        """P4c TEST O1: a row is checked against the fields of its own stored TYPE VERSION, not only the newest.
+
+        PLAIN_V2 source; a v1 row without `label` (a v1 field no MIGRATE STEP fills) or with an Int `label` blocks.
+        Control: N20_chain_rows_build (a complete v1 row builds)."""
+        for name, value in {"missing": {"order_id": "order-n32d"}, "wrong_type": dict(PLAIN_ROW, label=90817)}.items():
+            with self.subTest(name):
+                code, stdout, got, rows_path, _ = self.blocked(PLAIN_V2, rows=[row(value, sd.PLAIN_V1)])
+                text = "\n".join(got)
+                self.assertEqual((1, ""), (code, stdout), text)
+                self.assertEqual(["error: TYPE Order: 1 stored ROW of table records has no String value for field label",
+                                  "  record source: %s:1 (line 1)" % rows_path], got[:2], text)
+                self.assertTrue(len(got) == 3 and got[2].startswith(HELP_PREFIX), text)
+                self.assertNotIn("90817", text.replace(str(rows_path), ""), "DL-124: the stored number is in the text")
+
+    def test_N32e_http_record_shape_gap_builds(self):
+        """P4c TEST O3, documented gap (Migrate, default A, open): an http RESPONSE RECORD without the String field
+        `status` still builds. This guard flips when the OWNER chooses B (check http after the version fix)."""
+        rec = json.loads((sd.EXPERIMENT / "stored" / "v1.jsonl").read_text().splitlines()[0])
+        del rec["value"]["status"]
+        rec["value_sha256"] = st.value_sha256(rec["value"], rec.get("unknown_keys", ()), rec.get("redacted", ()))
+        holder = self.work / "stored" / "http"
+        holder.mkdir(parents=True)
+        (holder / "v1.jsonl").write_text(json.dumps(rec, separators=(",", ":")) + "\n")
+        code, stdout, stderr = self.compile(sd.EXPERIMENT / "arms" / "gen" / "orders.beaml",
+                                            ["--stored", str(holder / "v1.jsonl")])
+        self.assertEqual((0, True), (code, "defmodule " in stdout), stderr)
 
 
 if __name__ == "__main__":

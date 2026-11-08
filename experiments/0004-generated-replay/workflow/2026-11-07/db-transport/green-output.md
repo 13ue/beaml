@@ -130,3 +130,43 @@ python3 -B experiments/0004-generated-replay/tests/<name>_test.py               
 - **[Inference]** Plural text (`2 stored ROWS … have`) and a fault in list item 1 are not tested.
 - **[Inference]** http RESPONSE RECORDS with a missing String field still pass `--stored`.
 - **[Inference]** A `rejected` row or record stays counted, not shape-checked (QV3-8 B).
+
+## P4c TEST repair
+
+**[Observed]** 2026-11-08. By: Opus (TEST repair P4c). Inputs: [review.md](review.md#p4c-test) O1 (high), O2, O3 (medium); rulings by Fable under DL-144 (O1 Repair, O2 Repair, O3 Migrate, default A, open). HEAD `a6550a0f`.
+
+### Diff summary
+
+- `experiments/0001-syntax-to-beam/src/main.rs` (+13 / -7): `value_checks` takes the String fields from the stored TYPE VERSION of the row (`type_versions[version - chain_start]`), not only at the newest version. A version off the chain finds no fields and keeps the path text. `ValueChecks.strings` holds a last counted line: one list record with several bad items counts as 1 record.
+- `experiments/0004-generated-replay/tests/slice6_db_stored_test.py` (+38 / -3): N32c subtest `item_1` (`[WIRE1, NO_ID]`), `N32c_two_bad_items_count_one_record`, `N32d_old_version_row_shape_blocks` (missing and Int `label`, PLAIN_V2), `N32e_http_record_shape_gap_builds` (documented gap guard: `arms/gen/orders.beaml`, line 1 of `stored/v1.jsonl` without `value.status`, own digest, exit 0).
+- `experiments/0005-prototype-fullstack/workflow/2026-11-07/owner-review.md`: one O3 line under item 8 of "Big, first".
+
+### RED (against HEAD, `git archive HEAD` build in the scratchpad, `BEAML_SPIKE`)
+
+`python3 -B …/slice6_db_stored_test.py -k N32 -k N20_chain`: 9 tests, **3 failures**: N32d [missing] and [wrong_type] exit 0 with the module (the O1 fault); the count test got `2 stored RESPONSE RECORDS … have` (O2). Guards pass at HEAD: N32c `item_1` (GREEN checked every item, review Mutant B), N32e (the gap), `N20_chain_rows_build` (control).
+
+### GREEN (working tree)
+
+- `slice6_db_stored_test.py`: **49 tests, OK, 3 skipped** (N28b, N30, N30b).
+- `cargo fmt --check`: pass. `cargo clippy --offline -- -D warnings`: pass. `cargo test --offline`: 22 + 14 pass.
+- Every file `run.py` lists, serially (arms, stored_types, slice2 to slice5, all slice6, record_v3, redteam c1/b3/c3, drift): **35 of 35 exit 0, OK**. The first serial loop stopped at the 30 min shell limit after 9 files (all OK); the loop restarted at `slice5_replay`. Full `run.py` not run (task rule).
+- EFFECT bytes: no change; the diff touches only `--stored`. The pin files (slice5_syntax, slice6_entry, slice6_multi, slice6_pipe, slice6_db, slice6_host_struct with `slice6/effect-reach/byte-guard.json`) pass unchanged.
+
+### Decisions
+
+**Migrate**
+→ O3 http RESPONSE RECORD shape check: A keep the gap (built, pinned by N32e) · B check http after the version fix; default A. → By: Opus (GREEN P4c, default, open), raised to Migrate by the TEST review; OWNER chooses.
+
+**Repair**
+→ Fields of the stored TYPE VERSION statt a check after the MIGRATE CHAIN, weil the fields are already in `type_versions` and the chain run is not in `--stored`. → By: Opus (TEST repair P4c) · Repair
+→ Count records by a last counted line statt count items, weil the text says RECORDS (O2 ruling). → By: Opus (TEST repair P4c) · Repair
+
+**Undo**
+→ N32e recomputes the record digest, so only the shape fault stays. → By: Opus (TEST repair P4c) · Undo
+→ List items keep the newest TYPE VERSION of the ROW TYPE (items carry no own version). → By: Opus (TEST repair P4c) · Undo
+→ Enum and constructor counts of list items stay per item (out of scope). → By: Opus (TEST repair P4c) · Undo
+
+### Limits
+
+- **[Inference]** A record with several bad items in the enum or constructor checks still counts items.
+- **[Observed]** The run-time decode of a fixed v1 row was not run again; N32d covers the build side only.
