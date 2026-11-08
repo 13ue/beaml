@@ -114,3 +114,64 @@ BEAML_SPIKE=<scratch>/target/debug/beaml-spike python3 -B experiments/0004-gener
 **Repair**
 → M1 as one merged owner question statt two separate default lines, weil one rule (proof that the check ran) decides both lines. → By: Opus (RED review db-stored) · Repair
 → M2 test in TEST or a top-up statt a BLOCK, weil `!=` is the natural build and the false pass needs a `>` check. → By: Opus (RED review db-stored) · Repair
+
+## P4c
+
+**Verdict: BLOCK** (one high objection, O1). 2026-11-08. By: Opus (RED review P4c). Inputs: [red-plan.md](red-plan.md#p4c-row-shape-check), [red-output.md](red-output.md#p4c), [review.md](review.md) O1 and O3, 0005 [owner review](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) "Row shape check".
+
+### Run (observed)
+
+```
+git archive HEAD experiments/0001-syntax-to-beam | tar -x -C <scratch>     # HEAD abaaf372, compiler as 5c201bf6
+cargo build --offline --quiet --manifest-path <scratch>/experiments/0001-syntax-to-beam/Cargo.toml --target-dir <scratch>/target
+BEAML_SPIKE=<scratch>/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_db_stored_test.py
+```
+
+- **[Observed]** Ran 45 tests, FAILED (failures=4, skipped=3): N32, N32b, N32c [missing], N32c [wrong_type]. Skips N28b, N30, N30b. Matches red-output P4c.
+- **[Observed]** Each failure is the `(code, stdout)` assertion: exit 0, module built. No harness error. The RED is the missing check.
+
+### Checks
+
+| Check | Result |
+|---|---|
+| (1) RED at HEAD | **[Observed]** As above. N32 control and N27 pass. |
+| (2a) presence-only GREEN | **[Inference]** Caught: N32b has `order_id` present with an Int, so a presence check leaves exit 0. |
+| (2b) rows-only GREEN | **[Inference]** Caught: N32c has an empty `rows.jsonl`; a rows-only check leaves exit 0. |
+| (2c) control | **[Observed]** `N32_control_complete_row_builds` builds with `rows: 1 rows, 1 checked, 0 not decodable`. Rows stream only; see O1 for the RESPONSE stream. |
+| (3) DL-124 | **[Observed]** The expected text names TYPE `Order`, field `order_id`, noun, table or operation and the source path. The Int value is asserted absent (path stripped). No stored String in the text; `compile()` keeps the action-log word scan. |
+| (4) one text, default open | See M1. |
+| (5) O3 residual | See M2. |
+
+### Objections
+
+**O1 (high). N32c passes when GREEN never looks into the list items, and no control shows a complete RESPONSE RECORD still builds.**
+- **[Observed]** No `--stored` test in the file builds with an accepted `orders.list` RESPONSE RECORD of complete items. The shared `STORED` fixture is empty. N25 list records use STRICTER and block; the N25 control is a `rejected` record.
+- **[Inference]** A GREEN that checks the ROW TYPE `Order` against the record's top-level value (`{"items": [...]}`) finds no `order_id` and prints the exact expected text. N32c passes. Every real captured `orders.list` record then blocks the build, and no test fails. N25 catches it only if the constructor check runs before the shape check.
+- Consequence: a false block of every list RESPONSE RECORD in 0005 replay data, with a green suite.
+- → Resolving test: `N32c_control_complete_list_record_builds`: ORDERS, `rows=[]`, `responses=[db_record("orders.list", list_items(WIRE1, WIRE2), sd.LIST_TYPE, {})]`. Expect exit 0, the module, stderr `[counted(0, 0, 0)]` (no P2 line, 0 rejected). Two items so an item-0-only check stays visible in a later case if needed.
+
+### Notes (medium, no block)
+
+**M1. The one-text default is not in the owner review.** The text "has no String value for field <f>" for missing and wrong-type is marked `(default, open)` in red-plan, but the owner-review "Row shape check" line names only option A. The OWNER cannot see the open text choice there.
+→ Resolving step: add one line under "Row shape check" in owner-review.md: the proposed text, one text for both faults, default open. Text only, no test change.
+
+**M2. O3 residual: `row()` still writes 4-digit Int row ids.** Every other test that calls `compile()` scans the action log for those ids; a `ts` digit run can hit one. N27 itself is fixed (pass 5 of 5 in RED, 1 of 1 here).
+→ Resolving step: give `row()` a String id (`"row-%d" % rid`) in the RED repair for O1, then rerun the file. GREEN must not change tests. If a test depends on an Int `row_id`, record it and keep that test on an explicit Int.
+
+### Dropped (low)
+
+- Nested String fields (`Amount.value`, `Amount.currency`) are not shape-tested; constructor fields already block (review.md O1 evidence).
+- A GREEN that checks only a field named `order_id`: `Order` has one String field; a second String field type (`PLAIN_V1.label`) is untested.
+- Plural form not tested (red-plan Undo).
+
+### Decisions
+
+**Undo**
+→ Verdict BLOCK on O1; M1, M2 noted. → By: Opus (RED review P4c) · Undo
+→ Ran HEAD abaaf372 (RED commit); compiler unchanged. → By: Opus (RED review P4c) · Undo
+→ Three low gaps dropped. → By: Opus (RED review P4c) · Undo
+
+**Repair**
+→ O1 as BLOCK statt note, weil the false pass hides a false block of real list records. → By: Opus (RED review P4c) · Repair
+→ M1 as owner-review line statt block, weil the text is a default, open, not a test fault. → By: Opus (RED review P4c) · Repair
+→ M2 in the RED repair statt GREEN, weil GREEN does not edit tests. → By: Opus (RED review P4c) · Repair
