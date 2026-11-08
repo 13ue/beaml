@@ -163,6 +163,33 @@
  },
  {
   "group": "02b-fates",
+  "id": "P2B-SCOPE",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T13:10:00Z",
+  "source": "P2b plan check 2026-11-08",
+  "by": "Fable (nach Plan-Check P2b)"
+ },
+ {
+  "group": "02b-fates",
+  "id": "QA2-1",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T13:10:00Z",
+  "source": "fates-a2 plan 2026-11-08",
+  "by": "Opus (Plan fates-a2)"
+ },
+ {
+  "group": "02b-fates",
+  "id": "QA2-2",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T13:10:00Z",
+  "source": "fates-a2 plan 2026-11-08",
+  "by": "Opus (Plan fates-a2)"
+ },
+ {
+  "group": "02b-fates",
   "id": "VERSION-RULE",
   "status": "decided",
   "page": "eingang",

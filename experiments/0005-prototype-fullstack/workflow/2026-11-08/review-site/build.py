@@ -364,6 +364,30 @@ migrate Amount v1 -> v2 {
   quarantine value
 }
 ''')], [("A", "Defaults wie oben", True), ("B", "Zeile muss alle geprüften Felder nennen", False), ("C", "Catch-all hebt nach erstem Parameter", False)], source="fates-a1b plan 2026-11-08", added="2026-11-08T12:30:00Z"),
+          it("P2B-SCOPE", "Welche Zeilen prüft der Build auf einen falschen Digest?", "default", "Fable (nach Plan-Check P2b)",
+             ["Digest = Prüfsumme über den gespeicherten Wert (`value_sha256`)",
+              "DL-164: falscher Digest sperrt den Build",
+              "Default A: jede Zeile eines TYPE, den der Code liest, auch wenn `outcome` nicht `accepted` ist",
+              S + "Grund: `db.list` liest diese Zeilen zur Laufzeit trotzdem und bricht",
+              "Records: nur geprüfte, wie bisher",
+              "Quarantäne darf eine Zeile mit falschem Digest nicht parken",
+              "Die Zählzeile nennt Digest-Fehler nicht eigens"],
+             "", [], [("A", "alle Zeilen eines gelesenen TYPE", True), ("B", "nur geprüfte Zeilen (Wortlaut DL-164)", False)], source="P2b plan check 2026-11-08", added="2026-11-08T13:10:00Z"),
+          it("QA2-1", "Form von Record-Format Entwurf 4", "default", "Opus (Plan fates-a2)",
+             ["Neu: `version: 4` und `type.nested` in Zeile und Record (DL-168)",
+              "Default: `nested` steht immer da, `{}` wenn leer",
+              "Nur direkte Konstruktor- und Enum-Felder; Schlüssel = Feldname",
+              "`nested` liegt nicht unter dem Digest",
+              "Leser streng: kein Rückfall auf Entwurf 3",
+              "Entwurf ist billig: Nummern starten bei Release neu (DL-165)"],
+             "", [], [("A", "Default wie oben", True), ("B", "`nested` weglassen, wenn leer", False), ("C", "Digest deckt auch `type`", False), ("D", "Entwurf 3 behalten plus optionaler Schlüssel", False)], source="fates-a2 plan 2026-11-08", added="2026-11-08T13:10:00Z"),
+          it("QA2-2", "Wie erfährt der Host, wie viele Zeilen geparkt sind?", "default", "Opus (Plan fates-a2)",
+             ["DL-157: geparkte Zeilen werden übersprungen und gezählt",
+              "Default: `list_` gibt `{:ok, value, %{quarantined: n}}` zurück",
+              S + "nur bei TYPES mit Quarantäne-Zeile",
+              "Dazu Span-Attribut `quarantined` und Schlüssel im Record des Aufrufs",
+              "Host-Aufrufer brechen laut, das ist gewollt"],
+             "", [], [("A", "Drei-Tupel wie oben", True), ("B", "Zähl-Feld im Listen-TYPE", False), ("C", "nur Span-Attribut", False)], source="fates-a2 plan 2026-11-08", added="2026-11-08T13:10:00Z"),
           it("VERSION-RULE", "Versionsregel: Änderung plus betroffene Werte = neue Version", "decided", "13ue (2026-11-08, nach drei Beispielen)",
              ["Build prüft live: fällt ein gespeicherter Wert anders?",
               "Nein: Änderung frei, keine neue Version",
@@ -1110,7 +1134,7 @@ def changelog(ans, now):
 TIER = {1: "Q5-2 Q5-5 Q5-7 QDB-3 QDB-5 QDB-7 PDB-18 TEST-O1 P4c-text G6D-12 TEXTS SNAP-SET STORED-ARG NOTES Q6E-3 ORPHAN OFFCHAIN "
            "ROW-FIELDS RESV QF-5 QV3-1 QV3-2 QV3-3 QV3-5 QV3-6 QM4-2".split(),
         2: "Q5-3 Q5-4 Q5-6 Q5-9 Q6E-1 Q6E-2 Q6E-4 QDB-1 QDB-2 QDB-4 QDB-6b QV3-4 QV3-7 QV3-8 COUNT G6D-03 G6D-04 P4c P4c-http "
-           "CTOR-ROW GET QF-2 ENUM-V1-DECL QUAR-FIELD QUAR-CLAUSE Q5-1".split(),
+           "CTOR-ROW GET QF-2 ENUM-V1-DECL QUAR-FIELD QUAR-CLAUSE P2B-SCOPE QA2-1 QA2-2 Q5-1".split(),
         3: "D025 D038 D039 D040 D041 D042 BLOCKS".split()}
 TIER_TITLE = {1: "Reine Implementierung, so lassen", 2: "Kurze Wahl, eine Zeile", 3: "Braucht Bild oder Gespräch"}
 TIER_LEAD = {1: "Keine Wirkung auf Sprache, Format oder Host-Namen.", 2: "Eine Wahl zwischen zwei, drei kurzen Optionen.",
