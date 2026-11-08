@@ -284,3 +284,10 @@ Live `--stored` (DL-151), D041, D046 scheduling, legal hold and backups, lifting
 → A1 (b2b deletion), A2 (b1c removal), A3 (age source), with QB-6, QB-9, QB-10: evidence and challenges in §4; no
   recommendation; class raised from Migrate (QF-4, QF-9) to Answer because nothing unmakes a deletion. This pulls in the
   OWNER. By: Opus (PLAN fates-b)
+
+## Repairs after the plan check (By: Fable, 2026-11-08)
+
+→ O1 accepted: removing a fate step always needs `--assume-complete`; add RED Q5b (flag missing: refused) and Q2b (a retired, not yet deleted row keeps the step).
+→ O2 accepted: b2a is Answer class in every section; guard rules gain "`--remove-dead` runs only on copies" and "b1a never touches `results/` dirs".
+→ O3 / PC-05 accepted: QB-1 (covered by DL-168 and QA2-1), QB-3 (built default PB-08), QB-4, QB-5 text and QB-11 are built defaults. OWNER questions: QB-2, QB-6, QB-7, QB-8, QB-9, QB-10, QB-12, QF-4, QF-9.
+→ fates-b RED starts after a2b GREEN.
