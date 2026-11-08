@@ -1,0 +1,374 @@
+{
+  "command": [
+    "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+    "run.py",
+    "run"
+  ],
+  "subcommand": "run",
+  "started_at": "2026-11-08T00:26:33.535758+00:00",
+  "finished_at": "2026-11-08T00:26:40.089177+00:00",
+  "toolchain": {
+    "python": "3.13.12",
+    "elixir": "Elixir 1.18.1 (compiled with Erlang/OTP 27)",
+    "otp": "27",
+    "pg_ctl": "pg_ctl (PostgreSQL) 17.11 (Postgres.app)"
+  },
+  "steps": [
+    {
+      "name": "truncate-proto_dev",
+      "command": [
+        "psql",
+        "-h",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgsock",
+        "-U",
+        "proto",
+        "-d",
+        "proto_dev",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        "TRUNCATE records RESTART IDENTITY"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "truncate-proto_test",
+      "command": [
+        "psql",
+        "-h",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgsock",
+        "-U",
+        "proto",
+        "-d",
+        "proto_test",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        "TRUNCATE records RESTART IDENTITY"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "stored-orders",
+      "command": [
+        "mix",
+        "beaml.stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T002633535758Z/stored-orders"
+      ],
+      "exit_code": 1,
+      "status": "fail"
+    },
+    {
+      "name": "gen-orders",
+      "command": [
+        "false"
+      ],
+      "exit_code": 1,
+      "status": "fail"
+    },
+    {
+      "name": "compile",
+      "command": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "test",
+      "command": [
+        "mix",
+        "test",
+        "--warnings-as-errors"
+      ],
+      "exit_code": 2,
+      "status": "fail"
+    },
+    {
+      "name": "test-n8",
+      "command": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "--only",
+        "phase:n8",
+        "--seed",
+        "0"
+      ],
+      "exit_code": 2,
+      "status": "fail"
+    },
+    {
+      "name": "test-n7_seed",
+      "command": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "--only",
+        "phase:n7_seed",
+        "--seed",
+        "0"
+      ],
+      "exit_code": 2,
+      "status": "fail"
+    },
+    {
+      "name": "stored-note_v2",
+      "command": [
+        "mix",
+        "beaml.stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T002633535758Z/stored-note_v2"
+      ],
+      "exit_code": 1,
+      "status": "fail"
+    },
+    {
+      "name": "gen-note_v2",
+      "command": [
+        "false"
+      ],
+      "exit_code": 1,
+      "status": "fail"
+    },
+    {
+      "name": "compile-note_v2",
+      "command": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "test-n7_read",
+      "command": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "--only",
+        "phase:n7_read",
+        "--seed",
+        "0"
+      ],
+      "exit_code": 2,
+      "status": "fail"
+    },
+    {
+      "name": "truncate-proto_dev",
+      "command": [
+        "psql",
+        "-h",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgsock",
+        "-U",
+        "proto",
+        "-d",
+        "proto_dev",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        "TRUNCATE records RESTART IDENTITY"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "truncate-proto_test",
+      "command": [
+        "psql",
+        "-h",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgsock",
+        "-U",
+        "proto",
+        "-d",
+        "proto_test",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        "TRUNCATE records RESTART IDENTITY"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "stored-orders",
+      "command": [
+        "mix",
+        "beaml.stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T002633535758Z/stored-orders"
+      ],
+      "exit_code": 1,
+      "status": "fail"
+    },
+    {
+      "name": "gen-orders",
+      "command": [
+        "false"
+      ],
+      "exit_code": 1,
+      "status": "fail"
+    }
+  ],
+  "status": "fail",
+  "hashes": [
+    {
+      "step": "gen-orders",
+      "source": "app/beaml/orders.beaml",
+      "source_sha256": "bba45329c9e90c391e988481594c76ba7272fb89f26a44e4be794deeaa878282",
+      "output_sha256": null,
+      "written": false
+    },
+    {
+      "step": "gen-note_v2",
+      "source": "app/beaml/variants/note_v2/orders.beaml",
+      "source_sha256": "ddd06aef77cef44dfb2b172f0bcb1c900bb8ac62b66126f263d388430b2e731c",
+      "output_sha256": null,
+      "written": false
+    },
+    {
+      "step": "gen-orders",
+      "source": "app/beaml/orders.beaml",
+      "source_sha256": "bba45329c9e90c391e988481594c76ba7272fb89f26a44e4be794deeaa878282",
+      "output_sha256": null,
+      "written": false
+    }
+  ],
+  "compiler": {
+    "path": "/private/tmp/claude-502/-Users-lennart-Projects-beaml/5a9e3a40-d152-4a88-a91b-9ddd9a8f3732/scratchpad/recheck-red/experiments/0001-syntax-to-beam/target/debug/beaml-spike",
+    "sha256": "57b36798bb8d3973c76b1038fe28167766c80c26ff5ee8a9baf00939fc295a0a"
+  },
+  "use_cases": [
+    {
+      "use_case": "exp0005-N1",
+      "test": "test N1 orders.beaml generates the module Orders and the host builds without a warning",
+      "result": "fail: Mix.NoTaskError"
+    },
+    {
+      "use_case": "exp0005-N10",
+      "test": "test N10 a removed ui.place line stops the host build at Orders.ui_place/1",
+      "result": "fail: Mix.NoTaskError"
+    },
+    {
+      "use_case": "exp0005-N11",
+      "test": "test N11 a TYPE change reached the table and the DDL did not move",
+      "result": "fail: ExUnit.AssertionError"
+    },
+    {
+      "use_case": "exp0005-N12",
+      "test": "test N12 the host writes one action event per action and no value",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N13",
+      "test": "test N13 git holds no database dir, no env file and no secret literal in config or lib",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N2",
+      "test": "test N2 a form submit writes one Order row through db.put",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N2c",
+      "test": "test N2c the reason of the row is a JSON null",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N3",
+      "test": "test N3 the submit writes one ENTRY RECORD and one db record with one trace",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N4",
+      "test": "test N4 a constructor reject writes no row and no db record",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N4",
+      "test": "test N4 an unknown channel is accepted and stored as its text",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N5",
+      "test": "test N5 the list page shows both orders through db.list, newest first",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N6",
+      "test": "test N6 an Unknown channel lists as its text",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N7",
+      "test": "test N7 note_v2 builds against a live Note v1 row and an Order row",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N7",
+      "test": "test N7 the v1 row lists through the MIGRATE CHAIN with tag empty and stays version 1",
+      "result": "fail: ExUnit.AssertionError"
+    },
+    {
+      "use_case": "exp0005-N7b",
+      "test": "test N7b a submit under v2 writes a version 2 row and the list shows v1 and v2",
+      "result": "fail: ExUnit.AssertionError"
+    },
+    {
+      "use_case": "exp0005-N8",
+      "test": "test N8 a stricter Amount blocks the build against the live row and prints no stored value",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N8",
+      "test": "test N8 control: the same live row builds under orders.beaml",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N8b",
+      "test": "test N8b the stricter build passes after the row is deleted by SQL",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N8c",
+      "test": "test N8c the snapshot holds exactly the live row ids of this instant",
+      "result": "fail: FunctionClauseError"
+    },
+    {
+      "use_case": "exp0005-N9",
+      "test": "test N9 quarantine amount frees the stricter build and the list omits order-zero",
+      "result": "blocked: fate slice (D036)"
+    }
+  ],
+  "acceptance": [
+    "exp0005-N1: fail: Mix.NoTaskError",
+    "exp0005-N10: fail: Mix.NoTaskError",
+    "exp0005-N11: fail: ExUnit.AssertionError",
+    "exp0005-N12: fail: FunctionClauseError",
+    "exp0005-N2: fail: FunctionClauseError",
+    "exp0005-N2c: fail: FunctionClauseError",
+    "exp0005-N3: fail: FunctionClauseError",
+    "exp0005-N4: fail: FunctionClauseError",
+    "exp0005-N4: fail: FunctionClauseError",
+    "exp0005-N5: fail: FunctionClauseError",
+    "exp0005-N6: fail: FunctionClauseError",
+    "exp0005-N7: fail: FunctionClauseError",
+    "exp0005-N7: fail: ExUnit.AssertionError",
+    "exp0005-N7b: fail: ExUnit.AssertionError",
+    "exp0005-N8: fail: FunctionClauseError",
+    "exp0005-N8: fail: FunctionClauseError",
+    "exp0005-N8b: fail: FunctionClauseError",
+    "exp0005-N8c: fail: FunctionClauseError",
+    "stored-note_v2: no snapshot-meta (FileNotFoundError)"
+  ],
+  "use_case_counts": {
+    "fail": 18,
+    "pass": 1,
+    "blocked": 1
+  }
+}

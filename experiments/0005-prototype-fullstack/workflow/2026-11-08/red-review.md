@@ -101,3 +101,67 @@ By: Opus (RED review exp0005) for every line of this file. Not committed.
 → Markup and redirect form classed incidental. → By: Opus (RED review exp0005)
 → Compiler sha difference accepted as build-path effect. → By: Opus (RED review exp0005)
 → Own run kept as `results/20261108T001736866737Z/`. → By: Opus (RED review exp0005)
+
+## Re-check after RED repair (2026-11-08)
+
+**Verdict: PASS** (O1 closed for the BEAML read; O2, O3 closed; two medium notes, no block).
+Phase: one re-check round after the BLOCK, new evidence only. Fresh context, normal check.
+Inputs: [red-output.md "RED repair"](red-output.md), [red-plan.md](red-plan.md), `app/test/support/prototype.ex`, `app/test/prototype/*.exs`, `run.py`, run `results/20261108T002308453139Z/`.
+By: Opus (RED re-check exp0005) for every line of this section. Not committed.
+
+**Own run**
+→ **[Verified]** HEAD compiler from `git archive` in scratch, `cargo build -q`; `run.py db-up`, `run`, `db-down`.
+→ **[Verified]** Run [20261108T002633535758Z](../../results/20261108T002633535758Z/result.json): status `fail`, exit 1.
+→ **[Verified]** Use cases: 18 fail, N13 `pass`, N9 `blocked: fate slice (D036)`. Same error kinds as the RED run.
+→ **[Verified]** `acceptance`: the 18 failed pairs plus `stored-note_v2: no snapshot-meta (FileNotFoundError)`.
+→ **[Verified]** db-up `20261108T002632924001Z`, db-down `20261108T002640208707Z`: pass. `pg_ctl status`: no server running.
+
+**(1) O1: closed for the BEAML read**
+→ **[Verified]** SQL-only host (no `ui_orders/1`, `ui_notes/1`): no new ENTRY RECORD, so `through_beaml!` fails at `es != []`.
+⠀⠀↳ the `for db <- through_beaml!(...)` form calls the helper first
+→ **[Verified]** Helper: one ENTRY op, one db op per window; all `{3, "accepted"}`; unique 32-hex traces; trace multisets equal.
+⠀⠀↳ two mounts (dead, live) give two pairs; each pair checked
+→ **[Verified]** N5 asserts `orders.list` items `order-2`, `order-1`; N7 asserts `notes.list` value `tag ""`; N7b both items.
+→ **[Verified]** N7b submit: exactly one `ui.note` + `notes.save` pair.
+→ **Open (medium, R1):** host calls `ui_notes/1`, discards the value and renders `records` by SQL with a missing `tag` as `""`.
+⠀⠀↳ N7 and N7b still pass: SQL render and chain default give the same page
+⠀⠀↳ the record proves the BEAML read; the page use is not proven
+⠀⠀↳ smallest close: N13-style scan, no `Repo.` or `"records"` in `lib/proto_web`
+⠀⠀↳ not a block: the thesis read (v1 row under the v2 TYPE) now needs BEAML
+→ **Open (medium, R2):** N7b submit window allows only `ui.note`/`notes.save`.
+⠀⠀↳ a `handle_event` that re-lists by `ui_notes/1` gives a false RED
+⠀⠀↳ plan.md P4 host text does not forbid the re-list
+⠀⠀↳ GREEN either uses `push_navigate` (as `/orders/new`) or repairs the test with a ledger line
+
+**(2) O2: closed**
+→ **[Verified]** `run_all` returns false when `acceptance()` is non-empty.
+→ **[Verified]** Scratch self-check of `acceptance()` (import of `run.py`, synthetic cases):
+⠀⠀↳ full set: `[]`
+⠀⠀↳ skip of N5: `exp0005-N5: skip`
+⠀⠀↳ rename of N7b: missing + unexpected
+⠀⠀↳ wrong `use_case` tag: missing + unexpected
+⠀⠀↳ excluded (wrong `phase` tag, not run): missing
+⠀⠀↳ N9 `pass`: flagged
+→ **[Verified]** `row_count` 2 check and `"DEAD LINE"` substring; compiler text is `warning: DEAD LINE: …` (`main.rs`).
+→ **[Inference]** Two Order rows and no Note row give `row_count` 2, but then the DEAD LINE check fails. Closed.
+
+**(3) O3: closed**
+→ **[Verified]** N13 scans `config/**/*.exs` and `lib/**/*.{ex,exs,heex}`; matches `key: "`, `key = "`, `@…key… "`; prints file and line only.
+→ **[Verified]** N13 `pass` in the own run.
+→ Dropped (low): map form `"signing_salt" => "…"` and sigils not matched.
+
+**(4) Hidden Migrate decisions**
+→ **[Verified]** None found. The pairing rule extends the N3 contract (plan.md N3, one shared `trace_id`) to list reads.
+→ **[Verified]** red-plan line 61 states it. Test design inside the team: Repair, not owner-review.
+
+### Decisions
+
+**Repair**
+→ PASS statt BLOCK, weil a SQL-only host now fails N5, N7, N7b. → By: Opus (RED re-check exp0005)
+→ R1 noted statt blocking, weil the BEAML read is proven; only page use is open. → By: Opus (RED re-check exp0005)
+→ R2 noted statt blocking, weil it gives a false RED, never a false pass. → By: Opus (RED re-check exp0005)
+→ Pairing rule classed Repair statt Migrate, weil it extends the N3 trace contract. → By: Opus (RED re-check exp0005)
+
+**Undo**
+→ Own run kept as `results/20261108T002633535758Z/`. → By: Opus (RED re-check exp0005)
+→ `acceptance()` mutation check in scratch only, no repo file. → By: Opus (RED re-check exp0005)
