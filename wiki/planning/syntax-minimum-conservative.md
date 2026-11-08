@@ -138,7 +138,7 @@ type Customer { name: String, address: MaybeAddress }
 | ENTRY LINE (DL-128, DL-130) | yes | DL-130 already chose the `effect` line with `ui.event("...")` as transport; zero new spellings. |
 | FATE OPERATIONS (DL-125) | partly | `retire f keep N days` reuses three words; `redact f` could reuse `redacted`; `quarantine` and `map` are new words inside `migrate` only: +2, one over the ceiling of 39 after the count correction (38 + 2); rule 2 applies. |
 | EFFECT policies (DL-126 candidates) | yes | a `Policy` TYPE value as a second transport argument (rule 3); no word added. |
-| VERSION MARK | yes, built | DL-080 and DL-104 give one canonical form; nothing to add. |
+| VERSION MARK | yes, built | DL-080 and DL-104 give one canonical form; nothing to add. Update fates a4: `fmt` keeps the mark of a chain with a fate line (QA4-1 A, built default, D052). |
 | `with ... do ... else ... end` (DL-014) | no | the pipe carries the binding, nothing carries the `else` arms; it stays as decided and is already counted (4 words, `<-`). |
 | Option (D026) | yes, with cost | a declared `enum` per TYPE (`Some(T)`, `None`) uses DL-061 forms; a generic `Option` or a `T?` suffix needs a new form and waits for generics. |
 | Collections (D029) | list partly, map no | `List(Order)` as a TYPE and `List(a, b)` as a constructor call reuse the parenthesis shape of DL-092; a `[a, b]` literal is new; a map needs a pair form. |

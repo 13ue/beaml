@@ -8,7 +8,7 @@ updated: 2026-11-08
 
 # Fate operations of a MIGRATE STEP
 
-**[Requirement]** DL-125 (OWNER) gives a stored record its fate with a declarative FATE OPERATION in the MIGRATE STEP. This page is the concept. **[Verified]** Update 2026-11-08: the compiler parses and checks `quarantine` and `map` at build time (fates step a1, see [Built status](#built-status-fates-step-a1)); nothing runs at run time yet, and the tree-sitter grammar knows no FATE OPERATION. See the [decision log](../planning/decision-log.md) and [vertical integration](vertical-integration.md).
+**[Requirement]** DL-125 (OWNER) gives a stored record its fate with a declarative FATE OPERATION in the MIGRATE STEP. This page is the concept. **[Verified]** Update 2026-11-08: the compiler parses and checks `quarantine` and `map` at build time (fates step a1, see [Built status](#built-status-fates-step-a1)); nothing runs at run time yet. Since fates step a4 the tree-sitter grammar parses the fate lines and `fmt` lays them out. See the [decision log](../planning/decision-log.md) and [vertical integration](vertical-integration.md).
 
 ## 1. Problem: three interim blocks wait for a fate
 
@@ -33,7 +33,7 @@ updated: 2026-11-08
 | `retire f keep N days` | Records whose field `f` fails its rule leave the replay set after N days. | DL-055, DL-125 |
 | `map f "old" -> Variant(...)` | Maps a lost literal to a variant on purpose (a MAP OPERATION). | DL-122, DL-125 |
 
-**[Verified]** The current grammar knows only `rename`, `add` and `drop` in a MIGRATE STEP, and `retire <name> keep <n> days` at the top level ([grammar.js](../../integrations/zed-beaml/grammar.js), `migrate_declaration`, `retire_declaration`). A real fixture uses only these forms, for example [marks.beaml](../../experiments/0004-generated-replay/slice6/fmt/marks.beaml).
+**[Verified]** Superseded by fates step a4 (the grammar now parses the fate lines, see [Built status](#built-status-fates-step-a1)). Before a4 the grammar knew only `rename`, `add` and `drop` in a MIGRATE STEP, and `retire <name> keep <n> days` at the top level ([grammar.js](../../integrations/zed-beaml/grammar.js), `migrate_declaration`, `retire_declaration`). A real fixture uses only these forms, for example [marks.beaml](../../experiments/0004-generated-replay/slice6/fmt/marks.beaml).
 
 **[Proposal]** One example per operation. None of this is grammar yet. The spelling follows DL-125; the field and TYPE names are invented.
 
@@ -121,7 +121,13 @@ migrate Payment v5 -> v6 { map state "pending" -> Declined }
 - `quarantine <field>` lifts only the failed clauses that test that field (DL-172). QB-1 (either tested parameter lifts) and QB-2 (a catch-all is never lifted) are built defaults, open for the OWNER.
 - Several quarantine lines per constructor TYPE; two fate lines on one field stay an error.
 
-**[Requirement]** Not built: run-time skip, `map` in the decode and the REPLAY RUN reason (a2); a rename inside a constructor TYPE (a1b R4); DL-168 and the SQUASH block (a2); fmt and tree-sitter (a4). The section 2 examples stay [Proposal]; the open questions in section 5 stay open unless a decision closes them.
+**[Verified]** Step a4, GREEN `ebcd91e9`, TEST PASS `584f3803` ([0004 README](../../experiments/0004-generated-replay/README.md#fates-step-a4-fmt-and-tree-sitter-for-fate-lines-dl-148-dl-155)):
+
+- `fmt` keeps the TYPE VERSION MARK of a chain with a fate line, per chain (QA4-1 A); other chains follow DL-104 A.
+- `fmt` lays out a MIGRATE STEP body like a TYPE body (QA4-2), no column alignment (QA4-3). All three are built defaults, open for the OWNER ([D052](../planning/decisions-to-be-made.md#d052--fmt-layout-of-fate-chains-and-migrate-step-bodies-fates-a4)).
+- Tree-sitter parses `enum E vN` and the seven fate-line forms; `quarantine`, `map`, `redact` highlight as keywords.
+
+**[Requirement]** Not built: run-time skip, `map` in the decode and the REPLAY RUN reason (a2); a rename inside a constructor TYPE (a1b R4); DL-168 and the SQUASH block (a2). The section 2 examples stay [Proposal]; the open questions in section 5 stay open unless a decision closes them.
 
 ## Page decisions
 

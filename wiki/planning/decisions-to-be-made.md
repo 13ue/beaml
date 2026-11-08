@@ -690,6 +690,23 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Verified]** BEAML today: 40 syntax items by the hub's unit, 6 top-level forms; the compiler and the grammar disagree on the comma between MIGRATE CHANGES ([hub section 6](syntax-minimum.md#6-what-both-pages-miss)). **[Unknown]** Token cost and error rate for agent-written code under each set; no measurement exists.
 
+## D052 — fmt layout of fate chains and MIGRATE STEP bodies (fates a4)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** LANGUAGE/COMPILATION, `beaml fmt` layout (DL-139: layout is OWNER territory)
+- **Decision trigger** OWNER review of the fates a4 cards; before the next `fmt` rule change.
+- **Next check** When the OWNER answers QA4-1, QA4-2 or QA4-3.
+
+**[Proposal]** Three questions from the [fates a4 plan](../../experiments/0004-generated-replay/workflow/2026-11-08/fates-a4/plan.md#layout-rules-a4-builds-and-the-owner-questions-they-raise):
+
+- QA4-1: does `fmt` keep `type Amount v2` when a fate line implies it? A keep on a fate chain (built default, overrides DL-104 A as written); B never remove a mark; C DL-104 A as before.
+- QA4-2: MIGRATE STEP body layout. Built default: the DL-148 TYPE body rule (zero or one change on one line, more one per line).
+- QA4-3: column alignment inside a MIGRATE STEP body. Built default: none.
+
+**[Verified]** Evidence: [fates a4 section](../../experiments/0004-generated-replay/README.md#fates-step-a4-fmt-and-tree-sitter-for-fate-lines-dl-148-dl-155), GREEN `ebcd91e9`, TEST PASS `584f3803`. Removing the mark does not change the build (plan facts). B moves one byte-guard row; C changes three fates fixtures on `fmt`.
+
 ## D034 — Keep the name BEAML next to BAML, or change it
 
 - **Status** OPEN

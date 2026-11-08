@@ -59,6 +59,7 @@ updated: 2026-11-08
 - `migrate Payment v1 -> v2 { rename status -> state, add f: T = c, drop g: T }` holds the history. `add` needs a constant; `drop` names the TYPE.
 - `retire <operation> keep <n> days` releases a deleted EFFECT with stored records (DL-055, DL-057).
 - `beaml fmt` writes the default mark form (DL-081, not built).
+- **[Verified]** Update fates a4: `fmt` drops an implied TYPE VERSION MARK (DL-104 A) except on a chain with a fate line, which keeps it (QA4-1 A, built default, [D052](../planning/decisions-to-be-made.md#d052--fmt-layout-of-fate-chains-and-migrate-step-bodies-fates-a4)).
 
 **[Unknown]** Whether the compiler proposes the rename alias as a fix.
 

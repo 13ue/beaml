@@ -2392,6 +2392,7 @@ effect orders.save Order                           -> Order  ! StoreError = db.p
 - **[Verified]** The slice 2 to 5 templates and snapshots, the layout cases (`slice4/Q4-oneline`, the CRLF cases) and 82 other tracked sources stay unformatted on purpose (P1). They change on their first `fmt`; only offset and line-number pins move.
 - **[Verified]** Columns count bytes: a non-ASCII argument shifts its row on screen (review O2, D038). No tracked source is affected today.
 - **[Verified]** One long name cell widens the whole block (review O3). The maximum line length is open (D038).
+- **[Verified]** Update fates a4: MIGRATE STEP bodies follow the TYPE body rule, and a fate chain keeps its TYPE VERSION MARK ([fates step a4](#fates-step-a4-fmt-and-tree-sitter-for-fate-lines-dl-148-dl-155)).
 - **[Verified]** `fmt` exits 1 on a source that the checker rejects and writes nothing; it is still no full validity check (D6B-191).
 
 ### Decisions (Decision4, DOCS fmt layout)
@@ -2528,7 +2529,7 @@ migrate Channel v1 -> v2 { map "app" -> Mobile }
 - **[Verified]** Run time: the generated decode ignores FATE OPERATIONS; no skip, no `map`, no REPLAY RUN reason (fates-a2, DL-157).
 - **[Requirement]** DL-166 (`rename` onto an enum or constructor field) and DL-172 (a quarantine lifts only the rule of the field it names): step a1b. Update: built, see [fates step a1b](#fates-step-a1b-rename-onto-enum-and-constructor-fields-quarantine-per-field-dl-166-dl-172).
 - **[Requirement]** DL-168 nested TYPE VERSIONS in the row and the SQUASH block of the ENUM-V1-DECL ruling (GF-11): fates-a2.
-- **[Verified]** `beaml fmt` removes `type T v2` on a chain from v1 (GF-12); the tree-sitter grammar knows no FATE OPERATION: step a4.
+- **[Verified]** `beaml fmt` removes `type T v2` on a chain from v1 (GF-12); the tree-sitter grammar knows no FATE OPERATION: step a4. Update: built, see [fates step a4](#fates-step-a4-fmt-and-tree-sitter-for-fate-lines-dl-148-dl-155).
 - **[Inference]** GF-02: the swap check compares with the table of the version before the newest only.
 
 ### Tested flow and results
@@ -2668,3 +2669,59 @@ error: TYPE Order: 1 stored ROW of table records has a wrong digest: value_sha25
 | --- | --- | --- | --- |
 | One new section at the end; the record v3 count-line text kept with a removed mark | Undo | The v3 section is a step record | Opus (P2b, docs) |
 | No new glossary term | Undo | ROW, RESPONSE RECORD, ENTRY RECORD exist | Opus (P2b, docs) |
+
+## Fates step a4: fmt and tree-sitter for fate lines (DL-148, DL-155)
+
+**[Requirement]** Parent plan step a4 (PF-19, QF-7): `beaml fmt` and the tree-sitter grammar learn VERSION MARKS of a fate chain, MIGRATE STEP bodies and the fate lines. Ledger: [plan.md](workflow/2026-11-08/fates-a4/plan.md), [plan review](workflow/2026-11-08/fates-a4/plan-review.md), [RED plan](workflow/2026-11-08/fates-a4/red-plan.md), [RED output](workflow/2026-11-08/fates-a4/red-output.md), [RED review](workflow/2026-11-08/fates-a4/red-review.md), [GREEN](workflow/2026-11-08/fates-a4/green-output.md), [TEST](workflow/2026-11-08/fates-a4/test-a4.md). GREEN `ebcd91e9`, TEST PASS `584f3803` (sub-run dirs `b126df35`). Tests: [`tests/slice6_fmt_test.py`](tests/slice6_fmt_test.py) (T1 to T6, T2c, G3), corpus [`fates.txt`](../../integrations/zed-beaml/test/corpus/fates.txt), highlight [`fates.beaml`](../../integrations/zed-beaml/test/highlight/fates.beaml), 0005 N17.
+
+| Step | Owner |
+|---|---|
+| Keep or drop the TYPE VERSION MARK, lay out MIGRATE STEP bodies | BEAML (COMPILER, `fmt`) |
+| Parse and colour fate lines and ENUM marks | BEAML (tree-sitter grammar, `beaml.wasm`) |
+| Load the grammar, show the colours | host (Zed, `preview.py`) |
+
+### Supported subset (built)
+
+- **[Verified]** Mark rule, per chain (QA4-1 A, built default): `fmt` keeps the TYPE VERSION MARK when a step of its MIGRATE CHAIN holds a fate line. Every other chain from v1 still loses its implied mark (DL-104 A). Probe: one file with `Order v3` (fate chain) and `Plain v2` (plain chain): `Order v3` stays, `Plain` loses its mark (T2c).
+- **[Verified]** MIGRATE STEP body (QA4-2 default, the DL-148 TYPE body rule): zero or one change on one line, two or more one per line, two spaces in, the comma directly after its change, `}` alone. A body with a comment stays as written.
+- **[Verified]** No column alignment inside a MIGRATE STEP body (QA4-3 default).
+- **[Verified]** The seven `slice6/db/fates/` fixtures are `fmt` fixed points; a second `fmt` prints nothing on 90 formatted sources.
+- **[Verified]** Tree-sitter: `enum E vN` and the seven fate-line forms (`quarantine f`, `quarantine "l"`, `quarantine f "l"`, `map "l" -> C`, `map f "l" -> C`, `redact f`, `retire f keep N days`) parse without ERROR. `quarantine`, `map`, `redact` are keywords only in a fate line: `fn map`, a field `map:` and `rename map -> route` keep `function` or `property`. `beaml.wasm` rebuilt.
+- **[Verified]** 0005 N17: every `app/beaml` source and variant is a `fmt` fixed point (copies only).
+
+```beaml
+// fmt output: two changes go one per line; the fate chain keeps v3
+migrate Order v2 -> v3 {
+  map channel "app" -> Mobile,
+  quarantine channel "fax"
+}
+```
+
+### Exclusions (not built)
+
+- **[Verified]** No new fate semantics, no checker text, no `--stored` or record format change (a2a).
+- **[Verified]** The tree-sitter grammar stays lenient on commas between changes (R5); Zed itself is not checked (R6).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| RED on HEAD `d6ab59c9` (commit `ec1cfec2`), RED review GO `0ecf80c1` | 29 fmt subtests fail (T1, T2, T3, T4, T6, G3; T5 guard passes); 6 corpus entries parse to ERROR ([RED output](workflow/2026-11-08/fates-a4/red-output.md)) |
+| TEST full `run.py`, [`results/20261108T151410308144Z`](results/20261108T151410308144Z/result.json) | 39 of 40 steps; only `slice6-fates` fails: 39 `FatesA2a` failures, the open a2a RED (DL-173) |
+| 0005 `run`, [`20261108T153120241618Z`](../0005-prototype-fullstack/results/20261108T153120241618Z/result.json) | status fail on N16 only (DL-173); N17 pass; 24 pass, 1 fail, 1 blocked (N9) |
+| `tree-sitter test --rebuild` and `--wasm --rebuild` | 31 of 31 parses, 5 highlight files pass |
+| Pins | no byte or hash pin moved |
+
+### Limits
+
+- **[Verified]** QA4-1, QA4-2 and QA4-3 are built defaults, open for the OWNER ([D052](../../wiki/planning/decisions-to-be-made.md#d052--fmt-layout-of-fate-chains-and-migrate-step-bodies-fates-a4)). QA4-1 A overrides DL-104 A as written.
+- **[Verified]** TEST medium: the MIGRATE body rule also expands slice 4/5 bodies with two changes on one line. No test runs `fmt` on them. Smallest test: `fmt` on `slice5/Q4/orders.beaml` expects one change per line.
+- **[Verified]** A passed step does not establish production readiness.
+
+### Decisions (Decision4, DOCS fates a4)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| One new section at the end; the a1 fmt exclusion line marked as superseded | Undo | The a1 section is a step record | Opus (fates-a4, docs) |
+| QA4-1 to QA4-3 as one open entry D052 | Undo | One OWNER card, three questions | Opus (fates-a4, docs) |
+| No new glossary term | Undo | VERSION MARK, MIGRATE STEP, FATE OPERATION exist | Opus (fates-a4, docs) |

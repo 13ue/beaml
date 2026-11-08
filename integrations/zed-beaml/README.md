@@ -10,6 +10,8 @@ The grammar also covers the forms of the decision log (`wiki/planning/decision-l
 - `enum` variants with and without a payload, for example `Unknown(String)` (DL-062).
 - `redacted` before a field TYPE (DL-059).
 - MIGRATE CHAIN steps `migrate T v1 -> v2 { ... }` with `rename`, `add` and `drop` (DL-022, DL-023, DL-072). A plain number gives an ERROR node (DL-074).
+- FATE OPERATIONS in a MIGRATE STEP: `quarantine f`, `quarantine "l"`, `quarantine f "l"`, `map "l" -> C`, `map f "l" -> C`, `redact f`, `retire f keep N days` (DL-125, DL-162, fates a4). `quarantine`, `map` and `redact` are keywords only there: `fn map` and a field `map:` keep their colours. Corpus [fates.txt](test/corpus/fates.txt).
+- ENUM VERSIONS `enum E v2 { ... }` (DL-155).
 - `retire op.name keep 30 days` (DL-055, DL-057).
 - ENUM LITERALS `Authorized = "ok"`: a variant has a payload or a String literal, never both (DL-082).
 - Constructor clauses and signature lines: `fn PaymentState "ok", _ -> PaymentState = Authorized`. A signature line is a clause without `= body` (DL-084, DL-085, DL-092).
