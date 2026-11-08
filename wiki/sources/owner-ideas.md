@@ -7,7 +7,7 @@ updated: 2026-11-08
 
 # OWNER ideas (spoken, captured)
 
-**Origin.** The OWNER of this repository, spoken in working sessions, dictated. **Status.** Highest source of truth for intent and direction (OWNER rule of 2026-11-08). **Limits.** Every capture is a paraphrase by the main agent, not a transcript; the OWNER's wording is not preserved; contradictions between captures are recorded, not resolved. **License.** Repository owner's own material.
+**Origin.** Supplied-file origin: the OWNER of this repository, spoken in working sessions with the main agent, dictated; no upstream URL. Author/publisher: OWNER. Access: the session of the capture date. **Status.** Highest source of truth for intent and direction (OWNER rule of 2026-11-08). **Limits.** Every capture is a paraphrase by the main agent, not a transcript; the OWNER's wording is not preserved; contradictions between captures are recorded, not resolved. **License.** Repository owner's own material.
 
 ## Captures
 
