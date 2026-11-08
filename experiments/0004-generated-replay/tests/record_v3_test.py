@@ -43,6 +43,7 @@ ORDERS = EXPERIMENT / "arms" / "gen" / "orders.beaml"
 CTOR = EXPERIMENT / "slice6" / "decode-ctor" / "orders.beaml"
 DECODE = EXPERIMENT / "slice6" / "decode" / "orders.beaml"
 REDACTED = EXPERIMENT / "slice6" / "redacted" / "orders.beaml"
+REDACTED_OUT = EXPERIMENT / "slice6" / "redacted" / "output_redacted.beaml"  # P2b R3: card_holder is redacted output
 N_CHAIN = EXPERIMENT / "slice2" / "N-chain" / "orders.beaml"
 EMPTY = ["--stored", str(EXPERIMENT / "stored" / "empty.jsonl")]
 ex = sr.ex
@@ -51,13 +52,13 @@ ex = sr.ex
 CORE = sorted(["version", "trace_id", "span_id", "artifact_id", "operation", "attempt", "type", "value", "value_sha256",
                "redacted", "unknown_keys", "unknown_fields", "outcome", "reason"])
 HTTP = sorted(CORE + ["request", "status"])
-DIGEST_LINE = "digest not verified (P2b)"  # O3: stays until P2b (D035)
+DIGEST_LINE = "digest not verified (P2b)"  # O3: removed by P2b (DL-164, plan criterion 5); V15 pins its absence
 ENTRY_COUNT = "5 entries, 3 checked, 2 rejected at capture"  # the 6d line, unchanged
 
 
 def count_lines(total, checked, rejected):
-    """QV3-7 (O3 text): one form `N records`, no singular (RV3-16), then the P2b marker."""
-    return "%d records, %d checked, %d rejected at capture\n%s" % (total, checked, rejected, DIGEST_LINE)
+    """QV3-7 (O3 text): one form `N records`, no singular (RV3-16). P2b: no marker line after it."""
+    return "%d records, %d checked, %d rejected at capture" % (total, checked, rejected)
 
 
 def version_error(stream, version, source, line=1):
@@ -424,6 +425,48 @@ class RecordV3(unittest.TestCase):
             for relative in sources:
                 with self.subTest(fixture=name, source=relative):
                     self.assert_converted_stderr(name, relative)
+
+    # P2b (DL-164): a wrong digest in an accepted RESPONSE RECORD blocks; a rejected one is counted (plan Repairs).
+
+    def one_record(self, name, record):
+        return self.write("p2b/%s.jsonl" % name, json.dumps(record, separators=(",", ":")) + "\n")
+
+    def test_P2b_R3_wrong_digest_response_record_blocks(self):
+        good = json.loads((FIX / "stored-mixed.jsonl").read_text().splitlines()[0])  # accepted 200, CTOR passes
+        clear = json.loads((srd.FIX / "stored-unredacted.jsonl").read_text())
+        clear["type"] = dict(clear["type"], fields=srd.REDACTED_PAYMENT_FIELDS,
+                             fingerprint=srd.fingerprint(srd.REDACTED_PAYMENT_FIELDS))  # as R7: only D6B-72 is left
+        unheld = {k: v for k, v in clear["value"].items() if k != "card_holder"}
+        cases = {
+            # A valid changed value: HEAD builds it unchecked.
+            "valid": (CTOR, dict(good, value=dict(good["value"], amount={"value": "99.00", "currency": "EUR"}))),
+            # Review O2: the changed value also fails the constructor of Amount (currency "").
+            "constructor": (CTOR, dict(good, value=dict(good["value"], amount={"value": "99.00", "currency": ""}))),
+            # Review O2: the changed value holds the redacted field card_holder (D6B-72); old digest without it.
+            "held": (REDACTED_OUT, dict(clear, value_sha256=st.value_sha256(unheld, clear["unknown_keys"],
+                                                                             clear["redacted"]))),
+        }
+        for name, (source, record) in cases.items():
+            with self.subTest(name):
+                stored = self.one_record(name, record)
+                code, stdout, stderr = self.compile(source, ["--stored", str(stored)])
+                text = without_counts(stderr)
+                self.assertEqual((1, "", "\n".join(st.digest_error("Payment", 1, "RESPONSE RECORD",
+                                                                    "operation payments.authorize", stored, 1))),
+                                 (code, stdout[:0] if stdout == "" else "<Elixir on stdout>", text), stderr)
+                self.assertEqual([], [w for w in STORED_WORDS + ("99.00",) if w in text.replace(str(stored), "")])
+
+    def test_P2b_G1_rejected_response_record_is_not_verified(self):
+        # Guard (built default O1, Repairs O3: records keep "checked items only"): a rejected http record with a
+        # wrong digest is counted, not verified.
+        rejected = json.loads((FIX / "stored-mixed.jsonl").read_text().splitlines()[1])  # 503 rejected
+        self.assertEqual("rejected", rejected["outcome"], "setup: line 2 of stored-mixed.jsonl")
+        stored = self.one_record("rejected", dict(rejected, value_sha256=st.value_sha256({"order_id": "order-x"})))
+        code, stdout, stderr = self.compile(CTOR, ["--stored", str(stored)])
+        # The marker line is left to V14 (count lines RED); this guard pins exit 0, the count and no error.
+        self.assertEqual((0, True, count_lines(1, 0, 1), False),
+                         (code, "defmodule BeamlSpike do" in stdout, stderr.strip().splitlines()[0], "error" in stderr),
+                         stderr)
 
     def test_V15_no_count_lines_when_nothing_is_rejected(self):
         stderr = self.assert_converted_stderr("stored/v1.jsonl", "arms/gen/orders.beaml")

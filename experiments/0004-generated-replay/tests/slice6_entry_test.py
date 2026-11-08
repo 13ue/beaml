@@ -469,6 +469,51 @@ class Slice6Entry(unittest.TestCase):
                 self.assertEqual((1, True, []), (code, "stored ENTRY RECORD" in stderr,
                                                  [w for w in STORED_WORDS if w in stderr]), stderr)
 
+    # P2b (DL-164): a wrong digest in an accepted ENTRY RECORD blocks; rejected and retired ones are counted.
+
+    def entries_dir(self, name, lines):
+        """A --stored directory: an empty responses.jsonl and entries.jsonl with these records."""
+        holder = self.work / "p2b" / name
+        holder.mkdir(parents=True)
+        (holder / "responses.jsonl").write_text("")
+        (holder / "entries.jsonl").write_text("".join(json.dumps(r, separators=(",", ":")) + "\n" for r in lines))
+        return holder
+
+    def test_P2b_R4_wrong_digest_entry_record_blocks(self):
+        good = json.loads(ENTRIES.read_text().splitlines()[0])  # accepted, channel web, Amount passes
+        cases = {
+            # A valid changed value: HEAD builds it unchecked.
+            "valid": dict(good["value"], amount={"value": "99.00", "currency": "EUR"}),
+            # Review O2: the changed value also fails the constructor of Amount and holds no ENUM LITERAL of Channel.
+            "value_faults": dict(good["value"], amount={"value": "99.00", "currency": ""}, channel="lost-p2b-literal"),
+        }
+        for name, value in cases.items():
+            with self.subTest(name):
+                holder = self.entries_dir(name, [dict(good, value=value)])
+                code, stdout, stderr = self.compile(ORDERS, ["--stored", str(holder / "responses.jsonl")])
+                text = "\n".join(l for l in stderr.strip().splitlines() if not re.match(r"\d+ entries, ", l))
+                self.assertEqual((1, "", "\n".join(st.digest_error("PlaceOrder", 1, "ENTRY RECORD", "operation ui.place",
+                                                                    holder / "entries.jsonl", 1))),
+                                 (code, stdout[:0] if stdout == "" else "<Elixir on stdout>", text), stderr)
+                self.assertEqual([], [w for w in STORED_WORDS + ("99.00", "lost-p2b-literal")
+                                      if w in text.replace(str(holder), "")])
+
+    def test_P2b_G1_rejected_and_retired_entry_records_are_not_verified(self):
+        # Guard (built default O1, Repairs O3: records keep "checked items only").
+        lines = [json.loads(l) for l in ENTRIES.read_text().splitlines()]
+        wrong = st.value_sha256({"order_id": "order-x"})
+        rejected = lines[:3] + [dict(lines[3], value_sha256=wrong), dict(lines[4], value_sha256=wrong)]
+        retired = [dict(lines[0], value_sha256=wrong)] + lines[1:]
+        self.assertEqual(["rejected", "rejected"], [r["outcome"] for r in lines[3:]], "setup: lines 4 and 5")
+        for name, source, records, check in (
+                ("rejected", ORDERS, rejected, lambda stdout, stderr: stderr.strip() == COUNT_LINE),
+                ("retired", ORDERS.read_text().replace(ENTRY_LINE, RETIRE_ENTRY), retired,
+                 lambda stdout, stderr: "error" not in stderr)):
+            with self.subTest(name):
+                holder = self.entries_dir(name, records)
+                code, stdout, stderr = self.compile(source, ["--stored", str(holder / "responses.jsonl")])
+                self.assertEqual((0, True), (code, check(stdout, stderr)), stderr)
+
     # O3 (DL-138, R6D-15): a removed ENTRY LINE with stored ENTRY RECORDS behaves as a removed EFFECT (slice 4 E01, E02).
 
     def test_s5_removed_entry_line_with_stored_entries_blocks(self):

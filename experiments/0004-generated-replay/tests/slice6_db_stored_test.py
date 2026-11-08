@@ -6,8 +6,9 @@ repair 2": N17 to N27, N20b; decisions.md PDB-21 to PDB-36, QDB-7 A, QDB-8 B; re
 rows.jsonl stands beside the --stored file. Each line is a ROW CORE (the v3 core of DL-143) plus `source: "db"` and
 `row_id` (PDB-21). snapshot-meta.json (P5-19) holds table, database, query_time, row_count and the sorted row_ids; the
 compiler reads row_count only (PDB-22). Row read order: TYPE name, digest, TYPE VERSION, MIGRATE CHAIN, DL-101 tail.
-A row of no ROW TYPE, a bad digest or an outcome other than `accepted` is counted as not decodable (DL-136, DL-137,
-PDB-26, QV3-8 B). An off-chain TYPE VERSION blocks with the path text (N20, N20b).
+A row of no ROW TYPE or an outcome other than `accepted` is counted as not decodable (DL-136, DL-137, PDB-26,
+QV3-8 B). P2b (DL-164): a row of a read TYPE whose digest does not hold blocks, whatever its outcome (built default,
+plan Repairs O3); a row of a TYPE with no reader stays counted. An off-chain TYPE VERSION blocks with the path text (N20, N20b).
 Expected texts come from the plan and the built RESPONSE RECORD texts with `stored ROW` for `stored RESPONSE RECORD`
 and `of table records` for `of operation <op>`. Rows are built here with the digest and fingerprint code of
 slice6_db_test (stored_types_test), never by the compiler. Row files live in a temp directory per test.
@@ -44,6 +45,12 @@ APP = {"order_id": "order-app", "amount": EUR, "channel": "app"}
 PLAIN_ROW, V3_ROW = sd.PLAIN_ROW, sd.V3_ROW
 OFF_CHAIN = "0" * 64
 ROW_IDS = itertools.count(7001)
+# P2b: a stored value changed by hand; its old digest is the digest of WIRE2. "99.00" is the value marker (DL-124).
+TAMPERED = dict(WIRE2, amount={"value": "99.00", "currency": "EUR"})
+# P2b plan Repairs O1: a String with a vertical tab and an ESC. The digest comes from the generated `digest/3` of the
+# HEAD 0b460f9d compiler (slice6/db/orders.beaml), run by elixir over `:json.decode` of the row value; red-plan.md.
+CONTROL = dict(WIRE1, order_id="order-\x0b-\x1b-p2b")
+ERLANG_DIGEST = "8dd130c3c0a2788a83e23924065d2d87de1930180e977c1f0d6ddec9cecf151a"
 
 UNKNOWN_STORE = ("error: stored ROWS unknown: a source with db.get or db.list needs rows.jsonl beside --stored "
                  "(an unknown store is not an empty store)")
@@ -232,12 +239,51 @@ class Slice6DbStored(unittest.TestCase):
     def test_N20b_control_note_row_off_its_chain_blocks(self):
         self.assert_path_block(TWO_ROWS, "Note", rows=[self.note("off-chain", retyped(NOTE_V1, fingerprint=OFF_CHAIN))])
 
-    # N21 (DL-136, DL-137): a bad digest and a TYPE with no reader are counted, not checked.
+    # N21 (DL-136, DL-137): a TYPE with no reader is counted, not checked (P2b: the bad digest case moved to R1).
 
     def test_N21_not_decodable_rows_are_counted(self):
-        bad_digest = row(WIRE2, value_sha256=st.value_sha256(WIRE1))
         invoice = row({"invoice_id": "invoice-1"}, INVOICE)
-        self.assert_built(ORDERS, [counted(3, 1, 2)], rows=[row(WIRE1), bad_digest, invoice])
+        self.assert_built(ORDERS, [counted(2, 1, 1)], rows=[row(WIRE1), invoice])
+
+    # P2b (DL-164): a wrong digest in a row of a read TYPE blocks the build (plan section 3, Repairs O1 to O3).
+
+    def assert_digest_block(self, rows, line, source=ORDERS):
+        """Exit 1, no stdout, exactly the digest error (no path, value or orphan text), no stored value or id."""
+        code, stdout, got, rows_path, _ = self.blocked(source, rows=rows)
+        text = "\n".join(got)
+        self.assertEqual((1, True, st.digest_error("Order", 1, "ROW", "table records", rows_path, line)),
+                         (code, stdout == "", got), text)
+        self.assertEqual([], [w for w in sorted(self.words) if w in text.replace(str(rows_path), "")], text)
+
+    def test_P2b_R1_wrong_digest_row_blocks(self):
+        self.assert_digest_block([row(WIRE1), row(TAMPERED, value_sha256=st.value_sha256(WIRE2))], 2)
+
+    def test_P2b_R2_digest_before_type_version(self):
+        # PDB-15 read order: a bad digest with an off-chain fingerprint gets the digest error, not `cannot read`.
+        self.assert_digest_block([row(TAMPERED, retyped(sd.ORDER_TYPE, fingerprint=OFF_CHAIN),
+                                      value_sha256=st.value_sha256(WIRE2))], 1)
+
+    def test_P2b_R2b_digest_before_the_value_checks(self):
+        # Review O2 for rows: a changed value that also fails the stricter constructor gets the digest error only.
+        self.assert_digest_block([row(ZERO, value_sha256=st.value_sha256(WIRE2))], 1, STRICTER)
+
+    def test_P2b_R6_rejected_row_of_a_read_type_blocks(self):
+        # Plan Repairs O3 (built default, OWNER question): `row_<type>/1` ignores `outcome`, so db.list reads this row
+        # and fails at run time on its digest; the build blocks instead.
+        self.assert_digest_block([row(TAMPERED, outcome="rejected", reason="decode",
+                                      value_sha256=st.value_sha256(WIRE2))], 1)
+
+    def test_P2b_R5_erlang_digest_with_control_characters_builds(self):
+        # Plan Repairs O1: a genuine row whose String holds a vertical tab and an ESC is checked, not blocked or
+        # skipped. The helper guard pins that `st.value_sha256` writes the emitter form (upper-case \u hex).
+        self.assertEqual(ERLANG_DIGEST, st.value_sha256(CONTROL), "helper: st.value_sha256 is not the emitter form")
+        self.assert_built(ORDERS, [counted(1, 1, 0)], rows=[row(CONTROL, value_sha256=ERLANG_DIGEST)])
+
+    def test_P2b_G1_no_reader_row_is_not_verified(self):
+        # Guard (built default O1 with Repairs O3): a row of a TYPE with no reader is not read at run time; it is
+        # counted, not verified, also with a wrong digest.
+        invoice = row({"invoice_id": "invoice-1"}, INVOICE, value_sha256=st.value_sha256({"invoice_id": "invoice-2"}))
+        self.assert_built(ORDERS, [counted(2, 1, 1)], rows=[row(WIRE1), invoice])
 
     def test_N21b_rows_not_accepted_are_counted_QV3_8_B(self):
         # PDB-26: a row with an outcome other than "accepted" is counted, not checked, also off its chain (QV3-8 B).
@@ -250,10 +296,7 @@ class Slice6DbStored(unittest.TestCase):
 
     # Read order (PDB-15): TYPE name, digest, TYPE VERSION, MIGRATE CHAIN, DL-101 tail.
 
-    def test_N29_read_order_digest_before_type_version(self):
-        # A bad digest with an off-chain fingerprint is counted; a reader that path-checks first blocks.
-        bad = row(WIRE1, retyped(sd.ORDER_TYPE, fingerprint=OFF_CHAIN), value_sha256=st.value_sha256(WIRE2))
-        self.assert_built(ORDERS, [counted(1, 0, 1)], rows=[bad])
+    # N29 digest case: replaced by test_P2b_R2_digest_before_type_version (a bad digest blocks since P2b).
 
     def test_N29_read_order_type_name_before_type_version(self):
         self.assert_built(ORDERS, [counted(1, 0, 1)], rows=[row({"invoice_id": "invoice-7"}, retyped(INVOICE, version=7))])
@@ -348,10 +391,10 @@ class Slice6DbStored(unittest.TestCase):
         # QV3-8 B and the P2 count lines (QV3-7 A: printed when M > 0), beside the rows count line.
         rec = db_record("orders.list", None, sd.LIST_TYPE, {}, outcome="rejected", reason="transport")
         code, stdout, got, _, _ = self.run_stored(STRICTER, rows=[], responses=[rec])
-        p2 = ["1 records, 0 checked, 1 rejected at capture", "digest not verified (P2b)"]
-        self.assertEqual((0, True, sorted(p2 + [counted(0, 0, 0)]), True),
-                         (code, "defmodule Orders do" in stdout, sorted(got),
-                          any(got[i:i + 2] == p2 for i in range(len(got)))), "\n".join(got))
+        # P2b: the line `digest not verified (P2b)` is gone (plan criterion 5).
+        p2 = "1 records, 0 checked, 1 rejected at capture"
+        self.assertEqual((0, True, sorted([p2, counted(0, 0, 0)])),
+                         (code, "defmodule Orders do" in stdout, sorted(got)), "\n".join(got))
 
     # N26 (DL-124): no message holds a stored String, a row id or a trace id.
 

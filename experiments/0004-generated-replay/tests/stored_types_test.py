@@ -17,6 +17,7 @@ import json
 import os
 from pathlib import Path
 import random
+import re
 import shutil
 import string
 import subprocess
@@ -61,10 +62,29 @@ BODY_KEYS = ("body_base64", "body_length", "body_sha256")
 
 
 def value_sha256(value, unknown_keys=(), redacted=()):
-    """D6B-58: lower-case hex SHA-256 of the canonical JSON of the RESPONSE RECORD projection (version 2)."""
+    """D6B-58: lower-case hex SHA-256 of the canonical JSON of the RESPONSE RECORD projection (version 2).
+
+    P2b (plan-review O1): the text is the one the generated `digest/3` hashes. Erlang `:json` writes a control
+    character without a short form as `\\u00XX` with upper-case hex (`\\u000B`); Python writes lower case. An odd
+    run of backslashes before `u` is an escape; an even run is an escaped backslash followed by a plain `u`."""
     projection = {"redacted": sorted(redacted), "unknown_keys": sorted(unknown_keys), "value": value}
     text = json.dumps(projection, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    text = re.sub(r"(\\+)u([0-9a-f]{4})",
+                  lambda m: m.group(1) + "u" + m.group(2).upper() if len(m.group(1)) % 2 else m.group(0), text)
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+def digest_error(type_name, count, noun, place, source, line):
+    """P2b (DL-164, plan section 4): the block of a stored item whose `value_sha256` does not hold, as lines.
+
+    `noun` is ROW, RESPONSE RECORD or ENTRY RECORD; `place` is `table records` or `operation <op>`. The help names
+    the noun of the stream (the plan drafts the ROW form; RED P2b extends it, By: Opus). Never a value or an id."""
+    return ["error: TYPE %s: %d stored %s%s of %s %s a wrong digest: value_sha256 does not match value, unknown_keys "
+            "and redacted (DL-164)" % (type_name, count, noun, "" if count == 1 else "S", place,
+                                       "has" if count == 1 else "have"),
+            "  record source: %s:%d (line %d)" % (source, line, line),
+            "  help: the stored value changed without a new digest (a hand edit or corruption); restore or delete the "
+            "%s, then build again" % noun]
 
 
 def with_value(record, value, unknown_keys=(), redacted=()):

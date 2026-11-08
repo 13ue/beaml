@@ -142,3 +142,24 @@ error: TYPE Order: 1 stored ROW of table records has a wrong digest: value_sha25
 
 **Migrate (OWNER chooses; defaults built)**
 → O1, O2, O3 above. By: Opus (PLAN P2b), defaults only.
+
+## Repairs (after the plan check, GO with repairs)
+
+Main-agent rulings on [plan-review.md](plan-review.md). By: Fable (main agent, PLAN CHECK rulings). Written into the
+plan by the RED worker (Opus, RED P2b).
+
+→ **Review O1 (high) accepted.** The checker canonical JSON must equal the text the generated Elixir `digest/3`
+  hashes. Erlang `:json` writes a control character without a short form as `\u00XX` with upper-case hex
+  (`\u000B`, `\u001B`). GREEN writes `\\u{:04X}` in Rust `canonical`. The Python helper
+  `stored_types_test.value_sha256` writes the same form (changed in RED, test code). One RED takes its expected digest
+  from a real Erlang/Elixir emit of a value with a vertical tab and an ESC.
+  ⠀⠀↳ Fixture scan (RED P2b): no checked-in record or row outside `results/` holds a control character
+  (396 JSONL lines with `value_sha256` scanned), and no test source writes one. **No pin moves.**
+→ **Review O2 accepted.** R3 and R4 also change the value so that a value check fails (R3: a constructor reject and
+  a held REDACTED field; R4: a constructor reject and a lost ENUM LITERAL). The tests assert that only the digest
+  error shows. Rows get the same case (R2b, STRICTER).
+→ **Review O3: built default widens O1.** The build checks the digest of every ROW of a TYPE that is read (has a
+  `db.get` or `db.list` reader), whatever its `outcome`, because such a row breaks `db.list` at run time. RESPONSE
+  RECORDS and ENTRY RECORDS keep "checked items only". G1 changes accordingly: it pins no-reader rows, rejected
+  RESPONSE RECORDS, rejected and retired ENTRY RECORDS. This stays an OWNER question (card later).
+  ⠀⠀↳ Section 2 criterion 4 and section 9 O1 read with this change.
