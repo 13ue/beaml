@@ -1016,7 +1016,8 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue (2026-11-08, decision site QM4-1 = A, chat for QM4-4)
 → Because: a rename changes no value; the fate forms are needed only for steps that change a value's meaning or drop it.
 → QM4-3 (2026-11-08, OWNER): A, keep the old DL-122 help now; fates-a1 replaces it with the DL-155 wording where a fate line lifts the block. Not done twice.
-→ Effect: fates-a1 GREEN lifts the rename error (the `renamed_onto` check keeps firing for a step that is not a rename, e.g. a `drop`/`add` with a non-String default on such a field, and keeps the QM4-1 A text); RED: a v1 row with `channel: "web"` decodes to v2 `source: Web` after `rename channel -> source`; the four pinned texts move accordingly; `slice6_m4_test` R2/R3 flip from "error" to "builds". QM4-2 and QM4-3 stay built defaults.
+→ Note (Fable, Repair, 2026-11-08): built as step a1b after fates-a1, not inside a1 (its full run was already in progress). The QM4-1 A text retires with it: `drop`/`add` on such a field are rejected earlier by the String-only texts (K4/K6), so no step keeps the text; `renamed_onto` is deleted.
+→ Effect: step a1b lifts the rename error (the `renamed_onto` check keeps firing for a step that is not a rename, e.g. a `drop`/`add` with a non-String default on such a field, and keeps the QM4-1 A text); RED: a v1 row with `channel: "web"` decodes to v2 `source: Web` after `rename channel -> source`; the four pinned texts move accordingly; `slice6_m4_test` R2/R3 flip from "error" to "builds". QM4-2 and QM4-3 stay built defaults.
 
 **DL-167 · Repair · Eight walk-through cards closed as superseded by later decisions**
 → Question: the OWNER asked for the cards that only ask whether to change something that a later decision already changes or removes ("sinnloser Kram").
