@@ -1,0 +1,116 @@
+compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+..................FFFFF...................
+======================================================================
+FAIL: test_grammar_parses_fate_sources (__main__.Slice6Fmt.test_grammar_parses_fate_sources) [experiments/0004-generated-replay/slice6/db/fates/amount_v2/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 515, in test_grammar_parses_fate_sources
+    self.assertEqual((0, False), (run.returncode, "ERROR" in run.stdout), run.stdout + run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, False) != (1, True)
+
+First differing element 0:
+0
+1
+
+- (0, False)
++ (1, True) : /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/db/fates/amount_v2/orders.beaml	Parse:    0.20 ms	 12007 bytes/ms	(ERROR [10, 26] - [10, 42])
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+
+
+======================================================================
+FAIL: test_grammar_parses_fate_sources (__main__.Slice6Fmt.test_grammar_parses_fate_sources) [experiments/0004-generated-replay/slice6/db/fates/channel_swap/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 515, in test_grammar_parses_fate_sources
+    self.assertEqual((0, False), (run.returncode, "ERROR" in run.stdout), run.stdout + run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, False) != (1, True)
+
+First differing element 0:
+0
+1
+
+- (0, False)
++ (1, True) : /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/db/fates/channel_swap/orders.beaml	Parse:    0.26 ms	  9449 bytes/ms	(ERROR [12, 13] - [12, 15])
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+
+
+======================================================================
+FAIL: test_grammar_parses_fate_sources (__main__.Slice6Fmt.test_grammar_parses_fate_sources) [experiments/0004-generated-replay/slice6/db/fates/channel_v2/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 515, in test_grammar_parses_fate_sources
+    self.assertEqual((0, False), (run.returncode, "ERROR" in run.stdout), run.stdout + run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, False) != (1, True)
+
+First differing element 0:
+0
+1
+
+- (0, False)
++ (1, True) : /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/db/fates/channel_v2/orders.beaml	Parse:    0.23 ms	 10515 bytes/ms	(ERROR [12, 13] - [12, 15])
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+
+
+======================================================================
+FAIL: test_grammar_parses_fate_sources (__main__.Slice6Fmt.test_grammar_parses_fate_sources) [experiments/0004-generated-replay/slice6/db/fates/order_map/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 515, in test_grammar_parses_fate_sources
+    self.assertEqual((0, False), (run.returncode, "ERROR" in run.stdout), run.stdout + run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, False) != (1, True)
+
+First differing element 0:
+0
+1
+
+- (0, False)
++ (1, True) : /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/db/fates/order_map/orders.beaml	Parse:    0.20 ms	 11702 bytes/ms	(ERROR [30, 25] - [30, 52])
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+
+
+======================================================================
+FAIL: test_grammar_parses_fate_sources (__main__.Slice6Fmt.test_grammar_parses_fate_sources) [experiments/0004-generated-replay/slice6/db/fates/two_ctor/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fmt_test.py", line 515, in test_grammar_parses_fate_sources
+    self.assertEqual((0, False), (run.returncode, "ERROR" in run.stdout), run.stdout + run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, False) != (1, True)
+
+First differing element 0:
+0
+1
+
+- (0, False)
++ (1, True) : /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/db/fates/two_ctor/orders.beaml	Parse:    0.20 ms	 13695 bytes/ms	(ERROR [10, 26] - [10, 42])
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+
+
+----------------------------------------------------------------------
+Ran 38 tests in 1.767s
+
+FAILED (failures=5)

@@ -1,0 +1,56 @@
+
+running 22 tests
+test tests::fmt_mark_follows_dl104 ... ok
+test tests::elixir_results_are_strict ... ok
+test tests::checks_calls_and_bindings ... ok
+test tests::checks_exact_construction_and_pattern_fields ... ok
+test tests::checks_coverage_and_clause_order ... ok
+test tests::module_name_from_stem ... ok
+test tests::effect_input_has_no_int_also_nested ... ok
+test tests::effect_reach_is_transitive ... ok
+test tests::interfaces_are_structural_and_exact ... ok
+test tests::rejects_wrong_return_type ... ok
+test tests::int_literals_and_patterns ... ok
+test tests::constructor_types_are_structs ... ok
+test tests::rejects_unsupported_or_recursive_types ... ok
+test tests::enum_literals_and_constructor ... ok
+test tests::coverage_handles_multiple_arguments_and_empty_shapes ... ok
+test tests::success_and_failure_types_never_overlap ... ok
+test tests::pipe_in_any_expression ... ok
+test tests::constructor_is_the_only_way_in ... ok
+test tests::accepts_nested_partial_patterns ... ok
+test tests::coverage_agrees_with_a_four_value_truth_table ... ok
+--- orders.beaml
++++ orders.beaml
+@@ -6 +5,0 @@
+-retire payments.authorize keep 30 days
+test tests::removal_writes_nothing_when_the_recheck_fails ... ok
+--- orders.beaml
++++ orders.beaml
+@@ -2,2 +2 @@
+-type Payment { order_id: String state: String }
+-migrate Payment v1 -> v2 { rename status -> state }
++type Payment v2 { order_id: String state: String }
+test tests::removal_writes_nothing_when_the_newest_version_changes ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 14 tests
+test orders_cli_rejects_pipe_type_mismatch ... ok
+test orders_cli_rejects_unknown_pipe_step ... ok
+test orders_cli_accepts_effect_pipe_place ... ok
+test orders_cli_emits_flow_effect_decode_and_replay ... ok
+test orders_cli_rejects_unsupported_effect_kind ... ok
+test orders_cli_rejects_field_not_in_type ... ok
+test orders_cli_effect_source_without_stored_is_rejected ... ok
+test orders_cli_rejects_undeclared_pipe_failure ... ok
+test payments_cli_output_stays_byte_identical ... ok
+test orders_cli_parse_and_type_errors_come_before_stored_check ... ok
+test orders_cli_template_control_drift_n_decode_follows_field_rename ... ok
+test payments_cli_emits_checked_authorize_reference ... ok
+test orders_cli_template_control_drift_r_decode_names_reference ... ok
+test invalid_source_emits_no_code_and_actions_do_not_capture_source ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+

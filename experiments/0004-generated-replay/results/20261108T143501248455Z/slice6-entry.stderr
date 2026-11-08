@@ -1,0 +1,30 @@
+test_P2b_G1_retired_entry_records_are_not_verified (__main__.Slice6Entry.test_P2b_G1_retired_entry_records_are_not_verified) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_P2b_R10_rejected_entry_records_wrong_digest_block (__main__.Slice6Entry.test_P2b_R10_rejected_entry_records_wrong_digest_block) ... ok
+test_P2b_R4_wrong_digest_entry_record_blocks (__main__.Slice6Entry.test_P2b_R4_wrong_digest_entry_record_blocks) ... ok
+test_h1_host_build_with_the_entry_has_no_warning (__main__.Slice6Entry.test_h1_host_build_with_the_entry_has_no_warning) ... ok
+test_h2_host_build_without_the_entry_warns (__main__.Slice6Entry.test_h2_host_build_without_the_entry_warns) ... ok
+test_n10_rejects (__main__.Slice6Entry.test_n10_rejects) ... ok
+test_n11_fmt_keeps_the_fixtures (__main__.Slice6Entry.test_n11_fmt_keeps_the_fixtures) ... ok
+test_n11b_fmt_normalizes_the_head_like_an_effect_line (__main__.Slice6Entry.test_n11b_fmt_normalizes_the_head_like_an_effect_line) ... ok
+test_n13_sources_without_an_entry_keep_their_bytes (__main__.Slice6Entry.test_n13_sources_without_an_entry_keep_their_bytes) ... compiler ce190054: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-ce190054-dsvrfynr/target/debug/beaml-spike
+ok
+test_n1_entry_line_gives_one_function (__main__.Slice6Entry.test_n1_entry_line_gives_one_function) ... ok
+test_n1b_event_name_is_free_text (__main__.Slice6Entry.test_n1b_event_name_is_free_text) ... ok
+test_n1c_two_entry_lines_to_one_flow_build (__main__.Slice6Entry.test_n1c_two_entry_lines_to_one_flow_build) ... ok
+test_n2_to_n5_echo_runtime (__main__.Slice6Entry.test_n2_to_n5_echo_runtime) ... ok
+test_n4_count_runtime (__main__.Slice6Entry.test_n4_count_runtime) ... ok
+test_n5_to_n9_orders_runtime (__main__.Slice6Entry.test_n5_to_n9_orders_runtime) ... ok
+test_o1_top_level_enum_and_constructor_and_nested_record_accept_a_good_event (__main__.Slice6Entry.test_o1_top_level_enum_and_constructor_and_nested_record_accept_a_good_event) ... ok
+test_s1_stored_entry_records_build (__main__.Slice6Entry.test_s1_stored_entry_records_build) ... ok
+test_s2_stricter_constructor_blocks (__main__.Slice6Entry.test_s2_stricter_constructor_blocks) ... ok
+test_s3_removed_literal_blocks (__main__.Slice6Entry.test_s3_removed_literal_blocks) ... ok
+test_s3b_changed_literal_blocks (__main__.Slice6Entry.test_s3b_changed_literal_blocks) ... ok
+test_s4_no_stored_value_in_output (__main__.Slice6Entry.test_s4_no_stored_value_in_output) ... ok
+test_s5_removed_entry_line_with_stored_entries_blocks (__main__.Slice6Entry.test_s5_removed_entry_line_with_stored_entries_blocks) ... ok
+test_s5b_retire_line_frees_the_removed_entry_line (__main__.Slice6Entry.test_s5b_retire_line_frees_the_removed_entry_line) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 8.964s
+
+OK

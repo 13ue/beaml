@@ -1,0 +1,10 @@
+{application,probe_support,
+             [{modules,['Elixir.ProbeSupport','Elixir.ProbeSupport.Capture',
+                        'Elixir.ProbeSupport.Exporter',
+                        'Elixir.ProbeSupport.LoggerHandler']},
+              {optional_applications,[]},
+              {applications,[kernel,stdlib,elixir,logger,crypto,plug_cowboy,
+                             opentelemetry_api,opentelemetry]},
+              {description,"probe_support"},
+              {registered,[]},
+              {vsn,"0.1.0"}]}.

@@ -1,0 +1,88 @@
+{
+  "reply": [
+    502,
+    {
+      "error": "downstream_failure"
+    }
+  ],
+  "transport": 1,
+  "loss": [],
+  "sent": 1,
+  "spans": [
+    {
+      "attributes": {
+        "reason": "decode",
+        "order_id": "order-1",
+        "outcome": "error"
+      },
+      "name": "orders.payments.authorize",
+      "service": "orders",
+      "start_time": -576460751710444959,
+      "kind": "client",
+      "span_id": "eb7a3d2d2a417b28",
+      "trace_id": "ec084ed7f5ec0135d069ac1627c44404",
+      "end_time": -576460751709571709,
+      "end_time_unix_nano": 1794148524685479291,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": "74baf5022c9ee2cc",
+      "start_time_unix_nano": 1794148524684606041
+    },
+    {
+      "attributes": {
+        "order_id": "order-1",
+        "outcome": "ok"
+      },
+      "name": "orders.request",
+      "service": "orders",
+      "start_time": -576460751710683250,
+      "kind": "server",
+      "span_id": "74baf5022c9ee2cc",
+      "trace_id": "ec084ed7f5ec0135d069ac1627c44404",
+      "end_time": -576460751709409375,
+      "end_time_unix_nano": 1794148524685641625,
+      "ended": true,
+      "parent_remote": false,
+      "parent_span_id": null,
+      "start_time_unix_nano": 1794148524684367750
+    }
+  ],
+  "records": [
+    {
+      "reason": "decode",
+      "status": 200,
+      "type": {
+        "name": "Payment",
+        "version": 1,
+        "fields": [
+          [
+            "order_id",
+            "String"
+          ],
+          [
+            "status",
+            "String"
+          ]
+        ],
+        "fingerprint": "35a7a9d23ad4d4c63d3d1dd9de660161952b8b6fbf263967f4fd802661143747"
+      },
+      "value": {
+        "order_id": "order-1"
+      },
+      "version": 3,
+      "request": {
+        "order_id": "order-1"
+      },
+      "operation": "payments.authorize",
+      "span_id": "eb7a3d2d2a417b28",
+      "trace_id": "ec084ed7f5ec0135d069ac1627c44404",
+      "outcome": "rejected",
+      "artifact_id": "a3986dbcdf88380884f0ec956f604564832a17697da66a43d36b88ab54f5acc0",
+      "attempt": 1,
+      "redacted": [],
+      "unknown_fields": [],
+      "unknown_keys": [],
+      "value_sha256": "700c226de85e39f0ebbfcd166e7fcb31565d8f91f03023e8592fba21178b96e0"
+    }
+  ]
+}

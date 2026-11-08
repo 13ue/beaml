@@ -1,0 +1,66 @@
+test_N10_constructor_record (__main__.Slice6DbStored.test_N10_constructor_record) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_N17_clean_rows (__main__.Slice6DbStored.test_N17_clean_rows) ... ok
+test_N17b_empty_row_snapshot (__main__.Slice6DbStored.test_N17b_empty_row_snapshot) ... ok
+test_N18_control_old_source_builds (__main__.Slice6DbStored.test_N18_control_old_source_builds) ... ok
+test_N18_control_stricter_without_the_row_builds (__main__.Slice6DbStored.test_N18_control_stricter_without_the_row_builds) ... ok
+test_N18_stricter_constructor_blocks (__main__.Slice6DbStored.test_N18_stricter_constructor_blocks) ... ok
+test_N18b_two_rows_fail_counted_with_the_first_line (__main__.Slice6DbStored.test_N18b_two_rows_fail_counted_with_the_first_line) ... ok
+test_N19_control_kept_value_builds (__main__.Slice6DbStored.test_N19_control_kept_value_builds) ... ok
+test_N19_control_the_row_builds_where_the_literal_stands (__main__.Slice6DbStored.test_N19_control_the_row_builds_where_the_literal_stands) ... ok
+test_N19_lost_literal_blocks (__main__.Slice6DbStored.test_N19_lost_literal_blocks) ... ok
+test_N20_chain_rows_build (__main__.Slice6DbStored.test_N20_chain_rows_build) ... ok
+test_N20_newer_version_blocks (__main__.Slice6DbStored.test_N20_newer_version_blocks) ... ok
+test_N20_off_chain_row_blocks (__main__.Slice6DbStored.test_N20_off_chain_row_blocks) ... ok
+test_N20b_control_note_row_off_its_chain_blocks (__main__.Slice6DbStored.test_N20b_control_note_row_off_its_chain_blocks) ... ok
+test_N20b_control_note_row_under_the_order_type_blocks (__main__.Slice6DbStored.test_N20b_control_note_row_under_the_order_type_blocks) ... ok
+test_N20b_two_row_types_build (__main__.Slice6DbStored.test_N20b_two_row_types_build) ... ok
+test_N21_not_decodable_rows_are_counted (__main__.Slice6DbStored.test_N21_not_decodable_rows_are_counted) ... ok
+test_N21b_rejected_row_skips_the_constructor_check (__main__.Slice6DbStored.test_N21b_rejected_row_skips_the_constructor_check) ... ok
+test_N21b_rows_not_accepted_are_counted_QV3_8_B (__main__.Slice6DbStored.test_N21b_rows_not_accepted_are_counted_QV3_8_B) ... ok
+test_N22_control_put_only_needs_no_row_snapshot (__main__.Slice6DbStored.test_N22_control_put_only_needs_no_row_snapshot) ... ok
+test_N22_no_row_snapshot_blocks_a_reader (__main__.Slice6DbStored.test_N22_no_row_snapshot_blocks_a_reader) ... ok
+test_N23_line_form (__main__.Slice6DbStored.test_N23_line_form) ... ok
+test_N24_control_matching_meta_builds (__main__.Slice6DbStored.test_N24_control_matching_meta_builds) ... ok
+test_N24_partial_row_snapshot_blocks (__main__.Slice6DbStored.test_N24_partial_row_snapshot_blocks) ... ok
+test_N24_row_count_below_lines_blocks (__main__.Slice6DbStored.test_N24_row_count_below_lines_blocks) ... ok
+test_N24_sample_builds (__main__.Slice6DbStored.test_N24_sample_builds) ... ok
+test_N24_sample_meta_form (__main__.Slice6DbStored.test_N24_sample_meta_form) ... ok
+test_N25_control_rejected_record_is_counted (__main__.Slice6DbStored.test_N25_control_rejected_record_is_counted) ... ok
+test_N25_list_record_constructor_blocks (__main__.Slice6DbStored.test_N25_list_record_constructor_blocks) ... ok
+test_N25_save_record_constructor_blocks (__main__.Slice6DbStored.test_N25_save_record_constructor_blocks) ... ok
+test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) ... ok
+test_N27_events_hold_no_row_value (__main__.Slice6DbStored.test_N27_events_hold_no_row_value) ... ok
+test_N28_control_row_of_a_removed_writer_with_a_reader_is_checked (__main__.Slice6DbStored.test_N28_control_row_of_a_removed_writer_with_a_reader_is_checked) ... ok
+test_N28_orphan_rows_of_a_removed_db_effect_block (__main__.Slice6DbStored.test_N28_orphan_rows_of_a_removed_db_effect_block) ... ok
+test_N28b_retire_line_frees_orphan_rows (__main__.Slice6DbStored.test_N28b_retire_line_frees_orphan_rows) ... skipped 'blocked: the RETIRE LINE meaning for rows is M5, parked by D036 (plan Parked items); no test here'
+test_N29_read_order_type_name_before_type_version (__main__.Slice6DbStored.test_N29_read_order_type_name_before_type_version) ... ok
+test_N29_read_order_type_version_before_DL101 (__main__.Slice6DbStored.test_N29_read_order_type_version_before_DL101) ... ok
+test_N30_literal_swap_on_a_row_blocks (__main__.Slice6DbStored.test_N30_literal_swap_on_a_row_blocks) ... skipped 'blocked: a ROW CORE holds the wire literal, not the stored variant (plan Limits), and DL-140 is the fate slice with DL-125 (D036); cannot turn green in P4b'
+test_N30b_map_migrate_step_frees_the_swap (__main__.Slice6DbStored.test_N30b_map_migrate_step_frees_the_swap) ... skipped 'blocked: no `map` MIGRATE STEP form exists (DL-140, DL-125, fate slice P6, D036)'
+test_N31_note_chain_read_runtime (__main__.Slice6DbStored.test_N31_note_chain_read_runtime) ... ok
+test_N32_control_complete_row_builds (__main__.Slice6DbStored.test_N32_control_complete_row_builds) ... ok
+test_N32_row_missing_string_field (__main__.Slice6DbStored.test_N32_row_missing_string_field) ... ok
+test_N32b_row_wrong_type_string_field (__main__.Slice6DbStored.test_N32b_row_wrong_type_string_field) ... ok
+test_N32c_control_complete_list_record_builds (__main__.Slice6DbStored.test_N32c_control_complete_list_record_builds)
+P4c RED repair O1: a complete orders.list RESPONSE RECORD with two complete items builds and is counted. ... ok
+test_N32c_response_record_shape_blocks (__main__.Slice6DbStored.test_N32c_response_record_shape_blocks) ... ok
+test_N32c_two_bad_items_count_one_record (__main__.Slice6DbStored.test_N32c_two_bad_items_count_one_record)
+P4c TEST repair O2: the text counts RESPONSE RECORDS, not items; one record with two bad items is 1. ... ok
+test_N32d_old_version_row_shape_blocks (__main__.Slice6DbStored.test_N32d_old_version_row_shape_blocks)
+P4c TEST O1: a row is checked against the fields of its own stored TYPE VERSION, not only the newest. ... ok
+test_N32e_http_record_shape_gap_builds (__main__.Slice6DbStored.test_N32e_http_record_shape_gap_builds)
+P4c TEST O3, documented gap (Migrate, default A, open): an http RESPONSE RECORD without the String field ... ok
+test_P2b_G1_no_reader_row_is_not_verified (__main__.Slice6DbStored.test_P2b_G1_no_reader_row_is_not_verified) ... ok
+test_P2b_R1_wrong_digest_row_blocks (__main__.Slice6DbStored.test_P2b_R1_wrong_digest_row_blocks) ... ok
+test_P2b_R2_digest_before_type_version (__main__.Slice6DbStored.test_P2b_R2_digest_before_type_version) ... ok
+test_P2b_R2b_digest_before_the_value_checks (__main__.Slice6DbStored.test_P2b_R2b_digest_before_the_value_checks) ... ok
+test_P2b_R5_erlang_digest_with_control_characters_builds (__main__.Slice6DbStored.test_P2b_R5_erlang_digest_with_control_characters_builds) ... ok
+test_P2b_R6_rejected_row_of_a_read_type_blocks (__main__.Slice6DbStored.test_P2b_R6_rejected_row_of_a_read_type_blocks) ... ok
+test_P2b_R7_two_wrong_digest_rows_group (__main__.Slice6DbStored.test_P2b_R7_two_wrong_digest_rows_group) ... ok
+test_P2b_R8_rejected_db_record_wrong_digest_blocks (__main__.Slice6DbStored.test_P2b_R8_rejected_db_record_wrong_digest_blocks) ... ok
+
+----------------------------------------------------------------------
+Ran 56 tests in 13.512s
+
+OK (skipped=3)

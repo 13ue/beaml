@@ -1,0 +1,3 @@
+error: TYPE Order: 1 stored ROW of table records has a wrong digest: value_sha256 does not match value, unknown_keys and redacted (DL-164)
+  record source: /Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T151202728219Z/n-tests/5-n15/rows.jsonl:1 (line 1)
+  help: the stored value changed without a new digest (a hand edit or corruption); restore or delete the ROW, then build again

@@ -1,0 +1,22 @@
+test_N12_rejects (__main__.Slice6Db.test_N12_rejects) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_N12_s13_db_get_is_a_kind_now (__main__.Slice6Db.test_N12_s13_db_get_is_a_kind_now) ... ok
+test_N13_sources_without_a_db_effect_keep_their_bytes (__main__.Slice6Db.test_N13_sources_without_a_db_effect_keep_their_bytes) ... compiler 060a075d: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-060a075d-imma0c99/target/debug/beaml-spike
+ok
+test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) ... ok
+test_N15b_fmt_aligns_the_db_effect_lines (__main__.Slice6Db.test_N15b_fmt_aligns_the_db_effect_lines) ... ok
+test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) ... ok
+test_N1_db_source_builds (__main__.Slice6Db.test_N1_db_source_builds) ... ok
+test_N1b_variants_build (__main__.Slice6Db.test_N1b_variants_build) ... ok
+test_N25b_control_kept_value_builds (__main__.Slice6Db.test_N25b_control_kept_value_builds) ... ok
+test_N25b_control_the_record_builds_where_the_literal_stands (__main__.Slice6Db.test_N25b_control_the_record_builds_where_the_literal_stands) ... ok
+test_N25b_lost_literal_in_a_list_item_blocks (__main__.Slice6Db.test_N25b_lost_literal_in_a_list_item_blocks) ... ok
+test_N2_to_N11_orders_runtime (__main__.Slice6Db.test_N2_to_N11_orders_runtime) ... ok
+test_N2c_jsonb_typeof_reason_is_null (__main__.Slice6Db.test_N2c_jsonb_typeof_reason_is_null) ... skipped "0005 only: jsonb_typeof(value->'reason') = 'null' needs Postgres (0005 N2c, PDB-30)"
+test_N5_control_plain_v1_writer (__main__.Slice6Db.test_N5_control_plain_v1_writer) ... ok
+test_N5_migrate_chain_on_read (__main__.Slice6Db.test_N5_migrate_chain_on_read) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 7.474s
+
+OK (skipped=1)

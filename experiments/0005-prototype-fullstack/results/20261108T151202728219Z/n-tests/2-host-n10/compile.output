@@ -1,0 +1,12 @@
+Compiling 24 files (.ex)
+    warning: Orders.ui_place/1 is undefined or private. Did you mean:
+
+          * place/1
+
+    │
+ 12 │     result = Orders.ui_place(params)
+    │                     ~
+    │
+    └─ lib/proto_web/live/order_form_live.ex:12:21: ProtoWeb.OrderFormLive.handle_event/3
+
+Compilation failed due to warnings while using the --warnings-as-errors option

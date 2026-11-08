@@ -435,6 +435,17 @@ class Slice6Fmt(unittest.TestCase):
         self.assertIn(b"\ntype Order v3 {\n", run["after"], "the mark of a fate chain stays")
         self.assertEqual(data, run["after"])
 
+    def test_mark_rule_per_chain_not_per_file(self):
+        # T2c (RED review O1): a fate chain keeps its mark; a plain chain from v1 in the same file loses its mark.
+        chained = (b"\ntype Chained v3 {\n  id: String\n  state: String\n  channel: String\n}\n"
+                   b"migrate Chained v1 -> v2 { rename status -> state }\n"
+                   b'migrate Chained v2 -> v3 { add channel: String = "web" }\n')
+        path, run = self.fmt_case(fate("order_map") + chained)
+        self.assertIn(b"\ntype Order v3 {\n", run["after"], "the mark of the fate chain stays")
+        self.assertIn(b"\ntype Chained {\n", run["after"], "the implied mark of the plain chain goes (DL-104 A)")
+        second = self.fmt(path)
+        self.assertEqual((0, ""), (second["code"], second["stdout"]), "fmt(fmt(s)) == fmt(s)")
+
     def migrate_cases(self, cases):
         for label, (fixture, step, given, want) in cases.items():
             yield label, edit(fate(fixture), step, given), edit(fate(fixture), step, want)

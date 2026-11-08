@@ -1,6 +1,7 @@
 [
   "type" "enum" "fn" "effect"
   "migrate" "rename" "add" "drop"
+  "quarantine" "map" "redact"
   "retire" "keep" "days"
   "with" "do" "else" "end"
 ] @keyword

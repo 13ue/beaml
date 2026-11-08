@@ -1,0 +1,14 @@
+test_constructor_that_reaches_an_effect_is_rejected (__main__.Slice6EffectReach.test_constructor_that_reaches_an_effect_is_rejected) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_exact_lines_per_clause (__main__.Slice6EffectReach.test_exact_lines_per_clause) ... ok
+test_fn_may_pipe_an_effect_result_into_a_pure_constructor (__main__.Slice6EffectReach.test_fn_may_pipe_an_effect_result_into_a_pure_constructor) ... ok
+test_one_clause_rule_stays_for_a_direct_effect_step (__main__.Slice6EffectReach.test_one_clause_rule_stays_for_a_direct_effect_step) ... ok
+test_pure_pipes_stay_silent (__main__.Slice6EffectReach.test_pure_pipes_stay_silent) ... ok
+test_runtime_spans_follow_the_reach (__main__.Slice6EffectReach.test_runtime_spans_follow_the_reach) ... ok
+test_sources_keep_their_bytes_except_pure_step_spans (__main__.Slice6EffectReach.test_sources_keep_their_bytes_except_pure_step_spans) ... ok
+test_span_names_per_clause (__main__.Slice6EffectReach.test_span_names_per_clause) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.193s
+
+OK

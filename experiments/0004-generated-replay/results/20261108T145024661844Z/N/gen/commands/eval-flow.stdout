@@ -1,0 +1,3 @@
+
+15:51:31.648 [info] probe observation
+PROBE {"result":{"ok":{"order_id":"order-1","state":"authorized"}},"host_validation":"ArgumentError","transport":1}

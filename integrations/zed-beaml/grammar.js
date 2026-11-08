@@ -33,8 +33,9 @@ module.exports = grammar({
     list_type: ($) => seq("[", $.type, "]"),
     redacted: () => "redacted",
 
+    // `enum Channel v2 { ... }`: the ENUM VERSION MARK (DL-155, DL-161).
     enum_declaration: ($) =>
-      seq("enum", field("name", $.type), "{", repeat(seq($.variant_declaration, optional(","))), "}"),
+      seq("enum", field("name", $.type), optional(field("version", $.version)), "{", repeat(seq($.variant_declaration, optional(","))), "}"),
 
     // A variant has a payload or an ENUM LITERAL, not both: `Unknown(String)`, `Authorized = "ok"` (DL-082).
     variant_declaration: ($) =>
@@ -71,7 +72,28 @@ module.exports = grammar({
         "}",
       ),
 
-    _migrate_operation: ($) => choice($.rename_operation, $.add_operation, $.drop_operation),
+    _migrate_operation: ($) =>
+      choice(
+        $.rename_operation,
+        $.add_operation,
+        $.drop_operation,
+        $.quarantine_operation,
+        $.map_operation,
+        $.redact_operation,
+        $.retire_operation,
+      ),
+
+    // Fate lines (DL-125, DL-162, DL-172): `quarantine f`, `quarantine "l"`, `quarantine f "l"`.
+    quarantine_operation: ($) =>
+      seq("quarantine", choice($.property, $.string, seq($.property, $.string))),
+
+    // `map "l" -> C` (ENUM step) or `map f "l" -> C` (owner TYPE step).
+    map_operation: ($) => seq("map", optional($.property), $.string, "->", field("to", $.constructor)),
+
+    // PF-09: `redact f` and `retire f keep N days` inside a MIGRATE STEP.
+    redact_operation: ($) => seq("redact", $.property),
+
+    retire_operation: ($) => seq("retire", $.property, "keep", field("duration", $.integer), "days"),
 
     rename_operation: ($) => seq("rename", field("from", $.property), "->", field("to", $.property)),
 

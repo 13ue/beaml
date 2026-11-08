@@ -1,0 +1,22 @@
+Running ExUnit with seed: 0, max_cases: 28
+Excluding tags: [:test, :phase]
+Including tags: [phase: "n8"]
+
+....
+
+  1) test N16 a live row carries type.nested (DL-168) (Proto.Prototype.StoredTest)
+     test/prototype/stored_test.exs:95
+     Assertion with == failed
+     code:  assert {code, lines, {core["version"], core["type"]["nested"]},
+             {snap["version"], snap["type"]["nested"]}} == {0, [counted(1, 1, 0)], want, want}
+     left:  {0, ["rows: 1 rows, 1 checked, 0 not decodable"], {3, nil},
+             {3, nil}}
+     right: {0, ["rows: 1 rows, 1 checked, 0 not decodable"],
+             {4, %{"amount" => 1, "channel" => 1}},
+             {4, %{"amount" => 1, "channel" => 1}}}
+     stacktrace:
+       test/prototype/stored_test.exs:105: (test)
+
+.
+Finished in 3.0 seconds (0.07s async, 2.9s sync)
+31 tests, 1 failure, 25 excluded

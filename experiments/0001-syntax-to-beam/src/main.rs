@@ -7494,9 +7494,10 @@ fn fmt_file(path: &std::path::Path, label: &str) -> Checked<usize> {
 
 // DL-104 form (b) (D6B-43): the VERSION MARK that `fmt` writes. `chain` is (first `from`, last `to`). A mark that a
 // chain from v1 implies goes; a chain above v1 without a mark gets its end; every other mark stays (O3).
-fn fmt_mark(mark: Option<u32>, chain: Option<(u32, u32)>) -> Option<u32> {
+// fates-a4 (QA4-1 A, DL-155): the mark of a chain with a fate line stays (`fate`), per chain.
+fn fmt_mark(mark: Option<u32>, chain: Option<(u32, u32)>, fate: bool) -> Option<u32> {
     match (mark, chain) {
-        (Some(m), Some((1, end))) if m == end => None,
+        (Some(m), Some((1, end))) if m == end && !fate => None,
         (None, Some((from, end))) if from > 1 => Some(end),
         _ => mark,
     }
@@ -7516,7 +7517,8 @@ fn formatted(source: &str) -> Checked<String> {
         let steps = checker.migrations(name);
         let chain = steps.first().zip(steps.last()).map(|(a, b)| (a.from, b.to));
         let mark = program.marks.get(name).copied();
-        match (mark, fmt_mark(mark, chain)) {
+        let fate = steps.iter().any(|s| s.changes.iter().any(Change::fate));
+        match (mark, fmt_mark(mark, chain, fate)) {
             (Some(_), None) => {
                 let token = &tokens.iter().find(|(_, r)| r.start >= end).unwrap().1;
                 let start = end + source[end..token.start].trim_end_matches([' ', '\t']).len();
@@ -7596,18 +7598,83 @@ fn bodies(
                 _ => members.push(r.clone()),
             }
         }
-        let text: Vec<&str> = members.iter().map(|m| &source[m.clone()]).collect();
-        let body = match text.len() {
-            0 => "{}".to_string(),
-            1 => format!("{{ {} }}", text[0]),
-            _ => {
-                let lines: String = text.iter().map(|m| format!("{indent}  {m}{nl}")).collect();
-                format!("{{{nl}{lines}{indent}}}")
+        let text: Vec<String> = members.iter().map(|m| source[m.clone()].into()).collect();
+        edits.push((
+            tokens[open].1.start..tokens[close].1.end,
+            body(&text, indent, nl),
+        ));
+    }
+    // fates-a4 (QA4-2, PF-19): a MIGRATE STEP body takes the same rule; members split at top-level commas and keep
+    // their comma right after their text. No table alignment inside a body (QA4-3).
+    for step in &program.migrations {
+        let line_start = source[..step.source_range.start]
+            .rfind('\n')
+            .map_or(0, |i| i + 1);
+        let indent = &source[line_start..step.source_range.start];
+        if !indent.trim().is_empty() {
+            continue;
+        }
+        let first = tokens
+            .iter()
+            .position(|(_, r)| r.start == step.source_range.start)
+            .unwrap();
+        let open = first
+            + tokens[first..]
+                .iter()
+                .position(|(t, _)| *t == Token::Symbol('{'))
+                .unwrap();
+        let close = open
+            + tokens[open..]
+                .iter()
+                .position(|(_, r)| r.end == step.source_range.end)
+                .unwrap();
+        if (open..close).any(|k| {
+            !source[tokens[k].1.end..tokens[k + 1].1.start]
+                .trim()
+                .is_empty()
+        }) {
+            continue;
+        }
+        let mut members: Vec<Range<usize>> = Vec::new();
+        let (mut depth, mut fresh) = (0, true);
+        for (t, r) in &tokens[open + 1..close] {
+            match t {
+                Token::Symbol('(' | '[') => depth += 1,
+                Token::Symbol(')' | ']') => depth -= 1,
+                Token::Symbol(',') if depth == 0 => {
+                    fresh = true;
+                    continue;
+                }
+                _ => {}
             }
-        };
-        edits.push((tokens[open].1.start..tokens[close].1.end, body));
+            match members.last_mut() {
+                Some(m) if !fresh => m.end = r.end,
+                _ => members.push(r.clone()),
+            }
+            fresh = false;
+        }
+        let last = members.len().saturating_sub(1);
+        let text: Vec<String> = (members.iter().enumerate())
+            .map(|(n, m)| format!("{}{}", &source[m.clone()], if n < last { "," } else { "" }))
+            .collect();
+        edits.push((
+            tokens[open].1.start..tokens[close].1.end,
+            body(&text, indent, nl),
+        ));
     }
     edits
+}
+
+// DL-148 (1, 2): zero members `{}`, one member `{ m }`, two or more one per line at `indent` plus two spaces.
+fn body(text: &[String], indent: &str, nl: &str) -> String {
+    match text.len() {
+        0 => "{}".to_string(),
+        1 => format!("{{ {} }}", text[0]),
+        _ => {
+            let lines: String = text.iter().map(|m| format!("{indent}  {m}{nl}")).collect();
+            format!("{{{nl}{lines}{indent}}}")
+        }
+    }
 }
 
 // Cell columns of a clause table (DL-148): 0 the name part, 1.. the arguments, then `->`, output, `! ERR`, `=`.
@@ -8401,13 +8468,15 @@ mod tests {
     #[test]
     fn fmt_mark_follows_dl104() {
         // D6B-43: (mark, chain) -> the mark that `fmt` writes.
-        assert_eq!(fmt_mark(Some(3), Some((1, 3))), None);
-        assert_eq!(fmt_mark(None, Some((1, 2))), None);
-        assert_eq!(fmt_mark(Some(3), None), Some(3));
-        assert_eq!(fmt_mark(Some(1), None), Some(1));
-        assert_eq!(fmt_mark(None, Some((4, 5))), Some(5));
-        assert_eq!(fmt_mark(Some(5), Some((4, 5))), Some(5));
-        assert_eq!(fmt_mark(None, None), None);
+        assert_eq!(fmt_mark(Some(3), Some((1, 3)), false), None);
+        assert_eq!(fmt_mark(None, Some((1, 2)), false), None);
+        assert_eq!(fmt_mark(Some(3), None, false), Some(3));
+        assert_eq!(fmt_mark(Some(1), None, false), Some(1));
+        assert_eq!(fmt_mark(None, Some((4, 5)), false), Some(5));
+        assert_eq!(fmt_mark(Some(5), Some((4, 5)), false), Some(5));
+        assert_eq!(fmt_mark(None, None, false), None);
+        // fates-a4 (QA4-1 A): a chain with a fate line keeps its mark.
+        assert_eq!(fmt_mark(Some(2), Some((1, 2)), true), Some(2));
     }
 
     #[test]
