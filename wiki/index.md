@@ -22,6 +22,10 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Syntax spike requirement](sources/syntax-spike-requirement.md): accepted experimental syntax, R&D request and adopted initial Elixir backend.
 - [PL syntax sentiment research](sources/pl-syntax-sentiment-2026.md): captured 2026 research on loved and hated syntax features; researcher ranking, snippet-only numbers and blocked forums as limits.
 - [BAML syntax reception](sources/baml-syntax-reception-2026.md): how BAML's syntax is received, its scorecard against the sentiment rows (11 aligned, 8 tension, 4 mixed), the BAML/BEAML name facts; thin forum evidence as limit.
+- [Terraform HCL reception](sources/hcl-syntax-reception-2026.md): how Terraform's HCL is received as a declarative language with expressions, its scorecard against the sentiment rows (9 aligned, 7 tension, 6 mixed) and the lessons for DL-126; Reddit as snippets and secondary survey numbers as limits.
+- [Syntax minimum hub](planning/syntax-minimum.md): [Proposal], draft; one inventory of 40 syntax items, the two minimum proposals side by side, the agreed set, OWNER questions and the defects found; no recommendation.
+- [Conservative syntax minimum](planning/syntax-minimum-conservative.md): [Proposal], draft; 38 of 39 forms, a ceiling of 39 and six growth rules; reopens no closed decision.
+- [Radical syntax minimum](planning/syntax-minimum-radical.md): [Proposal], draft; four top-level forms, 29 items; reopens DL-014, DL-015, DL-022, DL-055, DL-061 and the syntax spike.
 - [Working glossary](../GLOSSARY.md): scoped terms, proposed owners and German aliases; no universal runtime model.
 - [Candidate context map](planning/context-map.md): language/compilation, execution and Observatory models with explicit translation boundaries.
 - [Local strategy-wiki source](sources/agentic-strategy-wiki.md): selected local glossary/context patterns and provenance; no imported business model or policy.

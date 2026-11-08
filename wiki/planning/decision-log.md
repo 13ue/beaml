@@ -831,6 +831,24 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Trigger: OWNER instruction 2026-11-07 after the PL sentiment ingest.
 → Effect: capture under `raw/research/2026-11-07-baml-syntax-sentiment/`, [source page](../sources/baml-syntax-reception-2026.md), [concept section](../concepts/syntax-sentiment.md#9-baml-as-the-nearest-precedent); one open item D034 (keep or change the name BEAML) in [decisions to be made](decisions-to-be-made.md), trigger "before the first public release or external announcement".
 
+**DL-142 · Repair · Take Terraform HCL up as a topic in the syntax sentiment research**
+→ Question: take Terraform HCL up as a topic in the syntax sentiment research?
+→ Options: yes, as the declarative precedent; no, the general-purpose-language evidence suffices.
+→ Chose: yes.
+→ By: 13ue
+→ Because: BEAML is declarative for shape and policy with expressions for computation (DL-126). HCL is the most widely used declarative configuration language with an expression sublanguage. Its reception shows what people love and hate when a declarative language grows expressions, loops, conditionals and modules.
+→ Trigger: OWNER instruction 2026-11-08 after the BAML reception ingest.
+→ Effect: capture under `raw/research/2026-11-08-hcl-syntax-sentiment/`, [source page](../sources/hcl-syntax-reception-2026.md), [concept section](../concepts/syntax-sentiment.md#10-terraform-hcl-as-the-declarative-precedent); no new open item. The lessons attach to D026, D028, D029, D030, D032 and D033 in [decisions to be made](decisions-to-be-made.md).
+
+**DL-143 · Repair · Launch a language team for syntax-minimum proposals**
+→ Question: launch a language team for syntax-minimum proposals?
+→ Options: yes, two independent proposals (conservative, radical) plus a compare page; no, wait for the first example applications (DL-140).
+→ Chose: yes.
+→ By: 13ue
+→ Because: OWNER request 2026-11-08: "I want to minimize. Really only the minimum of syntax." The team delivers proposals only. The decision stays open as D035; no grammar changes before the OWNER answers (DL-139).
+→ Trigger: OWNER request 2026-11-08 after the HCL reception ingest.
+→ Effect: [syntax minimum hub](syntax-minimum.md), [conservative minimum](syntax-minimum-conservative.md), [radical minimum](syntax-minimum-radical.md); one open item D035 in [decisions to be made](decisions-to-be-made.md), trigger "OWNER review of the syntax minimum hub; before the next syntax DL".
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

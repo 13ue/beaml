@@ -673,7 +673,22 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Verified]** Evidence: [hated row 4](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (complexity creep, 28 % of Rust respondents), [loved row 22](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (small language, one way).
 
-**[Verified]** BEAML today: six top-level keyword forms (`type`, `enum`, `fn`, `effect`, `migrate`, `retire`) plus `redacted`, `with` release, `with ... do`, VERSION MARK; sketched: `on`, four FATE OPERATIONS, policy on `effect` lines, `where` rules (DL-125, DL-126, DL-128). No budget is recorded ([scorecard](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#2-scorecard)).
+**[Verified]** BEAML today: six top-level keyword forms (`type`, `enum`, `fn`, `effect`, `migrate`, `retire`) plus `redacted`, `with` release, `with ... do`, VERSION MARK; sketched: `on`, four FATE OPERATIONS, policy on `effect` lines, `where` rules (DL-125, DL-126, DL-128). No budget is recorded ([scorecard](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#2-scorecard)). The conservative syntax minimum proposes a ceiling of 39 with one-in-one-out; see D035 and the [syntax minimum hub](syntax-minimum.md).
+
+## D035 — Which syntax minimum does BEAML adopt
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** LANGUAGE/COMPILATION
+- **Decision trigger** OWNER review of the syntax minimum hub; before the next syntax DL.
+- **Next check** When the next syntax decision is proposed.
+
+**[Proposal]** Question: Which syntax minimum does BEAML adopt: the agreed 39-item set (D032 only), the conservative set with growth rules, or the radical set that reopens DL-014, DL-015, DL-022, DL-055, DL-061? Raised by the OWNER on 2026-11-08 ("really only the minimum of syntax", [DL-143](decision-log.md)). Two independent proposals and one compare page exist; no option is recommended.
+
+**[Verified]** Evidence: the [syntax minimum hub](syntax-minimum.md) (one inventory of 40 items, the agreed set, the differences, the OWNER questions), the [conservative minimum](syntax-minimum-conservative.md) (38 proposed, ceiling 39, six growth rules), the [radical minimum](syntax-minimum-radical.md) (29 proposed, four top-level forms, six reopened decisions), the [syntax sentiment concept](../concepts/syntax-sentiment.md) sections [1](../concepts/syntax-sentiment.md#1-question) to [10](../concepts/syntax-sentiment.md#10-terraform-hcl-as-the-declarative-precedent), and the open items D032 (separators, zero-argument variant) and D033 (form budget) above.
+
+**[Verified]** BEAML today: 40 syntax items by the hub's unit, 6 top-level forms; the compiler and the grammar disagree on the comma between MIGRATE CHANGES ([hub section 6](syntax-minimum.md#6-what-both-pages-miss)). **[Unknown]** Token cost and error rate for agent-written code under each set; no measurement exists.
 
 ## D034 — Keep the name BEAML next to BAML, or change it
 

@@ -1,7 +1,7 @@
 ---
 id: source-registry
 status: evidence-index
-updated: 2026-11-06
+updated: 2026-11-08
 ---
 
 # Source registry
@@ -23,6 +23,7 @@ This registry indexes evidence, not implementation dependencies. Most research w
 | [Observability/storage](observability-platforms.md) | OTel displayed spec 1.62.0 +mutable guides; Postgres 18; ClickHouse/AWS S3 docs | Context/privacy/queue/tenant/retention mechanisms | Selected paraphrases; no deployment benchmark, backend deletion test or signal package pin |
 | [PL syntax sentiment](pl-syntax-sentiment-2026.md) | Claude research workers, 2026-11-07; 94 upstream URLs listed per page | Industry sentiment on syntax features; BEAML lens | Selected excerpts and researcher notes; researcher ranking; Reddit and Lobste.rs blocked; some survey numbers from snippets |
 | [BAML syntax reception](baml-syntax-reception-2026.md) | Claude research worker, 2026-11-07; 38 upstream sources (docs, blog, HN via Algolia, reviews, GitHub, registries) | How BAML's syntax is received; scorecard against the sentiment rows; BAML/BEAML name facts | Selected excerpts; HN evidence thin; no Reddit; PR diffs not read; pronunciation and trademarks unknown |
+| [Terraform HCL reception](hcl-syntax-reception-2026.md) | Claude research worker, 2026-11-08; 25 upstream sources (HCL spec, HashiCorp release posts and docs, HN via Algolia, Pulumi and CDKTF, CUE/Dhall/Nickel/Jsonnet, practitioner essays, surveys) | How HCL is received as a declarative language with expressions; scorecard against the sentiment rows; lessons for DL-126 | Selected excerpts; Reddit as snippets only; survey admired numbers from a secondary tabulation; alignments are inference |
 
 ## Mechanism-level additions
 

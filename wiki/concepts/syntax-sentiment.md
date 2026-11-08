@@ -3,7 +3,7 @@ id: concept-syntax-sentiment
 title: What programmers love and hate in syntax, and where BEAML stands
 kind: synthesis
 status: ingested-research-open-tensions
-updated: 2026-11-07
+updated: 2026-11-08
 ---
 
 # Syntax sentiment: what programmers love and hate, and where BEAML stands
@@ -82,6 +82,8 @@ updated: 2026-11-07
 
 **[Proposal]** At every syntax decision, read sections 5 to 7 of this page. Name the row the decision touches. When the decision moves a tension or a gap, link the decision-log entry from the open item.
 
+See also the [syntax minimum hub](../planning/syntax-minimum.md): two proposals (conservative, radical) compared against this page, open item D035.
+
 ## 9. BAML as the nearest precedent
 
 **[Verified]** Source: the [BAML syntax reception research](../sources/baml-syntax-reception-2026.md) of 2026-11-07, captured under [raw/research/2026-11-07-baml-syntax-sentiment/](../../raw/research/2026-11-07-baml-syntax-sentiment/CAPTURE.md). Taken up at the OWNER's instruction ([DL-141](../planning/decision-log.md)). BAML is BoundaryML's language, a technical precedent already on [BAML language and tooling](baml-language-and-tooling.md); this section is about how its syntax is received.
@@ -107,6 +109,17 @@ updated: 2026-11-07
 **[Verified]** Nobody in the fetched sources criticizes a specific BAML keyword or punctuation. The complaints are structural: a separate language, a build step, logic hidden in strings, churn. **[Unknown]** How representative the voices are; forum evidence is thin (largest BAML thread 18 points, v1 announcement 8 points).
 
 **[Verified]** Name proximity ([facts](../../raw/research/2026-11-07-baml-syntax-sentiment/baml-reception.md#6-name-proximity-baml-and-beaml)): BAML is "Basically A Made-up Language" per its README, "tongue-in-cheek" per the team; third parties expand it as "Boundary AI Markup Language"; BAML also named a bank brand until 2019 and a WPF markup format. No project, package or page named `beaml` exists on GitHub, PyPI, npm, Hex or in web search. BEAML is BAML plus one letter and contains "BEAM". Both are typed languages for agent software with a Rust toolchain, typed LLM functions, exhaustive `match`, typed errors and telemetry by default. **[Unknown]** Pronunciation of BAML, trademark status of either name. The naming question is open item D034 in [decisions to be made](../planning/decisions-to-be-made.md).
+
+## 10. Terraform HCL as the declarative precedent
+
+**[Verified]** Source: the [Terraform HCL reception research](../sources/hcl-syntax-reception-2026.md) of 2026-11-08, captured under [raw/research/2026-11-08-hcl-syntax-sentiment/](../../raw/research/2026-11-08-hcl-syntax-sentiment/CAPTURE.md). Taken up at the OWNER's instruction ([DL-142](../planning/decision-log.md)). HCL is the most widely used declarative configuration language with an expression sublanguage; BEAML walks the same line ([DL-126](../planning/decision-log.md): declarative for shape and policy, expressions for computation).
+
+- **[Verified]** Praised ([table](../../raw/research/2026-11-08-hcl-syntax-sentiment/hcl-reception.md#2-what-people-praise)): the declarative shape and the plan as an inspectable diff; the deliberate limit ("not Turing-complete"); first-class expressions since 0.12; `for` expressions and `for_each` keys; rich types with `optional(type, default)`; `moved`, `import` and `check` blocks that keep history and assertions in source; the v1 compatibility promise.
+- **[Verified]** Criticized ([table](../../raw/research/2026-11-08-hcl-syntax-sentiment/hcl-reception.md#3-what-people-criticize)): `count = c ? 1 : 0` as a boolean; `count` index as identity; `dynamic` blocks, which HashiCorp's own docs tell users to limit; no user-defined functions; "not a real language"; implicit string, number and bool conversion; too many concepts in one tool. Nobody attacks the punctuation; the complaints are structural, as for BAML (section 9).
+- **[Inference]** [Scorecard](../../raw/research/2026-11-08-hcl-syntax-sentiment/hcl-reception.md#4-scorecard-against-the-loved-and-hated-rows): 22 rows, aligned 9, tension 7, mixed 6. HCL is aligned where BEAML is aligned (immutability, comprehensions, derived boilerplate, interpolation as one form, no hidden control flow, no coercion of YAML's kind). HCL is in tension where BEAML either avoids the row by design (variants, no coercion, no index identity) or shares the open question (complexity creep, D033).
+- **[Verified]** Lessons ([section 5](../../raw/research/2026-11-08-hcl-syntax-sentiment/hcl-reception.md#5-declarative-plus-expressions-lessons)): interpolation as the only expression form was the first regret (0.11 to 0.12); loops arrived as meta-arguments and expressions and were accepted as declarative, while `count` as a conditional and `dynamic` for nested blocks became the lasting footguns; the function seam was answered outside the language (CDK for Terraform, deprecated 2025-12-10) and then inside the provider (1.8); history as declarations drew praise. **[Inference]** The complexity clock predicts the arc; HCL stopped before Turing-completeness and both camps still argue whether the stop was right.
+- **[Inference]** What it says to BEAML ([relevance](../../raw/research/2026-11-08-hcl-syntax-sentiment/hcl-reception.md#6-relevance-to-beaml)): DL-126 holds at scale and cracks at two seams, a declaration whose existence depends on a value and a nested declaration that repeats; BEAML's rule that every declaration keeps an expression escape hatch is the rule HCL lacked. D033: HCL added one block kind per request for twelve years and never asked for a budget. D030: a declarative language without a way to name a computation gets functions bolted on or loses users to a host language. D026: `optional()` came in 1.3 after being one of the most upvoted issues. D028: interpolation as the only way to compute a String is the hated case, not interpolation itself. D032: `count` and `for_each` are two spellings for one need with different identity rules.
+- **[Verified]** Where section 7 found the evidence silent, HCL speaks: `moved` and `import` blocks are a declared address history in source and were praised. This is the nearest industry analogue to MIGRATE STEPS and VERSION MARKS found so far. **[Unknown]** Whether coding agents read a purpose-built language better than a host language: Pulumi argues one way, BAML the other; neither capture measures it.
 
 See also [vertical integration](vertical-integration.md) (language forms), [MIGRATE STEP fates](migrate-fates.md), the [syntax spike requirement](../sources/syntax-spike-requirement.md) and the [glossary](../../GLOSSARY.md).
 
