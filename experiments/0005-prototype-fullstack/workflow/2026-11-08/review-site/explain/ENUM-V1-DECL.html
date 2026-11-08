@@ -1,0 +1,42 @@
+<p class="lead">Sperre 3 (zwei Literale vertauscht, DL-140/DL-161) kann der Build nur sehen, wenn er die <b>alte</b> Literal-Tabelle kennt. Heute steht im Code nur die neueste. Woher kommt die alte?</p>
+<pre><i class=m>// VORHER: Channel v1, 5 Zeilen mit &quot;app&quot; in Production</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i></pre>
+<h3>Option A · alte Deklaration bleibt im Code bis SQUASH (Default, Lesart von DL-155)</h3>
+<pre><i class=m>// Option A (gebaut als Default): die alte Deklaration bleibt stehen, bis keine v1-Zeile mehr existiert.</i>
+<i class=m>// Der Build kennt so die alte Tabelle und sieht Sperre 3 (Tausch). Fehlt v1 trotz migrate: lauter Fehler.</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=c>v1</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i>
+
+<i class=k>enum</i> <i class=t>Channel</i> <i class=c>v2</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>Mobile</i> <i class=o>=</i> <i class=s>&quot;mobile&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i>
+
+<i class=k>migrate</i> <i class=t>Channel</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i>
+  map &quot;app&quot; <i class=o>-&gt;</i> Mobile
+<i class=b>}</i></pre>
+<div class="card ok"><b>Build</b>Kennt v1 und v2, prüft jede gespeicherte v1-Zeile gegen beide Tabellen. Sind keine v1-Zeilen mehr da, sagt der Build: „Channel v1 has no stored values; remove the declaration and the step (SQUASH)“. Der Code ist die ganze Geschichte.</div>
+<h3>Option B · nur die neueste Tabelle, der Schritt beschreibt die Änderung</h3>
+<pre><i class=m>// Option B: nur die neueste Tabelle; der Schritt nennt jede Literal-Änderung selbst.</i>
+<i class=m>// Vergisst jemand eine Zeile, sieht der Build den Tausch nicht (Lücke).</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=c>v2</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>Mobile</i> <i class=o>=</i> <i class=s>&quot;mobile&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i>
+
+<i class=k>migrate</i> <i class=t>Channel</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i>
+  map &quot;app&quot; <i class=o>-&gt;</i> Mobile
+<i class=b>}</i></pre>
+<div class="card y"><b>Build</b>Kürzer. Aber ob <code>"web"</code> gestern Web hieß, steht nirgends mehr; ein vergessener <code>map</code> fällt nicht auf. Die Geschichte ist nur noch in der Datenbank.</div>
+<h3>Option C · alte Tabelle aus einer Lock-Datei oder dem letzten Build</h3>
+<div class="card"><b>Build</b>Der Compiler schreibt bei jedem Build die Tabellen in eine Datei neben die Quelle und vergleicht beim nächsten Mal. Funktioniert, aber die Wahrheit liegt dann in einer Datei, die nicht die Quelle ist; bei zwei Entwicklern zwei Dateien.</div>
+<p class="lead">Dasselbe gilt später für <code>type Amount v1 { … }</code> neben <code>type Amount v2 { … }</code>: die alten Konstruktor-Regeln bleiben lesbar, bis Production leer ist.</p>
