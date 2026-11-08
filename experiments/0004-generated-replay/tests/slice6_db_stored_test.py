@@ -63,7 +63,7 @@ def row(value, type_=sd.ORDER_TYPE, unknown_fields=(), operation="orders.save", 
     rid = next(ROW_IDS)
     line = sd.core(value, type_, unknown_fields, operation)
     line.update(trace_id="%032x" % (0x5eed0000 + rid), span_id="%016x" % (0xc0de0000 + rid), artifact_id="e" * 64,
-                source="db", row_id=rid)
+                source="db", row_id="row-%d" % rid)  # P4c RED repair M2: a String id, no digit run a `ts` can hold
     line.update(over)
     return line
 
@@ -468,6 +468,15 @@ class Slice6DbStored(unittest.TestCase):
                 code, stdout, got, _, resp = self.blocked(ORDERS, rows=[], responses=[rec])
                 self.assertEqual((1, ""), (code, stdout), "\n".join(got))
                 self.assert_shape_block("RESPONSE RECORD", "operation orders.list", got, resp)
+
+    def test_N32c_control_complete_list_record_builds(self):
+        """P4c RED repair O1: a complete orders.list RESPONSE RECORD with two complete items builds and is counted.
+
+        Guard: passes at HEAD and must pass after a correct GREEN. A GREEN that checks the ROW TYPE Order against the
+        top-level value {"items": [...]} instead of each item finds no order_id, blocks this record and fails here.
+        Two items, so a check of item 0 only stays visible in a later case if needed."""
+        rec = db_record("orders.list", list_items(WIRE1, WIRE2), sd.LIST_TYPE, {})
+        self.assert_built(ORDERS, [counted(0, 0, 0)], rows=[], responses=[rec])
 
 
 if __name__ == "__main__":

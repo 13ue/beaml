@@ -152,6 +152,8 @@ No new fixture file: every case builds its rows and records in a temp directory 
 | `N32b_row_wrong_type_string_field` | O1, default A | the same, with an Int in `order_id`: the same three lines (one text for both faults) |
 | `N32_control_complete_row_builds` | O1 control | a complete row: exit 0, `rows: 1 rows, 1 checked, 0 not decodable` (passes today) |
 | `N32c_response_record_shape_blocks` (2 subtests) | O1 second stream, owner-review "covers both streams" | the two faults as item 0 of an `orders.list` RESPONSE RECORD beside an empty `rows.jsonl`: `1 stored RESPONSE RECORD of operation orders.list has no String value for field order_id`, record source `<responses>:1 (line 1)`, help line. HEAD builds it, so this is RED, not a guard |
+| `N32c_control_complete_list_record_builds` (RED repair, O1) | red-review P4c O1 | a complete `orders.list` RESPONSE RECORD with two complete items (WIRE1, WIRE2), empty `rows.jsonl`: exit 0, the module, stderr exactly `rows: 0 rows, 0 checked, 0 not decodable`. Guard: passes at HEAD and after a correct GREEN; a GREEN that checks the top-level `{"items": …}` instead of each item fails it |
+| `row()` (RED repair, M2) | red-review P4c M2 | every row id is a String `row-<n>`; no test uses an Int `row_id` (N24 meta sorts the same, equal width) |
 | `N27_events_hold_no_row_value` (changed) | O3 | the two rows of N27 carry String row ids (no digits run that a `ts` epoch float can hold); the event check in `compile()` is unchanged |
 
 ### GREEN notes
@@ -164,9 +166,12 @@ No new fixture file: every case builds its rows and records in a temp directory 
 **Repair**
 → One text "has no String value for field <f>" for missing and wrong-type statt two texts, weil both fail the same `db.list` decode and the text then holds no value hint. → By: Opus (RED P4c, default, open) · Repair
 → RESPONSE RECORD case as RED test statt a guard, weil HEAD builds it (observed, exit 0). → By: Opus (RED P4c) · Repair
+→ RED repair: O3 now fixed in `row()` for all tests (M2), superseding the next line. → By: Opus (RED repair P4c) · Repair
 → O3 fixed in N27 only statt all `row()` ids, weil the task scopes N27 and appends only; every other test still writes 4-digit int ids into its `compile()` check (residual false-fail risk, see red-output P4c Limits). → By: Opus (RED P4c) · Repair
 
 **Undo**
 → No new fixture files: rows are per-test temp files; N27 has no shared fixture. → By: Opus (RED P4c) · Undo
 → Plural form (`2 stored ROWS … have`) not tested. → By: Opus (RED P4c) · Undo
 → RESPONSE case over `orders.list` statt `orders.save`, weil the save record's `request` holds the same value and could block first on the input side. → By: Opus (RED P4c) · Undo
+→ RED repair: control `N32c_control_complete_list_record_builds` over two items statt one, weil an item-0-only check stays visible in a later case. → By: Opus (RED repair P4c) · Undo
+→ RED repair: control stderr checked as the rows count line only, weil no P2 line prints at 0 rejected (QV3-7 A). → By: Opus (RED repair P4c) · Undo

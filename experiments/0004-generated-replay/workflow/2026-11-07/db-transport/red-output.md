@@ -117,3 +117,24 @@ BEAML_SPIKE=<scratch>/head/target/debug/beaml-spike python3 -B experiments/0004-
 - **[Inference]** O3 residual: every other test still uses 4-digit int row ids in `row()`, and `compile()` checks them against the whole action log, so a random false fail stays possible outside N27 (O3 rate estimate: a few percent per full run). Not seen in these 5 runs. Smallest fix: a String id in `row()` (one line), out of this task's scope.
 - **[Inference]** The 5-char word check also holds the amount String of the shared fixtures; a `ts` can hold it only with a matching digit run around the dot (very rare). Not seen.
 - The text "has no String value for field order_id" is a RED proposal (default, open), not an OWNER text.
+
+## P4c RED repair
+
+**[Observed]** 2026-11-08. By: Opus (RED repair P4c). Input: [red-review.md](red-review.md#p4c) O1, M1, M2. Mapping: [red-plan.md](red-plan.md#p4c-row-shape-check).
+
+```
+git archive HEAD experiments/0001-syntax-to-beam | tar -x -C <scratch>     # HEAD eaa1eaf7, compiler unchanged
+cargo build --offline --quiet --manifest-path <scratch>/experiments/0001-syntax-to-beam/Cargo.toml --target-dir <scratch>/target
+BEAML_SPIKE=<scratch>/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_db_stored_test.py   # 3 times
+```
+
+- Changes: O1 `N32c_control_complete_list_record_builds` added; M2 `row()` writes String row ids `row-<n>`; M1 one line in the 0005 [owner review](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) "Row shape check".
+- Compiler: committed HEAD `eaa1eaf7`. Elixir 1.18.1, OTP 27. sha256 `slice6_db_stored_test.py` `961c41fc…`.
+- Result, each of 3 runs: **46 tests, 4 failing (N32, N32b, N32c [missing], N32c [wrong_type]), 3 skipped (N28b, N30, N30b), all others pass.** Identical failing set in all 3 runs.
+- `N32c_control_complete_list_record_builds`: **pass 3 of 3** (guard at HEAD). N27: pass 3 of 3. No test needed an Int `row_id`.
+
+### Limits
+
+- **[Inference]** The control catches a GREEN that shape-checks `{"items": …}` as an `Order`. It does not catch a GREEN that checks item 0 only (both items are complete); no fault case sits in item 1.
+- **[Inference]** O3 residual now only in trace and span ids (hex, 16 or 32 chars), which a `ts` cannot hold.
+

@@ -141,3 +141,4 @@ Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/
 ## Row shape check (raised to Migrate by the P4 TEST review, 2026-11-08)
 
 - **Big · a stored row with a missing or wrong-type String field**: today `--stored` counts it as checked and the whole `db.list` fails at run time. Options: A block the build with the DL-102 text (the build sees it, as for every other stored-value rule); B count the row as not decodable and go on. Default A, built as the small step P4c (`N32_row_missing_string_field`). By: Fable (default, open). RESPONSE RECORDS have the same gap; P4c covers both streams or notes the second.
+- **Small · the P4c block text**: one text for both faults (missing key and non-String value): `error: TYPE <T>: 1 stored ROW of table <t> has no String value for field <f>` (also `RESPONSE RECORD of operation <op>`), with the record source and the DL-102 help line. Alternative: two texts. By: Opus (RED P4c, default, open).
