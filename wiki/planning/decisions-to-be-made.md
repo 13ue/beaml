@@ -768,6 +768,37 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Sketch for the plan, not decided: three levels to compare: module-level `private`, TYPE-level, field-level; and a default where nothing is projected unless the TYPE opts in. By: Fable (note of the OWNER's voice note).
 
+## D041 — Remove the ENUM CONSTRUCTOR; enums decode by ENUM LITERALS only
+
+- **Status** OPEN (language simplification team round, candidate 2, 2026-11-08)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** today a `fn` named like an `enum` maps outside Strings to variants with logic (DL-082, DL-100). Proposal: only the literal table says which String is which variant; `fn <Capital>` always means a record constructor. Possibly a multi-literal form `Web = "web" | "WEB"` (sketch, not built).
+- **Decision trigger** before the fate slice touches enum decoding, or when a real provider needs two spellings
+- **Next check** the paper check in [synthesis.md](../../experiments/0005-prototype-fullstack/workflow/2026-11-08/language-simplification/synthesis.md) candidate 2
+
+**[Proposal]** Options: A literals only, normalisation in the parent record constructor · B literals plus a multi-literal form · C keep DL-082. Lost under A/B: mapping with logic, Int to variant; 9 enums use a constructor today, all fixtures, none in 0005. Gain: DL-122 and DL-140 become a diff of two literal tables (DL-155). The OWNER saw the proposal on 2026-11-08 and asked for it to be shown; not decided.
+
+## D042 — Lazy recheck of a rule over a REDACTED FIELD (M3 follow-up)
+
+- **Status** OPEN (OWNER idea, 2026-11-08; dissolves most of M3 under DL-155)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** a redacted value is absent from records, so the build cannot check a stricter rule over it. With DL-155 the stricter rule is a new TYPE VERSION; old values are `T v1`. Idea: the check runs lazily where the value exists (the host app, on read or re-entry), declared by a fate line (`recheck f`, sketch). Totality end to end: the compiler lists every place the outcome "old value fails the new rule" can reach (ENTRY LINE, generated function, page, replay, records, observability) and the host must handle it.
+- **Decision trigger** the first redacted field with a rule in an EXPERIMENT, or the fate slice plan
+- **Next check** the fate slice plan
+
+**[Proposal]** Open form of the outcome: A an own state in the TYPE, visible in every signature (`Stale(T)` or the version itself, `T v1 | T v2`) · B a reject reason in `! StoreError` per call (the list breaks, see DL-150). The OWNER's answer to "old row fails on read": value comes back with a mark, never a crash, never a silent skip (leans to A). Also open: whether `redact` may ever skip a rule (M3 D3): the OWNER leans to "no; DL-116 leaves the fate list" (A), to be confirmed.
+
+## D043 — Build order: fate slice before or after live `--stored`
+
+- **Status** OPEN (2026-11-08)
+- **Decision owner** OWNER
+- **Class** Repair (order of work), listed because both slices need the compiler
+- **Scope** A fate slice first (grammar for the four fate lines and `map`, the three blocks lifted by a fate line, REPLAY RUN skips quarantined values, 0005 N9 as the use case, DL-155 gate in `--stored`) · B live `--stored` (DL-151) first, then the fate slice.
+- **Decision trigger** now
+- **Next check** OWNER answer on the walk-through page "M3: Fate-Formen", card FATE-NEXT
+
 ## Answered 2026-11-07
 
 - [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).

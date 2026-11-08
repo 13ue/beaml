@@ -932,6 +932,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue (walk-through D037, page 3, 2026-11-08)
 → Effect: the next compiler step names and emits the public function (name and opt-in form: plan options; the DL-105 projection stays the content), 0005 calls it, the double-underscore name stays private. What the host may see at all is D040.
 
+**DL-155 · Migrate · A rule or literal change with affected stored values forces a new TYPE VERSION and a MIGRATE STEP; without affected values it is free**
+→ Question: how do a stricter constructor rule (DL-102), a lost ENUM LITERAL (DL-122) and a literal swap (DL-140) relate to TYPE VERSIONS, now that D6B-39 is lifted (DL-152) and `--stored` reads production live (DL-151)?
+→ Chose: one rule for constructor TYPES and enums. The live build checks whether at least one stored value (row or record) falls differently under the changed rule or literal table. If none does, the change is free: no new version, no `migrate` block. If one does, the build blocks until the source declares the next TYPE VERSION (`type Amount v2`, `enum Channel v2`) and a `migrate vN -> vM` block with a fate line (`quarantine f`, `retire f keep N days`, `redact f`) or a `map "old" -> Variant` line (DL-125 forms). v1 exists from the first declaration. An old version stays readable until production holds no value of it; then the step may leave (SQUASH), and the build says when. Version numbers in records and rows are never renumbered (DL-058).
+→ Options: A rule change inside the same version with a fate line (today's DL-102 form) · B every change a new version (DL-140 C, rejected for typo fixes) · C this gated form.
+→ By: 13ue (walk-through 2026-11-08, after three worked examples; "wird von mir so unterschrieben")
+→ Because: the gate "affected stored values" removes the DL-140 C objection (a typo fix with no data stays free) and keeps the OWNER line "stored yesterday, read differently today is a declared migration, never implicit". Versions make the old rule visible in code and in every record, so a redacted or absent value still says which rule it passed.
+→ Effect: DL-140 A keeps its content, moved under the version; DL-102 and DL-122 blocks keep their texts, the help names the version form. Enum versions (`enum Channel v2`) are new syntax: grammar, fmt, tree-sitter. Supersedes the DL-104 reading that a mark is optional for a chained TYPE only in so far as the version is now forced by data. Next: the fate slice (order vs DL-151 still open, D043), then this rule in `--stored`.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
