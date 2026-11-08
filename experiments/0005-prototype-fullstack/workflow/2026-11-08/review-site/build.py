@@ -212,7 +212,7 @@ fn Amount value,         currency         -> Amount ! BadAmount = Amount { value
 group("03-encoder", "Wie eine Seite einen BEAML-Wert anzeigt",
       "Die Seite /orders zeigt gespeicherte Bestellungen. Die Vorlage (HEEx) braucht dafür einfache Werte. Frage: welche Funktion ruft der Host dafür?",
       [
-          it("ENC", "Der Host ruft `Orders.__beaml_encode_order/1`", "default", "Opus (GREEN exp0005); C konkretisiert von Opus (TEST)",
+          it("ENC", "Der Host ruft `Orders.__beaml_encode_order/1`", "decided", "Opus (GREEN exp0005); C konkretisiert von Opus (TEST); entschieden 13ue: C",
              ["Host = die Phoenix-App um den erzeugten Code.",
               "Encoder = macht aus `Order` eine einfache Map.",
               "Heute ruft /orders `Orders.__beaml_encode_order/1`.",
@@ -238,7 +238,7 @@ type Order {
 ''')],
              [("A", "Host ruft den erzeugten internen Encoder", True),
               ("B", "Host zerlegt den Enum-Wert selbst", False),
-              ("C", "Compiler erzeugt eine öffentliche `project_<type>/1`", False)]),
+              ("C", "Compiler erzeugt eine öffentliche `project_<type>/1`", False)], dl="DL-154"),
       ])
 
 # ---------------------------------------------------------------- 4

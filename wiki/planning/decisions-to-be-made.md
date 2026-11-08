@@ -753,6 +753,17 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Option 2, not the default: encrypt.** The value is encrypted with a server secret and can be made readable for an emergency. The OWNER names this the form that does not respect privacy; it exists as an explicit setting only.
 - Open points for the plan: the setting's place (source line, build flag or host config), whether `value_sha256` (record format v3) is computed over the redacted form, what `--stored` compares for such a field (DL-151 keeps it redacted), and what a REPLAY RUN does with it.
 
+## D040 — Visibility: what a module hides from the host
+
+- **Status** OPEN (idea, raised by the OWNER on 2026-11-08 with DL-154)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** a BEAML module should be able to keep a TYPE, a field or the whole module internal, so that nothing of it reaches the host or leaves the module by accident. Open: is this declared on the TYPE, on the field, or on the module; what the default is (the OWNER wants a sensible default and explicit opt-in to expose); how it relates to the REDACTED FIELD (DL-059) and to the public projection of DL-154.
+- **Decision trigger** the plan of the DL-154 step (public projection), at the latest the first EXPERIMENT with a second module
+- **Next check** when that plan is written
+
+**[Proposal]** Sketch for the plan, not decided: three levels to compare: module-level `private`, TYPE-level, field-level; and a default where nothing is projected unless the TYPE opts in. By: Fable (note of the OWNER's voice note).
+
 ## Answered 2026-11-07
 
 - [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).

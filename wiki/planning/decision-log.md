@@ -923,6 +923,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue (walk-through D037, page 2, 2026-11-08)
 → N9 (voice note): the OWNER reads the N9 item as information, not a choice; it is right as written. N9 stays blocked on M3 (`quarantine amount` needs a fate form), no longer on M4.
 
+**DL-154 · Migrate · The compiler emits a public projection function per TYPE for the host; the internal encoder is not an interface**
+→ Question: the 0005 list page calls the compiler-internal `Orders.__beaml_encode_order/1` to render a BEAML value (GREEN exp0005 default A). Options: A host calls the internal encoder · B host matches the enum tuple itself · C the compiler emits a public `project_<type>/1`.
+→ Chose: C. OWNER words (voice note, transcribed): a special public function must be generated, with a very sensible default and an explicit opt-in.
+→ By: 13ue (walk-through D037, page 3, 2026-11-08)
+→ Effect: the next compiler step names and emits the public function (name and opt-in form: plan options; the DL-105 projection stays the content), 0005 calls it, the double-underscore name stays private. What the host may see at all is D040.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
