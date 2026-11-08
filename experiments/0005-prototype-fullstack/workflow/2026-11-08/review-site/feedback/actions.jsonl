@@ -40,3 +40,6 @@
 {"ts": "2026-11-08T09:51:12Z", "source": "voice", "action": "voice", "target": "D035", "result": "7.4 s"}
 {"ts": "2026-11-08T09:51:26Z", "source": "voice", "action": "stt", "target": "D035", "result": "ok", "chars": 107}
 {"ts": "2026-11-08T09:51:26Z", "source": "voice", "action": "voice", "target": "D035", "result": "12.1 s"}
+{"ts": "2026-11-08T09:54:43Z", "source": "mouse", "action": "nav", "target": "02b-fates.html", "result": null}
+{"ts": "2026-11-08T09:55:02Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
+{"ts": "2026-11-08T09:55:03Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}

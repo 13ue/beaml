@@ -119,11 +119,11 @@
  {
   "group": "02b-fates",
   "id": "M3",
-  "status": "parked",
+  "status": "decided",
   "page": "02b-fates",
   "added": "2026-11-08T07:26:11Z",
   "source": "m3-page 2026-11-08",
-  "by": "OWNER geparkt (D036); Einwand D3 von Opus (RED TEAM)"
+  "by": "OWNER geparkt (D036); Einwand D3 von Opus (RED TEAM); entschieden 13ue: A über DL-160 (redacted nur auf TYPES mit Version)"
  },
  {
   "group": "02b-fates",
@@ -605,11 +605,11 @@
  {
   "group": "11-parked",
   "id": "M3-parked",
-  "status": "parked",
+  "status": "decided",
   "page": "11-parked",
   "added": "2026-11-07",
   "source": "owner-review 2026-11-07",
-  "by": "OWNER"
+  "by": "OWNER; entschieden 13ue: A (DL-160)"
  },
  {
   "group": "11-parked",

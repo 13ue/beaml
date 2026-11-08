@@ -117,3 +117,5 @@
 {"ts": "2026-11-08T09:35:41Z", "id": "QM4-4", "page": "eingang", "change": "moved to Eingang", "by": "build.py (eingefroren)", "seed": true}
 {"ts": "2026-11-08T09:35:41Z", "id": "VERSION-RULE", "page": "eingang", "change": "moved to Eingang", "by": "build.py (eingefroren)", "seed": true}
 {"ts": "2026-11-08T09:50:28Z", "id": "Q5-10", "page": "04-rows", "change": "status decided", "by": "Fable (Default, offen); abgenommen 13ue: B"}
+{"ts": "2026-11-08T09:58:33Z", "id": "M3", "page": "02b-fates", "change": "status decided", "by": "OWNER geparkt (D036); Einwand D3 von Opus (RED TEAM); entschieden 13ue: A über DL-160 (redacted nur auf TYPES mit Version)"}
+{"ts": "2026-11-08T09:58:33Z", "id": "M3-parked", "page": "11-parked", "change": "status decided", "by": "OWNER; entschieden 13ue: A (DL-160)"}
