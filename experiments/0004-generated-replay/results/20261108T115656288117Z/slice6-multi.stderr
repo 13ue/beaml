@@ -1,0 +1,21 @@
+test_n10_rejects (__main__.Slice6Multi.test_n10_rejects) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_n11_fmt_keeps_the_fixture (__main__.Slice6Multi.test_n11_fmt_keeps_the_fixture) ... ok
+test_n11b_fmt_aligns_a_single_spaced_effect_line (__main__.Slice6Multi.test_n11b_fmt_aligns_a_single_spaced_effect_line) ... ok
+test_n13_sources_without_an_entry_keep_their_bytes (__main__.Slice6Multi.test_n13_sources_without_an_entry_keep_their_bytes) ... compiler ce190054: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-ce190054-n0amz8bv/target/debug/beaml-spike
+ok
+test_n14_entry_line_sources_take_the_stem (__main__.Slice6Multi.test_n14_entry_line_sources_take_the_stem) ... ok
+test_n14b_source_without_entry_line_stays_beamlspike (__main__.Slice6Multi.test_n14b_source_without_entry_line_stays_beamlspike) ... ok
+test_n14c_non_identifier_stem_keeps_the_stem_error (__main__.Slice6Multi.test_n14c_non_identifier_stem_keeps_the_stem_error) ... ok
+test_n15_module_name_from_stem (__main__.Slice6Multi.test_n15_module_name_from_stem) ... ok
+test_n1_two_effects_and_two_entry_lines_build (__main__.Slice6Multi.test_n1_two_effects_and_two_entry_lines_build) ... ok
+test_n2_output_compiles_without_warnings (__main__.Slice6Multi.test_n2_output_compiles_without_warnings) ... ok
+test_n3_to_n6_runtime (__main__.Slice6Multi.test_n3_to_n6_runtime) ... ok
+test_n7_stored_snapshot_with_two_operations_builds (__main__.Slice6Multi.test_n7_stored_snapshot_with_two_operations_builds) ... ok
+test_n8_orphan_block_per_operation (__main__.Slice6Multi.test_n8_orphan_block_per_operation) ... ok
+test_n9_dead_line_per_operation (__main__.Slice6Multi.test_n9_dead_line_per_operation) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 10.119s
+
+OK

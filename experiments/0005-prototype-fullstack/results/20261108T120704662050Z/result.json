@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+    "run.py",
+    "db-up"
+  ],
+  "subcommand": "db-up",
+  "started_at": "2026-11-08T12:07:04.662050+00:00",
+  "finished_at": "2026-11-08T12:07:04.984439+00:00",
+  "toolchain": {
+    "python": "3.13.12",
+    "elixir": "Elixir 1.18.1 (compiled with Erlang/OTP 27)",
+    "otp": "27",
+    "pg_ctl": "pg_ctl (PostgreSQL) 17.11 (Postgres.app)"
+  },
+  "steps": [],
+  "status": "pass"
+}

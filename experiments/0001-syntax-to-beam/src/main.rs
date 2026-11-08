@@ -1529,11 +1529,7 @@ impl<'a> Checker<'a> {
                             return Err(format!("{label}: two fate lines name the field {f}"));
                         }
                         if self.constructors.contains(name) {
-                            if !quarantined.is_empty() {
-                                return Err(format!(
-                                    "{label}: one quarantine line per constructor TYPE; {name} has two (PF-11)"
-                                ));
-                            }
+                            // DL-172: a constructor TYPE takes one quarantine line per parameter.
                         } else if self.constructors.contains(&ty) {
                             let n = self.newest_version(&ty);
                             return Err(format!(
@@ -2134,18 +2130,11 @@ impl<'a> Checker<'a> {
         Ok(())
     }
     // The fields of an EFFECT output TYPE or a ROW TYPE that the decode reads (steps 7 and 8). M4 step 1 (DL-152):
-    // a versioned TYPE may hold enum and constructor fields; only a MIGRATE STEP that names one stays an error.
+    // a versioned TYPE may hold enum and constructor fields; DL-166: a `rename` onto one builds too.
     fn output_fields(&self, name: &str, output: &str) -> Checked<()> {
         for (field, ty) in self.record(output)? {
             // Slice 6b step 7: an enum with ENUM LITERALS decodes by its mapping (D6B-35).
             if self.program.literals.contains_key(ty) {
-                self.renamed_onto(
-                    name,
-                    output,
-                    field,
-                    "enum",
-                    &format!(", or make {field} a String field"),
-                )?;
                 if self.keep_variant(ty).is_none() {
                     return Err(format!(
                         "error: effect {name}: the enum {ty} of {output}.{field} has no keep-value variant (DL-065)\n  help: add the variant Unknown(String) to enum {ty}"
@@ -2153,37 +2142,12 @@ impl<'a> Checker<'a> {
                 }
             } else if self.constructors.contains(ty) && self.ctor_signatures(ty).is_some() {
                 // Step 8 (DL-101): the decode calls the constructor with String parameters (S4).
-                self.renamed_onto(name, output, field, "constructor", "")?;
                 self.ctor_keeps(name, output, field, ty)?;
             } else if ty != "String" {
                 return Err(format!(
                     "effect {name}: slice 1 decodes String fields only, not {}.{field}",
                     output
                 ));
-            }
-        }
-        Ok(())
-    }
-    // M4 step 1 (DL-152, QM4-1 A): `rename old -> field` onto an enum or constructor field waits for the fate forms
-    // (M3). `add` and `drop` take String fields only (`type_versions`), so `rename` is the one step to check here.
-    fn renamed_onto(
-        &self,
-        name: &str,
-        output: &str,
-        field: &str,
-        kind: &str,
-        help: &str,
-    ) -> Checked<()> {
-        for step in self.migrations(output) {
-            for change in &step.changes {
-                if let Change::Rename(old, new) = change
-                    && new == field
-                {
-                    let (from, to) = (step.from, step.to);
-                    return Err(format!(
-                        "error: effect {name}: migrate {output} v{from} -> v{to}: rename {old} -> {new} names the {kind} field {output}.{field}; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)\n  help: remove rename {old} -> {new} from the MIGRATE STEP{help}"
-                    ));
-                }
             }
         }
         Ok(())
@@ -5816,8 +5780,9 @@ struct ValueChecks {
     moved: BTreeMap<MovedKey, (String, String, Vec<usize>)>,
     // fates-a1 (PF-13): per (place, step label, fate line, verb): the record lines that the fate line lifts.
     fated: BTreeMap<(String, String, String, &'static str), BTreeSet<usize>>,
-    // PF-21: per (field key, failure TYPE) the parameter that the first failing clause tests by a pattern.
-    params: BTreeMap<(FieldKey, String), String>,
+    // PF-21: per (field key, failure TYPE) the parameter that the first failing clause tests by a pattern; None
+    // when it tests none (DL-172 QB-2).
+    params: BTreeMap<(FieldKey, String), Option<String>>,
 }
 
 // A DEAD LINE: its byte range in the source, its form (`retire ...` or `migrate T a -> b`) and why it is dead.
@@ -6126,17 +6091,19 @@ impl Checker<'_> {
             }
         }
         for (field, enum_name) in self.literal_fields(ty) {
-            let value = body.and_then(|b| b.get(&field));
+            // DL-166: a stored body of an older TYPE VERSION holds the field under its name before the renames.
+            let at = self.stored_key(ty, version, &field);
+            let value = body.and_then(|b| b.get(&at));
             let literal = value.and_then(Json::text).is_some_and(|text| {
                 self.program.literals[&enum_name]
                     .iter()
                     .any(|(_, l)| l == text)
             });
-            let resolved = literal && kept(&field);
+            let resolved = literal && kept(&at);
             // DL-122: a String that is no current literal and was not kept was an ENUM LITERAL at capture. DL-140,
             // DL-161: a literal that moved to another variant since the previous declaration. A fate line lifts both.
             let text = value.and_then(Json::text);
-            match self.literal_verdict(ty, &field, &enum_name, text, kept(&field)) {
+            match self.literal_verdict(ty, &field, &enum_name, text, kept(&at)) {
                 Literal::Fine => {}
                 Literal::Lost => checks
                     .lost
@@ -6187,7 +6154,7 @@ impl Checker<'_> {
             entry.2 += usize::from(resolved);
         }
         for (field, ctor) in self.ctor_fields(ty) {
-            let value = body.and_then(|b| b.get(&field));
+            let value = body.and_then(|b| b.get(&self.stored_key(ty, version, &field)));
             let key = (ty.to_string(), place.to_string(), field, ctor);
             match self.ctor_pick(&key.3, value) {
                 None => checks.faults.entry((key, None)).or_insert((0, number)).0 += 1,
@@ -6298,13 +6265,15 @@ impl Checker<'_> {
                 let Some(failure) = verdict else {
                     continue;
                 };
-                // DL-102, DL-155, PF-12: a `quarantine` line of the constructor TYPE lifts its failed rule.
-                if let Some((step, line, verb)) = self.ctor_fate(&key.3) {
+                // DL-102, DL-155, PF-12, DL-172: a `quarantine p` line of the constructor TYPE lifts the failed rule
+                // only when its clause tests p with a literal. The same clause gives the help (PB-04).
+                let tested = self.tested_params(&key.3, sig, inputs);
+                if let Some((step, line, verb)) = self.ctor_fate(&key.3, &tested) {
                     let at = (key.1.clone(), step, line, verb);
                     checks.fated.entry(at).or_default().insert(*number);
                     continue;
                 }
-                let param = self.failing_param(&key.3, sig, inputs);
+                let param = tested.into_iter().next();
                 checks
                     .params
                     .entry((key.clone(), failure.clone()))
@@ -6343,12 +6312,18 @@ impl Checker<'_> {
                 ),
                 (Some(failure), false) => {
                     let n = self.newest_version(ctor);
-                    let param = &checks.params[&(key.clone(), failure.clone())];
-                    format!(
-                        "  help: declare the next TYPE VERSION and a fate (DL-155): type {ctor} v{} and migrate {ctor} v{n} -> v{} {{ quarantine {param} }}",
-                        n + 1,
-                        n + 1
-                    )
+                    // DL-172 QB-2 (open, built default): a failed rule that tests no parameter with a literal has
+                    // no fate line.
+                    match &checks.params[&(key.clone(), failure.clone())] {
+                        None => format!(
+                            "  help: no fate line covers a failed rule that tests no parameter with a literal (QB-2 open); restore the rule of fn {ctor} that reads these records"
+                        ),
+                        Some(param) => format!(
+                            "  help: declare the next TYPE VERSION and a fate (DL-155): type {ctor} v{} and migrate {ctor} v{n} -> v{} {{ quarantine {param} }}",
+                            n + 1,
+                            n + 1
+                        ),
+                    }
                 }
             };
             errors.push(format!(
@@ -6384,14 +6359,20 @@ impl Checker<'_> {
             n + 1
         )
     }
-    // The `quarantine f` line in the last MIGRATE STEP of the constructor TYPE `ctor` (form A, QF-3 ruled).
-    fn ctor_fate(&self, ctor: &str) -> Option<Fate> {
+    // The `quarantine p` line in the last MIGRATE STEP of the constructor TYPE `ctor` for a parameter `p` in
+    // `tested` (form A, QF-3 ruled; DL-172).
+    fn ctor_fate(&self, ctor: &str, tested: &[String]) -> Option<Fate> {
         self.record(ctor).ok()?;
-        self.fate_in(ctor, |c| matches!(c, Change::Quarantine(Some(_), None)))
+        self.fate_in(
+            ctor,
+            |c| matches!(c, Change::Quarantine(Some(f), None) if tested.contains(f)),
+        )
     }
-    // PF-21: the first parameter with a literal pattern in the first clause of `sig` that matches `inputs`, else the
-    // first parameter. ponytail: a Rust mirror of the clause order, for the help text only.
-    fn failing_param(&self, ctor: &str, sig: &str, inputs: &[String]) -> String {
+    // PF-21, DL-172: the parameters with a literal pattern in the first clause of `sig` that matches `inputs`, in
+    // parameter order. Empty: the clause tests no parameter with a literal (QB-2), or no clause matches.
+    // ponytail: a Rust mirror of the clause order; it decides the help and the quarantine lift (DL-172). A new
+    // pattern kind (guards, Int compares) must change this mirror and the Elixir `cond` together.
+    fn tested_params(&self, ctor: &str, sig: &str, inputs: &[String]) -> Vec<String> {
         let names = (self.ctor_signatures(ctor).unwrap_or_default())
             .into_iter()
             .find(|(k, _)| k == sig)
@@ -6405,14 +6386,33 @@ impl Checker<'_> {
         let clause = (self.program.clauses.iter())
             .filter(|c| c.key == sig)
             .find(|c| c.args.iter().zip(inputs).all(|(a, i)| fits(a, i)));
-        let at = clause
-            .and_then(|c| {
-                c.args
-                    .iter()
-                    .position(|a| matches!(a, Node::Text(_) | Node::Int(_)))
-            })
-            .unwrap_or(0);
-        names.get(at).or(names.first()).cloned().unwrap_or_default()
+        let Some(clause) = clause else {
+            return Vec::new();
+        };
+        (clause.args.iter().zip(names))
+            .filter(|(a, _)| matches!(a, Node::Text(_) | Node::Int(_)))
+            .map(|(_, n)| n)
+            .collect()
+    }
+    // DL-166: the key of `field` (newest TYPE VERSION of `ty`) in a stored body of TYPE VERSION `version`: undo the
+    // renames of each MIGRATE STEP from `version` on, the newest step first, the changes of a step in reverse order.
+    fn stored_key(&self, ty: &str, version: u32, field: &str) -> String {
+        let mut name = field.to_string();
+        for step in self
+            .migrations(ty)
+            .iter()
+            .rev()
+            .filter(|m| m.from >= version)
+        {
+            for change in step.changes.iter().rev() {
+                if let Change::Rename(old, new) = change
+                    && *new == name
+                {
+                    name = old.clone();
+                }
+            }
+        }
+        name
     }
     // Step 8 (D6B-48, DL-101): the first signature of `fn T` whose keys all hold Strings (one parameter: the field
     // value is the String), with its inputs. None: no signature matches.

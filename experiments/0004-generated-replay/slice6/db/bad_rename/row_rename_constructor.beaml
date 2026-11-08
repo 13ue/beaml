@@ -1,4 +1,4 @@
-// Slice 6 db reject (N12): a MIGRATE STEP that names a constructor field waits for M3 (DL-152 step 1).
+// Slice 6 db (N12): a rename onto a constructor field builds (DL-166); the path keeps its old name (PB-06).
 type BadAmount {}
 type Amount {
   value: String

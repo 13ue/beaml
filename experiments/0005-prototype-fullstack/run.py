@@ -5,7 +5,7 @@ python3 -B run.py [run] | db-up | db-down | db-reset | smoke
 `run` (the default) needs a database that is up (db-up). It never starts or stops it. Steps: the compiler
 (BEAML_SPIKE or a cargo build of 0001), db-reset, stored + gen of app/beaml/orders.beaml (a live ROW SNAPSHOT by
 `mix beaml.stored`, Q5-4 B, then the compiler with --stored), compile, the N-TESTS in mix test, then the phases n8,
-n7_seed, gen order_v2, n7_read, and gen orders.beaml again. Every step runs and is recorded; one failed step fails the run.
+n7_seed, gen rename_channel (N14, build only), gen order_v2, n7_read, and gen orders.beaml again. Every step runs and is recorded; one failed step fails the run.
 The run also fails unless every N-TEST of EXPECTED passes (N9 blocked) and the order_v2 snapshot holds 2 rows, no DEAD LINE.
 
 Every call writes results/<UTC>/ with commands, toolchain versions and result.json.
@@ -160,7 +160,7 @@ def main(command):
         (run / "result.json").write_text(json.dumps(result, indent=2) + "\n")
         return step["status"] == "pass"
 
-    def gen(variant):
+    def gen(variant, write=True):
         """stored + gen: a live ROW SNAPSHOT, then the compiler. lib/generated/orders.ex changes only on exit 0."""
         label = variant or "orders"
         snap = run / ("stored-" + label)
@@ -173,11 +173,24 @@ def main(command):
             return False
         ok = execute("gen-" + label, [env["BEAML_SPIKE"], source(variant), "--stored", snap / "responses.jsonl"],
                      APP, stdout=out)
-        if ok:
+        if ok and write:
             GENERATED.parent.mkdir(exist_ok=True)
             GENERATED.write_bytes(out.read_bytes())
-        hashes.update(output_sha256=sha256(out), written=ok)
+        hashes.update(output_sha256=sha256(out), written=ok and write)
         return ok
+
+    def n14():
+        """DL-166, DL-158: the rename onto the enum field channel builds against the live v1 rows. Gen only: the host
+        templates read channel, so no host compile. Records the use case like the mix formatter (no values)."""
+        target = "test " + N14
+        ok = gen("rename_channel", write=False)
+        lines = (run / "gen-rename_channel.stderr").read_text().splitlines()
+        result_text = "pass" if ok and lines == ["rows: 2 rows, 2 checked, 0 not decodable"] else "fail: build"
+        with (run / "use-cases.jsonl").open("a") as out:
+            for action, res in (("start", "running"), ("finish", result_text)):
+                out.write(json.dumps({"result": res, "source": "cli", "target": target, "action": action,
+                                      "use_case": "exp0005-N14", "ts": utc().isoformat()}) + "\n")
+        return result_text == "pass"
 
     def run_all():
         if not (pg_running() and PGSOCK.is_dir()):
@@ -199,6 +212,7 @@ def main(command):
                     lambda: execute("test", ["mix", "test", "--warnings-as-errors"], APP),
                     lambda: execute(*phase("n8"), APP),
                     lambda: execute(*phase("n7_seed"), APP),
+                    n14,
                     lambda: gen("order_v2"),
                     lambda: execute("compile-order_v2", ["mix", "compile", "--force", "--warnings-as-errors"], APP),
                     lambda: execute(*phase("n7_read"), APP),
@@ -258,6 +272,7 @@ def main(command):
     return 0 if result["status"] == "pass" else 1
 
 
+N14 = "N14 a rename onto the enum field channel builds against the live v1 rows"
 # RED repair O2: the acceptance set (plan.md "Acceptance"). Every pair must pass; only N9 is blocked.
 BLOCKED = {"N9": "blocked: fate slice (D036)"}
 EXPECTED = {("exp0005-" + u, "test " + t) for u, t in [
@@ -282,7 +297,8 @@ EXPECTED = {("exp0005-" + u, "test " + t) for u, t in [
     ("N10", "N10 a removed ui.place line stops the host build at Orders.ui_place/1"),
     ("N11", "N11 a TYPE change reached the table and the DDL did not move"),
     ("N12", "N12 the host writes one action event per action and no value"),
-    ("N13", "N13 git holds no database dir, no env file and no secret literal in config or lib")]}
+    ("N13", "N13 git holds no database dir, no env file and no secret literal in config or lib"),
+    ("N14", N14)]}
 
 
 def acceptance(run, cases):

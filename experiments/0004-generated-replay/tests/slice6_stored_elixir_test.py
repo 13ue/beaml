@@ -38,7 +38,7 @@ NOMATCH = sdc.NOMATCH
 # Plan E1: the step 8 DL-102 block text, count 1, first record line.
 CTOR_FAILS = ("error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize fails the constructor of "
               "Amount for field amount with NoCurrency\n"
-              "  record source: %s:1 (line 1)\n" + sdc.help_quarantine("Amount", "value"))
+              "  record source: %s:1 (line 1)\n" + sdc.help_no_literal("Amount"))
 # Contract 5 (D6B-106): no pass without Elixir.
 NO_ELIXIR = ("error: the --stored check runs the constructors over the stored values in Elixir (DL-121): elixir is not "
              "on PATH\n"

@@ -167,6 +167,12 @@ def help_quarantine(ctor, param, newest=1):
             "{ quarantine %s }" % (ctor, newest + 1, ctor, newest, newest + 1, param))
 
 
+def help_no_literal(ctor):
+    """DL-172 QB-2 (open, built default): a failed rule that tests no parameter with a literal has no fate line."""
+    return ("  help: no fate line covers a failed rule that tests no parameter with a literal (QB-2 open); restore the "
+            "rule of fn %s that reads these records" % ctor)
+
+
 def help_literal(enum, newest=1):
     return ('  help: declare the next TYPE VERSION and a fate (DL-155): enum %s v%d and migrate %s v%d -> v%d '
             '{ map "<old literal>" -> <Variant> }' % (enum, newest + 1, enum, newest, newest + 1))

@@ -167,12 +167,13 @@ PAIRS = {
 }
 # fates-a1 GREEN (plan repair 4, two-commit rule): five pairs change only their DL-102 help line to the DL-155 help
 # (RF-09). The plan listed four; stored-elixir/order.jsonl (a failed Amount rule) is the fifth. decode/stored-fail keeps.
+# fates-a1b (DL-172 QB-2): the three stored-elixir rules test no parameter with a literal, so their help offers no fate.
 HELP_REPIN = {
     "slice6/decode-ctor/stored-fail.jsonl": sdc.help_quarantine("Amount", "currency"),
     "slice6/decode-ctor/stored-nomatch.jsonl": sdc.HELP_ENUM_NOMATCH,
-    "slice6/stored-elixir/order.jsonl": sdc.help_quarantine("Amount", "value"),
-    "slice6/stored-elixir/nested-fail.jsonl": sdc.help_quarantine("Amount", "value"),
-    "slice6/stored-elixir/pipe-fail.jsonl": sdc.help_quarantine("Amount", "value"),
+    "slice6/stored-elixir/order.jsonl": sdc.help_no_literal("Amount"),
+    "slice6/stored-elixir/nested-fail.jsonl": sdc.help_no_literal("Amount"),
+    "slice6/stored-elixir/pipe-fail.jsonl": sdc.help_no_literal("Amount"),
 }
 STORED_WORDS = se.STORED_WORDS + (srd.STORED_HOLDER, "order-1", "pending")
 # V18: the only generated functions whose lines may change (plan, "Pin sites and diff proof").
