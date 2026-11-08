@@ -2102,10 +2102,10 @@ effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> plac
 
 - **[Verified]** Count lines (QV3-7), on stderr after a green check, only when M > 0 (`test_V14_count_lines`, `test_V15_no_count_lines_when_nothing_is_rejected`):
   - `N records, K checked, M rejected at capture`
-  - `digest not verified (P2b)`
-  - Both lines print together or not at all. One form `N records`, no singular (RV3-16). They come before the ENTRY count line (`test_V14c_*`). A block prints no count line.
+  - ~~`digest not verified (P2b)`~~: removed by P2b (DL-164); see [P2b](#step-p2b-a-wrong-digest-stops-the-build-dl-164).
+  - Before P2b both lines printed together or not at all. One form `N records`, no singular (RV3-16). They come before the ENTRY count line (`test_V14c_*`). A block prints no count line.
 - **[Verified]** No count line or block text names a stored value (DL-124, `test_V16_no_stored_value_in_stderr`).
-- **[Verified]** DL-136 is half built: the `outcome` half is in P2. The digest half (a bad `value_sha256` is counted, not checked) is open as P2b, [D035](../../wiki/planning/decisions-to-be-made.md#d035--p2b-the-dl-136-digest-half-for-stored-records). The second count line marks it until P2b lands.
+- **[Verified]** DL-136 is half built: the `outcome` half is in P2. The digest half (a bad `value_sha256` is counted, not checked) is open as P2b, [D035](../../wiki/planning/decisions-to-be-made.md#d035--p2b-the-dl-136-digest-half-for-stored-records). The second count line marks it until P2b lands. **[Verified]** Superseded: P2b built the digest half ([P2b](#step-p2b-a-wrong-digest-stops-the-build-dl-164)).
 
 ### One-time rewrite of 15 fixtures (QV3-5)
 
@@ -2607,3 +2607,64 @@ migrate Order v1 -> v2 { rename channel -> source }
 | --- | --- | --- | --- |
 | One new section after a1; the M4 rename error kept with a superseded line | Undo | The M4 section is a step record | Opus (fates-a1b, docs) |
 | No new glossary term | Undo | MIGRATE STEP, FATE OPERATION exist | Opus (fates-a1b, docs) |
+
+## Step P2b: a wrong digest stops the build (DL-164)
+
+**[Requirement]** DL-164 (OWNER, D035 A) builds the digest half of DL-136: a stored item whose `value_sha256` does not match its content stops the build. Ledger: [plan.md](workflow/2026-11-08/p2b/plan.md), [plan review](workflow/2026-11-08/p2b/plan-review.md), [RED plan](workflow/2026-11-08/p2b/red-plan.md), [RED output](workflow/2026-11-08/p2b/red-output.md), [RED review](workflow/2026-11-08/p2b/red-review.md), [GREEN](workflow/2026-11-08/p2b/green-output.md), [TEST](workflow/2026-11-08/p2b/test-p2b.md). RED `53aed354`, GREEN `372b2ee1`, TEST PASS `6427262f`. Tests: [`tests/slice6_db_stored_test.py`](tests/slice6_db_stored_test.py), [`tests/record_v3_test.py`](tests/record_v3_test.py), [`tests/slice6_entry_test.py`](tests/slice6_entry_test.py), [`tests/stored_types_test.py`](tests/stored_types_test.py).
+
+| Step | Owner |
+|---|---|
+| Write `value_sha256` when the item is stored | BEAML (generated Elixir) |
+| Check the digest of every checked item at build time (`--stored`) | BEAML (COMPILER) |
+| Check the digest again at run time (`body/1`) | BEAML (generated Elixir) |
+| Rows in the store, the ROW SNAPSHOT, the stored files | host |
+
+### Supported subset (built)
+
+- **[Verified]** A wrong `value_sha256` (over `value`, `unknown_keys`, `redacted`, QV3-6) is a build error, exit 1, no stdout:
+
+```
+error: TYPE Order: 1 stored ROW of table records has a wrong digest: value_sha256 does not match value, unknown_keys and redacted (DL-164)
+  record source: <dir>/rows.jsonl:2 (line 2)
+  help: the stored value changed without a new digest (a hand edit or corruption); restore or delete the ROW, then build again
+```
+
+- **[Verified]** One block per (TYPE, place), first line of the group, plural `2 stored ROWS … have` (R7, R10).
+- **[Verified]** The digest error comes first and alone, before orphan, path, value and held errors. Only shape errors come before it (not JSON, record version, outcome, `stored_version`). A bad row skips its later checks.
+- **[Verified]** Checked = every item that reaches the run-time `body/1`:
+  - all db records, whatever the outcome (R8);
+  - http records with status 200, whatever the outcome (R9); a 503 stops at `:status_mismatch` first (G1);
+  - all ENTRY RECORDS, whatever the outcome (R10); RETIRE LINE records are not checked (G1);
+  - all rows of a TYPE that is read (R6); a TYPE with no reader is not checked.
+- **[Verified]** Canonical JSON writes `\u00XX` in upper-case hex, like Erlang `:json` (only 0x00..0x1F, `"` and `\` escaped). Probe: [`probe_control_chars_test.py`](workflow/2026-11-08/p2b/test-probe/probe_control_chars_test.py) with a digest from the generated `digest/3` code ([`digest.exs`](workflow/2026-11-08/p2b/test-probe/digest.exs)).
+- **[Verified]** The count line `digest not verified (P2b)` is gone; `N records, K checked, M rejected at capture` stays.
+- **[Verified]** 0005 use case N15: a `jsonb_set` on a live row stops the build with the digest error; no stored value, order id, trace id or span id in stderr; no DDL. Control: the row deleted, the build passes.
+
+### Exclusions (not built)
+
+- **[Verified]** The digest still does not cover `outcome` (record format v3 limit).
+- **[Verified]** The digest algorithm is unchanged; only the hex case of `\u` escapes moved.
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| RED at `53aed354` and the RED repair (R7 to R10) | the new tests fail at HEAD: exit 0, no error ([RED output](workflow/2026-11-08/p2b/red-output.md), [GREEN](workflow/2026-11-08/p2b/green-output.md)) |
+| TEST full `run.py`, [`results/20261108T132357983680Z`](results/20261108T132357983680Z/result.json) | status `pass`, 40 of 40 steps; db_stored 56 OK, record_v3 29 OK, entry 23 OK, stored_types 33 OK |
+| 0005 `db-up` and `run`, [`20261108T134104326498Z`](../0005-prototype-fullstack/results/20261108T134104326498Z/result.json), [`20261108T134104848998Z`](../0005-prototype-fullstack/results/20261108T134104848998Z/result.json) | pass, 19 of 19 steps, N15 pass |
+| N15 with the compiler before GREEN, [`20261108T132136459464Z`](../0005-prototype-fullstack/results/20261108T132136459464Z/result.json) | N15 fails (exit 0, Elixir on stdout): N15 is no false pass |
+| Control-character probe | Ran 58 OK (3 skip); a lower-case `\u001a` digest blocks |
+| Pins | no byte or hash pin moved; V18b passes |
+
+### Limits
+
+- **[Verified]** Card P2B-SCOPE stays open for the OWNER: verify only accepted items, or every item that reaches `body/1` (built default).
+- **[Verified]** TEST medium: a non-list `unknown_keys` with a matching digest passes the build, but replay gives `:body_digest_mismatch`. Only a crafted record triggers it. Smallest test: a row with `unknown_keys: null` and a matching digest must block.
+- **[Verified]** A passed step does not establish production readiness.
+
+### Decisions (Decision4, DOCS P2b)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| One new section at the end; the record v3 count-line text kept with a removed mark | Undo | The v3 section is a step record | Opus (P2b, docs) |
+| No new glossary term | Undo | ROW, RESPONSE RECORD, ENTRY RECORD exist | Opus (P2b, docs) |

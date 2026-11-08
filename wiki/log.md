@@ -526,3 +526,11 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#fates-step-a1b-rename-onto-enum-and-constructor-fields-quarantine-per-field-dl-166-dl-172): new section; the M4 rename error and the a1 exclusion line marked as superseded.
 - [EXPERIMENT 0005 README](../experiments/0005-prototype-fullstack/README.md): N14 row.
 - [Migrate fates concept](concepts/migrate-fates.md): a1b built status. [Register](planning/research-and-development.md): new fates step a1b row. No GLOSSARY change. By: Opus (fates-a1b, docs).
+
+## 2026-11-08: TEST and docs | step P2b, a wrong digest stops the build (DL-164)
+
+**[Verified]** RED `53aed354`; GREEN `372b2ee1`; TEST PASS `6427262f`, two medium objections (non-list `unknown_keys` passes the build, crafted input only; stale README count line, fixed here) ([TEST](../experiments/0004-generated-replay/workflow/2026-11-08/p2b/test-p2b.md), By: Opus (P2b, TEST)). Full `run.py` 40 of 40 ([`20261108T132357983680Z`](../experiments/0004-generated-replay/results/20261108T132357983680Z/result.json)); 0005 `db-up` and `run` pass with N15 ([`20261108T134104848998Z`](../experiments/0005-prototype-fullstack/results/20261108T134104848998Z/result.json)). D035 was already closed by DL-164. **[Requirement]** Open: card P2B-SCOPE (built default).
+
+- [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#step-p2b-a-wrong-digest-stops-the-build-dl-164): new section; the record v3 count line `digest not verified (P2b)` marked as removed.
+- [EXPERIMENT 0005 README](../experiments/0005-prototype-fullstack/README.md): N15 row.
+- [Register](planning/research-and-development.md): new P2b row; v3 row limit points to it. [Vertical integration](concepts/vertical-integration.md), [roasting rounds](planning/roasting-rounds.md) (addenda), [roadmap page](../docs/index.html): digest half built. No GLOSSARY change. By: Opus (P2b, docs).

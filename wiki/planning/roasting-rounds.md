@@ -175,7 +175,7 @@ Counts: high 6, medium 13, low 4, critical 0. Every disposition below was pendin
 
 ### 1. The `--stored` check and the REPLAY RUN read different records
 
-Category: implementation. Severity: high. Disposition: answered by the OWNER (M1, [DL-136](decision-log.md)); code pending in D035 (P2b) and record format v3. Disposition rationale: see Dispositions.
+Category: implementation. Severity: high. Disposition: answered by the OWNER (M1, [DL-136](decision-log.md)); code pending in D035 (P2b) and record format v3; the digest half built in P2b on 2026-11-08 (DL-164). Disposition rationale: see Dispositions.
 
 **[Verified]** `check_stored` never reads `status`; `Replay.run` stops at `status_mismatch` before it reads `value`. A 503 record beside valid records gives exit 1 with the DL-102 text and the MIGRATE STEP help ([C2](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/rt-correctness.md)). DL-121 claims "the check result equals the REPLAY RUN result".
 **[Verified]** The same gap: a tampered `value_sha256` passes the check and never replays (C5).
@@ -248,7 +248,7 @@ Repaired, by phase records in the [repairs ledger](../../experiments/0004-genera
 Answered by the OWNER ([decision log](decision-log.md)):
 
 - **[Verified]** M1 → [DL-136](decision-log.md) (option A). M2 → [DL-140](decision-log.md) (option A). M6 → [DL-139](decision-log.md) (option B with a limit). M7 → [DL-135](decision-log.md) (option A).
-- **[Verified]** C2, C5: answered by DL-136. Code pending in [D035](decisions-to-be-made.md) (P2b) and record format v3.
+- **[Verified]** C2, C5: answered by DL-136. Code pending in [D035](decisions-to-be-made.md) (P2b) and record format v3. Update 2026-11-08: P2b built the digest half (DL-164).
 - **[Verified]** D1: answered by DL-140. Code pending with the fate slice.
 
 Parked by the OWNER ([D036](decisions-to-be-made.md)):
