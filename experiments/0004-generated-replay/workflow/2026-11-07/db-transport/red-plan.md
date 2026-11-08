@@ -138,3 +138,35 @@ New fixtures: `slice6/db/stricter/orders.beaml` (`fn Amount "0", _` before the g
 → DL-140 and the RETIRE LINE free as `@unittest.skip` with the reason, not `expectedFailure`. → By: Opus (RED db-stored) · Undo
 → New test file statt extending `slice6_db_test.py`, weil the task forbids editing existing tests. → By: Opus (RED db-stored) · Undo
 → Sample database name `beaml_dev` in `snapshot-meta.json` (no secret, a dev name). → By: Opus (RED db-stored) · Undo
+
+## P4c: row shape check
+
+**[Proposal]** Solve/RED phase, 2026-11-08. By: Opus (RED P4c). Inputs: [review.md](review.md) O1 and O3; 0005 [owner review](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) section "Row shape check" (default A: block with the DL-102 text). Test file: `tests/slice6_db_stored_test.py` (four tests appended, N27 changed). Evidence: [red-output.md](red-output.md#p4c).
+No new fixture file: every case builds its rows and records in a temp directory per test (`row()`, `db_record()`); N27 reads no shared fixture.
+
+### Mapping
+
+| Test | Plan item | Asserts |
+|---|---|---|
+| `N32_row_missing_string_field` | O1, default A, DL-102, DL-124 | `orders.beaml`, one `Order` row without the String field `order_id`, own digest: exit 1, stdout empty, `error: TYPE Order: 1 stored ROW of table records has no String value for field order_id`, `  record source: <rows>:1 (line 1)`, help line by `HELP_PREFIX` (DL-102), no stored number in the text |
+| `N32b_row_wrong_type_string_field` | O1, default A | the same, with an Int in `order_id`: the same three lines (one text for both faults) |
+| `N32_control_complete_row_builds` | O1 control | a complete row: exit 0, `rows: 1 rows, 1 checked, 0 not decodable` (passes today) |
+| `N32c_response_record_shape_blocks` (2 subtests) | O1 second stream, owner-review "covers both streams" | the two faults as item 0 of an `orders.list` RESPONSE RECORD beside an empty `rows.jsonl`: `1 stored RESPONSE RECORD of operation orders.list has no String value for field order_id`, record source `<responses>:1 (line 1)`, help line. HEAD builds it, so this is RED, not a guard |
+| `N27_events_hold_no_row_value` (changed) | O3 | the two rows of N27 carry String row ids (no digits run that a `ts` epoch float can hold); the event check in `compile()` is unchanged |
+
+### GREEN notes
+
+- The check runs in the DL-101 tail (after the MIGRATE CHAIN, PDB-15), over `String` fields of the ROW TYPE and of a RESPONSE RECORD value (also list items). A missing key and a non-String value give the same text.
+- **[Inference]** A `rejected` row or record stays counted, not shape-checked (QV3-8 B, N21b).
+
+### Decisions
+
+**Repair**
+→ One text "has no String value for field <f>" for missing and wrong-type statt two texts, weil both fail the same `db.list` decode and the text then holds no value hint. → By: Opus (RED P4c, default, open) · Repair
+→ RESPONSE RECORD case as RED test statt a guard, weil HEAD builds it (observed, exit 0). → By: Opus (RED P4c) · Repair
+→ O3 fixed in N27 only statt all `row()` ids, weil the task scopes N27 and appends only; every other test still writes 4-digit int ids into its `compile()` check (residual false-fail risk, see red-output P4c Limits). → By: Opus (RED P4c) · Repair
+
+**Undo**
+→ No new fixture files: rows are per-test temp files; N27 has no shared fixture. → By: Opus (RED P4c) · Undo
+→ Plural form (`2 stored ROWS … have`) not tested. → By: Opus (RED P4c) · Undo
+→ RESPONSE case over `orders.list` statt `orders.save`, weil the save record's `request` holds the same value and could block first on the input side. → By: Opus (RED P4c) · Undo

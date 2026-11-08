@@ -84,3 +84,36 @@ BEAML_SPIKE=<scratch>/head/target/debug/beaml-spike python3 -B experiments/0004-
 - The rows path text is pinned on its first line and the record source line only; the other no_path lines follow the built RESPONSE form unasserted.
 - N26 checks words of 5 characters or more; the short values are covered by the exact texts.
 - The orphan rule, the off-chain block and the always-printed rows line are RED defaults `(default, open)`; they are in the 0005 owner review.
+
+## P4c
+
+**[Observed]** 2026-11-08. By: Opus (RED P4c). Mapping: [red-plan.md](red-plan.md#p4c-row-shape-check).
+
+```
+git archive HEAD experiments/0001-syntax-to-beam | tar -x -C <scratch>/head     # HEAD 5c201bf6
+cargo build --offline --quiet --manifest-path <scratch>/head/experiments/0001-syntax-to-beam/Cargo.toml --target-dir <scratch>/head/target
+BEAML_SPIKE=<scratch>/head/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_db_stored_test.py   # 5 times
+```
+
+- Compiler: committed HEAD `5c201bf6`. Elixir 1.18.1, OTP 27. sha256 `slice6_db_stored_test.py` `9146bc84…`.
+- Result, each of 5 runs: **45 tests, 4 failing (tests and subtests), 3 skipped (N28b, N30, N30b), all others pass.** Identical failing set in all 5 runs.
+- N27: **pass 5 of 5.** No other test failed in the 5 runs.
+
+| Failing | Reason (actual at HEAD) |
+|---|---|
+| `N32_row_missing_string_field` | exit 0, module built, stderr only `rows: 1 rows, 1 checked, 0 not decodable` |
+| `N32b_row_wrong_type_string_field` | the same |
+| `N32c_response_record_shape_blocks` [missing], [wrong_type] | exit 0, stderr only `rows: 0 rows, 0 checked, 0 not decodable` (no P2 line: 0 rejected, QV3-7 A) |
+
+- `N32_control_complete_row_builds` passes (control).
+
+### Harness check (no typo RED)
+
+- **[Observed]** Every N32 failure is the `(code, stdout)` assertion with exit 0, no Python or harness error.
+- **[Observed]** `assert_shape_block` in a scratch probe: the expected three lines pass; a missing help line, a wrong field name and a stored number in the help line each fail.
+
+### Limits
+
+- **[Inference]** O3 residual: every other test still uses 4-digit int row ids in `row()`, and `compile()` checks them against the whole action log, so a random false fail stays possible outside N27 (O3 rate estimate: a few percent per full run). Not seen in these 5 runs. Smallest fix: a String id in `row()` (one line), out of this task's scope.
+- **[Inference]** The 5-char word check also holds the amount String of the shared fixtures; a `ts` can hold it only with a matching digit run around the dot (very rare). Not seen.
+- The text "has no String value for field order_id" is a RED proposal (default, open), not an OWNER text.

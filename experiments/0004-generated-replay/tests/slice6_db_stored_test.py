@@ -372,8 +372,9 @@ class Slice6DbStored(unittest.TestCase):
     # N27 (N14 for P4b): the events of a clean build and of a block (checked in compile()).
 
     def test_N27_events_hold_no_row_value(self):
-        self.assert_built(ORDERS, [counted(1, 1, 0)], rows=[row(WIRE1)])
-        self.assertEqual(1, self.blocked(STRICTER, rows=[row(ZERO)])[0])
+        # P4c (TEST O3): String row ids; a 4-digit int id can stand in the digits of an event `ts` (false fail).
+        self.assert_built(ORDERS, [counted(1, 1, 0)], rows=[row(WIRE1, row_id="row-n27-a")])
+        self.assertEqual(1, self.blocked(STRICTER, rows=[row(ZERO, row_id="row-n27-b")])[0])
         self.assertTrue((self.work / "cwd" / ".beaml" / "actions.jsonl").is_file(), "setup: no action log written")
 
     # N28 (DL-040 parity, as 6d O3): a row whose operation has no EFFECT and whose TYPE has no reader blocks.
@@ -432,6 +433,41 @@ class Slice6DbStored(unittest.TestCase):
                                            '{Orders.list_orders(%%{}), Orders.list_notes(%%{})} == {{:ok, %%{"items" => '
                                            '[o1.()]}}, {:ok, %%{"items" => [%%{"text" => "n1", "tag" => ""}]}}}' % v1),
         })
+
+    # P4c (TEST O1, owner-review "Row shape check", default A): a String field of the ROW TYPE that is missing or
+    # holds no String blocks with the DL-102 text, for rows and for RESPONSE RECORDS. The digest is the row's own,
+    # so only the shape fault stays. Proposed text (RED P4c, default, open): "has no String value for field <f>".
+    NO_ID = {"amount": EUR, "channel": "web"}
+    INT_ID = {"order_id": 90817, "amount": EUR, "channel": "web"}
+
+    def assert_shape_block(self, noun, where, got, source_path):
+        text = "\n".join(got)
+        self.assertEqual(["error: TYPE Order: 1 stored %s of %s has no String value for field order_id" % (noun, where),
+                          "  record source: %s:1 (line 1)" % source_path], got[:2], text)
+        self.assertTrue(len(got) == 3 and got[2].startswith(HELP_PREFIX), text)
+        self.assertNotIn("90817", text.replace(str(source_path), ""), "DL-124: the stored number is in the text")
+
+    def test_N32_row_missing_string_field(self):
+        code, stdout, got, rows_path, _ = self.blocked(ORDERS, rows=[row(self.NO_ID)])
+        self.assertEqual((1, ""), (code, stdout), "\n".join(got))
+        self.assert_shape_block("ROW", "table records", got, rows_path)
+
+    def test_N32b_row_wrong_type_string_field(self):
+        code, stdout, got, rows_path, _ = self.blocked(ORDERS, rows=[row(self.INT_ID)])
+        self.assertEqual((1, ""), (code, stdout), "\n".join(got))
+        self.assert_shape_block("ROW", "table records", got, rows_path)
+
+    def test_N32_control_complete_row_builds(self):
+        self.assert_built(ORDERS, [counted(1, 1, 0)], rows=[row(WIRE1)])
+
+    def test_N32c_response_record_shape_blocks(self):
+        # The same two faults in a db.list RESPONSE RECORD (item 0), beside an empty rows.jsonl.
+        for name, value in {"missing": self.NO_ID, "wrong_type": self.INT_ID}.items():
+            with self.subTest(name):
+                rec = db_record("orders.list", list_items(value), sd.LIST_TYPE, {})
+                code, stdout, got, _, resp = self.blocked(ORDERS, rows=[], responses=[rec])
+                self.assertEqual((1, ""), (code, stdout), "\n".join(got))
+                self.assert_shape_block("RESPONSE RECORD", "operation orders.list", got, resp)
 
 
 if __name__ == "__main__":
