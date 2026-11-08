@@ -187,3 +187,45 @@ DL-124: **[Observed]** no stored value in any P4c text; the texts name TYPE, fie
 → Redacted String skip accepted as dead for ROW TYPES (M3); no test. → By: Opus (TEST P4c) · Undo
 → 0001 `run.py`, fmt, clippy and `cargo test` run while 0004 `run.py` ran (no shared port). → By: Opus (TEST P4c) · Undo
 → N17b single failure and the `items`-less list record dropped as low. → By: Opus (TEST P4c) · Undo
+
+## Re-check after P4c TEST repair
+
+**Verdict: PASS** (no critical or high objection). 2026-11-08. By: Opus (TEST re-check P4c). HEAD `b95313a0`. One round, new evidence only. Inputs: [P4c TEST](#p4c-test) O1 to O3, [green-output.md](green-output.md#p4c-test-repair), `tests/slice6_db_stored_test.py` (N32c `item_1`, `N32c_two_bad_items_count_one_record`, N32d, N32e), [owner-review.md](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) item 8. Build: `git archive HEAD experiments/0001-syntax-to-beam` in the scratchpad, `cargo build --offline --release`, `BEAML_SPIKE`. Full `run.py` not run (task rule). Probes stay in the scratchpad.
+
+### Checks (observed)
+
+| Check | Result |
+|---|---|
+| `slice6_db_stored_test.py -k N32 -k N20` | 14 tests, OK (N32c 3 subtests incl. `item_1`, the count test, N32d missing and Int `label`, N32e, `N20_chain_rows_build`, `N20_off_chain_row_blocks`, `N20_newer_version_blocks`) |
+| `slice6_db_test.py -k N5` (fake `BeamlDb`) | 2 tests, OK: `N5_v1_row_migrates_on_read` decodes a complete v1 row through the MIGRATE CHAIN at run time |
+| Probe, fake `BeamlDb`, PLAIN_V2: a complete v1 row, and a v1 row without `label` | the complete row lists as the migrated record; the row without `label` returns the `decode` failure at run time. N32d blocks that row at build time, so it does not reach run time. |
+| Off-chain version | `N20_off_chain_row_blocks` and `N20_newer_version_blocks` keep the path text (`checked_sub` / `get` give no fields, the path check blocks) |
+| O2 count | one list record with two bad items: `1 stored RESPONSE RECORD … has` (test passes) |
+| O3 | owner-review line under item 8 present (A keep the gap, B check http after the version fix, default A, open); N32e pins the gap at exit 0 |
+| Probe, list items under PLAIN_V2 (items carry no TYPE VERSION) | a v1-shaped item (no `note`) blocks on `note`; a v1-shaped item with an Int `label` blocks on `label` and `note`; a v2 item builds |
+| Replay decode of a `db.list` RESPONSE RECORD (generated Elixir, PLAIN_V2) | each item goes through the newest `__beaml_decode_order`; no version, no chain |
+
+### Point 4: the list-item Undo
+
+**[Observed]** A list RESPONSE RECORD can carry older-shaped items (captured before a new TYPE VERSION). The check uses the newest fields, and the replay decode uses the newest decode too. So an older-shaped item blocks loudly at build time, where replay would fail `decode`. **[Inference]** No silent fallback: a pass needs every newest String field present as a String, and that is what the replay decode reads. The Undo holds as Undo.
+
+### Objections
+
+None at critical or high. Dropped (low):
+→ The help line for an older-shaped list item says "declare the fate … in a MIGRATE STEP"; a step does not reach list items (no version). Text only, the block is right.
+→ The new owner-review line has no ID and no fault sentence (line format). Wording only.
+
+### Limits
+
+→ Run-time half on the fake `BeamlDb` only, not Postgres.
+→ Targeted tests only; the full `run.py` and the pin sites were not re-run (the diff touches `--stored` only, green-output reports them unchanged).
+
+### Decisions
+
+**Repair**
+→ PASS statt BLOCK, weil O1 and O2 close by tests and probes, O3 is recorded. → By: Opus (TEST re-check P4c) · Repair
+→ List-item newest-version Undo accepted statt raised, weil the replay decode reads the newest fields too. → By: Opus (TEST re-check P4c) · Repair
+
+**Undo**
+→ Run-time probes and the list-item probe kept in the scratchpad. → By: Opus (TEST re-check P4c) · Undo
+→ Help text and owner-line format dropped as low. → By: Opus (TEST re-check P4c) · Undo
