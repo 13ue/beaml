@@ -1,0 +1,794 @@
+[
+ {
+  "group": "01-review",
+  "id": "A1",
+  "status": "decided",
+  "page": "01-review",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (Schlussreview); entschieden 13ue: B"
+ },
+ {
+  "group": "01-review",
+  "id": "A2",
+  "status": "decided",
+  "page": "01-review",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (Schlussreview); entschieden 13ue: A"
+ },
+ {
+  "group": "01-review",
+  "id": "A3",
+  "status": "decided",
+  "page": "01-review",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (Schlussreview); entschieden 13ue: B"
+ },
+ {
+  "group": "02-order-chain",
+  "id": "M4",
+  "status": "decided",
+  "page": "02-order-chain",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "OWNER geparkt (D036); gebauter Stand Fable (Repair); entschieden 13ue: B voll"
+ },
+ {
+  "group": "02-order-chain",
+  "id": "QDB-8",
+  "status": "decided",
+  "page": "02-order-chain",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable (Default, offen); entschieden 13ue: C"
+ },
+ {
+  "group": "02-order-chain",
+  "id": "QM4-1",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T09:19:32Z",
+  "source": "m4-plan",
+  "by": "Opus (PLAN m4-lift, Default, offen)"
+ },
+ {
+  "group": "02-order-chain",
+  "id": "QM4-2",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T09:19:32Z",
+  "source": "m4-plan",
+  "by": "Opus (PLAN m4-lift, Default, offen)"
+ },
+ {
+  "group": "02-order-chain",
+  "id": "QM4-3",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T09:19:32Z",
+  "source": "m4-plan",
+  "by": "Opus (PLAN m4-lift, Default, offen)"
+ },
+ {
+  "group": "02-order-chain",
+  "id": "QM4-4",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T09:19:32Z",
+  "source": "m4-plan",
+  "by": "Opus (PLAN m4-lift, Default, offen)"
+ },
+ {
+  "group": "02-order-chain",
+  "id": "N9",
+  "status": "parked",
+  "page": "02-order-chain",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "OWNER geparkt (über M3, M4, M5)"
+ },
+ {
+  "group": "02b-fates",
+  "id": "FATE",
+  "status": "decided",
+  "page": "02b-fates",
+  "added": "2026-11-08T07:26:11Z",
+  "source": "m3-page 2026-11-08",
+  "by": "13ue"
+ },
+ {
+  "group": "02b-fates",
+  "id": "VERSION-RULE",
+  "status": "decided",
+  "page": "eingang",
+  "added": "2026-11-08T09:06:08Z",
+  "source": "walk-through 2026-11-08",
+  "by": "13ue (2026-11-08, nach drei Beispielen)"
+ },
+ {
+  "group": "02b-fates",
+  "id": "BLOCKS",
+  "status": "default",
+  "page": "02b-fates",
+  "added": "2026-11-08T07:26:11Z",
+  "source": "m3-page 2026-11-08",
+  "by": "Fable (Stand)"
+ },
+ {
+  "group": "02b-fates",
+  "id": "M3",
+  "status": "parked",
+  "page": "02b-fates",
+  "added": "2026-11-08T07:26:11Z",
+  "source": "m3-page 2026-11-08",
+  "by": "OWNER geparkt (D036); Einwand D3 von Opus (RED TEAM)"
+ },
+ {
+  "group": "02b-fates",
+  "id": "FATE-NEXT",
+  "status": "decided",
+  "page": "02b-fates",
+  "added": "2026-11-08T07:26:11Z",
+  "source": "m3-page 2026-11-08",
+  "by": "Fable (Vorschlag); entschieden 13ue: A"
+ },
+ {
+  "group": "03-encoder",
+  "id": "ENC",
+  "status": "decided",
+  "page": "03-encoder",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (GREEN exp0005); C konkretisiert von Opus (TEST); entschieden 13ue: C"
+ },
+ {
+  "group": "04-rows",
+  "id": "Q5-10",
+  "status": "default",
+  "page": "04-rows",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable (Default, offen)"
+ },
+ {
+  "group": "04-rows",
+  "id": "P4c",
+  "status": "default",
+  "page": "04-rows",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable (Default, offen)"
+ },
+ {
+  "group": "04-rows",
+  "id": "P4c-http",
+  "status": "default",
+  "page": "04-rows",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (GREEN P4c); auf Migrate gehoben vom TEST-Review"
+ },
+ {
+  "group": "04-rows",
+  "id": "P4c-text",
+  "status": "default",
+  "page": "04-rows",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (RED P4c)"
+ },
+ {
+  "group": "04-rows",
+  "id": "QDB-4",
+  "status": "default",
+  "page": "04-rows",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN db-transport)"
+ },
+ {
+  "group": "04-rows",
+  "id": "QDB-3",
+  "status": "default",
+  "page": "04-rows",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN db-transport)"
+ },
+ {
+  "group": "05-names",
+  "id": "Q6E-1",
+  "status": "default",
+  "page": "05-names",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN multi-effect)"
+ },
+ {
+  "group": "05-names",
+  "id": "Q6E-2",
+  "status": "default",
+  "page": "05-names",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN multi-effect)"
+ },
+ {
+  "group": "05-names",
+  "id": "Q5-6",
+  "status": "default",
+  "page": "05-names",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN exp0005)"
+ },
+ {
+  "group": "05-names",
+  "id": "RESV",
+  "status": "default",
+  "page": "05-names",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (GREEN db-transport)"
+ },
+ {
+  "group": "06-db",
+  "id": "QDB-2",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN db-transport); JSON von Fable (Repair)"
+ },
+ {
+  "group": "06-db",
+  "id": "QDB-6b",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable (Default, offen)"
+ },
+ {
+  "group": "06-db",
+  "id": "QDB-1",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN db-transport)"
+ },
+ {
+  "group": "06-db",
+  "id": "GET",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (GREEN exp0005)"
+ },
+ {
+  "group": "06-db",
+  "id": "QDB-5",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN db-transport)"
+ },
+ {
+  "group": "06-db",
+  "id": "QDB-7",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN db-transport)"
+ },
+ {
+  "group": "06-db",
+  "id": "Q5-4",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN exp0005)"
+ },
+ {
+  "group": "06-db",
+  "id": "STORED-ARG",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (RED exp0005)"
+ },
+ {
+  "group": "06-db",
+  "id": "SNAP-SET",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (RED exp0005)"
+ },
+ {
+  "group": "06-db",
+  "id": "Q5-7",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN exp0005)"
+ },
+ {
+  "group": "06-db",
+  "id": "Q5-2",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN exp0005)"
+ },
+ {
+  "group": "06-db",
+  "id": "ORPHAN",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (RED db-stored)"
+ },
+ {
+  "group": "06-db",
+  "id": "OFFCHAIN",
+  "status": "default",
+  "page": "06-db",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (RED db-stored)"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "CORE",
+  "status": "decided",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue (DL-141 bis DL-143)"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "QV3-1",
+  "status": "default",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN record-v3)"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "QV3-2",
+  "status": "default",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN record-v3)"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "QV3-3",
+  "status": "default",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN record-v3)"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "QV3-4",
+  "status": "default",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN record-v3)"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "QV3-5",
+  "status": "default",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN record-v3)"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "QV3-6",
+  "status": "default",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN record-v3)"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "QV3-8",
+  "status": "default",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN-Repair record-v3); groß durch Fable"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "COUNT",
+  "status": "default",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable (zusammengelegt); Zeilen-Zeile Opus (RED db-stored)"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "D035",
+  "status": "open",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable (Ruling O3 unter DL-144)"
+ },
+ {
+  "group": "07-record-v3",
+  "id": "PDB-18",
+  "status": "default",
+  "page": "07-record-v3",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable (Flag)"
+ },
+ {
+  "group": "08-entry",
+  "id": "ENTRY",
+  "status": "decided",
+  "page": "08-entry",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue (DL-130, DL-131)"
+ },
+ {
+  "group": "08-entry",
+  "id": "G6D-04",
+  "status": "default",
+  "page": "08-entry",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (GREEN slice6d); Repair durch Fable (TEST O2)"
+ },
+ {
+  "group": "08-entry",
+  "id": "G6D-03",
+  "status": "default",
+  "page": "08-entry",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (GREEN slice6d)"
+ },
+ {
+  "group": "08-entry",
+  "id": "G6D-12",
+  "status": "default",
+  "page": "08-entry",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (GREEN slice6d)"
+ },
+ {
+  "group": "08-entry",
+  "id": "Q5-9",
+  "status": "default",
+  "page": "08-entry",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN exp0005)"
+ },
+ {
+  "group": "08-entry",
+  "id": "NOTES",
+  "status": "default",
+  "page": "08-entry",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (GREEN exp0005)"
+ },
+ {
+  "group": "09-syntax",
+  "id": "COMMENT",
+  "status": "decided",
+  "page": "09-syntax",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue (DL-132)"
+ },
+ {
+  "group": "09-syntax",
+  "id": "Q5-3",
+  "status": "default",
+  "page": "09-syntax",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN exp0005)"
+ },
+ {
+  "group": "09-syntax",
+  "id": "CTOR-ROW",
+  "status": "default",
+  "page": "09-syntax",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (GREEN db-transport)"
+ },
+ {
+  "group": "09-syntax",
+  "id": "ROW-FIELDS",
+  "status": "default",
+  "page": "09-syntax",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (GREEN db-transport)"
+ },
+ {
+  "group": "09-syntax",
+  "id": "Q6E-4",
+  "status": "default",
+  "page": "09-syntax",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN multi-effect)"
+ },
+ {
+  "group": "09-syntax",
+  "id": "Q6E-3",
+  "status": "default",
+  "page": "09-syntax",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN multi-effect)"
+ },
+ {
+  "group": "09-syntax",
+  "id": "D025",
+  "status": "open",
+  "page": "09-syntax",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue (notiert)"
+ },
+ {
+  "group": "09-syntax",
+  "id": "TEXTS",
+  "status": "default",
+  "page": "09-syntax",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (RED db-transport)"
+ },
+ {
+  "group": "10-misc",
+  "id": "Q5-5",
+  "status": "default",
+  "page": "10-misc",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (PLAN exp0005)"
+ },
+ {
+  "group": "10-misc",
+  "id": "TEST-O1",
+  "status": "default",
+  "page": "10-misc",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Opus (TEST exp0005)"
+ },
+ {
+  "group": "10-misc",
+  "id": "DL-147",
+  "status": "decided",
+  "page": "10-misc",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable"
+ },
+ {
+  "group": "11-parked",
+  "id": "M3-parked",
+  "status": "parked",
+  "page": "11-parked",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "OWNER"
+ },
+ {
+  "group": "11-parked",
+  "id": "M5",
+  "status": "parked",
+  "page": "11-parked",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "OWNER"
+ },
+ {
+  "group": "11-parked",
+  "id": "M8",
+  "status": "parked",
+  "page": "11-parked",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "OWNER"
+ },
+ {
+  "group": "11-parked",
+  "id": "M9",
+  "status": "parked",
+  "page": "11-parked",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "OWNER"
+ },
+ {
+  "group": "12b-register",
+  "id": "D038",
+  "status": "open",
+  "page": "12b-register",
+  "added": "2026-11-08T09:19:32Z",
+  "source": "walk-through 2026-11-08",
+  "by": "13ue (Idee)"
+ },
+ {
+  "group": "12b-register",
+  "id": "D039",
+  "status": "open",
+  "page": "12b-register",
+  "added": "2026-11-08T09:19:32Z",
+  "source": "walk-through 2026-11-08",
+  "by": "13ue (Idee)"
+ },
+ {
+  "group": "12b-register",
+  "id": "D040",
+  "status": "open",
+  "page": "12b-register",
+  "added": "2026-11-08T09:19:32Z",
+  "source": "walk-through 2026-11-08",
+  "by": "13ue (Idee)"
+ },
+ {
+  "group": "12b-register",
+  "id": "D041",
+  "status": "open",
+  "page": "12b-register",
+  "added": "2026-11-08T09:19:32Z",
+  "source": "lang-team",
+  "by": "Sprach-Team (Kandidat 2)"
+ },
+ {
+  "group": "12b-register",
+  "id": "D042",
+  "status": "open",
+  "page": "12b-register",
+  "added": "2026-11-08T09:19:32Z",
+  "source": "walk-through 2026-11-08",
+  "by": "13ue (Idee)"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-126",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-127..129",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-130..134",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-135..136",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-137",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-139",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-140",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-141..143",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-144",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "13ue"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-138",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable (Repair)"
+ },
+ {
+  "group": "12-decided",
+  "id": "DL-147",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable"
+ },
+ {
+  "group": "12-decided",
+  "id": "QDB-6",
+  "status": "decided",
+  "page": "12-decided",
+  "added": "2026-11-07",
+  "source": "owner-review 2026-11-07",
+  "by": "Fable (Repair)"
+ }
+]

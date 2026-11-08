@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Build the OWNER walk-through site (D037) from the item list below.
+"""Build the OWNER decision site (D037, site v2) from the item list below. See README.md for the rules.
 
 Run from the repo root: python3 experiments/0005-prototype-fullstack/workflow/2026-11-08/review-site/build.py
-Writes index.html and one page per group into this directory. BEAML snippets are colored with
-integrations/zed-beaml/preview.py --chat. Source of the items: ../../2026-11-07/owner-review.md.
+Writes index.html, next.html, eingang.html, entschieden.html, aenderungen.html and one page per group; keeps
+items.json (snapshot of the last build) and appends to changelog.jsonl. Reads feedback/answers.jsonl, never writes it.
+BEAML snippets are colored with integrations/zed-beaml/preview.py --chat. Source: ../../2026-11-07/owner-review.md.
 """
-import html, os, re, subprocess, sys, tempfile
+import datetime as dt, html, json, os, re, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "../../../../.."))
@@ -44,16 +45,27 @@ def text(s):
 G = []
 
 
-def group(slug, title, lead, items):
+def group(slug, title, lead, items, added, source):
+    """`added`/`source` stamp every item of the group that has none of its own."""
+    for x in items:
+        x["added"] = x["added"] or added
+        x["source"] = x["source"] or source
+        x["group"] = slug
     G.append(dict(slug=slug, title=title, lead=lead, items=items))
 
 
 S = "\u2800\u2800↳ "  # prefix of a real sub-point in a `what` list
 
 
-def it(id, title, status, by, what, why="", code=(), options=(), note="", dl=""):
-    """`what`: a list of short bullets (rendered as → lines), or one plain string."""
-    return dict(id=id, title=title, status=status, by=by, what=what, why=why, code=list(code), options=list(options), note=note, dl=dl)
+def it(id, title, status, by, what, why="", code=(), options=(), note="", dl="",
+       added=None, source=None, decided=None, gate=False, later=False):
+    """`what`: a list of short bullets (rendered as → lines), or one plain string.
+    added: ISO date or UTC time the card first went on the site; source: where it came from.
+    decided: UTC time of an OWNER decision taken outside the site (chat walk-through).
+    gate: a Migrate question that gates the next slice (stack "Blockt Arbeit").
+    later: an open card that blocks nothing (stack "Ideen für später")."""
+    return dict(id=id, title=title, status=status, by=by, what=what, why=why, code=list(code), options=list(options), note=note, dl=dl,
+                added=added, source=source, decided=decided, gate=gate, later=later)
 
 
 # ---------------------------------------------------------------- 1
@@ -118,7 +130,7 @@ type Order {
              [("A", "Compiler verlangt die Meta-Datei und prüft Datenbankname und Abfragezeit", False),
               ("B", "`--stored` fragt die Tabelle selbst ab (so steht es in DL-127)", False),
               ("C", "so lassen, nur die Prüfung im Host (N8c)", True)], dl="DL-151"),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 2
 group("02-order-chain", "M4: die echte Order-Kette",
@@ -138,18 +150,15 @@ group("02-order-chain", "M4: die echte Order-Kette",
               "FATE OPERATION = Zeile im `migrate`: was mit alten Daten passiert."],
              "Ohne M4 keine `Order`-Kette; mit M3 und M5 auch keine Fate-Formen (N9).",
              [beaml('''
-type Amount {
-  value: String
-  currency: String
-}
-
 enum Channel {
   Web = "web"
   App = "app"
   Unknown(String)
 }
+'''), beaml('''
+// Heute ein Build-Fehler, sobald migrate dranhängt.
 
-// Heute ein Build-Fehler, sobald migrate dranhängt:
+// amount ist ein Konstruktor-Feld, channel ein Enum-Feld.
 
 type Order {
   order_id: String
@@ -183,22 +192,22 @@ migrate Note v1 -> v2 { add tag: String = "" }
               ("C", "M4 jetzt beantworten", False)], dl="DL-153"),
           it("QM4-1", "Fehlertext: Schritt auf Enum- oder Konstruktor-Feld", "default", "Opus (PLAN m4-lift, Default, offen)",
              ["Ein `rename` auf so ein Feld ist heute ein Compile-Fehler", "Der Text nennt M3 und DL-152 als Grund", "Gebaut: A"],
-             "", [], [("A", "Text am EFFECT, nennt M3 und DL-152", True), ("B", "Text am Schritt, wie in Slice 3", False)]),
+             "", [], [("A", "Text am EFFECT, nennt M3 und DL-152", True), ("B", "Text am Schritt, wie in Slice 3", False)], added="2026-11-08T09:19:32Z", source="m4-plan"),
           it("QM4-2", "Kein Versions-Mark an `Order` in 0005", "default", "Opus (PLAN m4-lift, Default, offen)",
              ["`type Order v2` steht nicht im Kopf; die Kette zeigt die Version", "fmt streicht ein Mark ohnehin (DL-104)", "Mit DL-155 wird das Mark bei betroffenen Daten Pflicht; dann Frage neu"],
-             "", [], [("A", "`type Order v2 {`", False), ("B", "kein Mark", True)]),
+             "", [], [("A", "`type Order v2 {`", False), ("B", "kein Mark", True)], added="2026-11-08T09:19:32Z", source="m4-plan"),
           it("QM4-3", "DL-122-Hilfe nennt weiter D6B-39", "default", "Opus (PLAN m4-lift, Default, offen)",
              ["Vier Tests pinnen den Text", "Mit DL-155 sollte die Hilfe die Versions-Form nennen; Docs-Frage für den Fate-Slice"],
-             "", [], [("A", "Text behalten", True), ("B", "M3 und DL-140 nennen", False)]),
+             "", [], [("A", "Text behalten", True), ("B", "M3 und DL-140 nennen", False)], added="2026-11-08T09:19:32Z", source="m4-plan"),
           it("QM4-4", "`rename` eines Enum-Felds bleibt Fehler", "default", "Opus (PLAN m4-lift, Default, offen)",
              ["Ein `rename` bewegt nur den Schlüssel", "Trotzdem Fehler, bis der Fate-Slice die Formen hat"],
-             "", [], [("A", "Fehler", True), ("B", "jetzt erlauben", False)]),
+             "", [], [("A", "Fehler", True), ("B", "jetzt erlauben", False)], added="2026-11-08T09:19:32Z", source="m4-plan"),
           it("N9", "Der strengere Amount braucht eine Fate-Form", "parked", "OWNER geparkt (über M3, M4, M5)",
              ["Variante `stricter`: `Amount` wird strenger.",
               "Neu: der Betrag `\"0\"` wird abgelehnt.",
               "Alte Zeilen mit `\"0\"` blocken dann den Build.",
               "Das ist so gewollt.",
-              "Kleinster Ausweg: `quarantine amount`.",
+              "Kleinster Ausweg: `quarantine value` im migrate-Block von `Amount v2`.",
               S + "alte Werte beiseite stellen, mit Grund",
               "Diese Form gibt es noch nicht."],
              "Heute hilft nur ein SQL-Delete.",
@@ -218,7 +227,7 @@ fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
 fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
 ''')],
              []),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 2b
 group("02b-fates", "M3: Fate-Formen",
@@ -244,14 +253,24 @@ group("02b-fates", "M3: Fate-Formen",
              [beaml('''
 // Form aus DL-125, noch nicht gebaut
 
-// f = Feldname, hier amount und channel.
+// f = Feldname. Die Fate-Zeile steht im migrate-Block des TYPE, dem das Feld gehört.
+// Beispiel: value darf nicht mehr "0" sein, 2 Zeilen sind betroffen (DL-155).
 
-migrate Order v2 -> v3 {
-  quarantine amount
-  map channel "mobile" -> App
+type Amount v2 {
+  value: String
+  currency: String
 }
+
+migrate Amount v1 -> v2 {
+  quarantine value
+}
+
+fn Amount value: String, currency: String -> Amount ! BadAmount
+fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
+fn Amount "0",           _                -> Amount ! BadAmount = BadAmount {}
+fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
 ''')],
-             [], note="Feldwert `\"mobile\"` ist erfunden, nur zur Anschauung.", dl="DL-125"),
+             [], note="Form A, wie im unterschriebenen Bild vom 2026-11-08 (DL-155). Für ein Enum: `enum Channel v2 { … }` plus `migrate Channel v1 -> v2 { map \"app\" -> Mobile }`.", dl="DL-125"),
           it("VERSION-RULE", "Versionsregel: Änderung plus betroffene Werte = neue Version", "decided", "13ue (2026-11-08, nach drei Beispielen)",
              ["Build prüft live: fällt ein gespeicherter Wert anders?",
               "Nein: Änderung frei, keine neue Version",
@@ -259,7 +278,7 @@ migrate Order v2 -> v3 {
               "v1 steht von Anfang an; alte Version lebt, bis Production leer ist, dann SQUASH",
               "Gilt für Konstruktor-TYPES und Enums",
               "Nummern in Records werden nie neu vergeben"],
-             "", [], [], dl="DL-155"),
+             "", [], [], dl="DL-155", added="2026-11-08T09:06:08Z", source="walk-through 2026-11-08", decided="2026-11-08T09:06:08Z"),
           it("BLOCKS", "Die drei Sperren, die heute nur SQL löst", "default", "Fable (Stand)",
              ["Sperre = `--stored` bricht den Build ab.",
               "DL-102: ein gespeicherter Wert fällt durch eine neue Regel.",
@@ -271,8 +290,14 @@ migrate Order v2 -> v3 {
              "Genau diese drei Sperren soll eine Fate-Zeile lösen.",
              [beaml('''
 // Variante stricter, echte Klauseln.
-
 // Eine gespeicherte Zeile mit Betrag "0" blockt den Build.
+
+type BadAmount {}
+
+type Amount {
+  value: String
+  currency: String
+}
 
 fn Amount value: String, currency: String -> Amount ! BadAmount
 fn Amount "0",           _                -> Amount ! BadAmount = BadAmount {}
@@ -294,23 +319,29 @@ fn Amount value,         currency         -> Amount ! BadAmount = Amount { value
 
 // Amount hat einen Konstruktor. Was tut seine Regel ohne Wert?
 
-migrate Order v3 -> v4 { redact amount }
+type Order {
+  order_id: String
+  amount: Amount
+  channel: Channel
+}
+
+migrate Order v1 -> v2 { redact amount }
 ''')],
              [("A", "DL-116 verlässt die Liste; neue Frage: wie läuft eine Regel über einen fehlenden Wert", False),
-              ("B", "`redact` überspringt die Regel, DL-116 B kommt zurück", False)]),
+              ("B", "`redact` überspringt die Regel, DL-116 B kommt zurück", False)], gate=True),
           it("FATE-NEXT", "Reihenfolge: wann bauen wir die Fate-Formen?", "decided", "Fable (Vorschlag); entschieden 13ue: A",
              ["Mit DL-152 brauchen Schritte auf Enum- und Konstruktor-Feldern diese Formen.",
               "Vorschlag: nach M4 Schritt 1 (erst migrieren, dann prüfen) kommt der Fate-Slice.",
               S + "Grammatik für die vier Zeilen",
               S + "`--stored` löst DL-102/DL-122/DL-140, wenn eine Fate-Zeile das Feld nennt",
               S + "REPLAY RUN überspringt Werte in `quarantine`",
-              S + "Use Case: 0005 N9 mit `quarantine amount`",
+              S + "Use Case: 0005 N9 mit `quarantine value` (Amount v2)",
               "Alternative: erst `--stored` live aus der Datenbank (DL-151)."],
              "",
              [],
              [("A", "Fate-Slice direkt nach M4 Schritt 1", False),
-              ("B", "erst live `--stored` (DL-151), dann Fate-Slice", False)], dl="DL-156"),
-      ])
+              ("B", "erst live `--stored` (DL-151), dann Fate-Slice", False)], dl="DL-156", decided="2026-11-08T09:19:32Z"),
+      ], added="2026-11-08T07:26:11Z", source="m3-page 2026-11-08")
 
 # ---------------------------------------------------------------- 3
 group("03-encoder", "Wie eine Seite einen BEAML-Wert anzeigt",
@@ -343,7 +374,7 @@ type Order {
              [("A", "Host ruft den erzeugten internen Encoder", True),
               ("B", "Host zerlegt den Enum-Wert selbst", False),
               ("C", "Compiler erzeugt eine öffentliche `project_<type>/1`", False)], dl="DL-154"),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 4
 group("04-rows", "Zeilen: Inhalt und Form-Prüfung",
@@ -400,7 +431,7 @@ group("04-rows", "Zeilen: Inhalt und Form-Prüfung",
               "Mehrere Zeilen mit gleichem Schlüssel?",
               "Die zuletzt geschriebene gewinnt."],
              "", [], [("A", "so gebaut", True)]),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 5
 group("05-names", "Namen: Modul, Rejected, reservierte Namen",
@@ -443,7 +474,7 @@ effect ui.place PlaceForm -> Order ! StoreError = ui.event("place") |> place
               "Gleiche Regel wie D6B-203.",
               "`System` ist auch gesperrt."], "", [],
              [("A", "so gebaut", True)]),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 6
 group("06-db", "Datenbank-Transporte",
@@ -564,7 +595,7 @@ effect orders.get OrderKey -> Order ! StoreError = db.get("records")
               "Kein Weg von v3 zur heutigen Form.",
               "Der Build blockt mit dem Pfad-Text."], "", [],
              [("A", "blocken mit Pfad-Text", True), ("B", "nur zählen, als „nicht dekodierbar“", False)]),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 7
 group("07-record-v3", "Record-Format v3",
@@ -646,7 +677,7 @@ group("07-record-v3", "Record-Format v3",
               "Ein Eintrag in `unknown_fields` nennt den Pfad.",
               "Form: `items.<i>.<feld>`.",
               S + "`<i>` = Platz in der Liste"], "", [], [("A", "so gebaut", True)]),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 8
 group("08-entry", "ENTRY LINE und Seiten",
@@ -714,7 +745,7 @@ effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> li
               "Nach dem Absenden lädt /notes neu.",
               S + "per `push_navigate`"], "", [],
              [("A", "eine Seite", True), ("B", "zwei Seiten: `/notes/new` und `/notes`", False)]),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 9
 group("09-syntax", "Syntax-Regeln",
@@ -772,12 +803,12 @@ fn Amount value,         currency         -> Amount ! BadAmount = Amount { value
               S + "`enum X = A | B`",
               S + "`type X = { … }`",
               "Du wolltest das später prüfen.",
-              "Nur notiert, nicht geplant."], "", [], []),
+              "Nur notiert, nicht geplant."], "", [], [], later=True),
           it("TEXTS", "Zwei Fehlertexte sind als Default gepinnt", "default", "Opus (RED db-transport)",
              ["Zwei Fehlertexte sind als Default festgehalten:",
               "`order_v2` nennt `orders.save` und `Order.amount` (D6B-39).",
               "N25b nennt `TYPE Order v1` und das Feld `channel` (DL-122)."], "", [], [("A", "so gebaut", True)]),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 10
 group("10-misc", "Kleines",
@@ -799,7 +830,7 @@ group("10-misc", "Kleines",
               "GREEN = der Code, der ihn grün macht.",
               "Die RED-Datei kommt erst mit GREEN in `run.py`.",
               "Sonst fällt der Gesamtlauf, solange RED offen ist."], "", [], [], dl="DL-147"),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 11
 group("11-parked", "Geparkt (D036)",
@@ -815,14 +846,14 @@ group("11-parked", "Geparkt (D036)",
              ["`retire` = absichtlich stilllegen, Daten eine Zeit halten.",
               "Offen: was das für Zeilen heißt.",
               "Test N28b hält den heutigen Stand fest.",
-              "Die Orphan-Hilfe druckt `retire <op> keep <n> days`."], "", [], []),
+              "Die Orphan-Hilfe druckt `retire <op> keep <n> days`."], "", [], [], gate=True),
           it("M8", "Failure-Struct am Host", "parked", "OWNER",
              ["Frage: ein eigenes Failure-Struct am Host.",
               "P2 hat das umgangen (P5-18)."], "", [], []),
           it("M9", "Record-Zeilen in einem Blocktext", "parked", "OWNER",
              ["Frage: Record-Zeilen im Text eines Blocks.",
               "P2 hat das umgangen."], "", [], []),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
 # ---------------------------------------------------------------- 12b
 group("12b-register", "Neue Fragen aus dem Walk-through",
@@ -838,11 +869,11 @@ group("12b-register", "Neue Fragen aus dem Walk-through",
              [("A", "abgeleitet, Build listet die Oberfläche", False), ("B", "explizites Opt-in pro TYPE", False), ("C", "abgeleitet plus Opt-out-Wort", False)]),
           it("D041", "Enum-Konstruktor entfernen", "open", "Sprach-Team (Kandidat 2)",
              ["Heute bildet eine `fn Channel …` fremde Strings mit Logik auf Varianten ab", "Vorschlag: nur die Literal-Tabelle; `fn Großname` ist immer Record-Konstruktor", "Verlust: Logik und Int → Variante; 9 Enums in Fixtures, keins in 0005"], "", [],
-             [("A", "nur Literale", False), ("B", "Literale plus `\"web\" | \"WEB\"`", False), ("C", "wie heute", False)]),
+             [("A", "nur Literale", False), ("B", "Literale plus `\"web\" | \"WEB\"`", False), ("C", "wie heute", False)], source="lang-team"),
           it("D042", "Lazy-Nachprüfung geschwärzter Regeln", "open", "13ue (Idee)",
              ["Prüfung dort, wo der Wert ist: in der App beim Lesen oder Neueingeben", "Compiler listet jede Stelle, die das Ergebnis erreicht (Totalität)", "Form offen: Zustand im TYPE oder Fehlergrund im `! StoreError`", "M3 (`redact` überspringt Regel?): Neigung A, noch zu bestätigen"], "", [],
              [("A", "Zustand im TYPE (`T v1 | T v2`)", False), ("B", "Fehlergrund pro Aufruf", False)]),
-      ])
+      ], added="2026-11-08T09:19:32Z", source="walk-through 2026-11-08")
 
 # ---------------------------------------------------------------- 12
 group("12-decided", "Schon entschieden",
@@ -860,108 +891,402 @@ group("12-decided", "Schon entschieden",
           it("DL-138", "ENTRY RECORD trägt outcome/reason", "decided", "Fable (Repair)", "", dl="DL-138"),
           it("DL-147", "RED-Datei erst mit GREEN in run.py", "decided", "Fable", "", dl="DL-147"),
           it("QDB-6", "zurückgezogen: `accepted`/`rejected` und die P2-Gründe gelten", "decided", "Fable (Repair)", "", dl=""),
-      ])
+      ], added="2026-11-07", source="owner-review 2026-11-07")
 
-# ---------------------------------------------------------------- render
-JS = r'''
-<script>
+# ---------------------------------------------------------------- model
+FB = os.path.join(HERE, "feedback")
+SNAP = os.path.join(HERE, "items.json")
+LOG = os.path.join(HERE, "changelog.jsonl")
+INBOX = "eingang"
+STACKS = [("block", "Blockt Arbeit", "Offene Fragen und Migrate-Fragen, die den nächsten Slice aufhalten."),
+          ("defaults", "Gebaute Defaults", "Gebaut nach DL-139. Gilt erst, wenn du es abnimmst."),
+          ("ideas", "Ideen für später", "Notiert oder geparkt. Blockt nichts.")]
+ICON = dict(decided="✓", open="?", default="◆", parked="‖")
+LABEL = dict(decided="entschieden", open="offen", default="Default, gebaut", parked="geparkt")
+CHANGE = {"added": "neu", "status decided": "entschieden", "moved to Eingang": "in den Eingang verschoben", "removed": "entfernt"}
+
+
+def ts(s):
+    """ISO date or UTC time -> aware datetime (a bare date counts as its first second, UTC)."""
+    d = dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+    return d if d.tzinfo else d.replace(tzinfo=dt.timezone.utc)
+
+
+def fmt(s):
+    if not s:
+        return ""
+    if len(s) == 10:
+        return ts(s).strftime("%d.%m.%Y")
+    return ts(s).astimezone().strftime("%d.%m.%Y, %H:%M")
+
+
+def read_answers():
+    """feedback/answers.jsonl, read only. Latest choice and latest note per id win; choice "" means cleared."""
+    d = {}
+    try:
+        lines = open(os.path.join(FB, "answers.jsonl")).read().splitlines()
+    except FileNotFoundError:
+        return d
+    for line in lines:
+        r = json.loads(line)
+        a = d.setdefault(r["id"], dict(first=r["ts"]))
+        if r.get("choice") is not None:
+            a["choice"], a["choice_ts"] = r["choice"], r["ts"]
+        if r.get("note") is not None:
+            a["note"], a["note_ts"] = r["note"], r["ts"]
+    return d
+
+
+def owner_time(x, ans):
+    """When the OWNER first answered this card: a site answer, or an OWNER decision shown on the card from its start."""
+    t = [ans[x["id"]]["first"]] if x["id"] in ans else []
+    if x["decided"]:
+        t.append(x["decided"])
+    if not t and x["status"] == "decided" and "13ue" in x["by"]:
+        t.append(x["added"])  # decided by the OWNER before the card went on the site
+    return min(t, key=ts) if t else None
+
+
+def place(ans):
+    """Eingefroren: once a page holds an OWNER answer, a card added later goes to the Eingang."""
+    for g in G:
+        F = None
+        for x in sorted(g["items"], key=lambda x: ts(x["added"])):
+            if F is not None and ts(x["added"]) > ts(F):
+                x["page"] = INBOX
+                continue
+            x["page"] = g["slug"]
+            t = owner_time(x, ans)
+            if t and (F is None or ts(t) < ts(F)):
+                F = t
+        g["frozen"] = F
+
+
+def stack(x):
+    if x["status"] == "decided":
+        return "done"
+    if x["gate"] or (x["status"] == "open" and not x["later"] and x["group"] != "12b-register"):
+        return "block"
+    return "defaults" if x["status"] == "default" else "ideas"
+
+
+def built(x):
+    return next((L for L, _, b in x["options"] if b), "")
+
+
+def decided_at(x, ans):
+    a = ans.get(x["id"], {})
+    return x["decided"] or (a.get("choice_ts") if a.get("choice") else None)
+
+
+def changelog(ans, now):
+    """Append one line per change against items.json (the last build) to changelog.jsonl; then refresh items.json."""
+    old = {}
+    if os.path.exists(SNAP):
+        old = {(r["group"], r["id"]): r for r in json.load(open(SNAP))}
+    seed = not old  # first build: rebuild the history from the `added` and decision times
+    cur, ev = [], []
+    for g in G:
+        for x in g["items"]:
+            r = dict(group=g["slug"], id=x["id"], status=x["status"], page=x["page"], added=x["added"], source=x["source"], by=x["by"])
+            cur.append(r)
+            o = old.get((r["group"], r["id"]))
+            if o is None:
+                ev.append(dict(ts=x["added"] if seed else now, id=x["id"], page=x["page"], change="added", by=x["source"]))
+                if seed and x["status"] == "decided":
+                    ev.append(dict(ts=decided_at(x, ans) or x["added"], id=x["id"], page=x["page"], change="status decided", by=x["by"]))
+                if x["page"] == INBOX:
+                    ev.append(dict(ts=now, id=x["id"], page=x["page"], change="moved to Eingang", by="build.py (eingefroren)"))
+                continue
+            if o["status"] != r["status"]:
+                ev.append(dict(ts=now, id=x["id"], page=x["page"], change="status decided" if r["status"] == "decided" else "status " + r["status"], by=x["by"]))
+            if o["page"] != r["page"] and r["page"] == INBOX:
+                ev.append(dict(ts=now, id=x["id"], page=x["page"], change="moved to Eingang", by="build.py (eingefroren)"))
+    keys = {(r["group"], r["id"]) for r in cur}
+    ev += [dict(ts=now, id=k[1], page=old[k]["page"], change="removed", by="build.py") for k in old if k not in keys]
+    if ev:
+        with open(LOG, "a") as f:
+            for e in sorted(ev, key=lambda e: ts(e["ts"])):
+                f.write(json.dumps(dict(e, seed=True) if seed else e, ensure_ascii=False) + "\n")
+    with open(SNAP, "w") as f:
+        json.dump(cur, f, ensure_ascii=False, indent=1)
+    return ev
+
+
+def read_log():
+    try:
+        return [json.loads(l) for l in open(LOG).read().splitlines() if l.strip()]
+    except FileNotFoundError:
+        return []
+
+
+# ---------------------------------------------------------------- style and behavior
+CSS = """
+:root{color-scheme:light dark;--bg:#f6f7f9;--fg:#24272e;--mut:#555b66;--bd:#c9ced6;--card:#fff;--soft:#eef0f4;
+--acc:#1f5fbf;--acc-fg:#fff;--focus:#1f5fbf;
+--k:#a626a4;--t:#8a5d00;--f:#2c5ccf;--p:#c2392c;--s:#3a7a39;--c:#016a96;--o:#383a42;--m:#636975;
+--ok:#1d6b3f;--open:#b02a1f;--def:#80530a;--park:#555b66;--new:#6b3fa0}
+@media (prefers-color-scheme:dark){:root{--bg:#17191e;--fg:#d5d9e0;--mut:#a3aab6;--bd:#424854;--card:#21252c;--soft:#2a2f37;
+--acc:#7fb0ff;--acc-fg:#10141a;--focus:#9cc2ff;
+--k:#d38ae6;--t:#e5c07b;--f:#7ab8f5;--p:#f08a92;--s:#a5cf88;--c:#6cc6d1;--o:#c8ced8;--m:#9aa1ad;
+--ok:#8fd19e;--open:#ff9a8f;--def:#f0c674;--park:#b4bac4;--new:#c9a6f2}}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0 auto;max-width:880px;padding:0 16px 64px;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--acc);text-underline-offset:2px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+main:focus,.card:focus,.done:focus{outline:none}
+.skip{position:absolute;left:8px;top:-60px;background:var(--acc);color:var(--acc-fg);padding:8px 12px;border-radius:6px;z-index:10}
+.skip:focus{top:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.top nav{display:flex;flex-wrap:wrap;gap:4px 18px;padding:14px 0 10px;border-bottom:1px solid var(--bd);margin-bottom:8px;font-size:15px}
+.top a{text-decoration:none;padding:4px 0}.top a:hover{text-decoration:underline}
+.top a[aria-current]{color:var(--fg);font-weight:700;border-bottom:3px solid var(--acc)}
+.count{display:inline-block;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--new);color:var(--card);font-size:12px;font-weight:700;text-align:center}
+h1{font-size:28px;line-height:1.2;margin:18px 0 6px}
+.sec{font-size:19px;margin:28px 0 8px}
+.lead{color:var(--mut);margin:0 0 16px}.mut{color:var(--mut)}
+.crumb{font-size:14px;color:var(--mut);margin:14px 0 0}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:14px 16px;border:1px solid var(--bd);border-radius:8px;margin:12px 0;background:var(--soft);font:13.5px/1.7 ui-monospace,Menlo,monospace}
+code{font:0.9em ui-monospace,Menlo,monospace;background:var(--soft);border:1px solid var(--bd);border-radius:4px;padding:0 4px;overflow-wrap:anywhere}
+i{font-style:normal}.k{color:var(--k)}.t{color:var(--t)}.f{color:var(--f)}.p{color:var(--p)}.s{color:var(--s)}.c{color:var(--c)}.o,.b{color:var(--o)}.m{color:var(--m);font-style:italic}
+.ico{width:1em;height:1em;vertical-align:-0.12em}
+.btn{font:600 15px/1.2 system-ui,sans-serif;padding:10px 14px;min-height:44px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;display:inline-flex;gap:6px;align-items:center;text-decoration:none}
+.btn:hover{border-color:var(--acc)}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:var(--acc-fg)}
+.btn.big{font-size:17px;padding:14px 20px}
+.btn.link{border:0;background:none;color:var(--acc);padding:2px 4px;min-height:0;text-decoration:underline;font-weight:600}
+.pill{display:inline-flex;gap:4px;align-items:center;font:600 12.5px/1 system-ui,sans-serif;padding:5px 9px;border-radius:999px;border:1px solid currentColor;color:var(--mut);white-space:nowrap}
+.st-decided{color:var(--ok)}.st-open{color:var(--open)}.st-default{color:var(--def)}.st-parked{color:var(--park)}.st-new{color:var(--new)}
+.card{border:1px solid var(--bd);border-radius:12px;padding:16px 18px;margin:16px 0;background:var(--card)}
+.card.answered{border-left:5px solid var(--ok)}
+.card-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.card-id{font:700 13px ui-monospace,Menlo,monospace;color:var(--mut)}
+.card-title{font-size:19px;line-height:1.3;margin:8px 0 4px}
+.meta{display:flex;flex-wrap:wrap;gap:2px 16px;font-size:13.5px;color:var(--mut);margin:0 0 8px}
+.why{border-left:3px solid var(--def);padding:2px 12px;margin:10px 0}
+.note{color:var(--mut);font-size:14px}
+ul.arrows{list-style:none;padding-left:0;margin:8px 0}ul.arrows li{margin:3px 0;padding-left:1.4em;text-indent:-1.4em}ul.arrows li::before{content:"→ ";color:var(--mut)}
+ul.arrows li.sub{padding-left:0;text-indent:0}ul.arrows li.sub::before{content:none}
+.opts{display:grid;gap:8px;margin:14px 0 6px}
+.opt{display:grid;grid-template-columns:2em 1fr;gap:4px 10px;align-items:start;text-align:left;width:100%;font:15px/1.45 system-ui,sans-serif;color:var(--fg);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;min-height:44px;cursor:pointer}
+.opt:hover{border-color:var(--acc);background:var(--soft)}
+.opt.built{border-style:dashed;border-color:var(--def)}
+.opt[aria-pressed=true]{border:2px solid var(--ok);background:var(--soft)}
+.opt-l{font-weight:800;font-size:16px}
+.opt-tags{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}.opt-tags:empty{display:none}
+.tag{font:600 12.5px/1 system-ui;padding:4px 8px;border-radius:999px;border:1px solid currentColor}
+.tag-built{color:var(--def)}.tag-mine{color:var(--ok);display:none}.opt[aria-pressed=true] .tag-mine{display:inline-block}
+.ans{font-size:14.5px}.ans-row{border-left:3px solid var(--ok);padding:4px 12px;margin:8px 0;background:var(--soft);border-radius:0 6px 6px 0}
+.ans time{color:var(--mut);margin:0 4px}
+.fb{margin-top:12px}.fbt{width:100%;font:15px/1.45 system-ui,sans-serif;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);resize:vertical;min-height:44px}
+.fb-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.mic{user-select:none;-webkit-user-select:none;touch-action:none}.mic.on{background:var(--open);border-color:var(--open);color:var(--card)}.mic.busy{opacity:.7}
+.fbs{font-size:13.5px;color:var(--mut)}
+.prog{display:flex;align-items:center;gap:10px;margin:10px 0;font-size:14px;color:var(--mut)}
+progress{flex:0 1 220px;height:10px;accent-color:var(--ok)}
+.frozen,.hint{background:var(--soft);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:14.5px}
+.bulk{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:12px 0}
+.empty{color:var(--mut);font-style:italic;border:1px dashed var(--bd);border-radius:8px;padding:12px}
+dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--fg);max-width:min(560px,calc(100vw - 32px));padding:18px 20px}
+dialog::backdrop{background:rgba(0,0,0,.45)}dialog h2{margin-top:0;font-size:19px}
+.dlg-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin-top:14px}
+ul.plain{list-style:none;padding-left:0;margin:8px 0}ul.list li{padding:6px 0;border-bottom:1px solid var(--bd)}
+#bulk-list{max-height:40vh;overflow:auto}
+.news time{color:var(--mut);font-size:13.5px;margin-right:6px}
+#toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:10px;max-width:calc(100vw - 32px);z-index:20}
+#toast .btn.link{color:var(--bg)}
+.hero{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:16px 0 8px}
+.stacks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.stack{border:1px solid var(--bd);border-radius:12px;padding:14px 16px;background:var(--card)}
+.stack h2{font-size:18px;margin:0 0 4px}.stack-n{font-size:26px;font-weight:800;margin-right:4px}
+.stack .mut{font-size:14px;margin:0}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0 24px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14.5px}
+td,th{border-bottom:1px solid var(--bd);padding:8px 6px;text-align:left;vertical-align:top}thead th{color:var(--mut);font-weight:600}
+td.n,th.n{text-align:right;white-space:nowrap}td.nw{white-space:nowrap}
+th.n .pill{font-size:11.5px;padding:3px 6px}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:28px;padding-top:14px;border-top:1px solid var(--bd);font-size:15px}
+.pager span:last-child{text-align:right}
+.qbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0;border-bottom:1px solid var(--bd)}
+.qpos{margin:0;font-size:15px}
+.keys{font-size:13.5px;color:var(--mut)}kbd{font:600 12px ui-monospace,Menlo,monospace;border:1px solid var(--bd);border-bottom-width:2px;border-radius:4px;padding:1px 5px;background:var(--card);color:var(--fg)}
+.qnav{display:flex;justify-content:flex-end;margin:8px 0}
+.done{border:2px solid var(--ok);border-radius:12px;padding:16px 18px;background:var(--card);margin:16px 0}.done h2{margin-top:0;color:var(--ok)}
+.new-tag{margin:22px 0 -8px;font-size:14px;color:var(--mut)}
+@media (max-width:560px){h1{font-size:24px}.card{padding:14px}.btn{width:auto}th.n .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}th.n .pill{padding:4px 7px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+"""
+
+JS = r'''<script>
 (() => {
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
-const post = (u, b) => fetch(u, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b)}).then(r => r.json());
+const PAGE = document.body.dataset.page;
+const post = (u, b) => fetch(u, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b)}).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
 const act = (action, target, result, source='mouse') => post('/api/act', {source, action, target, result}).catch(()=>{});
-const fmtT = ts => { try { return new Date(ts).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}); } catch { return ts; } };
-function paint(id, a) {
-  const sec = document.getElementById(id); if (!sec) return;
-  $$('ol.opts li', sec).forEach(li => li.classList.toggle('chosen', !!a && li.dataset.choice === a.choice));
-  const box = $('.ans', sec); box.innerHTML = '';
-  if (a && a.choice) box.insertAdjacentHTML('beforeend', `<div class=a><time>${fmtT(a.ts)}</time>Deine Wahl: <b>${a.choice}</b></div>`);
-  if (a && a.note) box.insertAdjacentHTML('beforeend', `<div class=a><time>${fmtT(a.ts)}</time>${a.note.replace(/</g,'&lt;')}</div>`);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtT = t => { try { return new Date(t).toLocaleString('de-DE', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}); } catch { return t; } };
+let A = {}, offline = false;
+const has = id => { const a = A[id]; return !!a && (!!a.choice || !!a.note); };  // choice "" = cleared (Rückgängig)
+
+function toast(msg, undo) {
+  const t = $('#toast'); $('.toast-t', t).textContent = msg; const b = $('.toast-undo', t);
+  b.hidden = !undo; b.onclick = async () => { t.hidden = true; await undo(); };
+  t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 10000);
 }
-async function load() { try { const all = await (await fetch('/api/answers')).json(); $$('section.card').forEach(s => paint(s.id, all[s.id])); } catch {} }
-$$('section.card').forEach(sec => {
-  const id = sec.id;
-  $$('ol.opts li', sec).forEach(li => { const pick = async () => { await post('/api/answer', {id, choice: li.dataset.choice}); act('choose', id, li.dataset.choice); load(); };
-    li.addEventListener('click', pick); li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } }); });
-  const ta = $('.fbt', sec), st = $('.fbs', sec), mic = $('.mic', sec);
-  const save = async () => { const note = ta.value.trim(); if (!note) return; await post('/api/answer', {id, note}); act('note', id, note.length + ' chars', 'key'); ta.value = ''; st.textContent = 'gespeichert'; load(); };
-  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); } });
-  // push-to-talk: hold the button or the key M while the pointer is over the card
+function paint(card) {
+  const id = card.dataset.id, a = A[id] || {}, ch = a.choice || '';
+  $$('.opt', card).forEach(b => b.setAttribute('aria-pressed', String(!!ch && b.dataset.choice === ch)));
+  let h = '';
+  if (ch) h += `<p class="ans-row"><span aria-hidden="true">✓</span> Deine Wahl: <b>${esc(ch)}</b> <time>${fmtT(a.choice_ts || a.ts)}</time> <button type="button" class="btn link undo">Rückgängig</button></p>`;
+  if (a.note) h += `<p class="ans-row"><span aria-hidden="true">✎</span> Deine Notiz <time>${fmtT(a.note_ts || a.ts)}</time>: ${esc(a.note)}</p>`;
+  const box = $('.ans', card); box.innerHTML = h; card.classList.toggle('answered', has(id));
+  const u = $('.undo', box); if (u) u.onclick = async () => { try { await post('/api/answer', {id, choice: ''}); act('undo', id, ch); await load(); toast(`Wahl ${ch} zu ${id} zurückgenommen.`); } catch (e) { toast('Nicht gespeichert: ' + e.message); } };
+}
+function summary() {
+  $$('.prog').forEach(p => { const ids = p.dataset.ids.split(' ').filter(Boolean), n = ids.filter(has).length;
+    $('progress', p).value = n; $('.prog-t', p).textContent = `${n} von ${ids.length} ${p.dataset.label}`; });
+  $$('[data-left]').forEach(el => el.textContent = el.dataset.left.split(' ').filter(i => i && !has(i)).length);
+  const mine = $('#mine');
+  if (mine) { const idx = JSON.parse($('#idx').textContent);
+    const rows = Object.entries(A).filter(([id, a]) => (a.choice || a.note) && idx[id] && idx[id][2] !== 'decided').sort((x, y) => (y[1].ts > x[1].ts) - (y[1].ts < x[1].ts));
+    mine.innerHTML = rows.length ? rows.map(([id, a]) => `<li><a href="${idx[id][1]}"><b>${esc(id)}</b> ${esc(idx[id][0])}</a> · ${a.choice ? 'deine Wahl <b>' + esc(a.choice) + '</b>' : 'nur Notiz'} <time class="mut">${fmtT(a.choice_ts || a.ts)}</time></li>`).join('')
+      : '<li class="empty">Noch keine Antworten auf offene Karten.</li>'; }
+}
+async function load() {
+  try { A = await (await fetch('/api/answers', {cache: 'no-store'})).json(); offline = false; }
+  catch { offline = true; }
+  $$('section.card').forEach(paint); summary();
+}
+async function choose(card, L, source) {
+  const id = card.dataset.id, st = $('.fbs', card);
+  try { await post('/api/answer', {id, choice: L}); act('choose', id, L, source); st.textContent = `Wahl ${L} gespeichert`; await load(); card.dispatchEvent(new Event('chosen')); }
+  catch (e) { st.textContent = 'Nicht gespeichert: ' + e.message; }
+}
+let hot = null;
+$$('section.card').forEach(card => {
+  const id = card.dataset.id, ta = $('.fbt', card), st = $('.fbs', card), mic = $('.mic', card);
+  $$('.opt', card).forEach(b => b.addEventListener('click', ev => choose(card, b.dataset.choice, ev.detail === 0 ? 'key' : 'mouse')));
+  const save = async () => { const note = ta.value.trim(); if (!note) { st.textContent = 'Notiz ist leer'; return; }
+    try { await post('/api/answer', {id, note}); act('note', id, note.length + ' chars', 'key'); ta.value = ''; st.textContent = 'Notiz gespeichert'; await load(); }
+    catch (e) { st.textContent = 'Nicht gespeichert: ' + e.message; } };
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); save(); } });
+  $('.save', card).addEventListener('click', save);
+  // push-to-talk: hold the button, or hold M while the card has the pointer or the focus
   let rec = null, stream = null, chunks = [], t0 = 0;
-  async function down() {
-    if (rec) return; st.textContent = 'Mikro…'; fetch('/api/stt/warm', {method:'POST'}).catch(()=>{});
-    try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); } catch (e) { st.textContent = 'kein Mikrofon: ' + e.message; return; }
+  card._down = async () => {
+    if (rec) return; st.textContent = 'Mikrofon…'; fetch('/api/stt/warm', {method:'POST'}).catch(()=>{});
+    try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); } catch (e) { st.textContent = 'Kein Mikrofon: ' + e.message + '. Tippe die Notiz.'; return; }
     const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
     rec = new MediaRecorder(stream, mime ? {mimeType: mime} : {}); chunks = []; t0 = performance.now();
     rec.ondataavailable = e => e.data.size && chunks.push(e.data);
     rec.onstop = async () => {
       stream.getTracks().forEach(t => t.stop()); const blob = new Blob(chunks, {type: rec.mimeType || mime || 'audio/webm'}); rec = null;
-      mic.classList.remove('on'); mic.classList.add('busy'); st.textContent = 'schreibe ab…';
+      mic.classList.remove('on'); mic.classList.add('busy'); st.textContent = 'Schreibe ab…';
       try { const r = await fetch('/api/stt?id=' + encodeURIComponent(id), {method:'POST', headers:{'Content-Type': blob.type}, body: blob}); const j = await r.json();
-        st.textContent = r.ok ? (j.text ? 'notiert' : 'nichts gehört') : ('Fehler: ' + (j.error || r.status)); if (!r.ok) ta.focus(); }
+        st.textContent = r.ok ? (j.text ? 'Sprachnotiz gespeichert' : 'Nichts gehört') : ('Fehler: ' + (j.error || r.status) + '. Tippe die Notiz.'); if (!r.ok) ta.focus(); }
       catch (e) { st.textContent = 'Fehler: ' + e.message; }
       mic.classList.remove('busy'); act('voice', id, Math.round((performance.now() - t0) / 100) / 10 + ' s', 'voice'); load();
     };
-    rec.start(); mic.classList.add('on'); st.textContent = 'aufnahme… loslassen zum Senden';
-  }
-  function up() { if (rec && rec.state === 'recording') rec.stop(); }
-  mic.addEventListener('pointerdown', e => { e.preventDefault(); mic.setPointerCapture?.(e.pointerId); down(); });
-  mic.addEventListener('pointerup', up); mic.addEventListener('pointercancel', up);
-  sec.addEventListener('pointerenter', () => window.__hot = sec); 
-  document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'm' && !e.repeat && window.__hot === sec && !e.target.matches('input, textarea')) down(); });
-  document.addEventListener('keyup', e => { if (e.key.toLowerCase() === 'm' && window.__hot === sec) up(); });
+    rec.start(); mic.classList.add('on'); st.textContent = 'Aufnahme läuft. Loslassen zum Senden.';
+  };
+  card._up = () => { if (rec && rec.state === 'recording') rec.stop(); };
+  mic.addEventListener('pointerdown', e => { e.preventDefault(); mic.setPointerCapture?.(e.pointerId); card._down(); });
+  mic.addEventListener('pointerup', card._up); mic.addEventListener('pointercancel', card._up);
+  mic.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); card._down(); } });
+  mic.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') card._up(); });
+  card.addEventListener('pointerenter', () => hot = card); card.addEventListener('focusin', () => hot = card);
 });
-load();
+const typing = e => e.target.matches?.('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey;
+document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'm' && !e.repeat && hot && !hot.hidden && !typing(e)) hot._down(); });
+document.addEventListener('keyup', e => { if (e.key.toLowerCase() === 'm' && hot) hot._up(); });
+
+// Gruppenweise abnicken
+const bulk = $('#bulk');
+if (bulk) {
+  const dlg = $('#bulk-dlg'); let todo = [];
+  bulk.addEventListener('click', () => {
+    todo = $$('section.card[data-stack="defaults"]').filter(c => c.dataset.built && !has(c.dataset.id)).map(c => [c.dataset.id, c.dataset.built, $('.card-title', c).textContent]);
+    if (!todo.length) { $('#bulk-st').textContent = 'Nichts zu tun: jede Default-Karte hier hat schon eine Antwort oder Notiz.'; return; }
+    $('#bulk-n').textContent = todo.length;
+    $('#bulk-list').innerHTML = todo.map(([id, b, t]) => `<li><b>${esc(id)}</b> → ${esc(b)} <span class="mut">${esc(t)}</span></li>`).join('');
+    dlg.showModal();
+  });
+  $('#bulk-cancel').addEventListener('click', () => dlg.close());
+  $('#bulk-ok').addEventListener('click', async () => {
+    dlg.close(); const done = [];
+    for (const [id, b] of todo) { try { await post('/api/answer', {id, choice: b, note: 'Gruppe abgenickt'}); done.push(id); } catch {} }
+    act('bulk-accept', PAGE, done.length + ' ids: ' + done.join(' ')); await load();
+    $('#bulk-st').textContent = `${done.length} von ${todo.length} gespeichert.`;
+    toast(`${done.length} Defaults abgenickt.`, async () => {
+      for (const id of done) { try { await post('/api/answer', {id, choice: '', note: ''}); } catch {} }
+      act('bulk-undo', PAGE, done.length + ' ids'); await load(); $('#bulk-st').textContent = 'Zurückgenommen.';
+    });
+  });
+}
+
+// Eine Frage auf einmal
+let start = () => {};
+if (PAGE === 'next') {
+  const cards = $$('#queue section.card'), nx = $('#qnext'); let q = [], i = 0;
+  const show = () => {
+    cards.forEach(c => c.hidden = true);
+    const end = i >= q.length; $('#done').hidden = !end; $('#qbar').hidden = end; nx.hidden = end; $('.keys').hidden = end;
+    if (end) { const left = cards.filter(c => !has(c.dataset.id)).length; $('#again-p').hidden = !left; $('#again-n').textContent = left; $('#done').focus(); act('focus-done', 'next', left + ' left'); return; }
+    const c = q[i]; c.hidden = false; hot = c; $('#qpos').textContent = `${i + 1} von ${q.length}`;
+    nx.textContent = has(c.dataset.id) ? 'Weiter (N)' : 'Überspringen (N)'; c.focus({preventScroll: true}); window.scrollTo(0, 0);
+  };
+  start = () => { q = cards.filter(c => !has(c.dataset.id)); i = 0; show(); };
+  nx.addEventListener('click', ev => { const c = q[i]; if (c) act(has(c.dataset.id) ? 'next' : 'skip', c.dataset.id, null, ev.detail === 0 ? 'key' : 'mouse'); i++; show(); });
+  cards.forEach(c => c.addEventListener('chosen', () => { nx.textContent = 'Weiter (N)'; nx.focus(); }));
+  $('#again').addEventListener('click', start);
+  document.addEventListener('keydown', e => {
+    if (typing(e) || e.repeat) return; const k = e.key.toUpperCase(), c = q[i];
+    if (k === 'N' && c) { e.preventDefault(); nx.click(); return; }
+    const b = c && $$('.opt', c).find(b => b.dataset.choice === k);
+    if (b) { e.preventDefault(); choose(c, k, 'key'); }
+  });
+}
+load().then(() => { if (offline) toast('Server nicht erreichbar: Antworten werden nicht gespeichert.'); start(); });
 $$('a[href]').forEach(a => a.addEventListener('click', () => act('nav', a.getAttribute('href'))));
 })();
 </script>'''
 
-CSS = """
-:root{color-scheme:light dark;--bg:#fafafa;--fg:#383a42;--mut:#8a8f98;--bd:#d9dce2;--card:#fff;
---k:#a626a4;--t:#c18401;--f:#4078f2;--p:#e45649;--s:#50a14f;--c:#0184bc;--o:#383a42;--m:#9a9fa8;
---ok:#2e8b57;--open:#c0392b;--def:#b7791f;--park:#6c757d}
-@media (prefers-color-scheme:dark){:root{--bg:#1e2127;--fg:#abb2bf;--mut:#7f848e;--bd:#3a3f4b;--card:#262a31;
---k:#c678dd;--t:#e5c07b;--f:#61afef;--p:#e06c75;--s:#98c379;--c:#56b6c2;--o:#abb2bf;--m:#7f848e;
---ok:#98c379;--open:#e06c75;--def:#e5c07b;--park:#7f848e}}
-*{box-sizing:border-box}body{margin:0;padding:20px 16px 60px;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,sans-serif;max-width:860px;margin-inline:auto}
-a{color:var(--f);text-decoration:none}a:hover{text-decoration:underline}
-h1{font-size:24px;margin:8px 0 6px}h2{font-size:17px;margin:28px 0 8px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.lead{color:var(--mut);margin:0 0 18px}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;margin:10px 0;background:var(--card);font:13px/1.55 ui-monospace,Menlo,monospace}
-code{font:0.92em ui-monospace,Menlo,monospace;background:var(--card);border:1px solid var(--bd);border-radius:4px;padding:0 4px}
-i{font-style:normal}.k{color:var(--k)}.t{color:var(--t)}.f{color:var(--f)}.p{color:var(--p)}.s{color:var(--s)}.c{color:var(--c)}.o,.b{color:var(--o)}.m{color:var(--m);font-style:italic}
-.card{border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--card)}
-.badge{font:600 11px/1 system-ui;letter-spacing:.3px;text-transform:uppercase;padding:4px 7px;border-radius:999px;border:1px solid currentColor}
-.decided{color:var(--ok)}.open{color:var(--open)}.default{color:var(--def)}.parked{color:var(--park)}
-.id{font:600 12px ui-monospace,Menlo,monospace;color:var(--mut)}
-.why{border-left:3px solid var(--def);padding:2px 10px;color:var(--fg);margin:8px 0}
-ol.opts{padding-left:0;list-style:none;margin:10px 0 4px}ol.opts li{padding:6px 10px;border:1px solid var(--bd);border-radius:8px;margin:5px 0;display:flex;gap:10px}
-ol.opts li.built{border-color:var(--def)}ol.opts .L{font-weight:700;min-width:1.4em}ol.opts .tag{margin-left:auto;color:var(--def);font-size:12px;white-space:nowrap}
-.by{color:var(--mut);font-size:13px;margin-top:8px}.note{color:var(--mut);font-size:13px}
-nav{display:flex;justify-content:space-between;gap:12px;margin:24px 0 0;padding-top:14px;border-top:1px solid var(--bd);font-size:14px}
-table{border-collapse:collapse;width:100%;margin:14px 0}td,th{border-bottom:1px solid var(--bd);padding:8px 6px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600;font-size:13px}
-td.n{text-align:right;white-space:nowrap}
-ol.opts li{cursor:pointer}ol.opts li:hover{background:var(--bg)}ol.opts li.chosen{outline:2px solid var(--ok);outline-offset:-1px}
-.fb{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.mic{font:600 13px system-ui;padding:8px 12px;border-radius:999px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;white-space:nowrap;user-select:none;-webkit-user-select:none}
-.mic.on{background:var(--open);color:#fff;border-color:var(--open)}.mic.busy{opacity:.6}
-.fbt{flex:1;font:14px/1.4 system-ui;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);resize:vertical;min-height:36px}
-.fbs{font-size:12px;color:var(--mut);align-self:center;white-space:nowrap}
-.ans{font-size:13px;margin-top:8px}.ans .a{border-left:3px solid var(--ok);padding:2px 10px;margin:4px 0}.ans .a time{color:var(--mut);margin-right:6px}
-ul.arrows{list-style:none;padding-left:0;margin:8px 0}ul.arrows li{margin:2px 0}ul.arrows li::before{content:"→ "}ul.arrows li.sub::before{content:none}
-pre{padding:14px 16px;line-height:1.7}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin:12px 0}
-"""
-LABEL = dict(decided="entschieden", open="offen", default="Default, gebaut", parked="geparkt")
+
+# ---------------------------------------------------------------- render
+LOCK = '<svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg>'
+MIC = '<svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1a2.5 2.5 0 0 0-2.5 2.5v4a2.5 2.5 0 0 0 5 0v-4A2.5 2.5 0 0 0 8 1zM3.5 7.5h1a3.5 3.5 0 0 0 7 0h1a4.5 4.5 0 0 1-4 4.47V14h2v1h-5v-1h2v-2.03a4.5 4.5 0 0 1-4-4.47z"/></svg>'
 
 
-def page(title, body, prev=None, nxt=None):
-    nav = '<nav><span>' + (f'<a href="{prev[0]}.html">← {html.escape(prev[1])}</a>' if prev else "") + \
-          '</span><a href="index.html">Übersicht</a><span>' + (f'<a href="{nxt[0]}.html">{html.escape(nxt[1])} →</a>' if nxt else "") + '</span></nav>' + JS
-    return f'<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title><style>{CSS}</style></head><body>{body}{nav}</body></html>'
+def e(s):
+    return html.escape(str(s), quote=True)
 
 
-def render_item(x):
-    st = x["status"]
-    h = [f'<section class="card" id="{html.escape(x["id"])}"><h2><span class="id">{html.escape(x["id"])}</span> {text(x["title"])} <span class="badge {st}">{LABEL[st]}{(" · " + x["dl"]) if x["dl"] else ""}</span></h2>']
+def pill(status):
+    return f'<span class="pill st-{status}"><span aria-hidden="true">{ICON[status]}</span> <span class="lbl">{LABEL[status]}</span></span>'
+
+
+def href(x):
+    return f'{x["page"]}.html#{x["id"]}'
+
+
+TITLES = {}
+
+
+def render_item(x, ans, home=False):
+    st, sid, b = x["status"], x["id"], built(x)
+    h = [f'<section class="card" id="{e(sid)}" data-id="{e(sid)}" data-status="{st}" data-stack="{stack(x)}" data-built="{e(b)}" tabindex="-1" aria-labelledby="t-{e(sid)}">',
+         f'<div class="card-top"><span class="card-id">{e(sid)}</span>{pill(st)}'
+         + (f'<span class="pill">{e(x["dl"])}</span>' if x["dl"] else "") + '</div>',
+         f'<h2 class="card-title" id="t-{e(sid)}">{text(x["title"])}</h2>']
+    meta = [f'<span>Von: {text(x["by"])}</span>', f'<span>Neu am {fmt(x["added"])} · {e(x["source"])}</span>']
+    d = decided_at(x, ans) if st == "decided" else None
+    if d:
+        meta.append(f'<span>Entschieden am {fmt(d)}</span>')
+    if home:
+        meta.append(f'<span>Gehört zu: <a href="{x["group"]}.html">{text(TITLES[x["group"]])}</a></span>')
+    h.append('<p class="meta">' + "".join(meta) + '</p>')
     if isinstance(x["what"], str) and x["what"]:
         h.append(f'<p>{text(x["what"])}</p>')
     elif x["what"]:
@@ -970,44 +1295,187 @@ def render_item(x):
         h.append(f'<p class="why">{text(x["why"])}</p>')
     h += x["code"]
     if x["options"]:
-        h.append('<ol class="opts">')
-        for L, t, built in x["options"]:
-            h.append(f'<li class="{"built" if built else ""}" data-choice="{html.escape(L)}" role="button" tabindex="0"><span class="L">{html.escape(L)}</span><span>{text(t)}</span>{"<span class=tag>gebaut</span>" if built else ""}</li>')
-        h.append('</ol>')
+        h.append(f'<div class="opts" role="group" aria-label="Optionen zu {e(sid)}">')
+        for L, t, bl in x["options"]:
+            h.append(f'<button type="button" class="opt{" built" if bl else ""}" data-choice="{e(L)}" aria-pressed="false">'
+                     f'<span class="opt-l">{e(L)}</span><span class="opt-t">{text(t)}</span><span class="opt-tags">'
+                     + ('<span class="tag tag-built"><span aria-hidden="true">◆</span> gebaut</span>' if bl else "")
+                     + '<span class="tag tag-mine"><span aria-hidden="true">✓</span> deine Wahl</span></span></button>')
+        h.append('</div>')
     if x["note"]:
         h.append(f'<p class="note">{text(x["note"])}</p>')
-    h.append(f'<p class="by">By: {text(x["by"])}</p>')
-    h.append('<div class="fb"><button class="mic" type="button" title="Halten und sprechen (oder Taste M)">🎤 Sprechen</button>'
-             '<textarea class="fbt" rows="1" placeholder="Anmerkung (Enter speichert)"></textarea><span class="fbs"></span></div>'
-             '<div class="ans"></div></section>')
+    h.append('<div class="ans" aria-live="polite"></div>'
+             f'<div class="fb"><label class="sr" for="n-{e(sid)}">Notiz zu {e(sid)}</label>'
+             f'<textarea id="n-{e(sid)}" class="fbt" rows="2" placeholder="Notiz (Enter speichert, Umschalt+Enter neue Zeile)"></textarea>'
+             '<div class="fb-row"><button type="button" class="btn save">Notiz speichern</button>'
+             f'<button type="button" class="btn mic" aria-label="Halten und sprechen (Taste M)">{MIC} Halten und sprechen</button>'
+             '<span class="fbs" role="status"></span></div></div></section>')
     return "".join(h)
 
 
+def progress(ids, label="beantwortet"):
+    return (f'<div class="prog" data-ids="{e(" ".join(ids))}" data-label="{e(label)}"><progress max="{len(ids) or 1}" value="0"></progress>'
+            f'<span class="prog-t">0 von {len(ids)} {label}</span></div>')
+
+
+NAV = [("index", "Übersicht"), ("next", "Nächste Frage"), (INBOX, "Eingang"), ("entschieden", "Entschieden"), ("aenderungen", "Änderungen")]
+
+
+def page(slug, title, body, inbox_n, prev=None, nxt=None):
+    links = "".join(f'<a href="{s}.html"{" aria-current=page" if s == slug else ""}>{e(t)}'
+                    + (f' <span class="count">{inbox_n}</span>' if s == INBOX and inbox_n else "") + '</a>' for s, t in NAV)
+    foot = ""
+    if prev or nxt:
+        foot = ('<nav class="pager" aria-label="Seiten blättern"><span>' + (f'<a href="{prev[0]}.html" rel="prev">← {text(prev[1])}</a>' if prev else "")
+                + '</span><span>' + (f'<a href="{nxt[0]}.html" rel="next">{text(nxt[1])} →</a>' if nxt else "") + '</span></nav>')
+    return (f'<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            f'<title>{e(title)} · Entscheidungen</title><style>{CSS}</style></head><body data-page="{slug}">'
+            f'<a class="skip" href="#main">Zum Inhalt springen</a><header class="top"><nav aria-label="Hauptnavigation">{links}</nav></header>'
+            f'<main id="main" tabindex="-1">{body}</main><footer>{foot}</footer>'
+            '<div id="toast" role="status" aria-live="polite" hidden><span class="toast-t"></span> <button type="button" class="btn link toast-undo">Rückgängig</button></div>'
+            f'{JS}</body></html>')
+
+
+BULK = '''<dialog id="bulk-dlg" aria-labelledby="bulk-h"><h2 id="bulk-h">Alle Defaults dieser Gruppe so lassen?</h2>
+<p>Für <b id="bulk-n"></b> Karten wird die gebaute Option als deine Wahl gespeichert, mit der Notiz „Gruppe abgenickt“.
+Karten mit einer Antwort oder Notiz bleiben, wie sie sind.</p><ul id="bulk-list" class="plain"></ul>
+<div class="dlg-actions"><button type="button" id="bulk-cancel" class="btn" autofocus>Abbrechen</button><button type="button" id="bulk-ok" class="btn primary">Ja, alle so lassen</button></div></dialog>'''
+
+
+def write(name, s):
+    with open(os.path.join(HERE, name + ".html"), "w") as f:
+        f.write(s)
+
+
 def main():
+    ans = read_answers()
+    place(ans)
+    now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    changelog(ans, now)
+    log = read_log()
+    for g in G:
+        TITLES[g["slug"]] = g["title"]
+    items = [x for g in G for x in g["items"]]
+    inbox = sorted((x for x in items if x["page"] == INBOX), key=lambda x: ts(x["added"]), reverse=True)
+    n_in = len(inbox)
+    uniq = list({x["id"]: x for x in items}.values())
+    by_stack = {k: [x for x in uniq if stack(x) == k] for k, _, _ in STACKS}
+
+    # group pages
     for i, g in enumerate(G):
+        here = [x for x in g["items"] if x["page"] == g["slug"]]
+        moved = [x for x in g["items"] if x["page"] == INBOX]
+        todo = [x["id"] for x in here if stack(x) in ("block", "defaults")]
+        bulk = [x for x in here if stack(x) == "defaults" and built(x)]
+        head = [f'<p class="crumb"><a href="index.html">Übersicht</a> · Seite {i + 1} von {len(G)}</p><h1>{text(g["title"])}</h1>',
+                f'<p class="lead">{text(g["lead"])}</p>']
+        if g["frozen"]:
+            head.append(f'<p class="frozen">{LOCK} <b>Eingefroren</b> seit {fmt(g["frozen"])}: '
+                        'hier steht schon eine Antwort von dir, neue Karten kommen in den <a href="eingang.html">Eingang</a>.</p>')
+        if moved:
+            head.append(f'<p class="hint"><span aria-hidden="true">→</span> {len(moved)} neue Karten zu dieser Seite liegen im <a href="eingang.html">Eingang</a>: '
+                        + ", ".join(f'<a href="{href(x)}">{e(x["id"])}</a>' for x in moved) + '.</p>')
+        if todo:
+            head.append(progress(todo))
+        if bulk:
+            head.append(f'<div class="bulk"><button type="button" id="bulk" class="btn">Alle Defaults dieser Gruppe so lassen</button>'
+                        f'<span class="mut">{len(bulk)} Default-Karten; Einwände gibst du auf der einzelnen Karte.</span><span id="bulk-st" role="status"></span></div>{BULK}')
+        body = "".join(head) + "".join(render_item(x, ans) for x in here)
+        if not here:
+            body += '<p class="empty">Auf dieser Seite liegen keine Karten.</p>'
         prev = (G[i - 1]["slug"], G[i - 1]["title"]) if i else None
         nxt = (G[i + 1]["slug"], G[i + 1]["title"]) if i + 1 < len(G) else None
-        body = f'<p class="id"><a href="index.html">Übersicht</a> · Seite {i + 1} von {len(G)}</p><h1>{text(g["title"])}</h1><p class="lead">{text(g["lead"])}</p>' + "".join(render_item(x) for x in g["items"])
-        with open(os.path.join(HERE, g["slug"] + ".html"), "w") as f:
-            f.write(page(g["title"], body, prev, nxt))
-    rows = []
-    tot = dict(decided=0, open=0, default=0, parked=0)
+        write(g["slug"], page(g["slug"], g["title"], body, n_in, prev, nxt))
+
+    # Eingang
+    body = ['<p class="crumb"><a href="index.html">Übersicht</a></p><h1>Eingang</h1>',
+            '<p class="lead">Neue Karten, die auf eine eingefrorene Seite gehören. Neueste zuerst; jede mit Datum und Quelle.</p>']
+    ib = [x for x in inbox if stack(x) == "defaults" and built(x)]
+    if inbox:
+        body.append(progress([x["id"] for x in inbox if stack(x) in ("block", "defaults")]))
+    if ib:
+        body.append(f'<div class="bulk"><button type="button" id="bulk" class="btn">Alle Defaults im Eingang so lassen</button>'
+                    f'<span class="mut">{len(ib)} Default-Karten.</span><span id="bulk-st" role="status"></span></div>{BULK}')
+    body += [f'<p class="new-tag"><span class="pill st-new"><span aria-hidden="true">★</span> Neu</span> {fmt(x["added"])} · {e(x["source"])}</p>' + render_item(x, ans, home=True) for x in inbox]
+    if not inbox:
+        body.append('<p class="empty">Der Eingang ist leer. Neue Karten auf eingefrorenen Seiten erscheinen hier.</p>')
+    write(INBOX, page(INBOX, "Eingang", "".join(body), n_in))
+
+    # Entschieden
+    done = sorted((x for x in uniq if x["status"] == "decided"), key=lambda x: ts(decided_at(x, ans) or x["added"]), reverse=True)
+    idx = {x["id"]: [x["title"].replace("`", ""), href(x), x["status"]] for x in uniq}
+    body = ['<p class="crumb"><a href="index.html">Übersicht</a></p><h1>Entschieden</h1>',
+            f'<p class="lead">{len(done)} Karten mit Entscheidung, neueste zuerst. Die Karten stehen auch weiter auf ihrer Seite.</p>',
+            '<h2 class="sec">Deine Antworten auf offene Karten</h2><p class="mut">Noch ohne DL-Eintrag; der Hauptagent trägt sie ein.</p>'
+            f'<ul id="mine" class="plain list"></ul><script type="application/json" id="idx">{json.dumps(idx, ensure_ascii=False).replace("</", "<\\/")}</script>',
+            '<h2 class="sec">Entschiedene Karten</h2>'] + [render_item(x, ans, home=x["page"] == INBOX) for x in done]
+    write("entschieden", page("entschieden", "Entschieden", "".join(body), n_in))
+
+    # Änderungsprotokoll
+    def link(r):
+        x = next((x for x in items if x["id"] == r["id"]), None)
+        return f'<a href="{href(x)}">{e(r["id"])}</a>' if x else e(r["id"])
+
+    def row(r):
+        return f'<tr><td class="nw">{fmt(r["ts"])}</td><td>{link(r)}</td><td>{e(CHANGE.get(r["change"], r["change"]))}</td><td>{text(r["by"])}</td></tr>'
+    rows = sorted(log, key=lambda r: ts(r["ts"]), reverse=True)
+    body = ('<p class="crumb"><a href="index.html">Übersicht</a></p><h1>Änderungsprotokoll</h1>'
+            '<p class="lead">Jeder Build schreibt hier, was sich an Karten geändert hat: neu, entschieden, in den Eingang verschoben. Nur anhängen, nie umschreiben. '
+            'Einträge mit Datum vor dem ersten Protokoll-Build sind aus git rekonstruiert.</p>'
+            + ('<div class="tablewrap"><table><thead><tr><th scope="col">Zeit</th><th scope="col">Karte</th><th scope="col">Änderung</th><th scope="col">Von</th></tr></thead><tbody>'
+               + "".join(row(r) for r in rows) + '</tbody></table></div>' if rows else '<p class="empty">Noch keine Änderungen.</p>'))
+    write("aenderungen", page("aenderungen", "Änderungsprotokoll", body, n_in))
+
+    # Eine Frage auf einmal
+    queue = by_stack["block"] + by_stack["defaults"]
+    body = ('<h1>Eine Frage auf einmal</h1><p class="lead">Erst was Arbeit blockt, dann die gebauten Defaults. Ideen für später sind nicht dabei.</p>'
+            '<div id="qbar" class="qbar"><p class="qpos" aria-live="polite">Frage <b id="qpos">–</b> in dieser Runde</p>' + progress([x["id"] for x in queue], "insgesamt beantwortet") + '</div>'
+            '<p class="keys"><kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> wählen · <kbd>Enter</kbd> speichert die Notiz · <kbd>N</kbd> nächste · <kbd>M</kbd> halten zum Sprechen</p>'
+            '<div id="queue">' + "".join(render_item(x, ans, home=True).replace('<section class="card"', '<section hidden class="card"', 1) for x in queue) + '</div>'
+            '<div class="qnav"><button type="button" id="qnext" class="btn primary">Überspringen</button></div>'
+            '<section id="done" class="done" hidden tabindex="-1"><h2><span aria-hidden="true">✓</span> Fertig</h2><p>Jede Karte in dieser Runde hat eine Antwort oder wurde übersprungen.</p>'
+            '<p id="again-p" hidden><button type="button" id="again" class="btn primary"><span id="again-n"></span> offene Karten noch einmal ansehen</button></p>'
+            '<p><a href="index.html">Zur Übersicht</a> · <a href="entschieden.html">Deine Antworten</a></p></section>')
+    write("next", page("next", "Nächste Frage", body, n_in))
+
+    # Übersicht
+    stacks = []
+    for k, t, lead in STACKS:
+        xs = by_stack[k]
+        pages = {}
+        for x in xs:
+            pages.setdefault(x["page"], []).append(x)
+        lis = "".join(f'<li><a href="{p}.html">{text(TITLES.get(p, "Eingang"))}</a> <span class="mut">{len(v)}</span></li>' for p, v in pages.items())
+        stacks.append(f'<section class="stack" aria-labelledby="s-{k}"><h2 id="s-{k}"><span class="stack-n">{len(xs)}</span> {t}</h2><p class="mut">{lead}</p>'
+                      + (progress([x["id"] for x in xs]) if k != "ideas" else progress([x["id"] for x in xs], "mit Notiz oder Wahl"))
+                      + (f'<ul class="plain list">{lis}</ul>' if lis else '<p class="empty">Nichts hier.</p>') + '</section>')
+    news = "".join(f'<li><time>{fmt(r["ts"])}</time> {link(r)} · {e(CHANGE.get(r["change"], r["change"]))}</li>' for r in rows[:8])
+    trs = []
     for i, g in enumerate(G):
-        c = dict(decided=0, open=0, default=0, parked=0)
+        c = {s: 0 for s in LABEL}
         for x in g["items"]:
-            c[x["status"]] += 1
-            tot[x["status"]] += 1
-        cells = "".join(f'<td class="n {k}">{c[k] or ""}</td>' for k in ("open", "default", "parked", "decided"))
-        rows.append(f'<tr><td>{i + 1}</td><td><a href="{g["slug"]}.html">{text(g["title"])}</a><br><span class="note">{text(g["lead"])}</span></td>{cells}</tr>')
-    body = f'''<h1>Walk-through: gebaute Defaults und offene Fragen</h1>
-<p class="lead">Stand 2026-11-08 nach dem Nachtlauf (DL-144). Groß zuerst. Jede Seite ist eine Gruppe; jeder Kasten eine Frage. Quelle: <code>owner-review.md</code>, Register D037.</p>
-<div class="legend"><span class="badge open">offen</span> braucht deine Antwort, nichts gebaut oder Einwand <span class="badge default">Default, gebaut</span> gebaut, gilt erst nach deiner Abnahme (DL-139) <span class="badge parked">geparkt</span> D036 <span class="badge decided">entschieden</span> DL-Eintrag vorhanden</div>
-<table><thead><tr><th>#</th><th>Gruppe</th><th class="open">offen</th><th class="default">Default</th><th class="parked">geparkt</th><th class="decided">entschieden</th></tr></thead><tbody>{"".join(rows)}</tbody>
-<tfoot><tr><th></th><th>Summe</th>{"".join(f'<td class="n {k}">{tot[k]}</td>' for k in ("open", "default", "parked", "decided"))}</tr></tfoot></table>
-<p class="note">Reihenfolge für das Gespräch: 1 → 2 → 3 → 4 → 5, dann 6 bis 11 als Sammelfragen, 12 nur zur Kenntnis.</p>'''
-    with open(os.path.join(HERE, "index.html"), "w") as f:
-        f.write(page("Walk-through D037", body, None, (G[0]["slug"], G[0]["title"])))
-    print(f"{len(G)} pages, {sum(tot.values())} items", tot)
+            if x["page"] == g["slug"]:
+                c[x["status"]] += 1
+        fz = f'<span class="mut">{LOCK} eingefroren</span>' if g["frozen"] else ""
+        trs.append(f'<tr><td>{i + 1}</td><td><a href="{g["slug"]}.html">{text(g["title"])}</a> {fz}</td>' + "".join(f'<td class="n">{c[s] or ""}</td>' for s in ("open", "default", "parked", "decided")) + '</tr>')
+    trs.append(f'<tr><td></td><td><a href="eingang.html">Eingang</a></td>' + "".join(f'<td class="n">{sum(1 for x in inbox if x["status"] == s) or ""}</td>' for s in ("open", "default", "parked", "decided")) + '</tr>')
+    tot = {s: sum(1 for x in items if x["status"] == s) for s in LABEL}
+    body = (f'<h1>Deine Entscheidungen zu BEAML</h1><p class="lead">Stand {fmt(now)}. {len(items)} Karten auf {len(G)} Seiten und im Eingang. Quelle: <code>owner-review.md</code>, Register D037.</p>'
+            f'<div class="hero"><a class="btn primary big" href="next.html">Nächste Frage beantworten</a><span class="mut"><b data-left="{e(" ".join(x["id"] for x in queue))}">{len(queue)}</b> Karten warten auf dich</span></div>'
+            '<div class="stacks">' + "".join(stacks) + '</div>'
+            f'<div class="duo"><section aria-labelledby="h-in"><h2 id="h-in" class="sec">Eingang</h2>'
+            + (f'<p><a href="eingang.html"><b>{n_in}</b> neue Karten</a> für eingefrorene Seiten.</p>' if n_in else '<p class="empty">Der Eingang ist leer.</p>')
+            + f'<h2 class="sec">Entschieden</h2><p><a href="entschieden.html"><b>{len(done)}</b> Karten entschieden</a>, dazu deine Antworten.</p></section>'
+            f'<section aria-labelledby="h-news"><h2 id="h-news" class="sec">Was ist neu</h2>'
+            + (f'<ul class="plain list news">{news}</ul>' if news else '<p class="empty">Noch keine Änderungen.</p>')
+            + '<p><a href="aenderungen.html">Ganzes Änderungsprotokoll</a></p></section></div>'
+            '<h2 class="sec">Alle Seiten</h2><div class="tablewrap"><table><thead><tr><th scope="col">#</th><th scope="col">Seite</th>'
+            + "".join(f'<th scope="col" class="n">{pill(s)}</th>' for s in ("open", "default", "parked", "decided")) + '</tr></thead><tbody>' + "".join(trs)
+            + f'</tbody><tfoot><tr><td></td><th scope="row">Summe</th>' + "".join(f'<td class="n">{tot[s]}</td>' for s in ("open", "default", "parked", "decided")) + '</tr></tfoot></table></div>'
+            '<p class="mut">Status: ' + " · ".join(pill(s) for s in LABEL) + '. <span aria-hidden="true">◆</span> gebaut = so steht es heute im Code. Eingefroren = die Seite bekommt keine neuen Karten mehr.</p>')
+    write("index", page("index", "Übersicht", body, n_in, None, (G[0]["slug"], G[0]["title"])))
+    counts = {k: len(v) for k, v in by_stack.items()}
+    print(f"{len(G)} pages, {len(items)} items, inbox {n_in}", tot, counts, "decided", len(done))
 
 
 if __name__ == "__main__":

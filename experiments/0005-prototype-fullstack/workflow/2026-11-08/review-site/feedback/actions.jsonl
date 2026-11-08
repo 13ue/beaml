@@ -23,3 +23,10 @@
 {"ts": "2026-11-08T07:39:39Z", "source": "mouse", "action": "choose", "target": "Q5-10", "result": "B"}
 {"ts": "2026-11-08T07:39:40Z", "source": "mouse", "action": "choose", "target": "Q5-10", "result": "A"}
 {"ts": "2026-11-08T07:39:42Z", "source": "mouse", "action": "choose", "target": "Q5-10", "result": "B"}
+{"ts": "2026-11-08T09:21:10Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
+{"ts": "2026-11-08T09:21:31Z", "source": "mouse", "action": "nav", "target": "02-order-chain.html", "result": null}
+{"ts": "2026-11-08T09:21:38Z", "source": "mouse", "action": "nav", "target": "02-order-chain.html", "result": null}
+{"ts": "2026-11-08T09:22:35Z", "source": "mouse", "action": "nav", "target": "01-review.html", "result": null}
+{"ts": "2026-11-08T09:22:38Z", "source": "mouse", "action": "nav", "target": "02-order-chain.html", "result": null}
+{"ts": "2026-11-08T09:46:23Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
+{"ts": "2026-11-08T09:46:31Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}

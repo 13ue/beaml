@@ -2,10 +2,12 @@
 """Serve the walk-through site with answers and voice notes.
 
 GET  /…                 static files of this directory
-GET  /api/answers       {id: latest answer}
-POST /api/answer        {id, choice?, note?}      -> feedback/answers.jsonl (append-only, latest per id wins)
+GET  /api/answers       {id: latest answer, with choice_ts / note_ts}
+POST /api/answer        {id, choice?, note?}      -> feedback/answers.jsonl (append-only, latest per id wins;
+                        choice "" or note "" clears it in the merged view, the history stays in the file)
 POST /api/act           {action, target, result?} -> feedback/actions.jsonl (user action tracking)
 POST /api/stt?id=…      audio body -> {text, language, audio}; audio under feedback/audio/, transcript appended to answers as a note
+Port: argv[1], default 8768. REVIEW_NO_BUS=1 keeps a test copy off the job bus.
 Whisper: the mlx venv of the rating desk (dreamid-v tools/rate/venv), model whisper-large-v3-turbo, worker started on
 first use, stopped after 10 min idle. Without the venv, /api/stt answers 503 and the page falls back to typing.
 """
@@ -33,13 +35,18 @@ def answers():
     d = {}
     try:
         for line in open(FB / "answers.jsonl"):
-            r = json.loads(line); d[r["id"]] = {**d.get(r["id"], {}), **{k: v for k, v in r.items() if v is not None}}
+            r = json.loads(line); a = d.setdefault(r["id"], {})
+            a.update({k: v for k, v in r.items() if v is not None})
+            for k in ("choice", "note"):
+                if r.get(k) is not None: a[k + "_ts"] = r["ts"]
+                if a.get(k) == "": a.pop(k); a.pop(k + "_ts", None)
     except FileNotFoundError:
         pass
     return d
 
 
 def bus(kind, msg):
+    if os.environ.get("REVIEW_NO_BUS"): return
     try:
         sys.path.insert(0, os.path.expanduser("~/.claude-bus")); from cbus import post
         post("review-d037", kind, msg=msg, title="Review the 0005 DEFAULTS (OWNER walk-through)")
@@ -132,5 +139,6 @@ class H(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     threading.Thread(target=reaper, daemon=True).start()
-    bus("start", "review server up on 127.0.0.1:8768")
-    ThreadingHTTPServer(("127.0.0.1", 8768), H).serve_forever()
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8768
+    bus("start", f"review server up on 127.0.0.1:{port}")
+    ThreadingHTTPServer(("127.0.0.1", port), H).serve_forever()

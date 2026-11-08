@@ -1,85 +1,232 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kleines</title><style>
-:root{color-scheme:light dark;--bg:#fafafa;--fg:#383a42;--mut:#8a8f98;--bd:#d9dce2;--card:#fff;
---k:#a626a4;--t:#c18401;--f:#4078f2;--p:#e45649;--s:#50a14f;--c:#0184bc;--o:#383a42;--m:#9a9fa8;
---ok:#2e8b57;--open:#c0392b;--def:#b7791f;--park:#6c757d}
-@media (prefers-color-scheme:dark){:root{--bg:#1e2127;--fg:#abb2bf;--mut:#7f848e;--bd:#3a3f4b;--card:#262a31;
---k:#c678dd;--t:#e5c07b;--f:#61afef;--p:#e06c75;--s:#98c379;--c:#56b6c2;--o:#abb2bf;--m:#7f848e;
---ok:#98c379;--open:#e06c75;--def:#e5c07b;--park:#7f848e}}
-*{box-sizing:border-box}body{margin:0;padding:20px 16px 60px;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,sans-serif;max-width:860px;margin-inline:auto}
-a{color:var(--f);text-decoration:none}a:hover{text-decoration:underline}
-h1{font-size:24px;margin:8px 0 6px}h2{font-size:17px;margin:28px 0 8px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.lead{color:var(--mut);margin:0 0 18px}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;margin:10px 0;background:var(--card);font:13px/1.55 ui-monospace,Menlo,monospace}
-code{font:0.92em ui-monospace,Menlo,monospace;background:var(--card);border:1px solid var(--bd);border-radius:4px;padding:0 4px}
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kleines · Entscheidungen</title><style>
+:root{color-scheme:light dark;--bg:#f6f7f9;--fg:#24272e;--mut:#555b66;--bd:#c9ced6;--card:#fff;--soft:#eef0f4;
+--acc:#1f5fbf;--acc-fg:#fff;--focus:#1f5fbf;
+--k:#a626a4;--t:#8a5d00;--f:#2c5ccf;--p:#c2392c;--s:#3a7a39;--c:#016a96;--o:#383a42;--m:#636975;
+--ok:#1d6b3f;--open:#b02a1f;--def:#80530a;--park:#555b66;--new:#6b3fa0}
+@media (prefers-color-scheme:dark){:root{--bg:#17191e;--fg:#d5d9e0;--mut:#a3aab6;--bd:#424854;--card:#21252c;--soft:#2a2f37;
+--acc:#7fb0ff;--acc-fg:#10141a;--focus:#9cc2ff;
+--k:#d38ae6;--t:#e5c07b;--f:#7ab8f5;--p:#f08a92;--s:#a5cf88;--c:#6cc6d1;--o:#c8ced8;--m:#9aa1ad;
+--ok:#8fd19e;--open:#ff9a8f;--def:#f0c674;--park:#b4bac4;--new:#c9a6f2}}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0 auto;max-width:880px;padding:0 16px 64px;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--acc);text-underline-offset:2px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+main:focus,.card:focus,.done:focus{outline:none}
+.skip{position:absolute;left:8px;top:-60px;background:var(--acc);color:var(--acc-fg);padding:8px 12px;border-radius:6px;z-index:10}
+.skip:focus{top:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.top nav{display:flex;flex-wrap:wrap;gap:4px 18px;padding:14px 0 10px;border-bottom:1px solid var(--bd);margin-bottom:8px;font-size:15px}
+.top a{text-decoration:none;padding:4px 0}.top a:hover{text-decoration:underline}
+.top a[aria-current]{color:var(--fg);font-weight:700;border-bottom:3px solid var(--acc)}
+.count{display:inline-block;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--new);color:var(--card);font-size:12px;font-weight:700;text-align:center}
+h1{font-size:28px;line-height:1.2;margin:18px 0 6px}
+.sec{font-size:19px;margin:28px 0 8px}
+.lead{color:var(--mut);margin:0 0 16px}.mut{color:var(--mut)}
+.crumb{font-size:14px;color:var(--mut);margin:14px 0 0}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:14px 16px;border:1px solid var(--bd);border-radius:8px;margin:12px 0;background:var(--soft);font:13.5px/1.7 ui-monospace,Menlo,monospace}
+code{font:0.9em ui-monospace,Menlo,monospace;background:var(--soft);border:1px solid var(--bd);border-radius:4px;padding:0 4px;overflow-wrap:anywhere}
 i{font-style:normal}.k{color:var(--k)}.t{color:var(--t)}.f{color:var(--f)}.p{color:var(--p)}.s{color:var(--s)}.c{color:var(--c)}.o,.b{color:var(--o)}.m{color:var(--m);font-style:italic}
-.card{border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--card)}
-.badge{font:600 11px/1 system-ui;letter-spacing:.3px;text-transform:uppercase;padding:4px 7px;border-radius:999px;border:1px solid currentColor}
-.decided{color:var(--ok)}.open{color:var(--open)}.default{color:var(--def)}.parked{color:var(--park)}
-.id{font:600 12px ui-monospace,Menlo,monospace;color:var(--mut)}
-.why{border-left:3px solid var(--def);padding:2px 10px;color:var(--fg);margin:8px 0}
-ol.opts{padding-left:0;list-style:none;margin:10px 0 4px}ol.opts li{padding:6px 10px;border:1px solid var(--bd);border-radius:8px;margin:5px 0;display:flex;gap:10px}
-ol.opts li.built{border-color:var(--def)}ol.opts .L{font-weight:700;min-width:1.4em}ol.opts .tag{margin-left:auto;color:var(--def);font-size:12px;white-space:nowrap}
-.by{color:var(--mut);font-size:13px;margin-top:8px}.note{color:var(--mut);font-size:13px}
-nav{display:flex;justify-content:space-between;gap:12px;margin:24px 0 0;padding-top:14px;border-top:1px solid var(--bd);font-size:14px}
-table{border-collapse:collapse;width:100%;margin:14px 0}td,th{border-bottom:1px solid var(--bd);padding:8px 6px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600;font-size:13px}
-td.n{text-align:right;white-space:nowrap}
-ol.opts li{cursor:pointer}ol.opts li:hover{background:var(--bg)}ol.opts li.chosen{outline:2px solid var(--ok);outline-offset:-1px}
-.fb{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.mic{font:600 13px system-ui;padding:8px 12px;border-radius:999px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;white-space:nowrap;user-select:none;-webkit-user-select:none}
-.mic.on{background:var(--open);color:#fff;border-color:var(--open)}.mic.busy{opacity:.6}
-.fbt{flex:1;font:14px/1.4 system-ui;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);resize:vertical;min-height:36px}
-.fbs{font-size:12px;color:var(--mut);align-self:center;white-space:nowrap}
-.ans{font-size:13px;margin-top:8px}.ans .a{border-left:3px solid var(--ok);padding:2px 10px;margin:4px 0}.ans .a time{color:var(--mut);margin-right:6px}
-ul.arrows{list-style:none;padding-left:0;margin:8px 0}ul.arrows li{margin:2px 0}ul.arrows li::before{content:"→ "}ul.arrows li.sub::before{content:none}
-pre{padding:14px 16px;line-height:1.7}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin:12px 0}
-</style></head><body><p class="id"><a href="index.html">Übersicht</a> · Seite 11 von 14</p><h1>Kleines</h1><p class="lead">Kleine Defaults. Sie ändern weder Sprache noch Format.</p><section class="card" id="Q5-5"><h2><span class="id">Q5-5</span> Erzeugter Code liegt in git <span class="badge default">Default, gebaut</span></h2><ul class="arrows"><li>Erzeugter Code = <code>app/lib/generated/orders.ex</code>.</li><li>Die Datei liegt in git.</li><li>Kein Mix-Compiler, der nach <code>_build</code> schreibt.</li></ul><ol class="opts"><li class="built" data-choice="A" role="button" tabindex="0"><span class="L">A</span><span>in git</span><span class=tag>gebaut</span></li><li class="" data-choice="B" role="button" tabindex="0"><span class="L">B</span><span>Mix-Compiler</span></li></ol><p class="by">By: Opus (PLAN exp0005)</p><div class="fb"><button class="mic" type="button" title="Halten und sprechen (oder Taste M)">🎤 Sprechen</button><textarea class="fbt" rows="1" placeholder="Anmerkung (Enter speichert)"></textarea><span class="fbs"></span></div><div class="ans"></div></section><section class="card" id="TEST-O1"><h2><span class="id">TEST-O1</span> <code>run.py run</code> setzt <code>proto_dev</code> zurück <span class="badge default">Default, gebaut</span></h2><ul class="arrows"><li><code>run.py run</code> leert die Datenbank <code>proto_dev</code>.</li><li>Dann prüft er <code>orders.ex</code> gegen 0 Zeilen.</li><li>Das README sagt das.</li><li>Siehe A3.</li></ul><ol class="opts"><li class="built" data-choice="A" role="button" tabindex="0"><span class="L">A</span><span>Leeren behalten</span><span class=tag>gebaut</span></li><li class="" data-choice="B" role="button" tabindex="0"><span class="L">B</span><span>eigener Build-Schritt mit Dev-Zeilen</span></li></ol><p class="by">By: Opus (TEST exp0005)</p><div class="fb"><button class="mic" type="button" title="Halten und sprechen (oder Taste M)">🎤 Sprechen</button><textarea class="fbt" rows="1" placeholder="Anmerkung (Enter speichert)"></textarea><span class="fbs"></span></div><div class="ans"></div></section><section class="card" id="DL-147"><h2><span class="id">DL-147</span> Eine RED-Datei kommt erst mit ihrem GREEN in <code>run.py</code> <span class="badge decided">entschieden · DL-147</span></h2><ul class="arrows"><li>RED = neuer Test, zuerst rot.</li><li>GREEN = der Code, der ihn grün macht.</li><li>Die RED-Datei kommt erst mit GREEN in <code>run.py</code>.</li><li>Sonst fällt der Gesamtlauf, solange RED offen ist.</li></ul><p class="by">By: Fable</p><div class="fb"><button class="mic" type="button" title="Halten und sprechen (oder Taste M)">🎤 Sprechen</button><textarea class="fbt" rows="1" placeholder="Anmerkung (Enter speichert)"></textarea><span class="fbs"></span></div><div class="ans"></div></section><nav><span><a href="09-syntax.html">← Syntax-Regeln</a></span><a href="index.html">Übersicht</a><span><a href="11-parked.html">Geparkt (D036) →</a></span></nav>
-<script>
+.ico{width:1em;height:1em;vertical-align:-0.12em}
+.btn{font:600 15px/1.2 system-ui,sans-serif;padding:10px 14px;min-height:44px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;display:inline-flex;gap:6px;align-items:center;text-decoration:none}
+.btn:hover{border-color:var(--acc)}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:var(--acc-fg)}
+.btn.big{font-size:17px;padding:14px 20px}
+.btn.link{border:0;background:none;color:var(--acc);padding:2px 4px;min-height:0;text-decoration:underline;font-weight:600}
+.pill{display:inline-flex;gap:4px;align-items:center;font:600 12.5px/1 system-ui,sans-serif;padding:5px 9px;border-radius:999px;border:1px solid currentColor;color:var(--mut);white-space:nowrap}
+.st-decided{color:var(--ok)}.st-open{color:var(--open)}.st-default{color:var(--def)}.st-parked{color:var(--park)}.st-new{color:var(--new)}
+.card{border:1px solid var(--bd);border-radius:12px;padding:16px 18px;margin:16px 0;background:var(--card)}
+.card.answered{border-left:5px solid var(--ok)}
+.card-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.card-id{font:700 13px ui-monospace,Menlo,monospace;color:var(--mut)}
+.card-title{font-size:19px;line-height:1.3;margin:8px 0 4px}
+.meta{display:flex;flex-wrap:wrap;gap:2px 16px;font-size:13.5px;color:var(--mut);margin:0 0 8px}
+.why{border-left:3px solid var(--def);padding:2px 12px;margin:10px 0}
+.note{color:var(--mut);font-size:14px}
+ul.arrows{list-style:none;padding-left:0;margin:8px 0}ul.arrows li{margin:3px 0;padding-left:1.4em;text-indent:-1.4em}ul.arrows li::before{content:"→ ";color:var(--mut)}
+ul.arrows li.sub{padding-left:0;text-indent:0}ul.arrows li.sub::before{content:none}
+.opts{display:grid;gap:8px;margin:14px 0 6px}
+.opt{display:grid;grid-template-columns:2em 1fr;gap:4px 10px;align-items:start;text-align:left;width:100%;font:15px/1.45 system-ui,sans-serif;color:var(--fg);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;min-height:44px;cursor:pointer}
+.opt:hover{border-color:var(--acc);background:var(--soft)}
+.opt.built{border-style:dashed;border-color:var(--def)}
+.opt[aria-pressed=true]{border:2px solid var(--ok);background:var(--soft)}
+.opt-l{font-weight:800;font-size:16px}
+.opt-tags{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}.opt-tags:empty{display:none}
+.tag{font:600 12.5px/1 system-ui;padding:4px 8px;border-radius:999px;border:1px solid currentColor}
+.tag-built{color:var(--def)}.tag-mine{color:var(--ok);display:none}.opt[aria-pressed=true] .tag-mine{display:inline-block}
+.ans{font-size:14.5px}.ans-row{border-left:3px solid var(--ok);padding:4px 12px;margin:8px 0;background:var(--soft);border-radius:0 6px 6px 0}
+.ans time{color:var(--mut);margin:0 4px}
+.fb{margin-top:12px}.fbt{width:100%;font:15px/1.45 system-ui,sans-serif;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);resize:vertical;min-height:44px}
+.fb-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.mic{user-select:none;-webkit-user-select:none;touch-action:none}.mic.on{background:var(--open);border-color:var(--open);color:var(--card)}.mic.busy{opacity:.7}
+.fbs{font-size:13.5px;color:var(--mut)}
+.prog{display:flex;align-items:center;gap:10px;margin:10px 0;font-size:14px;color:var(--mut)}
+progress{flex:0 1 220px;height:10px;accent-color:var(--ok)}
+.frozen,.hint{background:var(--soft);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:14.5px}
+.bulk{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:12px 0}
+.empty{color:var(--mut);font-style:italic;border:1px dashed var(--bd);border-radius:8px;padding:12px}
+dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--fg);max-width:min(560px,calc(100vw - 32px));padding:18px 20px}
+dialog::backdrop{background:rgba(0,0,0,.45)}dialog h2{margin-top:0;font-size:19px}
+.dlg-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin-top:14px}
+ul.plain{list-style:none;padding-left:0;margin:8px 0}ul.list li{padding:6px 0;border-bottom:1px solid var(--bd)}
+#bulk-list{max-height:40vh;overflow:auto}
+.news time{color:var(--mut);font-size:13.5px;margin-right:6px}
+#toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:10px;max-width:calc(100vw - 32px);z-index:20}
+#toast .btn.link{color:var(--bg)}
+.hero{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:16px 0 8px}
+.stacks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.stack{border:1px solid var(--bd);border-radius:12px;padding:14px 16px;background:var(--card)}
+.stack h2{font-size:18px;margin:0 0 4px}.stack-n{font-size:26px;font-weight:800;margin-right:4px}
+.stack .mut{font-size:14px;margin:0}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0 24px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14.5px}
+td,th{border-bottom:1px solid var(--bd);padding:8px 6px;text-align:left;vertical-align:top}thead th{color:var(--mut);font-weight:600}
+td.n,th.n{text-align:right;white-space:nowrap}td.nw{white-space:nowrap}
+th.n .pill{font-size:11.5px;padding:3px 6px}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:28px;padding-top:14px;border-top:1px solid var(--bd);font-size:15px}
+.pager span:last-child{text-align:right}
+.qbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0;border-bottom:1px solid var(--bd)}
+.qpos{margin:0;font-size:15px}
+.keys{font-size:13.5px;color:var(--mut)}kbd{font:600 12px ui-monospace,Menlo,monospace;border:1px solid var(--bd);border-bottom-width:2px;border-radius:4px;padding:1px 5px;background:var(--card);color:var(--fg)}
+.qnav{display:flex;justify-content:flex-end;margin:8px 0}
+.done{border:2px solid var(--ok);border-radius:12px;padding:16px 18px;background:var(--card);margin:16px 0}.done h2{margin-top:0;color:var(--ok)}
+.new-tag{margin:22px 0 -8px;font-size:14px;color:var(--mut)}
+@media (max-width:560px){h1{font-size:24px}.card{padding:14px}.btn{width:auto}th.n .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}th.n .pill{padding:4px 7px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+</style></head><body data-page="10-misc"><a class="skip" href="#main">Zum Inhalt springen</a><header class="top"><nav aria-label="Hauptnavigation"><a href="index.html">Übersicht</a><a href="next.html">Nächste Frage</a><a href="eingang.html">Eingang <span class="count">5</span></a><a href="entschieden.html">Entschieden</a><a href="aenderungen.html">Änderungen</a></nav></header><main id="main" tabindex="-1"><p class="crumb"><a href="index.html">Übersicht</a> · Seite 11 von 14</p><h1>Kleines</h1><p class="lead">Kleine Defaults. Sie ändern weder Sprache noch Format.</p><div class="prog" data-ids="Q5-5 TEST-O1" data-label="beantwortet"><progress max="2" value="0"></progress><span class="prog-t">0 von 2 beantwortet</span></div><div class="bulk"><button type="button" id="bulk" class="btn">Alle Defaults dieser Gruppe so lassen</button><span class="mut">2 Default-Karten; Einwände gibst du auf der einzelnen Karte.</span><span id="bulk-st" role="status"></span></div><dialog id="bulk-dlg" aria-labelledby="bulk-h"><h2 id="bulk-h">Alle Defaults dieser Gruppe so lassen?</h2>
+<p>Für <b id="bulk-n"></b> Karten wird die gebaute Option als deine Wahl gespeichert, mit der Notiz „Gruppe abgenickt“.
+Karten mit einer Antwort oder Notiz bleiben, wie sie sind.</p><ul id="bulk-list" class="plain"></ul>
+<div class="dlg-actions"><button type="button" id="bulk-cancel" class="btn" autofocus>Abbrechen</button><button type="button" id="bulk-ok" class="btn primary">Ja, alle so lassen</button></div></dialog><section class="card" id="Q5-5" data-id="Q5-5" data-status="default" data-stack="defaults" data-built="A" tabindex="-1" aria-labelledby="t-Q5-5"><div class="card-top"><span class="card-id">Q5-5</span><span class="pill st-default"><span aria-hidden="true">◆</span> <span class="lbl">Default, gebaut</span></span></div><h2 class="card-title" id="t-Q5-5">Erzeugter Code liegt in git</h2><p class="meta"><span>Von: Opus (PLAN exp0005)</span><span>Neu am 07.11.2026 · owner-review 2026-11-07</span></p><ul class="arrows"><li>Erzeugter Code = <code>app/lib/generated/orders.ex</code>.</li><li>Die Datei liegt in git.</li><li>Kein Mix-Compiler, der nach <code>_build</code> schreibt.</li></ul><div class="opts" role="group" aria-label="Optionen zu Q5-5"><button type="button" class="opt built" data-choice="A" aria-pressed="false"><span class="opt-l">A</span><span class="opt-t">in git</span><span class="opt-tags"><span class="tag tag-built"><span aria-hidden="true">◆</span> gebaut</span><span class="tag tag-mine"><span aria-hidden="true">✓</span> deine Wahl</span></span></button><button type="button" class="opt" data-choice="B" aria-pressed="false"><span class="opt-l">B</span><span class="opt-t">Mix-Compiler</span><span class="opt-tags"><span class="tag tag-mine"><span aria-hidden="true">✓</span> deine Wahl</span></span></button></div><div class="ans" aria-live="polite"></div><div class="fb"><label class="sr" for="n-Q5-5">Notiz zu Q5-5</label><textarea id="n-Q5-5" class="fbt" rows="2" placeholder="Notiz (Enter speichert, Umschalt+Enter neue Zeile)"></textarea><div class="fb-row"><button type="button" class="btn save">Notiz speichern</button><button type="button" class="btn mic" aria-label="Halten und sprechen (Taste M)"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1a2.5 2.5 0 0 0-2.5 2.5v4a2.5 2.5 0 0 0 5 0v-4A2.5 2.5 0 0 0 8 1zM3.5 7.5h1a3.5 3.5 0 0 0 7 0h1a4.5 4.5 0 0 1-4 4.47V14h2v1h-5v-1h2v-2.03a4.5 4.5 0 0 1-4-4.47z"/></svg> Halten und sprechen</button><span class="fbs" role="status"></span></div></div></section><section class="card" id="TEST-O1" data-id="TEST-O1" data-status="default" data-stack="defaults" data-built="A" tabindex="-1" aria-labelledby="t-TEST-O1"><div class="card-top"><span class="card-id">TEST-O1</span><span class="pill st-default"><span aria-hidden="true">◆</span> <span class="lbl">Default, gebaut</span></span></div><h2 class="card-title" id="t-TEST-O1"><code>run.py run</code> setzt <code>proto_dev</code> zurück</h2><p class="meta"><span>Von: Opus (TEST exp0005)</span><span>Neu am 07.11.2026 · owner-review 2026-11-07</span></p><ul class="arrows"><li><code>run.py run</code> leert die Datenbank <code>proto_dev</code>.</li><li>Dann prüft er <code>orders.ex</code> gegen 0 Zeilen.</li><li>Das README sagt das.</li><li>Siehe A3.</li></ul><div class="opts" role="group" aria-label="Optionen zu TEST-O1"><button type="button" class="opt built" data-choice="A" aria-pressed="false"><span class="opt-l">A</span><span class="opt-t">Leeren behalten</span><span class="opt-tags"><span class="tag tag-built"><span aria-hidden="true">◆</span> gebaut</span><span class="tag tag-mine"><span aria-hidden="true">✓</span> deine Wahl</span></span></button><button type="button" class="opt" data-choice="B" aria-pressed="false"><span class="opt-l">B</span><span class="opt-t">eigener Build-Schritt mit Dev-Zeilen</span><span class="opt-tags"><span class="tag tag-mine"><span aria-hidden="true">✓</span> deine Wahl</span></span></button></div><div class="ans" aria-live="polite"></div><div class="fb"><label class="sr" for="n-TEST-O1">Notiz zu TEST-O1</label><textarea id="n-TEST-O1" class="fbt" rows="2" placeholder="Notiz (Enter speichert, Umschalt+Enter neue Zeile)"></textarea><div class="fb-row"><button type="button" class="btn save">Notiz speichern</button><button type="button" class="btn mic" aria-label="Halten und sprechen (Taste M)"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1a2.5 2.5 0 0 0-2.5 2.5v4a2.5 2.5 0 0 0 5 0v-4A2.5 2.5 0 0 0 8 1zM3.5 7.5h1a3.5 3.5 0 0 0 7 0h1a4.5 4.5 0 0 1-4 4.47V14h2v1h-5v-1h2v-2.03a4.5 4.5 0 0 1-4-4.47z"/></svg> Halten und sprechen</button><span class="fbs" role="status"></span></div></div></section><section class="card" id="DL-147" data-id="DL-147" data-status="decided" data-stack="done" data-built="" tabindex="-1" aria-labelledby="t-DL-147"><div class="card-top"><span class="card-id">DL-147</span><span class="pill st-decided"><span aria-hidden="true">✓</span> <span class="lbl">entschieden</span></span><span class="pill">DL-147</span></div><h2 class="card-title" id="t-DL-147">Eine RED-Datei kommt erst mit ihrem GREEN in <code>run.py</code></h2><p class="meta"><span>Von: Fable</span><span>Neu am 07.11.2026 · owner-review 2026-11-07</span></p><ul class="arrows"><li>RED = neuer Test, zuerst rot.</li><li>GREEN = der Code, der ihn grün macht.</li><li>Die RED-Datei kommt erst mit GREEN in <code>run.py</code>.</li><li>Sonst fällt der Gesamtlauf, solange RED offen ist.</li></ul><div class="ans" aria-live="polite"></div><div class="fb"><label class="sr" for="n-DL-147">Notiz zu DL-147</label><textarea id="n-DL-147" class="fbt" rows="2" placeholder="Notiz (Enter speichert, Umschalt+Enter neue Zeile)"></textarea><div class="fb-row"><button type="button" class="btn save">Notiz speichern</button><button type="button" class="btn mic" aria-label="Halten und sprechen (Taste M)"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1a2.5 2.5 0 0 0-2.5 2.5v4a2.5 2.5 0 0 0 5 0v-4A2.5 2.5 0 0 0 8 1zM3.5 7.5h1a3.5 3.5 0 0 0 7 0h1a4.5 4.5 0 0 1-4 4.47V14h2v1h-5v-1h2v-2.03a4.5 4.5 0 0 1-4-4.47z"/></svg> Halten und sprechen</button><span class="fbs" role="status"></span></div></div></section></main><footer><nav class="pager" aria-label="Seiten blättern"><span><a href="09-syntax.html" rel="prev">← Syntax-Regeln</a></span><span><a href="11-parked.html" rel="next">Geparkt (D036) →</a></span></nav></footer><div id="toast" role="status" aria-live="polite" hidden><span class="toast-t"></span> <button type="button" class="btn link toast-undo">Rückgängig</button></div><script>
 (() => {
 const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
-const post = (u, b) => fetch(u, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b)}).then(r => r.json());
+const PAGE = document.body.dataset.page;
+const post = (u, b) => fetch(u, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b)}).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
 const act = (action, target, result, source='mouse') => post('/api/act', {source, action, target, result}).catch(()=>{});
-const fmtT = ts => { try { return new Date(ts).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}); } catch { return ts; } };
-function paint(id, a) {
-  const sec = document.getElementById(id); if (!sec) return;
-  $$('ol.opts li', sec).forEach(li => li.classList.toggle('chosen', !!a && li.dataset.choice === a.choice));
-  const box = $('.ans', sec); box.innerHTML = '';
-  if (a && a.choice) box.insertAdjacentHTML('beforeend', `<div class=a><time>${fmtT(a.ts)}</time>Deine Wahl: <b>${a.choice}</b></div>`);
-  if (a && a.note) box.insertAdjacentHTML('beforeend', `<div class=a><time>${fmtT(a.ts)}</time>${a.note.replace(/</g,'&lt;')}</div>`);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtT = t => { try { return new Date(t).toLocaleString('de-DE', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}); } catch { return t; } };
+let A = {}, offline = false;
+const has = id => { const a = A[id]; return !!a && (!!a.choice || !!a.note); };  // choice "" = cleared (Rückgängig)
+
+function toast(msg, undo) {
+  const t = $('#toast'); $('.toast-t', t).textContent = msg; const b = $('.toast-undo', t);
+  b.hidden = !undo; b.onclick = async () => { t.hidden = true; await undo(); };
+  t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 10000);
 }
-async function load() { try { const all = await (await fetch('/api/answers')).json(); $$('section.card').forEach(s => paint(s.id, all[s.id])); } catch {} }
-$$('section.card').forEach(sec => {
-  const id = sec.id;
-  $$('ol.opts li', sec).forEach(li => { const pick = async () => { await post('/api/answer', {id, choice: li.dataset.choice}); act('choose', id, li.dataset.choice); load(); };
-    li.addEventListener('click', pick); li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } }); });
-  const ta = $('.fbt', sec), st = $('.fbs', sec), mic = $('.mic', sec);
-  const save = async () => { const note = ta.value.trim(); if (!note) return; await post('/api/answer', {id, note}); act('note', id, note.length + ' chars', 'key'); ta.value = ''; st.textContent = 'gespeichert'; load(); };
-  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); } });
-  // push-to-talk: hold the button or the key M while the pointer is over the card
+function paint(card) {
+  const id = card.dataset.id, a = A[id] || {}, ch = a.choice || '';
+  $$('.opt', card).forEach(b => b.setAttribute('aria-pressed', String(!!ch && b.dataset.choice === ch)));
+  let h = '';
+  if (ch) h += `<p class="ans-row"><span aria-hidden="true">✓</span> Deine Wahl: <b>${esc(ch)}</b> <time>${fmtT(a.choice_ts || a.ts)}</time> <button type="button" class="btn link undo">Rückgängig</button></p>`;
+  if (a.note) h += `<p class="ans-row"><span aria-hidden="true">✎</span> Deine Notiz <time>${fmtT(a.note_ts || a.ts)}</time>: ${esc(a.note)}</p>`;
+  const box = $('.ans', card); box.innerHTML = h; card.classList.toggle('answered', has(id));
+  const u = $('.undo', box); if (u) u.onclick = async () => { try { await post('/api/answer', {id, choice: ''}); act('undo', id, ch); await load(); toast(`Wahl ${ch} zu ${id} zurückgenommen.`); } catch (e) { toast('Nicht gespeichert: ' + e.message); } };
+}
+function summary() {
+  $$('.prog').forEach(p => { const ids = p.dataset.ids.split(' ').filter(Boolean), n = ids.filter(has).length;
+    $('progress', p).value = n; $('.prog-t', p).textContent = `${n} von ${ids.length} ${p.dataset.label}`; });
+  $$('[data-left]').forEach(el => el.textContent = el.dataset.left.split(' ').filter(i => i && !has(i)).length);
+  const mine = $('#mine');
+  if (mine) { const idx = JSON.parse($('#idx').textContent);
+    const rows = Object.entries(A).filter(([id, a]) => (a.choice || a.note) && idx[id] && idx[id][2] !== 'decided').sort((x, y) => (y[1].ts > x[1].ts) - (y[1].ts < x[1].ts));
+    mine.innerHTML = rows.length ? rows.map(([id, a]) => `<li><a href="${idx[id][1]}"><b>${esc(id)}</b> ${esc(idx[id][0])}</a> · ${a.choice ? 'deine Wahl <b>' + esc(a.choice) + '</b>' : 'nur Notiz'} <time class="mut">${fmtT(a.choice_ts || a.ts)}</time></li>`).join('')
+      : '<li class="empty">Noch keine Antworten auf offene Karten.</li>'; }
+}
+async function load() {
+  try { A = await (await fetch('/api/answers', {cache: 'no-store'})).json(); offline = false; }
+  catch { offline = true; }
+  $$('section.card').forEach(paint); summary();
+}
+async function choose(card, L, source) {
+  const id = card.dataset.id, st = $('.fbs', card);
+  try { await post('/api/answer', {id, choice: L}); act('choose', id, L, source); st.textContent = `Wahl ${L} gespeichert`; await load(); card.dispatchEvent(new Event('chosen')); }
+  catch (e) { st.textContent = 'Nicht gespeichert: ' + e.message; }
+}
+let hot = null;
+$$('section.card').forEach(card => {
+  const id = card.dataset.id, ta = $('.fbt', card), st = $('.fbs', card), mic = $('.mic', card);
+  $$('.opt', card).forEach(b => b.addEventListener('click', ev => choose(card, b.dataset.choice, ev.detail === 0 ? 'key' : 'mouse')));
+  const save = async () => { const note = ta.value.trim(); if (!note) { st.textContent = 'Notiz ist leer'; return; }
+    try { await post('/api/answer', {id, note}); act('note', id, note.length + ' chars', 'key'); ta.value = ''; st.textContent = 'Notiz gespeichert'; await load(); }
+    catch (e) { st.textContent = 'Nicht gespeichert: ' + e.message; } };
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); save(); } });
+  $('.save', card).addEventListener('click', save);
+  // push-to-talk: hold the button, or hold M while the card has the pointer or the focus
   let rec = null, stream = null, chunks = [], t0 = 0;
-  async function down() {
-    if (rec) return; st.textContent = 'Mikro…'; fetch('/api/stt/warm', {method:'POST'}).catch(()=>{});
-    try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); } catch (e) { st.textContent = 'kein Mikrofon: ' + e.message; return; }
+  card._down = async () => {
+    if (rec) return; st.textContent = 'Mikrofon…'; fetch('/api/stt/warm', {method:'POST'}).catch(()=>{});
+    try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); } catch (e) { st.textContent = 'Kein Mikrofon: ' + e.message + '. Tippe die Notiz.'; return; }
     const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
     rec = new MediaRecorder(stream, mime ? {mimeType: mime} : {}); chunks = []; t0 = performance.now();
     rec.ondataavailable = e => e.data.size && chunks.push(e.data);
     rec.onstop = async () => {
       stream.getTracks().forEach(t => t.stop()); const blob = new Blob(chunks, {type: rec.mimeType || mime || 'audio/webm'}); rec = null;
-      mic.classList.remove('on'); mic.classList.add('busy'); st.textContent = 'schreibe ab…';
+      mic.classList.remove('on'); mic.classList.add('busy'); st.textContent = 'Schreibe ab…';
       try { const r = await fetch('/api/stt?id=' + encodeURIComponent(id), {method:'POST', headers:{'Content-Type': blob.type}, body: blob}); const j = await r.json();
-        st.textContent = r.ok ? (j.text ? 'notiert' : 'nichts gehört') : ('Fehler: ' + (j.error || r.status)); if (!r.ok) ta.focus(); }
+        st.textContent = r.ok ? (j.text ? 'Sprachnotiz gespeichert' : 'Nichts gehört') : ('Fehler: ' + (j.error || r.status) + '. Tippe die Notiz.'); if (!r.ok) ta.focus(); }
       catch (e) { st.textContent = 'Fehler: ' + e.message; }
       mic.classList.remove('busy'); act('voice', id, Math.round((performance.now() - t0) / 100) / 10 + ' s', 'voice'); load();
     };
-    rec.start(); mic.classList.add('on'); st.textContent = 'aufnahme… loslassen zum Senden';
-  }
-  function up() { if (rec && rec.state === 'recording') rec.stop(); }
-  mic.addEventListener('pointerdown', e => { e.preventDefault(); mic.setPointerCapture?.(e.pointerId); down(); });
-  mic.addEventListener('pointerup', up); mic.addEventListener('pointercancel', up);
-  sec.addEventListener('pointerenter', () => window.__hot = sec); 
-  document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'm' && !e.repeat && window.__hot === sec && !e.target.matches('input, textarea')) down(); });
-  document.addEventListener('keyup', e => { if (e.key.toLowerCase() === 'm' && window.__hot === sec) up(); });
+    rec.start(); mic.classList.add('on'); st.textContent = 'Aufnahme läuft. Loslassen zum Senden.';
+  };
+  card._up = () => { if (rec && rec.state === 'recording') rec.stop(); };
+  mic.addEventListener('pointerdown', e => { e.preventDefault(); mic.setPointerCapture?.(e.pointerId); card._down(); });
+  mic.addEventListener('pointerup', card._up); mic.addEventListener('pointercancel', card._up);
+  mic.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); card._down(); } });
+  mic.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') card._up(); });
+  card.addEventListener('pointerenter', () => hot = card); card.addEventListener('focusin', () => hot = card);
 });
-load();
+const typing = e => e.target.matches?.('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey;
+document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'm' && !e.repeat && hot && !hot.hidden && !typing(e)) hot._down(); });
+document.addEventListener('keyup', e => { if (e.key.toLowerCase() === 'm' && hot) hot._up(); });
+
+// Gruppenweise abnicken
+const bulk = $('#bulk');
+if (bulk) {
+  const dlg = $('#bulk-dlg'); let todo = [];
+  bulk.addEventListener('click', () => {
+    todo = $$('section.card[data-stack="defaults"]').filter(c => c.dataset.built && !has(c.dataset.id)).map(c => [c.dataset.id, c.dataset.built, $('.card-title', c).textContent]);
+    if (!todo.length) { $('#bulk-st').textContent = 'Nichts zu tun: jede Default-Karte hier hat schon eine Antwort oder Notiz.'; return; }
+    $('#bulk-n').textContent = todo.length;
+    $('#bulk-list').innerHTML = todo.map(([id, b, t]) => `<li><b>${esc(id)}</b> → ${esc(b)} <span class="mut">${esc(t)}</span></li>`).join('');
+    dlg.showModal();
+  });
+  $('#bulk-cancel').addEventListener('click', () => dlg.close());
+  $('#bulk-ok').addEventListener('click', async () => {
+    dlg.close(); const done = [];
+    for (const [id, b] of todo) { try { await post('/api/answer', {id, choice: b, note: 'Gruppe abgenickt'}); done.push(id); } catch {} }
+    act('bulk-accept', PAGE, done.length + ' ids: ' + done.join(' ')); await load();
+    $('#bulk-st').textContent = `${done.length} von ${todo.length} gespeichert.`;
+    toast(`${done.length} Defaults abgenickt.`, async () => {
+      for (const id of done) { try { await post('/api/answer', {id, choice: '', note: ''}); } catch {} }
+      act('bulk-undo', PAGE, done.length + ' ids'); await load(); $('#bulk-st').textContent = 'Zurückgenommen.';
+    });
+  });
+}
+
+// Eine Frage auf einmal
+let start = () => {};
+if (PAGE === 'next') {
+  const cards = $$('#queue section.card'), nx = $('#qnext'); let q = [], i = 0;
+  const show = () => {
+    cards.forEach(c => c.hidden = true);
+    const end = i >= q.length; $('#done').hidden = !end; $('#qbar').hidden = end; nx.hidden = end; $('.keys').hidden = end;
+    if (end) { const left = cards.filter(c => !has(c.dataset.id)).length; $('#again-p').hidden = !left; $('#again-n').textContent = left; $('#done').focus(); act('focus-done', 'next', left + ' left'); return; }
+    const c = q[i]; c.hidden = false; hot = c; $('#qpos').textContent = `${i + 1} von ${q.length}`;
+    nx.textContent = has(c.dataset.id) ? 'Weiter (N)' : 'Überspringen (N)'; c.focus({preventScroll: true}); window.scrollTo(0, 0);
+  };
+  start = () => { q = cards.filter(c => !has(c.dataset.id)); i = 0; show(); };
+  nx.addEventListener('click', ev => { const c = q[i]; if (c) act(has(c.dataset.id) ? 'next' : 'skip', c.dataset.id, null, ev.detail === 0 ? 'key' : 'mouse'); i++; show(); });
+  cards.forEach(c => c.addEventListener('chosen', () => { nx.textContent = 'Weiter (N)'; nx.focus(); }));
+  $('#again').addEventListener('click', start);
+  document.addEventListener('keydown', e => {
+    if (typing(e) || e.repeat) return; const k = e.key.toUpperCase(), c = q[i];
+    if (k === 'N' && c) { e.preventDefault(); nx.click(); return; }
+    const b = c && $$('.opt', c).find(b => b.dataset.choice === k);
+    if (b) { e.preventDefault(); choose(c, k, 'key'); }
+  });
+}
+load().then(() => { if (offline) toast('Server nicht erreichbar: Antworten werden nicht gespeichert.'); start(); });
 $$('a[href]').forEach(a => a.addEventListener('click', () => act('nav', a.getAttribute('href'))));
 })();
 </script></body></html>
