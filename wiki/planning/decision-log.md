@@ -1051,6 +1051,15 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Trigger: OWNER request 2026-11-08 after the HCL reception ingest.
 → Effect: [syntax minimum hub](syntax-minimum.md), [conservative minimum](syntax-minimum-conservative.md), [radical minimum](syntax-minimum-radical.md); one open item D051 in [decisions to be made](decisions-to-be-made.md), trigger "OWNER review of the syntax minimum hub; before the next syntax DL".
 
+**DL-172 · Repair · A quarantine line lifts only the rule of the field it names**
+→ Question: `migrate Amount v1 -> v2 { quarantine value }` parks a row whose `currency` rule fails too (TEST fates-a1, PF-11 against PF-21). What does the field name mean?
+→ Options: A the line lifts only failed clauses that test the named field; several quarantine lines per constructor TYPE are allowed. B one bare `quarantine` per TYPE lifts every failed rule; the field name goes. C keep a1 as built (name shown, not used).
+→ Chose: A.
+→ By: Fable (after TEST fates-a1)
+→ Because: the line says what it does; help (PF-21) already names the field; a row with a different failure still blocks the build (DL-150). C makes the source text lie.
+→ Trigger: TEST fates-a1 medium objection (`experiments/0004-generated-replay/workflow/2026-11-08/fates/test-a1.md`).
+→ Effect: built in step a1b with DL-166; review-site card QUAR-FIELD in the Eingang for the OWNER.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

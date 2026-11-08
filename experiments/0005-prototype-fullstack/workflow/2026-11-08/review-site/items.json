@@ -145,6 +145,15 @@
  },
  {
   "group": "02b-fates",
+  "id": "QUAR-FIELD",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T11:45:00Z",
+  "source": "fates-a1 TEST 2026-11-08",
+  "by": "Fable (nach TEST fates-a1)"
+ },
+ {
+  "group": "02b-fates",
   "id": "VERSION-RULE",
   "status": "decided",
   "page": "eingang",

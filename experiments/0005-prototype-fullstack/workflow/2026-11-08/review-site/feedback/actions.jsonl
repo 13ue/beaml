@@ -71,3 +71,8 @@
 {"ts": "2026-11-08T10:43:16Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
 {"ts": "2026-11-08T10:43:30Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}
 {"ts": "2026-11-08T10:48:54Z", "source": "cli", "action": "set-current", "target": "QF-2", "result": "ok"}
+{"ts": "2026-11-08T10:53:31Z", "source": "auto", "action": "hot-reload", "target": "index", "result": "auto"}
+{"ts": "2026-11-08T10:53:33Z", "source": "api", "action": "set-current", "target": "ENUM-V1-DECL", "result": "ok"}
+{"ts": "2026-11-08T10:55:56Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}
+{"ts": "2026-11-08T11:01:47Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
+{"ts": "2026-11-08T11:31:26Z", "source": "auto", "action": "hot-reload", "target": "index", "result": "auto"}

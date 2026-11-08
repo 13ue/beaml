@@ -145,3 +145,5 @@
 {"ts": "2026-11-08T10:42:44Z", "id": "SNAP-SET", "page": "06-db", "change": "status decided", "by": "Opus (RED exp0005); überholt durch DL-151 (DL-167)"}
 {"ts": "2026-11-08T10:47:44Z", "id": "next", "page": "next", "change": "view changed", "by": "Opus (site-v2)", "what": "current question from the chat, explain/<id>.html below the card, 3 s poll"}
 {"ts": "2026-11-08T10:53:29Z", "id": "QF-2", "page": "eingang", "change": "status decided", "by": "Opus (PLAN fates, Default); entschieden 13ue: B, verschachtelte Versionen in der Zeile"}
+{"ts": "2026-11-08T11:31:24Z", "id": "QUAR-FIELD", "page": "eingang", "change": "added", "by": "fates-a1 TEST 2026-11-08"}
+{"ts": "2026-11-08T11:31:24Z", "id": "QUAR-FIELD", "page": "eingang", "change": "moved to Eingang", "by": "build.py (eingefroren)"}
