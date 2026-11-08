@@ -65,11 +65,11 @@
  {
   "group": "02-order-chain",
   "id": "QM4-3",
-  "status": "default",
+  "status": "decided",
   "page": "eingang",
   "added": "2026-11-08T09:19:32Z",
   "source": "m4-plan",
-  "by": "Opus (PLAN m4-lift, Default, offen)"
+  "by": "Opus (PLAN m4-lift, Default, offen); entschieden 13ue: A, nicht doppelt machen; Text kommt mit fates-a1 (DL-155)"
  },
  {
   "group": "02-order-chain",
