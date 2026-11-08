@@ -251,3 +251,36 @@ PLAN (this) → plan check (fresh agent) → proposals ultra / lite → RED (R1 
 agent, then fresh agent) → GREEN (compiler; 0004 fixtures; 0005 variant, tests and `run.py`) → TEST → review (Devil's
 Advocate, final slice review) → repair if needed → verify → docs. The 0005 part needs the compiler GREEN first, so one
 GREEN worker does both in that order; no second behavior step is needed.
+
+## Plan repair after plan check, 2026-11-08
+
+Source: [plan-review.md](plan-review.md), repairs 1 to 10 (O1 to O3, medium).
+By: Fable (ruling): all 10 accepted, repair 10 optional. Text applied by Opus (RED m4-lift).
+The sections above stay as written; where they disagree, this section wins.
+
+1. **0005 test order (O1).** Definition order in `NotesReadTest`: R10, Note N7, Note N7b, R11, N11 (`--seed 0`).
+   Note N7b changes only `live_build("note_v2", "n7b")` to `live_build("order_v2", "n7b")`; its count stays
+   `counted(3, 3, 0)`. R11 then sees Order v1, Note v1, Note v2, Order v2: `counted(4, 4, 0)`.
+2. **0005 Order v2 guard (O1).** The Order v2 guard checks the module, not the encoder on an empty map: for example
+   `Map.has_key?(Orders.__beaml_encode_order(o), "note")` with a full Order value, or `function_exported?`.
+3. **R13 (O2).** Add **R13 `test_N33_order_v2_steps_before_the_tail`**: in the generated `__beaml_decode_order/2`,
+   the line `Map.put(value, "note", "")` stands before the first `__beaml_literal_Channel` and `__beaml_from_Amount`;
+   the per-version field list holds no `Channel` and no `Amount` check. RED today: build fails (D6B-39). Pins DL-152
+   effect (1), which no runtime case can observe in step 1.
+4. **R8 key list (O3).** `unknown_keys` means the third element of `__beaml_decode_payment(bytes, v1_type)`, not the
+   RESPONSE RECORD key (that one comes from the projection and stays unchanged, QV3-6).
+5. **Nested keys (O3).** Item 5 of "Live decode": nested keys are computed from the raw constructor map as today;
+   not tested in step 1 (the db path drops decode keys, and no http case has a chained constructor field).
+6. **N33_v1_unknown_channel (O3).** The `orders.list` record lists `items.0.channel` in `unknown_fields` (PDB-18).
+7. **`--stored` path.** [Observed, plan check] with only the two branches deleted, R4, R5, R5 control, R6 and R6b
+   already give the planned results; they turn RED only through D6B-39.
+8. **Depth probe.** Observed in the plan check: the probe build compiles (elixirc 1.18.1 exits 0 with
+   unused-function warnings for `__beaml_literal_Channel` and `__beaml_from_Amount`); v1 and v2 rows list with reason
+   `decode`. The GREEN must leave no such warning: the 0005 `mix compile --warnings-as-errors` fails on it.
+9. **Docs row.** "Callers, fixtures and tests that change" gets the row: 0005 `README.md` lines 39, 53, 59
+   (`note_v2`, output hash): docs phase.
+10. **Optional low case (taken in RED).** N33_v1_amount_no_signature: a v1 row with `amount: "12.50"` (a String, not
+    a map; rehashed) fails with reason `decode` (the `__beaml_from_Amount` no-match branch).
+
+RED placement (Opus, RED m4-lift; see decisions.md PM4-15 to PM4-19): the 0004 compiler-side cases stand in the new
+file `tests/slice6_m4_test.py`, not in the three old files. The old cases that pin D6B-39 stay until GREEN retires them.

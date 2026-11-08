@@ -119,3 +119,38 @@ after it. So it would work without M3.
    then migrate first (PM4-08 no longer holds).
 → Built default: A (default, open).
 → By: Opus (PLAN m4-lift, default, open)
+
+## RED decisions (2026-11-08)
+
+Undo and Repair defaults of the RED phase. Evidence: [red-output.md](red-output.md), [red-plan.md](red-plan.md).
+No new OWNER question: QM4-1 to QM4-4 stay open with their built defaults (the RED pins QM4-1 A, QM4-3 A, QM4-4 A).
+
+**PM4-15 · Repair · The two rename rejects stand in `slice6/db/bad_rename/`, not in `bad/`.**
+Chose: a new directory with its own table check in `slice6_m4_test.py`. Over: `bad/` as the plan says.
+Because: `slice6_db_test.py` `test_N12_rejects` requires `bad/` and its table to agree; a new file there turns a listed
+passing test red before GREEN (DL-147). Commits us to: the GREEN keeps `bad_rename/`, or moves both files into `bad/`
+together with the two new `BAD_CASES` rows and the delete of the two chain files (PM4-09).
+→ By: Opus (RED m4-lift)
+
+**PM4-16 · Undo · The 0004 compiler-side RED is one new file, `tests/slice6_m4_test.py`.**
+Because: the RED task names it; the old D6B-39 cases pass at HEAD and the GREEN retires them in its commit
+(red-plan.md, "Retired by GREEN"). The file borrows the harness methods of `slice6_db_stored_test`, `slice6_db_test`
+and `slice6_decode_test`; it changes none of them.
+→ By: Opus (RED m4-lift)
+
+**PM4-17 · Undo · The N33 and R8 cases print the actual term when they fail.**
+Because: the probe must show the reason `decode`; a bare `==` prints only `false`. N33 uses `if r == want, do: true,
+else: r` inside the existing TAIL; R8 prints `got R8: ...`. Stored values are test values only, no secret.
+→ By: Opus (RED m4-lift)
+
+**PM4-18 · Undo · Plan repair 10 is taken: `N33_v1_amount_no_signature`.**
+Because: one line; it pins the `__beaml_from_Amount` no-match branch (`decode`) after the steps.
+→ By: Opus (RED m4-lift)
+
+**PM4-19 · Undo · R6b checks exit 0, the module, `counted(0, 0, 0)` and no `error` line, not the exact P2 lines.**
+Because: the plan says "builds with the P2 count lines" without the lines; an exact pin would come from the compiler.
+→ By: Opus (RED m4-lift)
+
+Not decided here (for the main agent): the 0004 full run fails on `redteam_c3_test` C4 until the GREEN lists
+`slice6_m4_test.py` (DL-147 effect). The tracked 0005 `lib/generated/orders.ex` is 2 bytes behind `orders.beaml` at
+HEAD (14 offset lines); every `run.py run` rewrites it; the RED restored the HEAD bytes.

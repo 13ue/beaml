@@ -1,0 +1,214 @@
+"""EXPERIMENT 0004 M4 step 1: lift D6B-39, run the MIGRATE STEPS first and the checks after (DL-152, DL-153).
+
+Ledger: experiments/0004-generated-replay/workflow/2026-11-08/m4-lift-d6b39/ (plan.md with "Plan repair after plan
+check", decisions.md PM4-01 to PM4-19 and QM4-1 to QM4-4, plan-review.md, red-plan.md, red-output.md).
+Defaults pinned here (open for the OWNER): QM4-1 A (the effect-scoped rename text), QM4-4 A (rename of an enum or
+constructor field stays an error), QM4-3 A (the DL-122 help keeps its D6B-39 words).
+Expected values come from the plan and the digest and fingerprint code of slice6_db_test (stored_types_test), never
+from the new compiler. The cases that pin the old D6B-39 texts stay in slice6_db_test.py and slice6_decode_test.py
+until the GREEN retires them (red-plan.md, "Retired by GREEN").
+DL-147: this file joins run.py in the GREEN commit, not before.
+Run: python3 -B experiments/0004-generated-replay/tests/slice6_m4_test.py [-k NAME]
+"""
+from pathlib import Path
+import re
+import sys
+import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import slice6_db_stored_test as sds  # noqa: E402
+import slice6_db_test as sd  # noqa: E402
+import slice6_decode_test as sdec  # noqa: E402
+import slice6_failure_test as sf  # noqa: E402
+
+ORDER_V2 = sd.ORDER_V2
+BAD_RENAME = sd.FIX / "bad_rename"
+ex, b, jb, core, type_of = sd.ex, sf.b, sd.jb, sd.core, sd.type_of
+counted = sds.counted
+ORDER_V1 = sd.ORDER_TYPE
+ORDER_V2_TYPE = type_of("Order", 2, [["order_id", "String"], ["amount", "Amount"], ["channel", "Channel"],
+                                     ["note", "String"]])
+WIRE1, TV_WIRE, EUR = sd.WIRE1, sd.TV_WIRE, sd.EUR
+WIRE2_V2 = dict(sd.WIRE2, note="second")
+V1_ROW = core(WIRE1)
+V1_TV_ROW = core(TV_WIRE, unknown_fields=["channel"])
+V1_BAD_CURRENCY = core(dict(WIRE1, amount={"value": "12.50", "currency": ""}))
+V1_NO_AMOUNT = core({"order_id": "order-1", "channel": "web"})
+V1_AMOUNT_STRING = core(dict(WIRE1, amount="12.50"))
+
+
+def rename_text(owner, step, kind, field, help_tail=""):
+    """QM4-1 A (default, open): a MIGRATE STEP that names an enum or constructor field (plan, "Compile checks")."""
+    return ("error: effect %s: migrate %s: %s names the %s field %s; a MIGRATE STEP on an enum or constructor field "
+            "waits for the fate forms (M3, DL-152)\n  help: remove %s from the MIGRATE STEP%s"
+            % (owner, step[0], step[1], kind, field, step[1], help_tail))
+
+
+RENAME_CASES = {
+    "row_rename_enum": rename_text("orders.save", ("Order v1 -> v2", "rename via -> channel"), "enum", "Order.channel",
+                                   ", or make channel a String field"),
+    "row_rename_constructor": rename_text("orders.save", ("Order v1 -> v2", "rename price -> amount"), "constructor",
+                                          "Order.amount"),
+}
+
+
+def want(setup, actual, expected):
+    """A case that prints the actual term when it differs (the TAIL of slice6_db_test prints a non-true result)."""
+    return "%s; r = %s; if r == %s, do: true, else: r" % (setup, actual, expected)
+
+
+M1 = 'Map.put(o1.(), "note", "")'
+SEED_V1 = 'fresh.(); BeamlDb.seed("Order", 1, %s)' % jb(V1_ROW)
+N33_CASES = {
+    # DL-153: the generated Elixir decodes a v1 row of Order into v2 (Amount struct, Web tuple, note "").
+    "N33_v1_row_lists_migrated": want(SEED_V1, "Orders.list_orders(%{})", '{:ok, %%{"items" => [%s]}}' % M1),
+    "N33_v1_row_loads_migrated": want(SEED_V1, "Orders.load(key1)", "{:ok, %s}" % M1),
+    # DL-127 lazy: the read leaves the stored v1 row as it was.
+    "N33_v1_row_stays_v1": want(SEED_V1 + "; Orders.list_orders(%{})", "BeamlDb.rows()",
+                                '[%%{"id" => 1, "type" => "Order", "version" => 1, "value" => %s}]' % jb(V1_ROW)),
+    "N33_save_writes_v2": want('fresh.(); Orders.save(Map.put(o2.(), "note", "second")); [{_, head, _}] = puts.()',
+                               '{head, Map.take(last_core.(), ["type", "value"])}',
+                               '{{"Order", 2}, %s}' % ex({"type": ORDER_V2_TYPE, "value": WIRE2_V2})),
+    "N33_list_holds_both_versions": want(SEED_V1 + '; Orders.save(Map.put(o2.(), "note", "second"))',
+                                         "Orders.list_orders(%{})",
+                                         '{:ok, %%{"items" => [Map.put(o2.(), "note", "second"), %s]}}' % M1),
+    # DL-109, PDB-18 (plan repair 6): a kept channel of a v1 row; the list record names items.0.channel.
+    "N33_v1_unknown_channel": want('fresh.(); BeamlDb.seed("Order", 1, %s); Process.put(:captures, [])' % jb(V1_TV_ROW),
+                                   'l = Orders.list_orders(%{}); [rec] = resp.(); {l, rec["unknown_fields"]}',
+                                   '{{:ok, %{"items" => [Map.put(tv.(), "note", "")]}}, ["items.0.channel"]}'),
+    # PM4-07: the DL-101 tail runs after the steps and rejects bad wire values of a v1 row.
+    "N33_v1_constructor_reject": want('fresh.(); BeamlDb.seed("Order", 1, %s)' % jb(V1_BAD_CURRENCY),
+                                      "Orders.list_orders(%{})", 'fail.("constructor")'),
+    "N33_v1_row_without_amount": want('fresh.(); BeamlDb.seed("Order", 1, %s)' % jb(V1_NO_AMOUNT),
+                                      "Orders.list_orders(%{})", 'fail.("decode")'),
+    # Plan repair 10 (optional, taken): an amount that matches no signature of Amount.
+    "N33_v1_amount_no_signature": want('fresh.(); BeamlDb.seed("Order", 1, %s)' % jb(V1_AMOUNT_STRING),
+                                       "Orders.list_orders(%{})", 'fail.("decode")'),
+    # The REPLAY RUN of the orders.list record of a v1 read gives the live value without BeamlDb.
+    "N33_replay_list": want(SEED_V1 + '; Process.put(:captures, []); live = Orders.list_orders(%{}); recs = resp.(); '
+                            "BeamlDb.reset(); BeamlDb.mode(:forbid); "
+                            'r2 = Orders.Replay.run("orders.list", %{}, hd(recs)["trace_id"], recs); BeamlDb.mode(:ok)',
+                            "{r2, live, BeamlDb.calls()}",
+                            '{{:ok, %%{"items" => [%s]}}, {:ok, %%{"items" => [%s]}}, []}' % (M1, M1)),
+}
+
+# R8 (http stream): `add` and `drop` beside an enum field; the joined key list (plan repair 4: the decode return).
+CHAIN_ADD = (sdec.PS_LITERALS + "type Payment { order_id: String state: PaymentState note: String }\n"
+             'migrate Payment v1 -> v2 { add note: String = "", drop legacy: String }\n' + sdec.REST)
+PAYMENT_V1 = type_of("Payment", 1, [["order_id", "String"], ["state", "PaymentState"], ["legacy", "String"]])
+V1_BODY = {"order_id": "o-1", "state": "ok", "legacy": "x", "extra": "y"}
+R8_CASE = ('r = BeamlSpike.__beaml_decode_payment(:json.encode(%s) |> IO.iodata_to_binary(), %s); '
+           'IO.puts("got R8: " <> inspect(r)); '
+           'r == {:ok, %%{"order_id" => "o-1", "state" => {"PaymentState", "Authorized", []}, "note" => ""}, ["extra"]}'
+           % (ex(V1_BODY), ex({k: PAYMENT_V1[k] for k in ("name", "version", "fingerprint")})))
+CHAIN_RENAME = rename_text("payments.authorize", ("Payment v1 -> v2", "rename status -> state"), "enum", "Payment.state",
+                           ", or make state a String field")
+
+
+def decode_body(stdout, name):
+    """The body of `def NAME(a0, type_version) do` up to its `  end` line."""
+    match = re.search(r"^  def %s\(a0, type_version\) do\n(.*?)^  end$" % name, stdout, re.S | re.M)
+    return match.group(1) if match else None
+
+
+class M4Db(unittest.TestCase):
+    """The db stream: compile, live decode over the fake BeamlDb, and --stored over rows and records."""
+    maxDiff = None
+    setUp = sds.Slice6DbStored.setUp
+    compile = sds.Slice6DbStored.compile
+    built = sd.Slice6Db.built
+    runtime = sd.Slice6Db.runtime
+    snapshot = sds.Slice6DbStored.snapshot
+    run_stored = sds.Slice6DbStored.run_stored
+    assert_built = sds.Slice6DbStored.assert_built
+    blocked = sds.Slice6DbStored.blocked
+
+    # R1: `add` beside an enum and a constructor field builds.
+
+    def test_N33_order_v2_builds(self):
+        self.built(ORDER_V2)
+
+    # R2: a MIGRATE STEP that names an enum or constructor field stays an error (QM4-1 A, QM4-4 A).
+
+    def test_N12_rename_rejects(self):
+        self.assertEqual(sorted(RENAME_CASES), sorted(p.stem for p in BAD_RENAME.glob("*.beaml")),
+                         "setup: bad_rename/ and the table differ")
+        for name, message in RENAME_CASES.items():
+            with self.subTest(name):
+                code, stdout, stderr = self.compile(BAD_RENAME / ("%s.beaml" % name))
+                self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+                                 "expected exit 1, no stdout, the exact text")
+
+    # R13 (plan repair 3): DL-152 effect (1), the MIGRATE CHANGES stand before the DL-101 tail.
+
+    def test_N33_order_v2_steps_before_the_tail(self):
+        body = decode_body(self.built(ORDER_V2), "__beaml_decode_order")
+        self.assertIsNotNone(body, "no def __beaml_decode_order(a0, type_version) in the module")
+        put = body.find("Map.put(value, %s, %s)" % (b("note"), b("")))
+        uses = [body.find(name) for name in ("__beaml_literal_Channel", "__beaml_from_Amount")]
+        self.assertEqual((True, True, True), (put >= 0, all(u >= 0 for u in uses), all(put < u for u in uses)),
+                         "the note MIGRATE CHANGE must stand before the literal map and the constructor call")
+        versions = [l for l in body.splitlines() if re.match(r"\s+\d+ -> \{:ok, \[", l)]
+        self.assertTrue(versions, "setup: no per-version field list in the decode")
+        self.assertEqual([], [l for l in versions if b("Channel") in l or b("Amount") in l],
+                         "the per-version check must take enum and constructor fields raw (PM4-07)")
+
+    # N33: the live decode of order_v2 over the fake BeamlDb.
+
+    def test_N33_order_v2_runtime(self):
+        self.runtime(ORDER_V2, N33_CASES)
+
+    # N34 (R4 to R6b): --stored over a chained Order reads the same keys before and after the steps (PM4-08).
+
+    def test_N34_order_v2_rows_of_both_versions_build(self):
+        self.assert_built(ORDER_V2, [counted(2, 2, 0)], rows=[sds.row(WIRE1, ORDER_V1), sds.row(WIRE2_V2, ORDER_V2_TYPE)])
+
+    def test_N34_v1_row_lost_literal_blocks(self):
+        code, stdout, got, rows_path, _ = self.blocked(ORDER_V2, rows=[sds.row(TV_WIRE, ORDER_V1)])
+        self.assertEqual((1, "", ["error: TYPE Order v1: 1 stored ROW of table records has a value of field channel that "
+                                  "is no ENUM LITERAL of Channel now (DL-122)",
+                                  "  record source: %s:1 (line 1)" % rows_path, sds.LITERAL_HELP]), (code, stdout, got))
+
+    def test_N34_control_kept_v1_value_builds(self):
+        self.assert_built(ORDER_V2, [counted(1, 1, 0)], rows=[sds.row(TV_WIRE, ORDER_V1, unknown_fields=["channel"])])
+
+    def test_N34_v1_row_constructor_blocks(self):
+        zero = dict(WIRE1, amount={"value": "12.50", "currency": ""})
+        code, stdout, got, rows_path, _ = self.blocked(ORDER_V2, rows=[sds.row(zero, ORDER_V1)])
+        self.assertEqual((1, "", ["error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for "
+                                  "field amount with BadAmount", "  record source: %s:1 (line 1)" % rows_path], True),
+                         (code, stdout, got[:2], len(got) == 3 and got[2].startswith(sds.HELP_PREFIX)), "\n".join(got))
+
+    def test_N34_v1_record_of_a_chained_output_builds(self):
+        rec = sds.db_record("orders.load", WIRE1, ORDER_V1, {"order_id": "order-1"})
+        code, stdout, got, _, _ = self.run_stored(ORDER_V2, rows=[], responses=[rec])
+        self.assertEqual((0, True, True, []), (code, "defmodule Orders do" in stdout, counted(0, 0, 0) in got,
+                                               [l for l in got if l.startswith("error")]), "\n".join(got))
+
+
+class M4Decode(unittest.TestCase):
+    """The http stream (slice6_decode_test harness): CHAIN, MARK and CHAIN_ADD."""
+    maxDiff = None
+    setUp = sdec.Slice6Decode.setUp
+    compile = sdec.Slice6Decode.compile
+    assert_rejected = sdec.Slice6Decode.assert_rejected
+    run_runtime = sdec.Slice6Decode.run_runtime
+
+    def test_enum_output_field_rename_in_a_chain(self):
+        # R3: the rename onto PaymentState errors with owner effect payments.authorize (PM4-02, QM4-1 A).
+        self.assert_rejected(sdec.CHAIN, CHAIN_RENAME, sdec.EMPTY)
+
+    def test_enum_output_field_with_a_version_mark_builds(self):
+        # R3b (PM4-04): a VERSION MARK alone has no step that names a field.
+        code, stdout, stderr = self.compile(sdec.MARK, sdec.EMPTY)
+        self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout), stderr)
+
+    def test_chained_enum_output_reads_a_v1_body(self):
+        # R8: a v1 body with its v1 type: Authorized tuple, note "", no legacy, unknown keys ["extra"].
+        self.run_runtime({"R8_v1_body": R8_CASE}, CHAIN_ADD, stored=sf.EMPTY_STORED)
+
+
+if __name__ == "__main__":
+    if not __debug__:
+        raise SystemExit("Run without Python optimization.")
+    unittest.main(verbosity=2)

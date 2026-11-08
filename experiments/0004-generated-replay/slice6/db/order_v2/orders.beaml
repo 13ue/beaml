@@ -1,4 +1,4 @@
-// Slice 6 db variant order_v2: a MIGRATE CHAIN on a ROW TYPE with constructor and enum fields is an error (D6B-39, PDB-31).
+// Slice 6 db variant order_v2: Order with constructor and enum fields at TYPE VERSION 2; v1 rows migrate on read (DL-152).
 type BadAmount {}
 type Amount { value: String currency: String }
 fn Amount value: String, currency: String -> Amount ! BadAmount

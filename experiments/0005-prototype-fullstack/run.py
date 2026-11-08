@@ -5,8 +5,8 @@ python3 -B run.py [run] | db-up | db-down | db-reset | smoke
 `run` (the default) needs a database that is up (db-up). It never starts or stops it. Steps: the compiler
 (BEAML_SPIKE or a cargo build of 0001), db-reset, stored + gen of app/beaml/orders.beaml (a live ROW SNAPSHOT by
 `mix beaml.stored`, Q5-4 B, then the compiler with --stored), compile, the N-TESTS in mix test, then the phases n8,
-n7_seed, gen note_v2, n7_read, and gen orders.beaml again. Every step runs and is recorded; one failed step fails the run.
-The run also fails unless every N-TEST of EXPECTED passes (N9 blocked) and the note_v2 snapshot holds 2 rows, no DEAD LINE.
+n7_seed, gen order_v2, n7_read, and gen orders.beaml again. Every step runs and is recorded; one failed step fails the run.
+The run also fails unless every N-TEST of EXPECTED passes (N9 blocked) and the order_v2 snapshot holds 2 rows, no DEAD LINE.
 
 Every call writes results/<UTC>/ with commands, toolchain versions and result.json.
 The database is a local pg_ctl cluster: trust auth, Unix socket only, no password (P5-01, P5-02, P5-22, P5-23).
@@ -199,8 +199,8 @@ def main(command):
                     lambda: execute("test", ["mix", "test", "--warnings-as-errors"], APP),
                     lambda: execute(*phase("n8"), APP),
                     lambda: execute(*phase("n7_seed"), APP),
-                    lambda: gen("note_v2"),
-                    lambda: execute("compile-note_v2", ["mix", "compile", "--force", "--warnings-as-errors"], APP),
+                    lambda: gen("order_v2"),
+                    lambda: execute("compile-order_v2", ["mix", "compile", "--force", "--warnings-as-errors"], APP),
                     lambda: execute(*phase("n7_read"), APP),
                     lambda: all(execute(n, a, EXPERIMENT) for n, a in db_reset())]
             for i, step in enumerate(plan, 1):
@@ -269,9 +269,11 @@ EXPECTED = {("exp0005-" + u, "test " + t) for u, t in [
     ("N4", "N4 an unknown channel is accepted and stored as its text"),
     ("N5", "N5 the list page shows both orders through db.list, newest first"),
     ("N6", "N6 an Unknown channel lists as its text"),
-    ("N7", "N7 note_v2 builds against a live Note v1 row and an Order row"),
+    ("N7", "N7 order_v2 builds against a live Order v1 row and a Note v1 row"),
+    ("N7", "N7 the v1 Order row lists through the MIGRATE CHAIN with note empty and stays version 1"),
     ("N7", "N7 the v1 row lists through the MIGRATE CHAIN with tag empty and stays version 1"),
     ("N7b", "N7b a submit under v2 writes a version 2 row and the list shows v1 and v2"),
+    ("N7b", "N7b a place submit under v2 writes a version 2 Order row and the list shows v1 and v2"),
     ("N8", "N8 a stricter Amount blocks the build against the live row and prints no stored value"),
     ("N8", "N8 control: the same live row builds under orders.beaml"),
     ("N8b", "N8b the stricter build passes after the row is deleted by SQL"),
@@ -284,20 +286,20 @@ EXPECTED = {("exp0005-" + u, "test " + t) for u, t in [
 
 
 def acceptance(run, cases):
-    """The use-case set and run.py's own pre-gen-note_v2 snapshot. Returns problems: counts and names, no values."""
+    """The use-case set and run.py's own pre-gen-order_v2 snapshot. Returns problems: counts and names, no values."""
     got = {(c["use_case"], c["test"]): c["result"] for c in cases}
     problems = ["missing: " + "; ".join(sorted(u for u, _ in EXPECTED - set(got)))] if EXPECTED - set(got) else []
     problems += ["unexpected: " + u for u, _ in sorted(set(got) - EXPECTED)]
     problems += ["%s: %s" % (u, r) for (u, t), r in sorted(got.items())
                  if (u, t) in EXPECTED and r != BLOCKED.get(u[len("exp0005-"):], "pass")]
-    meta, err = run / "stored-note_v2" / "snapshot-meta.json", run / "gen-note_v2.stderr"
+    meta, err = run / "stored-order_v2" / "snapshot-meta.json", run / "gen-order_v2.stderr"
     try:
         if json.loads(meta.read_text())["row_count"] != 2:
-            problems.append("stored-note_v2: row_count is not 2")
+            problems.append("stored-order_v2: row_count is not 2")
     except Exception as error:
-        problems.append("stored-note_v2: no snapshot-meta (%s)" % type(error).__name__)
+        problems.append("stored-order_v2: no snapshot-meta (%s)" % type(error).__name__)
     if not err.is_file() or "DEAD LINE" in err.read_text():
-        problems.append("gen-note_v2: no stderr or a DEAD LINE")
+        problems.append("gen-order_v2: no stderr or a DEAD LINE")
     return problems
 
 
