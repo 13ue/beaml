@@ -1,16 +1,95 @@
 ---
 id: experiment-0005-prototype-fullstack
 kind: experiment
-status: proposed
-updated: 2026-11-07
-revision: 2 (PLAN repair after plan check, free run DL-144)
+status: verified
+updated: 2026-11-08
+revision: 3 (docs after TEST PASS)
 ---
 
 # EXPERIMENT 0005 — PROTOTYPE: Postgres, BEAML, LiveView
 
-**[Proposal]** PLAN phase, 2026-11-07, repaired after the plan check ([plan-review.md](workflow/2026-11-07/plan-review.md), [repair](workflow/2026-11-07/plan.md#plan-repair-after-plan-check-2026-11-07)). No code, no run. Plan: [workflow/2026-11-07/plan.md](workflow/2026-11-07/plan.md). Decisions: [decisions.md](workflow/2026-11-07/decisions.md). OWNER walk-through: [owner-review.md](workflow/2026-11-07/owner-review.md).
+**[Verified]** TEST PASS on 2026-11-08: GREEN `d4e11f78`, TEST `0315cf2f`. Run [20261108T003740313204Z](results/20261108T003740313204Z/result.json): status `pass`, 16 of 16 steps exit 0, 19 use cases pass, N9 `blocked: fate slice (D036)`. A second run [20261108T003757953791Z](results/20261108T003757953791Z/result.json) gives the same ([TEST review](workflow/2026-11-08/review.md)). A PROTOTYPE pass does not establish production readiness.
+By: Opus (docs exp0005) for the result sections. The plan sections below keep their PLAN authors.
+
+## Result (2026-11-08)
+
+### Who owns which step
+
+**[Verified]** As built and observed by N3, N5, N7, N7b ([GREEN output](workflow/2026-11-08/green-output.md#what-exists)).
+
+| Step | Owner | Where |
+|---|---|---|
+| Form page `/orders/new`, list page `/orders`, notes page `/notes` (HEEx, router) | host | `app/lib/proto_web/live/` |
+| Decode of the params, root span, ENTRY RECORD, `Rejected` struct | BEAML (generated) | `Orders.ui_place/1`, `ui_orders/1`, `ui_note/1`, `ui_notes/1` |
+| Flow, constructors (`Amount`), enum literals (`Channel`) | BEAML (generated) | `app/beaml/orders.beaml` → `app/lib/generated/orders.ex` |
+| ROW CORE encode, row decode, MIGRATE CHAIN on read, db call record | BEAML (generated) | `db.put`, `db.list` EFFECT lines |
+| SQL over the one table `records` | host | `BeamlDb.put/3`, `list/3`, `get/3` in `app/lib/proto/beaml_db.ex` |
+| One Ecto migration, Repo, local Postgres cluster | host | `app/priv/repo/migrations/`, `run.py db-up` |
+| ROW SNAPSHOT of the live rows | host | `mix beaml.stored DIR` |
+| `--stored` check of the snapshot (constructors, literals, chain) | BEAML (compiler) | `beaml-spike ... --stored` |
+| Action log, one event per page action, no value | host | `app/lib/proto_web/action_log.ex` → `.beaml/actions.jsonl` |
+
+### Tested flow
+
+**[Verified]** Three paths, all through the generated functions:
+
+```
+form submit  → Orders.ui_place/1 (decode, ENTRY RECORD) → flow → db.put → BeamlDb (SQL) → row
+list mount   → Orders.ui_orders/1 → db.list → BeamlDb (SQL) → row decode → page renders the BEAML value
+Note v1 row  → note_v2 source builds against it → list reads it through migrate (tag "") → v2 submit writes version 2
+live rows    → mix beaml.stored (ROW SNAPSHOT) → compiler --stored → stricter Amount blocks, delete frees
+```
+
+### Actual results
+
+**[Verified]** Run [20261108T003740313204Z](results/20261108T003740313204Z/result.json), [use cases](results/20261108T003740313204Z/use-cases.jsonl):
+
+| Use case | What it proves | Result |
+|---|---|---|
+| N1, N10 | `orders.beaml` gives the module `Orders`; a removed `ui.place` stops the host build at `Orders.ui_place/1` | pass |
+| N2, N2c, N3 | one submit writes one `Order` row through `db.put`, one ENTRY RECORD and one db record in one trace; `reason` is JSON null | pass |
+| N4 (2) | a constructor reject writes no row; an unknown channel is stored as its text | pass |
+| N5, N6 | the list reads through `db.list`, newest first; an Unknown channel lists as its text | pass |
+| N7 (2), N7b | `note_v2` builds against a live v1 row; the v1 row lists through the MIGRATE CHAIN; a v2 submit writes version 2 | pass |
+| N8 (2), N8b, N8c | a stricter `Amount` blocks the build against the live row and prints no stored value; control builds; delete by SQL frees; snapshot ids equal the live ids | pass |
+| N11 | the TYPE change reached the table, the DDL did not move | pass |
+| N12, N13 | one action event per action, no value; no secret literal in `lib/` or `config/` | pass |
+| N9 | `quarantine amount` frees the stricter build | blocked: fate slice (D036) |
+
+**[Verified]** Output hashes: `orders.ex` `f32433c8…51c7`, `note_v2` `b0990620…30c1c4`, equal in GREEN and both TEST runs. `gen-note_v2.stderr`: `rows: 2 rows, 2 checked, 0 not decodable`.
+
+### Screens
+
+**[Verified]** Local server, demo rows written through `Orders.ui_*`, headless Chrome, dark mode ([TEST review §4](workflow/2026-11-08/review.md#4--screens-owner-visual-check)). Visual check only, not evidence for the thesis.
+
+→ [Form `/orders/new`](workflow/2026-11-08/screens/orders-new.png)
+→ [List `/orders`](workflow/2026-11-08/screens/orders.png)
+→ [Notes `/notes`](workflow/2026-11-08/screens/notes.png)
+
+### Limits
+
+→ **[Verified]** N9 blocked until the fate slice (M3, M4, M5 parked, D036).
+→ **[Verified]** The real `Order` chain waits on M4; the chained read runs on the String-only `Note` (QDB-8 B).
+→ **[Verified]** O1: `run.py run` truncates `proto_dev` and `proto_test`; rows made by hand are lost, and the shipped `orders.ex` is checked against 0 rows. N8 proves the gate in `proto_test` only.
+→ **[Verified]** O2: `BeamlDb.get/3` matches the raw stored JSON, not the migrated value; an empty key returns any row. No source line uses `db.get`.
+→ **[Verified]** O3: the list page calls the internal name `Orders.__beaml_encode_order/1`; a compiler rename breaks the host build.
+→ **[Verified]** The form inputs are invisible in dark mode (no border, no background).
+→ **[Inference]** The R1 guard is a text scan of `lib/proto_web`; it does not catch `BeamlDb.` or `Ecto` there.
+→ **[Requirement]** Demo only: local cluster, no deploy, no real data, no browser test (DL-144).
+
+### Smallest next test
+
+**[Proposal]** O3 first: the compiler emits `Orders.project_order/1` for an ENTRY LINE output TYPE; the R1 guard adds "no `__beaml_` in `lib/proto_web`"; one test asserts the DL-105 projection. The OWNER chooses A or C first (D037, item 2). By: Opus (docs exp0005).
+
+### Open decisions
+
+**[Proposal]** Every built default is open for the OWNER walk-through: [owner-review.md](workflow/2026-11-07/owner-review.md), register D037 in [Decisions to be made](../../wiki/planning/decisions-to-be-made.md#d037--experiment-0005-built-defaults-dl-144-walk-through).
+
+## Plan (2026-11-07)
+
+**[Proposal]** PLAN phase, 2026-11-07, repaired after the plan check ([plan-review.md](workflow/2026-11-07/plan-review.md), [repair](workflow/2026-11-07/plan.md#plan-repair-after-plan-check-2026-11-07)). Plan: [workflow/2026-11-07/plan.md](workflow/2026-11-07/plan.md). Decisions: [decisions.md](workflow/2026-11-07/decisions.md). OWNER walk-through: [owner-review.md](workflow/2026-11-07/owner-review.md).
 Binding OWNER decisions: DL-126 to DL-134, DL-137, DL-139, DL-141 to DL-144 in [the decision log](../../wiki/planning/decision-log.md). DL-144 makes this a free run: every open Migrate question has a built default, marked `By: Opus (PLAN exp0005, default, open)`.
-By: Opus (PLAN exp0005) for every proposal on this page.
+By: Opus (PLAN exp0005) for every proposal in the plan sections.
 
 ## Question
 
@@ -68,8 +147,10 @@ By: Opus (PLAN exp0005) for every proposal on this page.
 ## Repeatable command
 
 ```
-python3 experiments/0005-prototype-fullstack/run.py db-up     # a worker or the OWNER, once per machine start
-python3 experiments/0005-prototype-fullstack/run.py           # every run
+python3 -B experiments/0005-prototype-fullstack/run.py db-up     # a worker or the OWNER, once per machine start
+python3 -B experiments/0005-prototype-fullstack/run.py           # every run (= run); truncates proto_dev and proto_test (O1)
+python3 -B experiments/0005-prototype-fullstack/run.py db-reset  # optional: empty both databases
+python3 -B experiments/0005-prototype-fullstack/run.py db-down   # stop the cluster
 ```
 
 `run.py` builds the 0001 compiler, generates `app/lib/generated/orders.ex`, runs `mix compile --warnings-as-errors`, `mix ecto.migrate`, `mix test`, the `--stored` cases and writes `results/<UTC>/` with commands, toolchain versions, input and output hashes and the actual results. The test run never starts or stops the database; `db-up` and `db-down` do (local trust-auth socket cluster, no secret; a worker may run them, P5-22). No step reads database credentials. When `DATABASE_URL` is set, the OWNER runs every step.
@@ -78,13 +159,13 @@ python3 experiments/0005-prototype-fullstack/run.py           # every run
 
 All are separate implement-step tasks with their own ledgers. 0005 Solve/RED starts after P1 to P5 are GREEN and TESTED.
 
-| ID | Step | State (2026-11-07) |
+| ID | Step | State (updated 2026-11-08) |
 |---|---|---|
-| P1 | Slice 6d GREEN and TEST (ENTRY LINE, DL-130 to DL-134, DL-138, DL-141, DL-142) | **[Verified]** RED re-check PASS (commit 8ab33d8d); GREEN not started |
-| P2 | Record format v3 (DL-143): one core for every EFFECT stream; record keys only, M8 and M9 untouched (P5-18) | not started |
-| P3 | Several ENTRY LINES and several EFFECTS per source (D6B-147; today `slice 1 supports one effect`) | not started |
-| P4 | `db.*` transport step: `db.put`, `db.list` on `effect` lines, host module call, row decode with MIGRATE CHAIN on read, `--stored` over rows, List TYPE (Q5-3) | not started |
-| P5 | Module name per source (Q5-6): generated module `Orders`, not `BeamlSpike` | not started |
+| P1 | Slice 6d GREEN and TEST (ENTRY LINE, DL-130 to DL-134, DL-138, DL-141, DL-142) | **[Verified]** TEST PASS (2026-11-08 update) |
+| P2 | Record format v3 (DL-143): one core for every EFFECT stream; record keys only, M8 and M9 untouched (P5-18) | **[Verified]** TEST PASS, GREEN `ca09d361` |
+| P3 | Several ENTRY LINES and several EFFECTS per source (D6B-147; today `slice 1 supports one effect`) | **[Verified]** TEST PASS, GREEN `ce190054` |
+| P4 | `db.*` transport step: `db.put`, `db.list` on `effect` lines, host module call, row decode with MIGRATE CHAIN on read, `--stored` over rows, List TYPE (Q5-3) | **[Verified]** TEST PASS, GREEN `060a075d`; row shape check P4c: RED done, GREEN running |
+| P5 | Module name per source (Q5-6): generated module `Orders`, not `BeamlSpike` | **[Verified]** TEST PASS with P3 |
 | P6 | Fate slice with `quarantine` (DL-125): only for N9 | blocked by D036 (M3, M4, M5) |
 
 **[Verified]** Local tools seen on 2026-11-07: Elixir 1.18.1 / OTP 27, `phx_new` 1.8.5 archive, Postgres.app 17.11 (`initdb`, `pg_ctl`, `psql`), Docker, cargo. **[Unknown]** Network access for `mix deps.get` (hex.pm).

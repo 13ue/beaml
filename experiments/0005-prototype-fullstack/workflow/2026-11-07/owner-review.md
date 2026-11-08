@@ -1,3 +1,150 @@
+# OWNER walk-through: EXPERIMENT 0005 built defaults (DL-144)
+
+**[Proposal]** Clean walk-through for the OWNER, written 2026-11-08 after the 0005 TEST PASS ([review](../2026-11-08/review.md)). Register entry: D037 in [Decisions to be made](../../../../wiki/planning/decisions-to-be-made.md#d037--experiment-0005-built-defaults-dl-144-walk-through). Every default below is built and stays open until the OWNER signs it off (DL-139, DL-144). Nothing here is decided.
+Order and grouping: By: Opus (docs exp0005). Each line keeps the author of its default. Option letters marked "(letters: docs)" were written by the docs pass where the ledger gave none.
+The original text stays unchanged below the line ([history](#history-unchanged-text-2026-11-07-to-2026-11-08)). Details and options per step sit in the linked ledgers.
+
+Line format: **ID** · one sentence · options · built default · `By:`.
+
+## Big, first
+
+### 1 · M4 (D036), critical path
+
+→ **M4** · A chained ROW TYPE may not hold a constructor or enum field (D6B-39), so the real `Order` chain cannot run. · A the DL-102 help names "restore the previous clause or literal" · B lift D6B-39 before any FATE OPERATION. · Built: none; D6B-39 holds, N18 pins today's help text, N7/N7b run on the String-only `Note` (QDB-8 B). · By: OWNER parked (D036); built state by Fable (Repair).
+⠀⠀↳ It blocks the `Order` chain and, with M3 and M5, the fate slice (N9).
+
+### 2 · How a page renders a BEAML value (host-called name)
+
+→ **GREEN exp0005 encoder** · The list page calls the compiler-internal `Orders.__beaml_encode_order/1`. · A host calls the generated encoder · B host matches the enum tuple itself · C compiler emits a public `project_<type>/1` (TEST O3). · Built: A. · By: Opus (GREEN exp0005, default, open); C made concrete by Opus (TEST exp0005).
+
+### 3 · Q5-10 STORED ROW value shape
+
+→ **Q5-10** · What a row holds in `value`. · A the bare projection · B the record format v3 core in the row (DL-127, DL-143). · Built: B. · By: Fable (default, open).
+
+### 4 · Q6E-1, Q6E-2 module and `Rejected` names
+
+→ **Q6E-1** · Which sources take the stem module name. · A every source (all byte pins move) · C only a source with an ENTRY LINE. · Built: C. · By: Opus (PLAN multi-effect, default, open).
+→ **Q6E-2** · The namespace of the `Rejected` struct. · A `<Module>.Rejected` (`Orders.Rejected`) · B one fixed `BeamlSpike.Rejected`. · Built: A. · By: Opus (PLAN multi-effect, default, open).
+
+### 5 · QDB-6b, QDB-8 database failures and the chained read
+
+→ **QDB-6b** · A failed db call writes a rejected record with its reason; http writes none on a transport failure. · A yes, a rejected record · B no record, as http (letters: docs). · Built: A. · By: Fable (default, open).
+→ **QDB-8** · The chained read over rows (N7/N7b) under D6B-39. · A block N7/N7b on M4 · B String-only ROW TYPE `Note` with its own chain · C answer M4 now. · Built: B. · By: Fable (default, open).
+
+### 6 · Record format v3 (QV3-1 to QV3-8)
+
+→ **QV3-1** · Format marker. · A `version: 3` · B a `format` key · C the file name. · Built: A. · By: Opus (PLAN record-v3, default, open).
+→ **QV3-2** · Span id. · A one `span_id` · B client and server span ids as extras · C `span_id` plus `span_kind`. · Built: A. · By: Opus (PLAN record-v3, default, open).
+→ **QV3-3** · Transport extras. · A flat top level (`status`, `request`) · B nested `transport: {...}`. · Built: A. · By: Opus (PLAN record-v3, default, open).
+→ **QV3-4** · RESPONSE `outcome`/`reason`. · A status, then decode (equals the live failure reason) · B status only. · Built: A, wider than the DL-136 wording. · By: Opus (PLAN record-v3, default, open).
+→ **QV3-5** · Old files. · A one-time rewrite of the v2 fixtures, reader v3 only · B reader accepts v2 and v3. · Built: A. · By: Opus (PLAN record-v3, default, open).
+→ **QV3-6** · What the digest covers. · A `redacted`, `unknown_keys`, `value` · B also `unknown_fields`, `outcome`, `reason`. · Built: A. · By: Opus (PLAN record-v3, default, open).
+→ **QV3-7** · When the RESPONSE count lines print. · A only when M > 0 · B always. · Built: A (see item 7). · By: Opus (PLAN repair record-v3), raised to big by Fable.
+→ **QV3-8** · What a rejected RESPONSE RECORD skips. · A the DL-102/DL-122 value checks only · B also the TYPE path check and the W2 version count. · Built: B. · By: Opus (PLAN repair record-v3), raised to big by Fable.
+
+### 7 · The count-line print rule (one rule for both streams)
+
+→ **QV3-7 / PDB-24** · RESPONSE RECORDS print counts only when M > 0; ROW SNAPSHOTS always print `rows: N rows, K checked, M not decodable`. · A silence is normal (both only when M > 0; N20b loses its proof) · B a printed count proves the check ran (both always). · Built: split (A for records, B for rows). · By: Fable (merged question, default, open); rows line by Opus (RED db-stored, default, open).
+
+### 8 · The row shape check (P4c)
+
+→ **P4c** · A stored row or RESPONSE RECORD with a missing or wrong-type String field passes `--stored` and fails `db.list` at run time. · A block the build with the DL-102 text · B count it as not decodable. · Built: A in progress (RED `b15c1e6d`, GREEN running). · By: Fable (default, open).
+
+### 9 · ENTRY RECORD (G6D-03, G6D-04)
+
+→ **G6D-04** · A pure ENTRY LINE target in a source with an outbound EFFECT writes no ENTRY RECORD and has no `Replay.entry`. · A as built · B write the ENTRY RECORD there too (letters: docs). · Built: A. · By: Opus (GREEN slice6d, default, open); raised to Repair by Fable (TEST O2).
+→ **G6D-03** · The ENTRY RECORD `type` key lists fields in source order; a RESPONSE RECORD sorts them. · A source order · B sorted, as the RESPONSE RECORD (letters: docs). · Built: A. · By: Opus (GREEN slice6d, default, open).
+
+## Other defaults
+
+Marked "(big)" where the ledger marked it big; the class is not lowered here.
+
+### 0005 PLAN
+
+→ **Q5-1 (big)** · `db.get` key. · A row `id` · B a TYPE field. · Built: B in P4 (QDB-1 A), unused in 0005. · By: Opus (PLAN exp0005, default, open).
+→ **Q5-2** · `db.list` order and limit. · A fixed in the host (newest first, 100) · B fields in `OrderQuery`. · Built: A. · By: Opus (PLAN exp0005, default, open).
+→ **Q5-3 (big)** · List TYPE. · A `items: [Order]` field form · B a `list` keyword. · Built: A. · By: Opus (PLAN exp0005, default, open).
+→ **Q5-4 (big)** · `--stored` over Postgres. · A compiler runs `psql` · B host task `mix beaml.stored` writes a snapshot. · Built: B. · By: Opus (PLAN exp0005, default, open).
+→ **Q5-5** · Generated code. · A `app/lib/generated/orders.ex` in git · B a Mix compiler into `_build`. · Built: A. · By: Opus (PLAN exp0005, default, open).
+→ **Q5-6 (big)** · Module name. · A from the file stem · B a `module` line. · Built: A. · By: Opus (PLAN exp0005, default, open).
+→ **Q5-7 (big)** · Capture streams. · A JSONL files per run · B rows in `records`. · Built: A. · By: Opus (PLAN exp0005, default, open).
+→ **Q5-8 (big)** · Host DB module. · A fixed `BeamlDb.put/3, list/3, get/3` · B a configured module with a behaviour. · Built: A. · By: Opus (PLAN exp0005, default, open); put/3 by Fable (Repair).
+→ **Q5-9 (big)** · List page load. · A a second ENTRY LINE `ui.orders` from `mount` · B a new `ui.mount` transport. · Built: A. · By: Opus (PLAN exp0005, default, open).
+
+### P3, P5 several EFFECTS
+
+→ **Q6E-4 (big)** · One EFFECT per flow. · A yes · B several EFFECTS per flow. · Built: A. · By: Opus (PLAN multi-effect, default, open).
+→ **Q6E-3** · `Replay.run(operation, ...)` with two or more EFFECTS. · A as built (letters as in the ledger). · Built: A. · By: Opus (PLAN multi-effect, default, open).
+
+### P2 record format
+
+→ **D035 (P2b)** · The DL-136 digest half: a bad `value_sha256` is counted, not checked. · Build in step P2b · leave open. · Built: not built; P2 prints `digest not verified (P2b)`. · By: Fable (ruling O3 under DL-144), class Repair.
+
+### P4 database transports
+
+→ **QDB-1** · `db.get` key form. · A the key TYPE has one String field · B key in the call. · Built: A. · By: Opus (PLAN db-transport, default, open).
+→ **QDB-2 (big)** · `BeamlDb` signatures. · A `put(table, {type, version}, json)`, `get/3`, `list/3` · B `put/4`. · Built: A. · By: Opus (PLAN db-transport, default, open); JSON by Fable (Repair).
+→ **QDB-3** · Newest row wins on `db.get`. · A as built (letters: docs). · Built: A. · By: Opus (PLAN db-transport, default, open).
+→ **QDB-4** · One bad row fails the whole `db.list`. · A as built (letters: docs). · Built: A. · By: Opus (PLAN db-transport, default, open).
+→ **QDB-5** · db call records. · A stream `responses`, v3 core plus `request` · B own stream with row references. · Built: A. · By: Opus (PLAN db-transport, default, open).
+→ **QDB-7** · ROW SNAPSHOT. · A `rows.jsonl` beside `--stored`, meta `row_count` checked · B one mixed file. · Built: A. · By: Opus (PLAN db-transport, default, open).
+→ **PDB-18 (big)** · `unknown_fields` of a `db.list` record use `items.<i>.<field>`. · A as built (letters: docs). · Built: A. · By: Fable (flag).
+→ **Orphan rows** · A row of an operation with no EFFECT and no RETIRE LINE. · A block with the DL-040 ROW text · B block on operation only · C count as not decodable. · Built: A. · By: Opus (RED db-stored, default, open).
+→ **Off-chain row** · An accepted row of a TYPE VERSION on no chain. · A block with the path text · B count as not decodable. · Built: A. · By: Opus (RED db-stored, default, open).
+→ **order_v2 error text** · Names `orders.save` and `Order.amount` (D6B-39 text). · A as built (letters: docs). · Built: A. · By: Opus (RED db-transport, default, open).
+→ **N25b error text** · Names `TYPE Order v1` and the field `channel` (DL-122 text). · A as built (letters: docs). · Built: A. · By: Opus (RED db-transport, default, open).
+→ **Constructor field in a ROW TYPE (big)** · The first constructor signature takes exactly its String fields. · A this rule · B encode by signature names · C allow it and lose rows. · Built: A. · By: Opus (GREEN db-transport, default, open).
+→ **`BeamlDb` reserved (big)** · A stem `beaml_db` is a build error; `System` too. · A as built (letters: docs). · Built: A. · By: Opus (GREEN db-transport, default, open).
+→ **ROW TYPE fields** · String, literal enums with a keep-value variant, constructor records only. · A as built (letters: docs). · Built: A. · By: Opus (GREEN db-transport, default, open).
+→ **Orphan row help line** · The DL-040 help is printed; a RETIRE LINE frees the rows. · A as built (letters: docs). · Built: A; the meaning stays M5. · By: Opus (GREEN db-transport, default, open).
+→ **No DL-101 shape check over rows** · Superseded by item 8 (P4c). · By: Opus (GREEN db-transport, default, open).
+
+### P4c row shape check
+
+→ **P4c block text** · One text for a missing key and a non-String value. · A one text · B two texts. · Built: A (RED). · By: Opus (RED P4c, default, open).
+
+### Slice 6d
+
+→ **G6D-12** · A literal enum field of the input TYPE needs a keep-value variant and `name: String` signatures. · A as built (letters: docs). · Built: A, no test pins it. · By: Opus (GREEN slice6d, default, open).
+
+### 0005 RED
+
+→ **Snapshot record set (big)** · What `--stored` reads. · A an empty `responses.jsonl`, STORED ROWS only · B also the capture records of earlier runs. · Built: A. · By: Opus (RED exp0005, default, open).
+→ **`mix beaml.stored DIR` (big)** · The host task argument. · A the snapshot directory · B the source, and the task runs the compiler. · Built: A. · By: Opus (RED exp0005, default, open).
+
+### 0005 GREEN and TEST
+
+→ **`BeamlDb.get/3` key (big)** · Key match on the raw stored JSON. · A containment `@>`, newest row, `{:ok, nil}` · B one field per call with a unique index. · Built: A, unused. · By: Opus (GREEN exp0005, default, open).
+⠀⠀↳ TEST O2: misses migrated fields.
+⠀⠀↳ TEST O2: empty key returns any row.
+→ **Notes page (big)** · One page `/notes` with form and list. · A one page, reload after submit · B `/notes/new` and `/notes`. · Built: A. · By: Opus (GREEN exp0005, default, open).
+→ **TEST O1** · `run.py run` truncates `proto_dev` and checks the shipped `orders.ex` against 0 rows. · A keep the reset, the README says so · B a separate dev-rows build step. · Built: A. · By: Opus (TEST exp0005, open).
+
+## Parked by the OWNER (D036)
+
+→ **M3** · Fate forms and DL-116; needs a fresh explanation first. · By: OWNER parked.
+→ **M4** · See Big item 1. · By: OWNER parked.
+→ **M5** · `retire` meaning, also for rows (N28b pin, orphan help). · By: OWNER parked.
+→ **M8** · Failure struct at the host; P2 avoided it (P5-18). · By: OWNER parked.
+→ **M9** · Record lines in a block text; P2 avoided it. · By: OWNER parked.
+→ **N9** · `quarantine amount` frees the stricter `Amount`; blocked until the fate slice. · By: OWNER parked (via M3, M4, M5).
+
+## Answered
+
+→ DL-126: declarative for shape and policy. · By: 13ue.
+→ DL-127 to DL-129: one JSONB table, UI entry as inbound EFFECT, three db transports. · By: 13ue.
+→ DL-130 to DL-134: ENTRY LINE, `ui_<event>/1`, `//` comments, `Rejected`, `--stored` over entries. · By: 13ue.
+→ DL-137, DL-139, DL-141 to DL-143: one `migrate` block, defaults rule, ENTRY RECORD, one record format. · By: 13ue.
+→ DL-144: free run for 0005, walk-through next day. · By: 13ue.
+→ DL-147: a RED file joins `run.py` in its GREEN commit. · By: Fable.
+→ QDB-6 withdrawn: `accepted`/`rejected` and the P2 reasons hold. · By: Fable (Repair).
+
+---
+
+## History (unchanged text, 2026-11-07 to 2026-11-08)
+
+The text below is the review list as the workers wrote it. It is append-only; do not edit it.
+
 # OWNER review: EXPERIMENT 0005 defaults (free run, DL-144)
 
 **[Proposal]** PLAN phase, 2026-11-07. Every default below is built and stays open until the OWNER signs it off (DL-139). Details and options: [decisions.md](decisions.md).

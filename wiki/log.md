@@ -455,3 +455,14 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [Vertical integration](concepts/vertical-integration.md): the database side, with the thesis sentence for String-only ROW TYPES.
 - [Roadmap page](../docs/index.html) and [root README](../README.md): db transports in Verified; next: EXPERIMENT 0005 RED review and GREEN.
 - **[Verified]** Limits: no shape check over rows (TEST O1, Migrate, P4c); RETIRE LINE meaning for rows is M5 (O2); N27 can fail at random (O3); fake `BeamlDb` only.
+
+## 2026-11-08: docs | EXPERIMENT 0005, the PROTOTYPE (and the OWNER walk-through list)
+
+**[Verified]** EXPERIMENT 0005 passed TEST at `0315cf2f` (GREEN `d4e11f78`). [Run](../experiments/0005-prototype-fullstack/results/20261108T003740313204Z/result.json) status `pass`, 16 of 16 steps, 19 use cases pass, N9 `blocked: fate slice (D036)`; a second run gives the same ([review](../experiments/0005-prototype-fullstack/workflow/2026-11-08/review.md)). No code change in this docs pass. By: Opus (docs exp0005)
+
+- [EXPERIMENT 0005 README](../experiments/0005-prototype-fullstack/README.md#result-2026-11-08): status verified; result section with BEAML/host ownership, tested flow, use-case table, three screens, limits (N9, M4, O1 to O3, dark-mode inputs, demo only), smallest next test (O3 public projection); prerequisite states updated.
+- [Register](planning/research-and-development.md): new 0005 row. [Decisions to be made](planning/decisions-to-be-made.md#d037--experiment-0005-built-defaults-dl-144-walk-through): new D037 (OPEN, Migrate, OWNER).
+- [OWNER review list](../experiments/0005-prototype-fullstack/workflow/2026-11-07/owner-review.md): clean walk-through on top (19 big lines in 9 groups, 35 other lines, 6 parked); the earlier text kept unchanged below a line.
+- [Vertical integration](concepts/vertical-integration.md): the first full vertical line, form to row and back. [Glossary](../GLOSSARY.md): STORED ROW, PROTOTYPE.
+- [Roadmap page](../docs/index.html) (three screens in `docs/img/`) and [root README](../README.md): the PROTOTYPE in Verified; next: D037 walk-through, fate slice after M3/M4/M5, P2b (D035).
+- **[Verified]** Limits: `run.py run` truncates `proto_dev` (O1); `BeamlDb.get/3` matches raw JSON (O2); the page calls `__beaml_encode_order/1` (O3); form inputs invisible in dark mode.

@@ -2,7 +2,7 @@
 id: planning-decisions-to-be-made
 kind: planning
 status: active
-updated: 2026-11-07
+updated: 2026-11-08
 ---
 
 # Offene Fragen / Decisions to be made
@@ -715,6 +715,18 @@ type OrderResult = Ok(Order) | Error(OrderError)
 **[Proposal]** Question: Build the second half of [DL-136](decision-log.md): a stored record with a bad `value_sha256` is counted and not checked, for both streams. P2 (record format v3) builds only the `outcome` half. Until P2b lands, the P2 count line is followed by `digest not verified (P2b)`. Ledger: [record-format-v3 plan repair](../../experiments/0004-generated-replay/workflow/2026-11-07/record-format-v3/plan.md#plan-repair-after-plan-check-2026-11-07) (RV3-07, RV3-15). By: Fable (ruling O3 under DL-144).
 - **[Inference]** Carried from slice 6d TEST O3: R1, a captured reject that a looser rule accepts now, is not reported; one test covers both streams. Ledger: [slice 6d review](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/review.md) (O3). By: Fable (ruling O3 under DL-144).
 - **[Observed]** Carried from slice 6d TEST O3: `check_entries` does not verify `value_sha256` of a stored ENTRY RECORD (the C5 gap of the ENTRY stream); `Replay.entry` rejects a bad digest. Ledger: [slice 6d review](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/review.md) (O3). By: Fable (ruling O3 under DL-144).
+
+## D037 — EXPERIMENT 0005 built defaults (DL-144 walk-through)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** every built default of EXPERIMENT 0005 and its prerequisites P2 to P5, P4c and slice 6d: 19 big lines in 9 groups, 35 other lines, 6 parked lines
+- **Decision trigger** the walk-through on 2026-11-08
+- **Next check** after each OWNER answer: one DL entry per signed-off line (DL-139 sign-off rule)
+
+**[Proposal]** Walk through [the OWNER review list](../../experiments/0005-prototype-fullstack/workflow/2026-11-07/owner-review.md), big items first: M4 (D036, critical path), the host-called `Orders.__beaml_encode_order/1`, Q5-10, Q6E-1/Q6E-2, QDB-6b/QDB-8, QV3-1 to QV3-8, the count-line print rule, the row shape check P4c, G6D-03/G6D-04. Every default stays as built until the OWNER signs it off. D035 and D036 stay separate entries. By: Opus (docs exp0005).
+**[Verified]** Evidence: 0005 TEST PASS ([review](../../experiments/0005-prototype-fullstack/workflow/2026-11-08/review.md), O1 to O3 medium, open) and [run 20261108T003740313204Z](../../experiments/0005-prototype-fullstack/results/20261108T003740313204Z/result.json).
 
 ## Answered 2026-11-07
 

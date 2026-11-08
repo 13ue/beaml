@@ -69,7 +69,7 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
 <div class="wrap">
 
 <header>
-  <div class="eyebrow">BEAML · roadmap · 2026-11-07</div>
+  <div class="eyebrow">BEAML · roadmap · 2026-11-08</div>
   <h1>One language from source to production</h1>
   <p class="lead">BEAML is a typed language for the BEAM. It compiles to Elixir. One compiler knows every stage, from the type check to the trace in production, so that agents make fewer errors.</p>
   <p class="lead">Design principle (DL-126): declarations carry shape and policy, from types and versions to effects, fates, retention and tracing. Expressions carry computation only. The compiler derives the rest.</p>
@@ -196,10 +196,13 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>Record format v3: response and entry records share one 14-key record core with <code>outcome</code> and <code>reason</code> at capture; <code>--stored</code> reads version 3 only and skips records rejected at capture (DL-143). Limit: the digest is not yet checked (D035)</li>
       <li>Several effects and ENTRY LINES per source, shared parts written once, replay by operation; a source with an ENTRY LINE names its module from the file, <code>orders.beaml</code> gives <code>Orders</code> (slice 6e). Limit: one effect per flow</li>
       <li>Database transports <code>db.put</code>, <code>db.get</code>, <code>db.list</code> on one <code>records</code> table: typed rows through the host <code>BeamlDb</code>, replay without the database, <code>--stored</code> checks the row snapshot; a String-only TYPE change reads old rows through <code>migrate</code> (DL-127, DL-129, DL-137, P4). Limit: no shape check over rows yet (P4c); the <code>Order</code> chain waits on M4</li>
+      <li>The prototype (experiment 0005): a Phoenix LiveView page on local Postgres; a form submit enters BEAML through <code>Orders.ui_place/1</code>, is stored as a typed row and comes back through <code>db.list</code>; an old row reads through <code>migrate</code>, and a stricter type blocks the build against the live rows (DL-127 to DL-129, DL-144). Limit: N9 waits on the fate slice; demo only, no deploy</li>
     </ul></div>
     <div class="col"><h3>Decided, next</h3><ul>
       <li>Migration checks report counts per environment, never values</li>
-      <li>Experiment 0005, the Phoenix prototype: RED written, RED review and GREEN next (DL-144)</li>
+      <li>Fate slice (<code>quarantine</code>, N9) after the OWNER answers M3, M4, M5 (D036)</li>
+      <li>Record step P2b: the digest check for stored records (D035)</li>
+      <li>OWNER walk-through of the prototype defaults (D037)</li>
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
       <li>Policy on effect lines: retry, timeout, idempotent (DL-126)</li>
@@ -209,6 +212,14 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>Implicit PII flow in the compiler: derived copies (DL-029)</li>
     </ul></div>
   </div>
+  <figure style="margin:0;display:grid;gap:8px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+      <img src="img/prototype-orders-new.png" alt="Prototype form page /orders/new, dark mode" loading="lazy" style="width:100%;height:180px;object-fit:cover;object-position:top left;border:1px solid var(--line);border-radius:8px">
+      <img src="img/prototype-orders.png" alt="Prototype list page /orders with two demo orders" loading="lazy" style="width:100%;height:180px;object-fit:cover;object-position:top left;border:1px solid var(--line);border-radius:8px">
+      <img src="img/prototype-notes.png" alt="Prototype notes page /notes" loading="lazy" style="width:100%;height:180px;object-fit:cover;object-position:top left;border:1px solid var(--line);border-radius:8px">
+    </div>
+    <figcaption class="note">Experiment 0005 screens: form, list, notes (demo rows, dark mode). The form inputs are not visible in dark mode yet.</figcaption>
+  </figure>
 </article>
 
 <article class="part">
