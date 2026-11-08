@@ -858,6 +858,15 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Smallest 0005 case: `/orders` refreshes when another session places an order; one topic, one TYPE, records for publish and receive, the trace spans both. Open: what "hard typed" means for a topic shared by two modules (D040, D044), and backpressure (event-flows page).
 
+## D050 — When the REFERENCE APP moves from the one JSONB table to a relational schema
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08, [capture](../../raw/requirements/2026-11-08-owner-ideas-relational.md))
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** DL-127 J (one `records` table, JSONB `value`, MIGRATE CHAIN on read) was the prototype choice; the OWNER expects a relational schema later, also for performance. Open: the moment, and the form: generated tables per TYPE with reviewable DDL per TYPE VERSION (the R&D "Ecto" candidate), or JSONB with generated columns and indexes as a middle step. Before deciding: a paper check per construct (nested TYPES, lists `[T]`, enums with payload, redacted fields, nested versions DL-168, associations between TYPES) answering "easy in JSON now and hard relationally later, or the reverse".
+- **Decision trigger** the first performance measurement of the REFERENCE APP desk (D048 bench stage) or the first association between two TYPES in 0005
+- **Next check** the paper check, written as a concept page; then an OWNER walk-through card
+
 ## Answered 2026-11-07
 
 - [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).

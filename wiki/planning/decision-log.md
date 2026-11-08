@@ -1026,6 +1026,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: a question about an interim that a signed decision already replaces has no answer that matters; closing it keeps the sweep honest.
 → Effect: the decision site marks them "überholt durch DL-…"; the live-stored plan (after fates-a) names the snapshot's fate explicitly.
 
+**DL-168 · Migrate · Nested TYPE VERSIONS are stored in the row and the record (QF-2 B)**
+→ Question: `Order` holds `amount: Amount`; `Amount` moves to v2 while `Order` stays v1. Where does the version of the nested TYPE live? Options: A source only (built default; a v1 and a v2 `Amount` inside "Order v1" rows are then indistinguishable) · B the row and record `type` carry the nested versions (`type: {name: Order, version: 1, nested: {amount: 2, channel: 1}}`) · A' an inner change forces the outer version.
+→ Chose: B. "Alles muss versioniert sein", also nested.
+→ By: 13ue (2026-11-08, chat, after the QF-2 picture)
+→ Because: every stored value must say which rule each of its parts passed (DL-155); A loses that for nested parts, A' floods the outer TYPES with empty versions.
+→ Effect: record format draft 4: `type.nested` map (field → version) for every field whose TYPE has a constructor or is an enum, written by `db.put` and by the record writer, read by the versioned decode and by `--stored`; digest covers it (QV3-6 extension: plan option); one-time rewrite of fixtures (as v2→v3); the six pin sites plus V18b move once. Built in fates-a2 (runtime) together with DL-157, or as its own small step before a2: the a2 plan decides. Per DL-165 the number stays a draft number.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
