@@ -917,12 +917,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: B, in the full form B2. OWNER words (voice note, transcribed): full support, lift the rule, every migration must be possible.
 → By: 13ue (walk-through D037, page 2, 2026-11-08)
 → Effect: build order: (1) the versioned decode runs the MIGRATE STEPS on the raw values first and the literal map, constructor and shape checks after (PDB-09 form), which frees `add`/`drop` of String fields beside enum and constructor fields and the real `Order` chain in 0005; (2) steps that name an enum or constructor field need the forms of M3 (fate forms, DL-116) and the `map` step of DL-140. M3 is therefore the next OWNER question, with a fresh explanation. Supersedes D6B-39, PDB-09 withdrawal, QDB-8 B.
+→ Effect note (2026-11-08): built in m4-lift-d6b39, commit 26b73524
 
 **DL-153 · Migrate · QDB-8: the chained read in 0005 moves to the real `Order`**
 → Question: QDB-8, the chained read over rows (N7/N7b) ran on the String-only `Note` under D6B-39. Options: A block on M4 · B `Note` chain · C answer M4 now.
 → Chose: C; with DL-152 the 0005 chain test moves to `Order v2` (`add note: String`), `Note` stays as the small control.
 → By: 13ue (walk-through D037, page 2, 2026-11-08)
 → N9 (voice note): the OWNER reads the N9 item as information, not a choice; it is right as written. N9 stays blocked on M3 (`quarantine amount` needs a fate form), no longer on M4.
+→ Effect note (2026-11-08): built in m4-lift-d6b39, commit 26b73524
 
 **DL-154 · Migrate · The compiler emits a public projection function per TYPE for the host; the internal encoder is not an interface**
 → Question: the 0005 list page calls the compiler-internal `Orders.__beaml_encode_order/1` to render a BEAML value (GREEN exp0005 default A). Options: A host calls the internal encoder · B host matches the enum tuple itself · C the compiler emits a public `project_<type>/1`.

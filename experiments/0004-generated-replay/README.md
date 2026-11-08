@@ -2241,7 +2241,7 @@ effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
 - **[Verified]** Four KINDS: a fifth gives `unsupported effect kind: <k> in effect <op> (supported: http.post, db.put, db.get, db.list)` plus a help line (PDB-03). Another table gives `db.put uses the table "records" only (DL-127)` (PDB-04, `test_N12_rejects`).
 - **[Verified]** `db.put` returns its input TYPE (`write Order -> Order`). `db.get` takes a key TYPE with one String field, and the ROW TYPE holds a String field of that name (QDB-1). `db.list` takes a query TYPE with no fields (Q5-2) and returns a TYPE with one field of a LIST TYPE.
 - **[Verified]** `[T]` rule (Q5-3 A, PDB-08): a LIST TYPE stands only as the one field of a `db.list` output TYPE, and `T` is a record TYPE. Elsewhere: `the LIST TYPE [Order] of Basket.items stands only as the field of a db.list output TYPE (Q5-3)`; `[String]`: `needs a record TYPE inside the brackets`. `[[Order]]` is a parse error. The grammar has `list_type` (`test_N16_grammar_list_type`); `beaml fmt` keeps and aligns the lines (`test_N15_*`).
-- **[Verified]** ROW TYPE rules (PDB-05, PDB-07, GREEN): a plain record with String fields, literal enums with a keep-value variant and constructor fields; no own constructor, no `redacted` field, no LIST TYPE field. A constructor field needs a first signature that takes exactly its String fields (PDB-13 text). D6B-39 holds: a chained ROW TYPE with a constructor or enum field is an error (`order_v2/`, `test_N12_order_v2_chain_with_constructor_and_enum_fields`, PDB-31).
+- **[Verified]** ROW TYPE rules (PDB-05, PDB-07, GREEN): a plain record with String fields, literal enums with a keep-value variant and constructor fields; no own constructor, no `redacted` field, no LIST TYPE field. A constructor field needs a first signature that takes exactly its String fields (PDB-13 text). Since M4 step 1 a chained ROW TYPE may hold constructor and enum fields; only a MIGRATE STEP that names one is an error ([M4 step 1](#m4-step-1-migrate-first-then-check-dl-152-dl-153), DL-152). The D6B-39 rejects `row_enum_chain`, `row_constructor_chain` and `test_N12_order_v2_chain_with_constructor_and_enum_fields` are retired.
 - **[Verified]** A db-only source emits no `Http` module (PDB-20). `with` after a db call is a parse error (TEST probe).
 
 ### `BeamlDb` contract (QDB-2, PDB-30)
@@ -2299,7 +2299,7 @@ effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
 
 ### The Note v1 → v2 chain on read (QDB-8 B)
 
-**[Verified]** In [`two_rows/`](slice6/db/two_rows/orders.beaml) the String-only ROW TYPE `Note` has `migrate Note v1 -> v2 { add tag: String = "" }`. A stored v1 `Note` row reads as v2 with `tag: ""`; `save_note` writes v2; `Order` rows beside it stay readable (`test_N31_note_chain_read_runtime`; String-only `plain/` → `plain_v2/`: `test_N5_migrate_chain_on_read`, `test_N20_chain_rows_build`). The real `Order` chain waits on M4 (D6B-39 holds, PDB-31).
+**[Verified]** In [`two_rows/`](slice6/db/two_rows/orders.beaml) the String-only ROW TYPE `Note` has `migrate Note v1 -> v2 { add tag: String = "" }`. A stored v1 `Note` row reads as v2 with `tag: ""`; `save_note` writes v2; `Order` rows beside it stay readable (`test_N31_note_chain_read_runtime`; String-only `plain/` → `plain_v2/`: `test_N5_migrate_chain_on_read`, `test_N20_chain_rows_build`). The real `Order` chain is built since M4 step 1 ([`order_v2/`](slice6/db/order_v2/orders.beaml), [M4 step 1](#m4-step-1-migrate-first-then-check-dl-152-dl-153)); `Note` stays the String-only control.
 
 ### Tested flow and results
 
@@ -2402,3 +2402,81 @@ effect orders.save Order                           -> Order  ! StoreError = db.p
 | New glossary term CLAUSE TABLE | Repair | Chose: one term. Over: "alignment group" (DL-083 words). Because: DL-148 spans several `fn` names and EFFECT lines. Commits us to: use it in later fmt pages | Opus (fmt-layout, docs) |
 | Review evidence O2 and O3 noted under D038 | Undo | The task named D038 | Opus (fmt-layout, docs) |
 | No repair in `main.rs` | Undo | Review found no bug | Opus (fmt-layout, review) |
+
+## M4 step 1: migrate first, then check (DL-152, DL-153)
+
+**[Requirement]** DL-152 (OWNER, 2026-11-08) lifts D6B-39: a TYPE with a MIGRATE CHAIN or a VERSION MARK may hold enum and constructor fields, and every MIGRATE STEP must become possible on them. DL-153 moves the 0005 chained read to the real `Order`. Step 1 builds the first half. Ledger: [plan.md](workflow/2026-11-08/m4-lift-d6b39/plan.md), [decisions PM4-01 to PM4-27, QM4-1 to QM4-4](workflow/2026-11-08/m4-lift-d6b39/decisions.md), [RED plan](workflow/2026-11-08/m4-lift-d6b39/red-plan.md), [RED output](workflow/2026-11-08/m4-lift-d6b39/red-output.md), [RED review](workflow/2026-11-08/m4-lift-d6b39/red-review.md), [GREEN](workflow/2026-11-08/m4-lift-d6b39/green-output.md), [TEST review](workflow/2026-11-08/m4-lift-d6b39/review.md). GREEN `26b73524`, TEST PASS. Tests: [`tests/slice6_m4_test.py`](tests/slice6_m4_test.py) (step `slice6-m4` of `run.py`, DL-147).
+
+| Step | Owner |
+|---|---|
+| The rename check on enum and constructor fields, the per-version field list | BEAML (COMPILER) |
+| Per-version check, MIGRATE CHANGES on raw values, literal map, constructor call, shape check | BEAML (generated Elixir) |
+| `--stored` over rows and RESPONSE RECORDS of a chained TYPE (unchanged, PM4-08) | BEAML (COMPILER) |
+| Rows in `records`, the dev server, the page | host (EXPERIMENT 0005) |
+
+### Migrate first, then check
+
+**[Verified]** The versioned decode of a TYPE with an enum or constructor field (GREEN, `versioned_decode` in [`main.rs`](../0001-syntax-to-beam/src/main.rs)):
+
+1. The per-version field list writes `:raw` for each enum and constructor field; the per-version check tests the other fields only (PM4-20).
+2. The MIGRATE CHANGES run on the raw map (`add note: String = ""` puts `note`).
+3. Then `Map.take(value, declared)`, the literal map and the DL-101 constructor tail run on the shape. The keys of the body that the version does not name (`unread`) join the nested keys of the tail (PM4-21).
+
+A TYPE without such fields keeps the old bytes: 31 tracked chained fixtures compile byte-equal with `850b52ee` and `26b73524` (TEST review (d)).
+
+```beaml
+// slice6/db/order_v2: enum and constructor fields beside an `add` step (DL-152 step 1)
+type Order {
+  order_id: String
+  amount: Amount
+  channel: Channel
+  note: String
+}
+migrate Order v1 -> v2 { add note: String = "" }
+```
+
+**[Verified]** A stored v1 `Order` row reads as v2: Amount struct, `Web` tuple, `note: ""`; the row stays version 1 (DL-127 lazy read). A kept channel `"tv"` reads as `Unknown("tv")` with `unknown_fields` `["items.0.channel"]`. A bad currency gives `constructor`, a missing `amount` gives `decode`: the tail runs after the steps (N33). The DL-122 block for a removed ENUM LITERAL still fires at build time with an `add` step beside it (TEST review (b)).
+
+### The rename error
+
+**[Verified]** A `rename` onto an enum or constructor field is a compile error (QM4-1 A, QM4-4 A defaults, open). `add` and `drop` already take String fields only.
+
+```
+error: effect orders.save: migrate Order v1 -> v2: rename via -> channel names the enum field Order.channel; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
+  help: remove rename via -> channel from the MIGRATE STEP, or make channel a String field
+```
+
+Fixtures: [`slice6/db/bad_rename/`](slice6/db/bad_rename/) (PM4-22).
+
+### What still waits for M3
+
+- **[Verified]** A MIGRATE STEP that names an enum or constructor field (`rename` now; later `map` of DL-140 and the fate forms of DL-116). The second half of DL-152.
+- **[Verified]** A `redacted` field in a chained TYPE keeps the D6B-39 text (PM4-05, DL-125; R14 pins it).
+- **[Verified]** The two DL-122 help texts still name D6B-39 (QM4-3 A, open).
+- **[Verified]** N9 (`quarantine amount`) in 0005 waits on M3 only (DL-153).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| `tests/slice6_m4_test.py` (debug and release) | 14 OK |
+| `slice6_db_test`, `slice6_decode_test`, `slice6_db_stored_test` | 15 OK (1 skip), 8 OK, 49 OK (3 skips) |
+| Pin tests `slice6_pipe`, `slice6_host_struct`, `slice6_effect_reach`, `slice5_syntax` | 12, 3, 8, 60 OK; no pin moved |
+| GREEN full `run.py`, [`results/20261108T074403452811Z`](results/20261108T074403452811Z/result.json) | status `pass`, 39 of 39 steps |
+| Probe (only the two D6B-39 branches deleted) | N33 cases, R8, R8b, R13 and the TEST record checks fail: the lift alone is not enough |
+| TEST (c): RESPONSE RECORD file and replay of a v1 record, chained constructor output | `unknown_keys` `["amount.extra", "extra"]`, digest verifies, `note: ""` |
+
+### Limits
+
+- **[Verified]** A live body is always read as the newest TYPE VERSION; the per-version join matters for a REPLAY RUN and for stored rows.
+- **[Verified]** The record and replay checks of TEST (c) and the removed-literal check (b) are not committed tests (review O2).
+- **[Verified]** QM4-1 to QM4-4 stay open with their built defaults. `Order` in 0005 has no VERSION MARK (QM4-2).
+- **[Verified]** A passed step does not establish production readiness.
+
+### Decisions (Decision4, DOCS M4 step 1)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| TEST verdict PASS, no repair | Undo | All five challenges hold; O1, O2 medium, pending | Opus (m4-lift, TEST) |
+| One new section; the two D6B-39 lines of the db section point to it | Undo | The ban text is spread, not one section | Opus (m4-lift, docs) |
+| No new glossary term | Undo | MIGRATE STEP, MIGRATE CHANGE, ENUM LITERAL exist | Opus (m4-lift, docs) |

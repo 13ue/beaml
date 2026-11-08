@@ -695,13 +695,15 @@ type OrderResult = Ok(Order) | Error(OrderError)
 ## D036 — RED TEAM 01 questions M3, M4, M5, M8, M9 (parked by the OWNER)
 
 - **ID note** first written as D026 by mistake (D026 is the absent-value form); renamed D036 the same day, references in the 0005 and P2/P4 ledgers updated.
-- **Status** OPEN, parked 2026-11-07 by the OWNER ("later, in detail"); M1, M2, M6, M7 are answered (DL-136, DL-140, DL-139, DL-135).
+- **Status** OPEN, parked 2026-11-07 by the OWNER ("later, in detail"); M1, M2, M6, M7 are answered (DL-136, DL-140, DL-139, DL-135). M4 is answered (DL-152, 2026-11-08); M3, M5, M8, M9 stay open.
 - **Decision owner** OWNER
 - **Class** Migrate
 - **Scope** fate forms (DL-125, DL-137, DL-140), the DL-102 help text, the host value rule, block text size
 - **Decision trigger** Before the fate slice starts (M3, M4, M5) and before the record format v3 step (M8, M9). The main agent opens each as its own question with a picture (DL-139 rule).
 
 **[Verified]** Options and evidence: [red team report](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/report.md), Migrate list. M3 needs a fresh explanation of DL-116 for the OWNER (asked for on 2026-11-07).
+
+**[Verified]** M4 answered by [DL-152](decision-log.md) (D6B-39 lifted, B2). Step 1 is built in [m4-lift-d6b39](../../experiments/0004-generated-replay/workflow/2026-11-08/m4-lift-d6b39/review.md), GREEN `26b73524`, TEST PASS: a chained TYPE holds enum and constructor fields, the MIGRATE STEPS run before the literal map and constructor checks. A MIGRATE STEP that names such a field stays an error until M3 (fate forms, DL-116) and the `map` step of DL-140. N9 now waits on M3 only (DL-153). By: Opus (m4-lift, docs).
 
 ## D035 — P2b: the DL-136 digest half for stored records
 

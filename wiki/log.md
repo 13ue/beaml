@@ -484,3 +484,12 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [Decision log](planning/decision-log.md): DL-114 gets `→ Superseded by DL-148 (2026-11-08)`.
 - [Decisions to be made](planning/decisions-to-be-made.md): D038 gets the byte-width and line-width evidence (O2, O3).
 - [Register](planning/research-and-development.md): new fmt layout row. [Glossary](../GLOSSARY.md): new term CLAUSE TABLE.
+
+## 2026-11-08: TEST and docs | M4 step 1, migrate first (DL-152, DL-153)
+
+**[Verified]** GREEN `26b73524`; TEST PASS, no repair ([review](../experiments/0004-generated-replay/workflow/2026-11-08/m4-lift-d6b39/review.md), By: Opus (m4-lift, TEST)). Release `526670ba…8d61` and debug `6118f4c4…0d71` rebuilt equal to GREEN. `slice6_m4_test` 14 OK; db, decode, db-stored and the four pin tests pass. The repaired N33 case (PM4-24) fails on the probe and passes on HEAD. 31 chained fixtures compile byte-equal with `850b52ee`. A v1 replay of a chained constructor output keeps `["amount.extra", "extra"]` in the record file, and its digest verifies. 0005 [run](../experiments/0005-prototype-fullstack/results/20261108T081341856399Z/result.json) pass, 21 use cases pass, N9 blocked. A hand-made v1 `Order` row lists as v2 with `note: ""` on the dev server. Objections O1 (the page shows no note) and O2 (no committed record or replay test) are medium; dispositions pending.
+
+- [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#m4-step-1-migrate-first-then-check-dl-152-dl-153): new section "migrate first, then check", the rename error, what waits for M3; the two D6B-39 lines of the db section point to it.
+- [EXPERIMENT 0005 README](../experiments/0005-prototype-fullstack/README.md): `order_v2` chain, `Note` control, N9 blocked on M3 only; the three `note_v2` notes rewritten.
+- [Decision log](planning/decision-log.md): effect notes under DL-152 and DL-153. [Decisions to be made](planning/decisions-to-be-made.md): D036 M4 answered, M3, M5, M8, M9 stay.
+- [Register](planning/research-and-development.md): new M4 step 1 row. No glossary change.
