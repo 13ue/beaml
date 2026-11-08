@@ -54,7 +54,7 @@ def it(id, title, status, by, what, why="", code=(), options=(), note="", dl="")
 group("01-review", "Schlussreview Slice 6: drei hohe Einwände",
       "Der Devil's Advocate hat am Ende des Slice drei Einwände mit Stufe hoch stehen lassen. Jeder braucht eine Entscheidung von dir. Sie stehen vor allen anderen Punkten.",
       [
-          it("A1", "Der PASS beweist weniger als die These", "open", "Opus (Schlussreview)",
+          it("A1", "Der PASS beweist weniger als die These", "decided", "Opus (Schlussreview); entschieden 13ue: B",
              "Die These lautet: BEAML trägt die Kette vom Formular bis zur Zeile in Postgres. Gebaut und grün ist davon nur die String-Kette `Note`. Der echte `Order`-Pfad mit `Amount` und `Channel` wartet auf M4. Ein vertauschtes `Channel`-Literal baut noch (DL-140 ist beschlossen, nicht gebaut). Aus einem Block kommt man nur per SQL-Delete heraus. Die v2→v3-Umstellung lief über ein Python-Skript.",
              "Wenn README und Register weiter „PASS“ sagen, liest ein Dritter mehr hinein als gezeigt wurde.",
              [beaml('''
@@ -64,15 +64,15 @@ type Note { text: String }
 type Order { order_id: String amount: Amount channel: Channel }
 ''')],
              [("A", "PASS-Wortlaut behalten", False),
-              ("B", "Anspruch eingrenzen: „String-Kette, Blocks bewiesen, noch keine Fate-Form“ in README, Register und Pages", False)]),
-          it("A2", "Eine nicht dekodierbare Zeile bricht die Listenseite", "open", "Opus (Schlussreview)",
+              ("B", "Anspruch eingrenzen: „String-Kette, Blocks bewiesen, noch keine Fate-Form“ in README, Register und Pages", False)], dl="DL-149"),
+          it("A2", "Eine nicht dekodierbare Zeile bricht die Listenseite", "decided", "Opus (Schlussreview); entschieden 13ue: A",
              "Der Build zählt eine kaputte Zeile (falscher Digest, SQL-`UPDATE` ohne neuen Digest) als „nicht dekodierbar“ und geht durch. Zur Laufzeit scheitert dann der ganze `db.list`-Aufruf (QDB-4 A: eine schlechte Zeile, keine Liste).",
              "Der Build sagt grün, die Seite /orders ist leer oder rot. Das ist genau der Fall, den BEAML verhindern soll.",
              [],
              [("A", "Build blockt bei einer nicht dekodierbaren Zeile", False),
               ("B", "`db.list` überspringt die Zeile und meldet sie", False),
               ("C", "Ausfall hinnehmen (wie gebaut)", True)],
-             note="Hängt mit QDB-4 und P4c zusammen (Seite „Zeilen“)."),
+             note="Hängt mit QDB-4 und P4c zusammen (Seite „Zeilen“).", dl="DL-150"),
           it("A3", "Der Compiler prüft nicht, woher der Zeilen-Snapshot kommt", "open", "Opus (Schlussreview)",
              "`--stored` liest `rows.jsonl` und daneben `snapshot-meta.json`. Fehlt die Meta-Datei, exit 0. Gelesen wird nur `row_count`. `run.py run` setzt die Datenbank zurück und prüft gegen 0 Zeilen.",
              "Ein Build gegen die falsche oder leere Datenbank sieht aus wie ein Build gegen Produktion.",

@@ -889,6 +889,20 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Open: line breaks inside a clause and a maximum line length (D038), to be discussed with longer functions.
 → Detail: slice "fmt layout" ledger under `experiments/0004-generated-replay/workflow/2026-11-08/fmt-layout/`.
 
+**DL-149 · Migrate · The 0005 claim is narrowed: String-only chain, blocks proven, no fate form yet**
+→ Question: the slice 6 final review (A1, premise, high) found that the 0005 PASS proves less than the thesis: the `Order` chain waits on M4, DL-140 is not built, the only way out of a block is an SQL delete, the v2→v3 change was a script.
+→ Options: A keep the PASS wording · B narrow the claim in README, register and pages.
+→ Chose: B.
+→ By: 13ue (walk-through D037, page 1, 2026-11-08)
+→ Effect: README of 0005, the register line, `docs/index.html` and the vertical-integration page say "String-only chain through BEAML, blocks proven against live rows, no fate form yet". Done in the next docs pass.
+
+**DL-150 · Migrate · A build blocks on a stored row that is not decodable**
+→ Question: the final review (A2, implementation, high): a build counts a bad row (bad digest, SQL `UPDATE` without a new digest) as "not decodable" and passes; at run time the whole `db.list` fails (QDB-4 A).
+→ Options: A block the build on a not-decodable row · B `db.list` skips the row and reports it · C accept the outage.
+→ Chose: A.
+→ By: 13ue (walk-through D037, page 1, 2026-11-08)
+→ Effect: `--stored` over a ROW SNAPSHOT turns M > 0 into a build error with the row's source and reason; the `rows:` count line stays. The digest half still waits on D035 (P2b): until P2b a bad digest is not detected, so A covers decode faults first. Next slice.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
