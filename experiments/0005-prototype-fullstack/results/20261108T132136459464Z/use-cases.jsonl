@@ -1,0 +1,48 @@
+{"result":"running","source":"test","target":"test N9 quarantine amount frees the stricter build and the list omits order-zero","action":"start","use_case":"exp0005-N9","ts":"2026-11-08T13:21:40.846325Z"}
+{"result":"blocked: fate slice (D036)","source":"test","target":"test N9 quarantine amount frees the stricter build and the list omits order-zero","action":"finish","use_case":"exp0005-N9","ts":"2026-11-08T13:21:40.850247Z"}
+{"result":"running","source":"test","target":"test N13 git holds no database dir, no env file and no secret literal in config or lib","action":"start","use_case":"exp0005-N13","ts":"2026-11-08T13:21:40.857640Z"}
+{"result":"pass","source":"test","target":"test N13 git holds no database dir, no env file and no secret literal in config or lib","action":"finish","use_case":"exp0005-N13","ts":"2026-11-08T13:21:40.898326Z"}
+{"result":"running","source":"test","target":"test N10 a removed ui.place line stops the host build at Orders.ui_place/1","action":"start","use_case":"exp0005-N10","ts":"2026-11-08T13:21:40.961284Z"}
+{"result":"pass","source":"test","target":"test N10 a removed ui.place line stops the host build at Orders.ui_place/1","action":"finish","use_case":"exp0005-N10","ts":"2026-11-08T13:21:42.325249Z"}
+{"result":"running","source":"test","target":"test N1 orders.beaml generates the module Orders and the host builds without a warning","action":"start","use_case":"exp0005-N1","ts":"2026-11-08T13:21:42.325509Z"}
+{"result":"pass","source":"test","target":"test N1 orders.beaml generates the module Orders and the host builds without a warning","action":"finish","use_case":"exp0005-N1","ts":"2026-11-08T13:21:43.902362Z"}
+{"result":"running","source":"test","target":"test N4 a constructor reject writes no row and no db record","action":"start","use_case":"exp0005-N4","ts":"2026-11-08T13:21:43.902748Z"}
+{"result":"pass","source":"test","target":"test N4 a constructor reject writes no row and no db record","action":"finish","use_case":"exp0005-N4","ts":"2026-11-08T13:21:43.959407Z"}
+{"result":"running","source":"test","target":"test N12 the host writes one action event per action and no value","action":"start","use_case":"exp0005-N12","ts":"2026-11-08T13:21:43.959975Z"}
+{"result":"pass","source":"test","target":"test N12 the host writes one action event per action and no value","action":"finish","use_case":"exp0005-N12","ts":"2026-11-08T13:21:43.970793Z"}
+{"result":"running","source":"test","target":"test N2c the reason of the row is a JSON null","action":"start","use_case":"exp0005-N2c","ts":"2026-11-08T13:21:43.971058Z"}
+{"result":"pass","source":"test","target":"test N2c the reason of the row is a JSON null","action":"finish","use_case":"exp0005-N2c","ts":"2026-11-08T13:21:43.974661Z"}
+{"result":"running","source":"test","target":"test N3 the submit writes one ENTRY RECORD and one db record with one trace","action":"start","use_case":"exp0005-N3","ts":"2026-11-08T13:21:43.975027Z"}
+{"result":"pass","source":"test","target":"test N3 the submit writes one ENTRY RECORD and one db record with one trace","action":"finish","use_case":"exp0005-N3","ts":"2026-11-08T13:21:43.977949Z"}
+{"result":"running","source":"test","target":"test N4 an unknown channel is accepted and stored as its text","action":"start","use_case":"exp0005-N4","ts":"2026-11-08T13:21:43.978436Z"}
+{"result":"pass","source":"test","target":"test N4 an unknown channel is accepted and stored as its text","action":"finish","use_case":"exp0005-N4","ts":"2026-11-08T13:21:43.981470Z"}
+{"result":"running","source":"test","target":"test N6 an Unknown channel lists as its text","action":"start","use_case":"exp0005-N6","ts":"2026-11-08T13:21:43.981748Z"}
+{"result":"pass","source":"test","target":"test N6 an Unknown channel lists as its text","action":"finish","use_case":"exp0005-N6","ts":"2026-11-08T13:21:43.988593Z"}
+{"result":"running","source":"test","target":"test N5 the list page shows both orders through db.list, newest first","action":"start","use_case":"exp0005-N5","ts":"2026-11-08T13:21:43.988825Z"}
+{"result":"pass","source":"test","target":"test N5 the list page shows both orders through db.list, newest first","action":"finish","use_case":"exp0005-N5","ts":"2026-11-08T13:21:43.997032Z"}
+{"result":"running","source":"test","target":"test N2 a form submit writes one Order row through db.put","action":"start","use_case":"exp0005-N2","ts":"2026-11-08T13:21:43.997404Z"}
+{"result":"pass","source":"test","target":"test N2 a form submit writes one Order row through db.put","action":"finish","use_case":"exp0005-N2","ts":"2026-11-08T13:21:44.000551Z"}
+{"result":"running","source":"test","target":"test N8 a stricter Amount blocks the build against the live row and prints no stored value","action":"start","use_case":"exp0005-N8","ts":"2026-11-08T13:21:44.906191Z"}
+{"result":"pass","source":"test","target":"test N8 a stricter Amount blocks the build against the live row and prints no stored value","action":"finish","use_case":"exp0005-N8","ts":"2026-11-08T13:21:45.715241Z"}
+{"result":"running","source":"test","target":"test N8 control: the same live row builds under orders.beaml","action":"start","use_case":"exp0005-N8","ts":"2026-11-08T13:21:45.715525Z"}
+{"result":"pass","source":"test","target":"test N8 control: the same live row builds under orders.beaml","action":"finish","use_case":"exp0005-N8","ts":"2026-11-08T13:21:46.407673Z"}
+{"result":"running","source":"test","target":"test N8b the stricter build passes after the row is deleted by SQL","action":"start","use_case":"exp0005-N8b","ts":"2026-11-08T13:21:46.407959Z"}
+{"result":"pass","source":"test","target":"test N8b the stricter build passes after the row is deleted by SQL","action":"finish","use_case":"exp0005-N8b","ts":"2026-11-08T13:21:47.134342Z"}
+{"result":"running","source":"test","target":"test N15 an SQL edit of a row value without a new digest blocks the build","action":"start","use_case":"exp0005-N15","ts":"2026-11-08T13:21:47.134673Z"}
+{"result":"fail: ExUnit.AssertionError","source":"test","target":"test N15 an SQL edit of a row value without a new digest blocks the build","action":"finish","use_case":"exp0005-N15","ts":"2026-11-08T13:21:47.166577Z"}
+{"result":"running","source":"test","target":"test N8c the snapshot holds exactly the live row ids of this instant","action":"start","use_case":"exp0005-N8c","ts":"2026-11-08T13:21:47.166830Z"}
+{"result":"pass","source":"test","target":"test N8c the snapshot holds exactly the live row ids of this instant","action":"finish","use_case":"exp0005-N8c","ts":"2026-11-08T13:21:47.189367Z"}
+{"result":"running","source":"test","target":"test N7 order_v2 builds against a live Order v1 row and a Note v1 row","action":"start","use_case":"exp0005-N7","ts":"2026-11-08T13:21:47.954797Z"}
+{"result":"pass","source":"test","target":"test N7 order_v2 builds against a live Order v1 row and a Note v1 row","action":"finish","use_case":"exp0005-N7","ts":"2026-11-08T13:21:48.767511Z"}
+{"result": "running", "source": "cli", "target": "test N14 a rename onto the enum field channel builds against the live v1 rows", "action": "start", "use_case": "exp0005-N14", "ts": "2026-11-08T13:21:50.203971+00:00"}
+{"result": "pass", "source": "cli", "target": "test N14 a rename onto the enum field channel builds against the live v1 rows", "action": "finish", "use_case": "exp0005-N14", "ts": "2026-11-08T13:21:50.203979+00:00"}
+{"result":"running","source":"test","target":"test N7 the v1 Order row lists through the MIGRATE CHAIN with note empty and stays version 1","action":"start","use_case":"exp0005-N7","ts":"2026-11-08T13:21:53.677588Z"}
+{"result":"pass","source":"test","target":"test N7 the v1 Order row lists through the MIGRATE CHAIN with note empty and stays version 1","action":"finish","use_case":"exp0005-N7","ts":"2026-11-08T13:21:53.764664Z"}
+{"result":"running","source":"test","target":"test N7 the v1 row lists through the MIGRATE CHAIN with tag empty and stays version 1","action":"start","use_case":"exp0005-N7","ts":"2026-11-08T13:21:53.764914Z"}
+{"result":"pass","source":"test","target":"test N7 the v1 row lists through the MIGRATE CHAIN with tag empty and stays version 1","action":"finish","use_case":"exp0005-N7","ts":"2026-11-08T13:21:53.770524Z"}
+{"result":"running","source":"test","target":"test N7b a submit under v2 writes a version 2 row and the list shows v1 and v2","action":"start","use_case":"exp0005-N7b","ts":"2026-11-08T13:21:53.770830Z"}
+{"result":"pass","source":"test","target":"test N7b a submit under v2 writes a version 2 row and the list shows v1 and v2","action":"finish","use_case":"exp0005-N7b","ts":"2026-11-08T13:21:54.411823Z"}
+{"result":"running","source":"test","target":"test N7b a place submit under v2 writes a version 2 Order row and the list shows v1 and v2","action":"start","use_case":"exp0005-N7b","ts":"2026-11-08T13:21:54.413669Z"}
+{"result":"pass","source":"test","target":"test N7b a place submit under v2 writes a version 2 Order row and the list shows v1 and v2","action":"finish","use_case":"exp0005-N7b","ts":"2026-11-08T13:21:55.035561Z"}
+{"result":"running","source":"test","target":"test N11 a TYPE change reached the table and the DDL did not move","action":"start","use_case":"exp0005-N11","ts":"2026-11-08T13:21:55.035866Z"}
+{"result":"pass","source":"test","target":"test N11 a TYPE change reached the table and the DDL did not move","action":"finish","use_case":"exp0005-N11","ts":"2026-11-08T13:21:55.039767Z"}

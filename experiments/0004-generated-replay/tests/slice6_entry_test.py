@@ -498,21 +498,27 @@ class Slice6Entry(unittest.TestCase):
                 self.assertEqual([], [w for w in STORED_WORDS + ("99.00", "lost-p2b-literal")
                                       if w in text.replace(str(holder), "")])
 
-    def test_P2b_G1_rejected_and_retired_entry_records_are_not_verified(self):
-        # Guard (built default O1, Repairs O3: records keep "checked items only").
+    def test_P2b_R10_rejected_entry_records_wrong_digest_block(self):
+        # RED review objection 2 ruling (By: Fable, same rule as R6): the generated `Replay.entry/2` calls
+        # `body(record)` before the decode, whatever the outcome; rejected ENTRY RECORDS are digest-checked too.
         lines = [json.loads(l) for l in ENTRIES.read_text().splitlines()]
         wrong = st.value_sha256({"order_id": "order-x"})
-        rejected = lines[:3] + [dict(lines[3], value_sha256=wrong), dict(lines[4], value_sha256=wrong)]
-        retired = [dict(lines[0], value_sha256=wrong)] + lines[1:]
         self.assertEqual(["rejected", "rejected"], [r["outcome"] for r in lines[3:]], "setup: lines 4 and 5")
-        for name, source, records, check in (
-                ("rejected", ORDERS, rejected, lambda stdout, stderr: stderr.strip() == COUNT_LINE),
-                ("retired", ORDERS.read_text().replace(ENTRY_LINE, RETIRE_ENTRY), retired,
-                 lambda stdout, stderr: "error" not in stderr)):
-            with self.subTest(name):
-                holder = self.entries_dir(name, records)
-                code, stdout, stderr = self.compile(source, ["--stored", str(holder / "responses.jsonl")])
-                self.assertEqual((0, True), (code, check(stdout, stderr)), stderr)
+        holder = self.entries_dir("rejected", lines[:3] + [dict(r, value_sha256=wrong) for r in lines[3:]])
+        code, stdout, stderr = self.compile(ORDERS, ["--stored", str(holder / "responses.jsonl")])
+        text = "\n".join(l for l in stderr.strip().splitlines() if not re.match(r"\d+ entries, ", l))
+        self.assertEqual((1, "", "\n".join(st.digest_error("PlaceOrder", 2, "ENTRY RECORD", "operation ui.place",
+                                                            holder / "entries.jsonl", 4))),
+                         (code, stdout[:0] if stdout == "" else "<Elixir on stdout>", text), stderr)
+
+    def test_P2b_G1_retired_entry_records_are_not_verified(self):
+        # Guard: a record of a RETIRE LINE operation has no `Replay.entry/2` clause and never reaches `body(record)`.
+        lines = [json.loads(l) for l in ENTRIES.read_text().splitlines()]
+        retired = [dict(lines[0], value_sha256=st.value_sha256({"order_id": "order-x"}))] + lines[1:]
+        holder = self.entries_dir("retired", retired)
+        code, stdout, stderr = self.compile(ORDERS.read_text().replace(ENTRY_LINE, RETIRE_ENTRY),
+                                            ["--stored", str(holder / "responses.jsonl")])
+        self.assertEqual((0, False), (code, "error" in stderr), stderr)
 
     # O3 (DL-138, R6D-15): a removed ENTRY LINE with stored ENTRY RECORDS behaves as a removed EFFECT (slice 4 E01, E02).
 

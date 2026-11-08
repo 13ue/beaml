@@ -247,13 +247,28 @@ class Slice6DbStored(unittest.TestCase):
 
     # P2b (DL-164): a wrong digest in a row of a read TYPE blocks the build (plan section 3, Repairs O1 to O3).
 
-    def assert_digest_block(self, rows, line, source=ORDERS):
+    def assert_digest_block(self, rows, line, source=ORDERS, count=1):
         """Exit 1, no stdout, exactly the digest error (no path, value or orphan text), no stored value or id."""
         code, stdout, got, rows_path, _ = self.blocked(source, rows=rows)
         text = "\n".join(got)
-        self.assertEqual((1, True, st.digest_error("Order", 1, "ROW", "table records", rows_path, line)),
+        self.assertEqual((1, True, st.digest_error("Order", count, "ROW", "table records", rows_path, line)),
                          (code, stdout == "", got), text)
         self.assertEqual([], [w for w in sorted(self.words) if w in text.replace(str(rows_path), "")], text)
+
+    def test_P2b_R7_two_wrong_digest_rows_group(self):
+        # RED review objection 1 (ruling By: Fable): one message per (TYPE, place), the plural, the first line.
+        bad = [row(TAMPERED, value_sha256=st.value_sha256(WIRE2)),
+               row(dict(TAMPERED, order_id="order-p2b-r7"), value_sha256=st.value_sha256(WIRE2))]
+        self.assert_digest_block([row(WIRE1)] + bad, 2, count=2)
+
+    def test_P2b_R8_rejected_db_record_wrong_digest_blocks(self):
+        # RED review objection 2 (ruling By: Fable, OWNER card P2B-SCOPE): the generated db replay step calls
+        # `body(record)` before it reads the outcome, so a rejected db RESPONSE RECORD is digest-checked too.
+        rec = db_record("orders.list", None, sd.LIST_TYPE, {}, outcome="rejected", reason="transport",
+                        value_sha256=st.value_sha256(list_items(ZERO)))
+        code, stdout, got, _, resp = self.blocked(STRICTER, rows=[], responses=[rec])
+        self.assertEqual((1, True, st.digest_error("OrderList", 1, "RESPONSE RECORD", "operation orders.list", resp, 1)),
+                         (code, stdout == "", [l for l in got if "rejected at capture" not in l]), "\n".join(got))
 
     def test_P2b_R1_wrong_digest_row_blocks(self):
         self.assert_digest_block([row(WIRE1), row(TAMPERED, value_sha256=st.value_sha256(WIRE2))], 2)

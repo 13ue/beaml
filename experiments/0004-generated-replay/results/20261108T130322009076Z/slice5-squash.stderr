@@ -1,0 +1,30 @@
+test_F20_squash_removes_two_steps_and_writes_the_mark (__main__.Fixture.test_F20_squash_removes_two_steps_and_writes_the_mark) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_F21_records_of_the_newest_version_remove_every_step (__main__.Fixture.test_F21_records_of_the_newest_version_remove_every_step) ... ok
+test_F21b_one_step_chain_with_records_of_v2 (__main__.Fixture.test_F21b_one_step_chain_with_records_of_v2) ... ok
+test_F22_crlf_source_keeps_crlf (__main__.Fixture.test_F22_crlf_source_keeps_crlf) ... ok
+test_F23_every_type_line_layout_gets_the_mark_after_the_name (__main__.Fixture.test_F23_every_type_line_layout_gets_the_mark_after_the_name) ... ok
+test_F24_marked_type_keeps_its_line (__main__.Fixture.test_F24_marked_type_keeps_its_line) ... ok
+test_F25_second_removal_changes_nothing (__main__.Fixture.test_F25_second_removal_changes_nothing) ... ok
+test_F26_two_types_are_marked_in_source_order (__main__.Fixture.test_F26_two_types_are_marked_in_source_order) ... ok
+test_F26_without_the_flag_the_note_step_is_refused_and_nothing_is_written (__main__.Fixture.test_F26_without_the_flag_the_note_step_is_refused_and_nothing_is_written) ... ok
+test_F27_empty_snapshot_refuses_every_step_and_writes_no_mark (__main__.Fixture.test_F27_empty_snapshot_refuses_every_step_and_writes_no_mark) ... ok
+test_F28_record_older_than_a_mark_without_chain_names_the_step (__main__.Fixture.test_F28_record_older_than_a_mark_without_chain_names_the_step) ... ok
+test_F28_record_older_than_the_squash_names_every_missing_step (__main__.Fixture.test_F28_record_older_than_the_squash_names_every_missing_step) ... ok
+test_F20_squash_removes_two_steps_and_writes_the_mark (__main__.Template.test_F20_squash_removes_two_steps_and_writes_the_mark) ... ok
+test_F21_records_of_the_newest_version_remove_every_step (__main__.Template.test_F21_records_of_the_newest_version_remove_every_step) ... ok
+test_F21b_one_step_chain_with_records_of_v2 (__main__.Template.test_F21b_one_step_chain_with_records_of_v2) ... ok
+test_F22_crlf_source_keeps_crlf (__main__.Template.test_F22_crlf_source_keeps_crlf) ... ok
+test_F23_every_type_line_layout_gets_the_mark_after_the_name (__main__.Template.test_F23_every_type_line_layout_gets_the_mark_after_the_name) ... ok
+test_F24_marked_type_keeps_its_line (__main__.Template.test_F24_marked_type_keeps_its_line) ... ok
+test_F25_second_removal_changes_nothing (__main__.Template.test_F25_second_removal_changes_nothing) ... ok
+test_F26_two_types_are_marked_in_source_order (__main__.Template.test_F26_two_types_are_marked_in_source_order) ... ok
+test_F26_without_the_flag_the_note_step_is_refused_and_nothing_is_written (__main__.Template.test_F26_without_the_flag_the_note_step_is_refused_and_nothing_is_written) ... ok
+test_F27_empty_snapshot_refuses_every_step_and_writes_no_mark (__main__.Template.test_F27_empty_snapshot_refuses_every_step_and_writes_no_mark) ... ok
+test_F28_record_older_than_a_mark_without_chain_names_the_step (__main__.Template.test_F28_record_older_than_a_mark_without_chain_names_the_step) ... ok
+test_F28_record_older_than_the_squash_names_every_missing_step (__main__.Template.test_F28_record_older_than_the_squash_names_every_missing_step) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.787s
+
+OK

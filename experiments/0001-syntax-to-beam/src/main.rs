@@ -5044,6 +5044,7 @@ impl Checker<'_> {
         let mut orphans: BTreeMap<String, (usize, usize)> = BTreeMap::new();
         // fates-a1: the literal and constructor checks of the rows and RESPONSE RECORDS (one help and fate rule).
         let mut checks = ValueChecks::default();
+        let mut wrong: BTreeMap<(String, String), (usize, usize)> = BTreeMap::new();
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             if line.trim().is_empty() {
@@ -5087,6 +5088,11 @@ impl Checker<'_> {
                 }
                 continue;
             };
+            // P2b (DL-164, RED review objection 2): `Replay.entry/2` reads `body(record)` whatever the outcome.
+            if !digest_holds(&record) {
+                let key = (entry.input.clone(), format!("operation {op}"));
+                wrong.entry(key).or_insert((0, number)).0 += 1;
+            }
             if !accepted {
                 continue;
             }
@@ -5142,6 +5148,9 @@ impl Checker<'_> {
                     Some(_) => {}
                 }
             }
+        }
+        if let Some(e) = digest_errors(&wrong, source, "ENTRY RECORD") {
+            return Err(e);
         }
         if !orphans.is_empty() {
             return Err(orphans
@@ -5691,7 +5700,27 @@ fn digest_holds(record: &Json) -> bool {
         .collect();
     &hex == sha
 }
-// Compact JSON with sorted object keys; strings escaped as `:json.encode` writes them.
+// P2b (DL-164): one block per (TYPE, place) of stored items whose digest does not hold, or None. Names, counts and
+// lines only (DL-124).
+fn digest_errors(
+    wrong: &BTreeMap<(String, String), (usize, usize)>,
+    source: &str,
+    noun: &str,
+) -> Option<String> {
+    (!wrong.is_empty()).then(|| {
+        wrong
+            .iter()
+            .map(|((ty, place), (count, line))| {
+                let (plural, verb) = if *count == 1 { ("", "has") } else { ("S", "have") };
+                format!(
+                    "error: TYPE {ty}: {count} stored {noun}{plural} of {place} {verb} a wrong digest: value_sha256 does not match value, unknown_keys and redacted (DL-164)\n  record source: {source}:{line} (line {line})\n  help: the stored value changed without a new digest (a hand edit or corruption); restore or delete the {noun}, then build again"
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+    })
+}
+// Compact JSON with sorted object keys; strings escaped as `:json.encode` writes them (Erlang: upper-case `\u` hex).
 // ponytail: number text is kept as read; an exponent or float form from another encoder would not match.
 fn canonical(json: &Json, out: &mut String) {
     match json {
@@ -5709,7 +5738,7 @@ fn canonical(json: &Json, out: &mut String) {
                     '\t' => out.push_str("\\t"),
                     '\u{8}' => out.push_str("\\b"),
                     '\u{c}' => out.push_str("\\f"),
-                    c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+                    c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04X}", c as u32)),
                     c => out.push(c),
                 }
             }
@@ -5891,6 +5920,7 @@ impl Checker<'_> {
         let mut checks = ValueChecks::default();
         // D6B-72, D6B-163: per (TYPE, operation, dotted path, place): (records that hold a value there, first line).
         let mut held: BTreeMap<(String, String, String, &str), (usize, usize)> = BTreeMap::new();
+        let mut wrong: BTreeMap<(String, String), (usize, usize)> = BTreeMap::new();
         // DL-143 (QV3-7 A, QV3-8 B): records, checked records, records rejected at capture.
         let (mut total, mut checked, mut rejected) = (0, 0, 0);
         for (index, line) in text.lines().enumerate() {
@@ -5927,6 +5957,17 @@ impl Checker<'_> {
             let stored = stored_version(&record).map_err(|e| format!("error: {e}\n  {at}"))?;
             snapshot.operations.insert(stored.operation.clone());
             if let Some(effect) = self.effect(&stored.operation) {
+                // P2b (DL-164, RED review objection 2): every record that reaches `body(record)` at replay: each db
+                // record, an http record with status 200 (a rejected one too).
+                let replayed = effect.kind != "http.post"
+                    || matches!(record.get("status"), Some(Json::Number(n)) if n == "200");
+                if replayed && !digest_holds(&record) {
+                    let key = (
+                        effect.output.clone(),
+                        format!("operation {}", stored.operation),
+                    );
+                    wrong.entry(key).or_insert((0, number)).0 += 1;
+                }
                 for (place, ty) in [("request", &effect.input), ("value", &effect.output)] {
                     for path in self.redacted_paths(ty) {
                         let mut at = record.get(place);
@@ -5998,6 +6039,9 @@ impl Checker<'_> {
                 orphans.entry(stored.operation).or_insert((0, number)).0 += 1;
             }
         }
+        if let Some(e) = digest_errors(&wrong, source, "RESPONSE RECORD") {
+            return Err(e);
+        }
         if !orphans.is_empty() {
             return Err(orphans
                 .iter()
@@ -6046,7 +6090,6 @@ impl Checker<'_> {
                 snapshot.notes.push(format!(
                     "{total} records, {checked} checked, {rejected} rejected at capture"
                 ));
-                snapshot.notes.push("digest not verified (P2b)".to_string());
             }
             Ok(snapshot)
         } else {
@@ -6552,6 +6595,7 @@ impl Checker<'_> {
         let mut orphans: BTreeMap<String, (usize, usize)> = BTreeMap::new();
         let mut groups: BTreeMap<StoredVersion, (usize, usize)> = BTreeMap::new();
         let mut checks = ValueChecks::default();
+        let mut wrong: BTreeMap<(String, String), (usize, usize)> = BTreeMap::new();
         let place = "table records";
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
@@ -6588,11 +6632,18 @@ impl Checker<'_> {
                     continue;
                 }
             }
+            // P2b (DL-164, PDB-15 read order: name, digest, version): a row of a read TYPE reaches `body(core)` in
+            // `row_<type>/1` whatever its outcome (Repairs O3).
+            if let Some(name) = name.filter(|_| read && !digest_holds(&row)) {
+                let key = (name.to_string(), place.to_string());
+                wrong.entry(key).or_insert((0, number)).0 += 1;
+                continue;
+            }
             let accepted = row.get("outcome").and_then(Json::text) == Some("accepted");
             let Ok(stored) = stored_version(&row) else {
                 continue;
             };
-            if !accepted || !read || !digest_holds(&row) {
+            if !accepted || !read {
                 continue;
             }
             checked += 1;
@@ -6616,6 +6667,9 @@ impl Checker<'_> {
                 &kept,
             );
             groups.entry(stored).or_insert((0, number)).0 += 1;
+        }
+        if let Some(e) = digest_errors(&wrong, source, "ROW") {
+            return Err(e);
         }
         if !orphans.is_empty() {
             return Err(orphans

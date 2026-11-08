@@ -456,9 +456,20 @@ class RecordV3(unittest.TestCase):
                                  (code, stdout[:0] if stdout == "" else "<Elixir on stdout>", text), stderr)
                 self.assertEqual([], [w for w in STORED_WORDS + ("99.00",) if w in text.replace(str(stored), "")])
 
+    def test_P2b_R9_rejected_200_record_wrong_digest_blocks(self):
+        # RED review objection 2 (ruling By: Fable, OWNER card P2B-SCOPE): an http record with status 200 reaches
+        # `body(record)` at replay whatever its outcome, so a rejected one is digest-checked too.
+        rejected = json.loads((FIX / "stored-200-rejected-nopath.jsonl").read_text())
+        self.assertEqual(("rejected", 200), (rejected["outcome"], rejected["status"]), "setup: 200 rejected record")
+        stored = self.one_record("rejected200", dict(rejected, value_sha256=st.value_sha256({"order_id": "order-x"})))
+        code, stdout, stderr = self.compile(CTOR, ["--stored", str(stored)])
+        self.assertEqual((1, "", "\n".join(st.digest_error("Payment", 1, "RESPONSE RECORD",
+                                                            "operation payments.authorize", stored, 1))),
+                         (code, stdout[:0] if stdout == "" else "<Elixir on stdout>", without_counts(stderr)), stderr)
+
     def test_P2b_G1_rejected_response_record_is_not_verified(self):
-        # Guard (built default O1, Repairs O3: records keep "checked items only"): a rejected http record with a
-        # wrong digest is counted, not verified.
+        # Guard: a rejected http record with status 503 stops at `:status_mismatch` before `body(record)` at replay;
+        # with a wrong digest it is counted, not verified (RED review objection 2 ruling keeps this case).
         rejected = json.loads((FIX / "stored-mixed.jsonl").read_text().splitlines()[1])  # 503 rejected
         self.assertEqual("rejected", rejected["outcome"], "setup: line 2 of stored-mixed.jsonl")
         stored = self.one_record("rejected", dict(rejected, value_sha256=st.value_sha256({"order_id": "order-x"})))

@@ -19,12 +19,14 @@ OTP 28.3.1 `json.erl`; OTP 27 writes the same upper-case form (observed: `\u000B
 
 ## Counts
 
+Corrected by GREEN P2b (By: Opus, main-agent ruling By: Fable): the `Ran` column was permuted (RED review).
+
 | File | Ran | Fail | Skip | Fails are |
 |---|---|---|---|---|
-| `slice6_db_stored_test.py` | 28 | 6 | 3 | R1, R2, R2b, R5, R6, N25 control |
-| `record_v3_test.py` | 33 | 7 (subtests) | 1 | R3 [valid, constructor, held], V14, V14c, V22, V23 |
+| `slice6_db_stored_test.py` | 54 | 6 | 3 | R1, R2, R2b, R5, R6, N25 control |
+| `record_v3_test.py` | 28 | 7 (subtests) | 1 | R3 [valid, constructor, held], V14, V14c, V22, V23 |
 | `slice6_entry_test.py` | 22 | 2 (subtests) | 0 | R4 [valid, value_faults] |
-| `stored_types_test.py` | 54 | 0 | 0 | (helper change, all pass) |
+| `stored_types_test.py` | 33 | 0 | 0 | (helper change, all pass) |
 
 Every failure is a planned RED. Every guard passes: G1 (three files), N21, N21b, N29 (two left), V14b, V15, V16,
 V17, V18b, V24, V25, N2, N2b, s1, s5, s5b, and all other tests of the four files.

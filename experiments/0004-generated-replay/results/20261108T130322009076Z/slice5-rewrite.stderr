@@ -1,0 +1,10 @@
+test_A1_allowed_rows_are_well_formed (__main__.RewriteAudit.test_A1_allowed_rows_are_well_formed) ... ok
+test_A1_every_changed_line_is_a_rewrite_rule_or_an_allowed_row (__main__.RewriteAudit.test_A1_every_changed_line_is_a_rewrite_rule_or_an_allowed_row) ... ok
+test_A1_no_deleted_or_new_path_in_scope (__main__.RewriteAudit.test_A1_no_deleted_or_new_path_in_scope) ... ok
+test_A1_test_code_keeps_no_old_form (__main__.RewriteAudit.test_A1_test_code_keeps_no_old_form) ... ok
+test_A1_the_rewrite_is_complete (__main__.RewriteAudit.test_A1_the_rewrite_is_complete) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.436s
+
+OK

@@ -1,5 +1,5 @@
 defmodule Proto.Prototype.StoredTest do
-  # EXPERIMENT 0005 N8, N8b, N8c, N11 (plan.md, "Plan repair" O2). Phase n8: run.py runs it under the generated
+  # EXPERIMENT 0005 N8, N8b, N8c, N11, N15 (plan.md, "Plan repair" O2). Phase n8: run.py runs it under the generated
   # orders.beaml with committed rows: mix test --only phase:n8 --seed 0. Every build reads a fresh live ROW
   # SNAPSHOT through mix beaml.stored; snapshot! checks its provenance (N8c) each time.
   use ProtoWeb.ConnCase, async: false
@@ -59,6 +59,36 @@ defmodule Proto.Prototype.StoredTest do
     Proto.Repo.query!("DELETE FROM records WHERE id = $1", [id])
     assert {0, out, [line], _} = live_build("stricter", "n8b")
     assert {line, out =~ "defmodule Orders do"} == {counted(0, 0, 0), true}
+  end
+
+  @tag use_case: "N15"
+  test "N15 an SQL edit of a row value without a new digest blocks the build", %{conn: conn} do
+    # P2b (DL-164, DL-158): the D035 site example. The build stops; the text names no value and no id.
+    place(conn, good())
+    assert [{id, "Order", 1, core}] = rows()
+
+    Proto.Repo.query!(
+      "UPDATE records SET value = jsonb_set(value, '{value,amount,value}', '\"99.00\"') WHERE id = $1",
+      [id]
+    )
+
+    {code, out, lines, _dir} = live_build(nil, "n15")
+
+    assert {code, out, Enum.reject(lines, &String.starts_with?(&1, "rows: ")) |> List.first()} ==
+             {1, "",
+              "error: TYPE Order: 1 stored ROW of table records has a wrong digest: value_sha256 does not match " <>
+                "value, unknown_keys and redacted (DL-164)"}
+
+    text = Enum.join(lines, "\n")
+
+    for secret <- ["99.00", "order-1", core["trace_id"], core["span_id"]],
+        do: refute(text =~ secret)
+
+    assert_no_ddl!()
+    # Control: the row is gone, the same build passes.
+    Proto.Repo.query!("DELETE FROM records WHERE id = $1", [id])
+    assert {0, _, [line], _} = live_build(nil, "n15-control")
+    assert line == counted(0, 0, 0)
   end
 
   @tag use_case: "N8c"
