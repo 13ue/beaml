@@ -1,0 +1,91 @@
+<p class="lead">Jeder Block ist in sich vollständig: TYPE, Konstruktor, migrate. Der Build prüft live gegen die Datenbank (DL-151).</p>
+
+<h3>Beispiel 1 · Konstruktor-TYPE Amount</h3>
+<pre><i class=m>// VORHER: Amount komplett, so wie heute in orders.beaml (v1, ohne Mark)</i>
+<i class=k>type</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>type</i> <i class=t>Amount</i> <i class=b>{</i>
+  <i class=p>value</i><i class=o>:</i> <i class=t>String</i>
+  <i class=p>currency</i><i class=o>:</i> <i class=t>String</i>
+<i class=b>}</i>
+
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=o>:</i> <i class=t>String</i><i class=b>,</i> currency<i class=o>:</i> <i class=t>String</i> <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i>
+<i class=k>fn</i> <i class=c>Amount</i> _<i class=b>,</i>             <i class=s>&quot;&quot;</i>               <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=b>,</i>         currency         <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>Amount</i> <i class=b>{</i> <i class=p>value</i><i class=o>:</i> value<i class=b>,</i> <i class=p>currency</i><i class=o>:</i> currency <i class=b>}</i></pre>
+<div class="card ok"><b>Fall 1 · der Build findet keine Zeile mit value "0"</b>Grün. Keine neue Version. Nur die neue Klausel:</div>
+<pre><i class=m>// NACHHER, Fall 1: neue Regel (value nicht &quot;0&quot;), keine Zeile betroffen. Nur die neue Klausel.</i>
+<i class=k>type</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>type</i> <i class=t>Amount</i> <i class=b>{</i>
+  <i class=p>value</i><i class=o>:</i> <i class=t>String</i>
+  <i class=p>currency</i><i class=o>:</i> <i class=t>String</i>
+<i class=b>}</i>
+
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=o>:</i> <i class=t>String</i><i class=b>,</i> currency<i class=o>:</i> <i class=t>String</i> <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i>
+<i class=k>fn</i> <i class=c>Amount</i> _<i class=b>,</i>             <i class=s>&quot;&quot;</i>               <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Amount</i> <i class=s>&quot;0&quot;</i><i class=b>,</i>           _                <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=b>,</i>         currency         <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>Amount</i> <i class=b>{</i> <i class=p>value</i><i class=o>:</i> value<i class=b>,</i> <i class=p>currency</i><i class=o>:</i> currency <i class=b>}</i></pre>
+<div class="card must"><b>Fall 2 · der Build findet 2 Zeilen mit value "0"</b>„2 rows of Amount v1 fail the v2 rule; declare type Amount v2 and a fate.“ Erst damit grün:</div>
+<pre><i class=m>// NACHHER, Fall 2: dieselbe Regel, 2 Zeilen mit &quot;0&quot; in Production. Version und Fate erzwungen.</i>
+<i class=m>// (Form aus DL-125, nicht gebaut)</i>
+<i class=k>type</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>type</i> <i class=t>Amount</i> <i class=c>v2</i> <i class=b>{</i>
+  <i class=p>value</i><i class=o>:</i> <i class=t>String</i>
+  <i class=p>currency</i><i class=o>:</i> <i class=t>String</i>
+<i class=b>}</i>
+
+<i class=k>migrate</i> <i class=t>Amount</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i>
+  quarantine value
+<i class=b>}</i>
+
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=o>:</i> <i class=t>String</i><i class=b>,</i> currency<i class=o>:</i> <i class=t>String</i> <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i>
+<i class=k>fn</i> <i class=c>Amount</i> _<i class=b>,</i>             <i class=s>&quot;&quot;</i>               <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Amount</i> <i class=s>&quot;0&quot;</i><i class=b>,</i>           _                <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=b>,</i>         currency         <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>Amount</i> <i class=b>{</i> <i class=p>value</i><i class=o>:</i> value<i class=b>,</i> <i class=p>currency</i><i class=o>:</i> currency <i class=b>}</i></pre>
+
+<h3>Beispiel 2 · Enum Channel, ein Literal verschwindet</h3>
+<pre><i class=m>// VORHER: Channel komplett, wie heute</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i></pre>
+<div class="card ok"><b>Fall 1 · keine Zeile mit "app"</b>Grün, bleibt v1:</div>
+<pre><i class=m>// NACHHER, Fall 1: App weg, Mobile neu, keine Zeile mit &quot;app&quot;. Nur die Tabelle ändert sich.</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>Mobile</i> <i class=o>=</i> <i class=s>&quot;mobile&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i></pre>
+<div class="card must"><b>Fall 2 · 5 Zeilen mit "app"</b>„5 rows carry Channel v1 "app", no literal in v2; declare map.“ Erst damit grün:</div>
+<pre><i class=m>// NACHHER, Fall 2: dieselbe Änderung, 5 Zeilen mit &quot;app&quot;. Version und map erzwungen.</i>
+<i class=m>// (Vorschlag, nicht gebaut)</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=c>v2</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>Mobile</i> <i class=o>=</i> <i class=s>&quot;mobile&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i>
+
+<i class=k>migrate</i> <i class=t>Channel</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i>
+  map &quot;app&quot; <i class=o>-&gt;</i> Mobile
+<i class=b>}</i></pre>
+
+<h3>Beispiel 3 · Enum Channel, Literale vertauscht (DL-140)</h3>
+<pre><i class=m>// VORHER</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i></pre>
+<div class="card ok"><b>Fall 1 · keine Zeilen</b>Tippfehler-Fix: Literale einfach tauschen, bleibt v1, kein migrate.</div>
+<div class="card must"><b>Fall 2 · Zeilen vorhanden</b>Gestern hieß "web" Web, heute hieße es App. Build blockt bis beide map-Zeilen da sind:</div>
+<pre><i class=m>// NACHHER, Fall 2: Literale vertauscht, Zeilen vorhanden. Beide Richtungen ausdrücklich.</i>
+<i class=m>// (Vorschlag, nicht gebaut)</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=c>v2</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>
+  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i>
+
+<i class=k>migrate</i> <i class=t>Channel</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i>
+  map &quot;web&quot; <i class=o>-&gt;</i> App
+  map &quot;app&quot; <i class=o>-&gt;</i> Web
+<i class=b>}</i></pre>

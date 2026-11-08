@@ -283,12 +283,12 @@ fn Amount value,         currency         -> Amount ! BadAmount = Amount { value
               "`quarantine channel` ist in der RED ein Fehler",
               "Alternative: parken statt umlenken erlauben"],
              "", [], [("A", "nur map löst Sperre 2 (wie RED)", True), ("B", "quarantine darf auch parken", False)], dl="DL-162", source="fates-a1 RED 2026-11-08", added="2026-11-08T11:20:00Z"),
-          it("QF-2", "Wo steht die Version eines verschachtelten TYPE?", "default", "Opus (PLAN fates, Default)",
+          it("QF-2", "Wo steht die Version eines verschachtelten TYPE?", "decided", "Opus (PLAN fates, Default); entschieden 13ue: B, verschachtelte Versionen in der Zeile",
              ["`Order` enthält `amount: Amount`; `Amount` wird v2",
               "Heute steht in der Zeile nur die Version von `Order`, nicht von `Amount`",
               "Gebaut (Default): die Version von `Amount` steht nur in der Quelle",
               "Das ist eine Record-Format-Frage, darum deine"],
-             "", [], [("A", "nur in der Quelle; Zeile trägt die Order-Version", True), ("B", "jede verschachtelte Version auch in der Zeile", False)], source="fate-plan 2026-11-08", added="2026-11-08T11:20:00Z"),
+             "", [], [("A", "nur in der Quelle; Zeile trägt die Order-Version", True), ("B", "jede verschachtelte Version auch in der Zeile", False)], dl="DL-168", source="fate-plan 2026-11-08", added="2026-11-08T11:20:00Z"),
           it("QF-5", "Texte: Gate-Hilfe und `fate:`-Zählzeile", "default", "Opus (RED fates-a1, Default)",
              ["Gate: `declare type Amount v2 and a fate` mit echten Namen, Platzhalter fürs alte Literal",
               "Zählzeile: `fate: N rows of Amount v1 in quarantine (value)`",
@@ -951,7 +951,7 @@ STACKS = [("block", "Blockt Arbeit", "Offene Fragen und Migrate-Fragen, die den 
           ("ideas", "Ideen für später", "Notiert oder geparkt. Blockt nichts.")]
 ICON = dict(decided="✓", open="?", default="◆", parked="‖")
 LABEL = dict(decided="entschieden", open="offen", default="Default, gebaut", parked="geparkt")
-CHANGE = {"added": "neu", "status decided": "entschieden", "moved to Eingang": "in den Eingang verschoben", "removed": "entfernt"}
+CHANGE = {"view added": "Ansicht neu", "view changed": "Ansicht geändert", "added": "neu", "status decided": "entschieden", "moved to Eingang": "in den Eingang verschoben", "removed": "entfernt"}
 
 
 def ts(s):
@@ -1079,12 +1079,12 @@ def tier(x):
     return next((t for t, ids in TIER.items() if x["id"] in ids), 2)
 
 
-def log_view(name, now):
-    """A new view is no new card: one "view added" line, once."""
-    if any(r["change"] == "view added" and r["id"] == name for r in read_log()):
+def log_view(name, now, change="view added", what=""):
+    """A view is no card: one change-log line per view change (`what` names it), written once."""
+    if any(r["change"] == change and r["id"] == name and r.get("what", "") == what for r in read_log()):
         return
     with open(LOG, "a") as f:
-        f.write(json.dumps(dict(ts=now, id=name, page=name, change="view added", by="Opus (site-v2)"), ensure_ascii=False) + "\n")
+        f.write(json.dumps(dict(ts=now, id=name, page=name, change=change, by="Opus (site-v2)", **({"what": what} if what else {})), ensure_ascii=False) + "\n")
 
 
 def render_row(x):
@@ -1212,6 +1212,7 @@ th.n .pill{font-size:11.5px;padding:3px 6px}
 .done{border:2px solid var(--ok);border-radius:12px;padding:16px 18px;background:var(--card);margin:16px 0}.done h2{margin-top:0;color:var(--ok)}
 .new-tag{margin:22px 0 -8px;font-size:14px;color:var(--mut)}
 @media (max-width:560px){h1{font-size:24px}.card{padding:14px}.btn{width:auto}th.n .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}th.n .pill{padding:4px 7px}}
+@keyframes flash{from{box-shadow:0 0 0 4px var(--acc)}to{box-shadow:0 0 0 0 transparent}}.flash{animation:flash 1.2s ease-out}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
 """
 
@@ -1226,9 +1227,9 @@ const fmtT = t => { try { return new Date(t).toLocaleString('de-DE', {day:'2-dig
 let A = {}, offline = false;
 const has = id => { const a = A[id]; return !!a && (!!a.choice || !!a.note); };  // choice "" = cleared (Rückgängig)
 
-function toast(msg, undo) {
+function toast(msg, undo, label = 'Rückgängig') {
   const t = $('#toast'); $('.toast-t', t).textContent = msg; const b = $('.toast-undo', t);
-  b.hidden = !undo; b.onclick = async () => { t.hidden = true; await undo(); };
+  b.textContent = label; b.hidden = !undo; t.dataset.undo = undo && label === 'Rückgängig' ? '1' : ''; b.onclick = async () => { t.hidden = true; await undo(); };
   t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 10000);
 }
 function paint(card) {
@@ -1336,17 +1337,35 @@ if (PAGE === 'schnell') {
 // Eine Frage auf einmal
 let start = () => {};
 if (PAGE === 'next') {
-  const cards = $$('#queue section.card'), nx = $('#qnext'); let q = [], i = 0;
+  const all = $$('#queue section.card'), byId = Object.fromEntries(all.map(c => [c.dataset.id, c]));
+  const queued = all.filter(c => !['done', 'ideas'].includes(c.dataset.stack) && c.dataset.status !== 'decided');
+  const nx = $('#qnext'), ex = $('#explain'), exb = $('#ex-body'); let q = [], i = 0, cur = '', pend = '', shown = null, exMod = null;
+  const busy = () => document.activeElement?.matches?.('textarea, input');
+  const quiet = matchMedia('(prefers-reduced-motion: reduce)');
+  const flash = el => { if (quiet.matches) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
+  async function explain(id, force) {
+    // Erklärung: explain/<id>.html, a fragment written by the main agent; HEAD checks Last-Modified, GET only on change
+    try {
+      const u = 'explain/' + encodeURIComponent(id) + '.html';
+      const h = await fetch(u, {method: 'HEAD', cache: 'no-store'}); const mod = h.ok ? (h.headers.get('Last-Modified') || 'x') : null;
+      if (!force && mod === exMod) return; exMod = mod;
+      if (!h.ok) { ex.hidden = true; exb.innerHTML = ''; return; }
+      const r = await fetch(u, {cache: 'no-store'}); if (!r.ok) { ex.hidden = true; return; }
+      exb.innerHTML = await r.text(); ex.hidden = false; if (!force) flash(ex);
+    } catch {}
+  }
   const show = () => {
-    cards.forEach(c => c.hidden = true);
+    all.forEach(c => c.hidden = true);
     const end = i >= q.length; $('#done').hidden = !end; $('#qbar').hidden = end; nx.hidden = end; $('.keys').hidden = end;
-    if (end) { const left = cards.filter(c => !has(c.dataset.id)).length; $('#again-p').hidden = !left; $('#again-n').textContent = left; $('#done').focus(); act('focus-done', 'next', left + ' left'); return; }
-    const c = q[i]; c.hidden = false; hot = c; $('#qpos').textContent = `${i + 1} von ${q.length}`;
-    nx.textContent = has(c.dataset.id) ? 'Weiter (N)' : 'Überspringen (N)'; c.focus({preventScroll: true}); window.scrollTo(0, 0);
+    if (end) { shown = null; ex.hidden = true; const left = queued.filter(c => !has(c.dataset.id)).length; $('#again-p').hidden = !left; $('#again-n').textContent = left; if (!busy()) $('#done').focus(); act('focus-done', 'next', left + ' left'); return; }
+    const c = q[i], isCur = !!cur && c.dataset.id === cur; c.hidden = false; hot = c; $('#qcur').hidden = !isCur;
+    $('#qpos').textContent = `${i + 1} von ${q.length}`;
+    nx.textContent = isCur ? 'Zur Warteschlange (N)' : has(c.dataset.id) ? 'Weiter (N)' : 'Überspringen (N)';
+    if (shown !== c) { shown = c; exMod = undefined; explain(c.dataset.id, true); if (!busy()) { c.focus({preventScroll: true}); window.scrollTo(0, 0); } }
   };
-  start = () => { q = cards.filter(c => !has(c.dataset.id)); i = 0; show(); };
-  nx.addEventListener('click', ev => { const c = q[i]; if (c) act(has(c.dataset.id) ? 'next' : 'skip', c.dataset.id, null, ev.detail === 0 ? 'key' : 'mouse'); i++; show(); });
-  cards.forEach(c => c.addEventListener('chosen', () => { nx.textContent = 'Weiter (N)'; nx.focus(); }));
+  start = () => { const pin = byId[cur]; q = (pin ? [pin] : []).concat(queued.filter(c => c !== pin && !has(c.dataset.id))); i = 0; show(); };
+  nx.addEventListener('click', ev => { const c = q[i]; if (c) act(c.dataset.id === cur ? 'leave-current' : has(c.dataset.id) ? 'next' : 'skip', c.dataset.id, null, ev.detail === 0 ? 'key' : 'mouse'); i++; show(); });
+  all.forEach(c => c.addEventListener('chosen', () => { if (c.dataset.id !== cur) nx.textContent = 'Weiter (N)'; nx.focus(); }));
   $('#again').addEventListener('click', start);
   document.addEventListener('keydown', e => {
     if (typing(e) || e.repeat) return; const k = e.key.toUpperCase(), c = q[i];
@@ -1354,9 +1373,30 @@ if (PAGE === 'next') {
     const b = c && $$('.opt', c).find(b => b.dataset.choice === k);
     if (b) { e.preventDefault(); choose(c, k, 'key'); }
   });
+  const readCur = async () => { try { const r = await fetch('/api/current', {cache: 'no-store'}); return r.ok ? ((await r.json()).id || '') : ''; } catch { return cur; } };
+  const first = start; start = async () => { cur = await readCur(); first(); };
+  // every 3 s: the current question, the answers (from the chat too) and the shown fragment; no reload, focus stays
+  setInterval(async () => {
+    const id = await readCur();
+    if (id !== cur) {
+      if (shown && $('.fbt', shown).value.trim()) { if (pend !== id) { pend = id; toast(`Neue Frage aus dem Chat: ${id || 'keine'}.`, async () => { pend = ''; cur = id; first(); }, 'Anzeigen'); } return; }
+      pend = ''; cur = id; first(); if (shown) flash(shown); act('current-shown', 'next', id || 'none', 'auto'); return; }
+    if (!busy()) await load(); if (shown) explain(shown.dataset.id, false);
+  }, 3000);
 }
 load().then(() => { $$('.qrow').forEach(r => { if (has(r.dataset.id)) r.hidden = true; }); $$('.tier').forEach(t => { const e = $('.tier-empty', t); if (e) e.hidden = $$('.qrow', t).some(r => !r.hidden); }); if (offline) toast('Server nicht erreichbar: Antworten werden nicht gespeichert.'); start(); });
 $$('a[href]').forEach(a => a.addEventListener('click', () => act('nav', a.getAttribute('href'))));
+// hot reload: when build.py rewrites the pages, reload; but never over unsaved text, a recording, an open dialog or a pending undo
+let ver = null;
+const checkVer = async () => {
+  try { const v = (await (await fetch('/api/version', {cache: 'no-store'})).json()).site;
+    if (ver === null || v === ver) { ver = v; return; } ver = v;
+    const t = $('#toast'), dirty = $$('textarea').some(x => x.value.trim()) || $$('.mic.on, .mic.busy').length || $('dialog[open]') || (!t.hidden && t.dataset.undo);
+    if (!dirty) { act('hot-reload', PAGE, 'auto', 'auto'); location.reload(); return; }
+    toast('Seite aktualisiert.', async () => location.reload(), 'Neu laden');
+  } catch {}
+};
+checkVer(); setInterval(checkVer, 3000);
 })();
 </script>'''
 
@@ -1428,7 +1468,7 @@ def progress(ids, label="beantwortet"):
 NAV = [("index", "Übersicht"), ("next", "Nächste Frage"), ("schnell", "Schnelldurchgang"), (INBOX, "Eingang"), ("entschieden", "Entschieden"), ("aenderungen", "Änderungen")]
 
 
-def page(slug, title, body, inbox_n, prev=None, nxt=None):
+def page(slug, title, body, inbox_n, prev=None, nxt=None, head=""):
     links = "".join(f'<a href="{s}.html"{" aria-current=page" if s == slug else ""}>{e(t)}'
                     + (f' <span class="count">{inbox_n}</span>' if s == INBOX and inbox_n else "") + '</a>' for s, t in NAV)
     foot = ""
@@ -1436,7 +1476,7 @@ def page(slug, title, body, inbox_n, prev=None, nxt=None):
         foot = ('<nav class="pager" aria-label="Seiten blättern"><span>' + (f'<a href="{prev[0]}.html" rel="prev">← {text(prev[1])}</a>' if prev else "")
                 + '</span><span>' + (f'<a href="{nxt[0]}.html" rel="next">{text(nxt[1])} →</a>' if nxt else "") + '</span></nav>')
     return (f'<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            f'<title>{e(title)} · Entscheidungen</title><style>{CSS}</style></head><body data-page="{slug}">'
+            f'<title>{e(title)} · Entscheidungen</title><style>{CSS}</style>{head}</head><body data-page="{slug}">'
             f'<a class="skip" href="#main">Zum Inhalt springen</a><header class="top"><nav aria-label="Hauptnavigation">{links}</nav></header>'
             f'<main id="main" tabindex="-1">{body}</main><footer>{foot}</footer>'
             '<div id="toast" role="status" aria-live="polite" hidden><span class="toast-t"></span> <button type="button" class="btn link toast-undo">Rückgängig</button></div>'
@@ -1449,8 +1489,34 @@ Karten mit einer Antwort oder Notiz bleiben, wie sie sind.</p><ul id="bulk-list"
 <div class="dlg-actions"><button type="button" id="bulk-cancel" class="btn" autofocus>Abbrechen</button><button type="button" id="bulk-ok" class="btn primary">Ja, alle so lassen</button></div></dialog>'''
 
 
+EXPLAIN_CSS = """/* explain.css: style for explain/<id>.html fragments on next.html (generated by build.py; edit there).
+Token classes k t f p s c o b m as on the site; cards .ok .y .must; JSON samples pre.j .k2 .v .n .hl. Light and dark. */
+""" + CSS[:CSS.index("*{box-sizing")] + """
+.explain{font-size:15px}
+.explain i{font-style:normal}.explain .k{color:var(--k)}.explain .t{color:var(--t)}.explain .f{color:var(--f)}.explain .p{color:var(--p)}
+.explain .s{color:var(--s)}.explain .c{color:var(--c)}.explain .o,.explain .b{color:var(--o)}.explain .m{color:var(--m);font-style:italic}
+.explain h2{font-size:18px;margin:0 0 8px}
+.explain h3{font-size:16px;margin:20px 0 6px;color:var(--f)}
+.explain .lead{color:var(--mut);margin:0 0 10px}
+.explain pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px 14px;border:1px solid var(--bd);border-radius:8px;margin:0 0 10px;background:var(--soft);font:13px/1.6 ui-monospace,Menlo,monospace}
+.explain code{font:0.9em ui-monospace,Menlo,monospace;background:var(--soft);border:1px solid var(--bd);border-radius:4px;padding:0 4px}
+.explain pre.j .k2{color:var(--p)}.explain pre.j .v{color:var(--s)}.explain pre.j .n{color:var(--t)}
+.explain pre.j .hl{background:var(--hl);border-radius:3px;outline:1px solid var(--t)}
+.explain .card{border:1px solid var(--bd);border-left-width:5px;border-radius:8px;padding:8px 12px;margin:0 0 8px;background:var(--soft);font-size:14.5px}
+.explain .card b{display:block;font-weight:700;margin-bottom:2px}
+.explain .ok{border-color:var(--s)}.explain .ok b{color:var(--s)}
+.explain .y{border-color:var(--t)}.explain .y b{color:var(--t)}
+.explain .must{border-color:var(--p)}.explain .must b{color:var(--p)}
+:root{--hl:#fff1b8}
+@media (prefers-color-scheme:dark){:root{--hl:#3a3522}}
+"""
+
+
 def write(name, s):
-    with open(os.path.join(HERE, name + ".html"), "w") as f:
+    path = os.path.join(HERE, name + ".html")
+    if os.path.exists(path) and open(path).read() == s:
+        return  # unchanged pages keep their mtime, so open pages do not hot-reload for nothing
+    with open(path, "w") as f:
         f.write(s)
 
 
@@ -1555,15 +1621,24 @@ def main():
 
     # Eine Frage auf einmal
     queue = by_stack["block"] + by_stack["defaults"]
+    ec = os.path.join(HERE, "explain.css")
+    if not os.path.exists(ec) or open(ec).read() != EXPLAIN_CSS:
+        with open(ec, "w") as f:
+            f.write(EXPLAIN_CSS)
+    os.makedirs(os.path.join(HERE, "explain"), exist_ok=True)
+    log_view("next", now, "view changed", "current question from the chat, explain/<id>.html below the card, 3 s poll")
+    qids = {x["id"] for x in queue}
+    pool = [x for x in uniq if x["id"] not in qids]  # any card can be the current question
     body = ('<h1>Eine Frage auf einmal</h1><p class="lead">Erst was Arbeit blockt, dann die gebauten Defaults. Ideen für später sind nicht dabei.</p>'
-            '<div id="qbar" class="qbar"><p class="qpos" aria-live="polite">Frage <b id="qpos">–</b> in dieser Runde</p>' + progress([x["id"] for x in queue], "insgesamt beantwortet") + '</div>'
+            '<div id="qbar" class="qbar"><p class="qpos" aria-live="polite"><span id="qcur" class="pill st-new" hidden><span aria-hidden="true">★</span> Aktuelle Frage aus dem Chat</span> Frage <b id="qpos">–</b> in dieser Runde</p>' + progress([x["id"] for x in queue], "insgesamt beantwortet") + '</div>'
             '<p class="keys"><kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> wählen · <kbd>Enter</kbd> speichert die Notiz · <kbd>N</kbd> nächste · <kbd>M</kbd> halten zum Sprechen</p>'
-            '<div id="queue">' + "".join(render_item(x, ans, home=True).replace('<section class="card"', '<section hidden class="card"', 1) for x in queue) + '</div>'
+            '<div id="queue">' + "".join(render_item(x, ans, home=True).replace('<section class="card"', '<section hidden class="card"', 1) for x in queue + pool) + '</div>'
             '<div class="qnav"><button type="button" id="qnext" class="btn primary">Überspringen</button></div>'
             '<section id="done" class="done" hidden tabindex="-1"><h2><span aria-hidden="true">✓</span> Fertig</h2><p>Jede Karte in dieser Runde hat eine Antwort oder wurde übersprungen.</p>'
             '<p id="again-p" hidden><button type="button" id="again" class="btn primary"><span id="again-n"></span> offene Karten noch einmal ansehen</button></p>'
-            '<p><a href="index.html">Zur Übersicht</a> · <a href="entschieden.html">Deine Antworten</a></p></section>')
-    write("next", page("next", "Nächste Frage", body, n_in))
+            '<p><a href="index.html">Zur Übersicht</a> · <a href="entschieden.html">Deine Antworten</a></p></section>'
+            '<section id="explain" class="explain" aria-labelledby="ex-h" hidden><h2 id="ex-h" class="sec">Erklärung</h2><div id="ex-body"></div></section>')
+    write("next", page("next", "Nächste Frage", body, n_in, head='<link rel="stylesheet" href="explain.css">'))
 
     # Übersicht
     stacks = []

@@ -1,0 +1,38 @@
+<p class="lead">In Production: 2 Zeilen mit leerem Body-Text. Der Build sieht den Wert nicht, die Datenbank hat ihn.</p>
+<pre><i class=m>// VORHER: der geheime Text hat einen eigenen TYPE mit Konstruktor (DL-160). v1 ohne Mark.</i>
+<i class=k>type</i> <i class=t>BadBody</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>type</i> <i class=t>Body</i> <i class=b>{</i> <i class=p>text</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+<i class=k>fn</i> <i class=c>Body</i> text<i class=o>:</i> <i class=t>String</i> <i class=o>-&gt;</i> <i class=t>Body</i> <i class=o>!</i> <i class=t>BadBody</i>
+<i class=k>fn</i> <i class=c>Body</i> text         <i class=o>-&gt;</i> <i class=t>Body</i> <i class=o>!</i> <i class=t>BadBody</i> <i class=o>=</i> <i class=t>Body</i> <i class=b>{</i> <i class=p>text</i><i class=o>:</i> text <i class=b>}</i>
+
+<i class=k>type</i> <i class=t>Note</i> <i class=b>{</i>
+  <i class=p>body</i><i class=o>:</i> <i class=k>redacted</i> <i class=t>Body</i>
+  <i class=p>tag</i><i class=o>:</i> <i class=t>String</i>
+<i class=b>}</i></pre>
+<h3>Regel wird strenger</h3>
+<pre><i class=m>// NACHHER: Body bekommt die Regel &quot;nicht leer&quot;. Das ist Body v2 (DL-155). Note bleibt, wie es war.</i>
+<i class=m>// Der Build prüft keine Regel über alte body-Werte: er sieht sie nicht und muss es nicht.</i>
+<i class=m>// Er prüft nur: hat jede Body-v1-Zeile eine Fate? Ja: quarantine. (Form aus DL-125, nicht gebaut)</i>
+<i class=k>type</i> <i class=t>BadBody</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>type</i> <i class=t>Body</i> <i class=c>v2</i> <i class=b>{</i> <i class=p>text</i><i class=o>:</i> <i class=t>String</i> <i class=b>}</i>
+
+<i class=k>migrate</i> <i class=t>Body</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i>
+  quarantine text
+<i class=b>}</i>
+
+<i class=k>fn</i> <i class=c>Body</i> text<i class=o>:</i> <i class=t>String</i> <i class=o>-&gt;</i> <i class=t>Body</i> <i class=o>!</i> <i class=t>BadBody</i>
+<i class=k>fn</i> <i class=c>Body</i> <i class=s>&quot;&quot;</i>           <i class=o>-&gt;</i> <i class=t>Body</i> <i class=o>!</i> <i class=t>BadBody</i> <i class=o>=</i> <i class=t>BadBody</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Body</i> text         <i class=o>-&gt;</i> <i class=t>Body</i> <i class=o>!</i> <i class=t>BadBody</i> <i class=o>=</i> <i class=t>Body</i> <i class=b>{</i> <i class=p>text</i><i class=o>:</i> text <i class=b>}</i>
+
+<i class=k>type</i> <i class=t>Note</i> <i class=b>{</i>
+  <i class=p>body</i><i class=o>:</i> <i class=k>redacted</i> <i class=t>Body</i>
+  <i class=p>tag</i><i class=o>:</i> <i class=t>String</i>
+<i class=b>}</i></pre>
+<div class="card ok"><b>Build</b>„2 rows of Body v1 wait in quarantine (text)“. Grün. Auf /notes fehlen die zwei, gezählt (DL-157). Keine Regel läuft über einen fehlenden Wert, also hat <code>redact</code> nie etwas zu überspringen: M3 = A.</div>
+<h3>Was DL-160 ausschließt</h3>
+<pre><i class=m>// VERBOTEN (DL-160): ein geschwärztes Feld ohne eigenen TYPE. Build-Fehler.</i>
+<i class=k>type</i> <i class=t>Note</i> <i class=b>{</i>
+  <i class=p>text</i><i class=o>:</i> <i class=k>redacted</i> <i class=t>String</i>
+  <i class=p>tag</i><i class=o>:</i> <i class=t>String</i>
+<i class=b>}</i></pre>
+<div class="card must"><b>Build</b>„field text: a redacted field needs a constructor TYPE (DL-160)“. Ohne TYPE gäbe es keine Version und keine Regel, über die man etwas über alte Werte sagen könnte.</div>

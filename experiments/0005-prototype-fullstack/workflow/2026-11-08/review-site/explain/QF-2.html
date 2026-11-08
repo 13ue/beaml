@@ -1,0 +1,49 @@
+<p class="lead">Zeile = Eintrag in der Postgres-Tabelle (der echte Zustand). Record = Aufzeichnung eines Aufrufs für Prüfung, Replay und Observability. Beide tragen heute denselben Kern mit <code>type</code>.</p>
+<pre><i class=m>// VORHER: Amount steckt in Order. Beide v1.</i>
+<i class=k>type</i> <i class=t>Amount</i> <i class=b>{</i>
+  <i class=p>value</i><i class=o>:</i> <i class=t>String</i>
+  <i class=p>currency</i><i class=o>:</i> <i class=t>String</i>
+<i class=b>}</i>
+
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=o>:</i> <i class=t>String</i><i class=b>,</i> currency<i class=o>:</i> <i class=t>String</i> <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i>
+<i class=k>fn</i> <i class=c>Amount</i> _<i class=b>,</i>     <i class=s>&quot;&quot;</i>       <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=b>,</i> currency <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>Amount</i> <i class=b>{</i> <i class=p>value</i><i class=o>:</i> value<i class=b>,</i> <i class=p>currency</i><i class=o>:</i> currency <i class=b>}</i>
+
+<i class=k>type</i> <i class=t>Order</i> <i class=b>{</i>
+  <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i>
+  <i class=p>amount</i><i class=o>:</i> <i class=t>Amount</i>
+  <i class=p>channel</i><i class=o>:</i> <i class=t>Channel</i>
+<i class=b>}</i></pre>
+<h3>So sieht eine Zeile heute aus (Kern, gekürzt)</h3>
+<pre class="j">{ <span class="k2">"type"</span>: { <span class="k2">"name"</span>: <span class="v">"Order"</span>, <span class="k2">"version"</span>: <span class="n">1</span> },
+  <span class="k2">"value"</span>: { <span class="k2">"order_id"</span>: <span class="v">"o-1"</span>, <span class="k2">"amount"</span>: { <span class="k2">"value"</span>: <span class="v">"0"</span>, <span class="k2">"currency"</span>: <span class="v">"EUR"</span> }, <span class="k2">"channel"</span>: <span class="v">"web"</span> } }</pre>
+<pre><i class=m>// NACHHER: nur Amount ändert sich (value nicht &quot;0&quot;), 2 Zeilen betroffen: Amount v2 (DL-155).</i>
+<i class=m>// Order selbst ändert sich nicht. Welche Version steht jetzt in der Zeile?</i>
+<i class=k>type</i> <i class=t>Amount</i> <i class=c>v2</i> <i class=b>{</i>
+  <i class=p>value</i><i class=o>:</i> <i class=t>String</i>
+  <i class=p>currency</i><i class=o>:</i> <i class=t>String</i>
+<i class=b>}</i>
+
+<i class=k>migrate</i> <i class=t>Amount</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i>
+  quarantine value
+<i class=b>}</i>
+
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=o>:</i> <i class=t>String</i><i class=b>,</i> currency<i class=o>:</i> <i class=t>String</i> <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i>
+<i class=k>fn</i> <i class=c>Amount</i> _<i class=b>,</i>     <i class=s>&quot;&quot;</i>       <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Amount</i> <i class=s>&quot;0&quot;</i><i class=b>,</i>   _        <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=b>,</i> currency <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>Amount</i> <i class=b>{</i> <i class=p>value</i><i class=o>:</i> value<i class=b>,</i> <i class=p>currency</i><i class=o>:</i> currency <i class=b>}</i>
+
+<i class=k>type</i> <i class=t>Order</i> <i class=b>{</i>
+  <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i>
+  <i class=p>amount</i><i class=o>:</i> <i class=t>Amount</i>
+  <i class=p>channel</i><i class=o>:</i> <i class=t>Channel</i>
+<i class=b>}</i></pre>
+<h3>Option A · Version nur in der Quelle (gebaut)</h3>
+<pre class="j">{ <span class="k2">"type"</span>: { <span class="k2">"name"</span>: <span class="v">"Order"</span>, <span class="k2">"version"</span>: <span class="n">1</span> },  <span style="color:var(--mut)">// unverändert, alte und neue Zeilen sehen gleich aus</span>
+  <span class="k2">"value"</span>: { … <span class="k2">"amount"</span>: { <span class="k2">"value"</span>: <span class="v">"0"</span>, <span class="k2">"currency"</span>: <span class="v">"EUR"</span> } … } }</pre>
+<div class="card must"><b>Problem</b>Eine Zeile von gestern (Amount v1) und eine von heute (Amount v2) sagen beide „Order v1“. Der Build weiß nicht, welche Regel <code>amount</code> bestanden hat. Das geht nur, wenn jede Amount-Änderung auch <code>Order v2</code> erzwingt (Regel: eine verschachtelte Version hebt die äußere mit).</div>
+<h3>Option B · verschachtelte Versionen stehen mit in der Zeile</h3>
+<pre class="j">{ <span class="k2">"type"</span>: { <span class="k2">"name"</span>: <span class="v">"Order"</span>, <span class="k2">"version"</span>: <span class="n">1</span>, <span class="hl"><span class="k2">"nested"</span>: { <span class="k2">"amount"</span>: <span class="n">2</span>, <span class="k2">"channel"</span>: <span class="n">1</span> }</span> },
+  <span class="k2">"value"</span>: { … } }</pre>
+<div class="card ok"><b>Wirkung</b>Jede Zeile sagt genau, welche Regel jedes Teilwerts galt. <code>Order</code> bleibt v1, Amount wandert allein. Preis: Record-Format wächst um einen Schlüssel (Entwurf 4), Digest und Leser ändern sich einmal.</div>
+<div class="card y"><b>Option A' · wie A, aber die äußere Version springt mit</b>Amount v2 erzwingt <code>type Order v2</code> und <code>migrate Order v1 -> v2 {}</code> (leer). Kein Formatwechsel, aber jede innere Änderung produziert äußere Versionen und leere migrate-Blöcke; bei tief verschachtelten TYPES viele.</div>

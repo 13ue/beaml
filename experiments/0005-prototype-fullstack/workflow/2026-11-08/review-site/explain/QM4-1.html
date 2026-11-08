@@ -1,0 +1,43 @@
+<p class="lead">Es geht nur um den <b>Wortlaut</b> des Fehlers. Dass es ein Fehler ist, ist QM4-4 (Default: ja, bis die Fate-Formen da sind).</p>
+<pre><i class=m>// VORHER: Order komplett (v1, ohne Mark), gespeichert über orders.save</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i>
+
+<i class=k>type</i> <i class=t>Order</i> <i class=b>{</i>
+  <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i>
+  <i class=p>amount</i><i class=o>:</i> <i class=t>Amount</i>
+  <i class=p>channel</i><i class=o>:</i> <i class=t>Channel</i>
+<i class=b>}</i>
+
+<i class=k>effect</i> <i class=f>orders.save</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Order</i> <i class=o>!</i> <i class=t>StoreError</i> <i class=o>=</i> <i class=f>db.put</i><i class=b>(</i><i class=s>&quot;records&quot;</i><i class=b>)</i></pre>
+<pre><i class=m>// NACHHER: du willst das Feld channel in source umbenennen. Zeilen mit channel liegen in Production.</i>
+<i class=m>// rename auf ein Enum-Feld ist heute ein Compile-Fehler (QM4-4), bis die Fate-Formen da sind.</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i>
+
+<i class=k>type</i> <i class=t>Order</i> <i class=c>v2</i> <i class=b>{</i>
+  <i class=p>order_id</i><i class=o>:</i> <i class=t>String</i>
+  <i class=p>amount</i><i class=o>:</i> <i class=t>Amount</i>
+  <i class=p>source</i><i class=o>:</i> <i class=t>Channel</i>
+<i class=b>}</i>
+
+<i class=k>migrate</i> <i class=t>Order</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i>
+  <i class=k>rename</i> <i class=p>channel</i> <i class=o>-&gt;</i> <i class=p>source</i>
+<i class=b>}</i>
+
+<i class=k>effect</i> <i class=f>orders.save</i> <i class=t>Order</i> <i class=o>-&gt;</i> <i class=t>Order</i> <i class=o>!</i> <i class=t>StoreError</i> <i class=o>=</i> <i class=f>db.put</i><i class=b>(</i><i class=s>&quot;records&quot;</i><i class=b>)</i></pre>
+<h3>Option A · Text am EFFECT, nennt den Grund (gebaut)</h3>
+<pre class="err">error: effect orders.save: migrate Order v1 -> v2: rename channel -> source names the enum field Order.channel; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
+  help: remove rename channel -> source from the MIGRATE STEP</pre>
+<div class="card ok"><b>Liest sich</b>„Welcher EFFECT ist betroffen, welcher Schritt, welches Feld, warum, was tun.“ Ein Fehler pro EFFECT, der den TYPE liest.</div>
+<h3>Option B · Text am Schritt, wie in Slice 3</h3>
+<pre class="err">error: migrate Order v1 -> v2: rename channel -> source: channel is an enum field
+  help: remove the step</pre>
+<div class="card y"><b>Liest sich</b>Kürzer, ohne EFFECT und ohne Grund. Steht einmal, egal wie viele EFFECTS den TYPE lesen. Der Leser muss M3/DL-152 selbst kennen.</div>
+<div class="card"><b>Warum es dir vorgelegt wird</b>Fehlertexte sind Teil der Sprache, die ein Nutzer sieht (DL-139). Der Default A ist gebaut und von vier Tests gepinnt; B hieße Text ändern und Tests nachziehen.</div>

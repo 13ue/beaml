@@ -119,11 +119,11 @@
  {
   "group": "02b-fates",
   "id": "QF-2",
-  "status": "default",
+  "status": "decided",
   "page": "eingang",
   "added": "2026-11-08T11:20:00Z",
   "source": "fate-plan 2026-11-08",
-  "by": "Opus (PLAN fates, Default)"
+  "by": "Opus (PLAN fates, Default); entschieden 13ue: B, verschachtelte Versionen in der Zeile"
  },
  {
   "group": "02b-fates",

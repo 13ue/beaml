@@ -102,6 +102,7 @@ th.n .pill{font-size:11.5px;padding:3px 6px}
 .done{border:2px solid var(--ok);border-radius:12px;padding:16px 18px;background:var(--card);margin:16px 0}.done h2{margin-top:0;color:var(--ok)}
 .new-tag{margin:22px 0 -8px;font-size:14px;color:var(--mut)}
 @media (max-width:560px){h1{font-size:24px}.card{padding:14px}.btn{width:auto}th.n .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}th.n .pill{padding:4px 7px}}
+@keyframes flash{from{box-shadow:0 0 0 4px var(--acc)}to{box-shadow:0 0 0 0 transparent}}.flash{animation:flash 1.2s ease-out}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
 </style></head><body data-page="06-db"><a class="skip" href="#main">Zum Inhalt springen</a><header class="top"><nav aria-label="Hauptnavigation"><a href="index.html">Übersicht</a><a href="next.html">Nächste Frage</a><a href="schnell.html">Schnelldurchgang</a><a href="eingang.html">Eingang <span class="count">10</span></a><a href="entschieden.html">Entschieden</a><a href="aenderungen.html">Änderungen</a></nav></header><main id="main" tabindex="-1"><p class="crumb"><a href="index.html">Übersicht</a> · Seite 7 von 14</p><h1>Datenbank-Transporte</h1><p class="lead">BEAML spricht über drei Aufrufe mit der Datenbank: <code>db.put</code>, <code>db.get</code>, <code>db.list</code>. Hier: wie der Host sie liefert. Was dabei aufgezeichnet wird. Und wie <code>--stored</code> an die Zeilen kommt.</p><div class="prog" data-ids="QDB-2 QDB-6b QDB-1 GET QDB-5 Q5-7 Q5-2 ORPHAN OFFCHAIN" data-label="beantwortet"><progress max="9" value="0"></progress><span class="prog-t">0 von 9 beantwortet</span></div><div class="bulk"><button type="button" class="btn" data-bulk data-scope="main" data-st="#bulk-st">Alle Defaults dieser Gruppe so lassen</button><span class="mut">9 Default-Karten; Einwände gibst du auf der einzelnen Karte.</span><span id="bulk-st" role="status"></span></div><dialog id="bulk-dlg" aria-labelledby="bulk-h"><h2 id="bulk-h">Alle so lassen?</h2>
 <p>Für <b id="bulk-n"></b> Karten wird die gebaute Option als deine Wahl gespeichert, mit der Notiz „Gruppe abgenickt“.
@@ -131,9 +132,9 @@ const fmtT = t => { try { return new Date(t).toLocaleString('de-DE', {day:'2-dig
 let A = {}, offline = false;
 const has = id => { const a = A[id]; return !!a && (!!a.choice || !!a.note); };  // choice "" = cleared (Rückgängig)
 
-function toast(msg, undo) {
+function toast(msg, undo, label = 'Rückgängig') {
   const t = $('#toast'); $('.toast-t', t).textContent = msg; const b = $('.toast-undo', t);
-  b.hidden = !undo; b.onclick = async () => { t.hidden = true; await undo(); };
+  b.textContent = label; b.hidden = !undo; t.dataset.undo = undo && label === 'Rückgängig' ? '1' : ''; b.onclick = async () => { t.hidden = true; await undo(); };
   t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 10000);
 }
 function paint(card) {
@@ -241,17 +242,35 @@ if (PAGE === 'schnell') {
 // Eine Frage auf einmal
 let start = () => {};
 if (PAGE === 'next') {
-  const cards = $$('#queue section.card'), nx = $('#qnext'); let q = [], i = 0;
+  const all = $$('#queue section.card'), byId = Object.fromEntries(all.map(c => [c.dataset.id, c]));
+  const queued = all.filter(c => !['done', 'ideas'].includes(c.dataset.stack) && c.dataset.status !== 'decided');
+  const nx = $('#qnext'), ex = $('#explain'), exb = $('#ex-body'); let q = [], i = 0, cur = '', pend = '', shown = null, exMod = null;
+  const busy = () => document.activeElement?.matches?.('textarea, input');
+  const quiet = matchMedia('(prefers-reduced-motion: reduce)');
+  const flash = el => { if (quiet.matches) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
+  async function explain(id, force) {
+    // Erklärung: explain/<id>.html, a fragment written by the main agent; HEAD checks Last-Modified, GET only on change
+    try {
+      const u = 'explain/' + encodeURIComponent(id) + '.html';
+      const h = await fetch(u, {method: 'HEAD', cache: 'no-store'}); const mod = h.ok ? (h.headers.get('Last-Modified') || 'x') : null;
+      if (!force && mod === exMod) return; exMod = mod;
+      if (!h.ok) { ex.hidden = true; exb.innerHTML = ''; return; }
+      const r = await fetch(u, {cache: 'no-store'}); if (!r.ok) { ex.hidden = true; return; }
+      exb.innerHTML = await r.text(); ex.hidden = false; if (!force) flash(ex);
+    } catch {}
+  }
   const show = () => {
-    cards.forEach(c => c.hidden = true);
+    all.forEach(c => c.hidden = true);
     const end = i >= q.length; $('#done').hidden = !end; $('#qbar').hidden = end; nx.hidden = end; $('.keys').hidden = end;
-    if (end) { const left = cards.filter(c => !has(c.dataset.id)).length; $('#again-p').hidden = !left; $('#again-n').textContent = left; $('#done').focus(); act('focus-done', 'next', left + ' left'); return; }
-    const c = q[i]; c.hidden = false; hot = c; $('#qpos').textContent = `${i + 1} von ${q.length}`;
-    nx.textContent = has(c.dataset.id) ? 'Weiter (N)' : 'Überspringen (N)'; c.focus({preventScroll: true}); window.scrollTo(0, 0);
+    if (end) { shown = null; ex.hidden = true; const left = queued.filter(c => !has(c.dataset.id)).length; $('#again-p').hidden = !left; $('#again-n').textContent = left; if (!busy()) $('#done').focus(); act('focus-done', 'next', left + ' left'); return; }
+    const c = q[i], isCur = !!cur && c.dataset.id === cur; c.hidden = false; hot = c; $('#qcur').hidden = !isCur;
+    $('#qpos').textContent = `${i + 1} von ${q.length}`;
+    nx.textContent = isCur ? 'Zur Warteschlange (N)' : has(c.dataset.id) ? 'Weiter (N)' : 'Überspringen (N)';
+    if (shown !== c) { shown = c; exMod = undefined; explain(c.dataset.id, true); if (!busy()) { c.focus({preventScroll: true}); window.scrollTo(0, 0); } }
   };
-  start = () => { q = cards.filter(c => !has(c.dataset.id)); i = 0; show(); };
-  nx.addEventListener('click', ev => { const c = q[i]; if (c) act(has(c.dataset.id) ? 'next' : 'skip', c.dataset.id, null, ev.detail === 0 ? 'key' : 'mouse'); i++; show(); });
-  cards.forEach(c => c.addEventListener('chosen', () => { nx.textContent = 'Weiter (N)'; nx.focus(); }));
+  start = () => { const pin = byId[cur]; q = (pin ? [pin] : []).concat(queued.filter(c => c !== pin && !has(c.dataset.id))); i = 0; show(); };
+  nx.addEventListener('click', ev => { const c = q[i]; if (c) act(c.dataset.id === cur ? 'leave-current' : has(c.dataset.id) ? 'next' : 'skip', c.dataset.id, null, ev.detail === 0 ? 'key' : 'mouse'); i++; show(); });
+  all.forEach(c => c.addEventListener('chosen', () => { if (c.dataset.id !== cur) nx.textContent = 'Weiter (N)'; nx.focus(); }));
   $('#again').addEventListener('click', start);
   document.addEventListener('keydown', e => {
     if (typing(e) || e.repeat) return; const k = e.key.toUpperCase(), c = q[i];
@@ -259,8 +278,29 @@ if (PAGE === 'next') {
     const b = c && $$('.opt', c).find(b => b.dataset.choice === k);
     if (b) { e.preventDefault(); choose(c, k, 'key'); }
   });
+  const readCur = async () => { try { const r = await fetch('/api/current', {cache: 'no-store'}); return r.ok ? ((await r.json()).id || '') : ''; } catch { return cur; } };
+  const first = start; start = async () => { cur = await readCur(); first(); };
+  // every 3 s: the current question, the answers (from the chat too) and the shown fragment; no reload, focus stays
+  setInterval(async () => {
+    const id = await readCur();
+    if (id !== cur) {
+      if (shown && $('.fbt', shown).value.trim()) { if (pend !== id) { pend = id; toast(`Neue Frage aus dem Chat: ${id || 'keine'}.`, async () => { pend = ''; cur = id; first(); }, 'Anzeigen'); } return; }
+      pend = ''; cur = id; first(); if (shown) flash(shown); act('current-shown', 'next', id || 'none', 'auto'); return; }
+    if (!busy()) await load(); if (shown) explain(shown.dataset.id, false);
+  }, 3000);
 }
 load().then(() => { $$('.qrow').forEach(r => { if (has(r.dataset.id)) r.hidden = true; }); $$('.tier').forEach(t => { const e = $('.tier-empty', t); if (e) e.hidden = $$('.qrow', t).some(r => !r.hidden); }); if (offline) toast('Server nicht erreichbar: Antworten werden nicht gespeichert.'); start(); });
 $$('a[href]').forEach(a => a.addEventListener('click', () => act('nav', a.getAttribute('href'))));
+// hot reload: when build.py rewrites the pages, reload; but never over unsaved text, a recording, an open dialog or a pending undo
+let ver = null;
+const checkVer = async () => {
+  try { const v = (await (await fetch('/api/version', {cache: 'no-store'})).json()).site;
+    if (ver === null || v === ver) { ver = v; return; } ver = v;
+    const t = $('#toast'), dirty = $$('textarea').some(x => x.value.trim()) || $$('.mic.on, .mic.busy').length || $('dialog[open]') || (!t.hidden && t.dataset.undo);
+    if (!dirty) { act('hot-reload', PAGE, 'auto', 'auto'); location.reload(); return; }
+    toast('Seite aktualisiert.', async () => location.reload(), 'Neu laden');
+  } catch {}
+};
+checkVer(); setInterval(checkVer, 3000);
 })();
 </script></body></html>
