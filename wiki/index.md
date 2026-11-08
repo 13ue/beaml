@@ -77,6 +77,7 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [BEAM/OTP/Phoenix overview sources](sources/beam-otp-phoenix.md): earlier selected docs and version limits.
 - [BEAM VM source ledger](sources/beam-vm-internals.md): pinned current OTP source and stale-guide caveats.
 - [Typed BEAM precedents](sources/typed-beam-languages.md): Dialyzer, Gleam and current Elixir mechanisms.
+- [Gleam typed OTP](sources/gleam-typed-otp.md): typed `Subject`, selectors, actors, supervision and their untyped limits; prior art for D046 and D049.
 - [Runtime/interop overview](concepts/beam-runtime-and-interop.md): generated API, Mix lifecycle, atom safety, tasks/cancellation and upgrades.
 - [Execution and compilation](concepts/beam/execution-and-compilation.md): current Core→SSA, validator, register/root/tail-call, container/loader/JIT contracts.
 - [Terms, memory and GC](concepts/beam/terms-memory-and-gc.md): tagged terms, maps, roots/copying, binary retention and streaming lifetime.

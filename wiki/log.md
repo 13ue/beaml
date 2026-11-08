@@ -500,3 +500,4 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - 2026-11-08 · DL-158: 0005 is the living REFERENCE APP; implement-step gets the step 'land in 0005'. By: Fable after OWNER.
 - 2026-11-08 · OWNER idea capture 3: PubSub and sockets as hard-typed EFFECTS; D049, roadmap line. By: Fable.
 - 2026-11-08 · OWNER idea capture 4: study Gleam for typed OTP; research task under D049. By: Fable.
+- 2026-11-08 · Ingest Gleam typed OTP (`gleam_erlang` and `gleam_otp` v1.3.0) for D046 and D049: capture raw/sources/2026-11-08-gleam-typed-otp.md, source page wiki/sources/gleam-typed-otp.md, section "Prior art: Gleam" in wiki/concepts/beam/typed-language-boundaries.md. By: Opus (research worker).
