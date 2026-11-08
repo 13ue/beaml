@@ -48,3 +48,6 @@
 {"ts": "2026-11-08T10:03:54Z", "source": "mouse", "action": "next", "target": "DL140-PLACE", "result": null}
 {"ts": "2026-11-08T10:09:41Z", "source": "mouse", "action": "choose", "target": "QUAR-LITERAL", "result": "B"}
 {"ts": "2026-11-08T10:09:44Z", "source": "mouse", "action": "next", "target": "QUAR-LITERAL", "result": null}
+{"ts": "2026-11-08T10:11:56Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}
+{"ts": "2026-11-08T10:11:57Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
+{"ts": "2026-11-08T10:11:57Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}

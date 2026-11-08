@@ -989,6 +989,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: parking "not yet clear" must be available for every kind of stored value, not only for failed rules; the OWNER wants that guaranteed.
 → Effect: fates-a1 GREEN builds both forms with the `fate:` count line; RED gets the tests (lost literal parked and counted; rows skipped at run time under DL-157 in a2; map plus quarantine on one literal is an error). Supersedes RF-03.
 
+**DL-163 · Answer · `retire <op> keep N days` deletes STORED ROWS after N days; retention is a guarantee of the language**
+→ Question: M5 (D036). What the RETIRE LINE means for rows in the database. Options: A rows older than N days leave the checked and read set, deletion is host work · B BEAML deletes them after N days · C as A plus a "due for deletion" list for the host.
+→ Chose: B.
+→ By: 13ue (2026-11-08, "B")
+→ Evidence: observed: the RETIRE LINE exists and governs RESPONSE RECORDS (records leave the checked and replay set, the file stays); for rows it parses and frees orphan rows (P4b GREEN). Observed: the language team round split on exactly this (W2 "the build never deletes" vs W1/W3 "retention is a privacy policy of the language", DL-055, DL-111). Unknown: the age source for a row (the ROW SNAPSHOT has no time key, QF-4). Inferred: nothing unmakes a deletion, so the class is Answer; the OWNER decided.
+→ Effect: fates-b plan: (1) the age source (row `inserted_at` from the table, or a time key in the ROW CORE written by `db.put`; live `--stored` reads it, DL-151); (2) who executes: the generated code on a host call (`<Module>.retire/0` or a scheduled job, D046) or the build itself (the build runs on a developer machine: a deletion from there needs an explicit flag and a count; option for the plan); (3) every deletion writes a record without values (count, operation, version, age window) so the REPLAY and the observability stack see it; (4) the build report prints the due count before any deletion ("dry run" in `--stored`); (5) `retire f keep N days` on a field (DL-125) means the field value leaves the row after N days (set absent), same rules. Supersedes the P4b default "RETIRE LINE frees the rows, meaning M5". D036: M5 answered; M8, M9 stay.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
