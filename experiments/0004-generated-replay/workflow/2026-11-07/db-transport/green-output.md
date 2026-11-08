@@ -87,3 +87,46 @@ tree-sitter build --wasm -o grammars/beaml.wasm
 
 - **[Inference]** Byte guards: `slice6_db_test` N13 (every non-db source vs `ce190054`), the four outbound pins and both other N13 guards pass; db sources are new bytes.
 - **[Unknown]** Real Postgres `jsonb` and the real `BeamlDb`: 0005 (N2c and later).
+
+## P4c GREEN
+
+**[Observed]** 2026-11-08. By: Opus (GREEN P4c). Inputs: [red-plan.md](red-plan.md#p4c-row-shape-check), [red-output.md](red-output.md#p4c) (P4c and P4c RED repair), [red-review.md](red-review.md#p4c), 0005 [owner review](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) "Row shape check" default A.
+
+### Diff summary
+
+`experiments/0001-syntax-to-beam/src/main.rs` only (+29 / -3):
+
+- `ValueChecks.strings`: per (TYPE, place, field) the failed count and the first failed line.
+- `value_checks`: for a ROW TYPE (the row TYPE of any non-http EFFECT) at its newest TYPE VERSION, each declared `String` field that is not redacted must hold a String; else one count. Shared by the rows check and the RESPONSE RECORD check (also each `[T]` list item).
+- `value_errors`: one text per key, before the enum and constructor texts: `error: TYPE <T>: <n> stored <ROW|RESPONSE RECORD>[S] of <place> has|have no String value for field <f>`, the record source line and the DL-102 help line. No stored value in the text (DL-124).
+- RESPONSE RECORD gate: `value_checks` now runs for every record whose TYPE name is the EFFECT output, not only for TYPES with literal or constructor fields (a no-op for other TYPES).
+
+### Commands and results
+
+```
+cargo fmt --check; cargo clippy --offline -- -D warnings; cargo test --offline      # experiments/0001-syntax-to-beam
+python3 -B experiments/0004-generated-replay/tests/<name>_test.py                    # each file run.py lists, serially
+```
+
+- fmt: pass. clippy `-D warnings`: pass. cargo test: 22 + 14 pass.
+- `slice6_db_stored_test.py`: **46 tests, OK, 3 skipped** (N28b, N30, N30b). N32, N32b, N32c [missing], N32c [wrong_type] now pass; `N32_control_complete_row_builds` and `N32c_control_complete_list_record_builds` stay green.
+- Every other file `run.py` lists (arms, stored_types, slice2 to slice5, all slice6, record_v3, redteam c1/b3/c3, drift): exit 0, OK. Full `run.py` not run.
+- EFFECT bytes: no change. The pin guards (slice5_syntax A2, N13 in slice6_entry, slice6_multi, slice6_db) pass; the diff touches only `--stored`.
+
+### Decisions
+
+**Repair**
+→ String check on ROW TYPES only statt on every RESPONSE RECORD TYPE, weil the first try blocked 6 stored_types http cases (renamed fields read by the slice 1 decode). http records keep the old gap. → By: Opus (GREEN P4c, default, open) · Repair
+→ Check only at the newest TYPE VERSION statt every version, weil an older version gets its fields by the MIGRATE CHAIN (N31 `add`). → By: Opus (GREEN P4c) · Repair
+
+**Undo**
+→ Redacted String fields skipped (absent from the projection; ROW TYPES forbid them, M3). → By: Opus (GREEN P4c) · Undo
+→ The String text comes before the enum and constructor texts; the Elixir constructor run is skipped then (D6B-105). → By: Opus (GREEN P4c) · Undo
+→ Gate removal for RESPONSE RECORDS (no-op for TYPES without checked fields). → By: Opus (GREEN P4c) · Undo
+→ No new cargo unit test; the Python file covers it. → By: Opus (GREEN P4c) · Undo
+
+### Limits
+
+- **[Inference]** Plural text (`2 stored ROWS … have`) and a fault in list item 1 are not tested.
+- **[Inference]** http RESPONSE RECORDS with a missing String field still pass `--stored`.
+- **[Inference]** A `rejected` row or record stays counted, not shape-checked (QV3-8 B).

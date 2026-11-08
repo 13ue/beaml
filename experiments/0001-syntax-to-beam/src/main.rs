@@ -5302,6 +5302,9 @@ struct ValueChecks {
     lost: BTreeMap<(String, u32, String, String, String), Vec<usize>>,
     // D6B-102: the constructor calls for the Elixir run: (field key, line, signature key, inputs).
     calls: Vec<(FieldKey, usize, String, Vec<String>)>,
+    // 0005 P4c (DL-102, DL-124): per (TYPE, place, field) of a String field without a String value: (failed
+    // records, first failed line).
+    strings: BTreeMap<(String, String, String), (usize, usize)>,
 }
 
 // A DEAD LINE: its byte range in the source, its form (`retire ...` or `migrate T a -> b`) and why it is dead.
@@ -5463,9 +5466,7 @@ impl Checker<'_> {
                 // 0005 P4 (N25, N25b): a db.list record holds ROW TYPE items; each item is checked as the ROW TYPE.
                 let list = (effect.kind == "db.list").then(|| self.row_type(effect));
                 let ty = list.clone().unwrap_or_else(|| effect.output.clone());
-                if stored.name == effect.output
-                    && !(self.literal_fields(&ty).is_empty() && self.ctor_fields(&ty).is_empty())
-                {
+                if stored.name == effect.output {
                     let place = format!("operation {}", stored.operation);
                     // A record without the key `unknown_fields` (written before step 7) kept nothing.
                     let kept = |field: &str| match record.get("unknown_fields") {
@@ -5579,6 +5580,24 @@ impl Checker<'_> {
         body: Option<&Json>,
         kept: &dyn Fn(&str) -> bool,
     ) {
+        // 0005 P4c: each String field of a ROW TYPE at its newest TYPE VERSION holds a String (an older version
+        // reads by the MIGRATE CHAIN; a redacted field is absent from the projection). http records stay unchecked.
+        let row =
+            (self.program.effects.iter()).any(|e| e.kind != "http.post" && self.row_type(e) == ty);
+        if row && version == self.newest_version(ty) {
+            for (field, t) in self.record(ty).cloned().unwrap_or_default() {
+                if t == "String"
+                    && !self.is_redacted(ty, &field)
+                    && body
+                        .and_then(|b| b.get(&field))
+                        .and_then(Json::text)
+                        .is_none()
+                {
+                    let key = (ty.to_string(), place.to_string(), field);
+                    checks.strings.entry(key).or_insert((0, number)).0 += 1;
+                }
+            }
+        }
         for (field, enum_name) in self.literal_fields(ty) {
             let value = body.and_then(|b| b.get(&field));
             let literal = value.and_then(Json::text).is_some_and(|text| {
@@ -5638,6 +5657,13 @@ impl Checker<'_> {
     ) -> Checked<Vec<String>> {
         let mut errors = Vec::new();
         let plural = |n: usize| if n == 1 { "" } else { "S" };
+        for ((ty, op, field), (failed, line)) in &checks.strings {
+            errors.push(format!(
+                "error: TYPE {ty}: {failed} stored {noun}{} of {op} {} no String value for field {field}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of {ty} (DL-102)",
+                plural(*failed),
+                if *failed == 1 { "has" } else { "have" }
+            ));
+        }
         for ((ty, op, field, enum_name), (failed, line, resolved)) in &checks.mapped {
             if *failed > 0 {
                 errors.push(format!(
