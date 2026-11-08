@@ -975,6 +975,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: the history of a hidden value is then complete in code: TYPE, version, rule. A primitive has no version and no rule, so nothing could be said about its old values.
 → Effect: supersedes DL-116 (its interim limit turns into this rule; the 6b error text changes to "a redacted field needs a constructor TYPE"); M3 closes as A (DL-125 list loses DL-116; `redact f` means "field absent from now on"); D042 keeps only the lazy recheck form (how the app reports an old hidden value that fails the new rule). Built in the fate slice (fates-b, with `redact`) or a small step before it; the `redacted-failure` fixtures (26) change.
 
+**DL-161 · Migrate · DL-140 swap detection stays in fates-a; the build reads the old literal table from the previous TYPE VERSION in the source**
+→ Question: the fates plan moved the literal-swap block (DL-140, "Sperre 3") to fates-b because a row stores only the literal, not the variant it had. Options: A keep it in fates-a, the build takes the previous table from the previous TYPE VERSION that DL-155 keeps in the source · B fates-b.
+→ Chose: A.
+→ By: 13ue (decision site, card DL140-PLACE, 2026-11-08 10:03)
+→ Because: DL-155 keeps v1 in the code, so the old table is there; DL-156 named the three blocks as the scope of the fate slice.
+→ Effect: fates-a gets the swap check: for every enum field of a chained TYPE, compare the variant a stored literal took under the stored version's table with the variant under the current table; a difference blocks under DL-122 wording until a `map` line names it (DL-140 A). RED a1 adds the tests (plan repair); the previous worker's RF-03 ("quarantine channel is an error") is a separate OWNER card (QUAR-LITERAL).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
