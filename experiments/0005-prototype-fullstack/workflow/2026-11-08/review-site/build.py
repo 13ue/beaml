@@ -208,6 +208,90 @@ fn Amount value,         currency         -> Amount ! BadAmount = Amount { value
              []),
       ])
 
+# ---------------------------------------------------------------- 2b
+group("02b-fates", "M3: Fate-Formen",
+      "Gestern geparkt, weil die Erklärung unklar war. Mit DL-152 (D6B-39 ganz aufgehoben, jede Migration muss gehen) sind die Fate-Formen jetzt die nächste kritische Frage.",
+      [
+          it("FATE", "Was eine Fate-Form ist", "decided", "13ue",
+             ["Gespeicherter Wert = eine Zeile oder ein RESPONSE RECORD.",
+              S + "RESPONSE RECORD = gespeicherte Zeile eines ausgehenden EFFECT-Aufrufs",
+              "Er wurde unter dem TYPE von gestern geschrieben.",
+              "Der TYPE von heute liest ihn anders oder lehnt ihn ab.",
+              "`--stored` merkt das und bricht den Build ab.",
+              "Fate-Form = eine Zeile in `migrate T v1 -> v2 { … }`.",
+              S + "sagt, was mit solchen Werten passiert",
+              "`quarantine f`: Wert wird beiseite gestellt.",
+              S + "aufgelistet, nie wieder abgespielt (kein REPLAY RUN)",
+              "`retire f keep N days`: Wert fällt nach N Tagen raus.",
+              "`map f \"old\" -> Variant`: verlorenes oder vertauschtes Literal bekommt ein Ziel (DL-140).",
+              S + "Literal = fester Text-Wert eines Enum, z. B. `\"web\"`",
+              "`redact f`: das Feld wird geleert.",
+              "Deklarativ: jede Zeile sagt was, nie wie.",
+              "Noch nicht in der Grammatik, noch nicht gebaut."],
+             "",
+             [beaml('''
+// Form aus DL-125, noch nicht gebaut
+
+// f = Feldname, hier amount und channel.
+
+migrate Order v2 -> v3 {
+  quarantine amount
+  map channel "mobile" -> App
+}
+''')],
+             [], note="Feldwert `\"mobile\"` ist erfunden, nur zur Anschauung.", dl="DL-125"),
+          it("BLOCKS", "Die drei Sperren, die heute nur SQL löst", "default", "Fable (Stand)",
+             ["Sperre = `--stored` bricht den Build ab.",
+              "DL-102: ein gespeicherter Wert fällt durch eine neue Regel.",
+              S + "z. B. der strengere `Amount` in 0005 (N9)",
+              "DL-122: ein gespeichertes Enum-Literal gibt es nicht mehr.",
+              "DL-140: ein Literal wurde zwischen zwei Varianten getauscht.",
+              S + "beschlossen, noch nicht gebaut",
+              "Heute einziger Ausweg: Zeilen von Hand löschen (SQL)."],
+             "Genau diese drei Sperren soll eine Fate-Zeile lösen.",
+             [beaml('''
+// Variante stricter, echte Klauseln.
+
+// Eine gespeicherte Zeile mit Betrag "0" blockt den Build.
+
+fn Amount value: String, currency: String -> Amount ! BadAmount
+fn Amount "0",           _                -> Amount ! BadAmount = BadAmount {}
+fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
+fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
+''')],
+             []),
+          it("M3", "M3: Darf `redact` eine Regel überspringen?", "parked", "OWNER geparkt (D036); Einwand D3 von Opus (RED TEAM)",
+             ["REDACTED FIELD = Feld, dessen Wert nicht gespeichert wird.",
+              "DL-116: so ein Feld darf nur ein einfaches String- oder Int-Feld sein.",
+              S + "ohne Konstruktor (eigene Prüf-`fn`)",
+              "Grund: eine Regel kann nicht über einen Wert laufen, der fehlt.",
+              "Du hast abgelehnt: „Replay überspringt die Regel still“ (DL-116, Option B).",
+              "DL-125 zählt DL-116 aber zu den Sperren, die eine Fate-Zeile löst.",
+              "Einwand D3: dann baut `redact` genau dieses stille Überspringen."],
+             "Ein Agent, der DL-125 wörtlich baut, baut, was du abgelehnt hast.",
+             [beaml('''
+// Form aus DL-125, noch nicht gebaut
+
+// Amount hat einen Konstruktor. Was tut seine Regel ohne Wert?
+
+migrate Order v3 -> v4 { redact amount }
+''')],
+             [("A", "DL-116 verlässt die Liste; neue Frage: wie läuft eine Regel über einen fehlenden Wert", False),
+              ("B", "`redact` überspringt die Regel, DL-116 B kommt zurück", False)]),
+          it("FATE-NEXT", "Reihenfolge: wann bauen wir die Fate-Formen?", "open", "Fable (Vorschlag)",
+             ["Mit DL-152 brauchen Schritte auf Enum- und Konstruktor-Feldern diese Formen.",
+              "Vorschlag: nach M4 Schritt 1 (erst migrieren, dann prüfen) kommt der Fate-Slice.",
+              S + "Grammatik für die vier Zeilen",
+              S + "`--stored` löst DL-102/DL-122/DL-140, wenn eine Fate-Zeile das Feld nennt",
+              S + "REPLAY RUN überspringt Werte in `quarantine`",
+              S + "Use Case: 0005 N9 mit `quarantine amount`",
+              "Alternative: erst `--stored` live aus der Datenbank (DL-151)."],
+             "",
+             [],
+             [("A", "Fate-Slice direkt nach M4 Schritt 1", False),
+              ("B", "erst live `--stored` (DL-151), dann Fate-Slice", False)]),
+      ])
+
 # ---------------------------------------------------------------- 3
 group("03-encoder", "Wie eine Seite einen BEAML-Wert anzeigt",
       "Die Seite /orders zeigt gespeicherte Bestellungen. Die Vorlage (HEEx) braucht dafür einfache Werte. Frage: welche Funktion ruft der Host dafür?",
@@ -701,11 +785,12 @@ group("10-misc", "Kleines",
 group("11-parked", "Geparkt (D036)",
       "Diese Punkte hast du am 2026-11-07 geparkt. Sie stehen hier, damit die Liste vollständig ist. M4 hat eine eigene Seite.",
       [
-          it("M3", "Fate-Formen und DL-116", "parked", "OWNER",
+          it("M3-parked", "Fate-Formen und DL-116", "parked", "OWNER",
              ["Fate-Form = Zeile im `migrate`: was mit alten Daten passiert.",
               S + "`redact`, `quarantine`, `retire`, `map`",
               "Braucht zuerst eine frische Erklärung.",
-              "Ohne M3: aus einem Block nur per SQL."], "", [], []),
+              "Ohne M3: aus einem Block nur per SQL.",
+              "Siehe Seite M3: Fate-Formen."], "", [], []),
           it("M5", "Was `retire` bedeutet, auch für Zeilen", "parked", "OWNER",
              ["`retire` = absichtlich stilllegen, Daten eine Zeit halten.",
               "Offen: was das für Zeilen heißt.",
@@ -879,7 +964,7 @@ def main():
 <div class="legend"><span class="badge open">offen</span> braucht deine Antwort, nichts gebaut oder Einwand <span class="badge default">Default, gebaut</span> gebaut, gilt erst nach deiner Abnahme (DL-139) <span class="badge parked">geparkt</span> D036 <span class="badge decided">entschieden</span> DL-Eintrag vorhanden</div>
 <table><thead><tr><th>#</th><th>Gruppe</th><th class="open">offen</th><th class="default">Default</th><th class="parked">geparkt</th><th class="decided">entschieden</th></tr></thead><tbody>{"".join(rows)}</tbody>
 <tfoot><tr><th></th><th>Summe</th>{"".join(f'<td class="n {k}">{tot[k]}</td>' for k in ("open", "default", "parked", "decided"))}</tr></tfoot></table>
-<p class="note">Reihenfolge für das Gespräch: 1 → 2 → 3 → 4, dann 5 bis 10 als Sammelfragen, 11 nur zur Kenntnis.</p>'''
+<p class="note">Reihenfolge für das Gespräch: 1 → 2 → 3 → 4 → 5, dann 6 bis 11 als Sammelfragen, 12 nur zur Kenntnis.</p>'''
     with open(os.path.join(HERE, "index.html"), "w") as f:
         f.write(page("Walk-through D037", body, None, (G[0]["slug"], G[0]["title"])))
     print(f"{len(G)} pages, {sum(tot.values())} items", tot)

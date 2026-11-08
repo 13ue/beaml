@@ -1,0 +1,106 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M3: Fate-Formen</title><style>
+:root{color-scheme:light dark;--bg:#fafafa;--fg:#383a42;--mut:#8a8f98;--bd:#d9dce2;--card:#fff;
+--k:#a626a4;--t:#c18401;--f:#4078f2;--p:#e45649;--s:#50a14f;--c:#0184bc;--o:#383a42;--m:#9a9fa8;
+--ok:#2e8b57;--open:#c0392b;--def:#b7791f;--park:#6c757d}
+@media (prefers-color-scheme:dark){:root{--bg:#1e2127;--fg:#abb2bf;--mut:#7f848e;--bd:#3a3f4b;--card:#262a31;
+--k:#c678dd;--t:#e5c07b;--f:#61afef;--p:#e06c75;--s:#98c379;--c:#56b6c2;--o:#abb2bf;--m:#7f848e;
+--ok:#98c379;--open:#e06c75;--def:#e5c07b;--park:#7f848e}}
+*{box-sizing:border-box}body{margin:0;padding:20px 16px 60px;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,sans-serif;max-width:860px;margin-inline:auto}
+a{color:var(--f);text-decoration:none}a:hover{text-decoration:underline}
+h1{font-size:24px;margin:8px 0 6px}h2{font-size:17px;margin:28px 0 8px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.lead{color:var(--mut);margin:0 0 18px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;margin:10px 0;background:var(--card);font:13px/1.55 ui-monospace,Menlo,monospace}
+code{font:0.92em ui-monospace,Menlo,monospace;background:var(--card);border:1px solid var(--bd);border-radius:4px;padding:0 4px}
+i{font-style:normal}.k{color:var(--k)}.t{color:var(--t)}.f{color:var(--f)}.p{color:var(--p)}.s{color:var(--s)}.c{color:var(--c)}.o,.b{color:var(--o)}.m{color:var(--m);font-style:italic}
+.card{border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--card)}
+.badge{font:600 11px/1 system-ui;letter-spacing:.3px;text-transform:uppercase;padding:4px 7px;border-radius:999px;border:1px solid currentColor}
+.decided{color:var(--ok)}.open{color:var(--open)}.default{color:var(--def)}.parked{color:var(--park)}
+.id{font:600 12px ui-monospace,Menlo,monospace;color:var(--mut)}
+.why{border-left:3px solid var(--def);padding:2px 10px;color:var(--fg);margin:8px 0}
+ol.opts{padding-left:0;list-style:none;margin:10px 0 4px}ol.opts li{padding:6px 10px;border:1px solid var(--bd);border-radius:8px;margin:5px 0;display:flex;gap:10px}
+ol.opts li.built{border-color:var(--def)}ol.opts .L{font-weight:700;min-width:1.4em}ol.opts .tag{margin-left:auto;color:var(--def);font-size:12px;white-space:nowrap}
+.by{color:var(--mut);font-size:13px;margin-top:8px}.note{color:var(--mut);font-size:13px}
+nav{display:flex;justify-content:space-between;gap:12px;margin:24px 0 0;padding-top:14px;border-top:1px solid var(--bd);font-size:14px}
+table{border-collapse:collapse;width:100%;margin:14px 0}td,th{border-bottom:1px solid var(--bd);padding:8px 6px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600;font-size:13px}
+td.n{text-align:right;white-space:nowrap}
+ol.opts li{cursor:pointer}ol.opts li:hover{background:var(--bg)}ol.opts li.chosen{outline:2px solid var(--ok);outline-offset:-1px}
+.fb{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.mic{font:600 13px system-ui;padding:8px 12px;border-radius:999px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;white-space:nowrap;user-select:none;-webkit-user-select:none}
+.mic.on{background:var(--open);color:#fff;border-color:var(--open)}.mic.busy{opacity:.6}
+.fbt{flex:1;font:14px/1.4 system-ui;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);resize:vertical;min-height:36px}
+.fbs{font-size:12px;color:var(--mut);align-self:center;white-space:nowrap}
+.ans{font-size:13px;margin-top:8px}.ans .a{border-left:3px solid var(--ok);padding:2px 10px;margin:4px 0}.ans .a time{color:var(--mut);margin-right:6px}
+ul.arrows{list-style:none;padding-left:0;margin:8px 0}ul.arrows li{margin:2px 0}ul.arrows li::before{content:"→ "}ul.arrows li.sub::before{content:none}
+pre{padding:14px 16px;line-height:1.7}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin:12px 0}
+</style></head><body><p class="id"><a href="index.html">Übersicht</a> · Seite 3 von 13</p><h1>M3: Fate-Formen</h1><p class="lead">Gestern geparkt, weil die Erklärung unklar war. Mit DL-152 (D6B-39 ganz aufgehoben, jede Migration muss gehen) sind die Fate-Formen jetzt die nächste kritische Frage.</p><section class="card" id="FATE"><h2><span class="id">FATE</span> Was eine Fate-Form ist <span class="badge decided">entschieden · DL-125</span></h2><ul class="arrows"><li>Gespeicherter Wert = eine Zeile oder ein RESPONSE RECORD.</li><li class="sub">⠀⠀↳ RESPONSE RECORD = gespeicherte Zeile eines ausgehenden EFFECT-Aufrufs</li><li>Er wurde unter dem TYPE von gestern geschrieben.</li><li>Der TYPE von heute liest ihn anders oder lehnt ihn ab.</li><li><code>--stored</code> merkt das und bricht den Build ab.</li><li>Fate-Form = eine Zeile in <code>migrate T v1 -&gt; v2 { … }</code>.</li><li class="sub">⠀⠀↳ sagt, was mit solchen Werten passiert</li><li><code>quarantine f</code>: Wert wird beiseite gestellt.</li><li class="sub">⠀⠀↳ aufgelistet, nie wieder abgespielt (kein REPLAY RUN)</li><li><code>retire f keep N days</code>: Wert fällt nach N Tagen raus.</li><li><code>map f &quot;old&quot; -&gt; Variant</code>: verlorenes oder vertauschtes Literal bekommt ein Ziel (DL-140).</li><li class="sub">⠀⠀↳ Literal = fester Text-Wert eines Enum, z. B. <code>&quot;web&quot;</code></li><li><code>redact f</code>: das Feld wird geleert.</li><li>Deklarativ: jede Zeile sagt was, nie wie.</li><li>Noch nicht in der Grammatik, noch nicht gebaut.</li></ul><pre><i class=m>// Form aus DL-125, noch nicht gebaut</i>
+
+<i class=m>// f = Feldname, hier amount und channel.</i>
+
+<i class=k>migrate</i> <i class=t>Order</i> <i class=c>v2</i> <i class=o>-&gt;</i> <i class=c>v3</i> <i class=b>{</i>
+  quarantine amount
+  map channel &quot;mobile&quot; <i class=o>-&gt;</i> App
+<i class=b>}</i></pre>
+<p class="note">Feldwert <code>&quot;mobile&quot;</code> ist erfunden, nur zur Anschauung.</p><p class="by">By: 13ue</p><div class="fb"><button class="mic" type="button" title="Halten und sprechen (oder Taste M)">🎤 Sprechen</button><textarea class="fbt" rows="1" placeholder="Anmerkung (Enter speichert)"></textarea><span class="fbs"></span></div><div class="ans"></div></section><section class="card" id="BLOCKS"><h2><span class="id">BLOCKS</span> Die drei Sperren, die heute nur SQL löst <span class="badge default">Default, gebaut</span></h2><ul class="arrows"><li>Sperre = <code>--stored</code> bricht den Build ab.</li><li>DL-102: ein gespeicherter Wert fällt durch eine neue Regel.</li><li class="sub">⠀⠀↳ z. B. der strengere <code>Amount</code> in 0005 (N9)</li><li>DL-122: ein gespeichertes Enum-Literal gibt es nicht mehr.</li><li>DL-140: ein Literal wurde zwischen zwei Varianten getauscht.</li><li class="sub">⠀⠀↳ beschlossen, noch nicht gebaut</li><li>Heute einziger Ausweg: Zeilen von Hand löschen (SQL).</li></ul><p class="why">Genau diese drei Sperren soll eine Fate-Zeile lösen.</p><pre><i class=m>// Variante stricter, echte Klauseln.</i>
+
+<i class=m>// Eine gespeicherte Zeile mit Betrag &quot;0&quot; blockt den Build.</i>
+
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=o>:</i> <i class=t>String</i><i class=b>,</i> currency<i class=o>:</i> <i class=t>String</i> <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i>
+<i class=k>fn</i> <i class=c>Amount</i> <i class=s>&quot;0&quot;</i><i class=b>,</i>           _                <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Amount</i> _<i class=b>,</i>             <i class=s>&quot;&quot;</i>               <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>BadAmount</i> <i class=b>{</i><i class=b>}</i>
+<i class=k>fn</i> <i class=c>Amount</i> value<i class=b>,</i>         currency         <i class=o>-&gt;</i> <i class=t>Amount</i> <i class=o>!</i> <i class=t>BadAmount</i> <i class=o>=</i> <i class=t>Amount</i> <i class=b>{</i> <i class=p>value</i><i class=o>:</i> value<i class=b>,</i> <i class=p>currency</i><i class=o>:</i> currency <i class=b>}</i></pre>
+<p class="by">By: Fable (Stand)</p><div class="fb"><button class="mic" type="button" title="Halten und sprechen (oder Taste M)">🎤 Sprechen</button><textarea class="fbt" rows="1" placeholder="Anmerkung (Enter speichert)"></textarea><span class="fbs"></span></div><div class="ans"></div></section><section class="card" id="M3"><h2><span class="id">M3</span> M3: Darf <code>redact</code> eine Regel überspringen? <span class="badge parked">geparkt</span></h2><ul class="arrows"><li>REDACTED FIELD = Feld, dessen Wert nicht gespeichert wird.</li><li>DL-116: so ein Feld darf nur ein einfaches String- oder Int-Feld sein.</li><li class="sub">⠀⠀↳ ohne Konstruktor (eigene Prüf-<code>fn</code>)</li><li>Grund: eine Regel kann nicht über einen Wert laufen, der fehlt.</li><li>Du hast abgelehnt: „Replay überspringt die Regel still“ (DL-116, Option B).</li><li>DL-125 zählt DL-116 aber zu den Sperren, die eine Fate-Zeile löst.</li><li>Einwand D3: dann baut <code>redact</code> genau dieses stille Überspringen.</li></ul><p class="why">Ein Agent, der DL-125 wörtlich baut, baut, was du abgelehnt hast.</p><pre><i class=m>// Form aus DL-125, noch nicht gebaut</i>
+
+<i class=m>// Amount hat einen Konstruktor. Was tut seine Regel ohne Wert?</i>
+
+<i class=k>migrate</i> <i class=t>Order</i> <i class=c>v3</i> <i class=o>-&gt;</i> <i class=c>v4</i> <i class=b>{</i> redact amount <i class=b>}</i></pre>
+<ol class="opts"><li class="" data-choice="A" role="button" tabindex="0"><span class="L">A</span><span>DL-116 verlässt die Liste; neue Frage: wie läuft eine Regel über einen fehlenden Wert</span></li><li class="" data-choice="B" role="button" tabindex="0"><span class="L">B</span><span><code>redact</code> überspringt die Regel, DL-116 B kommt zurück</span></li></ol><p class="by">By: OWNER geparkt (D036); Einwand D3 von Opus (RED TEAM)</p><div class="fb"><button class="mic" type="button" title="Halten und sprechen (oder Taste M)">🎤 Sprechen</button><textarea class="fbt" rows="1" placeholder="Anmerkung (Enter speichert)"></textarea><span class="fbs"></span></div><div class="ans"></div></section><section class="card" id="FATE-NEXT"><h2><span class="id">FATE-NEXT</span> Reihenfolge: wann bauen wir die Fate-Formen? <span class="badge open">offen</span></h2><ul class="arrows"><li>Mit DL-152 brauchen Schritte auf Enum- und Konstruktor-Feldern diese Formen.</li><li>Vorschlag: nach M4 Schritt 1 (erst migrieren, dann prüfen) kommt der Fate-Slice.</li><li class="sub">⠀⠀↳ Grammatik für die vier Zeilen</li><li class="sub">⠀⠀↳ <code>--stored</code> löst DL-102/DL-122/DL-140, wenn eine Fate-Zeile das Feld nennt</li><li class="sub">⠀⠀↳ REPLAY RUN überspringt Werte in <code>quarantine</code></li><li class="sub">⠀⠀↳ Use Case: 0005 N9 mit <code>quarantine amount</code></li><li>Alternative: erst <code>--stored</code> live aus der Datenbank (DL-151).</li></ul><ol class="opts"><li class="" data-choice="A" role="button" tabindex="0"><span class="L">A</span><span>Fate-Slice direkt nach M4 Schritt 1</span></li><li class="" data-choice="B" role="button" tabindex="0"><span class="L">B</span><span>erst live <code>--stored</code> (DL-151), dann Fate-Slice</span></li></ol><p class="by">By: Fable (Vorschlag)</p><div class="fb"><button class="mic" type="button" title="Halten und sprechen (oder Taste M)">🎤 Sprechen</button><textarea class="fbt" rows="1" placeholder="Anmerkung (Enter speichert)"></textarea><span class="fbs"></span></div><div class="ans"></div></section><nav><span><a href="02-order-chain.html">← M4: die echte Order-Kette</a></span><a href="index.html">Übersicht</a><span><a href="03-encoder.html">Wie eine Seite einen BEAML-Wert anzeigt →</a></span></nav>
+<script>
+(() => {
+const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const post = (u, b) => fetch(u, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b)}).then(r => r.json());
+const act = (action, target, result, source='mouse') => post('/api/act', {source, action, target, result}).catch(()=>{});
+const fmtT = ts => { try { return new Date(ts).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}); } catch { return ts; } };
+function paint(id, a) {
+  const sec = document.getElementById(id); if (!sec) return;
+  $$('ol.opts li', sec).forEach(li => li.classList.toggle('chosen', !!a && li.dataset.choice === a.choice));
+  const box = $('.ans', sec); box.innerHTML = '';
+  if (a && a.choice) box.insertAdjacentHTML('beforeend', `<div class=a><time>${fmtT(a.ts)}</time>Deine Wahl: <b>${a.choice}</b></div>`);
+  if (a && a.note) box.insertAdjacentHTML('beforeend', `<div class=a><time>${fmtT(a.ts)}</time>${a.note.replace(/</g,'&lt;')}</div>`);
+}
+async function load() { try { const all = await (await fetch('/api/answers')).json(); $$('section.card').forEach(s => paint(s.id, all[s.id])); } catch {} }
+$$('section.card').forEach(sec => {
+  const id = sec.id;
+  $$('ol.opts li', sec).forEach(li => { const pick = async () => { await post('/api/answer', {id, choice: li.dataset.choice}); act('choose', id, li.dataset.choice); load(); };
+    li.addEventListener('click', pick); li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } }); });
+  const ta = $('.fbt', sec), st = $('.fbs', sec), mic = $('.mic', sec);
+  const save = async () => { const note = ta.value.trim(); if (!note) return; await post('/api/answer', {id, note}); act('note', id, note.length + ' chars', 'key'); ta.value = ''; st.textContent = 'gespeichert'; load(); };
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); } });
+  // push-to-talk: hold the button or the key M while the pointer is over the card
+  let rec = null, stream = null, chunks = [], t0 = 0;
+  async function down() {
+    if (rec) return; st.textContent = 'Mikro…'; fetch('/api/stt/warm', {method:'POST'}).catch(()=>{});
+    try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); } catch (e) { st.textContent = 'kein Mikrofon: ' + e.message; return; }
+    const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+    rec = new MediaRecorder(stream, mime ? {mimeType: mime} : {}); chunks = []; t0 = performance.now();
+    rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+    rec.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop()); const blob = new Blob(chunks, {type: rec.mimeType || mime || 'audio/webm'}); rec = null;
+      mic.classList.remove('on'); mic.classList.add('busy'); st.textContent = 'schreibe ab…';
+      try { const r = await fetch('/api/stt?id=' + encodeURIComponent(id), {method:'POST', headers:{'Content-Type': blob.type}, body: blob}); const j = await r.json();
+        st.textContent = r.ok ? (j.text ? 'notiert' : 'nichts gehört') : ('Fehler: ' + (j.error || r.status)); if (!r.ok) ta.focus(); }
+      catch (e) { st.textContent = 'Fehler: ' + e.message; }
+      mic.classList.remove('busy'); act('voice', id, Math.round((performance.now() - t0) / 100) / 10 + ' s', 'voice'); load();
+    };
+    rec.start(); mic.classList.add('on'); st.textContent = 'aufnahme… loslassen zum Senden';
+  }
+  function up() { if (rec && rec.state === 'recording') rec.stop(); }
+  mic.addEventListener('pointerdown', e => { e.preventDefault(); mic.setPointerCapture?.(e.pointerId); down(); });
+  mic.addEventListener('pointerup', up); mic.addEventListener('pointercancel', up);
+  sec.addEventListener('pointerenter', () => window.__hot = sec); 
+  document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'm' && !e.repeat && window.__hot === sec && !e.target.matches('input, textarea')) down(); });
+  document.addEventListener('keyup', e => { if (e.key.toLowerCase() === 'm' && window.__hot === sec) up(); });
+});
+load();
+$$('a[href]').forEach(a => a.addEventListener('click', () => act('nav', a.getAttribute('href'))));
+})();
+</script></body></html>
