@@ -2,8 +2,9 @@
 
 Ledger: experiments/0004-generated-replay/workflow/2026-11-08/m4-lift-d6b39/ (plan.md with "Plan repair after plan
 check", decisions.md PM4-01 to PM4-19 and QM4-1 to QM4-4, plan-review.md, red-plan.md, red-output.md).
-Defaults pinned here (open for the OWNER): QM4-1 A (the effect-scoped rename text), QM4-4 A (rename of an enum or
-constructor field stays an error), QM4-3 A (the DL-122 help keeps its D6B-39 words).
+Defaults pinned here (open for the OWNER): QM4-3 A (the DL-122 help keeps its D6B-39 words). fates-a1b (DL-166) retires
+QM4-1 A and QM4-4 A: a rename onto an enum or constructor field builds; --stored reads an old row by its old key
+(ledger workflow/2026-11-08/fates-a1b/, plan.md "Repairs" O2: stored_key walks the newest step first).
 Expected values come from the plan and the digest and fingerprint code of slice6_db_test (stored_types_test), never
 from the new compiler. The cases that pin the old D6B-39 texts stay in slice6_db_test.py and slice6_decode_test.py
 until the GREEN retires them (red-plan.md, "Retired by GREEN").
@@ -36,20 +37,27 @@ V1_BAD_CURRENCY = core(dict(WIRE1, amount={"value": "12.50", "currency": ""}))
 V1_NO_AMOUNT = core({"order_id": "order-1", "channel": "web"})
 V1_AMOUNT_STRING = core(dict(WIRE1, amount="12.50"))
 
-
-def rename_text(owner, step, kind, field, help_tail=""):
-    """QM4-1 A (default, open): a MIGRATE STEP that names an enum or constructor field (plan, "Compile checks")."""
-    return ("error: effect %s: migrate %s: %s names the %s field %s; a MIGRATE STEP on an enum or constructor field "
-            "waits for the fate forms (M3, DL-152)\n  help: remove %s from the MIGRATE STEP%s"
-            % (owner, step[0], step[1], kind, field, step[1], help_tail))
-
-
-RENAME_CASES = {
-    "row_rename_enum": rename_text("orders.save", ("Order v1 -> v2", "rename via -> channel"), "enum", "Order.channel",
-                                   ", or make channel a String field"),
-    "row_rename_constructor": rename_text("orders.save", ("Order v1 -> v2", "rename price -> amount"), "constructor",
-                                          "Order.amount"),
-}
+# fates-a1b (DL-166): the two bad_rename/ fixtures build. A db.list tail with an ENTRY LINE gives them a live read and
+# the module Orders (Q6E-1 C: without an ENTRY LINE the module is BeamlSpike) (plan AC 2).
+RENAMES = ("row_rename_enum", "row_rename_constructor")
+RENAME_ENUM, RENAME_CTOR = ((BAD_RENAME / ("%s.beaml" % n)).read_text() for n in RENAMES)
+LIST_TAIL = ("type OrderQuery {}\ntype OrderList { items: [Order] }\n"
+             'effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")\n'
+             'effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> list_orders\n'
+             "fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list\n")
+ENUM_STEP = "migrate Order v1 -> v2 { rename via -> channel }"
+# The v1 TYPES of the fixtures: the newest fields with the rename undone (field TYPE text unchanged).
+ENUM_V1 = type_of("Order", 1, [["order_id", "String"], ["via", "Channel"]])
+ENUM_V2 = type_of("Order", 2, [["order_id", "String"], ["channel", "Channel"]])
+CTOR_V1 = type_of("Order", 1, [["order_id", "String"], ["price", "Amount"]])
+# Plan review O2: a chain v1 -> v2 -> v3 of two renames onto channel.
+CHAIN_V1 = type_of("Order", 1, [["order_id", "String"], ["via", "Channel"]])
+CHAIN_V2 = type_of("Order", 2, [["order_id", "String"], ["ch", "Channel"]])
+CHAINED = "migrate Order v1 -> v2 { rename via -> ch }\nmigrate Order v2 -> v3 { rename ch -> channel }"
+RENAME_MAP = 'migrate Order v1 -> v2 { rename via -> channel, map channel "tv" -> Web }'
+# slice6_fates_test (fates-a1): the a1 stop line of a hit map line, and the PF-13 fate line.
+NOT_BUILT_M = "error: a map line is hit, but map at run time is not built yet (fates-a2)"
+MAP_FATE = 'fate: 1 stored ROW of table records mapped by migrate Order v1 -> v2 (map channel "tv" -> Web)'
 
 
 def want(setup, actual, expected):
@@ -125,8 +133,13 @@ REDACTED_CHAIN = ((sdec.EXPERIMENT / "slice6" / "redacted" / "output_redacted.be
 REDACTED_TEXT = ("error: effect payments.authorize: the redacted field Payment.card_holder cannot stand in a TYPE with a "
                  "MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n  help: remove the MIGRATE CHAIN and the VERSION "
                  "MARK of Payment")
-CHAIN_RENAME = rename_text("payments.authorize", ("Payment v1 -> v2", "rename status -> state"), "enum", "Payment.state",
-                           ", or make state a String field")
+# R3 flipped (fates-a1b, AC 3): a v1 body of the CHAIN reads status into state.
+PAYMENT_CHAIN_V1 = type_of("Payment", 1, [["order_id", "String"], ["status", "PaymentState"]])
+R3_CASE = ('r = BeamlSpike.__beaml_decode_payment(:json.encode(%s) |> IO.iodata_to_binary(), %s); '
+           'IO.puts("got R3: " <> inspect(r)); '
+           'r == {:ok, %%{"order_id" => "o-1", "state" => {"PaymentState", "Authorized", []}}, []}'
+           % (ex({"order_id": "o-1", "status": "ok"}),
+              ex({k: PAYMENT_CHAIN_V1[k] for k in ("name", "version", "fingerprint")})))
 
 
 def decode_body(stdout, name):
@@ -152,16 +165,80 @@ class M4Db(unittest.TestCase):
     def test_N33_order_v2_builds(self):
         self.built(ORDER_V2)
 
-    # R2: a MIGRATE STEP that names an enum or constructor field stays an error (QM4-1 A, QM4-4 A).
+    # R2 flipped (fates-a1b, DL-166): a rename onto an enum or constructor field builds.
 
-    def test_N12_rename_rejects(self):
-        self.assertEqual(sorted(RENAME_CASES), sorted(p.stem for p in BAD_RENAME.glob("*.beaml")),
+    def orders(self, text):
+        """An inline source as orders.beaml, so the module is Orders (P5: the module name comes from the stem)."""
+        path = self.work / "inline" / str(next(self.dirs)) / "orders.beaml"
+        path.parent.mkdir(parents=True)
+        path.write_text(text)
+        return path
+
+    def test_N12_rename_onto_builds(self):
+        self.assertEqual(sorted(RENAMES), sorted(p.stem for p in BAD_RENAME.glob("*.beaml")),
                          "setup: bad_rename/ and the table differ")
-        for name, message in RENAME_CASES.items():
+        for name, text in zip(RENAMES, (RENAME_ENUM, RENAME_CTOR)):
             with self.subTest(name):
                 code, stdout, stderr = self.compile(BAD_RENAME / ("%s.beaml" % name))
-                self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
-                                 "expected exit 1, no stdout, the exact text")
+                self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout), stderr)
+            with self.subTest(name + " with the db.list tail"):
+                self.built(self.orders(text + LIST_TAIL))
+
+    def test_N12_rename_onto_runtime(self):
+        # AC 2 (plan review note: the enum fixture has no amount field, so the v1 row has none).
+        enum_row = core({"order_id": "order-1", "via": "web"}, ENUM_V1)
+        self.runtime(self.orders(RENAME_ENUM + LIST_TAIL), {"N12_v1_enum_row_renamed": want(
+            'fresh.(); BeamlDb.seed("Order", 1, %s)' % jb(enum_row), "Orders.list_orders(%{})",
+            '{:ok, %{"items" => [%{"order_id" => "order-1", "channel" => {"Channel", "Web", []}}]}}')})
+        ctor_row = core({"order_id": "order-1", "price": EUR}, CTOR_V1)
+        self.runtime(self.orders(RENAME_CTOR + LIST_TAIL), {"N12_v1_ctor_row_renamed": want(
+            'fresh.(); BeamlDb.seed("Order", 1, %s)' % jb(ctor_row), "Orders.list_orders(%{})",
+            '{:ok, %{"items" => [%{"order_id" => "order-1", "amount" => amount.("12.50")}]}}')})
+
+    def test_N12_rename_onto_stored(self):
+        """AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first)."""
+        enum, ctor = self.orders(RENAME_ENUM + LIST_TAIL), self.orders(RENAME_CTOR + LIST_TAIL)
+        lost = lambda version: ["error: TYPE Order v%d: 1 stored ROW of table records has a value of field channel that "
+                                "is no ENUM LITERAL of Channel now (DL-122)" % version]
+        builds = {
+            "web": (enum, [sds.row({"order_id": "order-web", "via": "web"}, ENUM_V1)]),
+            "tv kept": (enum, [sds.row({"order_id": "order-tv", "via": "tv"}, ENUM_V1, unknown_fields=["via"])]),
+        }
+        for name, (source, rows) in builds.items():
+            with self.subTest(name):
+                self.assert_built(source, [counted(1, 1, 0)], rows=rows)
+        with self.subTest("v2 control"):  # no v1 row: the W2 DEAD LINE warning may print; no error line
+            code, stdout, got, _, _ = self.run_stored(enum, rows=[sds.row({"order_id": "order-v2", "channel": "web"},
+                                                                          ENUM_V2)])
+            self.assertEqual((0, True, True, []), (code, "defmodule Orders do" in stdout, counted(1, 1, 0) in got,
+                                                   [l for l in got if l.startswith("error")]), "\n".join(got))
+        with self.subTest("tv lost"):
+            code, stdout, got, rows_path, _ = self.blocked(enum, rows=[sds.row({"order_id": "order-tv", "via": "tv"},
+                                                                               ENUM_V1)])
+            self.assertEqual((1, "", lost(1) + ["  record source: %s:1 (line 1)" % rows_path, sds.LITERAL_HELP]),
+                             (code, stdout, got))
+        with self.subTest("bad currency"):
+            bad = {"order_id": "order-bad", "price": {"value": "12.50", "currency": ""}}
+            code, stdout, got, rows_path, _ = self.blocked(ctor, rows=[sds.row(bad, CTOR_V1)])
+            self.assertEqual((1, "", ["error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for "
+                                      "field amount with BadAmount", "  record source: %s:1 (line 1)" % rows_path,
+                                      sds.CTOR_HELP_PREFIX + "currency }"]), (code, stdout, got))
+        chain_text = RENAME_ENUM.replace(ENUM_STEP, CHAINED) + LIST_TAIL
+        self.assertNotEqual(RENAME_ENUM + LIST_TAIL, chain_text, "setup: the rename step of row_rename_enum changed")
+        chain = self.orders(chain_text)
+        with self.subTest("chain: a v1 row reads via"):
+            self.assert_built(chain, [counted(1, 1, 0)], rows=[sds.row({"order_id": "order-c1", "via": "web"}, CHAIN_V1)])
+        with self.subTest("chain: a v2 row reads ch"):
+            code, stdout, got, rows_path, _ = self.blocked(chain, rows=[sds.row({"order_id": "order-c2", "ch": "tv"},
+                                                                                CHAIN_V2)])
+            self.assertEqual((1, "", lost(2) + ["  record source: %s:1 (line 1)" % rows_path, sds.LITERAL_HELP]),
+                             (code, stdout, got))
+        map_text = RENAME_ENUM.replace(ENUM_STEP, RENAME_MAP) + LIST_TAIL
+        self.assertNotEqual(RENAME_ENUM + LIST_TAIL, map_text, "setup: the rename step of row_rename_enum changed")
+        with self.subTest("rename and map in one step"):
+            code, stdout, got, _, _ = self.blocked(self.orders(map_text),
+                                                   rows=[sds.row({"order_id": "order-tv", "via": "tv"}, ENUM_V1)])
+            self.assertEqual((1, "", [MAP_FATE, NOT_BUILT_M]), (code, stdout, got))
 
     # R13 (plan repair 3): DL-152 effect (1), the MIGRATE CHANGES stand before the DL-101 tail.
 
@@ -223,8 +300,10 @@ class M4Decode(unittest.TestCase):
     run_runtime = sdec.Slice6Decode.run_runtime
 
     def test_enum_output_field_rename_in_a_chain(self):
-        # R3: the rename onto PaymentState errors with owner effect payments.authorize (PM4-02, QM4-1 A).
-        self.assert_rejected(sdec.CHAIN, CHAIN_RENAME, sdec.EMPTY)
+        # R3 flipped (fates-a1b, DL-166, AC 3): the rename onto PaymentState builds; a v1 body reads status.
+        code, stdout, stderr = self.compile(sdec.CHAIN, sdec.EMPTY)
+        self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout), stderr)
+        self.run_runtime({"R3_v1_body": R3_CASE}, sdec.CHAIN, stored=sf.EMPTY_STORED)
 
     def test_enum_output_field_with_a_version_mark_builds(self):
         # R3b (PM4-04): a VERSION MARK alone has no step that names a field.

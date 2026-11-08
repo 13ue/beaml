@@ -177,3 +177,29 @@ R3, R4; the http live decode of a quarantined body (PF-22); any fmt change (a4);
 
 **Migrate**
 → QB-1, QB-2 for the OWNER (card QUAR-FIELD); built defaults PB-03 and the PF-21 fallback.
+
+## Repairs (after plan check, before RED)
+
+**[Proposal]** RED fates-a1b, 2026-11-08. By: Opus (RED fates-a1b). Source: [plan-review.md](plan-review.md).
+
+- **O1 (high, accepted by the main agent, By: Fable).** QB-2 default changes: a failing clause with **no literal
+  pattern** (a catch-all that returns the failure TYPE) is lifted by **no** quarantine line. Lift only when the first
+  matching clause has a literal pattern at the quarantined parameter. The help of such a block gives no quarantine
+  suggestion: `  help: no fate line covers a failed rule that tests no parameter with a literal (QB-2 open); restore the
+  rule of fn <T> that reads these records`. The PF-21 first-parameter fallback stays for nothing that decides a lift.
+  New RED `test_S1j_a_rule_without_a_literal_is_not_lifted` (case `slice6/stored-elixir/nested.beaml` +
+  `nested-fail.jsonl`, `fn Amount value, c` fails in `Code`; under `quarantine value` and under `quarantine currency`).
+  §9 QB-2 built default now reads "not lifted"; QB-2 stays open for the OWNER (card QUAR-FIELD / QUAR-CLAUSE).
+  **Text pins that move in GREEN** (not the six byte-pin sites; §5 extended): `record_v3_test.py` `HELP_REPIN`
+  lines 173 to 175 (`stored-elixir/order.jsonl`, `nested-fail.jsonl`, `pipe-fail.jsonl`: all three fail a clause
+  without a literal), `slice6_stored_elixir_test.py` line 41 `CTOR_FAILS`. `decode-ctor/stored-fail` (line 171,
+  clause `_, ""`) stays. GREEN moves these pins in the same change and lists any other `help_quarantine` use it finds.
+- **O2 (medium).** `stored_key(ty, version, field)` walk order: take the MIGRATE STEPS of `ty` with `step.from >= version`,
+  **newest step first**; inside a step undo the changes **in reverse order**; each `Rename(old, new)` with `new == name`
+  sets `name = old`. RED adds two subTests to `test_N12_rename_onto_stored`: (a) chain `v1 -> v2 { rename via -> ch }`,
+  `v2 -> v3 { rename ch -> channel }`: a v1 row `via: "web"` builds, a v2 row `ch: "tv"` blocks with the lost-literal
+  error for `channel` (`TYPE Order v2`); (b) `rename via -> channel, map channel "tv" -> Web` in one step: a v1 row
+  `via: "tv"` gives the `fate: … mapped` line and the a1 stop line `NOT_BUILT_M`, not the lost-literal block.
+- **Note AC 2.** The enum fixture has no `amount` field. The v1 enum row is `{order_id, via: "web"}` and decodes to
+  `{order_id, channel: Web}`; the v1 constructor row is `{order_id, price: {value: "12.50", currency: "EUR"}}`.
+- **Note S1h.** S1h asserts that its text replace changed the source (`assertNotEqual`, plus `swap` counts 1).

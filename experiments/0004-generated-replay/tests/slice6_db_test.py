@@ -351,7 +351,7 @@ def fourth_kind():
             '  help: write http.post("path"), db.put("records"), db.get("records") or db.list("records")')
 
 
-# N12: the Checks table of plan.md. M4 step 1 (DL-152) retired the two D6B-39 rows; slice6_m4_test.py holds the rename rejects.
+# N12: the Checks table of plan.md. M4 step 1 (DL-152) retired the two D6B-39 rows; slice6_m4_test.py holds the rename cases (fates-a1b, DL-166: they build).
 BAD_CASES = {
     "fourth_kind": fourth_kind(),
     "table": 'error: effect orders.save: db.put uses the table "records" only (DL-127)',

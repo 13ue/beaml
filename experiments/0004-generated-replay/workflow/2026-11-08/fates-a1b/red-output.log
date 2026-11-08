@@ -1,0 +1,886 @@
+== HEAD fafc9195-tree build (scratch git archive HEAD), slice6_m4_test.py
+test_N12_rename_onto_builds (__main__.M4Db.test_N12_rename_onto_builds) ... compiler: /private/tmp/claude-502/-Users-lennart-Projects-beaml/5a9e3a40-d152-4a88-a91b-9ddd9a8f3732/scratchpad/a1b/head/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+
+  test_N12_rename_onto_builds (__main__.M4Db.test_N12_rename_onto_builds) [row_rename_enum] ... FAIL
+  test_N12_rename_onto_builds (__main__.M4Db.test_N12_rename_onto_builds) [row_rename_enum with the db.list tail] ... FAIL
+  test_N12_rename_onto_builds (__main__.M4Db.test_N12_rename_onto_builds) [row_rename_constructor] ... FAIL
+  test_N12_rename_onto_builds (__main__.M4Db.test_N12_rename_onto_builds) [row_rename_constructor with the db.list tail] ... FAIL
+test_N12_rename_onto_runtime (__main__.M4Db.test_N12_rename_onto_runtime) ... FAIL
+test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored)
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... 
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [web]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [tv kept]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [v2 control]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [tv lost]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [bad currency]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [chain: a v1 row reads via]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [chain: a v2 row reads ch]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [rename and map in one step]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+test_N33_order_v2_builds (__main__.M4Db.test_N33_order_v2_builds) ... ok
+test_N33_order_v2_runtime (__main__.M4Db.test_N33_order_v2_runtime) ... ok
+test_N33_order_v2_steps_before_the_tail (__main__.M4Db.test_N33_order_v2_steps_before_the_tail) ... ok
+test_N34_control_kept_v1_value_builds (__main__.M4Db.test_N34_control_kept_v1_value_builds) ... ok
+test_N34_order_v2_rows_of_both_versions_build (__main__.M4Db.test_N34_order_v2_rows_of_both_versions_build) ... ok
+test_N34_v1_record_of_a_chained_output_builds (__main__.M4Db.test_N34_v1_record_of_a_chained_output_builds) ... ok
+test_N34_v1_row_constructor_blocks (__main__.M4Db.test_N34_v1_row_constructor_blocks) ... ok
+test_N34_v1_row_lost_literal_blocks (__main__.M4Db.test_N34_v1_row_lost_literal_blocks) ... ok
+test_chained_constructor_output_reads_a_v1_body (__main__.M4Decode.test_chained_constructor_output_reads_a_v1_body) ... ok
+test_chained_enum_output_reads_a_v1_body (__main__.M4Decode.test_chained_enum_output_reads_a_v1_body) ... ok
+test_enum_output_field_rename_in_a_chain (__main__.M4Decode.test_enum_output_field_rename_in_a_chain) ... FAIL
+test_enum_output_field_with_a_version_mark_builds (__main__.M4Decode.test_enum_output_field_with_a_version_mark_builds) ... ok
+test_redacted_output_field_with_a_chain_still_rejects (__main__.M4Decode.test_redacted_output_field_with_a_chain_still_rejects) ... ok
+
+======================================================================
+FAIL: test_N12_rename_onto_builds (__main__.M4Db.test_N12_rename_onto_builds) [row_rename_enum]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 183, in test_N12_rename_onto_builds
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : error: effect orders.save: migrate Order v1 -> v2: rename via -> channel names the enum field Order.channel; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
+  help: remove rename via -> channel from the MIGRATE STEP, or make channel a String field
+
+
+======================================================================
+FAIL: test_N12_rename_onto_builds (__main__.M4Db.test_N12_rename_onto_builds) [row_rename_enum with the db.list tail]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 185, in test_N12_rename_onto_builds
+    self.built(self.orders(text + LIST_TAIL))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 406, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: error: effect orders.save: migrate Order v1 -> v2: rename via -> channel names the enum field Order.channel; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
+  help: remove rename via -> channel from the MIGRATE STEP, or make channel a String field
+
+
+======================================================================
+FAIL: test_N12_rename_onto_builds (__main__.M4Db.test_N12_rename_onto_builds) [row_rename_constructor]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 183, in test_N12_rename_onto_builds
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : error: effect orders.save: migrate Order v1 -> v2: rename price -> amount names the constructor field Order.amount; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
+  help: remove rename price -> amount from the MIGRATE STEP
+
+
+======================================================================
+FAIL: test_N12_rename_onto_builds (__main__.M4Db.test_N12_rename_onto_builds) [row_rename_constructor with the db.list tail]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 185, in test_N12_rename_onto_builds
+    self.built(self.orders(text + LIST_TAIL))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 406, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: error: effect orders.save: migrate Order v1 -> v2: rename price -> amount names the constructor field Order.amount; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
+  help: remove rename price -> amount from the MIGRATE STEP
+
+
+======================================================================
+FAIL: test_N12_rename_onto_runtime (__main__.M4Db.test_N12_rename_onto_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 190, in test_N12_rename_onto_runtime
+    self.runtime(self.orders(RENAME_ENUM + LIST_TAIL), {"N12_v1_enum_row_renamed": want(
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'fresh.(); BeamlDb.seed("Order", 1, %s)' % jb(enum_row), "Orders.list_orders(%{})",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '{:ok, %{"items" => [%{"order_id" => "order-1", "channel" => {"Channel", "Web", []}}]}}')})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 411, in runtime
+    stdout = self.built(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 406, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: error: effect orders.save: migrate Order v1 -> v2: rename via -> channel names the enum field Order.channel; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
+  help: remove rename via -> channel from the MIGRATE STEP, or make channel a String field
+
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [web]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 209, in test_N12_rename_onto_stored
+    self.assert_built(source, [counted(1, 1, 0)], rows=rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 145, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['error: effect orders.save: mi[256 chars]ld'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1,
++  False,
++  ['error: effect orders.save: migrate Order v1 -> v2: rename via -> channel '
++   'names the enum field Order.channel; a MIGRATE STEP on an enum or '
++   'constructor field waits for the fate forms (M3, DL-152)',
++   '  help: remove rename via -> channel from the MIGRATE STEP, or make channel '
++   'a String field'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [tv kept]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 209, in test_N12_rename_onto_stored
+    self.assert_built(source, [counted(1, 1, 0)], rows=rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 145, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['error: effect orders.save: mi[256 chars]ld'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1,
++  False,
++  ['error: effect orders.save: migrate Order v1 -> v2: rename via -> channel '
++   'names the enum field Order.channel; a MIGRATE STEP on an enum or '
++   'constructor field waits for the fate forms (M3, DL-152)',
++   '  help: remove rename via -> channel from the MIGRATE STEP, or make channel '
++   'a String field'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [v2 control]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 213, in test_N12_rename_onto_stored
+    self.assertEqual((0, True, True, []), (code, "defmodule Orders do" in stdout, counted(1, 1, 0) in got,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                           [l for l in got if l.startswith("error")]), "\n".join(got))
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, True, []) != (1, False, False, ['error: effect orders.s[169 chars]2)'])
+
+First differing element 0:
+0
+1
+
+- (0, True, True, [])
++ (1,
++  False,
++  False,
++  ['error: effect orders.save: migrate Order v1 -> v2: rename via -> channel '
++   'names the enum field Order.channel; a MIGRATE STEP on an enum or '
++   'constructor field waits for the fate forms (M3, DL-152)']) : error: effect orders.save: migrate Order v1 -> v2: rename via -> channel names the enum field Order.channel; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
+  help: remove rename via -> channel from the MIGRATE STEP, or make channel a String field
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [tv lost]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 218, in test_N12_rename_onto_stored
+    self.assertEqual((1, "", lost(1) + ["  record source: %s:1 (line 1)" % rows_path, sds.LITERAL_HELP]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got))
+                     ^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Order v1: 1 stored ROW of table reco[350 chars] }']) != (1, '', ['error: effect orders.save: migrate Order v1 -> v[237 chars]ld'])
+
+First differing element 2:
+['error: TYPE Order v1: 1 stored ROW of table reco[349 chars]> }']
+['error: effect orders.save: migrate Order v1 -> v[236 chars]eld']
+
+  (1,
+   '',
++  ['error: effect orders.save: migrate Order v1 -> v2: rename via -> channel '
++   'names the enum field Order.channel; a MIGRATE STEP on an enum or '
++   'constructor field waits for the fate forms (M3, DL-152)',
++   '  help: remove rename via -> channel from the MIGRATE STEP, or make channel '
++   'a String field'])
+-  ['error: TYPE Order v1: 1 stored ROW of table records has a value of field '
+-   'channel that is no ENUM LITERAL of Channel now (DL-122)',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ltwztusa/stored/6/rows.jsonl:1 '
+-   '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): enum Channel v2 '
+-   'and migrate Channel v1 -> v2 { map "<old literal>" -> <Variant> }'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [bad currency]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 223, in test_N12_rename_onto_stored
+    self.assertEqual((1, "", ["error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "field amount with BadAmount", "  record source: %s:1 (line 1)" % rows_path,
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              sds.CTOR_HELP_PREFIX + "currency }"]), (code, stdout, got))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Order: 1 stored ROW of table records[319 chars] }']) != (1, '', ['error: effect orders.save: migrate Order v1 -> v[213 chars]EP'])
+
+First differing element 2:
+['error: TYPE Order: 1 stored ROW of table records[318 chars]y }']
+['error: effect orders.save: migrate Order v1 -> v[212 chars]TEP']
+
+  (1,
+   '',
++  ['error: effect orders.save: migrate Order v1 -> v2: rename price -> amount '
++   'names the constructor field Order.amount; a MIGRATE STEP on an enum or '
++   'constructor field waits for the fate forms (M3, DL-152)',
++   '  help: remove rename price -> amount from the MIGRATE STEP'])
+-  ['error: TYPE Order: 1 stored ROW of table records fails the constructor of '
+-   'Amount for field amount with BadAmount',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ltwztusa/stored/7/rows.jsonl:1 '
+-   '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v2 '
+-   'and migrate Amount v1 -> v2 { quarantine currency }'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [chain: a v1 row reads via]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 230, in test_N12_rename_onto_stored
+    self.assert_built(chain, [counted(1, 1, 0)], rows=[sds.row({"order_id": "order-c1", "via": "web"}, CHAIN_V1)])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 145, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['error: effect orders.save: mi[254 chars]ld'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1,
++  False,
++  ['error: effect orders.save: migrate Order v2 -> v3: rename ch -> channel '
++   'names the enum field Order.channel; a MIGRATE STEP on an enum or '
++   'constructor field waits for the fate forms (M3, DL-152)',
++   '  help: remove rename ch -> channel from the MIGRATE STEP, or make channel '
++   'a String field'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [chain: a v2 row reads ch]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 234, in test_N12_rename_onto_stored
+    self.assertEqual((1, "", lost(2) + ["  record source: %s:1 (line 1)" % rows_path, sds.LITERAL_HELP]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got))
+                     ^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Order v2: 1 stored ROW of table reco[351 chars] }']) != (1, '', ['error: effect orders.save: migrate Order v2 -> v[235 chars]ld'])
+
+First differing element 2:
+['error: TYPE Order v2: 1 stored ROW of table reco[350 chars]> }']
+['error: effect orders.save: migrate Order v2 -> v[234 chars]eld']
+
+  (1,
+   '',
++  ['error: effect orders.save: migrate Order v2 -> v3: rename ch -> channel '
++   'names the enum field Order.channel; a MIGRATE STEP on an enum or '
++   'constructor field waits for the fate forms (M3, DL-152)',
++   '  help: remove rename ch -> channel from the MIGRATE STEP, or make channel '
++   'a String field'])
+-  ['error: TYPE Order v2: 1 stored ROW of table records has a value of field '
+-   'channel that is no ENUM LITERAL of Channel now (DL-122)',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ltwztusa/stored/10/rows.jsonl:1 '
+-   '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): enum Channel v2 '
+-   'and migrate Channel v1 -> v2 { map "<old literal>" -> <Variant> }'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [rename and map in one step]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 241, in test_N12_rename_onto_stored
+    self.assertEqual((1, "", [MAP_FATE, NOT_BUILT_M]), (code, stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['fate: 1 stored ROW of table records mappe[128 chars]2)']) != (1, '', ['error: effect orders.save: migrate Order [244 chars]ld'])
+
+First differing element 2:
+['fate: 1 stored ROW of table records mappe[127 chars]a2)']
+['error: effect orders.save: migrate Order [243 chars]eld']
+
+  (1,
+   '',
+-  ['fate: 1 stored ROW of table records mapped by migrate Order v1 -> v2 (map '
+-   'channel "tv" -> Web)',
+-   'error: a map line is hit, but map at run time is not built yet (fates-a2)'])
++  ['error: effect orders.save: migrate Order v1 -> v2: rename via -> channel '
++   'names the enum field Order.channel; a MIGRATE STEP on an enum or '
++   'constructor field waits for the fate forms (M3, DL-152)',
++   '  help: remove rename via -> channel from the MIGRATE STEP, or make channel '
++   'a String field'])
+
+======================================================================
+FAIL: test_enum_output_field_rename_in_a_chain (__main__.M4Decode.test_enum_output_field_rename_in_a_chain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 305, in test_enum_output_field_rename_in_a_chain
+    self.assertEqual((0, True), (code, "defmodule BeamlSpike do" in stdout), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : error: effect payments.authorize: migrate Payment v1 -> v2: rename status -> state names the enum field Payment.state; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
+  help: remove rename status -> state from the MIGRATE STEP, or make state a String field
+
+
+----------------------------------------------------------------------
+Ran 16 tests in 4.146s
+
+FAILED (failures=14)
+
+== HEAD, slice6_fates_test.py
+test_F1_quarantine_line_builds (__main__.Fates.test_F1_quarantine_line_builds) ... compiler: /private/tmp/claude-502/-Users-lennart-Projects-beaml/5a9e3a40-d152-4a88-a91b-9ddd9a8f3732/scratchpad/a1b/head/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_F2_enum_version_and_bare_map_build (__main__.Fates.test_F2_enum_version_and_bare_map_build) ... ok
+test_F3_qualified_map_builds (__main__.Fates.test_F3_qualified_map_builds) ... ok
+test_F4_fate_only_step_is_valid (__main__.Fates.test_F4_fate_only_step_is_valid) ... ok
+test_F5_rejects (__main__.Fates.test_F5_rejects) ... ok
+test_F6_redact_and_retire_parse_and_wait (__main__.Fates.test_F6_redact_and_retire_parse_and_wait) ... ok
+test_F7_no_dead_line_for_a_fate_step (__main__.Fates.test_F7_no_dead_line_for_a_fate_step) ... ok
+test_F7b_remove_dead_keeps_a_fate_step (__main__.Fates.test_F7b_remove_dead_keeps_a_fate_step) ... ok
+test_F8_enum_mark_disagrees_with_its_chain (__main__.Fates.test_F8_enum_mark_disagrees_with_its_chain) ... ok
+test_Q1_bare_quarantine_parks_a_lost_literal (__main__.Fates.test_Q1_bare_quarantine_parks_a_lost_literal) ... ok
+test_Q2_qualified_quarantine_parks_a_lost_literal (__main__.Fates.test_Q2_qualified_quarantine_parks_a_lost_literal) ... ok
+test_Q3_quarantine_of_one_literal_lifts_only_that_literal (__main__.Fates.test_Q3_quarantine_of_one_literal_lifts_only_that_literal) ... ok
+test_Q4_quarantine_and_map_lines_print_both_stop_lines (__main__.Fates.test_Q4_quarantine_and_map_lines_print_both_stop_lines) ... ok
+test_S1_quarantine_lifts_the_constructor_block_over_rows (__main__.Fates.test_S1_quarantine_lifts_the_constructor_block_over_rows) ... ok
+test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) ... ok
+test_S1c_quarantine_over_response_records (__main__.Fates.test_S1c_quarantine_over_response_records) ... ok
+test_S1d_quarantine_over_entry_records (__main__.Fates.test_S1d_quarantine_over_entry_records) ... ok
+test_S1e_line_lifts_only_its_type (__main__.Fates.test_S1e_line_lifts_only_its_type) ... ok
+test_S1f_a_quarantined_value_with_a_lost_literal_still_blocks (__main__.Fates.test_S1f_a_quarantined_value_with_a_lost_literal_still_blocks) ... ok
+test_S1g_quarantine_value_does_not_lift_a_currency_rule (__main__.Fates.test_S1g_quarantine_value_does_not_lift_a_currency_rule)
+AC 5: NO_CURRENCY fails the clause `_, ""` (currency); `quarantine value` does not lift it. ... FAIL
+test_S1h_two_quarantine_lines_count_apart (__main__.Fates.test_S1h_two_quarantine_lines_count_apart)
+AC 6: two quarantine lines on one constructor TYPE are valid (PF-11 retired); each counts its own rows. ... FAIL
+test_S1i_first_matching_clause_decides (__main__.Fates.test_S1i_first_matching_clause_decides)
+AC 7: {"0", ""} fails the first matching clause `"0", _` (value), so `quarantine currency` does not lift it. ... 
+  test_S1i_first_matching_clause_decides (__main__.Fates.test_S1i_first_matching_clause_decides) [value clause first: blocks]
+AC 7: {"0", ""} fails the first matching clause `"0", _` (value), so `quarantine currency` does not lift it. ... FAIL
+test_S1j_a_rule_without_a_literal_is_not_lifted (__main__.Fates.test_S1j_a_rule_without_a_literal_is_not_lifted)
+Plan "Repairs" O1 (QB-2 default): nested.beaml `fn Amount value, c` fails in Code; no line names a tested field. ... 
+  test_S1j_a_rule_without_a_literal_is_not_lifted (__main__.Fates.test_S1j_a_rule_without_a_literal_is_not_lifted) [quarantine value]
+Plan "Repairs" O1 (QB-2 default): nested.beaml `fn Amount value, c` fails in Code; no line names a tested field. ... FAIL
+  test_S1j_a_rule_without_a_literal_is_not_lifted (__main__.Fates.test_S1j_a_rule_without_a_literal_is_not_lifted) [quarantine currency]
+Plan "Repairs" O1 (QB-2 default): nested.beaml `fn Amount value, c` fails in Code; no line names a tested field. ... FAIL
+test_S2_map_lifts_the_lost_literal_block (__main__.Fates.test_S2_map_lifts_the_lost_literal_block) ... ok
+test_S2b_control_without_map_blocks_with_the_version_help (__main__.Fates.test_S2b_control_without_map_blocks_with_the_version_help) ... ok
+test_S2c_kept_value_is_neither_mapped_nor_blocked (__main__.Fates.test_S2c_kept_value_is_neither_mapped_nor_blocked) ... ok
+test_S2d_map_lifts_only_its_literal (__main__.Fates.test_S2d_map_lifts_only_its_literal)
+RED repair R-1: a lost "tablet" beside the mapped "app" still blocks; the map line counts 1. ... ok
+test_S3_gate_affected_values_need_the_next_version (__main__.Fates.test_S3_gate_affected_values_need_the_next_version) ... ok
+test_S3b_gate_without_affected_values_is_free (__main__.Fates.test_S3b_gate_without_affected_values_is_free) ... ok
+test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) ... ok
+test_S5_help_where_no_fate_line_lifts_the_block (__main__.Fates.test_S5_help_where_no_fate_line_lifts_the_block) ... ok
+test_S5b_quarantine_lifts_no_decode_or_shape_fault (__main__.Fates.test_S5b_quarantine_lifts_no_decode_or_shape_fault)
+RED repair R-1: under amount_v2 a no-signature or shape fault still blocks, with no fate line. ... ok
+test_W1_swap_blocks_and_names_both_literals (__main__.Fates.test_W1_swap_blocks_and_names_both_literals) ... ok
+test_W2_swap_with_both_fate_lines_is_lifted (__main__.Fates.test_W2_swap_with_both_fate_lines_is_lifted) ... ok
+test_W3_swap_without_stored_values_is_free (__main__.Fates.test_W3_swap_without_stored_values_is_free)
+DL-155 gate: no stored value of the field, no block; the fate step is no DEAD LINE. ... ok
+test_W4_the_previous_table_comes_from_the_previous_declaration (__main__.Fates.test_W4_the_previous_table_comes_from_the_previous_declaration)
+DL-161: without enum Channel v1 in the source the swap check cannot run; the build says so. ... ok
+
+======================================================================
+FAIL: test_S1g_quarantine_value_does_not_lift_a_currency_rule (__main__.Fates.test_S1g_quarantine_value_does_not_lift_a_currency_rule)
+AC 5: NO_CURRENCY fails the clause `_, ""` (currency); `quarantine value` does not lift it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 435, in test_S1g_quarantine_value_does_not_lift_a_currency_rule
+    self.assert_block(AMOUNT_V2, lambda p: ctor_block("table records", "ROW", "Order", "Amount", "amount", "BadAmount",
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                      p["rows"], 1) + [help_q("Amount", 2, "currency")],
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      rows=[row(NO_CURRENCY)])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 258, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Order: 1 stored ROW of table [326 chars] }']) != (1, '', ['fate: 1 stored ROW of table records quara[149 chars]7)'])
+
+First differing element 2:
+['error: TYPE Order: 1 stored ROW of table [325 chars]y }']
+['fate: 1 stored ROW of table records quara[148 chars]57)']
+
+  (1,
+   '',
++  ['fate: 1 stored ROW of table records quarantined by migrate Amount v1 -> v2 '
++   '(quarantine value)',
++   'error: a quarantine line is hit, but quarantine at run time is not built '
++   'yet (fates-a2, DL-157)'])
+-  ['error: TYPE Order: 1 stored ROW of table records fails the constructor of '
+-   'Amount for field amount with BadAmount',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-pmlte_bu/stored/1/rows.jsonl:1 '
+-   '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v3 '
+-   'and migrate Amount v2 -> v3 { quarantine currency }']) : fate: 1 stored ROW of table records quarantined by migrate Amount v1 -> v2 (quarantine value)
+rows: 1 rows, 1 checked, 0 not decodable
+error: a quarantine line is hit, but quarantine at run time is not built yet (fates-a2, DL-157)
+
+======================================================================
+FAIL: test_S1h_two_quarantine_lines_count_apart (__main__.Fates.test_S1h_two_quarantine_lines_count_apart)
+AC 6: two quarantine lines on one constructor TYPE are valid (PF-11 retired); each counts its own rows.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 447, in test_S1h_two_quarantine_lines_count_apart
+    self.assertEqual((1, "", fates, [NOT_BUILT_Q], 3), (code, stdout, set(lines[:-1]), lines[-1:], len(lines)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "\n".join(got))
+                     ^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', {'fate: 1 stored ROW of table records qua[256 chars]], 3) != (1, '', set(), [], 0)
+
+First differing element 2:
+{'fate: 1 stored ROW of table records qua[151 chars]cy)'}
+set()
+
++ (1, '', set(), [], 0)
+- (1,
+-  '',
+-  {'fate: 1 stored ROW of table records quarantined by migrate Amount v1 -> v2 '
+-   '(quarantine currency)',
+-   'fate: 1 stored ROW of table records quarantined by migrate Amount v1 -> v2 '
+-   '(quarantine value)'},
+-  ['error: a quarantine line is hit, but quarantine at run time is not built '
+-   'yet (fates-a2, DL-157)'],
+-  3) : migrate Amount v1 -> v2: one quarantine line per constructor TYPE; Amount has two (PF-11)
+
+======================================================================
+FAIL: test_S1i_first_matching_clause_decides (__main__.Fates.test_S1i_first_matching_clause_decides) [value clause first: blocks]
+AC 7: {"0", ""} fails the first matching clause `"0", _` (value), so `quarantine currency` does not lift it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 455, in test_S1i_first_matching_clause_decides
+    self.assert_block(self.orders(text), lambda p: ctor_block(
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "table records", "ROW", "Order", "Amount", "amount", "BadAmount", p["rows"], 1)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        + [help_q("Amount", 2, "value")], rows=[row(both)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 258, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Order: 1 stored ROW of table [323 chars] }']) != (1, '', ['fate: 1 stored ROW of table records quara[152 chars]7)'])
+
+First differing element 2:
+['error: TYPE Order: 1 stored ROW of table [322 chars]e }']
+['fate: 1 stored ROW of table records quara[151 chars]57)']
+
+  (1,
+   '',
++  ['fate: 1 stored ROW of table records quarantined by migrate Amount v1 -> v2 '
++   '(quarantine currency)',
++   'error: a quarantine line is hit, but quarantine at run time is not built '
++   'yet (fates-a2, DL-157)'])
+-  ['error: TYPE Order: 1 stored ROW of table records fails the constructor of '
+-   'Amount for field amount with BadAmount',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-un64h339/stored/2/rows.jsonl:1 '
+-   '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v3 '
+-   'and migrate Amount v2 -> v3 { quarantine value }']) : fate: 1 stored ROW of table records quarantined by migrate Amount v1 -> v2 (quarantine currency)
+rows: 1 rows, 1 checked, 0 not decodable
+error: a quarantine line is hit, but quarantine at run time is not built yet (fates-a2, DL-157)
+
+======================================================================
+FAIL: test_S1j_a_rule_without_a_literal_is_not_lifted (__main__.Fates.test_S1j_a_rule_without_a_literal_is_not_lifted) [quarantine value]
+Plan "Repairs" O1 (QB-2 default): nested.beaml `fn Amount value, c` fails in Code; no line names a tested field.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 471, in test_S1j_a_rule_without_a_literal_is_not_lifted
+    self.assertEqual((1, "", ["error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "fails the constructor of Amount for field amount with NoCurrency",
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "  record source: %s:1 (line 1)" % NESTED_FAIL, NO_LITERAL_HELP % "Amount"]),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, told(stderr.strip().splitlines())), stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Payment: 1 stored RESPONSE RE[385 chars]ds']) != (1, '', ['fate: 1 stored RESPONSE RECORD of operati[176 chars]7)'])
+
+First differing element 2:
+['error: TYPE Payment: 1 stored RESPONSE RE[384 chars]rds']
+['fate: 1 stored RESPONSE RECORD of operati[175 chars]57)']
+
+  (1,
+   '',
++  ['fate: 1 stored RESPONSE RECORD of operation payments.authorize quarantined '
++   'by migrate Amount v1 -> v2 (quarantine value)',
++   'error: a quarantine line is hit, but quarantine at run time is not built '
++   'yet (fates-a2, DL-157)'])
+-  ['error: TYPE Payment: 1 stored RESPONSE RECORD of operation '
+-   'payments.authorize fails the constructor of Amount for field amount with '
+-   'NoCurrency',
+-   '  record source: '
+-   '/Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/stored-elixir/nested-fail.jsonl:1 '
+-   '(line 1)',
+-   '  help: no fate line covers a failed rule that tests no parameter with a '
+-   'literal (QB-2 open); restore the rule of fn Amount that reads these '
+-   'records']) : fate: 1 stored RESPONSE RECORD of operation payments.authorize quarantined by migrate Amount v1 -> v2 (quarantine value)
+error: a quarantine line is hit, but quarantine at run time is not built yet (fates-a2, DL-157)
+
+
+======================================================================
+FAIL: test_S1j_a_rule_without_a_literal_is_not_lifted (__main__.Fates.test_S1j_a_rule_without_a_literal_is_not_lifted) [quarantine currency]
+Plan "Repairs" O1 (QB-2 default): nested.beaml `fn Amount value, c` fails in Code; no line names a tested field.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 471, in test_S1j_a_rule_without_a_literal_is_not_lifted
+    self.assertEqual((1, "", ["error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "fails the constructor of Amount for field amount with NoCurrency",
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "  record source: %s:1 (line 1)" % NESTED_FAIL, NO_LITERAL_HELP % "Amount"]),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, told(stderr.strip().splitlines())), stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Payment: 1 stored RESPONSE RE[385 chars]ds']) != (1, '', ['fate: 1 stored RESPONSE RECORD of operati[179 chars]7)'])
+
+First differing element 2:
+['error: TYPE Payment: 1 stored RESPONSE RE[384 chars]rds']
+['fate: 1 stored RESPONSE RECORD of operati[178 chars]57)']
+
+  (1,
+   '',
++  ['fate: 1 stored RESPONSE RECORD of operation payments.authorize quarantined '
++   'by migrate Amount v1 -> v2 (quarantine currency)',
++   'error: a quarantine line is hit, but quarantine at run time is not built '
++   'yet (fates-a2, DL-157)'])
+-  ['error: TYPE Payment: 1 stored RESPONSE RECORD of operation '
+-   'payments.authorize fails the constructor of Amount for field amount with '
+-   'NoCurrency',
+-   '  record source: '
+-   '/Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/stored-elixir/nested-fail.jsonl:1 '
+-   '(line 1)',
+-   '  help: no fate line covers a failed rule that tests no parameter with a '
+-   'literal (QB-2 open); restore the rule of fn Amount that reads these '
+-   'records']) : fate: 1 stored RESPONSE RECORD of operation payments.authorize quarantined by migrate Amount v1 -> v2 (quarantine currency)
+error: a quarantine line is hit, but quarantine at run time is not built yet (fates-a2, DL-157)
+
+
+----------------------------------------------------------------------
+Ran 36 tests in 30.519s
+
+FAILED (failures=5)
+
+== PROBE (HEAD with only the two renamed_onto calls removed), slice6_m4_test.py
+test_N12_rename_onto_builds (__main__.M4Db.test_N12_rename_onto_builds) ... compiler: /private/tmp/claude-502/-Users-lennart-Projects-beaml/5a9e3a40-d152-4a88-a91b-9ddd9a8f3732/scratchpad/a1b/probe/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_N12_rename_onto_runtime (__main__.M4Db.test_N12_rename_onto_runtime) ... ok
+test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored)
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... 
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [web]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [tv kept]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [tv lost]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [bad currency]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [chain: a v1 row reads via]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [chain: a v2 row reads ch]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+  test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [rename and map in one step]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first). ... FAIL
+test_N33_order_v2_builds (__main__.M4Db.test_N33_order_v2_builds) ... ok
+test_N33_order_v2_runtime (__main__.M4Db.test_N33_order_v2_runtime) ... ok
+test_N33_order_v2_steps_before_the_tail (__main__.M4Db.test_N33_order_v2_steps_before_the_tail) ... ok
+test_N34_control_kept_v1_value_builds (__main__.M4Db.test_N34_control_kept_v1_value_builds) ... ok
+test_N34_order_v2_rows_of_both_versions_build (__main__.M4Db.test_N34_order_v2_rows_of_both_versions_build) ... ok
+test_N34_v1_record_of_a_chained_output_builds (__main__.M4Db.test_N34_v1_record_of_a_chained_output_builds) ... ok
+test_N34_v1_row_constructor_blocks (__main__.M4Db.test_N34_v1_row_constructor_blocks) ... ok
+test_N34_v1_row_lost_literal_blocks (__main__.M4Db.test_N34_v1_row_lost_literal_blocks) ... ok
+test_chained_constructor_output_reads_a_v1_body (__main__.M4Decode.test_chained_constructor_output_reads_a_v1_body) ... ok
+test_chained_enum_output_reads_a_v1_body (__main__.M4Decode.test_chained_enum_output_reads_a_v1_body) ... ok
+test_enum_output_field_rename_in_a_chain (__main__.M4Decode.test_enum_output_field_rename_in_a_chain) ... ok
+test_enum_output_field_with_a_version_mark_builds (__main__.M4Decode.test_enum_output_field_with_a_version_mark_builds) ... ok
+test_redacted_output_field_with_a_chain_still_rejects (__main__.M4Decode.test_redacted_output_field_with_a_chain_still_rejects) ... ok
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [web]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 209, in test_N12_rename_onto_stored
+    self.assert_built(source, [counted(1, 1, 0)], rows=rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 145, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['error: TYPE Order: 1 stored R[292 chars]2)'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1,
++  False,
++  ['error: TYPE Order: 1 stored ROW of table records has no variant of Channel '
++   'for field channel',
++   '  record source: '
++   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-icaef130/stored/3/rows.jsonl:1 '
++   '(line 1)',
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [tv kept]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 209, in test_N12_rename_onto_stored
+    self.assert_built(source, [counted(1, 1, 0)], rows=rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 145, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['error: TYPE Order: 1 stored R[292 chars]2)'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1,
++  False,
++  ['error: TYPE Order: 1 stored ROW of table records has no variant of Channel '
++   'for field channel',
++   '  record source: '
++   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-icaef130/stored/4/rows.jsonl:1 '
++   '(line 1)',
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [tv lost]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 218, in test_N12_rename_onto_stored
+    self.assertEqual((1, "", lost(1) + ["  record source: %s:1 (line 1)" % rows_path, sds.LITERAL_HELP]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got))
+                     ^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[17 chars]Order v1: 1 stored ROW of table records has a [340 chars] }']) != (1, '[17 chars]Order: 1 stored ROW of table records has no va[263 chars]2)'])
+
+First differing element 2:
+['error: TYPE Order v1: 1 stored ROW of table records has a [339 chars]> }']
+['error: TYPE Order: 1 stored ROW of table records has no va[262 chars]02)']
+
+  (1,
+   '',
+-  ['error: TYPE Order v1: 1 stored ROW of table records has a value of field '
+?                     ^^ ---                                 ^   ^^^    ^^  -
+
++  ['error: TYPE Order: 1 stored ROW of table records has no variant of Channel '
+?                     ^^                                  ^^   ^^^^^    ^^^^^
+
+-   'channel that is no ENUM LITERAL of Channel now (DL-122)',
++   'for field channel',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-icaef130/stored/6/rows.jsonl:1 '
+    '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): enum Channel v2 '
+-   'and migrate Channel v1 -> v2 { map "<old literal>" -> <Variant> }'])
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [bad currency]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 223, in test_N12_rename_onto_stored
+    self.assertEqual((1, "", ["error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "field amount with BadAmount", "  record source: %s:1 (line 1)" % rows_path,
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              sds.CTOR_HELP_PREFIX + "currency }"]), (code, stdout, got))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[49 chars]ords fails the constructor of Amount for field[277 chars] }']) != (1, '[49 chars]ords matches no signature of Amount for field [283 chars]ds'])
+
+First differing element 2:
+['err[41 chars]ords fails the constructor of Amount for field[276 chars]y }']
+['err[41 chars]ords matches no signature of Amount for field [282 chars]rds']
+
+  (1,
+   '',
+-  ['error: TYPE Order: 1 stored ROW of table records fails the constructor of '
+?                                                     ^ ----   ^^  ^  ^^^^^
+
++  ['error: TYPE Order: 1 stored ROW of table records matches no signature of '
+?                                                     ^  +  ^^^ ++++ ^ + ^
+
+-   'Amount for field amount with BadAmount',
+?                      ---------------
+
++   'Amount for field amount',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-icaef130/stored/7/rows.jsonl:1 '
+    '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v2 '
+-   'and migrate Amount v1 -> v2 { quarantine currency }'])
++   '  help: no fate line covers a value that matches no signature of Amount (a '
++   'decode fault); restore a signature of fn Amount that reads these records'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [chain: a v1 row reads via]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 230, in test_N12_rename_onto_stored
+    self.assert_built(chain, [counted(1, 1, 0)], rows=[sds.row({"order_id": "order-c1", "via": "web"}, CHAIN_V1)])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 145, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['error: TYPE Order: 1 stored R[292 chars]2)'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1,
++  False,
++  ['error: TYPE Order: 1 stored ROW of table records has no variant of Channel '
++   'for field channel',
++   '  record source: '
++   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-icaef130/stored/9/rows.jsonl:1 '
++   '(line 1)',
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [chain: a v2 row reads ch]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 234, in test_N12_rename_onto_stored
+    self.assertEqual((1, "", lost(2) + ["  record source: %s:1 (line 1)" % rows_path, sds.LITERAL_HELP]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got))
+                     ^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[17 chars]Order v2: 1 stored ROW of table records has a [341 chars] }']) != (1, '[17 chars]Order: 1 stored ROW of table records has no va[264 chars]2)'])
+
+First differing element 2:
+['error: TYPE Order v2: 1 stored ROW of table records has a [340 chars]> }']
+['error: TYPE Order: 1 stored ROW of table records has no va[263 chars]02)']
+
+  (1,
+   '',
+-  ['error: TYPE Order v2: 1 stored ROW of table records has a value of field '
+?                     ---                                    ^   ^^^    ^^  -
+
++  ['error: TYPE Order: 1 stored ROW of table records has no variant of Channel '
+?                                                         ^^   ^^^^^    ^^^^^
+
+-   'channel that is no ENUM LITERAL of Channel now (DL-122)',
++   'for field channel',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-icaef130/stored/10/rows.jsonl:1 '
+    '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): enum Channel v2 '
+-   'and migrate Channel v1 -> v2 { map "<old literal>" -> <Variant> }'])
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)'])
+
+======================================================================
+FAIL: test_N12_rename_onto_stored (__main__.M4Db.test_N12_rename_onto_stored) [rename and map in one step]
+AC 4 and plan review O2: --stored reads an old row by its old key (stored_key, newest step first).
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_m4_test.py", line 241, in test_N12_rename_onto_stored
+    self.assertEqual((1, "", [MAP_FATE, NOT_BUILT_M]), (code, stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['fate: 1 stored ROW of table records mappe[128 chars]2)']) != (1, '', ['error: TYPE Order: 1 stored ROW of table [281 chars]2)'])
+
+First differing element 2:
+['fate: 1 stored ROW of table records mappe[127 chars]a2)']
+['error: TYPE Order: 1 stored ROW of table [280 chars]02)']
+
+  (1,
+   '',
+-  ['fate: 1 stored ROW of table records mapped by migrate Order v1 -> v2 (map '
+-   'channel "tv" -> Web)',
+-   'error: a map line is hit, but map at run time is not built yet (fates-a2)'])
++  ['error: TYPE Order: 1 stored ROW of table records has no variant of Channel '
++   'for field channel',
++   '  record source: '
++   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-icaef130/stored/12/rows.jsonl:1 '
++   '(line 1)',
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)'])
+
+----------------------------------------------------------------------
+Ran 16 tests in 5.806s
+
+FAILED (failures=7)

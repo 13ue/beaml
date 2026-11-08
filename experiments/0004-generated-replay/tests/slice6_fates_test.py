@@ -189,9 +189,6 @@ REJECTS = {
                                   'migrate Channel v1 -> v2: two map lines name "app"'),
     "two_fate_lines_one_field": (AMT, Q_LINE, "migrate Amount v1 -> v2 { quarantine value, quarantine value }",
                                  "migrate Amount v1 -> v2: two fate lines name the field value"),
-    "two_quarantine_lines_one_type": (AMT, Q_LINE, "migrate Amount v1 -> v2 { quarantine value, quarantine currency }",
-                                      "migrate Amount v1 -> v2: one quarantine line per constructor TYPE; Amount has "
-                                      "two (PF-11)"),
     "bare_and_qualified_map_one_literal": (BARE_AND_QUALIFIED, None, None,
                                            'migrate Order v2 -> v3: map channel "app" -> Mobile: "app" has a map line '
                                            "in migrate Channel v1 -> v2 too; keep one"),
@@ -204,6 +201,11 @@ REJECTS = {
 }
 # QF-6 A: a payload after the map target is a parse error.
 PAYLOAD_PARSE = re.compile(r"(error: )?a map target takes no payload \(QF-6 A\) at byte \d+")
+# fates-a1b (DL-172, plan "Repairs" O1, QB-2 default): a failed rule with no literal pattern is lifted by no line.
+NO_LITERAL_HELP = ("  help: no fate line covers a failed rule that tests no parameter with a literal (QB-2 open); restore "
+                   "the rule of fn %s that reads these records")
+NESTED = sd.EXPERIMENT / "slice6" / "stored-elixir" / "nested.beaml"
+NESTED_FAIL = sd.EXPERIMENT / "slice6" / "stored-elixir" / "nested-fail.jsonl"
 ENUM_MARK_GAP = ("error: enum Channel v3 disagrees with its MIGRATE CHAIN: the last MIGRATE STEP is migrate Channel "
                  "v1 -> v2\n  help: the VERSION MARK and the MIGRATE CHAIN must agree; add migrate Channel v2 -> v3 "
                  "{ ... }, or write enum Channel v2 if no record of v3 exists")
@@ -425,6 +427,51 @@ class Fates(unittest.TestCase):
         lines = told(got)
         self.assertEqual((1, "", True), (code, stdout, any(lines[i:i + 3] == block for i in range(len(lines)))),
                          "\n".join(got))
+
+    # S1g to S1j (fates-a1b, DL-172): a quarantine line lifts only a failed clause that tests its field (PB-03).
+
+    def test_S1g_quarantine_value_does_not_lift_a_currency_rule(self):
+        """AC 5: NO_CURRENCY fails the clause `_, ""` (currency); `quarantine value` does not lift it."""
+        self.assert_block(AMOUNT_V2, lambda p: ctor_block("table records", "ROW", "Order", "Amount", "amount", "BadAmount",
+                                                          p["rows"], 1) + [help_q("Amount", 2, "currency")],
+                          rows=[row(NO_CURRENCY)])
+
+    def test_S1h_two_quarantine_lines_count_apart(self):
+        """AC 6: two quarantine lines on one constructor TYPE are valid (PF-11 retired); each counts its own rows."""
+        text = swap(AMT, Q_LINE, "migrate Amount v1 -> v2 { quarantine value, quarantine currency }")
+        self.assertNotEqual(AMT, text, "setup: the quarantine line of amount_v2 changed")
+        code, stdout, got, _ = self.run_stored(self.orders(text), rows=[row(ZERO), row(NO_CURRENCY)])
+        fates = {fate(1, "ROW", "table records", "quarantined", Q_STEP, "quarantine value"),
+                 fate(1, "ROW", "table records", "quarantined", Q_STEP, "quarantine currency")}
+        lines = told(got)
+        self.assertEqual((1, "", fates, [NOT_BUILT_Q], 3), (code, stdout, set(lines[:-1]), lines[-1:], len(lines)),
+                         "\n".join(got))
+
+    def test_S1i_first_matching_clause_decides(self):
+        """AC 7: {"0", ""} fails the first matching clause `"0", _` (value), so `quarantine currency` does not lift it."""
+        text = swap(AMT, Q_LINE, "migrate Amount v1 -> v2 { quarantine currency }")
+        both = dict(WIRE1, order_id="order-both-bad", amount={"value": "0", "currency": ""})
+        with self.subTest("value clause first: blocks"):
+            self.assert_block(self.orders(text), lambda p: ctor_block(
+                "table records", "ROW", "Order", "Amount", "amount", "BadAmount", p["rows"], 1)
+                + [help_q("Amount", 2, "value")], rows=[row(both)])
+        with self.subTest("guard: the currency clause is lifted"):
+            self.assert_fated(self.orders(text), [fate(1, "ROW", "table records", "quarantined", Q_STEP,
+                                                       "quarantine currency")], [NOT_BUILT_Q], rows=[row(NO_CURRENCY)])
+
+    def test_S1j_a_rule_without_a_literal_is_not_lifted(self):
+        """Plan "Repairs" O1 (QB-2 default): nested.beaml `fn Amount value, c` fails in Code; no line names a tested field."""
+        source = NESTED.read_text()
+        old = "type Amount { value: String currency: String }\n"
+        for param in ("value", "currency"):
+            with self.subTest("quarantine " + param):
+                text = swap(source, old, "type Amount v2 { value: String currency: String }\n"
+                            "migrate Amount v1 -> v2 { quarantine %s }\n" % param)
+                code, stdout, stderr = self.compile(self.orders(text), ["--stored", str(NESTED_FAIL)])
+                self.assertEqual((1, "", ["error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize "
+                                          "fails the constructor of Amount for field amount with NoCurrency",
+                                          "  record source: %s:1 (line 1)" % NESTED_FAIL, NO_LITERAL_HELP % "Amount"]),
+                                 (code, stdout, told(stderr.strip().splitlines())), stderr)
 
     # S2 to S2c (DL-122, DL-142, DL-155): map over lost ENUM LITERALS.
 
