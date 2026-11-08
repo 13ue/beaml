@@ -982,6 +982,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: DL-155 keeps v1 in the code, so the old table is there; DL-156 named the three blocks as the scope of the fate slice.
 → Effect: fates-a gets the swap check: for every enum field of a chained TYPE, compare the variant a stored literal took under the stored version's table with the variant under the current table; a difference blocks under DL-122 wording until a `map` line names it (DL-140 A). RED a1 adds the tests (plan repair); the previous worker's RF-03 ("quarantine channel is an error") is a separate OWNER card (QUAR-LITERAL).
 
+**DL-162 · Migrate · `quarantine` may also park a lost ENUM LITERAL**
+→ Question: QUAR-LITERAL (RED fates-a1, RF-03): a stored literal that no longer exists (DL-122) is lifted only by `map "old" -> Variant`, or also by a quarantine line. Options: A only `map` (a literal always has a meaning, at least `Unknown`) · B `quarantine` allowed too (the rows are parked and counted like a rule failure).
+→ Chose: B. Forms: in an enum's own step `migrate Channel v1 -> v2 { quarantine "fax" }`; in the owning TYPE's step `quarantine channel "fax"` (field then literal). A `map` and a `quarantine` on the same literal is an error.
+→ By: 13ue (2026-11-08, "lass uns hier B nehmen")
+→ Because: parking "not yet clear" must be available for every kind of stored value, not only for failed rules; the OWNER wants that guaranteed.
+→ Effect: fates-a1 GREEN builds both forms with the `fate:` count line; RED gets the tests (lost literal parked and counted; rows skipped at run time under DL-157 in a2; map plus quarantine on one literal is an error). Supersedes RF-03.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
