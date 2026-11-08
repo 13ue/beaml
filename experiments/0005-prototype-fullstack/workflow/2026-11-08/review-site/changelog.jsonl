@@ -143,3 +143,4 @@
 {"ts": "2026-11-08T10:42:44Z", "id": "Q5-4", "page": "06-db", "change": "status decided", "by": "Opus (PLAN exp0005); überholt durch DL-151 (DL-167)"}
 {"ts": "2026-11-08T10:42:44Z", "id": "STORED-ARG", "page": "06-db", "change": "status decided", "by": "Opus (RED exp0005); überholt durch DL-151 (DL-167)"}
 {"ts": "2026-11-08T10:42:44Z", "id": "SNAP-SET", "page": "06-db", "change": "status decided", "by": "Opus (RED exp0005); überholt durch DL-151 (DL-167)"}
+{"ts": "2026-11-08T10:47:44Z", "id": "next", "page": "next", "change": "view changed", "by": "Opus (site-v2)", "what": "current question from the chat, explain/<id>.html below the card, 3 s poll"}

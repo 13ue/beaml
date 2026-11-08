@@ -5,6 +5,10 @@ GET  /…                 static files of this directory
 GET  /api/answers       {id: latest answer, with choice_ts / note_ts}
 POST /api/answer        {id, choice?, note?}      -> feedback/answers.jsonl (append-only, latest per id wins;
                         choice "" or note "" clears it in the merged view, the history stays in the file)
+GET  /api/current       feedback/current.json {id, ts} (the question the main agent shows on next.html); 404 {} if none
+GET  /api/version       {site, explain}: newest mtime of *.html/*.css/*.js here and of explain/*.html (cached 1 s);
+                        pages reload when `site` changes, next.html reloads its fragment by itself
+POST /api/current       {id} -> sets it; CLI: python3 serve.py current QF-2
 POST /api/act           {action, target, result?} -> feedback/actions.jsonl (user action tracking)
 POST /api/stt?id=…      audio body -> {text, language, audio}; audio under feedback/audio/, transcript appended to answers as a note
 Port: argv[1], default 8768. REVIEW_NO_BUS=1 keeps a test copy off the job bus.
@@ -47,6 +51,27 @@ def answers():
     except FileNotFoundError:
         pass
     return d
+
+
+CUR = FB / "current.json"
+
+
+def set_current(item, source):
+    rec = dict(id=str(item), ts=now()); FB.mkdir(exist_ok=True)
+    tmp = CUR.with_suffix(".tmp"); tmp.write_text(json.dumps(rec, ensure_ascii=False)); tmp.replace(CUR)  # atomic for the 3 s poll
+    append("actions.jsonl", dict(ts=rec["ts"], source=source, action="set-current", target=rec["id"], result="ok"))
+    return rec
+
+
+VER = dict(t=0.0, v=None)
+
+
+def version():
+    if time.time() - VER["t"] > 1:
+        m = lambda ps: max((p.stat().st_mtime for p in ps), default=0)
+        VER["v"] = dict(site=m(p for e in ("*.html", "*.css", "*.js") for p in HERE.glob(e)), explain=m((HERE / "explain").glob("*.html")))
+        VER["t"] = time.time()
+    return VER["v"]
 
 
 def bus(kind, msg):
@@ -103,6 +128,9 @@ class H(SimpleHTTPRequestHandler):
     def do_GET(self):
         if urlsplit(self.path).path == "/api/answers": return self.send(200, json.dumps(answers()).encode())
         if urlsplit(self.path).path == "/api/stt": return self.send(200, json.dumps({"ok": VENV_PY.exists()}).encode())
+        if urlsplit(self.path).path == "/api/version": return self.send(200, json.dumps(version()).encode())
+        if urlsplit(self.path).path == "/api/current":
+            return self.send(200, CUR.read_bytes()) if CUR.exists() else self.send(404, b"{}")
         if self.path.startswith("/feedback/"): return self.send(404, b"{}")
         return super().do_GET()
 
@@ -131,6 +159,9 @@ class H(SimpleHTTPRequestHandler):
             body = json.loads(self.rfile.read(n) or b"{}")
         except ValueError:
             return self.send(400, b'{"error": "bad json"}')
+        if u.path == "/api/current":
+            if not str(body.get("id") or "").strip(): return self.send(400, b'{"error": "id missing"}')
+            return self.send(200, json.dumps(set_current(body["id"], "api"), ensure_ascii=False).encode())
         if u.path == "/api/answer":
             rec = dict(ts=now(), id=str(body["id"]), choice=body.get("choice"), note=body.get("note"))
             append("answers.jsonl", rec); bus("step", f"{rec['id']}: {rec.get('choice') or 'note'}")
@@ -142,6 +173,8 @@ class H(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    if sys.argv[1:2] == ["current"]:
+        print(json.dumps(set_current(sys.argv[2], "cli"), ensure_ascii=False)); sys.exit()
     threading.Thread(target=reaper, daemon=True).start()
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8768
     bus("start", f"review server up on 127.0.0.1:{port}")

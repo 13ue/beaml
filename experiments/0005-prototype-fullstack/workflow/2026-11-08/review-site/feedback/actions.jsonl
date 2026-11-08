@@ -68,3 +68,6 @@
 {"ts": "2026-11-08T10:36:43Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
 {"ts": "2026-11-08T10:40:20Z", "source": "mouse", "action": "nav", "target": "schnell.html", "result": null}
 {"ts": "2026-11-08T10:41:44Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}
+{"ts": "2026-11-08T10:43:16Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
+{"ts": "2026-11-08T10:43:30Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}
+{"ts": "2026-11-08T10:48:54Z", "source": "cli", "action": "set-current", "target": "QF-2", "result": "ok"}

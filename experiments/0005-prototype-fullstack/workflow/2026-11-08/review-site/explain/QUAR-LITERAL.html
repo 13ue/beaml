@@ -1,0 +1,33 @@
+<p class="lead">Sperre 2 (DL-122): ein gespeichertes Literal gibt es im Code nicht mehr. Ohne Fate-Zeile blockt der Build.</p>
+<pre><i class=m>// VORHER: Channel komplett. In Production: 5 Bestellungen mit channel = &quot;fax&quot;.</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>
+  <i class=c>Fax</i> <i class=o>=</i> <i class=s>&quot;fax&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i></pre>
+<h3>Option A · nur <code>map</code> (wie in der RED)</h3>
+<pre><i class=m>// Option A: Fax weg. Die 5 Zeilen bekommen per map eine neue Bedeutung. Nur map löst Sperre 2.</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=c>v2</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i>
+
+<i class=k>migrate</i> <i class=t>Channel</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i>
+  map &quot;fax&quot; <i class=o>-&gt;</i> Unknown
+<i class=b>}</i></pre>
+<div class="card ok"><b>Verhalten</b>Alle 5 Zeilen bleiben sichtbar: auf /orders steht bei ihnen <code>Unknown("fax")</code>. Du könntest auch <code>map "fax" -> Web</code> schreiben. Die Zeile wird umgedeutet, nie versteckt. Build: „fate: 5 rows of Channel v1 mapped (fax)“.</div>
+<h3>Option B · <code>quarantine</code> zusätzlich erlaubt</h3>
+<pre><i class=m>// Option B: Fax weg. Die 5 Zeilen werden geparkt statt umgedeutet. quarantine auch auf einem Literal.</i>
+<i class=k>enum</i> <i class=t>Channel</i> <i class=c>v2</i> <i class=b>{</i>
+  <i class=c>Web</i> <i class=o>=</i> <i class=s>&quot;web&quot;</i>
+  <i class=c>App</i> <i class=o>=</i> <i class=s>&quot;app&quot;</i>
+  <i class=c>Unknown</i><i class=b>(</i><i class=t>String</i><i class=b>)</i>
+<i class=b>}</i>
+
+<i class=k>migrate</i> <i class=t>Channel</i> <i class=c>v1</i> <i class=o>-&gt;</i> <i class=c>v2</i> <i class=b>{</i>
+  quarantine &quot;fax&quot;
+<i class=b>}</i></pre>
+<div class="card y"><b>Verhalten</b>Die 5 Zeilen verschwinden von /orders und werden gezählt (DL-157), wie bei einer gebrochenen Regel. Sinn: du willst sie weder umdeuten noch zeigen, sondern erst anschauen. Build: „fate: 5 rows of Channel v1 in quarantine (fax)“.</div>
+<div class="card"><b>Der Unterschied in einem Satz</b>A sagt: ein Literal hat immer eine Bedeutung, notfalls <code>Unknown</code>. B sagt: ein Literal darf auch „noch unklar, parken“ sein, wie ein Wert, der eine Regel bricht.</div>
