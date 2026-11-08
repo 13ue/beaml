@@ -101,20 +101,20 @@
  {
   "group": "02b-fates",
   "id": "DL140-PLACE",
-  "status": "open",
+  "status": "decided",
   "page": "eingang",
   "added": "2026-11-08T11:20:00Z",
   "source": "fate-plan 2026-11-08",
-  "by": "Opus (PLAN fates); Frage von Fable"
+  "by": "Opus (PLAN fates); Frage von Fable; entschieden 13ue: A"
  },
  {
   "group": "02b-fates",
   "id": "QUAR-LITERAL",
-  "status": "open",
+  "status": "decided",
   "page": "eingang",
   "added": "2026-11-08T11:20:00Z",
   "source": "fates-a1 RED 2026-11-08",
-  "by": "Opus (RED fates-a1, RF-03)"
+  "by": "Opus (RED fates-a1, RF-03); entschieden 13ue: B"
  },
  {
   "group": "02b-fates",

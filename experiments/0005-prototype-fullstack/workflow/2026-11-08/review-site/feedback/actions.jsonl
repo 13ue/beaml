@@ -46,3 +46,5 @@
 {"ts": "2026-11-08T10:03:07Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}
 {"ts": "2026-11-08T10:03:50Z", "source": "mouse", "action": "choose", "target": "DL140-PLACE", "result": "A"}
 {"ts": "2026-11-08T10:03:54Z", "source": "mouse", "action": "next", "target": "DL140-PLACE", "result": null}
+{"ts": "2026-11-08T10:09:41Z", "source": "mouse", "action": "choose", "target": "QUAR-LITERAL", "result": "B"}
+{"ts": "2026-11-08T10:09:44Z", "source": "mouse", "action": "next", "target": "QUAR-LITERAL", "result": null}
