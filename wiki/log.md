@@ -497,3 +497,4 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - 2026-11-08 · Roadmap themes D044 to D047 (one contract construct, generics, async compute with OTP and Oban, totality and let it crash) registered from the OWNER walk-through; new concept page totality-and-let-it-crash.md as [Proposal]. By: Fable.
 - 2026-11-08 · OWNER ideas capture rule (AGENTS.md), source page wiki/sources/owner-ideas.md, first capture raw/requirements/2026-11-08-owner-ideas-walkthrough.md. By: Fable.
 - 2026-11-08 · OWNER idea capture 2: 0005 as living REFERENCE APP and end-to-end desk; D048. By: Fable.
+- 2026-11-08 · DL-158: 0005 is the living REFERENCE APP; implement-step gets the step 'land in 0005'. By: Fable after OWNER.

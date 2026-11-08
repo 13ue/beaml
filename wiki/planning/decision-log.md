@@ -953,6 +953,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: a parked row must not break the list (DL-150 covers broken rows at build time) and must not pass as a normal value; skip plus honest count is the smallest total form. The record format gains the reason word `quarantined` (fifth reason beside `transport`, `decode`, `constructor`, `not_found`); the OWNER accepted the question as asked.
 → Effect: fates-a2 RED pins: list skips and counts, get of a quarantined key returns `{:ok, nil}` plus count or a typed not-found with reason `quarantined` (plan option), replay skips, record reason `quarantined` on the skipped rows. D042 B (value with mark) stays the option for the later fetch.
 
+**DL-158 · Migrate · EXPERIMENT 0005 is the living REFERENCE APP; every slice must prove itself against it**
+→ Question: D048. A 0005 stays and grows with every slice · B 0005 frozen as the slice-5 proof, 0006 as the living app.
+→ Chose: A. 0005 is "living": a slice is done only when its use case has landed in the app and `run.py run` passes with it ("jeder Slice muss sich erstmal gegen die App behaupten"). The local end-to-end desk grows in stages: records plus OpenTelemetry spans to a local collector; a live dashboard page; a `beaml` CLI over build, `--stored`, fmt, replay, snapshot; a `bench` step with build time, decode time per row and page latency at 10k and 100k rows, recorded per run with limits as acceptance criteria.
+→ By: 13ue (2026-11-08)
+→ Because: the app shows how BEAML behaves in reality; one living example beats a frozen proof plus a second app to maintain. A PASS in the app still does not mean production readiness.
+→ Effect: the implement-step pipeline gets the step "land in 0005" before TEST for every slice that changes language, records or transports; the register marks 0005 "living" and cites the latest run; `docs/index.html` shows the latest run. First slice under this rule: fates-a (a3 = N9, N9b). The desk stages get their own small steps (register rows under D048).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

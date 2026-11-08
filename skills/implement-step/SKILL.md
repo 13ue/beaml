@@ -119,3 +119,7 @@ The agent RED review implements the user's explicit test-first instruction. It g
 Adapted from the owner's local Claude `implement-step` skill and `workflow.js`, read 2026-11-05.
 The Codex adaptation uses native collaboration tools and the owner's requested GPT-6.1 Sol Medium model configuration.
 It removes Formfix paths, Opus settings, job-bus assumptions, fixed test ports, mandatory merge commands and unrelated project checks.
+
+## Land in the REFERENCE APP (DL-158)
+
+A slice that changes the language, the record format or a transport lands its use case in EXPERIMENT 0005 before TEST: the source, the variant and the `run.py run` use case are part of GREEN; `run.py run` passes with it. A slice without a user-visible case says so in the plan and the main agent accepts or rejects that.

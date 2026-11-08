@@ -837,7 +837,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D048 — EXPERIMENT 0005 as the living REFERENCE APP and end-to-end desk
 
-- **Status** OPEN (OWNER idea, 2026-11-08, [capture](../../raw/requirements/2026-11-08-owner-ideas-reference-app.md))
+- **Status** CLOSED 2026-11-08: A, DL-158; the desk stages (telemetry, dashboard, CLI, bench) stay open sub-items here (OWNER idea, 2026-11-08, [capture](../../raw/requirements/2026-11-08-owner-ideas-reference-app.md))
 - **Decision owner** OWNER
 - **Class** Migrate (changes how experiments are run and reported)
 - **Scope** 0005 is upgraded with every slice and stays the standing example; a local end-to-end desk covers database, BEAML module, LiveView, telemetry, live dashboard and CLI; the desk is used to try, feel and benchmark against the speed promises.
