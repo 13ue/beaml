@@ -136,3 +136,4 @@
 {"ts": "2026-11-08T10:35:58Z", "id": "QM4-1", "page": "eingang", "change": "status decided", "by": "Opus (PLAN m4-lift, Default, offen); entschieden 13ue: A"}
 {"ts": "2026-11-08T10:35:58Z", "id": "QM4-4", "page": "eingang", "change": "status decided", "by": "Opus (PLAN m4-lift, Default, offen); entschieden 13ue: B, rename geht"}
 {"ts": "2026-11-08T10:37:49Z", "id": "QM4-3", "page": "eingang", "change": "status decided", "by": "Opus (PLAN m4-lift, Default, offen); entschieden 13ue: A, nicht doppelt machen; Text kommt mit fates-a1 (DL-155)"}
+{"ts": "2026-11-08T10:39:53Z", "id": "schnell", "page": "schnell", "change": "view added", "by": "Opus (site-v2)"}

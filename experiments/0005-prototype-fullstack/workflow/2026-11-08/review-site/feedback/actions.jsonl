@@ -66,3 +66,5 @@
 {"ts": "2026-11-08T10:35:24Z", "source": "mouse", "action": "next", "target": "QM4-2", "result": null}
 {"ts": "2026-11-08T10:36:31Z", "source": "mouse", "action": "nav", "target": "eingang.html", "result": null}
 {"ts": "2026-11-08T10:36:43Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
+{"ts": "2026-11-08T10:40:20Z", "source": "mouse", "action": "nav", "target": "schnell.html", "result": null}
+{"ts": "2026-11-08T10:41:44Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}

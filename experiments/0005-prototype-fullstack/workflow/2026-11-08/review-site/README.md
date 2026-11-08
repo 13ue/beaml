@@ -11,6 +11,9 @@ python3 experiments/0005-prototype-fullstack/workflow/2026-11-08/review-site/bui
 
 → `index.html`: next-question button, three stacks, Eingang, "Was ist neu", all pages
 → `next.html`: one card at a time (A/B/C choose, Enter saves note, N next, M push-to-talk)
+→ `schnell.html`: Schnelldurchgang, open cards in three tiers (`TIER` in `build.py`)
+⠀⠀↳ tier 1/2 bulk "Alle hier so lassen"; tier 3 list only
+⠀⠀↳ unlisted open card = tier 2; decided and parked never show
 → `01-…12b-….html`: one page per group (topic); default groups have a bulk action
 → `eingang.html`: new cards for frozen pages, newest first, with date and source
 → `entschieden.html`: decided cards, newest first, plus your answers on open cards
@@ -65,3 +68,5 @@ python3 experiments/0005-prototype-fullstack/workflow/2026-11-08/review-site/bui
 → Code blocks M4, FATE, BLOCKS, M3 rewritten as complete units; FATE and M3 sketches now use `migrate Order v1 -> v2` on the 0005 base `Order` (was v2 -> v3 / v3 -> v4 without the TYPE).
 → DL-147 stays twice (10-misc and 12-decided); "Entschieden" shows it once.
 → Seeded change log: `added` from git commit times of `build.py`; original 74 items = 2026-11-07.
+→ Schnelldurchgang is a view, not a card: one `view added` line in the change log, no freeze effect.
+→ TIER ids QV3-7 and Q5-1 do not exist as cards; they are ignored.

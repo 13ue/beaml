@@ -1061,6 +1061,45 @@ def changelog(ans, now):
     return ev
 
 
+# Schnelldurchgang (schnell.html): tiers by severity. An open card that is not listed falls into tier 2.
+TIER = {1: "Q5-2 Q5-5 Q5-7 QDB-3 QDB-5 QDB-7 PDB-18 TEST-O1 P4c-text G6D-12 TEXTS SNAP-SET STORED-ARG NOTES Q6E-3 ORPHAN OFFCHAIN "
+           "ROW-FIELDS RESV QF-5 QV3-1 QV3-2 QV3-3 QV3-5 QV3-6 QM4-2".split(),
+        2: "Q5-3 Q5-4 Q5-6 Q5-9 Q6E-1 Q6E-2 Q6E-4 QDB-1 QDB-2 QDB-4 QDB-6b QV3-4 QV3-7 QV3-8 COUNT G6D-03 G6D-04 P4c P4c-http "
+           "CTOR-ROW GET QF-2 ENUM-V1-DECL Q5-1".split(),
+        3: "D025 D038 D039 D040 D041 D042 BLOCKS".split()}
+TIER_TITLE = {1: "Reine Implementierung, so lassen", 2: "Kurze Wahl, eine Zeile", 3: "Braucht Bild oder Gespräch"}
+TIER_LEAD = {1: "Keine Wirkung auf Sprache, Format oder Host-Namen.", 2: "Eine Wahl zwischen zwei, drei kurzen Optionen.",
+             3: "Nur Liste, keine Sammel-Annahme: dafür nehmen wir uns Zeit."}
+
+
+def tier(x):
+    """1..3 for the Schnelldurchgang, None when the card never shows there (decided, parked)."""
+    if x["status"] in ("decided", "parked"):
+        return None
+    return next((t for t, ids in TIER.items() if x["id"] in ids), 2)
+
+
+def log_view(name, now):
+    """A new view is no new card: one "view added" line, once."""
+    if any(r["change"] == "view added" and r["id"] == name for r in read_log()):
+        return
+    with open(LOG, "a") as f:
+        f.write(json.dumps(dict(ts=now, id=name, page=name, change="view added", by="Opus (site-v2)"), ensure_ascii=False) + "\n")
+
+
+def render_row(x):
+    sid, b = x["id"], built(x)
+    opt = next((t for L, t, bl in x["options"] if bl), "")
+    btns = "".join(f'<button type="button" class="opt{" built" if bl else ""}" data-choice="{e(L)}" aria-pressed="false" '
+                   f'aria-label="{e(L)}: {e(t.replace("`", ""))}{" (gebaut)" if bl else ""}" title="{e(t.replace("`", ""))}"><span class="opt-l">{e(L)}</span></button>'
+                   for L, t, bl in x["options"])
+    return (f'<div class="qrow" data-id="{e(sid)}" data-built="{e(b)}"{" data-bulkable" if b and tier(x) != 3 else ""}>'
+            f'<div class="row-head"><span class="card-id">{e(sid)}</span>{pill(x["status"])}<span class="row-title">{text(x["title"])}</span></div>'
+            + (f'<p class="row-def"><span aria-hidden="true">◆</span> gebaut: <b>{e(b)}</b> {text(opt)}</p>' if b else '<p class="row-def">Keine gebaute Option.</p>')
+            + (f'<div class="opts" role="group" aria-label="Optionen zu {e(sid)}">{btns}</div>' if btns else "")
+            + f'<p class="row-def"><a href="{href(x)}">Karte öffnen</a> <span class="fbs" role="status"></span></p><div class="ans" aria-live="polite"></div></div>')
+
+
 def read_log():
     try:
         return [json.loads(l) for l in open(LOG).read().splitlines() if l.strip()]
@@ -1141,6 +1180,15 @@ dialog::backdrop{background:rgba(0,0,0,.45)}dialog h2{margin-top:0;font-size:19p
 .dlg-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin-top:14px}
 ul.plain{list-style:none;padding-left:0;margin:8px 0}ul.list li{padding:6px 0;border-bottom:1px solid var(--bd)}
 #bulk-list{max-height:40vh;overflow:auto}
+.tier{margin:26px 0}.tier h2{font-size:20px;margin:0 0 4px}
+.qrow{border:1px solid var(--bd);border-radius:10px;background:var(--card);padding:10px 12px;margin:8px 0}
+.qrow:focus-within{border-color:var(--acc)}.qrow.answered{border-left:5px solid var(--ok)}
+.row-head{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}.row-title{font-weight:600}
+.row-def{font-size:14px;color:var(--mut);margin:4px 0}
+.qrow .opts{grid-template-columns:repeat(auto-fill,minmax(44px,max-content));margin:6px 0 0}
+.qrow .opt{grid-template-columns:auto;padding:8px 14px;width:auto;justify-items:center}.qrow .opt-t,.qrow .opt-tags{display:none}
+.qrow .opt.built .opt-l::after{content:" ◆"}
+.qrow .ans .ans-row{margin:6px 0 0}
 .news time{color:var(--mut);font-size:13.5px;margin-right:6px}
 #toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:10px;max-width:calc(100vw - 32px);z-index:20}
 #toast .btn.link{color:var(--bg)}
@@ -1205,7 +1253,7 @@ function summary() {
 async function load() {
   try { A = await (await fetch('/api/answers', {cache: 'no-store'})).json(); offline = false; }
   catch { offline = true; }
-  $$('section.card').forEach(paint); summary();
+  $$('section.card, .qrow').forEach(paint); summary();
 }
 async function choose(card, L, source) {
   const id = card.dataset.id, st = $('.fbs', card);
@@ -1250,27 +1298,38 @@ const typing = e => e.target.matches?.('input, textarea, select') || e.metaKey |
 document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'm' && !e.repeat && hot && !hot.hidden && !typing(e)) hot._down(); });
 document.addEventListener('keyup', e => { if (e.key.toLowerCase() === 'm' && hot) hot._up(); });
 
-// Gruppenweise abnicken
-const bulk = $('#bulk');
-if (bulk) {
-  const dlg = $('#bulk-dlg'); let todo = [];
-  bulk.addEventListener('click', () => {
-    todo = $$('section.card[data-stack="defaults"]').filter(c => c.dataset.built && !has(c.dataset.id)).map(c => [c.dataset.id, c.dataset.built, $('.card-title', c).textContent]);
-    if (!todo.length) { $('#bulk-st').textContent = 'Nichts zu tun: jede Default-Karte hier hat schon eine Antwort oder Notiz.'; return; }
-    $('#bulk-n').textContent = todo.length;
-    $('#bulk-list').innerHTML = todo.map(([id, b, t]) => `<li><b>${esc(id)}</b> → ${esc(b)} <span class="mut">${esc(t)}</span></li>`).join('');
-    dlg.showModal();
-  });
+// Gruppenweise abnicken: every [data-bulk] button accepts the built option of the unanswered [data-bulkable] items in its scope
+const dlg = $('#bulk-dlg'); let todo = [], bst = null, bscope = '';
+$$('[data-bulk]').forEach(btn => btn.addEventListener('click', () => {
+  bst = $(btn.dataset.st); bscope = btn.dataset.scope;
+  todo = $$('[data-bulkable]', $(bscope)).filter(c => c.dataset.built && !has(c.dataset.id)).map(c => [c.dataset.id, c.dataset.built, $('.card-title, .row-title', c).textContent]);
+  if (!todo.length) { bst.textContent = 'Nichts zu tun: jede Karte hier hat schon eine Antwort oder Notiz.'; return; }
+  $('#bulk-h').textContent = btn.textContent + '?';
+  $('#bulk-n').textContent = todo.length;
+  $('#bulk-list').innerHTML = todo.map(([id, b, t]) => `<li><b>${esc(id)}</b> → ${esc(b)} <span class="mut">${esc(t)}</span></li>`).join('');
+  dlg.showModal();
+}));
+if (dlg) {
   $('#bulk-cancel').addEventListener('click', () => dlg.close());
   $('#bulk-ok').addEventListener('click', async () => {
-    dlg.close(); const done = [];
+    dlg.close(); const done = [], st = bst, scope = PAGE + (bscope.startsWith('#tier') ? bscope : '');
     for (const [id, b] of todo) { try { await post('/api/answer', {id, choice: b, note: 'Gruppe abgenickt'}); done.push(id); } catch {} }
-    act('bulk-accept', PAGE, done.length + ' ids: ' + done.join(' ')); await load();
-    $('#bulk-st').textContent = `${done.length} von ${todo.length} gespeichert.`;
+    act('bulk-accept', scope, done.length + ' ids: ' + done.join(' ')); await load();
+    st.textContent = `${done.length} von ${todo.length} gespeichert.`;
     toast(`${done.length} Defaults abgenickt.`, async () => {
       for (const id of done) { try { await post('/api/answer', {id, choice: '', note: ''}); } catch {} }
-      act('bulk-undo', PAGE, done.length + ' ids'); await load(); $('#bulk-st').textContent = 'Zurückgenommen.';
+      act('bulk-undo', scope, done.length + ' ids'); await load(); st.textContent = 'Zurückgenommen.';
     });
+  });
+}
+
+// Schnelldurchgang: options on rows; letters choose on the focused row
+if (PAGE === 'schnell') {
+  $$('.qrow').forEach(row => $$('.opt', row).forEach(b => b.addEventListener('click', ev => choose(row, b.dataset.choice, ev.detail === 0 ? 'key' : 'mouse'))));
+  document.addEventListener('keydown', e => {
+    if (typing(e) || e.repeat) return; const row = document.activeElement?.closest?.('.qrow'); if (!row) return;
+    const b = $$('.opt', row).find(b => b.dataset.choice === e.key.toUpperCase());
+    if (b) { e.preventDefault(); choose(row, b.dataset.choice, 'key'); }
   });
 }
 
@@ -1296,7 +1355,7 @@ if (PAGE === 'next') {
     if (b) { e.preventDefault(); choose(c, k, 'key'); }
   });
 }
-load().then(() => { if (offline) toast('Server nicht erreichbar: Antworten werden nicht gespeichert.'); start(); });
+load().then(() => { $$('.qrow').forEach(r => { if (has(r.dataset.id)) r.hidden = true; }); $$('.tier').forEach(t => { const e = $('.tier-empty', t); if (e) e.hidden = $$('.qrow', t).some(r => !r.hidden); }); if (offline) toast('Server nicht erreichbar: Antworten werden nicht gespeichert.'); start(); });
 $$('a[href]').forEach(a => a.addEventListener('click', () => act('nav', a.getAttribute('href'))));
 })();
 </script>'''
@@ -1324,7 +1383,7 @@ TITLES = {}
 
 def render_item(x, ans, home=False):
     st, sid, b = x["status"], x["id"], built(x)
-    h = [f'<section class="card" id="{e(sid)}" data-id="{e(sid)}" data-status="{st}" data-stack="{stack(x)}" data-built="{e(b)}" tabindex="-1" aria-labelledby="t-{e(sid)}">',
+    h = [f'<section class="card" id="{e(sid)}" data-id="{e(sid)}" data-status="{st}" data-stack="{stack(x)}" data-built="{e(b)}"{" data-bulkable" if stack(x) == "defaults" and b else ""} tabindex="-1" aria-labelledby="t-{e(sid)}">',
          f'<div class="card-top"><span class="card-id">{e(sid)}</span>{pill(st)}'
          + (f'<span class="pill">{e(x["dl"])}</span>' if x["dl"] else "") + '</div>',
          f'<h2 class="card-title" id="t-{e(sid)}">{text(x["title"])}</h2>']
@@ -1366,7 +1425,7 @@ def progress(ids, label="beantwortet"):
             f'<span class="prog-t">0 von {len(ids)} {label}</span></div>')
 
 
-NAV = [("index", "Übersicht"), ("next", "Nächste Frage"), (INBOX, "Eingang"), ("entschieden", "Entschieden"), ("aenderungen", "Änderungen")]
+NAV = [("index", "Übersicht"), ("next", "Nächste Frage"), ("schnell", "Schnelldurchgang"), (INBOX, "Eingang"), ("entschieden", "Entschieden"), ("aenderungen", "Änderungen")]
 
 
 def page(slug, title, body, inbox_n, prev=None, nxt=None):
@@ -1384,7 +1443,7 @@ def page(slug, title, body, inbox_n, prev=None, nxt=None):
             f'{JS}</body></html>')
 
 
-BULK = '''<dialog id="bulk-dlg" aria-labelledby="bulk-h"><h2 id="bulk-h">Alle Defaults dieser Gruppe so lassen?</h2>
+BULK = '''<dialog id="bulk-dlg" aria-labelledby="bulk-h"><h2 id="bulk-h">Alle so lassen?</h2>
 <p>Für <b id="bulk-n"></b> Karten wird die gebaute Option als deine Wahl gespeichert, mit der Notiz „Gruppe abgenickt“.
 Karten mit einer Antwort oder Notiz bleiben, wie sie sind.</p><ul id="bulk-list" class="plain"></ul>
 <div class="dlg-actions"><button type="button" id="bulk-cancel" class="btn" autofocus>Abbrechen</button><button type="button" id="bulk-ok" class="btn primary">Ja, alle so lassen</button></div></dialog>'''
@@ -1426,7 +1485,7 @@ def main():
         if todo:
             head.append(progress(todo))
         if bulk:
-            head.append(f'<div class="bulk"><button type="button" id="bulk" class="btn">Alle Defaults dieser Gruppe so lassen</button>'
+            head.append(f'<div class="bulk"><button type="button" class="btn" data-bulk data-scope="main" data-st="#bulk-st">Alle Defaults dieser Gruppe so lassen</button>'
                         f'<span class="mut">{len(bulk)} Default-Karten; Einwände gibst du auf der einzelnen Karte.</span><span id="bulk-st" role="status"></span></div>{BULK}')
         body = "".join(head) + "".join(render_item(x, ans) for x in here)
         if not here:
@@ -1442,7 +1501,7 @@ def main():
     if inbox:
         body.append(progress([x["id"] for x in inbox if stack(x) in ("block", "defaults")]))
     if ib:
-        body.append(f'<div class="bulk"><button type="button" id="bulk" class="btn">Alle Defaults im Eingang so lassen</button>'
+        body.append(f'<div class="bulk"><button type="button" class="btn" data-bulk data-scope="main" data-st="#bulk-st">Alle Defaults im Eingang so lassen</button>'
                     f'<span class="mut">{len(ib)} Default-Karten.</span><span id="bulk-st" role="status"></span></div>{BULK}')
     body += [f'<p class="new-tag"><span class="pill st-new"><span aria-hidden="true">★</span> Neu</span> {fmt(x["added"])} · {e(x["source"])}</p>' + render_item(x, ans, home=True) for x in inbox]
     if not inbox:
@@ -1473,6 +1532,26 @@ def main():
             + ('<div class="tablewrap"><table><thead><tr><th scope="col">Zeit</th><th scope="col">Karte</th><th scope="col">Änderung</th><th scope="col">Von</th></tr></thead><tbody>'
                + "".join(row(r) for r in rows) + '</tbody></table></div>' if rows else '<p class="empty">Noch keine Änderungen.</p>'))
     write("aenderungen", page("aenderungen", "Änderungsprotokoll", body, n_in))
+
+    # Schnelldurchgang
+    log_view("schnell", now)
+    known = {x["id"] for x in uniq}
+    missing = [i for ids in TIER.values() for i in ids if i not in known]
+    tiers = {t: [x for x in uniq if tier(x) == t] for t in TIER}
+    body = ['<p class="crumb"><a href="index.html">Übersicht</a></p><h1>Schnelldurchgang</h1>'
+            '<p class="lead">Alle offenen Karten nach Schwere, kompakt. Wähle A/B/C in der Zeile (Taste reicht, wenn die Zeile den Fokus hat), '
+            'oder nimm eine ganze Stufe so, wie sie gebaut ist. Für Einwände öffne die Karte.</p>']
+    for t, xs in tiers.items():
+        bulkable = [x for x in xs if built(x)] if t != 3 else []
+        body.append(f'<section class="tier" id="tier{t}" aria-labelledby="th{t}"><h2 id="th{t}">Stufe {t}: {TIER_TITLE[t]} <span class="mut">({len(xs)})</span></h2>'
+                    f'<p class="mut">{TIER_LEAD[t]}</p>' + progress([x["id"] for x in xs])
+                    + (f'<div class="bulk"><button type="button" class="btn" data-bulk data-scope="#tier{t}" data-st="#bst{t}">Alle hier so lassen</button>'
+                       f'<span class="mut">{len(bulkable)} mit gebauter Option.</span><span id="bst{t}" role="status"></span></div>' if bulkable else "")
+                    + "".join(render_row(x) for x in xs)
+                    + '<p class="empty tier-empty" hidden>Alles in dieser Stufe hat eine Antwort.</p></section>')
+    body.append(BULK)
+    write("schnell", page("schnell", "Schnelldurchgang", "".join(body), n_in))
+    print("tiers", {t: len(v) for t, v in tiers.items()}, "missing ids", missing)
 
     # Eine Frage auf einmal
     queue = by_stack["block"] + by_stack["defaults"]
@@ -1509,7 +1588,7 @@ def main():
     trs.append(f'<tr><td></td><td><a href="eingang.html">Eingang</a></td>' + "".join(f'<td class="n">{sum(1 for x in inbox if x["status"] == s) or ""}</td>' for s in ("open", "default", "parked", "decided")) + '</tr>')
     tot = {s: sum(1 for x in items if x["status"] == s) for s in LABEL}
     body = (f'<h1>Deine Entscheidungen zu BEAML</h1><p class="lead">Stand {fmt(now)}. {len(items)} Karten auf {len(G)} Seiten und im Eingang. Quelle: <code>owner-review.md</code>, Register D037.</p>'
-            f'<div class="hero"><a class="btn primary big" href="next.html">Nächste Frage beantworten</a><span class="mut"><b data-left="{e(" ".join(x["id"] for x in queue))}">{len(queue)}</b> Karten warten auf dich</span></div>'
+            f'<div class="hero"><a class="btn primary big" href="next.html">Nächste Frage beantworten</a><a class="btn big" href="schnell.html">Schnelldurchgang</a><span class="mut"><b data-left="{e(" ".join(x["id"] for x in queue))}">{len(queue)}</b> Karten warten auf dich</span></div>'
             '<div class="stacks">' + "".join(stacks) + '</div>'
             f'<div class="duo"><section aria-labelledby="h-in"><h2 id="h-in" class="sec">Eingang</h2>'
             + (f'<p><a href="eingang.html"><b>{n_in}</b> neue Karten</a> für eingefrorene Seiten.</p>' if n_in else '<p class="empty">Der Eingang ist leer.</p>')

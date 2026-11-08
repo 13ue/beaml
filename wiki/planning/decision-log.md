@@ -1018,6 +1018,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → QM4-3 (2026-11-08, OWNER): A, keep the old DL-122 help now; fates-a1 replaces it with the DL-155 wording where a fate line lifts the block. Not done twice.
 → Effect: fates-a1 GREEN lifts the rename error (the `renamed_onto` check keeps firing for a step that is not a rename, e.g. a `drop`/`add` with a non-String default on such a field, and keeps the QM4-1 A text); RED: a v1 row with `channel: "web"` decodes to v2 `source: Web` after `rename channel -> source`; the four pinned texts move accordingly; `slice6_m4_test` R2/R3 flip from "error" to "builds". QM4-2 and QM4-3 stay built defaults.
 
+**DL-167 · Repair · Eight walk-through cards closed as superseded by later decisions**
+→ Question: the OWNER asked for the cards that only ask whether to change something that a later decision already changes or removes ("sinnloser Kram").
+→ Chose: closed as superseded, no new choice: QM4-2 (no VERSION MARK on `Order`: DL-155 forces the mark when stored values are affected, the fate slice applies it) · Q5-4, QDB-7, SNAP-SET, STORED-ARG (the ROW SNAPSHOT path `mix beaml.stored DIR`, `rows.jsonl`, `snapshot-meta.json`, empty `responses.jsonl`: DL-151 makes the compiler read the table live; the snapshot stays at most as a test desk, to be decided in the live-stored plan) · QDB-4 (one bad row fails `db.list`: DL-150 blocks the build on a not-decodable row and DL-157 skips quarantined rows; nothing is left for the run-time failure form) · QV3-7 (duplicate of COUNT, the merged count-line question; COUNT stays open) · Q5-1 (duplicate of QDB-1: the `db.get` key is a String field of the key TYPE; QDB-1 stays open).
+→ By: Fable (2026-11-08, on the OWNER's request to group such cards)
+→ Because: a question about an interim that a signed decision already replaces has no answer that matters; closing it keeps the sweep honest.
+→ Effect: the decision site marks them "überholt durch DL-…"; the live-stored plan (after fates-a) names the snapshot's fate explicitly.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
