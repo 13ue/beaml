@@ -192,3 +192,15 @@ Because: the task and the D042 note. Built only in fates-b.
 → D035: out of scope; a bad digest stays "not decodable", never "quarantined".
 → M3: `redact` = field absent, no rule skip, DL-116 stays (PF-24).
 → M5: QF-4, not decided.
+
+
+## Rulings by the main agent after the plan check (2026-11-08)
+
+- **QF-1 → answered by the OWNER as DL-157**: skip and count by default; the host learns the skipped count (plan a2 decides the carrier: a field on the list result or a second return value); record reason `quarantined`; fetch option later. By: 13ue (DL-157).
+- **QF-3 → form A** (`type Amount v2 { … }` + `migrate Amount v1 -> v2 { quarantine value }`). The OWNER signed the three-example picture of 2026-11-08 that shows exactly this form (DL-155 "wird von mir so unterschrieben"); the site cards FATE and FATE-NEXT that show `quarantine amount` on `Order` are worker sketches and get corrected. By: Fable (ruling on evidence), class Repair.
+- **QF-7 → DL-125 words**, confirmed by the same signed picture (`quarantine`, `map "old" -> Variant`, `enum Channel v2`, `migrate Channel v1 -> v2`). By: Fable (ruling on evidence).
+- **DEAD LINE rule on a nested fate-only step (O1 probe)**: RED F7/F7b; a fate-only step is never dead. By: Fable, Repair.
+- **a1 exit 1 when a fate line is hit (O2)**: accepted; a1 alone must not produce a green build that crashes at run time; a2 lifts the exit. By: Fable, Repair.
+- **O3**: V18b (`P2_BASE`) and `slice6_m4_test` `rename_text` join the pin/help list; ENUM CONSTRUCTOR help defined in RED; PF-16 reworded to "sources with a fate line"; N9 evidence path fixed; fixtures follow the N13 filter. By: Fable, Repair.
+- **DL-140 swap detection in fates-b (PF-01)**: narrows DL-156; presented to the OWNER as its own question (A keep in fates-a, needs the previous literal table QF-8; B fates-b). Open.
+- All missing RED cases from plan-review.md are added in RED a1.
