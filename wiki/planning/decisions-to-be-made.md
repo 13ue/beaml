@@ -739,6 +739,20 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Raised by the OWNER on 2026-11-08 together with DL-148: a hard maximum would force a style of short clauses; a break rule keeps the table readable. Not decided; the current `fmt` keeps multi-line clauses as written (D6B-44).
 
+## D039 — How a REDACTED FIELD is stored in the records
+
+- **Status** OPEN (idea, raised by the OWNER on 2026-11-08 during the D037 walk-through)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** the ENTRY RECORDS, RESPONSE RECORDS and STORED ROWS keep, beside the real state in the database, the values that led there; a REDACTED FIELD must not be readable there. A configuration with a safe default decides the form.
+- **Decision trigger** the first REDACTED FIELD in an EXPERIMENT source, or the slice that builds DL-151 (live `--stored`)
+- **Next check** when the redaction syntax (DL-127 wording) gets its first step
+
+**[Proposal]** Two forms, by the OWNER:
+- **Option 1, the default: hash.** The record keeps a hash of the value. A later check can confirm "this value was entered here" without anyone reading it. Note for the plan (Fable): a plain hash of a low-entropy value (an e-mail, a name) is guessable by a dictionary; the step needs a keyed or salted hash, with the key handled like every secret (inside a process only).
+- **Option 2, not the default: encrypt.** The value is encrypted with a server secret and can be made readable for an emergency. The OWNER names this the form that does not respect privacy; it exists as an explicit setting only.
+- Open points for the plan: the setting's place (source line, build flag or host config), whether `value_sha256` (record format v3) is computed over the redacted form, what `--stored` compares for such a field (DL-151 keeps it redacted), and what a REPLAY RUN does with it.
+
 ## Answered 2026-11-07
 
 - [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).
