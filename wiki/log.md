@@ -445,3 +445,13 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [Vertical integration](concepts/vertical-integration.md): one record format for every EFFECT stream. [Decision log](planning/decision-log.md): one note under DL-143.
 - [Roadmap page](../docs/index.html) and [root README](../README.md): both steps in Verified; next: db transports (P4 GREEN running), EXPERIMENT 0005 RED.
 - **[Verified]** Limits: DL-136 digest half open (D035); `System` missing from the reserved names (TEST O1, assigned to P4 GREEN); the full-run status stays `fail` until the db REDs pass (DL-147).
+
+## 2026-11-08: docs | database transports (0005 P4a, P4b)
+
+**[Verified]** P4 passed TEST at `9f1fad53`: GREEN `060a075d`, pin `b332b12c`. [Full run](../experiments/0004-generated-replay/results/20261108T000131342068Z/result.json) status `pass`, 38 of 38 steps in 1035 s; the db steps are green ([ledger](../experiments/0004-generated-replay/workflow/2026-11-07/db-transport/), [review](../experiments/0004-generated-replay/workflow/2026-11-07/db-transport/review.md)). No code change in this docs pass. By: Opus (docs db-transport)
+
+- [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#database-transports-dbput-dbget-dblist-and---stored-over-rows): new section (three `effect` lines, `[T]` rule, `BeamlDb` contract, db call record, ROW CORE decode order, `rows.jsonl` and `snapshot-meta.json`, rows count line, two ROW TYPES, orphan rows, Note chain, limits, built defaults); `System` gap marked closed in the several-EFFECTS section.
+- [Register](planning/research-and-development.md): new P4 row. [Glossary](../GLOSSARY.md): ROW SNAPSHOT built; new ROW CORE, ROW TYPE, LIST TYPE, DB TRANSPORT.
+- [Vertical integration](concepts/vertical-integration.md): the database side, with the thesis sentence for String-only ROW TYPES.
+- [Roadmap page](../docs/index.html) and [root README](../README.md): db transports in Verified; next: EXPERIMENT 0005 RED review and GREEN.
+- **[Verified]** Limits: no shape check over rows (TEST O1, Migrate, P4c); RETIRE LINE meaning for rows is M5 (O2); N27 can fail at random (O3); fake `BeamlDb` only.

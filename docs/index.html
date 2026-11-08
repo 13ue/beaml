@@ -195,11 +195,11 @@ footer{color:var(--muted);font-size:13px;display:grid;gap:4px}
       <li>Entry points declared as inbound effects: an ENTRY LINE <code>effect ui.place PlaceForm -&gt; Payment ! PaymentError = ui.event("place") |&gt; place</code> generates <code>ui_place/1</code>, the decode of the UI params, the root span and an ENTRY RECORD; a bad form gives a <code>Rejected</code> struct; <code>--stored</code> checks the accepted entries (DL-128, DL-130 to DL-134, DL-138, slice 6d). Limit: an enum or constructor field below the top level of the form TYPE is a compile error</li>
       <li>Record format v3: response and entry records share one 14-key record core with <code>outcome</code> and <code>reason</code> at capture; <code>--stored</code> reads version 3 only and skips records rejected at capture (DL-143). Limit: the digest is not yet checked (D035)</li>
       <li>Several effects and ENTRY LINES per source, shared parts written once, replay by operation; a source with an ENTRY LINE names its module from the file, <code>orders.beaml</code> gives <code>Orders</code> (slice 6e). Limit: one effect per flow</li>
+      <li>Database transports <code>db.put</code>, <code>db.get</code>, <code>db.list</code> on one <code>records</code> table: typed rows through the host <code>BeamlDb</code>, replay without the database, <code>--stored</code> checks the row snapshot; a String-only TYPE change reads old rows through <code>migrate</code> (DL-127, DL-129, DL-137, P4). Limit: no shape check over rows yet (P4c); the <code>Order</code> chain waits on M4</li>
     </ul></div>
     <div class="col"><h3>Decided, next</h3><ul>
       <li>Migration checks report counts per environment, never values</li>
-      <li>Database transports <code>db.put</code>, <code>db.get</code>, <code>db.list</code> on one JSONB table, governed by <code>migrate</code> (DL-127, DL-129, DL-137; P4 GREEN running)</li>
-      <li>Experiment 0005, the Phoenix prototype: RED next (DL-144)</li>
+      <li>Experiment 0005, the Phoenix prototype: RED written, RED review and GREEN next (DL-144)</li>
     </ul></div>
     <div class="col"><h3>Concept</h3><ul>
       <li>Policy on effect lines: retry, timeout, idempotent (DL-126)</li>
