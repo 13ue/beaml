@@ -1,6 +1,9 @@
 // L3 (limit, D6B-174): the reach does not enter a fn that builds a record from its parameter.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Receipt { holder: String }
 
-fn wrap s: String -> Receipt = Receipt { holder: s }
+fn wrap    s: String             -> Receipt = Receipt { holder: s }
 fn receipt Order { card_holder } -> Receipt = card_holder |> wrap

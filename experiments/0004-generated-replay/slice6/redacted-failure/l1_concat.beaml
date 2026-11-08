@@ -1,7 +1,10 @@
 // L1 (plan F5, limit): a value derived by + is not checked (DL-112, DL-029 target).
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Bad { reason: String }
 type Receipt { holder: String }
 
-fn check Order { card_holder } -> String ! Bad = Bad { reason: card_holder + "" }
-fn receipt Order { card_holder } -> Receipt = Receipt { holder: "x" + card_holder }
+fn check   Order { card_holder } -> String ! Bad = Bad { reason: card_holder + "" }
+fn receipt Order { card_holder } -> Receipt      = Receipt { holder: "x" + card_holder }

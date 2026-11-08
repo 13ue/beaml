@@ -107,9 +107,10 @@ NO_ENTRY_BLOCK = ("error: stored ENTRY RECORD of operation ui.place has no effec
                   "  stored ENTRY RECORDS of operation ui.place: 5\n"
                   "  help: if the effect is deleted on purpose, declare: retire ui.place keep <n> days" % ENTRIES)
 RETIRE_ENTRY = "retire ui.place keep 30 days\n"
-APP = 'App = "app-channel"  '
+# DL-148: the fixtures follow fmt; an ENUM with several variants holds one variant per line.
+APP = '  App = "app-channel"\n'
 # GREEN slice6d: the fixtures hold the DL-083 column alignment of the Amount clauses (N11), so the anchor has it too.
-AMOUNT_EMPTY = 'fn Amount _,     ""       ->'
+AMOUNT_EMPTY = 'fn Amount _,             ""               ->'
 STRICTER = 'fn Amount _, "EUR" -> Amount ! NoCurrency = NoCurrency {}\n' + AMOUNT_EMPTY
 STORED_WORDS = ("12.50", "EUR", "order-entry-", "app-channel", "phone", "00000000000000000000000000000001")
 
@@ -402,8 +403,8 @@ class Slice6Entry(unittest.TestCase):
 
     def test_o1_top_level_enum_and_constructor_and_nested_record_accept_a_good_event(self):
         # TEST O1 control: the nested limit leaves top-level enum and constructor fields and a nested plain record.
-        source = ECHO.read_text().replace("type PlaceOrder { order_id: String", "type Line { note: String }\n"
-                                          "type PlaceOrder { line: Line order_id: String")
+        source = ECHO.read_text().replace("type PlaceOrder {\n  order_id: String", "type Line { note: String }\n"
+                                          "type PlaceOrder {\n  line: Line\n  order_id: String")
         self.assertIn("line: Line", source, "setup: the echo fixture lost its PlaceOrder TYPE")
         self.runtime(source, {"O1_control_good_event": (
             'match?({:ok, %{"line" => %{"note" => "n"}, "amount" => %Case.Amount{}, '
@@ -454,7 +455,7 @@ class Slice6Entry(unittest.TestCase):
         self.assertEqual((1, "", LITERAL_BLOCK), self.blocked(source))
 
     def test_s3b_changed_literal_blocks(self):
-        source = ORDERS.read_text().replace(APP, 'App = "app-ch2"  ')
+        source = ORDERS.read_text().replace(APP, '  App = "app-ch2"\n')
         self.assertEqual((1, "", LITERAL_BLOCK), self.blocked(source))
 
     def test_s4_no_stored_value_in_output(self):

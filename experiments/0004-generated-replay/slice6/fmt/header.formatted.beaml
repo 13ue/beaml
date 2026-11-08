@@ -1,5 +1,5 @@
 // EXPERIMENT 0004 slice 6b step 10: OWNER question Q6B-9 (notes.md F4), the only case of a signature line above clauses.
 // Current reading F4: the signature line (no `=`) stays and ends the group; only the clauses below it align.
 fn grade score: String, bonus: String -> String
-fn grade "a",   _     -> String = "top"
-fn grade other, bonus -> String = other
+fn grade "a",           _             -> String = "top"
+fn grade other,         bonus         -> String = other

@@ -1,6 +1,9 @@
 // D2 (DL-112, D6B-174): a pipe step into a fn that returns its parameter unchanged, then a plain field.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Receipt { holder: String }
 
-fn same s: String -> String = s
+fn same    s: String             -> String  = s
 fn receipt Order { card_holder } -> Receipt = Receipt { holder: card_holder |> same }

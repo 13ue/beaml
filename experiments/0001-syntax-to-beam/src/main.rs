@@ -160,6 +160,8 @@ struct SignatureLine {
     output: String,
     failures: Vec<String>,
     start: usize,
+    // DL-148: the byte end of the line, so `fmt` can make it a row of a clause table.
+    end: usize,
 }
 // `effect NAME IN -> OUT ! ERR = KIND("path")`: an operation that leaves the module.
 #[derive(Clone, Debug)]
@@ -634,6 +636,7 @@ impl Parser {
                             output,
                             failures,
                             start,
+                            end: self.tokens[self.at - 1].1.end,
                         });
                         continue;
                     }
@@ -6749,11 +6752,13 @@ fn fmt_file(path: &std::path::Path, label: &str) -> Checked<usize> {
     if new == old {
         return Ok(0);
     }
-    let changed = old
-        .split('\n')
-        .zip(new.split('\n'))
-        .filter(|(a, b)| a != b)
-        .count();
+    // fmt-layout F2 (DL-148 adds lines): the old lines that the diff removes or replaces.
+    let (a, b) = (split_lines(&old), split_lines(&new));
+    let changed = a.len()
+        - matching_blocks(&a, &b)
+            .iter()
+            .map(|block| block.2)
+            .sum::<usize>();
     let diff = unified_diff(&old, &new, label);
     write_atomic(path, &new)?;
     std::io::stdout()
@@ -6797,6 +6802,7 @@ fn formatted(source: &str) -> Checked<String> {
         }
     }
     edits.extend(aligned(source, &tokens, &program));
+    edits.extend(bodies(source, &tokens, &program));
     edits.sort_by_key(|(range, _)| range.start);
     let mut text = source.to_string();
     for (range, with) in edits.into_iter().rev() {
@@ -6805,18 +6811,97 @@ fn formatted(source: &str) -> Checked<String> {
     Ok(text)
 }
 
-// One single-line clause or EFFECT line: its line, group key, line start, cells and the `=` byte.
-struct Row {
-    line: usize,
-    key: String,
-    start: usize,
-    cells: Vec<Range<usize>>,
-    equals: usize,
+// DL-148 (1, 2): a TYPE or ENUM body with two or more members takes one member per line (two-space indent, `}` on
+// its own line); zero or one member stays on one line. Members keep their text; a body with a comment stays.
+fn bodies(
+    source: &str,
+    tokens: &[(Token, Range<usize>)],
+    program: &Program,
+) -> Vec<(Range<usize>, String)> {
+    let nl = if source.contains("\r\n") {
+        "\r\n"
+    } else {
+        "\n"
+    };
+    let mut edits = Vec::new();
+    for (i, (token, r)) in tokens.iter().enumerate() {
+        let is_enum = match token {
+            Token::Word(w) if w == "type" => false,
+            Token::Word(w) if w == "enum" => true,
+            _ => continue,
+        };
+        let line_start = source[..r.start].rfind('\n').map_or(0, |i| i + 1);
+        let indent = &source[line_start..r.start];
+        if !indent.trim().is_empty()
+            || !matches!(&tokens[i + 1].0, Token::Word(name) if program.types.contains_key(name))
+        {
+            continue;
+        }
+        let Some(open) =
+            (i + 2..(i + 4).min(tokens.len())).find(|&k| tokens[k].0 == Token::Symbol('{'))
+        else {
+            continue;
+        };
+        let close = open
+            + tokens[open..]
+                .iter()
+                .position(|(t, _)| *t == Token::Symbol('}'))
+                .unwrap();
+        if (open..close).any(|k| {
+            !source[tokens[k].1.end..tokens[k + 1].1.start]
+                .trim()
+                .is_empty()
+        }) {
+            continue;
+        }
+        let mut members: Vec<Range<usize>> = Vec::new();
+        let mut depth = 0;
+        for k in open + 1..close {
+            let (t, r) = &tokens[k];
+            let starts = depth == 0
+                && matches!(t, Token::Word(_))
+                && (is_enum || tokens[k + 1].0 == Token::Symbol(':'));
+            match t {
+                Token::Symbol('(') => depth += 1,
+                Token::Symbol(')') => depth -= 1,
+                _ => {}
+            }
+            match members.last_mut() {
+                Some(m) if !starts => m.end = r.end,
+                _ => members.push(r.clone()),
+            }
+        }
+        let text: Vec<&str> = members.iter().map(|m| &source[m.clone()]).collect();
+        let body = match text.len() {
+            0 => "{}".to_string(),
+            1 => format!("{{ {} }}", text[0]),
+            _ => {
+                let lines: String = text.iter().map(|m| format!("{indent}  {m}{nl}")).collect();
+                format!("{{{nl}{lines}{indent}}}")
+            }
+        };
+        edits.push((tokens[open].1.start..tokens[close].1.end, body));
+    }
+    edits
 }
 
-// DL-083, D6B-44, DL-013: consecutive single-line clauses of one signature (or EFFECT lines) form a group. Cells
-// are `fn NAME` (or `effect NAME IN`), each top-level argument with its comma, `->` and the return text; each cell
-// and `=` start one space after the longest previous cell. Only the gaps between cells change.
+// Cell columns of a clause table (DL-148): 0 the name part, 1.. the arguments, then `->`, output, `! ERR`, `=`.
+const ARROW: usize = 1000;
+const OUT: usize = 1001;
+const ERR: usize = 1002;
+const EQUALS: usize = 1003;
+
+// One single-line clause, signature or EFFECT line: its line, line start and (column, cell) pairs.
+struct Row {
+    line: usize,
+    start: usize,
+    cells: Vec<(usize, Range<usize>)>,
+}
+
+// DL-083, D6B-44, DL-013, DL-148: every block of consecutive single-line clause, signature, EFFECT and ENTRY lines is
+// one table. Cells are `fn NAME` (or `effect NAME`), each top-level argument with its comma (the EFFECT input), `->`,
+// the output, the `! ERR` part and `=`; each column starts one space after the longest previous cell of the block.
+// Only the gaps between cells change.
 fn aligned(
     source: &str,
     tokens: &[(Token, Range<usize>)],
@@ -6832,12 +6917,13 @@ fn aligned(
     let items = program
         .clauses
         .iter()
-        .map(|c| (c.key.as_str(), &c.source_range))
-        .chain(program.effects.iter().map(|e| ("effect", &e.source_range)))
+        .map(|c| c.source_range.clone())
+        .chain(program.signature_lines.iter().map(|l| l.start..l.end))
+        .chain(program.effects.iter().map(|e| e.source_range.clone()))
         // Slice 6d (R6D-06): an ENTRY LINE is an EFFECT line; its head normalizes the same way.
-        .chain(program.entries.iter().map(|e| ("effect", &e.source_range)));
+        .chain(program.entries.iter().map(|e| e.source_range.clone()));
     let mut rows = Vec::new();
-    for (key, range) in items {
+    for range in items {
         let first = tokens
             .iter()
             .position(|(_, r)| r.start == range.start)
@@ -6855,87 +6941,80 @@ fn aligned(
         {
             continue;
         }
-        let effect = key == "effect";
-        let mut cells = Vec::new();
-        let skip = if effect {
-            0
-        } else {
-            cells.push(tokens[first].1.start..tokens[first + 1].1.end);
-            2
-        };
-        let (mut open, mut depth, mut arrow, mut equals) = (None::<Range<usize>>, 0, false, None);
-        for (token, r) in &tokens[first + skip..=last] {
+        let mut cells = vec![(0, tokens[first].1.start..tokens[first + 1].1.end)];
+        let (mut open, mut depth, mut column) = (None::<Range<usize>>, 0, 1);
+        for (token, r) in &tokens[first + 2..=last] {
             match token {
                 Token::Symbol('(' | '{') => depth += 1,
                 Token::Symbol(')' | '}') => depth -= 1,
                 _ => {}
             }
-            if depth == 0 && !arrow && *token == Token::Arrow {
-                cells.extend(open.take());
-                cells.push(r.clone());
-                arrow = true;
+            let mark = match token {
+                _ if depth != 0 => None,
+                Token::Arrow if column < ARROW => Some(ARROW),
+                Token::Symbol('!') if column == OUT => Some(ERR),
+                Token::Symbol('=') if column >= OUT => Some(EQUALS),
+                _ => None,
+            };
+            if let Some(mark) = mark {
+                cells.extend(open.take().map(|o| (column, o)));
+                if mark == ERR {
+                    (column, open) = (ERR, Some(r.clone()));
+                    continue;
+                }
+                cells.push((mark, r.clone()));
+                if mark == EQUALS {
+                    break;
+                }
+                column = OUT;
                 continue;
             }
-            if depth == 0 && arrow && *token == Token::Symbol('=') {
-                cells.extend(open.take());
-                equals = Some(r.start);
-                break;
-            }
             open = Some(open.map_or(r.clone(), |o| o.start..r.end));
-            if depth == 0 && !effect && !arrow && *token == Token::Symbol(',') {
-                cells.extend(open.take());
+            if depth == 0 && column < ARROW && *token == Token::Symbol(',') {
+                cells.extend(open.take().map(|o| (column, o)));
+                column += 1;
             }
         }
+        // A signature line ends without `=`.
+        cells.extend(open.take().map(|o| (column, o)));
         let start = source[..range.start].rfind('\n').map_or(0, |i| i + 1);
-        rows.push(Row {
-            line,
-            key: key.to_string(),
-            start,
-            cells,
-            equals: equals.unwrap(),
-        });
+        rows.push(Row { line, start, cells });
     }
     rows.sort_by_key(|row| row.line);
     let mut edits = Vec::new();
     let mut begin = 0;
     for end in 1..=rows.len() {
-        let (a, b) = (&rows[end - 1], rows.get(end));
-        if b.is_some_and(|b| {
-            b.line == a.line + 1 && b.key == a.key && b.cells.len() == a.cells.len()
-        }) {
+        if rows
+            .get(end)
+            .is_some_and(|b| b.line == rows[end - 1].line + 1)
+        {
             continue;
         }
         let group = &rows[begin..end];
         begin = end;
-        let n = group[0].cells.len();
-        // columns[k]: the column of cell k (k == n is `=`); cell 0 keeps its place on each line.
-        let mut columns = vec![0; n + 1];
-        for k in 1..=n {
-            columns[k] = group
+        // cursor: the column after the last placed cell of each row; cell 0 keeps its place.
+        let mut cursor: Vec<usize> = group.iter().map(|r| r.cells[0].1.end - r.start).collect();
+        let mut columns: Vec<usize> = group
+            .iter()
+            .flat_map(|r| r.cells[1..].iter().map(|c| c.0))
+            .collect();
+        columns.sort_unstable();
+        columns.dedup();
+        for column in columns {
+            let at = group
                 .iter()
-                .map(|row| {
-                    let cell = &row.cells[k - 1];
-                    let at = if k == 1 {
-                        cell.start - row.start
-                    } else {
-                        columns[k - 1]
-                    };
-                    at + cell.len()
-                })
+                .zip(&cursor)
+                .filter(|(row, _)| row.cells.iter().any(|c| c.0 == column))
+                .map(|(_, &c)| c)
                 .max()
                 .unwrap()
                 + 1;
-        }
-        for row in group {
-            for k in 1..=n {
-                let cell = &row.cells[k - 1];
-                let at = if k == 1 {
-                    cell.start - row.start
-                } else {
-                    columns[k - 1]
-                };
-                let gap = cell.end..row.cells.get(k).map_or(row.equals, |c| c.start);
-                edits.push((gap, " ".repeat(columns[k] - at - cell.len())));
+            for (row, cur) in group.iter().zip(cursor.iter_mut()) {
+                if let Some(k) = row.cells.iter().position(|c| c.0 == column) {
+                    let cell = &row.cells[k].1;
+                    edits.push((row.cells[k - 1].1.end..cell.start, " ".repeat(at - *cur)));
+                    *cur = at + cell.len();
+                }
             }
         }
     }

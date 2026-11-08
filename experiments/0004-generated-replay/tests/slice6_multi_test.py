@@ -42,13 +42,14 @@ BASE = "ce190054"  # N13: the multi-effect GREEN commit (RV3-14 rule)
 TIMEOUT = 90
 ex = sr.ex
 
-STOCK_LINE = 'effect stock.reserve Order      -> Hold ! StockError      = http.post("stock/reserve")\n'
+# DL-148: the fixture follows fmt (aligned head columns, multi-field TYPES one field per line).
+STOCK_LINE = 'effect stock.reserve      Order -> Hold    ! StockError   = http.post("stock/reserve")\n'
 HOLD_ENTRY = 'effect ui.hold PlaceOrder  -> Hold ! StockError      = ui.event("hold") |> hold\n'
 PAY_LINE = 'effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")\n'
 PLACE_ENTRY = 'effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> place\n'
 PLACE_FN = "\nfn place p: PlaceOrder -> Payment ! PaymentError =\n  p\n  |> to_order\n  |> payments.authorize\n"
 # N9 W2 on Payment, not Hold: Hold.amount is a constructor field, and D6B-39 bans a MIGRATE CHAIN there (red-plan.md).
-PAYMENT_TYPE = "type Payment { order_id: String status: String }\n"
+PAYMENT_TYPE = "type Payment {\n  order_id: String\n  status: String\n}\n"
 MIGRATE_PAYMENT = "migrate Payment v1 -> v2 { drop note: String }\n"
 GOOD = {"order_id": "order-1", "amount": {"value": "12.50", "currency": "EUR"}, "channel": "web"}
 STORED_WORDS = ("12.50", "EUR", "order-1", "app-channel", "authorized")

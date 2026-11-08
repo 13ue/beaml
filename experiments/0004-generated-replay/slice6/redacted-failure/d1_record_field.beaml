@@ -1,5 +1,8 @@
 // D1 (DL-112): a redacted value in a plain field of a record that is not a failure.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Receipt { holder: String }
 
 fn receipt Order { card_holder } -> Receipt = Receipt { holder: card_holder }

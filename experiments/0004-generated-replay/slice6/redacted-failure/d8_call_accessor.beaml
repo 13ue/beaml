@@ -1,6 +1,9 @@
 // D8 (DL-112, D6B-182): a call of an accessor fn whose every clause body is a direct redacted value.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Receipt { holder: String }
 
-fn holder Order { card_holder } -> String = card_holder
-fn receipt o: Order -> Receipt = Receipt { holder: holder(o) }
+fn holder  Order { card_holder } -> String  = card_holder
+fn receipt o: Order              -> Receipt = Receipt { holder: holder(o) }

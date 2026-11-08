@@ -322,7 +322,7 @@
  "experiments/0004-generated-replay/slice6/fmt/header.formatted.beaml": {
   "changed": false,
   "code": 0,
-  "sha256": "82bb06ecfb290db075543498e291f0da24c8230cb1bec7fc153bab9d3a8d36e9"
+  "sha256": "0fa8a5d276f35d721656dea43e1baee8a14049111190b77cada80c49093dbe22"
  },
  "experiments/0004-generated-replay/slice6/fmt/marks.beaml": {
   "changed": false,

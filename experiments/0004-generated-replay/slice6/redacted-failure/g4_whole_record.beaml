@@ -1,5 +1,8 @@
 // G4 (plan F6): the whole Order value in a failure field of TYPE Order. The TYPE keeps the mark. Allowed.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Bad { order: Order }
 
 fn check o: Order -> String ! Bad = Bad { order: o }

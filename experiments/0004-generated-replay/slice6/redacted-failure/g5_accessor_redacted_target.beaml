@@ -1,6 +1,9 @@
 // G5 (DL-112, D6B-182, N2): an accessor result in a redacted target field. Allowed.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Receipt { holder: redacted String }
 
-fn holder Order { card_holder } -> String = card_holder
-fn receipt o: Order -> Receipt = Receipt { holder: holder(o) }
+fn holder  Order { card_holder } -> String  = card_holder
+fn receipt o: Order              -> Receipt = Receipt { holder: holder(o) }

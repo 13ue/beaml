@@ -1,21 +1,31 @@
 // Slice 6 db variant no_app: the ENUM LITERAL App = "app" is removed (N25b, DL-122).
 type BadAmount {}
-type Amount { value: String currency: String }
+type Amount {
+  value: String
+  currency: String
+}
 fn Amount value: String, currency: String -> Amount ! BadAmount
-fn Amount _,     ""       -> Amount ! BadAmount = BadAmount {}
-fn Amount value, currency -> Amount ! BadAmount = Amount { value: value, currency: currency }
+fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
+fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
 
-enum Channel { Web = "web"  Unknown(String) }
+enum Channel {
+  Web = "web"
+  Unknown(String)
+}
 
-type Order { order_id: String amount: Amount channel: Channel }
+type Order {
+  order_id: String
+  amount: Amount
+  channel: Channel
+}
 type OrderKey { order_id: String }
 type OrderQuery {}
 type OrderList { items: [Order] }
 type StoreError { reason: String }
 
 // Three DB TRANSPORTS leave the module. Each call is recorded live and substituted in a REPLAY RUN.
-effect orders.save Order      -> Order ! StoreError     = db.put("records")
-effect orders.load OrderKey   -> Order ! StoreError     = db.get("records")
+effect orders.save Order      -> Order     ! StoreError = db.put("records")
+effect orders.load OrderKey   -> Order     ! StoreError = db.get("records")
 effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
 
 // Enters the module. The host calls Orders.ui_orders(params).

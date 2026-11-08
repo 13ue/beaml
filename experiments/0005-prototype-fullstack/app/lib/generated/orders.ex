@@ -55,9 +55,9 @@ defmodule Orders do
       raise ArgumentError, "invalid BEAML input"
     end
   end
-  # beaml-declaration-v1 Amount 229 291
+  # beaml-declaration-v1 Amount 234 312
   defp __beaml_new_Amount_1(_, <<>>), do: {:error, %__MODULE__.BadAmount{}}
-  # beaml-declaration-v1 Amount 292 385
+  # beaml-declaration-v1 Amount 313 422
   defp __beaml_new_Amount_1(v_value, v_currency), do: {:ok, %__MODULE__.Amount{value: v_value, currency: v_currency}}
   def list_notes(a0) do
     if __beaml_valid__(a0, <<78,111,116,101,81,117,101,114,121>>) do
@@ -72,7 +72,7 @@ defmodule Orders do
       raise ArgumentError, "invalid BEAML input"
     end
   end
-  # beaml-declaration-v1 list_notes 2020 2089
+  # beaml-declaration-v1 list_notes 2157 2231
   defp __beaml_list_notes(v_q) do
     p0 = v_q
     with {:ok, p1} <- __MODULE__.notes_list(p0) do
@@ -92,7 +92,7 @@ defmodule Orders do
       raise ArgumentError, "invalid BEAML input"
     end
   end
-  # beaml-declaration-v1 list_orders 1811 1884
+  # beaml-declaration-v1 list_orders 1917 1990
   defp __beaml_list_orders(v_q) do
     p0 = v_q
     with {:ok, p1} <- __MODULE__.orders_list(p0) do
@@ -112,7 +112,7 @@ defmodule Orders do
       raise ArgumentError, "invalid BEAML input"
     end
   end
-  # beaml-declaration-v1 place 1736 1810
+  # beaml-declaration-v1 place 1831 1916
   defp __beaml_place(v_f) do
     p0 = v_f
     with p1 = __MODULE__.to_order(p0),
@@ -134,7 +134,7 @@ defmodule Orders do
       raise ArgumentError, "invalid BEAML input"
     end
   end
-  # beaml-declaration-v1 save_note 1945 2019
+  # beaml-declaration-v1 save_note 2071 2156
   defp __beaml_save_note(v_f) do
     p0 = v_f
     with p1 = __MODULE__.to_note(p0),
@@ -151,7 +151,7 @@ defmodule Orders do
       raise ArgumentError, "invalid BEAML input"
     end
   end
-  # beaml-declaration-v1 to_note 1886 1944
+  # beaml-declaration-v1 to_note 1992 2070
   defp __beaml_to_note(%{<<116,101,120,116>> => v_text}), do: %{<<116,101,120,116>> => v_text}
   def to_order(a0) do
     if __beaml_valid__(a0, <<80,108,97,99,101,70,111,114,109>>) do
@@ -161,9 +161,9 @@ defmodule Orders do
       raise ArgumentError, "invalid BEAML input"
     end
   end
-  # beaml-declaration-v1 to_order 1607 1734
+  # beaml-declaration-v1 to_order 1702 1829
   defp __beaml_to_order(%{<<111,114,100,101,114,95,105,100>> => v_order_id, <<97,109,111,117,110,116>> => v_amount, <<99,104,97,110,110,101,108>> => v_channel}), do: %{<<111,114,100,101,114,95,105,100>> => v_order_id, <<97,109,111,117,110,116>> => v_amount, <<99,104,97,110,110,101,108>> => v_channel}
-  # beaml-declaration-v1 orders.save 910 976
+  # beaml-declaration-v1 orders.save 963 1038
   def orders_save(a0) do
     if __beaml_valid__(a0, <<79,114,100,101,114>>) do
       __beaml_attempt__(fn ->
@@ -267,7 +267,7 @@ defmodule Orders do
     @impl true
     def message(_), do: "BEAML failure"
   end
-  # beaml-declaration-v1 orders.list 977 1053
+  # beaml-declaration-v1 orders.list 1039 1115
   def orders_list(a0) do
     if __beaml_valid__(a0, <<79,114,100,101,114,81,117,101,114,121>>) do
       __beaml_attempt__(fn ->
@@ -281,7 +281,7 @@ defmodule Orders do
     :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)
     raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.StoreError, reason: a0))
   end
-  # beaml-declaration-v1 notes.save 1054 1117
+  # beaml-declaration-v1 notes.save 1116 1191
   def notes_save(a0) do
     if __beaml_valid__(a0, <<78,111,116,101>>) do
       __beaml_attempt__(fn ->
@@ -312,7 +312,7 @@ defmodule Orders do
       else: :error
   end
   def __beaml_encode_note(v), do: %{<<116,101,120,116>> => Map.get(v, <<116,101,120,116>>)}
-  # beaml-declaration-v1 notes.list 1118 1191
+  # beaml-declaration-v1 notes.list 1192 1268
   def notes_list(a0) do
     if __beaml_valid__(a0, <<78,111,116,101,81,117,101,114,121>>) do
       __beaml_attempt__(fn ->
@@ -774,7 +774,7 @@ defmodule Orders do
       Base.encode16(:crypto.hash(:sha256, text), case: :lower)
     end
   end
-  # beaml-declaration-v1 ui.place 1277 1353
+  # beaml-declaration-v1 ui.place 1354 1436
   def __beaml_unknown_fields_placeform(value) do
     Enum.flat_map([{<<99,104,97,110,110,101,108>>, <<67,104,97,110,110,101,108>>, <<85,110,107,110,111,119,110>>}], fn {field, owner, keep} ->
       case Map.get(value, field) do
@@ -882,7 +882,7 @@ defmodule Orders do
       true -> Enum.member?([true, false], v)
     end
   end
-  # beaml-declaration-v1 ui.orders 1354 1443
+  # beaml-declaration-v1 ui.orders 1437 1526
   def __beaml_decode_orderquery(a0) do
     declared = []
 
@@ -939,7 +939,7 @@ defmodule Orders do
     __MODULE__.list_orders(value)
   end
   defp __beaml_enter_ui_orders(:error), do: __beaml_reject__(<<100,101,99,111,100,101>>)
-  # beaml-declaration-v1 ui.note 1444 1520
+  # beaml-declaration-v1 ui.note 1527 1612
   def __beaml_decode_noteform(a0) do
     declared = [<<116,101,120,116>>]
 
@@ -996,7 +996,7 @@ defmodule Orders do
     __MODULE__.save_note(value)
   end
   defp __beaml_enter_ui_note(:error), do: __beaml_reject__(<<100,101,99,111,100,101>>)
-  # beaml-declaration-v1 ui.notes 1521 1605
+  # beaml-declaration-v1 ui.notes 1613 1700
   def __beaml_decode_notequery(a0) do
     declared = []
 

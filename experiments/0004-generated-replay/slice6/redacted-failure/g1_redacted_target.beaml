@@ -1,5 +1,8 @@
 // G1 (DL-112): the target field is redacted too. Allowed.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Receipt { holder: redacted String }
 
 fn receipt Order { card_holder } -> Receipt = Receipt { holder: card_holder }
