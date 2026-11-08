@@ -20,14 +20,20 @@ defmodule ProtoWeb.OrderFormLive do
 
   def render(assigns) do
     ~H"""
-    <.flash kind={:error} flash={@flash} />
-    <form id="place" phx-submit="place">
-      <label>Order id <input name="order[order_id]" /></label>
-      <label>Amount <input name="order[amount][value]" /></label>
-      <label>Currency <input name="order[amount][currency]" /></label>
-      <label>Channel <input name="order[channel]" /></label>
-      <button>Place</button>
-    </form>
+    <Layouts.app flash={@flash}>
+      <div class="card bg-base-100 shadow-sm border border-base-300">
+        <form id="place" phx-submit="place" class="card-body">
+          <h1 class="card-title">New order</h1>
+          <.input name="order[order_id]" value="" label="Order id" />
+          <.input name="order[amount][value]" value="" label="Amount" inputmode="decimal" />
+          <.input name="order[amount][currency]" value="" label="Currency" />
+          <.input name="order[channel]" value="" label="Channel" />
+          <div class="card-actions justify-end">
+            <.button variant="primary">Place</.button>
+          </div>
+        </form>
+      </div>
+    </Layouts.app>
     """
   end
 end

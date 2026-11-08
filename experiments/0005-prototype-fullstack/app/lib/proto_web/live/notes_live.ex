@@ -29,14 +29,21 @@ defmodule ProtoWeb.NotesLive do
 
   def render(assigns) do
     ~H"""
-    <.flash kind={:error} flash={@flash} />
-    <ul>
-      <li :for={n <- @items} data-note data-tag={n["tag"]}>{n["text"]}</li>
-    </ul>
-    <form id="note" phx-submit="note">
-      <label>Note <input name="note[text]" /></label>
-      <button>Save</button>
-    </form>
+    <Layouts.app flash={@flash}>
+      <h1 class="text-xl font-semibold">Notes</h1>
+      <div class="card bg-base-100 shadow-sm border border-base-300">
+        <form id="note" phx-submit="note" class="card-body">
+          <.input name="note[text]" value="" label="Note" />
+          <div class="card-actions justify-end">
+            <.button variant="primary">Save</.button>
+          </div>
+        </form>
+      </div>
+      <div :if={@items == []} class="alert">No notes yet.</div>
+      <ul :if={@items != []} class="list bg-base-100 rounded-box border border-base-300">
+        <li :for={n <- @items} data-note data-tag={n["tag"]} class="list-row">{n["text"]}</li>
+      </ul>
+    </Layouts.app>
     """
   end
 end
