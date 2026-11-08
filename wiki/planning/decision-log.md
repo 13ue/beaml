@@ -1003,6 +1003,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: a changed value with an old digest is a hand edit or corruption; the build must not pass it (same line as DL-150).
 → Effect: small step P2b after fates-a1: `--stored` verifies the digest of every checked record and row (QV3-6 scope: `redacted`, `unknown_keys`, `value`), prints the count, blocks with the record source; the `digest not verified (P2b)` line goes; the fate forms apply (a quarantine line may park such rows: plan option). D035 closed. The format number: the OWNER asked why "v3" before any release; proposal recorded: internal draft numbering stays, the first release restarts at 1 with a one-time rewrite; pages say "Record-Format (Entwurf 3)". Not decided.
 
+**DL-165 · Migrate · Record-format numbers are draft numbers until the first release; the release restarts at 1**
+→ Question: the OWNER asked why the record format is "v3" before any release. Options: A keep counting internal rebuilds forever · B internal draft numbers now, the first release restarts the format at 1 with a one-time rewrite of every stored record and row (as v2→v3 was done).
+→ Chose: B. Pages and the site may say "Record-Format (Entwurf 3)"; the internal `version: 3` stays until the release step.
+→ By: 13ue (2026-11-08, "gerade der Neustart bei Release ist sehr wichtig")
+→ Because: the number a user sees must count released formats, not our rebuilds; the restart is the moment the history is cut once, deliberately.
+→ Effect: a "release" step gets a register entry when the time comes: rewrite tool (like `convert_v3.py`), every reader at 1, pins moved once; the draft numbers appear nowhere outside the repository. Record format changes before that stay cheap: draft 4, 5, … are allowed.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
