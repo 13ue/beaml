@@ -1,0 +1,22 @@
+{
+  "step": "fates-b",
+  "phase": "plan",
+  "date": "2026-11-08",
+  "head": "5ef32b2e",
+  "by": "Opus (PLAN fates-b)",
+  "test_first": {"applies": ["b1a", "b1b", "b2a", "b3"], "no_test": {"b1c": "Answer class, stop for OWNER", "b2b": "Answer class, stop for OWNER", "b4": "question card, no outcome form"}},
+  "order": ["a2a", "a2b", "b3", "b1a", "b1b", "b2a"],
+  "stop_for_owner": ["b1c", "b2b", "b2a (QF-4)"],
+  "steps": {
+    "b3":  {"red": ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6"], "pins": "none expected", "exp0005": "N18"},
+    "b1a": {"red": ["B1", "B2", "B3", "B4", "B5"], "pins": "N13 BASE (inferred); others unknown, RED lists", "exp0005": "none (D039); main agent accepts or rejects"},
+    "b1b": {"red": ["B6", "B7", "B8", "B9", "B10"], "pins": "none", "exp0005": "none"},
+    "b2a": {"red": ["A1", "A2", "A3", "A4", "A5"], "pins": "all seven if QF-4 = core time key; none if host column", "exp0005": "N20"},
+    "b1c": {"class": "Answer"},
+    "b2b": {"class": "Answer"},
+    "b4":  {"class": "Migrate", "kind": "question card"}
+  },
+  "owner_questions": ["QB-1", "QB-2", "QB-3", "QB-4", "QF-9", "QF-4", "QB-5", "QB-6", "QB-7", "QB-8", "QB-9", "QB-10", "QB-11", "QB-12"],
+  "answer_class": ["A1 b2b deletion", "A2 b1c removal", "A3 age source"],
+  "unattended_guard": "no delete outside a temp copy in the same test process; b1c, b2a, b2b GREEN never dispatched unattended"
+}
