@@ -1,0 +1,22 @@
+test_equal_literals_are_unreachable (__main__.Slice6Int.test_equal_literals_are_unreachable) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_fixture_compiles_to_the_planned_shape (__main__.Slice6Int.test_fixture_compiles_to_the_planned_shape) ... ok
+test_int_body_for_string_output (__main__.Slice6Int.test_int_body_for_string_output) ... ok
+test_int_is_not_a_declared_type_name (__main__.Slice6Int.test_int_is_not_a_declared_type_name) ... ok
+test_int_literal_against_string_parameter (__main__.Slice6Int.test_int_literal_against_string_parameter) ... ok
+test_int_output_and_literal_expression_compile (__main__.Slice6Int.test_int_output_and_literal_expression_compile) ... ok
+test_is_integer_is_a_reserved_function_name (__main__.Slice6Int.test_is_integer_is_a_reserved_function_name) ... ok
+test_literal_after_catch_all_is_unreachable (__main__.Slice6Int.test_literal_after_catch_all_is_unreachable) ... ok
+test_literal_alone_is_non_exhaustive (__main__.Slice6Int.test_literal_alone_is_non_exhaustive) ... ok
+test_literal_clause_and_int_parameter_compile (__main__.Slice6Int.test_literal_clause_and_int_parameter_compile) ... ok
+test_no_int_in_effect_input (__main__.Slice6Int.test_no_int_in_effect_input) ... ok
+test_no_int_in_effect_output (__main__.Slice6Int.test_no_int_in_effect_output) ... ok
+test_no_negative_literal (__main__.Slice6Int.test_no_negative_literal) ... ok
+test_no_plus_on_int (__main__.Slice6Int.test_no_plus_on_int) ... ok
+test_runtime (__main__.Slice6Int.test_runtime) ... ok
+test_string_body_for_int_output (__main__.Slice6Int.test_string_body_for_int_output) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.327s
+
+OK

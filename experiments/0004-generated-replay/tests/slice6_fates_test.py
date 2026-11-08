@@ -459,6 +459,17 @@ class Fates(unittest.TestCase):
             self.assert_fated(self.orders(text), [fate(1, "ROW", "table records", "quarantined", Q_STEP,
                                                        "quarantine currency")], [NOT_BUILT_Q], rows=[row(NO_CURRENCY)])
 
+    def test_S1k_either_tested_parameter_lifts(self):
+        """fates-a1b TEST, QB-1 built default PB-03 (open): a clause `"0", ""` tests both parameters; either line lifts."""
+        clause = 'fn Amount "0",           _                -> Amount ! BadAmount = BadAmount {}'
+        both = dict(WIRE1, order_id="order-both-bad", amount={"value": "0", "currency": ""})
+        for param in ("value", "currency"):
+            with self.subTest("quarantine " + param):
+                text = swap(swap(AMT, clause, clause.replace('_     ', '""    ', 1)), Q_LINE,
+                            "migrate Amount v1 -> v2 { quarantine %s }" % param)
+                self.assert_fated(self.orders(text), [fate(1, "ROW", "table records", "quarantined", Q_STEP,
+                                                           "quarantine " + param)], [NOT_BUILT_Q], rows=[row(both)])
+
     def test_S1j_a_rule_without_a_literal_is_not_lifted(self):
         """Plan "Repairs" O1 (QB-2 default): nested.beaml `fn Amount value, c` fails in Code; no line names a tested field."""
         source = NESTED.read_text()

@@ -55,6 +55,11 @@ CHAIN_V1 = type_of("Order", 1, [["order_id", "String"], ["via", "Channel"]])
 CHAIN_V2 = type_of("Order", 2, [["order_id", "String"], ["ch", "Channel"]])
 CHAINED = "migrate Order v1 -> v2 { rename via -> ch }\nmigrate Order v2 -> v3 { rename ch -> channel }"
 RENAME_MAP = 'migrate Order v1 -> v2 { rename via -> channel, map channel "tv" -> Web }'
+# fates-a1b TEST (RED review O1): two renames in one step whose order would matter. K7 names a field once per step, so
+# the checker rejects it; order inside a step cannot change stored_key while K7 holds (test-a1b.md).
+ONE_STEP = "migrate Order v1 -> v2 { rename via -> ch, rename ch -> channel }"
+K7_TEXT = ("migrate Order v1 -> v2: field ch is named two times in one MIGRATE STEP; a field that leaves and comes back "
+           "needs two MIGRATE STEPS")
 # slice6_fates_test (fates-a1): the a1 stop line of a hit map line, and the PF-13 fate line.
 NOT_BUILT_M = "error: a map line is hit, but map at run time is not built yet (fates-a2)"
 MAP_FATE = 'fate: 1 stored ROW of table records mapped by migrate Order v1 -> v2 (map channel "tv" -> Web)'
@@ -239,6 +244,11 @@ class M4Db(unittest.TestCase):
             code, stdout, got, _, _ = self.blocked(self.orders(map_text),
                                                    rows=[sds.row({"order_id": "order-tv", "via": "tv"}, ENUM_V1)])
             self.assertEqual((1, "", [MAP_FATE, NOT_BUILT_M]), (code, stdout, got))
+        one_text = RENAME_ENUM.replace(ENUM_STEP, ONE_STEP) + LIST_TAIL
+        self.assertNotEqual(RENAME_ENUM + LIST_TAIL, one_text, "setup: the rename step of row_rename_enum changed")
+        with self.subTest("order inside one step: K7 rejects a chain in one step"):
+            code, stdout, stderr = self.compile(self.orders(one_text))
+            self.assertEqual((1, "", [K7_TEXT]), (code, stdout, stderr.splitlines()))
 
     # R13 (plan repair 3): DL-152 effect (1), the MIGRATE CHANGES stand before the DL-101 tail.
 
