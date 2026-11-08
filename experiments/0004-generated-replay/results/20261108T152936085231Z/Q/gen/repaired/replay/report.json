@@ -1,0 +1,11 @@
+{
+  "result": {
+    "ok": {
+      "order_id": "order-1",
+      "status": "authorized"
+    }
+  },
+  "host_validation": "ok",
+  "transport": 0,
+  "eval_exit_code": 0
+}

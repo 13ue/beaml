@@ -1,0 +1,34 @@
+{
+  "evidence": {
+    "build_output": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261108T151437233744Z/R/gen/build_output.txt",
+    "build_exit_code": 0,
+    "new_live_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261108T151437233744Z/R/gen/new_live/observed.json",
+    "pre_change_replay_report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261108T151437233744Z/R/gen/pre_change/report.json"
+  },
+  "notes": {
+    "new_live": {
+      "expected_accept": true,
+      "cause": "host_validation ArgumentError"
+    },
+    "pre_change": {
+      "expected_accept": false,
+      "host_validation": "nil"
+    }
+  },
+  "build": "correct_accept",
+  "new_live": "false_reject",
+  "pre_change": "typed_reject",
+  "manual_change_sites": 0,
+  "domain_validation_sites": 1,
+  "test_expectation_sites": 2,
+  "repaired": {
+    "exit_code": 0,
+    "argv": [
+      "/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-drift-u_r0wyce/R/gen/experiments/0002-http-correlation/_build/prod/rel/orders/bin/orders",
+      "eval",
+      "\ninput = :json.decode(File.read!(System.fetch_env!(\"PROBE_INPUT\")))\n:persistent_term.put(:probe_count, :atomics.new(1, []))\norder = input[\"order\"]\noutcome =\n  try do\n    case input[\"mode\"] do\n      \"flow\" -> OrdersBeamlSpike.place(order)\n      \"replay\" -> OrdersBeamlSpike.Replay.run(ProbeSupport.valid_order!(order), input[\"trace_id\"], input[\"responses\"])\n    end\n  rescue\n    error -> {:raised, inspect(error.__struct__)}\n  catch\n    kind, _ -> {:raised, Atom.to_string(kind)}\n  end\nhost = case outcome do\n  {:ok, value} ->\n    try do\n      ProbeSupport.valid_payment!(value, order)\n      \"ok\"\n    rescue\n      error -> inspect(error.__struct__)\n    end\n  _ -> nil\nend\nresult = case outcome do\n  {:ok, value} -> %{ok: value}\n  {:error, reason} when is_atom(reason) -> %{error: Atom.to_string(reason)}\n  {:error, reason} -> %{error: inspect(reason)}\n  {:raised, name} -> %{raised: name}\n  other -> %{unexpected: inspect(other)}\nend\nIO.puts(\"PROBE \" <> IO.iodata_to_binary(:json.encode(%{result: result, host_validation: host,\n  transport: ProbeSupport.count()})))\n"
+    ],
+    "record": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261108T151437233744Z/R/gen/repaired/record.json",
+    "report": "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/results/20261108T151437233744Z/R/gen/repaired/replay/report.json"
+  }
+}
