@@ -1,3 +1,10 @@
+---
+id: source-owner-ideas
+kind: source-note
+status: owner-primary-spoken
+updated: 2026-11-08
+---
+
 # OWNER ideas (spoken, captured)
 
 **Origin.** The OWNER of this repository, spoken in working sessions, dictated. **Status.** Highest source of truth for intent and direction (OWNER rule of 2026-11-08). **Limits.** Every capture is a paraphrase by the main agent, not a transcript; the OWNER's wording is not preserved; contradictions between captures are recorded, not resolved. **License.** Repository owner's own material.
