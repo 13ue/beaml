@@ -1,8 +1,0 @@
-// Slice 6 db reject (N12): an enum field in a ROW TYPE with a MIGRATE CHAIN (D6B-39 as built, PDB-31).
-enum Channel { Web = "web"  App = "app"  Unknown(String) }
-type Order { order_id: String channel: Channel note: String }
-migrate Order v1 -> v2 { add note: String = "" }
-type StoreError { reason: String }
-effect orders.save Order -> Order ! StoreError = db.put("records")
-
-fn save o: Order -> Order ! StoreError = o |> orders.save
