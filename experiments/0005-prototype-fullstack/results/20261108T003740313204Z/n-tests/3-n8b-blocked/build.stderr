@@ -1,0 +1,3 @@
+error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for field amount with BadAmount
+  record source: /Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T003740313204Z/n-tests/3-n8b-blocked/rows.jsonl:1 (line 1)
+  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order (DL-102)
