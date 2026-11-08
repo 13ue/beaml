@@ -181,6 +181,18 @@ migrate Note v1 -> v2 { add tag: String = "" }
              [("A", "Tests N7/N7b warten auf M4", False),
               ("B", "eigener String-TYPE `Note` mit eigener Kette", True),
               ("C", "M4 jetzt beantworten", False)], dl="DL-153"),
+          it("QM4-1", "Fehlertext: Schritt auf Enum- oder Konstruktor-Feld", "default", "Opus (PLAN m4-lift, Default, offen)",
+             ["Ein `rename` auf so ein Feld ist heute ein Compile-Fehler", "Der Text nennt M3 und DL-152 als Grund", "Gebaut: A"],
+             "", [], [("A", "Text am EFFECT, nennt M3 und DL-152", True), ("B", "Text am Schritt, wie in Slice 3", False)]),
+          it("QM4-2", "Kein Versions-Mark an `Order` in 0005", "default", "Opus (PLAN m4-lift, Default, offen)",
+             ["`type Order v2` steht nicht im Kopf; die Kette zeigt die Version", "fmt streicht ein Mark ohnehin (DL-104)", "Mit DL-155 wird das Mark bei betroffenen Daten Pflicht; dann Frage neu"],
+             "", [], [("A", "`type Order v2 {`", False), ("B", "kein Mark", True)]),
+          it("QM4-3", "DL-122-Hilfe nennt weiter D6B-39", "default", "Opus (PLAN m4-lift, Default, offen)",
+             ["Vier Tests pinnen den Text", "Mit DL-155 sollte die Hilfe die Versions-Form nennen; Docs-Frage für den Fate-Slice"],
+             "", [], [("A", "Text behalten", True), ("B", "M3 und DL-140 nennen", False)]),
+          it("QM4-4", "`rename` eines Enum-Felds bleibt Fehler", "default", "Opus (PLAN m4-lift, Default, offen)",
+             ["Ein `rename` bewegt nur den Schlüssel", "Trotzdem Fehler, bis der Fate-Slice die Formen hat"],
+             "", [], [("A", "Fehler", True), ("B", "jetzt erlauben", False)]),
           it("N9", "Der strengere Amount braucht eine Fate-Form", "parked", "OWNER geparkt (über M3, M4, M5)",
              ["Variante `stricter`: `Amount` wird strenger.",
               "Neu: der Betrag `\"0\"` wird abgelehnt.",
@@ -286,7 +298,7 @@ migrate Order v3 -> v4 { redact amount }
 ''')],
              [("A", "DL-116 verlässt die Liste; neue Frage: wie läuft eine Regel über einen fehlenden Wert", False),
               ("B", "`redact` überspringt die Regel, DL-116 B kommt zurück", False)]),
-          it("FATE-NEXT", "Reihenfolge: wann bauen wir die Fate-Formen?", "open", "Fable (Vorschlag)",
+          it("FATE-NEXT", "Reihenfolge: wann bauen wir die Fate-Formen?", "decided", "Fable (Vorschlag); entschieden 13ue: A",
              ["Mit DL-152 brauchen Schritte auf Enum- und Konstruktor-Feldern diese Formen.",
               "Vorschlag: nach M4 Schritt 1 (erst migrieren, dann prüfen) kommt der Fate-Slice.",
               S + "Grammatik für die vier Zeilen",
@@ -297,7 +309,7 @@ migrate Order v3 -> v4 { redact amount }
              "",
              [],
              [("A", "Fate-Slice direkt nach M4 Schritt 1", False),
-              ("B", "erst live `--stored` (DL-151), dann Fate-Slice", False)]),
+              ("B", "erst live `--stored` (DL-151), dann Fate-Slice", False)], dl="DL-156"),
       ])
 
 # ---------------------------------------------------------------- 3
@@ -810,6 +822,26 @@ group("11-parked", "Geparkt (D036)",
           it("M9", "Record-Zeilen in einem Blocktext", "parked", "OWNER",
              ["Frage: Record-Zeilen im Text eines Blocks.",
               "P2 hat das umgangen."], "", [], []),
+      ])
+
+# ---------------------------------------------------------------- 12b
+group("12b-register", "Neue Fragen aus dem Walk-through",
+      "Ideen, die heute dazukamen. Noch nichts entschieden; jede hat einen Register-Eintrag.",
+      [
+          it("D038", "Zeilenlänge und Umbrüche in einer Klausel", "open", "13ue (Idee)",
+             ["Maximale Länge, z. B. 120, oder Umbruch-Regel in der CLAUSE TABLE", "Spalten zählen heute Bytes; ein langer Name verbreitert den Block", "Erst bei längeren Funktionen"], "", [], []),
+          it("D039", "Wie ein geschwärztes Feld in Records gespeichert wird", "open", "13ue (Idee)",
+             ["Default: Hash (prüfbar, nicht lesbar); braucht Schlüssel oder Salz", "Explizit: verschlüsselt mit Server-Secret, für den Notfall lesbar", "Einstellung mit sicherem Default"], "", [],
+             [("A", "Hash als Default", False), ("B", "verschlüsselt, nur als Opt-in", False)]),
+          it("D040", "Sichtbarkeit: was ein Modul vor dem Host verbirgt", "open", "13ue (Idee)",
+             ["Etwas als intern markieren, damit es nie nach außen gerät", "Ebene offen: Modul, TYPE oder Feld", "Team-Vorschlag: Oberfläche aus den ENTRY LINES ableiten, kein neues Wort"], "", [],
+             [("A", "abgeleitet, Build listet die Oberfläche", False), ("B", "explizites Opt-in pro TYPE", False), ("C", "abgeleitet plus Opt-out-Wort", False)]),
+          it("D041", "Enum-Konstruktor entfernen", "open", "Sprach-Team (Kandidat 2)",
+             ["Heute bildet eine `fn Channel …` fremde Strings mit Logik auf Varianten ab", "Vorschlag: nur die Literal-Tabelle; `fn Großname` ist immer Record-Konstruktor", "Verlust: Logik und Int → Variante; 9 Enums in Fixtures, keins in 0005"], "", [],
+             [("A", "nur Literale", False), ("B", "Literale plus `\"web\" | \"WEB\"`", False), ("C", "wie heute", False)]),
+          it("D042", "Lazy-Nachprüfung geschwärzter Regeln", "open", "13ue (Idee)",
+             ["Prüfung dort, wo der Wert ist: in der App beim Lesen oder Neueingeben", "Compiler listet jede Stelle, die das Ergebnis erreicht (Totalität)", "Form offen: Zustand im TYPE oder Fehlergrund im `! StoreError`", "M3 (`redact` überspringt Regel?): Neigung A, noch zu bestätigen"], "", [],
+             [("A", "Zustand im TYPE (`T v1 | T v2`)", False), ("B", "Fehlergrund pro Aufruf", False)]),
       ])
 
 # ---------------------------------------------------------------- 12

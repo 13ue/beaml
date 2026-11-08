@@ -940,6 +940,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: the gate "affected stored values" removes the DL-140 C objection (a typo fix with no data stays free) and keeps the OWNER line "stored yesterday, read differently today is a declared migration, never implicit". Versions make the old rule visible in code and in every record, so a redacted or absent value still says which rule it passed.
 → Effect: DL-140 A keeps its content, moved under the version; DL-102 and DL-122 blocks keep their texts, the help names the version form. Enum versions (`enum Channel v2`) are new syntax: grammar, fmt, tree-sitter. Supersedes the DL-104 reading that a mark is optional for a chained TYPE only in so far as the version is now forced by data. Next: the fate slice (order vs DL-151 still open, D043), then this rule in `--stored`.
 
+**DL-156 · Repair · Build order: the fate slice comes before live `--stored`**
+→ Question: D043, both slices need the compiler. A fate slice first · B live `--stored` (DL-151) first.
+→ Chose: A. The fate slice: grammar for `quarantine`, `retire … keep N days`, `redact`, `map` inside `migrate`, enum versions `enum E v2`, the DL-155 gate in `--stored`, the three blocks DL-102/DL-122/DL-140 lifted by a fate line, REPLAY RUN skips quarantined values, 0005 N9 (`quarantine value` on the stricter `Amount`) as the use case.
+→ By: 13ue (2026-11-08)
+→ Because: the demo app gets its complete loop first (block → fate → green); production reading follows.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

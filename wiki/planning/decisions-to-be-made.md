@@ -792,7 +792,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 ## D043 — Build order: fate slice before or after live `--stored`
 
-- **Status** OPEN (2026-11-08)
+- **Status** CLOSED 2026-11-08: A, DL-156
 - **Decision owner** OWNER
 - **Class** Repair (order of work), listed because both slices need the compiler
 - **Scope** A fate slice first (grammar for the four fate lines and `map`, the three blocks lifted by a fate line, REPLAY RUN skips quarantined values, 0005 N9 as the use case, DL-155 gate in `--stored`) · B live `--stored` (DL-151) first, then the fate slice.
