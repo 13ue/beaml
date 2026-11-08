@@ -8,6 +8,14 @@ Line format: **ID** · one sentence · options · built default · `By:`.
 
 ## Big, first
 
+## Slice 6 final review (Devil's Advocate, 2026-11-08): three high objections, dispositions pending
+
+Source: `experiments/0004-generated-replay/workflow/2026-11-07/slice6-final-review.md`. These stand before the other big items.
+
+- **A1 · premise · high**: the 0005 PASS proves less than the thesis: swapped `Channel` literals still build (DL-140 decided, not built); no `Order` chain (D6B-39, M4); the only way out of a block is an SQL delete (no fate form); the v2→v3 change used a Python rewrite; 0005 never checks ENTRY RECORDS. Options: A keep the PASS wording · B narrow the claim in README, register and pages to "String-only chain, blocks proven, no fate form yet". By: Opus (final review), disposition pending.
+- **A2 · implementation · high**: a build counts a bad row (bad digest, SQL `UPDATE` without a new digest) as "not decodable" and passes; at run time the whole `db.list` fails (QDB-4 A). Options: A block the build on a not-decodable row · B `db.list` skips the row and reports it · C accept the outage. By: Opus (final review), disposition pending.
+- **A3 · risk · high**: the compiler does not check where the ROW SNAPSHOT came from: without `snapshot-meta.json` exit 0; only `row_count` is read; `run.py run` ships against 0 rows. Options: A the compiler requires the meta file and checks database name and query time · B `--stored` queries the table live (DL-127 wording) · C keep as built, host-side N8c only. By: Opus (final review), disposition pending.
+
 ### 1 · M4 (D036), critical path
 
 → **M4** · A chained ROW TYPE may not hold a constructor or enum field (D6B-39), so the real `Order` chain cannot run. · A the DL-102 help names "restore the previous clause or literal" · B lift D6B-39 before any FATE OPERATION. · Built: none; D6B-39 holds, N18 pins today's help text, N7/N7b run on the String-only `Note` (QDB-8 B). · By: OWNER parked (D036); built state by Fable (Repair).
