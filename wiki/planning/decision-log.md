@@ -903,6 +903,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue (walk-through D037, page 1, 2026-11-08)
 → Effect: `--stored` over a ROW SNAPSHOT turns M > 0 into a build error with the row's source and reason; the `rows:` count line stays. The digest half still waits on D035 (P2b): until P2b a bad digest is not detected, so A covers decode faults first. Next slice.
 
+**DL-151 · Migrate · `--stored` reads the rows live from the database, also from production; REDACTED FIELDS stay redacted**
+→ Question: the final review (A3, risk, high): the compiler does not check where a ROW SNAPSHOT came from (no meta file: exit 0; only `row_count` read; `run.py run` builds against 0 rows). Options: A compiler requires the meta file and checks database name and query time · B `--stored` queries the table live (DL-127 wording) · C keep as built.
+→ Chose: B. The build runs against the real database, production included. The REDACTED FIELD rules of DL-127 and the record format apply to what the compiler reads and keeps: a redacted field is never read as clear text into a build, an event, a log or a message.
+→ By: 13ue (walk-through D037, page 1, 2026-11-08; confirmed after the Q5-4 consequence was named)
+→ Over: A' (snapshot stays, meta file required, no build against 0 rows), offered by Fable.
+→ Effect: supersedes the built Q5-4 B (host task writes a snapshot) as the primary path; the snapshot form may stay as a test desk, to be decided in the slice plan. The connection is given to the compiler only inside a process (environment from the host tooling), never as an argument that lands in events, logs or the action log; when a real database needs a secret, the OWNER runs that step. Next: slice "live stored" (plan with options: connection form, which queries, batch size, what the count line prints).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
