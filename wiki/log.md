@@ -466,3 +466,12 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [Vertical integration](concepts/vertical-integration.md): the first full vertical line, form to row and back. [Glossary](../GLOSSARY.md): STORED ROW, PROTOTYPE.
 - [Roadmap page](../docs/index.html) (three screens in `docs/img/`) and [root README](../README.md): the PROTOTYPE in Verified; next: D037 walk-through, fate slice after M3/M4/M5, P2b (D035).
 - **[Verified]** Limits: `run.py run` truncates `proto_dev` (O1); `BeamlDb.get/3` matches raw JSON (O2); the page calls `__beaml_encode_order/1` (O3); form inputs invisible in dark mode.
+
+## 2026-11-08: docs | row shape check (0005 P4c)
+
+**[Verified]** P4c GREEN `fdc5fe59`; TEST BLOCK at `a6550a0f` (O1 old-version rows pass, O2 list count, O3 http narrowing is Migrate); TEST repair `b95313a0`. [Full run](../experiments/0004-generated-replay/results/20261108T005120819231Z/result.json) status `pass`, 38 of 38 steps in 16 min 22 s, before the TEST repair. **[Unknown]** TEST repair done, re-check pending. No code change in this docs pass. By: Opus (docs P4c)
+
+- [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#database-transports-dbput-dbget-dblist-and---stored-over-rows): the "no shape check over rows" limit replaced by the built rule (stored TYPE VERSION, `[T]` items, DL-102 text without a stored value, a list record counts once) and its limits.
+- [Register](planning/research-and-development.md): new P4c row under P4. [Roadmap page](../docs/index.html): one sentence under db transports.
+- **[Verified]** Limits: http RESPONSE RECORDS keep the gap (Migrate, default A, open, N32e); enum and constructor counts in list records count items; redacted String fields skipped.
+
