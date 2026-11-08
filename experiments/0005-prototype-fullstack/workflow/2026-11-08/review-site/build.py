@@ -124,7 +124,7 @@ type Order {
 group("02-order-chain", "M4: die echte Order-Kette",
       "Hier bremst eine Regel alles: D6B-39. Sie verbietet bestimmte Felder in einem TYPE mit `migrate`. Darum läuft `Order` noch nicht über gespeicherte Zeilen.",
       [
-          it("M4", "Darf eine verkettete Zeile Amount und Channel tragen?", "parked", "OWNER geparkt (D036); gebauter Stand Fable (Repair)",
+          it("M4", "Darf eine verkettete Zeile Amount und Channel tragen?", "decided", "OWNER geparkt (D036); gebauter Stand Fable (Repair); entschieden 13ue: B voll",
              ["TYPE = Bauplan eines Werts, z. B. `Order`.",
               "TYPE VERSION = Stand eines TYPE beim Speichern (v1, v2 …).",
               "MIGRATE CHAIN = die `migrate`-Schritte eines TYPE.",
@@ -161,8 +161,8 @@ type Order {
 migrate Order v1 -> v2 { add note: String = "" }
 ''')],
              [("A", "D6B-39 bleibt. Der Hilfetext (DL-102) sagt: „stelle die vorige Klausel oder das Literal wieder her“", False),
-              ("B", "D6B-39 aufheben, noch vor der ersten FATE OPERATION", False)]),
-          it("QDB-8", "Der verkettete Lesepfad läuft solange auf Note", "default", "Fable (Default, offen)",
+              ("B", "D6B-39 aufheben, noch vor der ersten FATE OPERATION", False)], dl="DL-152"),
+          it("QDB-8", "Der verkettete Lesepfad läuft solange auf Note", "decided", "Fable (Default, offen); entschieden 13ue: C",
              ["`Order` darf heute keine Kette haben (M4).",
               "Also prüfen die Tests N7/N7b die MIGRATE CHAIN an `Note`.",
               "`Note` hat nur String-Felder.",
@@ -180,7 +180,7 @@ migrate Note v1 -> v2 { add tag: String = "" }
 ''')],
              [("A", "Tests N7/N7b warten auf M4", False),
               ("B", "eigener String-TYPE `Note` mit eigener Kette", True),
-              ("C", "M4 jetzt beantworten", False)]),
+              ("C", "M4 jetzt beantworten", False)], dl="DL-153"),
           it("N9", "Der strengere Amount braucht eine Fate-Form", "parked", "OWNER geparkt (über M3, M4, M5)",
              ["Variante `stricter`: `Amount` wird strenger.",
               "Neu: der Betrag `\"0\"` wird abgelehnt.",

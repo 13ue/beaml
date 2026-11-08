@@ -910,6 +910,19 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Over: A' (snapshot stays, meta file required, no build against 0 rows), offered by Fable.
 → Effect: supersedes the built Q5-4 B (host task writes a snapshot) as the primary path; the snapshot form may stay as a test desk, to be decided in the slice plan. The connection is given to the compiler only inside a process (environment from the host tooling), never as an argument that lands in events, logs or the action log; when a real database needs a secret, the OWNER runs that step. Next: slice "live stored" (plan with options: connection form, which queries, batch size, what the count line prints).
 
+**DL-152 · Migrate · D6B-39 is lifted: a chained TYPE may hold constructor and enum fields, and every MIGRATE STEP must be possible on them**
+→ Question: M4 (D036). D6B-39 bans a constructor or enum field in any TYPE with a MIGRATE CHAIN or VERSION MARK, so the 0005 `Order` (`amount: Amount`, `channel: Channel`) cannot be chained, not even for `add note: String`.
+→ Options: A keep the ban, the DL-102 help names the only exit · B lift D6B-39. Sub-forms offered by Fable: B1 chain allowed while no step names such a field · B2 full support, steps on such fields included.
+→ Chose: B, in the full form B2. OWNER words (voice note, transcribed): full support, lift the rule, every migration must be possible.
+→ By: 13ue (walk-through D037, page 2, 2026-11-08)
+→ Effect: build order: (1) the versioned decode runs the MIGRATE STEPS on the raw values first and the literal map, constructor and shape checks after (PDB-09 form), which frees `add`/`drop` of String fields beside enum and constructor fields and the real `Order` chain in 0005; (2) steps that name an enum or constructor field need the forms of M3 (fate forms, DL-116) and the `map` step of DL-140. M3 is therefore the next OWNER question, with a fresh explanation. Supersedes D6B-39, PDB-09 withdrawal, QDB-8 B.
+
+**DL-153 · Migrate · QDB-8: the chained read in 0005 moves to the real `Order`**
+→ Question: QDB-8, the chained read over rows (N7/N7b) ran on the String-only `Note` under D6B-39. Options: A block on M4 · B `Note` chain · C answer M4 now.
+→ Chose: C; with DL-152 the 0005 chain test moves to `Order v2` (`add note: String`), `Note` stays as the small control.
+→ By: 13ue (walk-through D037, page 2, 2026-11-08)
+→ N9 (voice note): the OWNER reads the N9 item as information, not a choice; it is right as written. N9 stays blocked on M3 (`quarantine amount` needs a fate form), no longer on M4.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
