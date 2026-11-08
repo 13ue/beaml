@@ -7,7 +7,7 @@ constructor field stays an error), QM4-3 A (the DL-122 help keeps its D6B-39 wor
 Expected values come from the plan and the digest and fingerprint code of slice6_db_test (stored_types_test), never
 from the new compiler. The cases that pin the old D6B-39 texts stay in slice6_db_test.py and slice6_decode_test.py
 until the GREEN retires them (red-plan.md, "Retired by GREEN").
-DL-147: this file joins run.py in the GREEN commit, not before.
+DL-147: this file joins run.py in the GREEN commit (step slice6-m4).
 Run: python3 -B experiments/0004-generated-replay/tests/slice6_m4_test.py [-k NAME]
 """
 from pathlib import Path
@@ -73,8 +73,10 @@ N33_CASES = {
                                          "Orders.list_orders(%{})",
                                          '{:ok, %%{"items" => [Map.put(o2.(), "note", "second"), %s]}}' % M1),
     # DL-109, PDB-18 (plan repair 6): a kept channel of a v1 row; the list record names items.0.channel.
-    "N33_v1_unknown_channel": want('fresh.(); BeamlDb.seed("Order", 1, %s); Process.put(:captures, [])' % jb(V1_TV_ROW),
-                                   'l = Orders.list_orders(%{}); [rec] = resp.(); {l, rec["unknown_fields"]}',
+    # GREEN repair: the list call and the record read stand in the setup, so `r` is the tuple, not only `l`.
+    "N33_v1_unknown_channel": want('fresh.(); BeamlDb.seed("Order", 1, %s); Process.put(:captures, []); '
+                                   'l = Orders.list_orders(%%{}); [rec] = resp.()' % jb(V1_TV_ROW),
+                                   '{l, rec["unknown_fields"]}',
                                    '{{:ok, %{"items" => [Map.put(tv.(), "note", "")]}}, ["items.0.channel"]}'),
     # PM4-07: the DL-101 tail runs after the steps and rejects bad wire values of a v1 row.
     "N33_v1_constructor_reject": want('fresh.(); BeamlDb.seed("Order", 1, %s)' % jb(V1_BAD_CURRENCY),
@@ -101,6 +103,28 @@ R8_CASE = ('r = BeamlSpike.__beaml_decode_payment(:json.encode(%s) |> IO.iodata_
            'IO.puts("got R8: " <> inspect(r)); '
            'r == {:ok, %%{"order_id" => "o-1", "state" => {"PaymentState", "Authorized", []}, "note" => ""}, ["extra"]}'
            % (ex(V1_BODY), ex({k: PAYMENT_V1[k] for k in ("name", "version", "fingerprint")})))
+# R8b (RED review O1): a chained constructor output; the joined key list holds the nested `amount.extra` and the
+# top-level `extra`, sorted as the plain decode of the same body sorts them (checked against the HEAD plain decode).
+CTOR_SOURCE = (sdec.EXPERIMENT / "slice6" / "decode-ctor" / "orders.beaml").read_text()
+CTOR_CHAIN = CTOR_SOURCE.replace(
+    "type Payment { order_id: String state: PaymentState amount: Amount }\n",
+    "type Payment { order_id: String state: PaymentState amount: Amount note: String }\n"
+    'migrate Payment v1 -> v2 { add note: String = "" }\n')
+PAYMENT_CTOR_V1 = type_of("Payment", 1, [["order_id", "String"], ["state", "PaymentState"], ["amount", "Amount"]])
+CTOR_BODY = {"order_id": "o-1", "state": {"status": "ok", "decline_reason": ""},
+             "amount": {"value": "12.50", "currency": "EUR", "extra": "y"}, "extra": "z"}
+R8B_CASE = ('r = BeamlSpike.__beaml_decode_payment(:json.encode(%s) |> IO.iodata_to_binary(), %s); '
+            'IO.puts("got R8b: " <> inspect(r)); '
+            'r == {:ok, %%{"order_id" => "o-1", "state" => {"PaymentState", "Authorized", []}, '
+            '"amount" => %%BeamlSpike.Amount{value: "12.50", currency: "EUR"}, "note" => ""}, ["amount.extra", "extra"]}'
+            % (ex(CTOR_BODY), ex({k: PAYMENT_CTOR_V1[k] for k in ("name", "version", "fingerprint")})))
+# R14 (RED review O2): the kept redacted D6B-39 branch (PM4-05). A guard: it passes at HEAD and after GREEN.
+REDACTED_CHAIN = ((sdec.EXPERIMENT / "slice6" / "redacted" / "output_redacted.beaml").read_text()
+                  .replace("card_holder: redacted String }\n",
+                           'card_holder: redacted String }\nmigrate Payment v1 -> v2 { add status: String = "x" }\n'))
+REDACTED_TEXT = ("error: effect payments.authorize: the redacted field Payment.card_holder cannot stand in a TYPE with a "
+                 "MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n  help: remove the MIGRATE CHAIN and the VERSION "
+                 "MARK of Payment")
 CHAIN_RENAME = rename_text("payments.authorize", ("Payment v1 -> v2", "rename status -> state"), "enum", "Payment.state",
                            ", or make state a String field")
 
@@ -144,7 +168,11 @@ class M4Db(unittest.TestCase):
     def test_N33_order_v2_steps_before_the_tail(self):
         body = decode_body(self.built(ORDER_V2), "__beaml_decode_order")
         self.assertIsNotNone(body, "no def __beaml_decode_order(a0, type_version) in the module")
-        put = body.find("Map.put(value, %s, %s)" % (b("note"), b("")))
+        put_text = "Map.put(value, %s, %s)" % (b("note"), b(""))
+        # RED review O3: one put only, and no comment line in the body that could hold a dead copy of it.
+        self.assertEqual((1, []), (body.count(put_text), [l for l in body.splitlines() if l.lstrip().startswith("#")]),
+                         "the note MIGRATE CHANGE must stand once, with no comment line in the decode body")
+        put = body.find(put_text)
         uses = [body.find(name) for name in ("__beaml_literal_Channel", "__beaml_from_Amount")]
         self.assertEqual((True, True, True), (put >= 0, all(u >= 0 for u in uses), all(put < u for u in uses)),
                          "the note MIGRATE CHANGE must stand before the literal map and the constructor call")
@@ -206,6 +234,16 @@ class M4Decode(unittest.TestCase):
     def test_chained_enum_output_reads_a_v1_body(self):
         # R8: a v1 body with its v1 type: Authorized tuple, note "", no legacy, unknown keys ["extra"].
         self.run_runtime({"R8_v1_body": R8_CASE}, CHAIN_ADD, stored=sf.EMPTY_STORED)
+
+    def test_chained_constructor_output_reads_a_v1_body(self):
+        # R8b: a v1 body with a stray key inside amount and at the top: both keys, sorted, and note "".
+        self.assertNotEqual(CTOR_SOURCE, CTOR_CHAIN, "setup: the Payment line of decode-ctor changed")
+        self.run_runtime({"R8b_v1_body": R8B_CASE}, CTOR_CHAIN, stored=sf.EMPTY_STORED)
+
+    def test_redacted_output_field_with_a_chain_still_rejects(self):
+        # R14 (guard): a redacted field in a chained output keeps the D6B-39 text (PM4-05, DL-125).
+        self.assertIn("migrate Payment", REDACTED_CHAIN, "setup: the Payment line of output_redacted changed")
+        self.assert_rejected(REDACTED_CHAIN, REDACTED_TEXT, sdec.EMPTY)
 
 
 if __name__ == "__main__":

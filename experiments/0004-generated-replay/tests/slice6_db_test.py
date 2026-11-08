@@ -351,14 +351,7 @@ def fourth_kind():
             '  help: write http.post("path"), db.put("records"), db.get("records") or db.list("records")')
 
 
-def d6b_39(kind, owner, field, help_tail=""):
-    """The built D6B-39 texts (main.rs HEAD effects(), PDB-31), with the db EFFECT as owner."""
-    return ("error: effect orders.save: the %s field %s.%s cannot stand in a TYPE with a MIGRATE CHAIN or a VERSION MARK "
-            "in slice 6b (D6B-39)\n  help: remove the MIGRATE CHAIN and the VERSION MARK of %s%s"
-            % (kind, owner, field, owner, help_tail))
-
-
-# N12: the Checks table of plan.md (after "Plan repair": the D6B-39 texts replace the MIGRATE CHANGE row).
+# N12: the Checks table of plan.md. M4 step 1 (DL-152) retired the two D6B-39 rows; slice6_m4_test.py holds the rename rejects.
 BAD_CASES = {
     "fourth_kind": fourth_kind(),
     "table": 'error: effect orders.save: db.put uses the table "records" only (DL-127)',
@@ -378,8 +371,6 @@ BAD_CASES = {
                          "  help: add the variant Unknown(String) to enum Channel"),
     "row_enum_no_literals": ("error: effect orders.save: the enum Channel of Order.channel has no ENUM LITERALS; a row "
                              "stores an enum by its literal (PDB-07)"),
-    "row_enum_chain": d6b_39("enum", "Order", "channel", ", or make channel a String field"),
-    "row_constructor_chain": d6b_39("constructor", "Order", "amount"),
 }
 # S13 of slice6_pipe_test.py changes with P4 (plan "Existing assertions that change"): db.get is a KIND now.
 S13 = (EXPERIMENT / "bad" / "unsupported_effect_kind.beaml",
@@ -469,10 +460,6 @@ class Slice6Db(unittest.TestCase):
             with self.subTest(name):
                 self.assert_rejected(BAD / ("%s.beaml" % name), message)
 
-    def test_N12_order_v2_chain_with_constructor_and_enum_fields(self):
-        # PDB-31: D6B-39 holds for ROW TYPES. Default: the first db EFFECT in source order, first field (amount).
-        self.assert_rejected(ORDER_V2, d6b_39("constructor", "Order", "amount"))
-
     def test_N12_s13_db_get_is_a_kind_now(self):
         self.assert_rejected(*S13)
 
@@ -504,7 +491,7 @@ class Slice6Db(unittest.TestCase):
         return result.returncode, path.read_text(), result.stderr
 
     def test_N15_fmt_keeps_the_fixtures(self):
-        for source in (ORDERS, PLAIN, PLAIN_V2, TWO_ROWS, NO_APP):
+        for source in (ORDERS, PLAIN, PLAIN_V2, TWO_ROWS, NO_APP, ORDER_V2):
             with self.subTest(str(source.relative_to(FIX))):
                 code, after, stderr = self.fmt(source.read_text())
                 self.assertEqual((0, source.read_text()), (code, after), stderr)

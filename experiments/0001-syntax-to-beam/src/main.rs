@@ -1649,16 +1649,19 @@ impl<'a> Checker<'a> {
         }
         Ok(())
     }
-    // The fields of an EFFECT output TYPE or a ROW TYPE that the decode reads (steps 7 and 8, D6B-39).
+    // The fields of an EFFECT output TYPE or a ROW TYPE that the decode reads (steps 7 and 8). M4 step 1 (DL-152):
+    // a versioned TYPE may hold enum and constructor fields; only a MIGRATE STEP that names one stays an error.
     fn output_fields(&self, name: &str, output: &str) -> Checked<()> {
         for (field, ty) in self.record(output)? {
             // Slice 6b step 7: an enum with ENUM LITERALS decodes by its mapping (D6B-35).
             if self.program.literals.contains_key(ty) {
-                if self.versioned(output) {
-                    return Err(format!(
-                        "error: effect {name}: the enum field {output}.{field} cannot stand in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n  help: remove the MIGRATE CHAIN and the VERSION MARK of {output}, or make {field} a String field"
-                    ));
-                }
+                self.renamed_onto(
+                    name,
+                    output,
+                    field,
+                    "enum",
+                    &format!(", or make {field} a String field"),
+                )?;
                 if self.keep_variant(ty).is_none() {
                     return Err(format!(
                         "error: effect {name}: the enum {ty} of {output}.{field} has no keep-value variant (DL-065)\n  help: add the variant Unknown(String) to enum {ty}"
@@ -1666,17 +1669,37 @@ impl<'a> Checker<'a> {
                 }
             } else if self.constructors.contains(ty) && self.ctor_signatures(ty).is_some() {
                 // Step 8 (DL-101): the decode calls the constructor with String parameters (S4).
-                if self.versioned(output) {
-                    return Err(format!(
-                        "error: effect {name}: the constructor field {output}.{field} cannot stand in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n  help: remove the MIGRATE CHAIN and the VERSION MARK of {output}"
-                    ));
-                }
+                self.renamed_onto(name, output, field, "constructor", "")?;
                 self.ctor_keeps(name, output, field, ty)?;
             } else if ty != "String" {
                 return Err(format!(
                     "effect {name}: slice 1 decodes String fields only, not {}.{field}",
                     output
                 ));
+            }
+        }
+        Ok(())
+    }
+    // M4 step 1 (DL-152, QM4-1 A): `rename old -> field` onto an enum or constructor field waits for the fate forms
+    // (M3). `add` and `drop` take String fields only (`type_versions`), so `rename` is the one step to check here.
+    fn renamed_onto(
+        &self,
+        name: &str,
+        output: &str,
+        field: &str,
+        kind: &str,
+        help: &str,
+    ) -> Checked<()> {
+        for step in self.migrations(output) {
+            for change in &step.changes {
+                if let Change::Rename(old, new) = change
+                    && new == field
+                {
+                    let (from, to) = (step.from, step.to);
+                    return Err(format!(
+                        "error: effect {name}: migrate {output} v{from} -> v{to}: rename {old} -> {new} names the {kind} field {output}.{field}; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)\n  help: remove rename {old} -> {new} from the MIGRATE STEP{help}"
+                    ));
+                }
             }
         }
         Ok(())
@@ -3724,6 +3747,7 @@ impl Checker<'_> {
         // VERSION (DL-054): every field of that version must hold its TYPE, every other key goes to
         // `unknown_keys` (sorted). The steps then work on typed data only: `rename old -> new` moves the
         // value, `add f = c` puts `c`, `drop f` removes the (already typed) field.
+        // M4 step 1 (DL-152): enum and constructor fields pass the steps raw; the DL-101 tail types them after.
         // A record `type` with another TYPE name, an unknown version or another fingerprint is a typed
         // decode error. No `type` key: the newest version. Without a chain the decode stays the slice 1 form.
         let parts = self.decode_parts(name, &effect.output);
@@ -3742,7 +3766,7 @@ impl Checker<'_> {
                 &tail,
             ));
         } else {
-            out.push_str(&self.versioned_decode(&effect.output, &declared));
+            out.push_str(&self.versioned_decode(&effect.output, &declared, &literal_map, &tail));
         }
         // Slice 6b step 6a (DL-105, D6B-54, D6B-56, D6B-57): the projection of a body for the RESPONSE RECORD.
         // `value`: the wire values under the declared keys of the newest TYPE VERSION, nested by DL-099 and D6B-49,
@@ -3884,7 +3908,7 @@ impl Checker<'_> {
         let (defs, literal_map, tail, _, _, _) = self.decode_parts(name, &row);
         out.push_str(&defs);
         out.push_str(&if self.versioned(&row) {
-            self.versioned_decode(&row, &declared)
+            self.versioned_decode(&row, &declared, &literal_map, &tail)
         } else {
             self.plain_decode(&row, &[], &declared, &literal_map, &tail)
         });
@@ -4260,7 +4284,17 @@ impl Checker<'_> {
         (defs, literal_map, tail, keeps, ctor_fields, inner)
     }
     // The decode of a TYPE with a MIGRATE CHAIN (DL-043, DL-054): `{decode}(bytes, type_version)`.
-    fn versioned_decode(&self, ty: &str, declared: &[String]) -> String {
+    // M4 step 1 (DL-152, PM4-06): with enum or constructor fields (`literal_map` not empty) the per-version check takes
+    // those fields raw, the MIGRATE CHANGES run on the raw values, then the DL-101 tail of `decode_parts` runs on the
+    // shape. Its key list is the per-version `unread` list plus the nested keys. Other TYPES keep their bytes.
+    fn versioned_decode(
+        &self,
+        ty: &str,
+        declared: &[String],
+        literal_map: &str,
+        tail: &str,
+    ) -> String {
+        let raw = !literal_map.is_empty();
         let decode = decode_name(ty);
         let migrations = self.migrations(ty);
         let versions = self.type_versions(ty);
@@ -4286,7 +4320,17 @@ impl Checker<'_> {
             .map(|(index, fields)| {
                 let pairs: Vec<String> = sorted_fields(fields)
                     .iter()
-                    .map(|(f, t)| format!("{{{}, {}}}", binary(f), binary(t)))
+                    .map(|(f, t)| {
+                        let raw_field = raw
+                            && (self.program.literals.contains_key(t)
+                                || self.constructors.contains(t));
+                        let t = if raw_field {
+                            ":raw".to_string()
+                        } else {
+                            binary(t)
+                        };
+                        format!("{{{}, {t}}}", binary(f))
+                    })
                     .collect();
                 format!(
                     "        {} -> {{:ok, [{}]}}\n",
@@ -4320,8 +4364,26 @@ impl Checker<'_> {
                 });
             }
         }
+        // `or` is not in the Kernel import of the module, so the raw fields leave the checked list.
+        let checked = if raw {
+            "Enum.reject(fields, fn {_, type} -> type == :raw end)"
+        } else {
+            "fields"
+        };
+        // The tail reads the keys from `value`; after the steps they are the per-version `unread` list.
+        let end = if raw {
+            format!(
+                "{literal_map}{}",
+                tail.replacen("Map.keys(Map.drop(value, declared))", "unread", 1)
+            )
+        } else {
+            format!(
+                "    if __beaml_valid__(shape, {}) do\n      {{:ok, shape, unread}}\n    else\n      :error\n    end\n",
+                binary(ty)
+            )
+        };
         format!(
-            "  def {decode}(a0), do: {decode}(a0, nil)\n  def {decode}(a0, type_version) do\n    declared = [{declared}]\n\n    version =\n      case type_version do\n        nil ->\n          {newest}\n\n        %{{{name_key} => {name}, {version_key} => v, {fingerprint_key} => f}} ->\n          if Enum.member?([{known}], {{v, f}}), do: v, else: 0\n\n        _ ->\n          0\n      end\n\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    fields =\n      case version do\n{by_version}        _ -> :none\n      end\n\n    {{value, unread}} =\n      case {{fields, body}} do\n        {{{{:ok, fields}}, %{{}}}} ->\n          names = Enum.map(fields, fn {{field, _}} -> field end)\n\n          if Enum.all?(fields, fn {{field, type}} -> __beaml_valid__(Map.get(body, field), type) end),\n            do: {{Map.take(body, names), Enum.sort(Map.keys(Map.drop(body, names)))}},\n            else: {{nil, []}}\n\n        _ ->\n          {{nil, []}}\n      end\n\n{changes}    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}) do\n      {{:ok, shape, unread}}\n    else\n      :error\n    end\n  end\n",
+            "  def {decode}(a0), do: {decode}(a0, nil)\n  def {decode}(a0, type_version) do\n    declared = [{declared}]\n\n    version =\n      case type_version do\n        nil ->\n          {newest}\n\n        %{{{name_key} => {name}, {version_key} => v, {fingerprint_key} => f}} ->\n          if Enum.member?([{known}], {{v, f}}), do: v, else: 0\n\n        _ ->\n          0\n      end\n\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    fields =\n      case version do\n{by_version}        _ -> :none\n      end\n\n    {{value, unread}} =\n      case {{fields, body}} do\n        {{{{:ok, fields}}, %{{}}}} ->\n          names = Enum.map(fields, fn {{field, _}} -> field end)\n\n          if Enum.all?({checked}, fn {{field, type}} -> __beaml_valid__(Map.get(body, field), type) end),\n            do: {{Map.take(body, names), Enum.sort(Map.keys(Map.drop(body, names)))}},\n            else: {{nil, []}}\n\n        _ ->\n          {{nil, []}}\n      end\n\n{changes}    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n{end}  end\n",
             declared = declared.join(", "),
             name_key = binary("name"),
             name = binary(ty),
@@ -4329,7 +4391,6 @@ impl Checker<'_> {
             fingerprint_key = binary("fingerprint"),
             known = known.join(", "),
             by_version = by_version,
-            output = binary(ty),
         )
     }
     // The decode of a TYPE without a MIGRATE CHAIN (slice 1 form, steps 7 and 8).

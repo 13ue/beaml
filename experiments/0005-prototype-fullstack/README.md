@@ -36,7 +36,7 @@ By: Opus (docs exp0005) for the result sections. The plan sections below keep th
 ```
 form submit  → Orders.ui_place/1 (decode, ENTRY RECORD) → flow → db.put → BeamlDb (SQL) → row
 list mount   → Orders.ui_orders/1 → db.list → BeamlDb (SQL) → row decode → page renders the BEAML value
-Note v1 row  → note_v2 source builds against it → list reads it through migrate (tag "") → v2 submit writes version 2
+v1 rows     → order_v2 source (Order v2, Note v2) builds against them → list reads them through migrate (note "", tag "") → v2 submits write version 2
 live rows    → mix beaml.stored (ROW SNAPSHOT) → compiler --stored → stricter Amount blocks, delete frees
 ```
 
@@ -50,13 +50,13 @@ live rows    → mix beaml.stored (ROW SNAPSHOT) → compiler --stored → stric
 | N2, N2c, N3 | one submit writes one `Order` row through `db.put`, one ENTRY RECORD and one db record in one trace; `reason` is JSON null | pass |
 | N4 (2) | a constructor reject writes no row; an unknown channel is stored as its text | pass |
 | N5, N6 | the list reads through `db.list`, newest first; an Unknown channel lists as its text | pass |
-| N7 (2), N7b | `note_v2` builds against a live v1 row; the v1 row lists through the MIGRATE CHAIN; a v2 submit writes version 2 | pass |
+| N7 (2), N7b | `note_v2` builds against a live v1 row; the v1 row lists through the MIGRATE CHAIN; a v2 submit writes version 2 | pass (this run; M4 step 1 replaced `note_v2` by `order_v2`, DL-153) |
 | N8 (2), N8b, N8c | a stricter `Amount` blocks the build against the live row and prints no stored value; control builds; delete by SQL frees; snapshot ids equal the live ids | pass |
 | N11 | the TYPE change reached the table, the DDL did not move | pass |
 | N12, N13 | one action event per action, no value; no secret literal in `lib/` or `config/` | pass |
 | N9 | `quarantine amount` frees the stricter build | blocked: fate slice (D036) |
 
-**[Verified]** Output hashes: `orders.ex` `f32433c8…51c7`, `note_v2` `b0990620…30c1c4`, equal in GREEN and both TEST runs. `gen-note_v2.stderr`: `rows: 2 rows, 2 checked, 0 not decodable`.
+**[Verified]** Output hashes: `orders.ex` `f32433c8…51c7`, `note_v2` `b0990620…30c1c4`, equal in GREEN and both TEST runs. `gen-note_v2.stderr`: `rows: 2 rows, 2 checked, 0 not decodable`. These hashes are of this run; `note_v2` is gone since M4 step 1 (DL-153).
 
 ### Screens
 

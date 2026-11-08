@@ -68,5 +68,8 @@ These cases pin the D6B-39 form today and pass at HEAD. The GREEN deletes or rew
 ## Limits
 
 - R13 is structural: a GREEN that moves the tail into a helper function fails it without a wrong outcome.
-- The nested `amount.extra` key join has no test (plan repair 5).
+- The nested `amount.extra` key join: tested by R8b on the http stream (RED repair 1); the db path drops decode keys.
+- R5 to R6b cannot tell migrate-first from check-first in `--stored` in step 1 (PM4-08).
+- R12 fails at HEAD on three steps (test-n7_seed, gen-order_v2, test-n7_read) from one cause (D6B-39).
+- RED repairs (GREEN worker, before main.rs): R8b, R14 (guard), R13 tightened; see green-output.md "RED repairs".
 - R6b asserts exit 0, the module, the rows count line and no `error` line; it does not pin the P2 count lines exactly.

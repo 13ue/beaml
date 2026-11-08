@@ -154,3 +154,50 @@ Because: the plan says "builds with the P2 count lines" without the lines; an ex
 Not decided here (for the main agent): the 0004 full run fails on `redteam_c3_test` C4 until the GREEN lists
 `slice6_m4_test.py` (DL-147 effect). The tracked 0005 `lib/generated/orders.ex` is 2 bytes behind `orders.beaml` at
 HEAD (14 offset lines); every `run.py run` rewrites it; the RED restored the HEAD bytes.
+
+## GREEN decisions (2026-11-08)
+
+Evidence: [green-output.md](green-output.md).
+
+**PM4-20 · Undo · The raw fields leave the per-version check by `Enum.reject(fields, fn {_, type} -> type == :raw end)`.**
+Because: the module imports `Kernel` with `and` but not `or`; a new import would move the bytes of every module (PM4-06).
+The per-version list writes `:raw` for a literal enum or constructor field, so R13 finds no `Channel` or `Amount` there.
+→ By: Opus (GREEN m4-lift)
+
+**PM4-21 · Repair · The DL-101 tail of `decode_parts` is reused by one text swap, not a new parameter.**
+Chose: `tail.replacen("Map.keys(Map.drop(value, declared))", "unread", 1)` in `versioned_decode`. Over: a key-list
+parameter on `decode_parts` and all its callers. Because: one site, no byte change for the plain decode. Commits us to:
+a change of that tail text must keep the phrase, or R8 and R8b fail (they pin the joined key list).
+→ By: Opus (GREEN m4-lift)
+
+**PM4-22 · Repair · The rename rejects stay in `slice6/db/bad_rename/` (PM4-15 first option).**
+Chose: keep the directory and its table check in `slice6_m4_test.py`. Over: a move into `bad/` with two new `BAD_CASES` rows.
+Because: R2 already checks the texts and the directory; a move duplicates the check. Commits us to: `bad/` holds no rename case.
+→ By: Opus (GREEN m4-lift)
+
+**PM4-23 · Undo · The three new 0004 fixtures are in `fmt` form; N15 also reads `order_v2/orders.beaml`.**
+Because: the RED review saw `fmt` change them. The HEAD `fmt` stops at D6B-39, so the probe binary (layout code equal to
+HEAD) wrote the form; a second run prints nothing. The two `bad_rename/` files cannot join N15: `fmt` rejects them after GREEN.
+→ By: Opus (GREEN m4-lift)
+
+**PM4-24 · Repair · `N33_v1_unknown_channel` moved its list call and record read into the setup (test defect).**
+Chose: setup `l = ...; [rec] = resp.()`, actual `{l, rec["unknown_fields"]}`. Over: the RED form. Because: `want` writes
+`r = ACTUAL`, so `r` was only the list result and the case could never pass (a false fail, not a false pass). The repaired
+case fails on the probe with `{{:error, decode}, []}` and passes on GREEN. Commits us to: a fresh check of this repair at TEST.
+→ By: Opus (GREEN m4-lift)
+
+**PM4-25 · Undo · The 0005 `app/lib/generated/orders.ex` keeps the bytes of the GREEN `run.py run`.**
+Because: the task asks for the regenerated file; the diff is the 14 pre-existing offset lines only (RED: same with HEAD),
+no generated code change. Output sha256 `0cf174da…8df2`.
+→ By: Opus (GREEN m4-lift)
+
+**PM4-26 · Undo · The plan repair 8 warning is fixed in the generated code, not on the page.**
+Because: the versioned decode of `Order` now runs the constructor tail, which returns `{:error, "constructor"}`, so the
+`{:error, reason}` clause of `row_order` can match; `compile-order_v2` (`--warnings-as-errors`) passes.
+→ By: Opus (GREEN m4-lift)
+
+**PM4-27 · Undo · The 0005 README rows 39, 53, 59 stay true with short notes; the docs phase rewrites them.**
+→ By: Opus (GREEN m4-lift)
+
+OWNER questions: QM4-1 to QM4-4 stay open. The GREEN builds their defaults (QM4-1 A text, QM4-2 no VERSION MARK on the
+0005 `Order`, QM4-3 A help texts keep D6B-39, QM4-4 A `rename` stays an error). Nothing here closes them.
