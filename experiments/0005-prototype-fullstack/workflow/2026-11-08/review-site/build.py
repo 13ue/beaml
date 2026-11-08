@@ -294,6 +294,31 @@ fn Amount value,         currency         -> Amount ! BadAmount = Amount { value
               "Zählzeile: `fate: N rows of Amount v1 in quarantine (value)`",
               "Stopp-Zeile in a1: `error: a quarantine line is hit …` bis a2"],
              "", [], [("A", "wie RED", True), ("B", "andere Wortwahl", False)], source="fates-a1 RED 2026-11-08", added="2026-11-08T11:20:00Z"),
+          it("ENUM-V1-DECL", "Bleibt die alte Deklaration im Code, solange alte Werte existieren?", "default", "Fable (Lesart von DL-155); Frage aus GREEN fates-a1",
+             ["Sperre 3 (Tausch) braucht die alte Literal-Tabelle",
+              "Heute steht im Code nur die neueste Tabelle",
+              "Lesart von DL-155: `enum Channel v1 { … }` bleibt neben `enum Channel v2 { … }` stehen, bis Production keine v1-Werte mehr hat; dann SQUASH",
+              "Fehlt die v1-Deklaration bei vorhandenem `migrate v1 -> v2`: lauter Build-Fehler statt stiller Lücke",
+              "Gebaut (Default) in fates-a1; gilt später auch für `type T v1`"],
+             "", [beaml('''
+// Form aus DL-155, Lesart Fable, nicht gebaut: beide Versionen stehen im Code
+enum Channel v1 {
+  Web = "web"
+  App = "app"
+  Unknown(String)
+}
+
+enum Channel v2 {
+  Web = "app"
+  App = "web"
+  Unknown(String)
+}
+
+migrate Channel v1 -> v2 {
+  map "web" -> App
+  map "app" -> Web
+}
+''')], [("A", "alte Deklaration bleibt im Code bis SQUASH", True), ("B", "nur die neueste Tabelle; der Schritt nennt jede Literal-Änderung", False), ("C", "alte Tabelle aus einem Lock-File / letzten Build", False)], source="fates-a1 GREEN 2026-11-08", added="2026-11-08T12:05:00Z"),
           it("VERSION-RULE", "Versionsregel: Änderung plus betroffene Werte = neue Version", "decided", "13ue (2026-11-08, nach drei Beispielen)",
              ["Build prüft live: fällt ein gespeicherter Wert anders?",
               "Nein: Änderung frei, keine neue Version",

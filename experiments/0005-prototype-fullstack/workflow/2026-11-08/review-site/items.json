@@ -136,6 +136,15 @@
  },
  {
   "group": "02b-fates",
+  "id": "ENUM-V1-DECL",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T12:05:00Z",
+  "source": "fates-a1 GREEN 2026-11-08",
+  "by": "Fable (Lesart von DL-155); Frage aus GREEN fates-a1"
+ },
+ {
+  "group": "02b-fates",
   "id": "VERSION-RULE",
   "status": "decided",
   "page": "eingang",

@@ -129,3 +129,5 @@
 {"ts": "2026-11-08T10:03:17Z", "id": "QF-5", "page": "eingang", "change": "moved to Eingang", "by": "build.py (eingefroren)"}
 {"ts": "2026-11-08T10:10:34Z", "id": "DL140-PLACE", "page": "eingang", "change": "status decided", "by": "Opus (PLAN fates); Frage von Fable; entschieden 13ue: A"}
 {"ts": "2026-11-08T10:10:34Z", "id": "QUAR-LITERAL", "page": "eingang", "change": "status decided", "by": "Opus (RED fates-a1, RF-03); entschieden 13ue: B"}
+{"ts": "2026-11-08T10:11:29Z", "id": "ENUM-V1-DECL", "page": "eingang", "change": "added", "by": "fates-a1 GREEN 2026-11-08"}
+{"ts": "2026-11-08T10:11:29Z", "id": "ENUM-V1-DECL", "page": "eingang", "change": "moved to Eingang", "by": "build.py (eingefroren)"}
