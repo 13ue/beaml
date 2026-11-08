@@ -137,3 +137,7 @@ Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/
 
 - **Snapshot record set** (big, what `--stored` reads): A `mix beaml.stored` writes an empty `responses.jsonl`; the build checks the STORED ROWS only, the per-run capture records (Q5-7 A) are not a store · B also copy the capture `responses.jsonl` of earlier runs. Default A.
 - **`mix beaml.stored DIR`** (big, host-called name): A one argument, the snapshot directory; run.py runs the compiler · B `mix beaml.stored SOURCE` runs the compiler itself (Q5-4 B text). Default A.
+
+## Row shape check (raised to Migrate by the P4 TEST review, 2026-11-08)
+
+- **Big · a stored row with a missing or wrong-type String field**: today `--stored` counts it as checked and the whole `db.list` fails at run time. Options: A block the build with the DL-102 text (the build sees it, as for every other stored-value rule); B count the row as not decodable and go on. Default A, built as the small step P4c (`N32_row_missing_string_field`). By: Fable (default, open). RESPONSE RECORDS have the same gap; P4c covers both streams or notes the second.

@@ -1,0 +1,26 @@
+test_constructor_enum_compiles_to_one_function_per_signature (__main__.Slice6Enum.test_constructor_enum_compiles_to_one_function_per_signature) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_duplicate_literal (__main__.Slice6Enum.test_duplicate_literal) ... ok
+test_effect_pipe_keeps_one_clause (__main__.Slice6Enum.test_effect_pipe_keeps_one_clause) ... ok
+test_equal_types_with_other_names_is_reachable (__main__.Slice6Enum.test_equal_types_with_other_names_is_reachable) ... ok
+test_generated_constructor_name_clash (__main__.Slice6Enum.test_generated_constructor_name_clash) ... ok
+test_literal_enum_compiles (__main__.Slice6Enum.test_literal_enum_compiles) ... ok
+test_literal_on_a_payload_variant (__main__.Slice6Enum.test_literal_on_a_payload_variant) ... ok
+test_literal_on_the_keep_value_variant (__main__.Slice6Enum.test_literal_on_the_keep_value_variant) ... ok
+test_literals_and_constructor_on_one_enum (__main__.Slice6Enum.test_literals_and_constructor_on_one_enum) ... ok
+test_lowercase_fn_keeps_one_signature_line (__main__.Slice6Enum.test_lowercase_fn_keeps_one_signature_line) ... ok
+test_runtime_constructor_enum (__main__.Slice6Enum.test_runtime_constructor_enum) ... ok
+test_runtime_equal_types_call_takes_the_first_signature (__main__.Slice6Enum.test_runtime_equal_types_call_takes_the_first_signature) ... ok
+test_runtime_literal_enum (__main__.Slice6Enum.test_runtime_literal_enum) ... ok
+test_second_keep_value_variant (__main__.Slice6Enum.test_second_keep_value_variant) ... ok
+test_superset_with_other_names_is_reachable (__main__.Slice6Enum.test_superset_with_other_names_is_reachable) ... ok
+test_unreachable_clause_after_a_catch_all (__main__.Slice6Enum.test_unreachable_clause_after_a_catch_all) ... ok
+test_unreachable_clause_in_the_second_signature (__main__.Slice6Enum.test_unreachable_clause_in_the_second_signature) ... ok
+test_unreachable_signature_with_equal_parameters (__main__.Slice6Enum.test_unreachable_signature_with_equal_parameters) ... ok
+test_unreachable_signature_with_more_parameters (__main__.Slice6Enum.test_unreachable_signature_with_more_parameters) ... ok
+test_unreachable_signature_with_more_parameters_in_other_order (__main__.Slice6Enum.test_unreachable_signature_with_more_parameters_in_other_order) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 2.829s
+
+OK
