@@ -1140,7 +1140,7 @@ function paint(card) {
   $$('.opt', card).forEach(b => b.setAttribute('aria-pressed', String(!!ch && b.dataset.choice === ch)));
   let h = '';
   if (ch) h += `<p class="ans-row"><span aria-hidden="true">✓</span> Deine Wahl: <b>${esc(ch)}</b> <time>${fmtT(a.choice_ts || a.ts)}</time> <button type="button" class="btn link undo">Rückgängig</button></p>`;
-  if (a.note) h += `<p class="ans-row"><span aria-hidden="true">✎</span> Deine Notiz <time>${fmtT(a.note_ts || a.ts)}</time>: ${esc(a.note)}</p>`;
+  for (const n of (a.notes || (a.note ? [{ts: a.note_ts || a.ts, text: a.note}] : []))) h += `<p class="ans-row"><span aria-hidden="true">✎</span> Deine Notiz <time>${fmtT(n.ts)}</time>: ${esc(n.text)}</p>`;
   const box = $('.ans', card); box.innerHTML = h; card.classList.toggle('answered', has(id));
   const u = $('.undo', box); if (u) u.onclick = async () => { try { await post('/api/answer', {id, choice: ''}); act('undo', id, ch); await load(); toast(`Wahl ${ch} zu ${id} zurückgenommen.`); } catch (e) { toast('Nicht gespeichert: ' + e.message); } };
 }

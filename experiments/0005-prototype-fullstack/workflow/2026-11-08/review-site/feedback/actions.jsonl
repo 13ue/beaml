@@ -35,3 +35,8 @@
 {"ts": "2026-11-08T09:49:00Z", "source": "voice", "action": "stt", "target": "M3", "result": "ok", "chars": 420}
 {"ts": "2026-11-08T09:49:00Z", "source": "voice", "action": "voice", "target": "M3", "result": "33.5 s"}
 {"ts": "2026-11-08T09:50:07Z", "source": "key", "action": "skip", "target": "M3", "result": null}
+{"ts": "2026-11-08T09:51:03Z", "source": "key", "action": "next", "target": "M3", "result": null}
+{"ts": "2026-11-08T09:51:12Z", "source": "voice", "action": "stt", "target": "D035", "result": "ok", "chars": 94}
+{"ts": "2026-11-08T09:51:12Z", "source": "voice", "action": "voice", "target": "D035", "result": "7.4 s"}
+{"ts": "2026-11-08T09:51:26Z", "source": "voice", "action": "stt", "target": "D035", "result": "ok", "chars": 107}
+{"ts": "2026-11-08T09:51:26Z", "source": "voice", "action": "voice", "target": "D035", "result": "12.1 s"}

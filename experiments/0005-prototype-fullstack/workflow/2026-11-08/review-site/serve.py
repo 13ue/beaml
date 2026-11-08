@@ -36,10 +36,14 @@ def answers():
     try:
         for line in open(FB / "answers.jsonl"):
             r = json.loads(line); a = d.setdefault(r["id"], {})
-            a.update({k: v for k, v in r.items() if v is not None})
-            for k in ("choice", "note"):
-                if r.get(k) is not None: a[k + "_ts"] = r["ts"]
-                if a.get(k) == "": a.pop(k); a.pop(k + "_ts", None)
+            a.update({k: v for k, v in r.items() if v is not None and k != "note"})
+            if r.get("choice") is not None: a["choice_ts"] = r["ts"]
+            if a.get("choice") == "": a.pop("choice"); a.pop("choice_ts", None)
+            if r.get("note"):  # every note is kept; the page shows them all, oldest first
+                a.setdefault("notes", []).append({"ts": r["ts"], "text": r["note"]})
+                a["note"] = r["note"]; a["note_ts"] = r["ts"]
+            elif r.get("note") == "":
+                a.pop("notes", None); a.pop("note", None); a.pop("note_ts", None)
     except FileNotFoundError:
         pass
     return d
