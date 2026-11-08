@@ -1,0 +1,26 @@
+test_build_compiles_with_warnings_as_errors (__main__.C19NameReuseFixture.test_build_compiles_with_warnings_as_errors) ... ok
+test_each_stored_version_replays_to_the_current_fields (__main__.C19NameReuseFixture.test_each_stored_version_replays_to_the_current_fields) ... ok
+test_live_current_body_decodes_to_the_current_fields (__main__.C19NameReuseFixture.test_live_current_body_decodes_to_the_current_fields) ... ok
+test_build_compiles_with_warnings_as_errors (__main__.C19NameReuseRandom.test_build_compiles_with_warnings_as_errors) ... ok
+test_each_stored_version_replays_to_the_current_fields (__main__.C19NameReuseRandom.test_each_stored_version_replays_to_the_current_fields) ... ok
+test_live_current_body_decodes_to_the_current_fields (__main__.C19NameReuseRandom.test_live_current_body_decodes_to_the_current_fields) ... ok
+test_build_compiles_with_warnings_as_errors (__main__.C20RotationFixture.test_build_compiles_with_warnings_as_errors) ... ok
+test_each_stored_version_replays_to_the_current_fields (__main__.C20RotationFixture.test_each_stored_version_replays_to_the_current_fields) ... ok
+test_live_current_body_decodes_to_the_current_fields (__main__.C20RotationFixture.test_live_current_body_decodes_to_the_current_fields) ... ok
+test_build_compiles_with_warnings_as_errors (__main__.C20RotationRandom.test_build_compiles_with_warnings_as_errors) ... ok
+test_each_stored_version_replays_to_the_current_fields (__main__.C20RotationRandom.test_each_stored_version_replays_to_the_current_fields) ... ok
+test_live_current_body_decodes_to_the_current_fields (__main__.C20RotationRandom.test_live_current_body_decodes_to_the_current_fields) ... ok
+test_C11_extra_key_does_not_replace_the_old_name (__main__.ChainReplay.test_C11_extra_key_does_not_replace_the_old_name) ... ok
+test_C12_v1_record_with_both_names_reads_the_old_field_by_its_version (__main__.ChainReplay.test_C12_v1_record_with_both_names_reads_the_old_field_by_its_version) ... ok
+test_C13_neither_name_is_typed_decode_error (__main__.ChainReplay.test_C13_neither_name_is_typed_decode_error) ... ok
+test_C2_new_call_records_type_version_2 (__main__.ChainReplay.test_C2_new_call_records_type_version_2) ... ok
+test_C2_old_v1_record_replays_with_state_from_status (__main__.ChainReplay.test_C2_old_v1_record_replays_with_state_from_status) ... ok
+test_C3_both_stored_versions_replay (__main__.ChainReplay.test_C3_both_stored_versions_replay) ... ok
+test_C14_v1_record_replays_with_order_ref_from_order_id (__main__.SecondRenameReplay.test_C14_v1_record_replays_with_order_ref_from_order_id) ... ok
+test_C9_v1_record_against_build_without_chain_is_typed_decode_error (__main__.StaleSnapshotReplay.test_C9_v1_record_against_build_without_chain_is_typed_decode_error) ... ok
+test_control_originals_unchanged_by_slice_2_runs (__main__.ZzControlUnchanged.test_control_originals_unchanged_by_slice_2_runs) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 115.780s
+
+OK

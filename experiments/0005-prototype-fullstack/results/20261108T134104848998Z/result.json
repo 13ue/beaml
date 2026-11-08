@@ -1,0 +1,420 @@
+{
+  "command": [
+    "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+    "run.py",
+    "run"
+  ],
+  "subcommand": "run",
+  "started_at": "2026-11-08T13:41:04.848998+00:00",
+  "finished_at": "2026-11-08T13:41:23.083732+00:00",
+  "toolchain": {
+    "python": "3.13.12",
+    "elixir": "Elixir 1.18.1 (compiled with Erlang/OTP 27)",
+    "otp": "27",
+    "pg_ctl": "pg_ctl (PostgreSQL) 17.11 (Postgres.app)"
+  },
+  "steps": [
+    {
+      "name": "cargo-build",
+      "command": [
+        "cargo",
+        "build",
+        "-q"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "truncate-proto_dev",
+      "command": [
+        "psql",
+        "-h",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgsock",
+        "-U",
+        "proto",
+        "-d",
+        "proto_dev",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        "TRUNCATE records RESTART IDENTITY"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "truncate-proto_test",
+      "command": [
+        "psql",
+        "-h",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgsock",
+        "-U",
+        "proto",
+        "-d",
+        "proto_test",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        "TRUNCATE records RESTART IDENTITY"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "stored-orders",
+      "command": [
+        "mix",
+        "beaml.stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T134104848998Z/stored-orders"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "gen-orders",
+      "command": [
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/beaml/orders.beaml",
+        "--stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T134104848998Z/stored-orders/responses.jsonl"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "compile",
+      "command": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "test",
+      "command": [
+        "mix",
+        "test",
+        "--warnings-as-errors"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "test-n8",
+      "command": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "--only",
+        "phase:n8",
+        "--seed",
+        "0"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "test-n7_seed",
+      "command": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "--only",
+        "phase:n7_seed",
+        "--seed",
+        "0"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "stored-rename_channel",
+      "command": [
+        "mix",
+        "beaml.stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T134104848998Z/stored-rename_channel"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "gen-rename_channel",
+      "command": [
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/beaml/variants/rename_channel/orders.beaml",
+        "--stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T134104848998Z/stored-rename_channel/responses.jsonl"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "stored-order_v2",
+      "command": [
+        "mix",
+        "beaml.stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T134104848998Z/stored-order_v2"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "gen-order_v2",
+      "command": [
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/beaml/variants/order_v2/orders.beaml",
+        "--stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T134104848998Z/stored-order_v2/responses.jsonl"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "compile-order_v2",
+      "command": [
+        "mix",
+        "compile",
+        "--force",
+        "--warnings-as-errors"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "test-n7_read",
+      "command": [
+        "mix",
+        "test",
+        "--warnings-as-errors",
+        "--only",
+        "phase:n7_read",
+        "--seed",
+        "0"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "truncate-proto_dev",
+      "command": [
+        "psql",
+        "-h",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgsock",
+        "-U",
+        "proto",
+        "-d",
+        "proto_dev",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        "TRUNCATE records RESTART IDENTITY"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "truncate-proto_test",
+      "command": [
+        "psql",
+        "-h",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgsock",
+        "-U",
+        "proto",
+        "-d",
+        "proto_test",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-c",
+        "TRUNCATE records RESTART IDENTITY"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "stored-orders",
+      "command": [
+        "mix",
+        "beaml.stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T134104848998Z/stored-orders"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "gen-orders",
+      "command": [
+        "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/beaml/orders.beaml",
+        "--stored",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/results/20261108T134104848998Z/stored-orders/responses.jsonl"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    }
+  ],
+  "status": "pass",
+  "hashes": [
+    {
+      "step": "gen-orders",
+      "source": "app/beaml/orders.beaml",
+      "source_sha256": "b5fe3e0a8fabacafc3b7181cf58848c3b91081efa509b0826d605e54103a71bd",
+      "output_sha256": "0cf174dafc6bf5260100fe9f8b4559a4ccb6e39edc1f4e6f2f0309dff8f28df2",
+      "written": true
+    },
+    {
+      "step": "gen-rename_channel",
+      "source": "app/beaml/variants/rename_channel/orders.beaml",
+      "source_sha256": "377d49c90fd7202bac1b8825e504aea5e96a4d74d595a2604d2565995782d9bf",
+      "output_sha256": "855b86146f824029dfff4c533d6e0fdca863f8ff59b8ff46a9342ac249c46f6c",
+      "written": false
+    },
+    {
+      "step": "gen-order_v2",
+      "source": "app/beaml/variants/order_v2/orders.beaml",
+      "source_sha256": "2cebe8865504fded99de7f245b759ecf51635159a944b166f4dd32eed999443b",
+      "output_sha256": "3302ade375085dad076f1a06b53473d4497a7b3b292c2162425f45355e81fa04",
+      "written": true
+    },
+    {
+      "step": "gen-orders",
+      "source": "app/beaml/orders.beaml",
+      "source_sha256": "b5fe3e0a8fabacafc3b7181cf58848c3b91081efa509b0826d605e54103a71bd",
+      "output_sha256": "0cf174dafc6bf5260100fe9f8b4559a4ccb6e39edc1f4e6f2f0309dff8f28df2",
+      "written": true
+    }
+  ],
+  "compiler": {
+    "path": "/Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike",
+    "sha256": "823bfbd13e8b797158d811685c07ed7664b6ade77a06276f57e36a4268bde923"
+  },
+  "use_cases": [
+    {
+      "use_case": "exp0005-N1",
+      "test": "test N1 orders.beaml generates the module Orders and the host builds without a warning",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N10",
+      "test": "test N10 a removed ui.place line stops the host build at Orders.ui_place/1",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N11",
+      "test": "test N11 a TYPE change reached the table and the DDL did not move",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N12",
+      "test": "test N12 the host writes one action event per action and no value",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N13",
+      "test": "test N13 git holds no database dir, no env file and no secret literal in config or lib",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N14",
+      "test": "test N14 a rename onto the enum field channel builds against the live v1 rows",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N15",
+      "test": "test N15 an SQL edit of a row value without a new digest blocks the build",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N2",
+      "test": "test N2 a form submit writes one Order row through db.put",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N2c",
+      "test": "test N2c the reason of the row is a JSON null",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N3",
+      "test": "test N3 the submit writes one ENTRY RECORD and one db record with one trace",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N4",
+      "test": "test N4 a constructor reject writes no row and no db record",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N4",
+      "test": "test N4 an unknown channel is accepted and stored as its text",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N5",
+      "test": "test N5 the list page shows both orders through db.list, newest first",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N6",
+      "test": "test N6 an Unknown channel lists as its text",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N7",
+      "test": "test N7 order_v2 builds against a live Order v1 row and a Note v1 row",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N7",
+      "test": "test N7 the v1 Order row lists through the MIGRATE CHAIN with note empty and stays version 1",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N7",
+      "test": "test N7 the v1 row lists through the MIGRATE CHAIN with tag empty and stays version 1",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N7b",
+      "test": "test N7b a place submit under v2 writes a version 2 Order row and the list shows v1 and v2",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N7b",
+      "test": "test N7b a submit under v2 writes a version 2 row and the list shows v1 and v2",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N8",
+      "test": "test N8 a stricter Amount blocks the build against the live row and prints no stored value",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N8",
+      "test": "test N8 control: the same live row builds under orders.beaml",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N8b",
+      "test": "test N8b the stricter build passes after the row is deleted by SQL",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N8c",
+      "test": "test N8c the snapshot holds exactly the live row ids of this instant",
+      "result": "pass"
+    },
+    {
+      "use_case": "exp0005-N9",
+      "test": "test N9 quarantine amount frees the stricter build and the list omits order-zero",
+      "result": "blocked: fate slice (D036)"
+    }
+  ],
+  "acceptance": [],
+  "use_case_counts": {
+    "pass": 23,
+    "blocked": 1
+  }
+}

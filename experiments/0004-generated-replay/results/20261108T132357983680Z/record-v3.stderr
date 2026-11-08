@@ -1,0 +1,36 @@
+test_N2_w2_skips_a_rejected_record (__main__.RecordV3.test_N2_w2_skips_a_rejected_record) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_N2b_control_an_accepted_record_keeps_the_migrate_step (__main__.RecordV3.test_N2b_control_an_accepted_record_keeps_the_migrate_step) ... ok
+test_O1_orphan_check_reads_a_rejected_record (__main__.RecordV3.test_O1_orphan_check_reads_a_rejected_record) ... compiler 545dded0: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-545dded0-wl98glzj/target/debug/beaml-spike
+ok
+test_O2_missing_or_unknown_outcome_blocks (__main__.RecordV3.test_O2_missing_or_unknown_outcome_blocks) ... ok
+test_P2b_G1_rejected_response_record_is_not_verified (__main__.RecordV3.test_P2b_G1_rejected_response_record_is_not_verified) ... ok
+test_P2b_R3_wrong_digest_response_record_blocks (__main__.RecordV3.test_P2b_R3_wrong_digest_response_record_blocks) ... ok
+test_P2b_R9_rejected_200_record_wrong_digest_blocks (__main__.RecordV3.test_P2b_R9_rejected_200_record_wrong_digest_blocks) ... ok
+test_V11_entry_record (__main__.RecordV3.test_V11_entry_record) ... ok
+test_V12_response_record_version_1_blocks (__main__.RecordV3.test_V12_response_record_version_1_blocks) ... ok
+test_V12_response_record_version_2_blocks (__main__.RecordV3.test_V12_response_record_version_2_blocks) ... ok
+test_V12_response_record_without_version_blocks (__main__.RecordV3.test_V12_response_record_without_version_blocks) ... ok
+test_V13_entry_record_version_2_blocks (__main__.RecordV3.test_V13_entry_record_version_2_blocks) ... ok
+test_V14_count_lines (__main__.RecordV3.test_V14_count_lines) ... ok
+test_V14b_control_an_accepted_record_still_blocks (__main__.RecordV3.test_V14b_control_an_accepted_record_still_blocks) ... ok
+test_V14c_response_count_lines_before_the_entry_count_line (__main__.RecordV3.test_V14c_response_count_lines_before_the_entry_count_line) ... ok
+test_V15_no_count_lines_when_nothing_is_rejected (__main__.RecordV3.test_V15_no_count_lines_when_nothing_is_rejected) ... ok
+test_V16_no_stored_value_in_stderr (__main__.RecordV3.test_V16_no_stored_value_in_stderr) ... ok
+test_V17_tracked_fixtures_are_v3 (__main__.RecordV3.test_V17_tracked_fixtures_are_v3) ... ok
+test_V17b_tracked_fixtures_equal_the_converter_output (__main__.RecordV3.test_V17b_tracked_fixtures_equal_the_converter_output) ... ok
+test_V18_only_the_two_writers_change (__main__.RecordV3.test_V18_only_the_two_writers_change) ... skipped 'V18 was the one-time P2 diff proof; it passed at ca09d361 (green-output.md hunk list). After the multi-effect GREEN (ce190054) ENTRY LINE sources change by design; the per-step byte guards (N13 BASE, P4_BASE, the four outbound pins) carry the proof from here. By: Fable (Undo).'
+test_V18b_converted_fixtures_keep_exit_and_stderr (__main__.RecordV3.test_V18b_converted_fixtures_keep_exit_and_stderr) ... ok
+test_V1_to_V10_response_record (__main__.RecordV3.test_V1_to_V10_response_record) ... ok
+test_V22_status_record_without_a_path_builds (__main__.RecordV3.test_V22_status_record_without_a_path_builds) ... ok
+test_V23_rejected_200_record_without_a_path_builds (__main__.RecordV3.test_V23_rejected_200_record_without_a_path_builds) ... ok
+test_V24_control_accepted_record_without_a_path_blocks (__main__.RecordV3.test_V24_control_accepted_record_without_a_path_blocks) ... ok
+test_V25_held_check_reads_a_rejected_record (__main__.RecordV3.test_V25_held_check_reads_a_rejected_record) ... ok
+test_V2_V9_keep_value_source (__main__.RecordV3.test_V2_V9_keep_value_source) ... ok
+test_V4_V7_V8_constructor_outcome (__main__.RecordV3.test_V4_V7_V8_constructor_outcome) ... ok
+test_V8_guard_live_status_reason (__main__.RecordV3.test_V8_guard_live_status_reason) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 13.838s
+
+OK (skipped=1)
