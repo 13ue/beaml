@@ -6,6 +6,8 @@ The original text stays unchanged below the line ([history](#history-unchanged-t
 
 Line format: **ID** · one sentence · options · built default · `By:`.
 
+Browser form (2026-11-08): [review-site](../2026-11-08/review-site/index.html), built by `review-site/build.py`, served over the local `pages` server (`.claude/launch.json`). Same items, grouped into 12 pages, each marked open / default / parked / decided. By: Fable (Undo).
+
 ## Big, first
 
 ## Slice 6 final review (Devil's Advocate, 2026-11-08): three high objections, dispositions pending
