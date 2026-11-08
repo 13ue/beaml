@@ -100,6 +100,42 @@
  },
  {
   "group": "02b-fates",
+  "id": "DL140-PLACE",
+  "status": "open",
+  "page": "eingang",
+  "added": "2026-11-08T11:20:00Z",
+  "source": "fate-plan 2026-11-08",
+  "by": "Opus (PLAN fates); Frage von Fable"
+ },
+ {
+  "group": "02b-fates",
+  "id": "QUAR-LITERAL",
+  "status": "open",
+  "page": "eingang",
+  "added": "2026-11-08T11:20:00Z",
+  "source": "fates-a1 RED 2026-11-08",
+  "by": "Opus (RED fates-a1, RF-03)"
+ },
+ {
+  "group": "02b-fates",
+  "id": "QF-2",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T11:20:00Z",
+  "source": "fate-plan 2026-11-08",
+  "by": "Opus (PLAN fates, Default)"
+ },
+ {
+  "group": "02b-fates",
+  "id": "QF-5",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T11:20:00Z",
+  "source": "fates-a1 RED 2026-11-08",
+  "by": "Opus (RED fates-a1, Default)"
+ },
+ {
+  "group": "02b-fates",
   "id": "VERSION-RULE",
   "status": "decided",
   "page": "eingang",
