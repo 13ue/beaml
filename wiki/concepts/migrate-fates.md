@@ -115,7 +115,13 @@ migrate Payment v5 -> v6 { map state "pending" -> Declined }
 - `--stored` lifts the DL-102 and DL-122 blocks and prints one `fate:` count per hit; a DL-140 swap blocks (DL-161).
 - A hit FATE OPERATION exits 1 with a stop line until the run-time side exists.
 
-**[Requirement]** Not built: run-time skip, `map` in the decode and the REPLAY RUN reason (a2); DL-166 and DL-172 (a1b); DL-168 and the SQUASH block (a2); fmt and tree-sitter (a4). The section 2 examples stay [Proposal]; the open questions in section 5 stay open unless a decision closes them.
+**[Verified]** Step a1b, GREEN `018cf1ea`, TEST PASS `9d93a75c` ([0004 README](../../experiments/0004-generated-replay/README.md#fates-step-a1b-rename-onto-enum-and-constructor-fields-quarantine-per-field-dl-166-dl-172)):
+
+- A `rename` onto an ENUM or constructor field builds (DL-166); `--stored` reads old rows by their old key.
+- `quarantine <field>` lifts only the failed clauses that test that field (DL-172). QB-1 (either tested parameter lifts) and QB-2 (a catch-all is never lifted) are built defaults, open for the OWNER.
+- Several quarantine lines per constructor TYPE; two fate lines on one field stay an error.
+
+**[Requirement]** Not built: run-time skip, `map` in the decode and the REPLAY RUN reason (a2); a rename inside a constructor TYPE (a1b R4); DL-168 and the SQUASH block (a2); fmt and tree-sitter (a4). The section 2 examples stay [Proposal]; the open questions in section 5 stay open unless a decision closes them.
 
 ## Page decisions
 

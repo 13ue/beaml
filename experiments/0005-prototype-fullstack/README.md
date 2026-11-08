@@ -55,6 +55,7 @@ live rows    → mix beaml.stored (ROW SNAPSHOT) → compiler --stored → stric
 | N11 | the TYPE change reached the table, the DDL did not move | pass |
 | N12, N13 | one action event per action, no value; no secret literal in `lib/` or `config/` | pass |
 | N9 | `quarantine amount` frees the stricter build | blocked: fate slice (D036) |
+| N14 | variant [`rename_channel`](app/beaml/variants/rename_channel/orders.beaml) (`rename channel -> source` onto the ENUM field, DL-166) builds against the live v1 rows; stderr exactly `rows: 2 rows, 2 checked, 0 not decodable` | pass (fates a1b run [20261108T123541367741Z](results/20261108T123541367741Z/result.json), [0004 section](../0004-generated-replay/README.md#fates-step-a1b-rename-onto-enum-and-constructor-fields-quarantine-per-field-dl-166-dl-172)) |
 
 **[Verified]** Output hashes of this run: `orders.ex` `f32433c8…51c7`, `note_v2` `b0990620…30c1c4`. M4 step 1 (DL-153) replaced the `note_v2` variant by [`order_v2`](app/beaml/variants/order_v2/orders.beaml); `gen-order_v2` output `3302ade3…fa04` (GREEN and TEST equal), `gen-order_v2.stderr`: `rows: 2 rows, 2 checked, 0 not decodable`.
 

@@ -518,3 +518,11 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#fates-step-a1-fate-operations-at-build-time-dl-125-dl-155-dl-161-dl-162): new section with the supported subset, exclusions, results and limits.
 - [Migrate fates concept](concepts/migrate-fates.md): built status section; the intro no longer says "no compiler builds one".
 - [Register](planning/research-and-development.md): new fates step a1 row. [Glossary](../GLOSSARY.md): FATE OPERATION status line updated; no new term. By: Opus (fates-a1, docs).
+
+## 2026-11-08: TEST and docs | fates step a1b, rename onto enum and constructor fields, quarantine per field (DL-166, DL-172)
+
+**[Verified]** GREEN `018cf1ea`; TEST PASS `9d93a75c`, O1 and O2 closed by tests, O3 noted ([TEST](../experiments/0004-generated-replay/workflow/2026-11-08/fates-a1b/test-a1b.md), By: Opus (fates-a1b, TEST)). `slice6_m4_test` 16 OK, `slice6_fates_test` 37 OK; full `run.py` 40 of 40 ([`20261108T121801888868Z`](../experiments/0004-generated-replay/results/20261108T121801888868Z/result.json)); 0005 `db-up` and `run` pass with N14 ([`20261108T123541367741Z`](../experiments/0005-prototype-fullstack/results/20261108T123541367741Z/result.json)). **[Requirement]** Open: QB-1, QB-2 (card QUAR-CLAUSE). Not built: R3, R4, run time (a2).
+
+- [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#fates-step-a1b-rename-onto-enum-and-constructor-fields-quarantine-per-field-dl-166-dl-172): new section; the M4 rename error and the a1 exclusion line marked as superseded.
+- [EXPERIMENT 0005 README](../experiments/0005-prototype-fullstack/README.md): N14 row.
+- [Migrate fates concept](concepts/migrate-fates.md): a1b built status. [Register](planning/research-and-development.md): new fates step a1b row. No GLOSSARY change. By: Opus (fates-a1b, docs).

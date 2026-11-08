@@ -2439,7 +2439,7 @@ migrate Order v1 -> v2 { add note: String = "" }
 
 ### The rename error
 
-**[Verified]** A `rename` onto an enum or constructor field is a compile error (QM4-1 A, QM4-4 A defaults, open). `add` and `drop` already take String fields only.
+**[Verified]** Superseded by [fates step a1b](#fates-step-a1b-rename-onto-enum-and-constructor-fields-quarantine-per-field-dl-166-dl-172) (DL-166, GREEN `018cf1ea`): the rename builds now. Kept as the M4 step 1 record. At M4 step 1, a `rename` onto an enum or constructor field was a compile error (QM4-1 A, QM4-4 A defaults). `add` and `drop` already take String fields only.
 
 ```
 error: effect orders.save: migrate Order v1 -> v2: rename via -> channel names the enum field Order.channel; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
@@ -2450,7 +2450,7 @@ Fixtures: [`slice6/db/bad_rename/`](slice6/db/bad_rename/) (PM4-22).
 
 ### What still waits for M3
 
-- **[Verified]** A MIGRATE STEP that names an enum or constructor field (`rename` now; later `map` of DL-140 and the fate forms of DL-116). The second half of DL-152.
+- **[Verified]** A MIGRATE STEP that names an enum or constructor field (`rename` now; later `map` of DL-140 and the fate forms of DL-116). The second half of DL-152. Update: `rename` builds since a1b (DL-166); the fate forms since a1 (build time).
 - **[Verified]** A `redacted` field in a chained TYPE keeps the D6B-39 text (PM4-05, DL-125; R14 pins it).
 - **[Verified]** The two DL-122 help texts still name D6B-39 (QM4-3 A, open).
 - **[Verified]** N9 (`quarantine amount`) in 0005 waits on M3 only (DL-153).
@@ -2526,7 +2526,7 @@ migrate Channel v1 -> v2 { map "app" -> Mobile }
 ### Exclusions (not built)
 
 - **[Verified]** Run time: the generated decode ignores FATE OPERATIONS; no skip, no `map`, no REPLAY RUN reason (fates-a2, DL-157).
-- **[Requirement]** DL-166 (`rename` onto an enum or constructor field) and DL-172 (a quarantine lifts only the rule of the field it names): step a1b.
+- **[Requirement]** DL-166 (`rename` onto an enum or constructor field) and DL-172 (a quarantine lifts only the rule of the field it names): step a1b. Update: built, see [fates step a1b](#fates-step-a1b-rename-onto-enum-and-constructor-fields-quarantine-per-field-dl-166-dl-172).
 - **[Requirement]** DL-168 nested TYPE VERSIONS in the row and the SQUASH block of the ENUM-V1-DECL ruling (GF-11): fates-a2.
 - **[Verified]** `beaml fmt` removes `type T v2` on a chain from v1 (GF-12); the tree-sitter grammar knows no FATE OPERATION: step a4.
 - **[Inference]** GF-02: the swap check compares with the table of the version before the newest only.
@@ -2552,3 +2552,58 @@ migrate Channel v1 -> v2 { map "app" -> Mobile }
 | --- | --- | --- | --- |
 | One new section after M4 step 1 | Undo | a1 is one step of fates-a | Opus (fates-a1, docs) |
 | No new glossary term; "fate line" written as FATE OPERATION | Undo | FATE OPERATION exists (DL-125) | Opus (fates-a1, docs) |
+
+## Fates step a1b: rename onto enum and constructor fields, quarantine per field (DL-166, DL-172)
+
+**[Requirement]** DL-166 (OWNER) lets a `rename` take an enum or constructor field. DL-172 (Fable) scopes `quarantine <field>` to the failed rules that test that field. Ledger: [plan.md](workflow/2026-11-08/fates-a1b/plan.md), [plan review](workflow/2026-11-08/fates-a1b/plan-review.md), [RED plan](workflow/2026-11-08/fates-a1b/red-plan.md), [RED output](workflow/2026-11-08/fates-a1b/red-output.md), [RED review](workflow/2026-11-08/fates-a1b/red-review.md), [GREEN](workflow/2026-11-08/fates-a1b/green-output.md), [TEST](workflow/2026-11-08/fates-a1b/test-a1b.md). GREEN `018cf1ea`, TEST PASS `9d93a75c`. Tests: [`tests/slice6_m4_test.py`](tests/slice6_m4_test.py), [`tests/slice6_fates_test.py`](tests/slice6_fates_test.py).
+
+| Step | Owner |
+|---|---|
+| Build the rename; `--stored` reads old rows through the rename steps (`stored_key`) | BEAML (COMPILER) |
+| Lift only the failed clauses that test the quarantined field | BEAML (COMPILER, `--stored`) |
+| Rename in the live decode (`Map.put` per step, unchanged since M4) | BEAML (generated Elixir) |
+| Rows in the store, the ROW SNAPSHOT | host |
+
+### Supported subset (built)
+
+- **[Verified]** `rename old -> new` onto an ENUM or constructor field builds (DL-166). The QM4-1 A error is deleted; the fixtures in [`slice6/db/bad_rename/`](slice6/db/bad_rename/) build now (path kept).
+- **[Verified]** `--stored` reads a stored value of version N by its old key: `stored_key` walks the MIGRATE STEPS from the newest back to N and undoes each `rename`. Error texts keep the newest field name. A v1 row `via: "tv"` without a kept mark blocks for field `channel`; with `unknown_fields: ["via"]` it builds.
+- **[Verified]** `quarantine <field>` lifts a failed constructor rule only when the failed clause tests that field with a literal (DL-172). QB-1 built default: a clause that tests two parameters is lifted by a quarantine of either (S1k). QB-2 built default: a failed catch-all clause that tests no parameter is never lifted (S1j); help `no fate line covers a failed rule that tests no parameter with a literal (QB-2 open)`.
+- **[Verified]** Several quarantine lines per constructor TYPE (PF-11 error deleted, S1h). Two fate lines on one field stay an error (RF-04).
+- **[Verified]** 0005 step N14: variant [`rename_channel`](../0005-prototype-fullstack/app/beaml/variants/rename_channel/orders.beaml) (`rename channel -> source`, `source: Channel`) builds against the live v1 rows; stderr is exactly `rows: 2 rows, 2 checked, 0 not decodable`.
+
+```beaml
+// 0005 variant rename_channel: the ENUM field channel gets the name source in v2
+migrate Order v1 -> v2 { rename channel -> source }
+```
+
+### Exclusions (not built)
+
+- **[Verified]** R3: `db.list` items are checked at the newest version only; `stored_key` is a no-op there.
+- **[Verified]** R4: a `rename` inside a constructor TYPE (a nested field) is not built and not tested.
+- **[Verified]** Run time of the FATE OPERATIONS stays fates-a2.
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| RED on base `1e0e08df` | m4 14 of 16 fail, fates 5 of 36 fail ([RED output](workflow/2026-11-08/fates-a1b/red-output.md)) |
+| TEST full `run.py`, [`results/20261108T121801888868Z`](results/20261108T121801888868Z/result.json) | status `pass`, 40 of 40 steps, 781 tests; m4 16 OK, fates 37 OK |
+| 0005 `db-up` and `run`, [`20261108T123540407690Z`](../0005-prototype-fullstack/results/20261108T123540407690Z/result.json), [`20261108T123541367741Z`](../0005-prototype-fullstack/results/20261108T123541367741Z/result.json) | pass, 19 of 19 steps, 22 use cases pass, N9 blocked, N14 pass |
+| Probe `nokey` (`stored_key` returns the newest name) | N14 exits 1, `no variant of Channel for field source`: N14 is no false pass |
+| Probe `first` (only the first literal parameter) | S1k fails |
+| Pins | no byte or hash pin moved; help pins moved to `help_no_literal("Amount")` |
+
+### Limits
+
+- **[Verified]** QB-1 and QB-2 stay open for the OWNER (review card QUAR-CLAUSE); S1k and S1j pin the built defaults only.
+- **[Inference]** The reverse walk inside one step cannot fail while K7 holds (one name per step); a subTest pins K7 (TEST O1).
+- **[Verified]** TEST O3 (medium, note): a clause the Rust mirror cannot read also gives the QB-2 help; no wrong build.
+- **[Verified]** A passed step does not establish production readiness.
+
+### Decisions (Decision4, DOCS fates a1b)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| One new section after a1; the M4 rename error kept with a superseded line | Undo | The M4 section is a step record | Opus (fates-a1b, docs) |
+| No new glossary term | Undo | MIGRATE STEP, FATE OPERATION exist | Opus (fates-a1b, docs) |
