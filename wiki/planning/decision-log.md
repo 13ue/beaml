@@ -960,6 +960,12 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: the app shows how BEAML behaves in reality; one living example beats a frozen proof plus a second app to maintain. A PASS in the app still does not mean production readiness.
 → Effect: the implement-step pipeline gets the step "land in 0005" before TEST for every slice that changes language, records or transports; the register marks 0005 "living" and cites the latest run; `docs/index.html` shows the latest run. First slice under this rule: fates-a (a3 = N9, N9b). The desk stages get their own small steps (register rows under D048).
 
+**DL-159 · Migrate · Q5-10 signed: a STORED ROW holds the record format v3 core in `value`**
+→ Question: Q5-10, built default B (Fable). A the bare projection · B the v3 core in the row (DL-127, DL-143).
+→ Chose: B, signed by the OWNER on the decision site (page "Zeilen", 2026-11-08 07:39).
+→ By: 13ue
+→ Because: a row and a RESPONSE RECORD are the same thing to `--stored`; one reader for both.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

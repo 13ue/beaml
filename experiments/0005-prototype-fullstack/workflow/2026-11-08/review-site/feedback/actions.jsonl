@@ -30,3 +30,8 @@
 {"ts": "2026-11-08T09:22:38Z", "source": "mouse", "action": "nav", "target": "02-order-chain.html", "result": null}
 {"ts": "2026-11-08T09:46:23Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
 {"ts": "2026-11-08T09:46:31Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
+{"ts": "2026-11-08T09:47:02Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}
+{"ts": "2026-11-08T09:47:33Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}
+{"ts": "2026-11-08T09:49:00Z", "source": "voice", "action": "stt", "target": "M3", "result": "ok", "chars": 420}
+{"ts": "2026-11-08T09:49:00Z", "source": "voice", "action": "voice", "target": "M3", "result": "33.5 s"}
+{"ts": "2026-11-08T09:50:07Z", "source": "key", "action": "skip", "target": "M3", "result": null}
