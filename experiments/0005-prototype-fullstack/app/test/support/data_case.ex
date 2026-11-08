@@ -36,7 +36,15 @@ defmodule Proto.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Proto.Repo, shared: not tags[:async])
+    # EXPERIMENT 0005 (P5-14): a `committed` test writes outside the sandbox transaction, so that the host task
+    # `mix beaml.stored` and psql read its rows. `committed: :truncate` empties `records` first.
+    pid =
+      Ecto.Adapters.SQL.Sandbox.start_owner!(Proto.Repo,
+        shared: not tags[:async],
+        sandbox: !tags[:committed]
+      )
+
+    if tags[:committed] == :truncate, do: Proto.Repo.query!("TRUNCATE records RESTART IDENTITY")
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 

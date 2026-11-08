@@ -130,3 +130,10 @@ Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/
 ## Count-line print rule: one question for both streams (merged after the P4b RED review)
 
 - **QV3-7 / rows count line**: RESPONSE RECORDS print the two count lines only when M > 0 (QV3-7 A); ROW SNAPSHOTS always print `rows: N rows, K checked, M not decodable` (P4b default A). One rule should decide both: is a printed count the proof that the check ran (always print, B for records), or is silence the normal case (A for both, then N20b loses its "3 checked" proof)? By: Fable (merged question, default: as built, open).
+
+## 0005 RED defaults
+
+2026-11-08. Ledger: [red-plan.md](../2026-11-08/red-plan.md). By: Opus (RED exp0005, default, open) for every line.
+
+- **Snapshot record set** (big, what `--stored` reads): A `mix beaml.stored` writes an empty `responses.jsonl`; the build checks the STORED ROWS only, the per-run capture records (Q5-7 A) are not a store · B also copy the capture `responses.jsonl` of earlier runs. Default A.
+- **`mix beaml.stored DIR`** (big, host-called name): A one argument, the snapshot directory; run.py runs the compiler · B `mix beaml.stored SOURCE` runs the compiler itself (Q5-4 B text). Default A.

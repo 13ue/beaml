@@ -1,6 +1,11 @@
-"""Repeatable command for EXPERIMENT 0005 (host scaffold).
+"""Repeatable command for EXPERIMENT 0005 (PROTOTYPE: Postgres, BEAML, LiveView).
 
-python3 -B run.py db-up | db-down | db-reset | smoke
+python3 -B run.py [run] | db-up | db-down | db-reset | smoke
+
+`run` (the default) needs a database that is up (db-up). It never starts or stops it. Steps: the compiler
+(BEAML_SPIKE or a cargo build of 0001), db-reset, stored + gen of app/beaml/orders.beaml (a live ROW SNAPSHOT by
+`mix beaml.stored`, Q5-4 B, then the compiler with --stored), compile, the N-TESTS in mix test, then the phases n8,
+n7_seed, gen note_v2, n7_read, and gen orders.beaml again. Every step runs and is recorded; one failed step fails the run.
 
 Every call writes results/<UTC>/ with commands, toolchain versions and result.json.
 The database is a local pg_ctl cluster: trust auth, Unix socket only, no password (P5-01, P5-02, P5-22, P5-23).
@@ -20,7 +25,10 @@ APP = EXPERIMENT / "app"
 PGDATA, PGSOCK = APP / ".pgdata", APP / ".pgsock"
 DATABASES = ["proto_dev", "proto_test"]
 ACTIONS = REPO / ".beaml" / "actions.jsonl"
-JOB = "scaffold-exp0005"
+GENERATED = APP / "lib" / "generated" / "orders.ex"
+BEAML = APP / "beaml"
+COMPILER = REPO / "experiments" / "0001-syntax-to-beam"
+TITLES = {"run": "Run the N-TESTS of the PROTOTYPE (EXPERIMENT 0005)"}
 TITLE = "Build the host scaffold of the PROTOTYPE (EXPERIMENT 0005)"
 
 sys.path.insert(0, str(Path.home() / ".claude-bus"))
@@ -107,6 +115,19 @@ def lazy_html_nif():
     return found
 
 
+def sha256(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+
+
+def source(variant):
+    return BEAML / "orders.beaml" if variant is None else BEAML / "variants" / variant / "orders.beaml"
+
+
+def phase(name):
+    # --seed 0 keeps the definition order inside a phase file (N7 before N7b before N11).
+    return ("test-" + name, ["mix", "test", "--warnings-as-errors", "--only", "phase:" + name, "--seed", "0"])
+
+
 def main(command):
     if os.environ.get("DATABASE_URL") is not None:
         # P5-02: a set DATABASE_URL makes every step an OWNER step. Never read or print it.
@@ -120,15 +141,17 @@ def main(command):
     env = dict(os.environ, BEAML_CAPTURE_DIR=str(capture))
     result = {"command": [sys.executable] + sys.argv, "subcommand": command, "started_at": started.isoformat(),
               "finished_at": None, "toolchain": toolchain(), "steps": [], "status": "fail"}
-    post(JOB, "start", title=TITLE, msg="RUN %s: started" % command)
+    JOB = "exp0005-" + command
+    post(JOB, "start", title=TITLES.get(command, TITLE), msg="RUN %s: started" % command)
     event(use_case, "start", command, "running")
 
-    def execute(name, argv, cwd):
-        step = {"name": name, "command": argv, "exit_code": None, "status": "fail"}
+    def execute(name, argv, cwd, stdout=None):
+        step = {"name": name, "command": [str(a) for a in argv], "exit_code": None, "status": "fail"}
         result["steps"].append(step)
-        with (run / (name + ".stdout")).open("wb") as out, (run / (name + ".stderr")).open("wb") as err:
+        with (stdout or run / (name + ".stdout")).open("wb") as out, (run / (name + ".stderr")).open("wb") as err:
             try:
-                step["exit_code"] = subprocess.run(argv, cwd=cwd, env=env, stdout=out, stderr=err).returncode
+                step["exit_code"] = subprocess.run([str(a) for a in argv], cwd=cwd, env=env, stdout=out,
+                                                   stderr=err).returncode
             except Exception as error:
                 err.write(("runner: %s\n" % type(error).__name__).encode())
         step["status"] = "pass" if step["exit_code"] == 0 else "fail"
@@ -136,8 +159,67 @@ def main(command):
         (run / "result.json").write_text(json.dumps(result, indent=2) + "\n")
         return step["status"] == "pass"
 
+    def gen(variant):
+        """stored + gen: a live ROW SNAPSHOT, then the compiler. lib/generated/orders.ex changes only on exit 0."""
+        label = variant or "orders"
+        snap = run / ("stored-" + label)
+        out = run / ("gen-" + label + ".ex")
+        hashes = {"step": "gen-" + label, "source": str(source(variant).relative_to(EXPERIMENT)),
+                  "source_sha256": sha256(source(variant)), "output_sha256": None, "written": False}
+        result["hashes"].append(hashes)
+        if not execute("stored-" + label, ["mix", "beaml.stored", snap], APP):
+            execute("gen-" + label, ["false"], APP)  # recorded as failed: no snapshot, no build
+            return False
+        ok = execute("gen-" + label, [env["BEAML_SPIKE"], source(variant), "--stored", snap / "responses.jsonl"],
+                     APP, stdout=out)
+        if ok:
+            GENERATED.parent.mkdir(exist_ok=True)
+            GENERATED.write_bytes(out.read_bytes())
+        hashes.update(output_sha256=sha256(out), written=ok)
+        return ok
+
+    def run_all():
+        if not (pg_running() and PGSOCK.is_dir()):
+            print("ERROR DATABASE: not reachable at app/.pgsock. Run run.py db-up.", file=sys.stderr)
+            execute("database", ["false"], EXPERIMENT)
+            return False
+        result["hashes"] = []
+        original = GENERATED.read_bytes() if GENERATED.is_file() else None
+        if not os.environ.get("BEAML_SPIKE"):
+            execute("cargo-build", ["cargo", "build", "-q"], COMPILER)
+            env["BEAML_SPIKE"] = str(COMPILER / "target" / "debug" / "beaml-spike")
+        env.update(BEAML_RUN_DIR=str(run), MIX_ENV="test")
+        result["compiler"] = {"path": env["BEAML_SPIKE"], "sha256": sha256(Path(env["BEAML_SPIKE"]))}
+        oks = []
+        try:
+            plan = [lambda: all(execute(n, a, EXPERIMENT) for n, a in db_reset()),
+                    lambda: gen(None),
+                    lambda: execute("compile", ["mix", "compile", "--force", "--warnings-as-errors"], APP),
+                    lambda: execute("test", ["mix", "test", "--warnings-as-errors"], APP),
+                    lambda: execute(*phase("n8"), APP),
+                    lambda: execute(*phase("n7_seed"), APP),
+                    lambda: gen("note_v2"),
+                    lambda: execute("compile-note_v2", ["mix", "compile", "--force", "--warnings-as-errors"], APP),
+                    lambda: execute(*phase("n7_read"), APP),
+                    lambda: all(execute(n, a, EXPERIMENT) for n, a in db_reset())]
+            for i, step in enumerate(plan, 1):
+                post(JOB, "progress", pct=100.0 * (i - 1) / len(plan), step="step %d/%d" % (i, len(plan)),
+                     msg="RUN run: running (STEP %d/%d)" % (i, len(plan)))
+                oks.append(step())
+        finally:
+            # Leave the checked-in module of orders.beaml (Q5-5 A); restore the old bytes when that gen fails.
+            if not gen(None):
+                if original is None:
+                    GENERATED.unlink(missing_ok=True)
+                else:
+                    GENERATED.write_bytes(original)
+        result["use_cases"] = use_cases(run)
+        return all(oks) and result["steps"][-1]["status"] == "pass"
+
     try:
-        if command == "smoke":
+        if command == "run":
+            ok = run_all()
+        elif command == "smoke":
             plan = [(n, a, EXPERIMENT) for n, a in db_up()] + [(n, a, APP) for n, a in SMOKE]
             ok = True
             for i, (name, argv, cwd) in enumerate(plan, 1):
@@ -169,8 +251,20 @@ def main(command):
     return 0 if result["status"] == "pass" else 1
 
 
+def use_cases(run):
+    """Last finish event per N-TEST use case and test: pass, fail: <kind> or blocked: <reason> (N9)."""
+    finished = {}
+    path = run / "use-cases.jsonl"
+    for line in path.read_text().splitlines() if path.is_file() else []:
+        e = json.loads(line)
+        if e["action"] == "finish":
+            finished[(e["use_case"], e["target"])] = e["result"]
+    return [{"use_case": u, "test": t, "result": r} for (u, t), r in sorted(finished.items())]
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2 or sys.argv[1] not in ("db-up", "db-down", "db-reset", "smoke"):
+    args = sys.argv[1:] or ["run"]
+    if len(args) != 1 or args[0] not in ("run", "db-up", "db-down", "db-reset", "smoke"):
         print(__doc__.strip().splitlines()[2], file=sys.stderr)
         raise SystemExit(2)
-    raise SystemExit(main(sys.argv[1]))
+    raise SystemExit(main(args[0]))
