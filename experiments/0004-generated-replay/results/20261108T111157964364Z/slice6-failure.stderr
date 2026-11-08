@@ -1,0 +1,28 @@
+test_body_fixture_compiles_to_the_planned_shape (__main__.Slice6Failure.test_body_fixture_compiles_to_the_planned_shape) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_body_of_neither_type (__main__.Slice6Failure.test_body_of_neither_type) ... ok
+test_body_of_neither_type_record_failure (__main__.Slice6Failure.test_body_of_neither_type_record_failure) ... ok
+test_duplicate_failure_keeps_its_text (__main__.Slice6Failure.test_duplicate_failure_keeps_its_text) ... ok
+test_effect_beside_int_failure_compiles (__main__.Slice6Failure.test_effect_beside_int_failure_compiles) ... ok
+test_effect_overlap (__main__.Slice6Failure.test_effect_overlap) ... ok
+test_effect_structural_overlap (__main__.Slice6Failure.test_effect_structural_overlap) ... ok
+test_equal_record_failures_in_a_list (__main__.Slice6Failure.test_equal_record_failures_in_a_list) ... ok
+test_no_int_in_effect_failure (__main__.Slice6Failure.test_no_int_in_effect_failure) ... ok
+test_overlap_fixture_compiles (__main__.Slice6Failure.test_overlap_fixture_compiles) ... ok
+test_overlap_in_a_list (__main__.Slice6Failure.test_overlap_in_a_list) ... ok
+test_pipe_ends_in_neither_type (__main__.Slice6Failure.test_pipe_ends_in_neither_type) ... ok
+test_plan_source_with_int_failure_compiles (__main__.Slice6Failure.test_plan_source_with_int_failure_compiles) ... ok
+test_runtime_body (__main__.Slice6Failure.test_runtime_body) ... ok
+test_runtime_overlap (__main__.Slice6Failure.test_runtime_overlap) ... ok
+test_runtime_pipe_ends_in_record_failure (__main__.Slice6Failure.test_runtime_pipe_ends_in_record_failure) ... ok
+test_same_enum_both_sides (__main__.Slice6Failure.test_same_enum_both_sides) ... ok
+test_same_int_both_sides (__main__.Slice6Failure.test_same_int_both_sides) ... ok
+test_same_record_both_sides (__main__.Slice6Failure.test_same_record_both_sides) ... ok
+test_same_type_both_sides (__main__.Slice6Failure.test_same_type_both_sides) ... ok
+test_structural_records_overlap (__main__.Slice6Failure.test_structural_records_overlap) ... ok
+test_variant_is_no_failure_type (__main__.Slice6Failure.test_variant_is_no_failure_type) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 2.207s
+
+OK
