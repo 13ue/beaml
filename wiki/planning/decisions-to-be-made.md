@@ -835,6 +835,17 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** the first external reader; before the public pages claim either word
 - **Next check** OWNER reads the page
 
+## D048 — EXPERIMENT 0005 as the living REFERENCE APP and end-to-end desk
+
+- **Status** OPEN (OWNER idea, 2026-11-08, [capture](../../raw/requirements/2026-11-08-owner-ideas-reference-app.md))
+- **Decision owner** OWNER
+- **Class** Migrate (changes how experiments are run and reported)
+- **Scope** 0005 is upgraded with every slice and stays the standing example; a local end-to-end desk covers database, BEAML module, LiveView, telemetry, live dashboard and CLI; the desk is used to try, feel and benchmark against the speed promises.
+- **Decision trigger** now (the fate slice is the first that would land in it)
+- **Next check** OWNER answer on the main agent's proposal (below)
+
+**[Proposal]** (Fable) A: 0005 becomes the REFERENCE APP: every slice ends with its use case landed in the app (`run.py run` grows), the register marks it "living", results stay per run; telemetry = the records plus OpenTelemetry spans to a local collector and a live dashboard page; a `beaml` CLI wraps build, `--stored`, fmt and replay; a `bench` step records build time, decode time per row and page latency into the results. B: keep 0005 frozen as the slice-5 proof and start 0006 as the living app. Options for the OWNER.
+
 ## Answered 2026-11-07
 
 - [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).

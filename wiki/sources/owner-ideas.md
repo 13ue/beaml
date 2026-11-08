@@ -14,6 +14,7 @@ updated: 2026-11-08
 | Date | Capture | Context | Register entries |
 |---|---|---|---|
 | 2026-11-08 | [owner-ideas-walkthrough](../../raw/requirements/2026-11-08-owner-ideas-walkthrough.md) | D037 walk-through, M3/M4, roadmap | D039, D040, D042, D044, D045, D046, D047, DL-155, DL-156 |
+| 2026-11-08 | [owner-ideas-reference-app](../../raw/requirements/2026-11-08-owner-ideas-reference-app.md) | demo app as living reference, end-to-end setup, benchmarks | D048 |
 
 ## How a capture is made
 
