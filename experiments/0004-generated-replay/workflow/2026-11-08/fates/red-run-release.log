@@ -1,0 +1,1415 @@
+test_F1_quarantine_line_builds (__main__.Fates.test_F1_quarantine_line_builds) ... compiler: <scratch>/head/experiments/0001-syntax-to-beam/target/release/beaml-spike
+FAIL
+test_F2_enum_version_and_bare_map_build (__main__.Fates.test_F2_enum_version_and_bare_map_build) ... FAIL
+test_F3_qualified_map_builds (__main__.Fates.test_F3_qualified_map_builds) ... FAIL
+test_F4_fate_only_step_is_valid (__main__.Fates.test_F4_fate_only_step_is_valid) ... 
+  test_F4_fate_only_step_is_valid (__main__.Fates.test_F4_fate_only_step_is_valid) [record TYPE step with one fate line] ... FAIL
+  test_F4_fate_only_step_is_valid (__main__.Fates.test_F4_fate_only_step_is_valid) [constructor TYPE step with one fate line] ... FAIL
+  test_F4_fate_only_step_is_valid (__main__.Fates.test_F4_fate_only_step_is_valid) [an empty step names the fate lines] ... FAIL
+test_F5_rejects (__main__.Fates.test_F5_rejects) ... 
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [quarantine_no_field] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [quarantine_no_rule] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [quarantine_owner_form] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [quarantine_enum_field] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [map_no_field] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [map_not_enum_field] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [map_no_variant] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [map_keep_value_variant] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [map_current_literal] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [map_enum_constructor] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [bare_map_in_record_step] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [two_maps_one_literal_qualified] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [two_maps_one_literal_bare] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [two_fate_lines_one_field] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [two_quarantine_lines_one_type] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [bare_and_qualified_map_one_literal] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [fate_not_in_last_step] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [enum_step_add] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [enum_step_qualified_map] ... FAIL
+  test_F5_rejects (__main__.Fates.test_F5_rejects) [map_payload_parse_error] ... FAIL
+test_F6_redact_and_retire_parse_and_wait (__main__.Fates.test_F6_redact_and_retire_parse_and_wait) ... 
+  test_F6_redact_and_retire_parse_and_wait (__main__.Fates.test_F6_redact_and_retire_parse_and_wait) [redact] ... FAIL
+  test_F6_redact_and_retire_parse_and_wait (__main__.Fates.test_F6_redact_and_retire_parse_and_wait) [retire] ... FAIL
+test_F7_no_dead_line_for_a_fate_step (__main__.Fates.test_F7_no_dead_line_for_a_fate_step) ... 
+  test_F7_no_dead_line_for_a_fate_step (__main__.Fates.test_F7_no_dead_line_for_a_fate_step) [amount_v2] ... FAIL
+  test_F7_no_dead_line_for_a_fate_step (__main__.Fates.test_F7_no_dead_line_for_a_fate_step) [channel_v2] ... FAIL
+  test_F7_no_dead_line_for_a_fate_step (__main__.Fates.test_F7_no_dead_line_for_a_fate_step) [order_map] ... FAIL
+test_F7b_remove_dead_keeps_a_fate_step (__main__.Fates.test_F7b_remove_dead_keeps_a_fate_step) ... 
+  test_F7b_remove_dead_keeps_a_fate_step (__main__.Fates.test_F7b_remove_dead_keeps_a_fate_step) [quarantine step] ... FAIL
+test_F8_enum_mark_disagrees_with_its_chain (__main__.Fates.test_F8_enum_mark_disagrees_with_its_chain) ... FAIL
+test_S1_quarantine_lifts_the_constructor_block_over_rows (__main__.Fates.test_S1_quarantine_lifts_the_constructor_block_over_rows) ... FAIL
+test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) ... 
+  test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) [rows_value] ... FAIL
+  test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) [rows_currency] ... FAIL
+  test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) [response_record] ... FAIL
+  test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) [entry_record] ... FAIL
+test_S1c_quarantine_over_response_records (__main__.Fates.test_S1c_quarantine_over_response_records) ... FAIL
+test_S1d_quarantine_over_entry_records (__main__.Fates.test_S1d_quarantine_over_entry_records) ... FAIL
+test_S1e_line_lifts_only_its_type (__main__.Fates.test_S1e_line_lifts_only_its_type) ... FAIL
+test_S1f_a_quarantined_value_with_a_lost_literal_still_blocks (__main__.Fates.test_S1f_a_quarantined_value_with_a_lost_literal_still_blocks) ... FAIL
+test_S2_map_lifts_the_lost_literal_block (__main__.Fates.test_S2_map_lifts_the_lost_literal_block) ... 
+  test_S2_map_lifts_the_lost_literal_block (__main__.Fates.test_S2_map_lifts_the_lost_literal_block) [bare map in the enum step] ... FAIL
+  test_S2_map_lifts_the_lost_literal_block (__main__.Fates.test_S2_map_lifts_the_lost_literal_block) [field-qualified map in the owner chain] ... FAIL
+test_S2b_control_without_map_blocks_with_the_version_help (__main__.Fates.test_S2b_control_without_map_blocks_with_the_version_help) ... 
+  test_S2b_control_without_map_blocks_with_the_version_help (__main__.Fates.test_S2b_control_without_map_blocks_with_the_version_help) [rows] ... FAIL
+  test_S2b_control_without_map_blocks_with_the_version_help (__main__.Fates.test_S2b_control_without_map_blocks_with_the_version_help) [entry_record] ... FAIL
+test_S2c_kept_value_is_neither_mapped_nor_blocked (__main__.Fates.test_S2c_kept_value_is_neither_mapped_nor_blocked) ... 
+  test_S2c_kept_value_is_neither_mapped_nor_blocked (__main__.Fates.test_S2c_kept_value_is_neither_mapped_nor_blocked) [a kept and a lost value: only the lost one is mapped] ... FAIL
+  test_S2c_kept_value_is_neither_mapped_nor_blocked (__main__.Fates.test_S2c_kept_value_is_neither_mapped_nor_blocked) [a kept value alone] ... FAIL
+test_S3_gate_affected_values_need_the_next_version (__main__.Fates.test_S3_gate_affected_values_need_the_next_version) ... 
+  test_S3_gate_affected_values_need_the_next_version (__main__.Fates.test_S3_gate_affected_values_need_the_next_version) [no mark] ... FAIL
+  test_S3_gate_affected_values_need_the_next_version (__main__.Fates.test_S3_gate_affected_values_need_the_next_version) [type mark without a step] ... FAIL
+  test_S3_gate_affected_values_need_the_next_version (__main__.Fates.test_S3_gate_affected_values_need_the_next_version) [enum mark without a step] ... FAIL
+test_S3b_gate_without_affected_values_is_free (__main__.Fates.test_S3b_gate_without_affected_values_is_free) ... 
+  test_S3b_gate_without_affected_values_is_free (__main__.Fates.test_S3b_gate_without_affected_values_is_free) [amount_v2] ... FAIL
+  test_S3b_gate_without_affected_values_is_free (__main__.Fates.test_S3b_gate_without_affected_values_is_free) [channel_v2] ... FAIL
+test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) ... 
+  test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [rows_quarantine] ... FAIL
+  test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [response_quarantine] ... FAIL
+  test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [entry_quarantine] ... FAIL
+  test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [rows_map] ... FAIL
+  test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [rows_block] ... FAIL
+  test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [literal_block] ... FAIL
+test_S5_help_where_no_fate_line_lifts_the_block (__main__.Fates.test_S5_help_where_no_fate_line_lifts_the_block) ... 
+  test_S5_help_where_no_fate_line_lifts_the_block (__main__.Fates.test_S5_help_where_no_fate_line_lifts_the_block) [ENUM CONSTRUCTOR, no signature (D041 open)] ... FAIL
+  test_S5_help_where_no_fate_line_lifts_the_block (__main__.Fates.test_S5_help_where_no_fate_line_lifts_the_block) [constructor TYPE, no signature (a decode fault)] ... FAIL
+
+======================================================================
+FAIL: test_F1_quarantine_line_builds (__main__.Fates.test_F1_quarantine_line_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 222, in test_F1_quarantine_line_builds
+    self.built(AMOUNT_V2)
+    ~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 406, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 548
+
+
+======================================================================
+FAIL: test_F2_enum_version_and_bare_map_build (__main__.Fates.test_F2_enum_version_and_bare_map_build)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 225, in test_F2_enum_version_and_bare_map_build
+    self.built(CHANNEL_V2)
+    ~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 406, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: expected '{' at byte 449
+
+
+======================================================================
+FAIL: test_F3_qualified_map_builds (__main__.Fates.test_F3_qualified_map_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 230, in test_F3_qualified_map_builds
+    self.built(ORDER_MAP)
+    ~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 406, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported migrate step: map; a MIGRATE CHANGE is rename, add or drop at byte 741
+
+
+======================================================================
+FAIL: test_F4_fate_only_step_is_valid (__main__.Fates.test_F4_fate_only_step_is_valid) [record TYPE step with one fate line]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 234, in test_F4_fate_only_step_is_valid
+    self.built(ORDER_MAP)
+    ~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 406, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported migrate step: map; a MIGRATE CHANGE is rename, add or drop at byte 741
+
+
+======================================================================
+FAIL: test_F4_fate_only_step_is_valid (__main__.Fates.test_F4_fate_only_step_is_valid) [constructor TYPE step with one fate line]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 236, in test_F4_fate_only_step_is_valid
+    self.built(AMOUNT_V2)
+    ~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 406, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 548
+
+
+======================================================================
+FAIL: test_F4_fate_only_step_is_valid (__main__.Fates.test_F4_fate_only_step_is_valid) [an empty step names the fate lines]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 238, in test_F4_fate_only_step_is_valid
+    self.assertEqual((1, "", "migrate Order v2 -> v3: a MIGRATE STEP needs at least one rename, add, drop or "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             "fate line"), self.rejects(swap(OM, QM_LINE, "migrate Order v2 -> v3 { }")))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[31 chars]IGRATE STEP needs at least one rename, add, drop or fate line') != (1, '[31 chars]IGRATE STEP needs at least one rename, add or drop')
+
+First differing element 2:
+'migr[22 chars]MIGRATE STEP needs at least one rename, add, drop or fate line'
+'migr[22 chars]MIGRATE STEP needs at least one rename, add or drop'
+
+  (1,
+   '',
+-  'migrate Order v2 -> v3: a MIGRATE STEP needs at least one rename, add, drop '
+?                                                                        ^^^ --
+
++  'migrate Order v2 -> v3: a MIGRATE STEP needs at least one rename, add or '
+?                                                                        ^^
+
+-  'or fate line')
++  'drop')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [quarantine_no_field]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Amount v1 -> v2: quarantine nope [21 chars]unt') != (1, '', 'unsupported migrate step: quarantine; a M[45 chars]548')
+
+First differing element 2:
+'migrate Amount v1 -> v2: quarantine nope [20 chars]ount'
+'unsupported migrate step: quarantine; a M[44 chars] 548'
+
+- (1, '', 'migrate Amount v1 -> v2: quarantine nope names no field of Amount')
++ (1,
++  '',
++  'unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or '
++  'drop at byte 548')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [quarantine_no_rule]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v2 -> v3: quarantine order_[73 chars]AL)') != (1, '', 'unsupported migrate step: quarantine; a M[45 chars]741')
+
+First differing element 2:
+'migrate Order v2 -> v3: quarantine order_[72 chars]RAL)'
+'unsupported migrate step: quarantine; a M[44 chars] 741'
+
+  (1,
+   '',
+-  'migrate Order v2 -> v3: quarantine order_id: the field order_id has no rule '
+-  'to fail (no constructor, no ENUM LITERAL)')
++  'unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or '
++  'drop at byte 741')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [quarantine_owner_form]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v2 -> v3: quarantine amount[148 chars] A)') != (1, '', 'unsupported migrate step: quarantine; a M[45 chars]741')
+
+First differing element 2:
+'migrate Order v2 -> v3: quarantine amount[147 chars]3 A)'
+'unsupported migrate step: quarantine; a M[44 chars] 741'
+
+  (1,
+   '',
++  'unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or '
++  'drop at byte 741')
+-  'migrate Order v2 -> v3: quarantine amount: write the quarantine line in the '
+-  'MIGRATE STEP of the constructor TYPE: type Amount v2 and migrate Amount v1 '
+-  '-> v2 { quarantine <parameter> } (QF-3 A)')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [quarantine_enum_field]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v2 -> v3: quarantine channe[88 chars]nt>') != (1, '', 'unsupported migrate step: quarantine; a M[45 chars]741')
+
+First differing element 2:
+'migrate Order v2 -> v3: quarantine channe[87 chars]ant>'
+'unsupported migrate step: quarantine; a M[44 chars] 741'
+
+  (1,
+   '',
+-  'migrate Order v2 -> v3: quarantine channel: quarantine of an enum field is '
+-  'not built; write map channel "<old literal>" -> <Variant>')
++  'unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or '
++  'drop at byte 741')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [map_no_field]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v2 -> v3: map nope names no field of Order') != (1, '', 'unsupported migrate step: map; a MIGRATE [38 chars]741')
+
+First differing element 2:
+'migrate Order v2 -> v3: map nope names no field of Order'
+'unsupported migrate step: map; a MIGRATE [37 chars] 741'
+
+- (1, '', 'migrate Order v2 -> v3: map nope names no field of Order')
++ (1,
++  '',
++  'unsupported migrate step: map; a MIGRATE CHANGE is rename, add or drop at '
++  'byte 741')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [map_not_enum_field]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v2 -> v3: map order_id: the[37 chars]eld') != (1, '', 'unsupported migrate step: map; a MIGRATE [38 chars]741')
+
+First differing element 2:
+'migrate Order v2 -> v3: map order_id: the[36 chars]ield'
+'unsupported migrate step: map; a MIGRATE [37 chars] 741'
+
+  (1,
+   '',
+-  'migrate Order v2 -> v3: map order_id: the field order_id is no literal enum '
+-  'field')
++  'unsupported migrate step: map; a MIGRATE CHANGE is rename, add or drop at '
++  'byte 741')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [map_no_variant]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Channel v1 -> v2: map "app" -> T[27 chars]nel') != (1, '', "expected '{' at byte 449")
+
+First differing element 2:
+'migrate Channel v1 -> v2: map "app" -> Tv: Tv is no variant of Channel'
+"expected '{' at byte 449"
+
++ (1, '', "expected '{' at byte 449")
+- (1,
+-  '',
+-  'migrate Channel v1 -> v2: map "app" -> Tv: Tv is no variant of Channel')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [map_keep_value_variant]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Channel v1 -> v2: map "app" -> U[73 chars] A)') != (1, '', "expected '{' at byte 449")
+
+First differing element 2:
+'migrate Channel v1 -> v2: map "app" -> U[72 chars]6 A)'
+"expected '{' at byte 449"
+
++ (1, '', "expected '{' at byte 449")
+- (1,
+-  '',
+-  'migrate Channel v1 -> v2: map "app" -> Unknown: Unknown carries a payload; '
+-  'map to a variant without payload (QF-6 A)')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [map_current_literal]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Channel v1 -> v2: map "web" -> M[106 chars]-8)') != (1, '', "expected '{' at byte 449")
+
+First differing element 2:
+'migrate Channel v1 -> v2: map "web" -> M[105 chars]F-8)'
+"expected '{' at byte 449"
+
++ (1, '', "expected '{' at byte 449")
+- (1,
+-  '',
+-  'migrate Channel v1 -> v2: map "web" -> Mobile: "web" is a current ENUM '
+-  'LITERAL of Channel; a swap waits for the previous literal table (DL-140, '
+-  'QF-8)')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [map_enum_constructor]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate PaymentState v1 -> v2: map: Paym[74 chars]en)') != (1, '', "expected '{' at byte 265")
+
+First differing element 2:
+'migrate PaymentState v1 -> v2: map: Paym[73 chars]pen)'
+"expected '{' at byte 265"
+
++ (1, '', "expected '{' at byte 265")
+- (1,
+-  '',
+-  'migrate PaymentState v1 -> v2: map: PaymentState has an ENUM CONSTRUCTOR; '
+-  'map works on ENUM LITERALS only (D041 open)')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [bare_map_in_record_step]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v2 -> v3: a bare map stands[68 chars]ile') != (1, '', 'unsupported migrate step: map; a MIGRATE [38 chars]741')
+
+First differing element 2:
+'migrate Order v2 -> v3: a bare map stands[67 chars]bile'
+'unsupported migrate step: map; a MIGRATE [37 chars] 741'
+
+  (1,
+   '',
+-  'migrate Order v2 -> v3: a bare map stands only in the MIGRATE STEP of an '
+-  'enum; write map <field> "app" -> Mobile')
++  'unsupported migrate step: map; a MIGRATE CHANGE is rename, add or drop at '
++  'byte 741')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [two_maps_one_literal_qualified]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v2 -> v3: two map lines nam[21 chars]nel') != (1, '', 'unsupported migrate step: map; a MIGRATE [38 chars]741')
+
+First differing element 2:
+'migrate Order v2 -> v3: two map lines nam[20 chars]nnel'
+'unsupported migrate step: map; a MIGRATE [37 chars] 741'
+
+- (1, '', 'migrate Order v2 -> v3: two map lines name "app" of field channel')
++ (1,
++  '',
++  'unsupported migrate step: map; a MIGRATE CHANGE is rename, add or drop at '
++  'byte 741')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [two_maps_one_literal_bare]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Channel v1 -> v2: two map lines name "app"') != (1, '', "expected '{' at byte 449")
+
+First differing element 2:
+'migrate Channel v1 -> v2: two map lines name "app"'
+"expected '{' at byte 449"
+
+- (1, '', 'migrate Channel v1 -> v2: two map lines name "app"')
++ (1, '', "expected '{' at byte 449")
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [two_fate_lines_one_field]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Amount v1 -> v2: two fate lines n[16 chars]lue') != (1, '', 'unsupported migrate step: quarantine; a M[45 chars]548')
+
+First differing element 2:
+'migrate Amount v1 -> v2: two fate lines n[15 chars]alue'
+'unsupported migrate step: quarantine; a M[44 chars] 548'
+
+- (1, '', 'migrate Amount v1 -> v2: two fate lines name the field value')
++ (1,
++  '',
++  'unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or '
++  'drop at byte 548')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [two_quarantine_lines_one_type]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Amount v1 -> v2: one quarantine l[45 chars]11)') != (1, '', 'unsupported migrate step: quarantine; a M[45 chars]548')
+
+First differing element 2:
+'migrate Amount v1 -> v2: one quarantine l[44 chars]-11)'
+'unsupported migrate step: quarantine; a M[44 chars] 548'
+
+  (1,
+   '',
+-  'migrate Amount v1 -> v2: one quarantine line per constructor TYPE; Amount '
+-  'has two (PF-11)')
++  'unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or '
++  'drop at byte 548')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [bare_and_qualified_map_one_literal]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v2 -> v3: map channel "app[72 chars]one') != (1, '', "expected '{' at byte 447")
+
+First differing element 2:
+'migrate Order v2 -> v3: map channel "app[71 chars] one'
+"expected '{' at byte 447"
+
++ (1, '', "expected '{' at byte 447")
+- (1,
+-  '',
+-  'migrate Order v2 -> v3: map channel "app" -> Mobile: "app" has a map line in '
+-  'migrate Channel v1 -> v2 too; keep one')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [fate_not_in_last_step]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v1 -> v2: a fate line stand[42 chars]v3)') != (1, '', 'unsupported migrate step: map; a MIGRATE [38 chars]715')
+
+First differing element 2:
+'migrate Order v1 -> v2: a fate line stand[41 chars](v3)'
+'unsupported migrate step: map; a MIGRATE [37 chars] 715'
+
+  (1,
+   '',
+-  'migrate Order v1 -> v2: a fate line stands only in the last MIGRATE STEP of '
+-  'Order (v3)')
++  'unsupported migrate step: map; a MIGRATE CHANGE is rename, add or drop at '
++  'byte 715')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [enum_step_add]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Channel v1 -> v2: an enum MIGRAT[37 chars]06)') != (1, '', "expected '{' at byte 449")
+
+First differing element 2:
+'migrate Channel v1 -> v2: an enum MIGRAT[36 chars]-06)'
+"expected '{' at byte 449"
+
++ (1, '', "expected '{' at byte 449")
+- (1,
+-  '',
+-  'migrate Channel v1 -> v2: an enum MIGRATE STEP holds bare map lines only '
+-  '(PF-06)')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [enum_step_qualified_map]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 248, in test_F5_rejects
+    self.assertEqual((1, "", message), self.rejects(source, extra))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Channel v1 -> v2: an enum MIGRAT[37 chars]06)') != (1, '', "expected '{' at byte 449")
+
+First differing element 2:
+'migrate Channel v1 -> v2: an enum MIGRAT[36 chars]-06)'
+"expected '{' at byte 449"
+
++ (1, '', "expected '{' at byte 449")
+- (1,
+-  '',
+-  'migrate Channel v1 -> v2: an enum MIGRATE STEP holds bare map lines only '
+-  '(PF-06)')
+
+======================================================================
+FAIL: test_F5_rejects (__main__.Fates.test_F5_rejects) [map_payload_parse_error]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 251, in test_F5_rejects
+    self.assertEqual((1, "", True), (code, stdout, PAYLOAD_PARSE.fullmatch(text.strip()) is not None), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', True) != (1, '', False)
+
+First differing element 2:
+True
+False
+
+- (1, '', True)
++ (1, '', False) : expected '{' at byte 449
+
+
+======================================================================
+FAIL: test_F6_redact_and_retire_parse_and_wait (__main__.Fates.test_F6_redact_and_retire_parse_and_wait) [redact]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 266, in test_F6_redact_and_retire_parse_and_wait
+    self.assertEqual((1, "", message), self.rejects(swap(OM, QM_LINE, line)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v2 -> v3: redact order_id: [59 chars]-9)') != (1, '', 'unsupported migrate step: redact; a MIGRA[41 chars]741')
+
+First differing element 2:
+'migrate Order v2 -> v3: redact order_id: [58 chars]F-9)'
+'unsupported migrate step: redact; a MIGRA[40 chars] 741'
+
+  (1,
+   '',
+-  'migrate Order v2 -> v3: redact order_id: the meaning for stored values is '
+-  'not built yet (fates-b, QF-9)')
++  'unsupported migrate step: redact; a MIGRATE CHANGE is rename, add or drop at '
++  'byte 741')
+
+======================================================================
+FAIL: test_F6_redact_and_retire_parse_and_wait (__main__.Fates.test_F6_redact_and_retire_parse_and_wait) [retire]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 266, in test_F6_redact_and_retire_parse_and_wait
+    self.assertEqual((1, "", message), self.rejects(swap(OM, QM_LINE, line)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'migrate Order v2 -> v3: retire order_id k[58 chars]-4)') != (1, '', 'unsupported migrate step: retire; a MIGRA[41 chars]741')
+
+First differing element 2:
+'migrate Order v2 -> v3: retire order_id k[57 chars]F-4)'
+'unsupported migrate step: retire; a MIGRA[40 chars] 741'
+
+  (1,
+   '',
+-  'migrate Order v2 -> v3: retire order_id keep 30 days: the meaning for stored '
+-  'values waits on M5 (QF-4)')
++  'unsupported migrate step: retire; a MIGRATE CHANGE is rename, add or drop at '
++  'byte 741')
+
+======================================================================
+FAIL: test_F7_no_dead_line_for_a_fate_step (__main__.Fates.test_F7_no_dead_line_for_a_fate_step) [amount_v2]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 277, in test_F7_no_dead_line_for_a_fate_step
+    self.assertEqual((0, True, [counted(1, 1, 0)]), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['unsupported migrate step: qua[58 chars]48'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1,
++  False,
++  ['unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or '
++   'drop at byte 548'])
+
+======================================================================
+FAIL: test_F7_no_dead_line_for_a_fate_step (__main__.Fates.test_F7_no_dead_line_for_a_fate_step) [channel_v2]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 277, in test_F7_no_dead_line_for_a_fate_step
+    self.assertEqual((0, True, [counted(1, 1, 0)]), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ["expected '{' at byte 449"])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1, False, ["expected '{' at byte 449"])
+
+======================================================================
+FAIL: test_F7_no_dead_line_for_a_fate_step (__main__.Fates.test_F7_no_dead_line_for_a_fate_step) [order_map]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 280, in test_F7_no_dead_line_for_a_fate_step
+    self.assertEqual((0, True, []), (code, "defmodule Orders do" in stdout,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     [l for l in got if l.startswith("warning: DEAD LINE: " + QM_STEP)]),
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "\n".join(got))
+                     ^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, []) != (1, False, [])
+
+First differing element 0:
+0
+1
+
+- (0, True, [])
++ (1, False, []) : unsupported migrate step: map; a MIGRATE CHANGE is rename, add or drop at byte 741
+
+======================================================================
+FAIL: test_F7b_remove_dead_keeps_a_fate_step (__main__.Fates.test_F7b_remove_dead_keeps_a_fate_step) [quarantine step]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 296, in test_F7b_remove_dead_keeps_a_fate_step
+    self.assertEqual((0, kept, kept), (code, step in after, after == text), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, True) != (1, True, True)
+
+First differing element 0:
+0
+1
+
+- (0, True, True)
+?  ^
+
++ (1, True, True)
+?  ^
+ : unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 548
+
+
+======================================================================
+FAIL: test_F8_enum_mark_disagrees_with_its_chain (__main__.Fates.test_F8_enum_mark_disagrees_with_its_chain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 302, in test_F8_enum_mark_disagrees_with_its_chain
+    self.assertEqual((1, "", ENUM_MARK_GAP), (code, stdout, stderr.strip()))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: enum Channel v3 disagrees with it[212 chars]sts') != (1, '', "expected '{' at byte 449")
+
+First differing element 2:
+'error: enum Channel v3 disagrees with it[211 chars]ists'
+"expected '{' at byte 449"
+
++ (1, '', "expected '{' at byte 449")
+- (1,
+-  '',
+-  'error: enum Channel v3 disagrees with its MIGRATE CHAIN: the last MIGRATE '
+-  'STEP is migrate Channel v1 -> v2\n'
+-  '  help: the VERSION MARK and the MIGRATE CHAIN must agree; add migrate '
+-  'Channel v2 -> v3 { ... }, or write enum Channel v2 if no record of v3 exists')
+
+======================================================================
+FAIL: test_S1_quarantine_lifts_the_constructor_block_over_rows (__main__.Fates.test_S1_quarantine_lifts_the_constructor_block_over_rows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 307, in test_S1_quarantine_lifts_the_constructor_block_over_rows
+    self.assert_fated(AMOUNT_V2, [fate(1, "ROW", "table records", "quarantined", Q_STEP, "quarantine value")],
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      [NOT_BUILT_Q], rows_line=counted(2, 2, 0), rows=[row(WIRE1), row(ZERO)])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 207, in assert_fated
+    self.assertEqual((1, "", fates + errors), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['fate: 1 stored ROW of table records quar[150 chars]7)']) != (1, '', [])
+
+First differing element 2:
+['fate: 1 stored ROW of table records quar[149 chars]57)']
+[]
+
++ (1, '', [])
+- (1,
+-  '',
+-  ['fate: 1 stored ROW of table records quarantined by migrate Amount v1 -> v2 '
+-   '(quarantine value)',
+-   'error: a quarantine line is hit, but quarantine at run time is not built '
+-   'yet (fates-a2, DL-157)']) : unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 548
+
+======================================================================
+FAIL: test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) [rows_value]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 328, in test_S1b_control_without_the_line_blocks_with_the_version_help
+    self.assert_block(STRICTER_V1, block, **kw)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 216, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[264 chars] the next TYPE VERSION and a fate (DL-155): ty[59 chars] }']) != (1, '[264 chars] the fate of these records in a MIGRATE STEP t[36 chars]2)'])
+
+First differing element 2:
+['err[256 chars] the next TYPE VERSION and a fate (DL-155): ty[58 chars]e }']
+['err[256 chars] the fate of these records in a MIGRATE STEP t[35 chars]02)']
+
+  (1,
+   '',
+   ['error: TYPE Order: 1 stored ROW of table records fails the constructor of '
+    'Amount for field amount with BadAmount',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ual86wnd/stored/1/rows.jsonl:2 '
+    '(line 2)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v2 '
+-   'and migrate Amount v1 -> v2 { quarantine value }'])
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)']) : error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for field amount with BadAmount
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ual86wnd/stored/1/rows.jsonl:2 (line 2)
+  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order (DL-102)
+
+======================================================================
+FAIL: test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) [rows_currency]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 328, in test_S1b_control_without_the_line_blocks_with_the_version_help
+    self.assert_block(STRICTER_V1, block, **kw)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 216, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[264 chars] the next TYPE VERSION and a fate (DL-155): ty[62 chars] }']) != (1, '[264 chars] the fate of these records in a MIGRATE STEP t[36 chars]2)'])
+
+First differing element 2:
+['err[256 chars] the next TYPE VERSION and a fate (DL-155): ty[61 chars]y }']
+['err[256 chars] the fate of these records in a MIGRATE STEP t[35 chars]02)']
+
+  (1,
+   '',
+   ['error: TYPE Order: 1 stored ROW of table records fails the constructor of '
+    'Amount for field amount with BadAmount',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ual86wnd/stored/2/rows.jsonl:1 '
+    '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v2 '
+-   'and migrate Amount v1 -> v2 { quarantine currency }'])
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)']) : error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for field amount with BadAmount
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ual86wnd/stored/2/rows.jsonl:1 (line 1)
+  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order (DL-102)
+
+======================================================================
+FAIL: test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) [response_record]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 328, in test_S1b_control_without_the_line_blocks_with_the_version_help
+    self.assert_block(STRICTER_V1, block, **kw)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 216, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[289 chars] the next TYPE VERSION and a fate (DL-155): ty[59 chars] }']) != (1, '[289 chars] the fate of these records in a MIGRATE STEP t[36 chars]2)'])
+
+First differing element 2:
+['err[281 chars] the next TYPE VERSION and a fate (DL-155): ty[58 chars]e }']
+['err[281 chars] the fate of these records in a MIGRATE STEP t[35 chars]02)']
+
+  (1,
+   '',
+   ['error: TYPE Order: 1 stored RESPONSE RECORD of operation orders.list fails '
+    'the constructor of Amount for field amount with BadAmount',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ual86wnd/stored/3/responses.jsonl:1 '
+    '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v2 '
+-   'and migrate Amount v1 -> v2 { quarantine value }'])
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)']) : error: TYPE Order: 1 stored RESPONSE RECORD of operation orders.list fails the constructor of Amount for field amount with BadAmount
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ual86wnd/stored/3/responses.jsonl:1 (line 1)
+  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order (DL-102)
+
+======================================================================
+FAIL: test_S1b_control_without_the_line_blocks_with_the_version_help (__main__.Fates.test_S1b_control_without_the_line_blocks_with_the_version_help) [entry_record]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 328, in test_S1b_control_without_the_line_blocks_with_the_version_help
+    self.assert_block(STRICTER_V1, block, **kw)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 216, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[285 chars] the next TYPE VERSION and a fate (DL-155): ty[59 chars] }']) != (1, '[285 chars] the fate of these records in a MIGRATE STEP ([106 chars]nt'])
+
+First differing element 2:
+['err[277 chars] the next TYPE VERSION and a fate (DL-155): ty[58 chars]e }']
+['err[277 chars] the fate of these records in a MIGRATE STEP ([105 chars]unt']
+
+  (1,
+   '',
+   ['error: TYPE PlaceForm: 1 stored ENTRY RECORD of operation ui.place fails '
+    'the constructor of Amount for field amount with BadAmount',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ual86wnd/stored/4/entries.jsonl:1 '
+    '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v2 '
+-   'and migrate Amount v1 -> v2 { quarantine value }'])
++   '  help: declare the fate of these records in a MIGRATE STEP (DL-102); slice '
++   '6d has no MIGRATE STEP for an input TYPE (D6B-130), so restore the '
++   'constructor rule of Amount']) : error: TYPE PlaceForm: 1 stored ENTRY RECORD of operation ui.place fails the constructor of Amount for field amount with BadAmount
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ual86wnd/stored/4/entries.jsonl:1 (line 1)
+  help: declare the fate of these records in a MIGRATE STEP (DL-102); slice 6d has no MIGRATE STEP for an input TYPE (D6B-130), so restore the constructor rule of Amount
+
+======================================================================
+FAIL: test_S1c_quarantine_over_response_records (__main__.Fates.test_S1c_quarantine_over_response_records)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 332, in test_S1c_quarantine_over_response_records
+    self.assert_fated(AMOUNT_V2, [fate(1, "RESPONSE RECORD", "operation orders.list", "quarantined", Q_STEP,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                       "quarantine value")], [NOT_BUILT_Q], responses=[rec])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 207, in assert_fated
+    self.assertEqual((1, "", fates + errors), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['fate: 1 stored RESPONSE RECORD of operat[170 chars]7)']) != (1, '', [])
+
+First differing element 2:
+['fate: 1 stored RESPONSE RECORD of operat[169 chars]57)']
+[]
+
++ (1, '', [])
+- (1,
+-  '',
+-  ['fate: 1 stored RESPONSE RECORD of operation orders.list quarantined by '
+-   'migrate Amount v1 -> v2 (quarantine value)',
+-   'error: a quarantine line is hit, but quarantine at run time is not built '
+-   'yet (fates-a2, DL-157)']) : unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 548
+
+======================================================================
+FAIL: test_S1d_quarantine_over_entry_records (__main__.Fates.test_S1d_quarantine_over_entry_records)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 336, in test_S1d_quarantine_over_entry_records
+    self.assert_fated(AMOUNT_V2, [fate(1, "ENTRY RECORD", "operation ui.place", "quarantined", Q_STEP,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                       "quarantine value")], [NOT_BUILT_Q], entries=[entry(FORM_ZERO)])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 207, in assert_fated
+    self.assertEqual((1, "", fates + errors), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['fate: 1 stored ENTRY RECORD of operation[164 chars]7)']) != (1, '', [])
+
+First differing element 2:
+['fate: 1 stored ENTRY RECORD of operation[163 chars]57)']
+[]
+
++ (1, '', [])
+- (1,
+-  '',
+-  ['fate: 1 stored ENTRY RECORD of operation ui.place quarantined by migrate '
+-   'Amount v1 -> v2 (quarantine value)',
+-   'error: a quarantine line is hit, but quarantine at run time is not built '
+-   'yet (fates-a2, DL-157)']) : unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 548
+
+======================================================================
+FAIL: test_S1e_line_lifts_only_its_type (__main__.Fates.test_S1e_line_lifts_only_its_type)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 349, in test_S1e_line_lifts_only_its_type
+    self.assertEqual((1, "", True, []), (code, stdout, any(lines[i:i + 3] == block for i in range(len(lines))),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                         [l for l in lines if "constructor of Amount" in l]), "\n".join(got))
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', True, []) != (1, '', False, [])
+
+First differing element 2:
+True
+False
+
+- (1, '', True, [])
+?         ^^^
+
++ (1, '', False, [])
+?         ^^^^
+ : unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 526
+
+======================================================================
+FAIL: test_S1f_a_quarantined_value_with_a_lost_literal_still_blocks (__main__.Fates.test_S1f_a_quarantined_value_with_a_lost_literal_still_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 356, in test_S1f_a_quarantined_value_with_a_lost_literal_still_blocks
+    self.assertEqual((1, "", True), (code, stdout, any(lines[i:i + 3] == block for i in range(len(lines)))),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "\n".join(got))
+                     ^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', True) != (1, '', False)
+
+First differing element 2:
+True
+False
+
+- (1, '', True)
++ (1, '', False) : unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 548
+
+======================================================================
+FAIL: test_S2_map_lifts_the_lost_literal_block (__main__.Fates.test_S2_map_lifts_the_lost_literal_block) [bare map in the enum step]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 363, in test_S2_map_lifts_the_lost_literal_block
+    self.assert_fated(CHANNEL_V2, [fate(1, "ROW", "table records", "mapped", M_STEP, 'map "app" -> Mobile')],
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      [NOT_BUILT_M], rows_line=counted(2, 2, 0), rows=[row(WIRE1), row(APP)])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 207, in assert_fated
+    self.assertEqual((1, "", fates + errors), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['fate: 1 stored ROW of table records mapp[127 chars]2)']) != (1, '', [])
+
+First differing element 2:
+['fate: 1 stored ROW of table records mapp[126 chars]a2)']
+[]
+
++ (1, '', [])
+- (1,
+-  '',
+-  ['fate: 1 stored ROW of table records mapped by migrate Channel v1 -> v2 (map '
+-   '"app" -> Mobile)',
+-   'error: a map line is hit, but map at run time is not built yet (fates-a2)']) : expected '{' at byte 449
+
+======================================================================
+FAIL: test_S2_map_lifts_the_lost_literal_block (__main__.Fates.test_S2_map_lifts_the_lost_literal_block) [field-qualified map in the owner chain]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 366, in test_S2_map_lifts_the_lost_literal_block
+    self.assert_fated(ORDER_MAP, [fate(1, "ROW", "table records", "mapped", QM_STEP,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                       'map channel "app" -> Mobile')], [NOT_BUILT_M], rows=[row(APP)])
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 207, in assert_fated
+    self.assertEqual((1, "", fates + errors), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['fate: 1 stored ROW of table records mapp[133 chars]2)']) != (1, '', [])
+
+First differing element 2:
+['fate: 1 stored ROW of table records mapp[132 chars]a2)']
+[]
+
++ (1, '', [])
+- (1,
+-  '',
+-  ['fate: 1 stored ROW of table records mapped by migrate Order v2 -> v3 (map '
+-   'channel "app" -> Mobile)',
+-   'error: a map line is hit, but map at run time is not built yet (fates-a2)']) : unsupported migrate step: map; a MIGRATE CHANGE is rename, add or drop at byte 741
+
+======================================================================
+FAIL: test_S2b_control_without_map_blocks_with_the_version_help (__main__.Fates.test_S2b_control_without_map_blocks_with_the_version_help) [rows]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 379, in test_S2b_control_without_map_blocks_with_the_version_help
+    got = self.assert_block(CHANNEL_V1, block, **kw)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 216, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[280 chars] the next TYPE VERSION and a fate (DL-155): en[77 chars] }']) != (1, '[280 chars] the fate in a MIGRATE STEP (DL-122); slice 6b[109 chars]el'])
+
+First differing element 2:
+['err[272 chars] the next TYPE VERSION and a fate (DL-155): en[76 chars]> }']
+['err[272 chars] the fate in a MIGRATE STEP (DL-122); slice 6b[108 chars]nel']
+
+  (1,
+   '',
+   ['error: TYPE Order v1: 1 stored ROW of table records has a value of field '
+    'channel that is no ENUM LITERAL of Channel now (DL-122)',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-dfhv3jtc/stored/1/rows.jsonl:1 '
+    '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): enum Channel v2 '
+-   'and migrate Channel v1 -> v2 { map "<old literal>" -> <Variant> }'])
++   '  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no '
++   'MIGRATE STEP form for an enum field (D6B-39), so restore the removed or '
++   'changed ENUM LITERAL of Channel']) : error: TYPE Order v1: 1 stored ROW of table records has a value of field channel that is no ENUM LITERAL of Channel now (DL-122)
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-dfhv3jtc/stored/1/rows.jsonl:1 (line 1)
+  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of Channel
+
+======================================================================
+FAIL: test_S2b_control_without_map_blocks_with_the_version_help (__main__.Fates.test_S2b_control_without_map_blocks_with_the_version_help) [entry_record]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 379, in test_S2b_control_without_map_blocks_with_the_version_help
+    got = self.assert_block(CHANNEL_V1, block, **kw)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 216, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[301 chars] the next TYPE VERSION and a fate (DL-155): en[77 chars] }']) != (1, '[301 chars] the fate in a MIGRATE STEP (DL-122); slice 6b[109 chars]el'])
+
+First differing element 2:
+['err[293 chars] the next TYPE VERSION and a fate (DL-155): en[76 chars]> }']
+['err[293 chars] the fate in a MIGRATE STEP (DL-122); slice 6b[108 chars]nel']
+
+  (1,
+   '',
+   ['error: TYPE PlaceForm v1: 1 stored ENTRY RECORD of operation ui.place has a '
+    'value of field channel that is no ENUM LITERAL of Channel now (DL-122)',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-dfhv3jtc/stored/2/entries.jsonl:1 '
+    '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): enum Channel v2 '
+-   'and migrate Channel v1 -> v2 { map "<old literal>" -> <Variant> }'])
++   '  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no '
++   'MIGRATE STEP form for an enum field (D6B-39), so restore the removed or '
++   'changed ENUM LITERAL of Channel']) : error: TYPE PlaceForm v1: 1 stored ENTRY RECORD of operation ui.place has a value of field channel that is no ENUM LITERAL of Channel now (DL-122)
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-dfhv3jtc/stored/2/entries.jsonl:1 (line 1)
+  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of Channel
+
+======================================================================
+FAIL: test_S2c_kept_value_is_neither_mapped_nor_blocked (__main__.Fates.test_S2c_kept_value_is_neither_mapped_nor_blocked) [a kept and a lost value: only the lost one is mapped]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 385, in test_S2c_kept_value_is_neither_mapped_nor_blocked
+    self.assert_fated(CHANNEL_V2, [fate(1, "ROW", "table records", "mapped", M_STEP, 'map "app" -> Mobile')],
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      [NOT_BUILT_M], rows_line=counted(2, 2, 0), rows=[kept, row(APP)])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 207, in assert_fated
+    self.assertEqual((1, "", fates + errors), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['fate: 1 stored ROW of table records mapp[127 chars]2)']) != (1, '', [])
+
+First differing element 2:
+['fate: 1 stored ROW of table records mapp[126 chars]a2)']
+[]
+
++ (1, '', [])
+- (1,
+-  '',
+-  ['fate: 1 stored ROW of table records mapped by migrate Channel v1 -> v2 (map '
+-   '"app" -> Mobile)',
+-   'error: a map line is hit, but map at run time is not built yet (fates-a2)']) : expected '{' at byte 449
+
+======================================================================
+FAIL: test_S2c_kept_value_is_neither_mapped_nor_blocked (__main__.Fates.test_S2c_kept_value_is_neither_mapped_nor_blocked) [a kept value alone]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 389, in test_S2c_kept_value_is_neither_mapped_nor_blocked
+    self.assertEqual((0, True, [counted(1, 1, 0)]), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ["expected '{' at byte 449"])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1, False, ["expected '{' at byte 449"])
+
+======================================================================
+FAIL: test_S3_gate_affected_values_need_the_next_version (__main__.Fates.test_S3_gate_affected_values_need_the_next_version) [no mark]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 406, in test_S3_gate_affected_values_need_the_next_version
+    self.assert_block(source, block, rows=rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 216, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[264 chars] the next TYPE VERSION and a fate (DL-155): ty[59 chars] }']) != (1, '[264 chars] the fate of these records in a MIGRATE STEP t[36 chars]2)'])
+
+First differing element 2:
+['err[256 chars] the next TYPE VERSION and a fate (DL-155): ty[58 chars]e }']
+['err[256 chars] the fate of these records in a MIGRATE STEP t[35 chars]02)']
+
+  (1,
+   '',
+   ['error: TYPE Order: 1 stored ROW of table records fails the constructor of '
+    'Amount for field amount with BadAmount',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-54phzm1c/stored/1/rows.jsonl:1 '
+    '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v2 '
+-   'and migrate Amount v1 -> v2 { quarantine value }'])
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)']) : error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for field amount with BadAmount
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-54phzm1c/stored/1/rows.jsonl:1 (line 1)
+  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order (DL-102)
+
+======================================================================
+FAIL: test_S3_gate_affected_values_need_the_next_version (__main__.Fates.test_S3_gate_affected_values_need_the_next_version) [type mark without a step]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 406, in test_S3_gate_affected_values_need_the_next_version
+    self.assert_block(source, block, rows=rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 216, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[264 chars] the next TYPE VERSION and a fate (DL-155): ty[59 chars] }']) != (1, '[264 chars] the fate of these records in a MIGRATE STEP t[36 chars]2)'])
+
+First differing element 2:
+['err[256 chars] the next TYPE VERSION and a fate (DL-155): ty[58 chars]e }']
+['err[256 chars] the fate of these records in a MIGRATE STEP t[35 chars]02)']
+
+  (1,
+   '',
+   ['error: TYPE Order: 1 stored ROW of table records fails the constructor of '
+    'Amount for field amount with BadAmount',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-54phzm1c/stored/2/rows.jsonl:1 '
+    '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): type Amount v3 '
+-   'and migrate Amount v2 -> v3 { quarantine value }'])
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)']) : error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for field amount with BadAmount
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-54phzm1c/stored/2/rows.jsonl:1 (line 1)
+  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order (DL-102)
+
+======================================================================
+FAIL: test_S3_gate_affected_values_need_the_next_version (__main__.Fates.test_S3_gate_affected_values_need_the_next_version) [enum mark without a step]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 406, in test_S3_gate_affected_values_need_the_next_version
+    self.assert_block(source, block, rows=rows)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 216, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Order v1: 1 stored ROW of ta[358 chars] }']) != (1, '', [])
+
+First differing element 2:
+['error: TYPE Order v1: 1 stored ROW of ta[357 chars]> }']
+[]
+
++ (1, '', [])
+- (1,
+-  '',
+-  ['error: TYPE Order v1: 1 stored ROW of table records has a value of field '
+-   'channel that is no ENUM LITERAL of Channel now (DL-122)',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-54phzm1c/stored/3/rows.jsonl:1 '
+-   '(line 1)',
+-   '  help: declare the next TYPE VERSION and a fate (DL-155): enum Channel v3 '
+-   'and migrate Channel v2 -> v3 { map "<old literal>" -> <Variant> }']) : expected '{' at byte 449
+
+======================================================================
+FAIL: test_S3b_gate_without_affected_values_is_free (__main__.Fates.test_S3b_gate_without_affected_values_is_free) [amount_v2]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 413, in test_S3b_gate_without_affected_values_is_free
+    self.assertEqual((0, True, [counted(1, 1, 0)]), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['unsupported migrate step: qua[58 chars]48'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1,
++  False,
++  ['unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or '
++   'drop at byte 548'])
+
+======================================================================
+FAIL: test_S3b_gate_without_affected_values_is_free (__main__.Fates.test_S3b_gate_without_affected_values_is_free) [channel_v2]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 413, in test_S3b_gate_without_affected_values_is_free
+    self.assertEqual((0, True, [counted(1, 1, 0)]), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ["expected '{' at byte 449"])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1, False, ["expected '{' at byte 449"])
+
+======================================================================
+FAIL: test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [rows_quarantine]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 432, in test_S4_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 548
+
+======================================================================
+FAIL: test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [response_quarantine]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 432, in test_S4_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 548
+
+======================================================================
+FAIL: test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [entry_quarantine]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 432, in test_S4_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : unsupported migrate step: quarantine; a MIGRATE CHANGE is rename, add or drop at byte 548
+
+======================================================================
+FAIL: test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [rows_map]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 432, in test_S4_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : expected '{' at byte 449
+
+======================================================================
+FAIL: test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [rows_block]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 432, in test_S4_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for field amount with BadAmount
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ppv0x1bn/stored/5/rows.jsonl:1 (line 1)
+  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order (DL-102)
+
+======================================================================
+FAIL: test_S4_no_stored_value_in_any_text (__main__.Fates.test_S4_no_stored_value_in_any_text) [literal_block]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 432, in test_S4_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : error: TYPE Order v1: 1 stored ROW of table records has a value of field channel that is no ENUM LITERAL of Channel now (DL-122)
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ppv0x1bn/stored/6/rows.jsonl:1 (line 1)
+  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of Channel
+
+======================================================================
+FAIL: test_S5_help_where_no_fate_line_lifts_the_block (__main__.Fates.test_S5_help_where_no_fate_line_lifts_the_block) [ENUM CONSTRUCTOR, no signature (D041 open)]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 440, in test_S5_help_where_no_fate_line_lifts_the_block
+    self.assertEqual((1, "", ["error: TYPE Payment: 1 stored RESPONSE RECORD of operation payments.authorize "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "matches no signature of PaymentState for field state",
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "  record source: %s:2 (line 2)" % nomatch, ENUM_CTOR_HELP % "PaymentState"]),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, told(stderr.strip().splitlines())))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[277 chars]elp: no fate line covers an ENUM CONSTRUCTOR y[77 chars]ds']) != (1, '[277 chars]elp: declare the fate of these records in a MI[50 chars]2)'])
+
+First differing element 2:
+['err[269 chars]elp: no fate line covers an ENUM CONSTRUCTOR y[76 chars]rds']
+['err[269 chars]elp: declare the fate of these records in a MI[49 chars]02)']
+
+  (1,
+   '',
+   ['error: TYPE Payment: 1 stored RESPONSE RECORD of operation '
+    'payments.authorize matches no signature of PaymentState for field state',
+    '  record source: '
+    '/Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/decode-ctor/stored-nomatch.jsonl:2 '
+    '(line 2)',
+-   '  help: no fate line covers an ENUM CONSTRUCTOR yet (D041 open); restore a '
+-   'signature of fn PaymentState that reads these records'])
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Payment (DL-102)'])
+
+======================================================================
+FAIL: test_S5_help_where_no_fate_line_lifts_the_block (__main__.Fates.test_S5_help_where_no_fate_line_lifts_the_block) [constructor TYPE, no signature (a decode fault)]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 446, in test_S5_help_where_no_fate_line_lifts_the_block
+    self.assert_block(STRICTER_V1, lambda p: [
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+        "error: TYPE Order: 1 stored ROW of table records matches no signature of Amount for field amount",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "  record source: %s:1 (line 1)" % p["rows"], NO_SIGNATURE_HELP % ("Amount", "Amount")],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        rows=[row(string_amount)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_fates_test.py", line 216, in assert_block
+    self.assertEqual((1, "", lines), (code, stdout, told(got)), "\n".join(got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[236 chars]elp: no fate line covers a value that matches [96 chars]ds']) != (1, '[236 chars]elp: declare the fate of these records in a MI[48 chars]2)'])
+
+First differing element 2:
+['err[228 chars]elp: no fate line covers a value that matches [95 chars]rds']
+['err[228 chars]elp: declare the fate of these records in a MI[47 chars]02)']
+
+  (1,
+   '',
+   ['error: TYPE Order: 1 stored ROW of table records matches no signature of '
+    'Amount for field amount',
+    '  record source: '
+    '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-6usq8ql7/stored/1/rows.jsonl:1 '
+    '(line 1)',
+-   '  help: no fate line covers a value that matches no signature of Amount (a '
+-   'decode fault); restore a signature of fn Amount that reads these records'])
++   '  help: declare the fate of these records in a MIGRATE STEP to a new TYPE '
++   'VERSION of Order (DL-102)']) : error: TYPE Order: 1 stored ROW of table records matches no signature of Amount for field amount
+  record source: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-6usq8ql7/stored/1/rows.jsonl:1 (line 1)
+  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of Order (DL-102)
+
+----------------------------------------------------------------------
+Ran 22 tests in 9.209s
+
+FAILED (failures=61)

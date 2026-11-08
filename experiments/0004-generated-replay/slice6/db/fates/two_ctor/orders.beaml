@@ -1,0 +1,69 @@
+// Slice 6 db fates two_ctor: Amount v2 has a quarantine line, the stricter Tip has none (S1e).
+type BadAmount {}
+type Amount v2 {
+  value: String
+  currency: String
+}
+fn Amount value: String, currency: String -> Amount ! BadAmount
+fn Amount "0",           _                -> Amount ! BadAmount = BadAmount {}
+fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
+fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
+migrate Amount v1 -> v2 { quarantine value }
+type BadTip {}
+type Tip {
+  value: String
+  currency: String
+}
+fn Tip value: String, currency: String -> Tip ! BadTip
+fn Tip "0",           _                -> Tip ! BadTip = BadTip {}
+fn Tip value,         currency         -> Tip ! BadTip = Tip { value: value, currency: currency }
+
+enum Channel {
+  Web = "web"
+  App = "app"
+  Unknown(String)
+}
+
+type PlaceForm {
+  order_id: String
+  amount: Amount
+  tip: Tip
+  channel: Channel
+}
+type Order {
+  order_id: String
+  amount: Amount
+  tip: Tip
+  channel: Channel
+}
+type OrderQuery {}
+type OrderList { items: [Order] }
+type StoreError { reason: String }
+
+// A String-only ROW TYPE for the MIGRATE CHAIN over rows (QDB-8 B).
+type NoteForm { text: String }
+type Note { text: String }
+type NoteQuery {}
+type NoteList { items: [Note] }
+
+// DB TRANSPORTS leave the module. The host implements BeamlDb.
+effect orders.save Order      -> Order     ! StoreError = db.put("records")
+effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
+effect notes.save  Note       -> Note      ! StoreError = db.put("records")
+effect notes.list  NoteQuery  -> NoteList  ! StoreError = db.list("records")
+
+// ENTRY LINES enter the module. The LiveView pages call Orders.ui_<event>(params).
+effect ui.place  PlaceForm  -> Order     ! StoreError = ui.event("place") |> place
+effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> list_orders
+effect ui.note   NoteForm   -> Note      ! StoreError = ui.event("note") |> save_note
+effect ui.notes  NoteQuery  -> NoteList  ! StoreError = ui.event("notes") |> list_notes
+
+fn to_order PlaceForm { order_id, amount, tip, channel } -> Order =
+  Order { order_id: order_id, amount: amount, tip: tip, channel: channel }
+
+fn place       f: PlaceForm  -> Order     ! StoreError = f |> to_order |> orders.save
+fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list
+
+fn to_note    NoteForm { text } -> Note                  = Note { text: text }
+fn save_note  f: NoteForm       -> Note     ! StoreError = f |> to_note |> notes.save
+fn list_notes q: NoteQuery      -> NoteList ! StoreError = q |> notes.list

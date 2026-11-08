@@ -204,3 +204,81 @@ Because: the task and the D042 note. Built only in fates-b.
 - **O3**: V18b (`P2_BASE`) and `slice6_m4_test` `rename_text` join the pin/help list; ENUM CONSTRUCTOR help defined in RED; PF-16 reworded to "sources with a fate line"; N9 evidence path fixed; fixtures follow the N13 filter. By: Fable, Repair.
 - **DL-140 swap detection in fates-b (PF-01)**: narrows DL-156; presented to the OWNER as its own question (A keep in fates-a, needs the previous literal table QF-8; B fates-b). Open.
 - All missing RED cases from plan-review.md are added in RED a1.
+
+## RED decisions (fates-a1, 2026-11-08)
+
+Pinned in `tests/slice6_fates_test.py`; evidence in [red-output.md](red-output.md). A GREEN that needs another text changes
+the constant and records why. By: Opus (RED fates-a1) for every entry.
+
+**RF-01 · Repair · The a1 stop lines are `error: a quarantine line is hit, but quarantine at run time is not built yet (fates-a2, DL-157)` and `error: a map line is hit, but map at run time is not built yet (fates-a2)`.**
+Chose: an `error:` line after the `fate:` lines. Over: the plan-review wording `fate: quarantine at run time …`. Because: `fate:` is
+the count-line prefix; a stop line must read as an error. Commits us to: a2 RED removes both and expects exit 0.
+→ By: Opus (RED fates-a1)
+
+**RF-02 · Repair · The owner form `migrate Order … { quarantine amount }` is an error that names the constructor TYPE step.**
+Text: `quarantine amount: write the quarantine line in the MIGRATE STEP of the constructor TYPE: type Amount v2 and migrate Amount v1 -> v2 { quarantine <parameter> } (QF-3 A)`.
+Over: no text (QF-3 C "not built"). Because: the corrected site cards showed this form; an agent must get from it to form A.
+→ By: Opus (RED fates-a1)
+
+**RF-03 · Repair · `quarantine channel` (an enum field) is an error: `quarantine of an enum field is not built; write map channel "<old literal>" -> <Variant>`.**
+Over: lift DL-122 by quarantine. Because: the plan builds `quarantine` for DL-102 only; PF-08 "no ENUM LITERAL" left it open.
+Commits us to: the open OWNER line below.
+→ By: Opus (RED fates-a1)
+
+**RF-04 · Repair · Duplicate fate lines are counted per (field, literal) for `map`, per field for `quarantine`.**
+Texts: `two map lines name "app" of field channel`, `two map lines name "app"` (bare), `two fate lines name the field value`,
+`one quarantine line per constructor TYPE; Amount has two (PF-11)`. Over: PF-08 "two fate lines name the field f" for any
+two lines. Because: two removed literals of one field need two map lines (F2 subTest builds them).
+→ By: Opus (RED fates-a1)
+
+**RF-05 · Repair · A bare `map "app"` in the enum step and a qualified `map channel "app"` in the owner step is an error in the owner step: `"app" has a map line in migrate Channel v1 -> v2 too; keep one`.**
+Over: a precedence rule. Because: two lines for one literal can disagree; one line is the least rule.
+→ By: Opus (RED fates-a1)
+
+**RF-06 · Repair · QF-6 A texts.** `map "app" -> Unknown`: `Unknown carries a payload; map to a variant without payload (QF-6 A)`
+(PF-08 "or quarantine the field" dropped, RF-03). `map "app" -> Unknown("x")`: parse error `a map target takes no payload (QF-6 A) at byte N`.
+→ By: Opus (RED fates-a1)
+
+**RF-07 · Undo · No case for "a field of Amount that is not a parameter of fn Amount".**
+Because: unreachable in db sources: PDB-13 needs a first signature that takes the String fields by name (HEAD probe with
+`fn Amount v: String, c: String` gives the PDB-13 error). `quarantine nope` covers "no field".
+→ By: Opus (RED fates-a1)
+
+**RF-08 · Repair · The DL-155 help names the newest TYPE VERSION + 1, also when the mark has no step into it.**
+`type Amount v2` alone gives `type Amount v3 and migrate Amount v2 -> v3`; `enum Channel v2` alone gives `enum Channel v3 …`.
+Over: name `migrate v1 -> v2` for a bare mark. Because: a chain may start at vN (slice 4) and versions are never renumbered
+(DL-058); the plan rule "vN newest, vN+1 next". Commits us to: S3 pins it.
+→ By: Opus (RED fates-a1)
+
+**RF-09 · Repair · Help per DL-102 site (plan repair 5).** The DL-155 help only where a fates-a line lifts the block (a failed
+constructor rule, a lost literal). An ENUM CONSTRUCTOR with no matching signature: `no fate line covers an ENUM CONSTRUCTOR yet (D041 open); restore a signature of fn E that reads these records`.
+A constructor TYPE with no matching signature: `no fate line covers a value that matches no signature of C (a decode fault); restore a signature of fn C that reads these records`.
+"No String value" and "no variant" keep the DL-102 help (S5 guard). Over: the DL-155 help at all six sites. Because: a help
+must not name a line that the checker then does not accept as a lift. Commits us to: V18b moves four pairs, not five.
+→ By: Opus (RED fates-a1)
+
+**RF-10 · Undo · S1e and S1f do not pin whether a quarantine `fate:` line prints beside another block.**
+Because: the constructor run starts only after the static pass has no error (D6B-105); either output is acceptable.
+→ By: Opus (RED fates-a1)
+
+**RF-11 · Undo · F4, F5, F6 accept a compile error with or without the `error: ` prefix.**
+Because: `derive_versions` texts print without it, later checks with it; the rest of the text is exact.
+→ By: Opus (RED fates-a1)
+
+**RF-12 · Repair · An enum step with `rename`, `add`, `drop` or a qualified `map` gives one text: `an enum MIGRATE STEP holds bare map lines only (PF-06)`.**
+Because: PF-06 had no text.
+→ By: Opus (RED fates-a1)
+
+**RF-13 · Undo · Fixture bases: `stricter_v1` is the 0005 `stricter` source (ui.place, PlaceForm, rows); `channel_v1/v2` replace `App` by `Mobile`.**
+Because: a3 copies the same forms into 0005 (`variants/stricter_v1/`, `variants/stricter/`, `variants/channel_v2/`).
+→ By: Opus (RED fates-a1)
+
+**RF-14 · Undo · PF-24 ("DL-116 stays") is stale after DL-160 (By: 13ue).** No a1 test changes: a1 rejects `redact` (PF-09).
+→ By: Opus (RED fates-a1)
+
+## Open OWNER lines (Migrate, after RED a1)
+
+→ **DL-156 scope:** DL-140 swap detection in fates-a (needs the previous literal table, QF-8) or in fates-b (PF-01). Open.
+→ **Quarantine of a lost literal:** may `quarantine channel` park rows whose channel literal is gone, beside `map`? RF-03 makes it an error for now.
+→ **QF-2:** a1 builds the default A (the nested TYPE VERSION is source-only; a fate line counts by today's rule). Open.
+→ **QF-5 texts:** the help and `fate:` texts of RF-01 to RF-09 are RED defaults, not OWNER texts. Open.

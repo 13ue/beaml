@@ -1,0 +1,97 @@
+--- head/experiments/0001-syntax-to-beam/src/main.rs	2026-11-08 10:43:51
++++ probe/experiments/0001-syntax-to-beam/src/main.rs	2026-11-08 10:52:50
+@@ -196,6 +196,8 @@
+     from: u32,
+     to: u32,
+     changes: Vec<Change>,
++    // PROBE (RED fates-a1): the step held fate lines (parsed, never checked).
++    fates: bool,
+     // From the `migrate` keyword to the closing `}` (slice 4: the removal of a DEAD LINE).
+     source_range: Range<usize>,
+ }
+@@ -373,7 +375,31 @@
+                 let field = self.word()?;
+                 self.expect(':')?;
+                 Ok(Change::Drop(field, self.type_word()?))
++            }
++            // PROBE: parse-only fate lines; Err("") marks a fate line.
++            "quarantine" | "redact" => {
++                self.at += 1;
++                self.word()?;
++                Err(String::new())
+             }
++            "retire" => {
++                self.at += 1;
++                self.word()?;
++                self.word()?;
++                self.at += 1;
++                self.word()?;
++                Err(String::new())
++            }
++            "map" => {
++                self.at += 1;
++                if let Token::Word(_) = self.peek().clone() {
++                    self.at += 1;
++                }
++                self.at += 1;
++                self.arrow()?;
++                self.word()?;
++                Err(String::new())
++            }
+             other => Err(self.error(&format!(
+                 "unsupported migrate step: {other}; a MIGRATE CHANGE is rename, add or drop"
+             ))),
+@@ -549,6 +575,10 @@
+                 }
+                 "enum" => {
+                     let name = self.word()?;
++                    // PROBE: the enum VERSION MARK parses and is dropped.
++                    if let Token::Word(_) = self.peek().clone() {
++                        self.at += 1;
++                    }
+                     self.expect('{')?;
+                     let mut variants = Vec::new();
+                     let mut literals = Vec::new();
+@@ -746,9 +776,14 @@
+                     self.expect('{')?;
+                     // MIGRATE CHANGES separated by commas; no trailing comma (K9, K10).
+                     let mut changes = Vec::new();
++                    let mut fates = false;
+                     if !self.eat('}') {
+                         loop {
+-                            changes.push(self.change()?);
++                            match self.change() {
++                                Ok(c) => changes.push(c),
++                                Err(e) if e.is_empty() => fates = true,
++                                Err(e) => return Err(e),
++                            }
+                             if self.eat('}') {
+                                 break;
+                             }
+@@ -764,6 +799,7 @@
+                         from,
+                         to,
+                         changes,
++                        fates,
+                         source_range: start..self.tokens[self.at - 1].1.end,
+                     });
+                 }
+@@ -871,6 +907,9 @@
+     let mut versions = BTreeMap::new();
+     for (name, steps) in chains {
+         let Some(Definition::Record(newest)) = program.types.get(name) else {
++            if program.types.contains_key(name) {
++                continue; // PROBE: an enum chain is never checked
++            }
+             return Err(format!("migrate {name}: unknown type: {name}"));
+         };
+         // Slice 4: a MIGRATE CHAIN starts at any version k >= 1 (its first MIGRATE STEP `k -> k+1`).
+@@ -904,7 +943,7 @@
+             let (a, b) = (step.from, step.to);
+             let label = format!("migrate {name} v{a} -> v{b}");
+             // K8: an empty MIGRATE STEP.
+-            if step.changes.is_empty() {
++            if step.changes.is_empty() && !step.fates {
+                 return Err(format!(
+                     "{label}: a MIGRATE STEP needs at least one rename, add or drop"
+                 ));

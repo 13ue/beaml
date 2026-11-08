@@ -1,0 +1,58 @@
+// Slice 6 db fates control stricter_v1: Amount rejects "0"; no TYPE VERSION, no fate line (S1b, S3, DL-102).
+type BadAmount {}
+type Amount {
+  value: String
+  currency: String
+}
+fn Amount value: String, currency: String -> Amount ! BadAmount
+fn Amount "0",           _                -> Amount ! BadAmount = BadAmount {}
+fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
+fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
+
+enum Channel {
+  Web = "web"
+  App = "app"
+  Unknown(String)
+}
+
+type PlaceForm {
+  order_id: String
+  amount: Amount
+  channel: Channel
+}
+type Order {
+  order_id: String
+  amount: Amount
+  channel: Channel
+}
+type OrderQuery {}
+type OrderList { items: [Order] }
+type StoreError { reason: String }
+
+// A String-only ROW TYPE for the MIGRATE CHAIN over rows (QDB-8 B).
+type NoteForm { text: String }
+type Note { text: String }
+type NoteQuery {}
+type NoteList { items: [Note] }
+
+// DB TRANSPORTS leave the module. The host implements BeamlDb.
+effect orders.save Order      -> Order     ! StoreError = db.put("records")
+effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
+effect notes.save  Note       -> Note      ! StoreError = db.put("records")
+effect notes.list  NoteQuery  -> NoteList  ! StoreError = db.list("records")
+
+// ENTRY LINES enter the module. The LiveView pages call Orders.ui_<event>(params).
+effect ui.place  PlaceForm  -> Order     ! StoreError = ui.event("place") |> place
+effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> list_orders
+effect ui.note   NoteForm   -> Note      ! StoreError = ui.event("note") |> save_note
+effect ui.notes  NoteQuery  -> NoteList  ! StoreError = ui.event("notes") |> list_notes
+
+fn to_order PlaceForm { order_id, amount, channel } -> Order =
+  Order { order_id: order_id, amount: amount, channel: channel }
+
+fn place       f: PlaceForm  -> Order     ! StoreError = f |> to_order |> orders.save
+fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list
+
+fn to_note    NoteForm { text } -> Note                  = Note { text: text }
+fn save_note  f: NoteForm       -> Note     ! StoreError = f |> to_note |> notes.save
+fn list_notes q: NoteQuery      -> NoteList ! StoreError = q |> notes.list
