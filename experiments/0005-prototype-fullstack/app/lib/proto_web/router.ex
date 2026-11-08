@@ -18,6 +18,9 @@ defmodule ProtoWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/orders/new", OrderFormLive
+    live "/orders", OrderListLive
+    live "/notes", NotesLive
   end
 
   # Other scopes may use custom stacks.

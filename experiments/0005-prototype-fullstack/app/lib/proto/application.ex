@@ -8,6 +8,8 @@ defmodule Proto.Application do
   @impl true
   def start(_type, _args) do
     ProbeSupport.setup()
+    # ProbeSupport.Capture appends to this directory and does not create it.
+    File.mkdir_p!(ProbeSupport.config(:output))
 
     children = [
       ProbeSupport.Capture,

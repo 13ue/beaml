@@ -227,10 +227,11 @@ defmodule Proto.Prototype do
     for f <- ["mix.exs", "mix.lock", ".formatter.exs"],
         do: File.cp!(Path.join(@app, f), Path.join(copy, f))
 
-    for d <- ["config", "lib", "test/support"],
-        do: File.cp_r!(Path.join(@app, d), Path.join(copy, d))
-
-    File.cp_r!(Path.join(@app, "_build/test"), Path.join(copy, "_build/test"))
+    # GREEN repair 2026-11-08: File.cp_r!/2 makes no parent dir (test/, _build/); the copy set is unchanged.
+    for d <- ["config", "lib", "test/support", "_build/test"] do
+      File.mkdir_p!(Path.dirname(Path.join(copy, d)))
+      File.cp_r!(Path.join(@app, d), Path.join(copy, d))
+    end
 
     # Compile proto from clean: --warnings-as-errors only sees files compiled in this run (scaffold note).
     File.rm_rf!(Path.join(copy, "_build/test/lib/proto"))

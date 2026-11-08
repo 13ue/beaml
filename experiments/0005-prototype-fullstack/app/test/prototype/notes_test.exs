@@ -39,11 +39,10 @@ defmodule Proto.Prototype.NotesReadTest do
   @moduletag phase: :n7_read
   @moduletag committed: :keep
 
+  # GREEN repair 2026-11-08: a String-only TYPE is a map, not a struct (no Orders.Note module). The Note v2 encoder
+  # of the generated module carries the field `tag`; the v1 encoder does not.
   defp v2_module! do
-    note = Module.concat(Orders, Note)
-
-    assert Code.ensure_loaded?(note) and Map.has_key?(note.__struct__(), :tag),
-           "the host runs no Note v2 module"
+    assert Map.has_key?(Orders.__beaml_encode_note(%{}), "tag"), "the host runs no Note v2 module"
   end
 
   defp notes(rows), do: for({id, "Note", version, core} <- rows, do: {id, version, core["value"]})
