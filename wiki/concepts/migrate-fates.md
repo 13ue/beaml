@@ -3,12 +3,12 @@ id: concept-migrate-fates
 title: Fate operations of a MIGRATE STEP
 kind: synthesis
 status: owner-decision-concept
-updated: 2026-11-07
+updated: 2026-11-08
 ---
 
 # Fate operations of a MIGRATE STEP
 
-**[Requirement]** DL-125 (OWNER) gives a stored record its fate with a declarative FATE OPERATION in the MIGRATE STEP. This page is the concept. No FATE OPERATION is grammar yet, and no compiler builds one. See the [decision log](../planning/decision-log.md) and [vertical integration](vertical-integration.md).
+**[Requirement]** DL-125 (OWNER) gives a stored record its fate with a declarative FATE OPERATION in the MIGRATE STEP. This page is the concept. **[Verified]** Update 2026-11-08: the compiler parses and checks `quarantine` and `map` at build time (fates step a1, see [Built status](#built-status-fates-step-a1)); nothing runs at run time yet, and the tree-sitter grammar knows no FATE OPERATION. See the [decision log](../planning/decision-log.md) and [vertical integration](vertical-integration.md).
 
 ## 1. Problem: three interim blocks wait for a fate
 
@@ -105,6 +105,17 @@ migrate Payment v5 -> v6 { map state "pending" -> Declined }
 - **[Unknown]** The fate of a record under two failing fields with different fates (for example `quarantine a` and `retire b keep 30 days`): which fate wins, or is the pair an error?
 
 **[Proposal]** Smallest next test: a slice 6b follow-up fixture with one lost ENUM LITERAL and one `map` line. `--stored` passes, and a REPLAY RUN of the record returns the mapped variant.
+
+## Built status (fates step a1)
+
+**[Verified]** GREEN `d9c1fac0`, TEST PASS `e5bbbd83` ([0004 README](../../experiments/0004-generated-replay/README.md#fates-step-a1-fate-operations-at-build-time-dl-125-dl-155-dl-161-dl-162)):
+
+- `quarantine f`, `quarantine "lit"` (DL-162), `quarantine f "lit"`, `map [f] "lit" -> Ctor` parse and check; `redact` and `retire` parse and are rejected (fates-b).
+- `enum E vN` ENUM VERSIONS; the old declaration stays until SQUASH (DL-155, DL-161).
+- `--stored` lifts the DL-102 and DL-122 blocks and prints one `fate:` count per hit; a DL-140 swap blocks (DL-161).
+- A hit FATE OPERATION exits 1 with a stop line until the run-time side exists.
+
+**[Requirement]** Not built: run-time skip, `map` in the decode and the REPLAY RUN reason (a2); DL-166 and DL-172 (a1b); DL-168 and the SQUASH block (a2); fmt and tree-sitter (a4). The section 2 examples stay [Proposal]; the open questions in section 5 stay open unless a decision closes them.
 
 ## Page decisions
 

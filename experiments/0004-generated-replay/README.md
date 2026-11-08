@@ -2480,3 +2480,75 @@ Fixtures: [`slice6/db/bad_rename/`](slice6/db/bad_rename/) (PM4-22).
 | TEST verdict PASS, no repair | Undo | All five challenges hold; O1, O2 medium, pending | Opus (m4-lift, TEST) |
 | One new section; the two D6B-39 lines of the db section point to it | Undo | The ban text is spread, not one section | Opus (m4-lift, docs) |
 | No new glossary term | Undo | MIGRATE STEP, MIGRATE CHANGE, ENUM LITERAL exist | Opus (m4-lift, docs) |
+
+## Fates step a1: FATE OPERATIONS at build time (DL-125, DL-155, DL-161, DL-162)
+
+**[Requirement]** DL-125 gives a stored value its fate with a FATE OPERATION in the MIGRATE STEP ([concept](../../wiki/concepts/migrate-fates.md)). Step a1 of fates-a builds the build-time half: parse, check, `--stored` lift and counts. Ledger: [plan.md](workflow/2026-11-08/fates/plan.md), [decisions](workflow/2026-11-08/fates/decisions.md), [RED plan](workflow/2026-11-08/fates/red-plan.md), [RED review](workflow/2026-11-08/fates/red-review.md), [GREEN](workflow/2026-11-08/fates/green-output.md), [TEST](workflow/2026-11-08/fates/test-a1.md). GREEN `d9c1fac0`, TEST PASS `e5bbbd83`. Tests: [`tests/slice6_fates_test.py`](tests/slice6_fates_test.py) (step `slice6-fates` of `run.py`), fixtures [`slice6/db/fates/`](slice6/db/fates/).
+
+| Step | Owner |
+|---|---|
+| Parse the FATE OPERATIONS and `enum E vN`, check them, lift the DL-102 and DL-122 blocks, print `fate:` counts, stop line | BEAML (COMPILER) |
+| Constructor rules over the stored values (unchanged, DL-121) | BEAML (generated Elixir, `--stored`) |
+| Skip of a quarantined value, `map` in the decode, REPLAY RUN reason | not built (fates-a2) |
+| Rows, RESPONSE RECORDS, ENTRY RECORDS in the store | host |
+
+### Supported subset (built)
+
+- **[Verified]** FATE OPERATIONS in `migrate T vN -> vM { … }`: `quarantine f`, `quarantine "lit"`, `quarantine f "lit"`, `map "lit" -> Ctor`, `map f "lit" -> Ctor`. A MIGRATE STEP may hold FATE OPERATIONS only. A `map` target takes no payload (QF-6 A).
+- **[Verified]** ENUM VERSIONS: `enum Channel v1 { … }` beside `enum Channel v2 { … }` and `migrate Channel v1 -> v2 { … }`. The old declaration stays until SQUASH; a missing one is a loud error: `enum Channel v1 is not declared; keep the previous declaration while v1 values exist (DL-155)`.
+- **[Verified]** `--stored`: `quarantine` lifts a failed constructor rule (DL-102) over rows, RESPONSE RECORDS and ENTRY RECORDS; `map` and `quarantine "lit"` lift a lost ENUM LITERAL (DL-122, DL-162).
+- **[Verified]** DL-161 swap check: a literal that moves to another known variant blocks with the DL-140 text that names both variants. The build reads the old table from the previous ENUM VERSION in the source.
+- **[Verified]** One count form per hit FATE OPERATION, per record line:
+
+```
+fate: 1 stored ROW of table records quarantined by migrate Amount v1 -> v2 (quarantine value)
+error: a quarantine line is hit, but quarantine at run time is not built yet (fates-a2, DL-157)
+```
+
+- **[Verified]** A hit FATE OPERATION exits 1 with the a1 stop line (RF-01): a source never builds with a fate that does nothing at run time. A FATE OPERATION that no stored value hits exits 0.
+- **[Verified]** `redact f` and `retire f keep N days` parse; the checker rejects them with a loud text (PF-09, fates-b).
+
+```beaml
+// slice6/db/fates/channel_v2: Channel v2 maps the stored literal "app" to Mobile on purpose
+enum Channel v1 {
+  Web = "web"
+  App = "app"
+  Unknown(String)
+}
+enum Channel v2 {
+  Web = "web"
+  Mobile = "mobile"
+  Unknown(String)
+}
+migrate Channel v1 -> v2 { map "app" -> Mobile }
+```
+
+### Exclusions (not built)
+
+- **[Verified]** Run time: the generated decode ignores FATE OPERATIONS; no skip, no `map`, no REPLAY RUN reason (fates-a2, DL-157).
+- **[Requirement]** DL-166 (`rename` onto an enum or constructor field) and DL-172 (a quarantine lifts only the rule of the field it names): step a1b.
+- **[Requirement]** DL-168 nested TYPE VERSIONS in the row and the SQUASH block of the ENUM-V1-DECL ruling (GF-11): fates-a2.
+- **[Verified]** `beaml fmt` removes `type T v2` on a chain from v1 (GF-12); the tree-sitter grammar knows no FATE OPERATION: step a4.
+- **[Inference]** GF-02: the swap check compares with the table of the version before the newest only.
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| `tests/slice6_fates_test.py` on HEAD before GREEN | 32 of 32 fail ([log](workflow/2026-11-08/fates/red-repair-run-head.log)) |
+| TEST full `run.py`, [`results/20261108T111157964364Z`](results/20261108T111157964364Z/result.json) | status `pass`, 40 of 40 steps; `slice6-fates` 32 OK |
+| 0005 `db-up` and `run`, [`20261108T112915816350Z`](../0005-prototype-fullstack/results/20261108T112915816350Z/result.json), [`20261108T112920757345Z`](../0005-prototype-fullstack/results/20261108T112920757345Z/result.json) | pass |
+| Pins | only `record_v3_test` V18b re-pinned (help line); no byte or hash pin moved |
+
+### Limits
+
+- **[Verified]** TEST medium objection: `quarantine value` parks any failed rule of the constructor TYPE, also the rule of another parameter (PF-11 against PF-21). DL-172 decides it; a1b builds it.
+- **[Verified]** Two `slice6_db_stored_test` skips that name DL-140 and the missing `map` form stay; a2 revisits them.
+- **[Verified]** A passed step does not establish production readiness.
+
+### Decisions (Decision4, DOCS fates a1)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| One new section after M4 step 1 | Undo | a1 is one step of fates-a | Opus (fates-a1, docs) |
+| No new glossary term; "fate line" written as FATE OPERATION | Undo | FATE OPERATION exists (DL-125) | Opus (fates-a1, docs) |
