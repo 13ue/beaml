@@ -56,3 +56,11 @@
 {"ts": "2026-11-08T10:16:11Z", "source": "mouse", "action": "nav", "target": "07-record-v3.html", "result": null}
 {"ts": "2026-11-08T10:24:27Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
 {"ts": "2026-11-08T10:24:29Z", "source": "mouse", "action": "nav", "target": "07-record-v3.html", "result": null}
+{"ts": "2026-11-08T10:28:48Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
+{"ts": "2026-11-08T10:28:53Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}
+{"ts": "2026-11-08T10:34:34Z", "source": "mouse", "action": "choose", "target": "QM4-1", "result": "A"}
+{"ts": "2026-11-08T10:34:37Z", "source": "mouse", "action": "next", "target": "QM4-1", "result": null}
+{"ts": "2026-11-08T10:35:05Z", "source": "mouse", "action": "nav", "target": "index.html", "result": null}
+{"ts": "2026-11-08T10:35:07Z", "source": "mouse", "action": "nav", "target": "next.html", "result": null}
+{"ts": "2026-11-08T10:35:18Z", "source": "mouse", "action": "choose", "target": "QM4-2", "result": "A"}
+{"ts": "2026-11-08T10:35:24Z", "source": "mouse", "action": "next", "target": "QM4-2", "result": null}

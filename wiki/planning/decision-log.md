@@ -1010,6 +1010,13 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: the number a user sees must count released formats, not our rebuilds; the restart is the moment the history is cut once, deliberately.
 → Effect: a "release" step gets a register entry when the time comes: rewrite tool (like `convert_v3.py`), every reader at 1, pins moved once; the draft numbers appear nowhere outside the repository. Record format changes before that stay cheap: draft 4, 5, … are allowed.
 
+**DL-166 · Migrate · QM4-1 signed (text at the EFFECT with reason); QM4-4 reversed: `rename` onto an enum or constructor field is allowed**
+→ Question: QM4-1 the wording of the error for a MIGRATE STEP on an enum or constructor field (A at the EFFECT with the reason, B at the step). QM4-4 whether `rename` onto such a field stays an error until the fate forms.
+→ Chose: QM4-1 A for every step that stays an error. QM4-4 B: a `rename old -> new` onto an enum or constructor field builds; it only moves the key, the literal and constructor checks run after the steps (DL-152). OWNER words: the error for a rename is "vollkommen schwachsinnig, das soll natürlich so gehen".
+→ By: 13ue (2026-11-08, decision site QM4-1 = A, chat for QM4-4)
+→ Because: a rename changes no value; the fate forms are needed only for steps that change a value's meaning or drop it.
+→ Effect: fates-a1 GREEN lifts the rename error (the `renamed_onto` check keeps firing for a step that is not a rename, e.g. a `drop`/`add` with a non-String default on such a field, and keeps the QM4-1 A text); RED: a v1 row with `channel: "web"` decodes to v2 `source: Web` after `rename channel -> source`; the four pinned texts move accordingly; `slice6_m4_test` R2/R3 flip from "error" to "builds". QM4-2 and QM4-3 stay built defaults.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
