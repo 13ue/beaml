@@ -395,6 +395,21 @@ migrate Amount v1 -> v2 {
               "Der Check sagt: das weicht von deiner Entscheidung ab, also deine Frage",
               "Blockiert nur a2b, nicht a2a"],
              "", [], [("A", "wie DL-157: ein Record pro geparkter Zeile mit Grund `quarantined`", False), ("B", "eine Zahl `quarantined: n` im Record des Aufrufs", False)], source="fates-a2 plan check 2026-11-08", added="2026-11-08T13:25:00Z", gate=True),
+          it("QA4-1", "Behält `fmt` die Versionsmarke `v2`?", "default", "Opus (Plan fates-a4); Check: Formatter-Wahl, keine Syntax",
+             ["Heute löscht `fmt` `v2` in `type Amount v2` (Regel DL-104 A)",
+              "Der Build bleibt gleich, aber dein Code verliert die Marke",
+              "Default A: Marke bleibt, wenn ein `migrate` mit Fate-Zeile auf sie zeigt",
+              "Dazu (Defaults): `migrate`-Körper eine Zeile pro Änderung, keine Tabellen-Ausrichtung darin"],
+             "", [beaml('''
+type Amount v2 {
+  value: String
+  currency: String
+}
+
+migrate Amount v1 -> v2 {
+  quarantine value
+}
+''')], [("A", "Marke bleibt bei Kette mit Fate-Zeile", True), ("B", "Marke wird nie entfernt", False), ("C", "DL-104 wie gebaut: Marke fällt weg", False)], source="fates-a4 plan 2026-11-08", added="2026-11-08T14:30:00Z"),
           it("VERSION-RULE", "Versionsregel: Änderung plus betroffene Werte = neue Version", "decided", "13ue (2026-11-08, nach drei Beispielen)",
              ["Build prüft live: fällt ein gespeicherter Wert anders?",
               "Nein: Änderung frei, keine neue Version",
@@ -1141,7 +1156,7 @@ def changelog(ans, now):
 TIER = {1: "Q5-2 Q5-5 Q5-7 QDB-3 QDB-5 QDB-7 PDB-18 TEST-O1 P4c-text G6D-12 TEXTS SNAP-SET STORED-ARG NOTES Q6E-3 ORPHAN OFFCHAIN "
            "ROW-FIELDS RESV QF-5 QV3-1 QV3-2 QV3-3 QV3-5 QV3-6 QM4-2".split(),
         2: "Q5-3 Q5-4 Q5-6 Q5-9 Q6E-1 Q6E-2 Q6E-4 QDB-1 QDB-2 QDB-4 QDB-6b QV3-4 QV3-7 QV3-8 COUNT G6D-03 G6D-04 P4c P4c-http "
-           "CTOR-ROW GET QF-2 ENUM-V1-DECL QUAR-FIELD QUAR-CLAUSE P2B-SCOPE QA2-1 QA2-2 QA2-3 Q5-1".split(),
+           "CTOR-ROW GET QF-2 ENUM-V1-DECL QUAR-FIELD QUAR-CLAUSE P2B-SCOPE QA2-1 QA2-2 QA2-3 QA4-1 Q5-1".split(),
         3: "D025 D038 D039 D040 D041 D042 BLOCKS".split()}
 TIER_TITLE = {1: "Reine Implementierung, so lassen", 2: "Kurze Wahl, eine Zeile", 3: "Braucht Bild oder Gespräch"}
 TIER_LEAD = {1: "Keine Wirkung auf Sprache, Format oder Host-Namen.", 2: "Eine Wahl zwischen zwei, drei kurzen Optionen.",

@@ -199,6 +199,15 @@
  },
  {
   "group": "02b-fates",
+  "id": "QA4-1",
+  "status": "default",
+  "page": "eingang",
+  "added": "2026-11-08T14:30:00Z",
+  "source": "fates-a4 plan 2026-11-08",
+  "by": "Opus (Plan fates-a4); Check: Formatter-Wahl, keine Syntax"
+ },
+ {
+  "group": "02b-fates",
   "id": "VERSION-RULE",
   "status": "decided",
   "page": "eingang",

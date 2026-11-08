@@ -159,3 +159,5 @@
 {"ts": "2026-11-08T12:51:04Z", "id": "QA2-3", "page": "eingang", "change": "moved to Eingang", "by": "build.py (eingefroren)"}
 {"ts": "2026-11-08T14:03:16Z", "id": "QA2-1", "page": "eingang", "change": "status open", "by": "Opus (Plan fates-a2); Record-Format wartet auf 13ue (DL-139)"}
 {"ts": "2026-11-08T14:03:38Z", "id": "QA2-2", "page": "eingang", "change": "status open", "by": "Opus (Plan fates-a2); Host-Aufruf wartet auf 13ue (DL-139)"}
+{"ts": "2026-11-08T14:20:49Z", "id": "QA4-1", "page": "eingang", "change": "added", "by": "fates-a4 plan 2026-11-08"}
+{"ts": "2026-11-08T14:20:49Z", "id": "QA4-1", "page": "eingang", "change": "moved to Eingang", "by": "build.py (eingefroren)"}
