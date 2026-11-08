@@ -1,0 +1,18 @@
+// Slice 6 db reject (N12): a MIGRATE STEP that names a constructor field waits for M3 (DL-152 step 1).
+type BadAmount {}
+type Amount {
+  value: String
+  currency: String
+}
+fn Amount value: String, currency: String -> Amount ! BadAmount
+fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
+fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
+type Order {
+  order_id: String
+  amount: Amount
+}
+migrate Order v1 -> v2 { rename price -> amount }
+type StoreError { reason: String }
+effect orders.save Order -> Order ! StoreError = db.put("records")
+
+fn save o: Order -> Order ! StoreError = o |> orders.save

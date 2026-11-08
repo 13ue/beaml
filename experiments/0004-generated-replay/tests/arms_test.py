@@ -370,7 +370,7 @@ class GenTypeMismatch(Case):
         client = self.spans(seen, "orders.payments.authorize")
         record = seen["records"][0] if len(seen["records"]) == 1 else {}
         self.assertEqual(
-            {"reply": [200, PAYMENT], "transport": 1, "records": 1, "status": 200, "version": 2,
+            {"reply": [200, PAYMENT], "transport": 1, "records": 1, "status": 200, "version": 3,
              "value": PAYMENT, "record_hint": ["fraud_score"], "unknown_value_in_record": False,
              "client": [("ok", True)], "finish": 0},  # DL-119: finish is pure and has no span; the reply shows its result.
             {"reply": seen["reply"], "transport": seen["transport"], "records": len(seen["records"]),

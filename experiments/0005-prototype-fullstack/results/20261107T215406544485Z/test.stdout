@@ -1,0 +1,7 @@
+Compiling 15 files (.ex)
+Generated proto app
+Running ExUnit with seed: 799109, max_cases: 28
+
+......
+Finished in 0.03 seconds (0.01s async, 0.02s sync)
+6 tests, 0 failures

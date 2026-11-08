@@ -1,5 +1,8 @@
 // G2 (plan F2, DL-105): the field of the failure TYPE is redacted too. Allowed.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Bad { reason: redacted String }
 
 fn check Order { card_holder } -> String ! Bad = Bad { reason: card_holder }

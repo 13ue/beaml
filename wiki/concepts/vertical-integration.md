@@ -3,7 +3,7 @@ id: concept-vertical-integration
 title: Vertical integration, the owner goal
 kind: synthesis
 status: owner-requirement
-updated: 2026-11-07
+updated: 2026-11-08
 ---
 
 # Vertical integration
@@ -26,6 +26,22 @@ updated: 2026-11-07
 **[Requirement]** DL-126 (OWNER): declarations carry shape and policy, expressions carry computation only, and the COMPILER derives the rest. Today declarative: TYPES and VERSIONS, enum literals, `redacted`, EFFECT signatures with their transport, MIGRATE STEPS and fates (DL-125), RETIRE LINES. Derived, never written: decode, host structs, spans, REPLAY RUN. Expressions: fn bodies, pipes, constructor clauses.
 
 **[Proposal]** Candidates on the roadmap, concept only: entry points declared (`route`, `on`; closes the inward view of D018), policy on EFFECT lines (retry, timeout, idempotent), simple rules on a TYPE field (`where`), examples in the source as tests and replay fixtures, retention per TYPE (`keep N days`), trace resolution per subtree with a time limit (D018). Every new declaration needs a compiler semantics and keeps an expression escape hatch.
+
+## The inbound side (2026-11-07)
+
+**[Verified]** Slice 6d closes the vertical line on the inward side ([EXPERIMENT 0004 slice 6d](../../experiments/0004-generated-replay/README.md#slice-6d-the-entry-line-inbound-effect), DL-128, DL-130 to DL-134, DL-138). A UI EVENT enters through an ENTRY LINE written like an outbound EFFECT; the head TYPES must equal those of the target fn (`test_n10_rejects`). The COMPILER generates one host function `ui_<event>/1` with the root span, the decode and a `Rejected` struct for a bad form (`test_n1_entry_line_gives_one_function`, `test_n5_to_n9_orders_runtime`); a removed ENTRY LINE warns in the host build (`test_h2_host_build_without_the_entry_warns`). Each call of a flow target writes an ENTRY RECORD with its capture outcome, and `--stored` checks the accepted ones against a stricter constructor or a lost ENUM LITERAL (`test_s2_stricter_constructor_blocks`, `test_s3_removed_literal_blocks`); a removed ENTRY LINE with stored records blocks until a RETIRE LINE (`test_s5_removed_entry_line_with_stored_entries_blocks`, `test_s5b_retire_line_frees_the_removed_entry_line`). Limits: one ENTRY LINE per source, `ui.event` only, no enum or constructor field below the top level of the form TYPE, no full run after the TEST repair.
+
+## One record format for every EFFECT stream (2026-11-08)
+
+**[Verified]** Record format v3 gives the outbound and the inbound EFFECT STREAM one RECORD CORE of 14 keys, with `request` and `status` as HTTP extras ([EXPERIMENT 0004 record format v3](../../experiments/0004-generated-replay/README.md#record-format-v3-one-record-core-for-every-effect-stream), DL-143). Both writers emit `version: 3`, one `span_id` and `outcome`/`reason` at capture (`test_V1_to_V10_response_record`, `test_V11_entry_record`); the RESPONSE RECORD `reason` equals the live failure reason (`test_V8_guard_live_status_reason`). `--stored` reads version 3 only on both streams (`test_V12_response_record_version_2_blocks`, `test_V13_entry_record_version_2_blocks`) and skips the value and path checks for records rejected at capture, while the orphan and held checks still read them (`test_V22_status_record_without_a_path_builds`, `test_V24_control_accepted_record_without_a_path_blocks`, `test_V25_held_check_reads_a_rejected_record`). One source may now hold several EFFECTS and ENTRY LINES, with a REPLAY RUN by operation (`test_n3_to_n6_runtime`). Limits: the digest half of DL-136 is open (D035); the db stream got the core in P4 (2026-11-08, see below).
+
+## The database side (2026-11-08)
+
+**[Verified]** P4 carries the vertical line down to the stored row ([EXPERIMENT 0004 database transports](../../experiments/0004-generated-replay/README.md#database-transports-dbput-dbget-dblist-and---stored-over-rows), DL-127, DL-129, DL-137). Three `effect` lines with `db.put`, `db.get` and `db.list` over one `records` table write a ROW CORE through the host `BeamlDb` as a JSON binary and decode rows by TYPE name, digest, TYPE VERSION and MIGRATE CHAIN (`test_N2_to_N11_orders_runtime`, `test_N29_read_order_digest_before_type_version`). A REPLAY RUN substitutes each db call from its record and never calls the host (`N11_replay_list`). `--stored` checks the ROW SNAPSHOT as it checks stored records: a stricter constructor or a lost ENUM LITERAL blocks the build (`test_N18_stricter_constructor_blocks`, `test_N19_lost_literal_blocks`), a partial snapshot blocks (`test_N24_partial_row_snapshot_blocks`), and two ROW TYPES in one table decode each by its own TYPE (`test_N20b_two_row_types_build`). A TYPE change travels from the source to a stored row with no second migration system: proven at the 0004 level for String-only ROW TYPES (Note, `test_N31_note_chain_read_runtime`, `test_N5_migrate_chain_on_read`), the real `Order` chain waits on M4. Limits: no shape check over rows yet (P4c); fake `BeamlDb` only, real `jsonb` in EXPERIMENT 0005; the RETIRE LINE meaning for rows is M5.
+
+## The first full vertical line: form to row and back (2026-11-08)
+
+**[Verified]** EXPERIMENT 0005 runs the line end to end in a Phoenix LiveView PROTOTYPE on a local Postgres ([EXPERIMENT 0005](../../experiments/0005-prototype-fullstack/README.md#result-2026-11-08), DL-127 to DL-129, DL-144). A form submit enters BEAML only through the generated `Orders.ui_place/1`, which writes the ENTRY RECORD and one STORED ROW through `db.put` and the host `BeamlDb` (N2, N3); the list page reads only through `db.list` and renders the returned BEAML value (N5, N6). A `Note` v1 row is read through the MIGRATE CHAIN after the v2 source ships, and a v2 submit writes version 2 beside it (N7, N7b). `mix beaml.stored` snapshots the live rows, and a stricter `Amount` blocks the build against them until the row is deleted (N8, N8b, N8c). The one Ecto migration did not move (N11). [Run](../../experiments/0005-prototype-fullstack/results/20261108T003740313204Z/result.json): 19 use cases pass, N9 blocked. Limits: the FATE OPERATION that frees the stricter build waits on the fate slice (N9, D036); the real `Order` chain waits on M4; `run.py run` truncates the dev rows (O1); `BeamlDb.get/3` matches raw JSON (O2); the page calls the internal `__beaml_encode_order/1` (O3); local demo only, no deploy.
 
 ## Type changes against deployed data
 
@@ -86,6 +102,7 @@ updated: 2026-11-07
 - The pipe `|>` works in any expression; constructors and variants are steps (DL-086).
 - `beaml fmt` aligns the columns of consecutive clauses (DL-083).
 - An EFFECT gets a `redacted` field only with `with <field>` (DL-089).
+  - **[Verified]** Built 2026-11-07 in [EXPERIMENT 0004 slice 6b steps 6b and 6c](../../experiments/0004-generated-replay/README.md#slice-6b-step-6b-redacted-fields): `with` sends the field on the wire only; the record, the span and the event never hold it. A direct copy into a field that is not redacted is a compile error (DL-112). Limit: a derived copy (`+`, a constructor, a fn that builds a record, two hops) builds, and one such path reaches the store in plain form ([step 6c limits](../../experiments/0004-generated-replay/README.md#slice-6b-step-6c-redacted-copies), O1). The flow check stays a target (DL-029).
 - One type form `type X { … }`; a constructor makes itself the only way in (DL-092).
 - `!` marks a position in a signature, not a kind of type (DL-092).
 - Success and failure types never overlap: `-> String ! String` is an error (DL-093).

@@ -1,0 +1,2043 @@
+test_N12_order_v2_chain_with_constructor_and_enum_fields (__main__.Slice6Db.test_N12_order_v2_chain_with_constructor_and_enum_fields) ... compiler: /private/tmp/claude-502/-Users-lennart-Projects-beaml/5a9e3a40-d152-4a88-a91b-9ddd9a8f3732/scratchpad/head/target/debug/beaml-spike
+FAIL
+test_N12_rejects (__main__.Slice6Db.test_N12_rejects) ... 
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [fourth_kind] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [table] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [put_head] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [get_key] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [get_key_field] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [list_query] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [list_output] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [list_elsewhere] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [list_element] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_constructor] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_redacted] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_enum_no_keep] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_enum_no_literals] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_enum_chain] ... FAIL
+  test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_constructor_chain] ... FAIL
+test_N12_s13_db_get_is_a_kind_now (__main__.Slice6Db.test_N12_s13_db_get_is_a_kind_now) ... FAIL
+test_N13_sources_without_a_db_effect_keep_their_bytes (__main__.Slice6Db.test_N13_sources_without_a_db_effect_keep_their_bytes) ... compiler ea64059c: /var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s5-ea64059c-wpvm00j6/target/debug/beaml-spike
+ok
+test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) ... 
+  test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) [orders.beaml] ... FAIL
+  test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) [plain/orders.beaml] ... FAIL
+  test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) [plain_v2/orders.beaml] ... FAIL
+  test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) [two_rows/orders.beaml] ... FAIL
+  test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) [no_app/orders.beaml] ... FAIL
+test_N15b_fmt_aligns_the_db_effect_lines (__main__.Slice6Db.test_N15b_fmt_aligns_the_db_effect_lines) ... FAIL
+test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) ... 
+  test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [grammar.js] ... FAIL
+  test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [corpus] ... FAIL
+  test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [highlights] ... FAIL
+  test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [parse orders.beaml] ... FAIL
+  test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [parse plain_v2/orders.beaml] ... FAIL
+  test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [parse two_rows/orders.beaml] ... FAIL
+test_N1_db_source_builds (__main__.Slice6Db.test_N1_db_source_builds) ... FAIL
+test_N1b_variants_build (__main__.Slice6Db.test_N1b_variants_build) ... 
+  test_N1b_variants_build (__main__.Slice6Db.test_N1b_variants_build) [plain/orders.beaml] ... FAIL
+  test_N1b_variants_build (__main__.Slice6Db.test_N1b_variants_build) [plain_v2/orders.beaml] ... FAIL
+  test_N1b_variants_build (__main__.Slice6Db.test_N1b_variants_build) [two_rows/orders.beaml] ... FAIL
+  test_N1b_variants_build (__main__.Slice6Db.test_N1b_variants_build) [no_app/orders.beaml] ... FAIL
+test_N25b_control_kept_value_builds (__main__.Slice6Db.test_N25b_control_kept_value_builds) ... FAIL
+test_N25b_control_the_record_builds_where_the_literal_stands (__main__.Slice6Db.test_N25b_control_the_record_builds_where_the_literal_stands) ... FAIL
+test_N25b_lost_literal_in_a_list_item_blocks (__main__.Slice6Db.test_N25b_lost_literal_in_a_list_item_blocks) ... FAIL
+test_N2_to_N11_orders_runtime (__main__.Slice6Db.test_N2_to_N11_orders_runtime) ... FAIL
+test_N2c_jsonb_typeof_reason_is_null (__main__.Slice6Db.test_N2c_jsonb_typeof_reason_is_null) ... skipped "0005 only: jsonb_typeof(value->'reason') = 'null' needs Postgres (0005 N2c, PDB-30)"
+test_N5_control_plain_v1_writer (__main__.Slice6Db.test_N5_control_plain_v1_writer) ... FAIL
+test_N5_migrate_chain_on_read (__main__.Slice6Db.test_N5_migrate_chain_on_read) ... FAIL
+
+======================================================================
+FAIL: test_N12_order_v2_chain_with_constructor_and_enum_fields (__main__.Slice6Db.test_N12_order_v2_chain_with_constructor_and_enum_fields)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 472, in test_N12_order_v2_chain_with_constructor_and_enum_fields
+    self.assert_rejected(ORDER_V2, d6b_39("constructor", "Order", "amount"))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.save: the constructo[164 chars]der') != (1, '', 'unsupported token at byte 676')
+
+First differing element 2:
+'error: effect orders.save: the constructo[163 chars]rder'
+'unsupported token at byte 676'
+
++ (1, '', 'unsupported token at byte 676')
+- (1,
+-  '',
+-  'error: effect orders.save: the constructor field Order.amount cannot stand '
+-  'in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n'
+-  '  help: remove the MIGRATE CHAIN and the VERSION MARK of Order') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [fourth_kind]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '[57 chars]ve (supported: http.post, db.put, db.get, db.l[94 chars]s")') != (1, '[57 chars]ve (slice 1 supports http.post)')
+
+First differing element 2:
+'unsu[49 chars]ve (supported: http.post, db.put, db.get, db.l[93 chars]ds")'
+'unsu[49 chars]ve (slice 1 supports http.post)'
+
+  (1,
+   '',
+-  'unsupported effect kind: db.query in effect orders.save (supported: '
+?                                                                   ^^^
+
++  'unsupported effect kind: db.query in effect orders.save (slice 1 supports '
+?                                                            ++++++++       ^
+
++  'http.post)')
+-  'http.post, db.put, db.get, db.list)\n'
+-  '  help: write http.post("path"), db.put("records"), db.get("records") or '
+-  'db.list("records")') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [table]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.save: db.put uses th[28 chars]27)') != (1, '', 'unsupported effect kind: db.put in effect[38 chars]st)')
+
+First differing element 2:
+'error: effect orders.save: db.put uses th[27 chars]127)'
+'unsupported effect kind: db.put in effect[37 chars]ost)'
+
+  (1,
+   '',
+-  'error: effect orders.save: db.put uses the table "records" only (DL-127)')
++  'unsupported effect kind: db.put in effect orders.save (slice 1 supports '
++  'http.post)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [put_head]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.save: db.put returns[34 chars]der') != (1, '', 'unsupported effect kind: db.put in effect[38 chars]st)')
+
+First differing element 2:
+'error: effect orders.save: db.put returns[33 chars]rder'
+'unsupported effect kind: db.put in effect[37 chars]ost)'
+
+  (1,
+   '',
+-  'error: effect orders.save: db.put returns its input TYPE; write Order -> '
+-  'Order')
++  'unsupported effect kind: db.put in effect orders.save (slice 1 supports '
++  'http.post)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [get_key]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.load: db.get takes a[36 chars]-1)') != (1, '', 'unsupported effect kind: db.get in effect[38 chars]st)')
+
+First differing element 2:
+'error: effect orders.load: db.get takes a[35 chars]B-1)'
+'unsupported effect kind: db.get in effect[37 chars]ost)'
+
+  (1,
+   '',
+-  'error: effect orders.load: db.get takes a key TYPE with one String field '
+-  '(QDB-1)')
++  'unsupported effect kind: db.get in effect orders.load (slice 1 supports '
++  'http.post)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [get_key_field]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.load: the key field [50 chars]-1)') != (1, '', 'unsupported effect kind: db.get in effect[38 chars]st)')
+
+First differing element 2:
+'error: effect orders.load: the key field [49 chars]B-1)'
+'unsupported effect kind: db.get in effect[37 chars]ost)'
+
+  (1,
+   '',
+-  'error: effect orders.load: the key field name of ByName is not a String '
+-  'field of Order (QDB-1)')
++  'unsupported effect kind: db.get in effect orders.load (slice 1 supports '
++  'http.post)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [list_query]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.list: db.list takes [31 chars]-2)') != (1, '', 'unsupported token at byte 178')
+
+First differing element 2:
+'error: effect orders.list: db.list takes a query TYPE with no fields (Q5-2)'
+'unsupported token at byte 178'
+
++ (1, '', 'unsupported token at byte 178')
+- (1,
+-  '',
+-  'error: effect orders.list: db.list takes a query TYPE with no fields (Q5-2)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [list_output]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.list: db.list return[89 chars]-3)') != (1, '', 'unsupported effect kind: db.list in effec[39 chars]st)')
+
+First differing element 2:
+'error: effect orders.list: db.list return[88 chars]5-3)'
+'unsupported effect kind: db.list in effec[38 chars]ost)'
+
+  (1,
+   '',
+-  'error: effect orders.list: db.list returns a TYPE with one field of a LIST '
+-  'TYPE, for example type OrderList { items: [Order] } (Q5-3)')
++  'unsupported effect kind: db.list in effect orders.list (slice 1 supports '
++  'http.post)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [list_elsewhere]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: the LIST TYPE [Order] of Basket.it[57 chars]-3)') != (1, '', 'unsupported token at byte 145')
+
+First differing element 2:
+'error: the LIST TYPE [Order] of Basket.it[56 chars]5-3)'
+'unsupported token at byte 145'
+
++ (1, '', 'unsupported token at byte 145')
+- (1,
+-  '',
+-  'error: the LIST TYPE [Order] of Basket.items stands only as the field of a '
+-  'db.list output TYPE (Q5-3)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [list_element]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: the LIST TYPE [String] needs a record TYPE inside the brackets') != (1, '', 'unsupported token at byte 170')
+
+First differing element 2:
+'error: the LIST TYPE [String] needs a record TYPE inside the brackets'
+'unsupported token at byte 170'
+
+- (1, '', 'error: the LIST TYPE [String] needs a record TYPE inside the brackets')
++ (1, '', 'unsupported token at byte 170') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_constructor]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect tickets.save: the ROW TYPE [58 chars]06)') != (1, '', 'unsupported effect kind: db.put in effect[39 chars]st)')
+
+First differing element 2:
+'error: effect tickets.save: the ROW TYPE [57 chars]-06)'
+'unsupported effect kind: db.put in effect[38 chars]ost)'
+
+  (1,
+   '',
+-  'error: effect tickets.save: the ROW TYPE Ticket has a constructor; a row '
+-  'holds a plain record (PDB-06)')
++  'unsupported effect kind: db.put in effect tickets.save (slice 1 supports '
++  'http.post)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_redacted]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.save: the ROW TYPE O[82 chars]16)') != (1, '', 'unsupported effect kind: db.put in effect[38 chars]st)')
+
+First differing element 2:
+'error: effect orders.save: the ROW TYPE O[81 chars]116)'
+'unsupported effect kind: db.put in effect[37 chars]ost)'
+
+  (1,
+   '',
+-  'error: effect orders.save: the ROW TYPE Order has the redacted field '
+-  'card_holder; rows hold no redacted field yet (M3, DL-116)')
++  'unsupported effect kind: db.put in effect orders.save (slice 1 supports '
++  'http.post)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_enum_no_keep]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.save: the enum Chann[108 chars]nel') != (1, '', 'unsupported effect kind: db.put in effect[38 chars]st)')
+
+First differing element 2:
+'error: effect orders.save: the enum Chann[107 chars]nnel'
+'unsupported effect kind: db.put in effect[37 chars]ost)'
+
+  (1,
+   '',
++  'unsupported effect kind: db.put in effect orders.save (slice 1 supports '
++  'http.post)')
+-  'error: effect orders.save: the enum Channel of Order.channel has no '
+-  'keep-value variant (DL-065)\n'
+-  '  help: add the variant Unknown(String) to enum Channel') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_enum_no_literals]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.save: the enum Chann[83 chars]07)') != (1, '', 'unsupported effect kind: db.put in effect[38 chars]st)')
+
+First differing element 2:
+'error: effect orders.save: the enum Chann[82 chars]-07)'
+'unsupported effect kind: db.put in effect[37 chars]ost)'
+
+  (1,
+   '',
+-  'error: effect orders.save: the enum Channel of Order.channel has no ENUM '
+-  'LITERALS; a row stores an enum by its literal (PDB-07)')
++  'unsupported effect kind: db.put in effect orders.save (slice 1 supports '
++  'http.post)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_enum_chain]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.save: the enum field[190 chars]eld') != (1, '', 'unsupported effect kind: db.put in effect[38 chars]st)')
+
+First differing element 2:
+'error: effect orders.save: the enum field[189 chars]ield'
+'unsupported effect kind: db.put in effect[37 chars]ost)'
+
+  (1,
+   '',
++  'unsupported effect kind: db.put in effect orders.save (slice 1 supports '
++  'http.post)')
+-  'error: effect orders.save: the enum field Order.channel cannot stand in a '
+-  'TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n'
+-  '  help: remove the MIGRATE CHAIN and the VERSION MARK of Order, or make '
+-  'channel a String field') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_rejects (__main__.Slice6Db.test_N12_rejects) [row_constructor_chain]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 468, in test_N12_rejects
+    self.assert_rejected(BAD / ("%s.beaml" % name), message)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect orders.save: the constructo[164 chars]der') != (1, '', 'unsupported effect kind: db.put in effect[38 chars]st)')
+
+First differing element 2:
+'error: effect orders.save: the constructo[163 chars]rder'
+'unsupported effect kind: db.put in effect[37 chars]ost)'
+
+  (1,
+   '',
++  'unsupported effect kind: db.put in effect orders.save (slice 1 supports '
++  'http.post)')
+-  'error: effect orders.save: the constructor field Order.amount cannot stand '
+-  'in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n'
+-  '  help: remove the MIGRATE CHAIN and the VERSION MARK of Order') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N12_s13_db_get_is_a_kind_now (__main__.Slice6Db.test_N12_s13_db_get_is_a_kind_now)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 475, in test_N12_s13_db_get_is_a_kind_now
+    self.assert_rejected(*S13)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 462, in assert_rejected
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()), "expected exit 1, no stdout, the exact text")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: effect payments.authorize: db.get [35 chars]27)') != (1, '', 'unsupported effect kind: db.get in effect[45 chars]st)')
+
+First differing element 2:
+'error: effect payments.authorize: db.get [34 chars]127)'
+'unsupported effect kind: db.get in effect[44 chars]ost)'
+
+  (1,
+   '',
+-  'error: effect payments.authorize: db.get uses the table "records" only '
+-  '(DL-127)')
++  'unsupported effect kind: db.get in effect payments.authorize (slice 1 '
++  'supports http.post)') : expected exit 1, no stdout, the exact text
+
+======================================================================
+FAIL: test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) [orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 508, in test_N15_fmt_keeps_the_fixtures
+    self.assertEqual((0, source.read_text()), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6 db: the DB TRANSPORTS db.p[1317 chars]t\n') != (1, '// Slice 6 db: the DB TRANSPORTS db.p[1317 chars]t\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6 db: the DB TRANSPORTS db.put, db.get, db.list over the one table '
+   '"records" (DL-127, DL-129, 0005 P4a).\n'
+   'type BadAmount {}\n'
+   'type Amount { value: String currency: String }\n'
+   'fn Amount value: String, currency: String -> Amount ! BadAmount\n'
+   'fn Amount _,     ""       -> Amount ! BadAmount = BadAmount {}\n'
+   'fn Amount value, currency -> Amount ! BadAmount = Amount { value: value, '
+   'currency: currency }\n'
+   '\n'
+   'enum Channel { Web = "web"  App = "app"  Unknown(String) }\n'
+   '\n'
+   'type Order { order_id: String amount: Amount channel: Channel }\n'
+   'type OrderKey { order_id: String }\n'
+   'type OrderQuery {}\n'
+   'type OrderList { items: [Order] }\n'
+   'type StoreError { reason: String }\n'
+   '\n'
+   '// Three DB TRANSPORTS leave the module. Each call is recorded live and '
+   'substituted in a REPLAY RUN.\n'
+   'effect orders.save Order      -> Order ! StoreError     = db.put("records")\n'
+   'effect orders.load OrderKey   -> Order ! StoreError     = db.get("records")\n'
+   'effect orders.list OrderQuery -> OrderList ! StoreError = '
+   'db.list("records")\n'
+   '\n'
+   '// Enters the module. The host calls Orders.ui_orders(params).\n'
+   'effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") '
+   '|> list_orders\n'
+   '\n'
+   'fn save o: Order -> Order ! StoreError = o |> orders.save\n'
+   '\n'
+   'fn load k: OrderKey -> Order ! StoreError = k |> orders.load\n'
+   '\n'
+   'fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list\n') : unsupported token at byte 603
+
+
+======================================================================
+FAIL: test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) [plain/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 508, in test_N15_fmt_keeps_the_fixtures
+    self.assertEqual((0, source.read_text()), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6 db variant plain: a String[754 chars]t\n') != (1, '// Slice 6 db variant plain: a String[754 chars]t\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6 db variant plain: a String-only ROW TYPE, TYPE VERSION 1 (N5 '
+   'control, PDB-31).\n'
+   'type Order { order_id: String label: String }\n'
+   'type OrderKey { order_id: String }\n'
+   'type OrderQuery {}\n'
+   'type OrderList { items: [Order] }\n'
+   'type StoreError { reason: String }\n'
+   '\n'
+   'effect orders.save Order      -> Order ! StoreError     = db.put("records")\n'
+   'effect orders.load OrderKey   -> Order ! StoreError     = db.get("records")\n'
+   'effect orders.list OrderQuery -> OrderList ! StoreError = '
+   'db.list("records")\n'
+   '\n'
+   'effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") '
+   '|> list_orders\n'
+   '\n'
+   'fn save o: Order -> Order ! StoreError = o |> orders.save\n'
+   '\n'
+   'fn load k: OrderKey -> Order ! StoreError = k |> orders.load\n'
+   '\n'
+   'fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list\n') : unsupported token at byte 214
+
+
+======================================================================
+FAIL: test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) [plain_v2/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 508, in test_N15_fmt_keeps_the_fixtures
+    self.assertEqual((0, source.read_text()), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6 db variant plain_v2: the S[842 chars]t\n') != (1, '// Slice 6 db variant plain_v2: the S[842 chars]t\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6 db variant plain_v2: the String-only ROW TYPE at TYPE VERSION 2; '
+   'old rows migrate on read (N5, DL-127).\n'
+   'type Order { order_id: String label: String note: String }\n'
+   'migrate Order v1 -> v2 { add note: String = "" }\n'
+   'type OrderKey { order_id: String }\n'
+   'type OrderQuery {}\n'
+   'type OrderList { items: [Order] }\n'
+   'type StoreError { reason: String }\n'
+   '\n'
+   'effect orders.save Order      -> Order ! StoreError     = db.put("records")\n'
+   'effect orders.load OrderKey   -> Order ! StoreError     = db.get("records")\n'
+   'effect orders.list OrderQuery -> OrderList ! StoreError = '
+   'db.list("records")\n'
+   '\n'
+   'effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") '
+   '|> list_orders\n'
+   '\n'
+   'fn save o: Order -> Order ! StoreError = o |> orders.save\n'
+   '\n'
+   'fn load k: OrderKey -> Order ! StoreError = k |> orders.load\n'
+   '\n'
+   'fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list\n') : unsupported token at byte 301
+
+
+======================================================================
+FAIL: test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) [two_rows/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 508, in test_N15_fmt_keeps_the_fixtures
+    self.assertEqual((0, source.read_text()), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6 db variant two_rows: two R[1754 chars]t\n') != (1, '// Slice 6 db variant two_rows: two R[1754 chars]t\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6 db variant two_rows: two ROW TYPES in one table, Order without a '
+   'chain, Note with a chain (QDB-8 B, PDB-34).\n'
+   'type BadAmount {}\n'
+   'type Amount { value: String currency: String }\n'
+   'fn Amount value: String, currency: String -> Amount ! BadAmount\n'
+   'fn Amount _,     ""       -> Amount ! BadAmount = BadAmount {}\n'
+   'fn Amount value, currency -> Amount ! BadAmount = Amount { value: value, '
+   'currency: currency }\n'
+   '\n'
+   'enum Channel { Web = "web"  App = "app"  Unknown(String) }\n'
+   '\n'
+   'type Order { order_id: String amount: Amount channel: Channel }\n'
+   'type OrderKey { order_id: String }\n'
+   'type OrderQuery {}\n'
+   'type OrderList { items: [Order] }\n'
+   'type StoreError { reason: String }\n'
+   'type Note { text: String tag: String }\n'
+   'migrate Note v1 -> v2 { add tag: String = "" }\n'
+   'type NoteQuery {}\n'
+   'type NoteList { items: [Note] }\n'
+   '\n'
+   '// Three DB TRANSPORTS leave the module. Each call is recorded live and '
+   'substituted in a REPLAY RUN.\n'
+   'effect orders.save Order      -> Order ! StoreError     = db.put("records")\n'
+   'effect orders.load OrderKey   -> Order ! StoreError     = db.get("records")\n'
+   'effect orders.list OrderQuery -> OrderList ! StoreError = '
+   'db.list("records")\n'
+   'effect notes.save Note        -> Note ! StoreError      = db.put("records")\n'
+   'effect notes.list NoteQuery   -> NoteList ! StoreError  = '
+   'db.list("records")\n'
+   '\n'
+   '// Enters the module. The host calls Orders.ui_orders(params).\n'
+   'effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") '
+   '|> list_orders\n'
+   '\n'
+   'fn save o: Order -> Order ! StoreError = o |> orders.save\n'
+   '\n'
+   'fn load k: OrderKey -> Order ! StoreError = k |> orders.load\n'
+   '\n'
+   'fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list\n'
+   '\n'
+   'fn save_note n: Note -> Note ! StoreError = n |> notes.save\n'
+   '\n'
+   'fn list_notes q: NoteQuery -> NoteList ! StoreError = q |> notes.list\n') : unsupported token at byte 609
+
+
+======================================================================
+FAIL: test_N15_fmt_keeps_the_fixtures (__main__.Slice6Db.test_N15_fmt_keeps_the_fixtures) [no_app/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 508, in test_N15_fmt_keeps_the_fixtures
+    self.assertEqual((0, source.read_text()), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6 db variant no_app: the ENU[1276 chars]t\n') != (1, '// Slice 6 db variant no_app: the ENU[1276 chars]t\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6 db variant no_app: the ENUM LITERAL App = "app" is removed (N25b, '
+   'DL-122).\n'
+   'type BadAmount {}\n'
+   'type Amount { value: String currency: String }\n'
+   'fn Amount value: String, currency: String -> Amount ! BadAmount\n'
+   'fn Amount _,     ""       -> Amount ! BadAmount = BadAmount {}\n'
+   'fn Amount value, currency -> Amount ! BadAmount = Amount { value: value, '
+   'currency: currency }\n'
+   '\n'
+   'enum Channel { Web = "web"  Unknown(String) }\n'
+   '\n'
+   'type Order { order_id: String amount: Amount channel: Channel }\n'
+   'type OrderKey { order_id: String }\n'
+   'type OrderQuery {}\n'
+   'type OrderList { items: [Order] }\n'
+   'type StoreError { reason: String }\n'
+   '\n'
+   '// Three DB TRANSPORTS leave the module. Each call is recorded live and '
+   'substituted in a REPLAY RUN.\n'
+   'effect orders.save Order      -> Order ! StoreError     = db.put("records")\n'
+   'effect orders.load OrderKey   -> Order ! StoreError     = db.get("records")\n'
+   'effect orders.list OrderQuery -> OrderList ! StoreError = '
+   'db.list("records")\n'
+   '\n'
+   '// Enters the module. The host calls Orders.ui_orders(params).\n'
+   'effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") '
+   '|> list_orders\n'
+   '\n'
+   'fn save o: Order -> Order ! StoreError = o |> orders.save\n'
+   '\n'
+   'fn load k: OrderKey -> Order ! StoreError = k |> orders.load\n'
+   '\n'
+   'fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list\n') : unsupported token at byte 562
+
+
+======================================================================
+FAIL: test_N15b_fmt_aligns_the_db_effect_lines (__main__.Slice6Db.test_N15b_fmt_aligns_the_db_effect_lines)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 516, in test_N15b_fmt_aligns_the_db_effect_lines
+    self.assertEqual((0, text), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6 db: the DB TRANSPORTS db.p[1317 chars]t\n') != (1, '// Slice 6 db: the DB TRANSPORTS db.p[1302 chars]t\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6 db: the DB TRANSPORTS db.put, db.get, db.list over the one table '
+   '"records" (DL-127, DL-129, 0005 P4a).\n'
+   'type BadAmount {}\n'
+   'type Amount { value: String currency: String }\n'
+   'fn Amount value: String, currency: String -> Amount ! BadAmount\n'
+   'fn Amount _,     ""       -> Amount ! BadAmount = BadAmount {}\n'
+   'fn Amount value, currency -> Amount ! BadAmount = Amount { value: value, '
+   'currency: currency }\n'
+   '\n'
+   'enum Channel { Web = "web"  App = "app"  Unknown(String) }\n'
+   '\n'
+   'type Order { order_id: String amount: Amount channel: Channel }\n'
+   'type OrderKey { order_id: String }\n'
+   'type OrderQuery {}\n'
+   'type OrderList { items: [Order] }\n'
+   'type StoreError { reason: String }\n'
+   '\n'
+   '// Three DB TRANSPORTS leave the module. Each call is recorded live and '
+   'substituted in a REPLAY RUN.\n'
+-  'effect orders.save Order      -> Order ! StoreError     = db.put("records")\n'
+?                            -----                      ----
+
++  'effect orders.save Order -> Order ! StoreError = db.put("records")\n'
+-  'effect orders.load OrderKey   -> Order ! StoreError     = db.get("records")\n'
+?                               --                      ----
+
++  'effect orders.load OrderKey -> Order ! StoreError = db.get("records")\n'
+   'effect orders.list OrderQuery -> OrderList ! StoreError = '
+   'db.list("records")\n'
+   '\n'
+   '// Enters the module. The host calls Orders.ui_orders(params).\n'
+   'effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") '
+   '|> list_orders\n'
+   '\n'
+   'fn save o: Order -> Order ! StoreError = o |> orders.save\n'
+   '\n'
+   'fn load k: OrderKey -> Order ! StoreError = k |> orders.load\n'
+   '\n'
+   'fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list\n') : unsupported token at byte 603
+
+
+======================================================================
+FAIL: test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [grammar.js]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 524, in test_N16_grammar_list_type
+    self.assertRegex(grammar, r'list_type: \(\$\) => seq\("\[", \$\.type, "\]"\)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'list_type: \\(\\$\\) => seq\\("\\[", \\$\\.type, "\\]"\\)' not found in 'const PREC = { pipe: 1, concat: 2 };\n\nmodule.exports = grammar({\n  name: "beaml",\n\n  // Match the compiler\'s Unicode White_Space set.\n  extras: ($) => [/[\\t-\\r \\u0085\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]/, $.comment],\n  word: ($) => $.identifier,\n\n  rules: {\n    source_file: ($) =>\n      repeat(\n        choice(\n          $.type_declaration,\n          $.enum_declaration,\n          $.effect_declaration,\n          $.migrate_declaration,\n          $.retire_declaration,\n          $.function_clause,\n        ),\n      ),\n\n    // `type Payment v3 { ... }` (DL-061, DL-070, DL-071, DL-072). `interface` is no record keyword (DL-074).\n    type_declaration: ($) => seq("type", field("name", $.type), optional(field("version", $.version)), $._field_block),\n\n    _field_block: ($) => seq("{", repeat(seq($.field_declaration, optional(","))), "}"),\n\n    field_declaration: ($) => seq($.property, ":", $._field_type),\n\n    // `redacted` marks PII before the field TYPE (DL-059).\n    _field_type: ($) => seq(optional($.redacted), $.type),\n    redacted: () => "redacted",\n\n    enum_declaration: ($) =>\n      seq("enum", field("name", $.type), "{", repeat(seq($.variant_declaration, optional(","))), "}"),\n\n    // A variant has a payload or an ENUM LITERAL, not both: `Unknown(String)`, `Authorized = "ok"` (DL-082).\n    variant_declaration: ($) =>\n      seq(\n        $.constructor,\n        optional(choice(seq(token.immediate("("), optional(commaList($.type)), ")"), seq("=", $.string))),\n      ),\n\n    // `effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")` (DL-013, DL-015).\n    // `... with card_holder` releases redacted fields (DL-089).\n    effect_declaration: ($) =>\n      seq(\n        "effect",\n        field("name", $._name),\n        field("input", $.type),\n        "->",\n        field("return_type", $.type),\n        optional($.failures),\n        "=",\n        field("body", $._expression),\n        optional(seq("with", commaList($.property))),\n      ),\n\n    // MIGRATE CHAIN step: `migrate Payment v1 -> v2 { ... }` (DL-022, DL-072). A plain number is no VERSION (DL-074).\n    migrate_declaration: ($) =>\n      seq(\n        "migrate",\n        field("name", $.type),\n        field("from", $.version),\n        "->",\n        field("to", $.version),\n        "{",\n        repeat(seq($._migrate_operation, optional(","))),\n        "}",\n      ),\n\n    _migrate_operation: ($) => choice($.rename_operation, $.add_operation, $.drop_operation),\n\n    rename_operation: ($) => seq("rename", field("from", $.property), "->", field("to", $.property)),\n\n    add_operation: ($) => seq("add", $.property, ":", $._field_type, "=", field("value", $._expression)),\n\n    // `drop` names the TYPE (DL-023).\n    drop_operation: ($) => seq("drop", $.property, ":", $._field_type),\n\n    // `retire payments.authorize keep 30 days` (DL-055, DL-057).\n    retire_declaration: ($) => seq("retire", field("name", $._name), "keep", field("duration", $.integer), "days"),\n\n    // A signature line is a clause without a body (DL-084).\n    function_clause: ($) =>\n      seq(\n        "fn",\n        field("name", $.identifier),\n        optional(commaList($.parameter)),\n        "->",\n        field("return_type", $.type),\n        optional($.failures),\n        optional(seq("=", field("body", $._expression))),\n      ),\n\n    // `! A | B` failure TYPES (DL-015).\n    failures: ($) => seq("!", $.type, repeat(seq("|", $.type))),\n\n    parameter: ($) => seq($._expression, optional(seq(":", $.type))),\n\n    _name: ($) => choice($.identifier, $.qualified_name),\n\n    qualified_name: ($) => seq($.identifier, repeat1(seq(token.immediate("."), $.identifier))),\n\n    _expression: ($) =>\n      choice($.identifier, $.qualified_name, $.string, $.integer, $.call, $.record, $.concatenation, $.pipe, $.with_expression),\n\n    call: ($) =>\n      seq(field("name", $._name), token.immediate("("), optional(commaList($._expression)), ")"),\n\n    record: ($) =>\n      seq($.type, "{", optional(seq(commaList($.record_field), optional(","))), "}"),\n\n    record_field: ($) => seq($.property, optional(seq(":", $._expression))),\n\n    concatenation: ($) => prec.right(PREC.concat, seq($._expression, "+", $._expression)),\n\n    // `x |> f |> ns.g` (DL-014).\n    pipe: ($) => prec.left(PREC.pipe, seq(field("left", $._expression), "|>", field("right", $._expression))),\n\n    // `with ... do ... else ... end` (DL-014). Only the keywords are decided; the clause shapes are tolerant.\n    with_expression: ($) =>\n      seq(\n        "with",\n        commaList($.with_clause),\n        "do",\n        field("body", $._expression),\n        optional(seq("else", repeat($.else_arm))),\n        "end",\n      ),\n\n    with_clause: ($) => seq(optional(seq(field("pattern", $._expression), "<-")), field("value", $._expression)),\n\n    else_arm: ($) => seq(field("pattern", $._expression), "->", field("body", $._expression)),\n\n    string: ($) => seq(\'"\', repeat(choice($._string_content, $.escape)), token.immediate(\'"\')),\n    // Give string contents priority over a line comment inside quotes.\n    _string_content: () => token.immediate(prec(1, /[^"\\\\\\x00-\\x1f\\x7f-\\x9f]+/)),\n    escape: () => token.immediate(/\\\\[nrt"\\\\]/),\n    comment: () => token(seq("//", /[^\\n]*/)),\n\n    // A TYPE VERSION: `v3` (DL-072); no `v0`, no leading zero. The u32 range is a compiler check.\n    version: () => /v[1-9][0-9]*/,\n    integer: () => /[0-9]+/,\n\n    identifier: () => /[A-Za-z_][A-Za-z0-9_]*/,\n    type: ($) => $.identifier,\n    constructor: ($) => $.identifier,\n    property: ($) => $.identifier,\n  },\n});\n\nfunction commaList(rule) {\n  return seq(rule, repeat(seq(",", rule)));\n}\n'
+
+======================================================================
+FAIL: test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [corpus]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 526, in test_N16_grammar_list_type
+    self.assertTrue((GRAMMAR / "test" / "corpus" / "list_type.txt").is_file())
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [highlights]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 528, in test_N16_grammar_list_type
+    self.assertRegex(highlights, r'"\["[^\n]*"\]"[^\n]*@punctuation\.bracket')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: '"\\["[^\\n]*"\\]"[^\\n]*@punctuation\\.bracket' not found in '[\n  "type" "enum" "fn" "effect"\n  "migrate" "rename" "add" "drop"\n  "retire" "keep" "days"\n  "with" "do" "else" "end"\n] @keyword\n(redacted) @keyword\n["->" "=" ":" "+" "|>" "!" "|" "<-"] @operator\n["{" "}" "(" ")"] @punctuation.bracket\n"," @punctuation.delimiter\n\n(comment) @comment\n(string) @string\n(escape) @string.escape\n(version) @number\n(integer) @number\n(type) @type\n(constructor) @constructor\n(property) @property\n((function_clause name: (identifier) @function)\n (#not-match? @function "^[A-Z]"))\n(effect_declaration name: (_) @function)\n(retire_declaration name: (_) @function)\n((pipe right: (identifier) @function)\n (#not-match? @function "^[A-Z]"))\n(pipe right: (qualified_name) @function)\n((call name: (identifier) @function)\n (#not-match? @function "^[A-Z]"))\n(call name: (qualified_name) @function)\n; Uppercase identifiers in name and expression positions are constructors and variants (DL-082, DL-086).\n([\n  (function_clause (identifier) @constructor)\n  (effect_declaration body: (identifier) @constructor)\n  (add_operation value: (identifier) @constructor)\n  (pipe (identifier) @constructor)\n  (call (identifier) @constructor)\n  (record_field (identifier) @constructor)\n  (parameter (identifier) @constructor)\n  (concatenation (identifier) @constructor)\n  (with_expression body: (identifier) @constructor)\n  (with_clause (identifier) @constructor)\n  (else_arm (identifier) @constructor)\n ]\n (#match? @constructor "^[A-Z]"))\n'
+
+======================================================================
+FAIL: test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [parse orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 535, in test_N16_grammar_list_type
+    self.assertEqual((0, False), (run.returncode, "ERROR" in run.stdout), run.stdout + run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, False) != (1, True)
+
+First differing element 0:
+0
+1
+
+- (0, False)
++ (1, True) : /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/db/orders.beaml	Parse:    0.09 ms	 15152 bytes/ms	(ERROR [12, 24] - [12, 25])
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+
+
+======================================================================
+FAIL: test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [parse plain_v2/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 535, in test_N16_grammar_list_type
+    self.assertEqual((0, False), (run.returncode, "ERROR" in run.stdout), run.stdout + run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, False) != (1, True)
+
+First differing element 0:
+0
+1
+
+- (0, False)
++ (1, True) : /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/db/plain_v2/orders.beaml	Parse:    0.06 ms	 14596 bytes/ms	(ERROR [5, 24] - [5, 25])
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+
+
+======================================================================
+FAIL: test_N16_grammar_list_type (__main__.Slice6Db.test_N16_grammar_list_type) [parse two_rows/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 535, in test_N16_grammar_list_type
+    self.assertEqual((0, False), (run.returncode, "ERROR" in run.stdout), run.stdout + run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, False) != (1, True)
+
+First differing element 0:
+0
+1
+
+- (0, False)
++ (1, True) : /Users/lennart/Projects/beaml/experiments/0004-generated-replay/slice6/db/two_rows/orders.beaml	Parse:    0.10 ms	 17400 bytes/ms	(ERROR [12, 24] - [12, 25])
+[33mWarning:[0m You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+
+
+======================================================================
+FAIL: test_N1_db_source_builds (__main__.Slice6Db.test_N1_db_source_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 434, in test_N1_db_source_builds
+    stdout = self.built(ORDERS)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 413, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported token at byte 603
+
+
+======================================================================
+FAIL: test_N1b_variants_build (__main__.Slice6Db.test_N1b_variants_build) [plain/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 445, in test_N1b_variants_build
+    self.built(source)
+    ~~~~~~~~~~^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 413, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported token at byte 214
+
+
+======================================================================
+FAIL: test_N1b_variants_build (__main__.Slice6Db.test_N1b_variants_build) [plain_v2/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 445, in test_N1b_variants_build
+    self.built(source)
+    ~~~~~~~~~~^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 413, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported token at byte 301
+
+
+======================================================================
+FAIL: test_N1b_variants_build (__main__.Slice6Db.test_N1b_variants_build) [two_rows/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 445, in test_N1b_variants_build
+    self.built(source)
+    ~~~~~~~~~~^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 413, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported token at byte 609
+
+
+======================================================================
+FAIL: test_N1b_variants_build (__main__.Slice6Db.test_N1b_variants_build) [no_app/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 445, in test_N1b_variants_build
+    self.built(source)
+    ~~~~~~~~~~^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 413, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported token at byte 562
+
+
+======================================================================
+FAIL: test_N25b_control_kept_value_builds (__main__.Slice6Db.test_N25b_control_kept_value_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 555, in test_N25b_control_kept_value_builds
+    self.assertEqual((0, True, False), (code, "defmodule Orders do" in stdout, "error" in stderr), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, False) != (1, False, False)
+
+First differing element 0:
+0
+1
+
+- (0, True, False)
++ (1, False, False) : unsupported token at byte 562
+
+
+======================================================================
+FAIL: test_N25b_control_the_record_builds_where_the_literal_stands (__main__.Slice6Db.test_N25b_control_the_record_builds_where_the_literal_stands)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 561, in test_N25b_control_the_record_builds_where_the_literal_stands
+    self.assertEqual((0, True, False), (code, "defmodule Orders do" in stdout, "error" in stderr), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, False) != (1, False, False)
+
+First differing element 0:
+0
+1
+
+- (0, True, False)
++ (1, False, False) : unsupported token at byte 603
+
+
+======================================================================
+FAIL: test_N25b_lost_literal_in_a_list_item_blocks (__main__.Slice6Db.test_N25b_lost_literal_in_a_list_item_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 550, in test_N25b_lost_literal_in_a_list_item_blocks
+    self.assertEqual((1, "", LITERAL_BLOCK % stored), (code, stdout, stderr.strip()))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Order v1: 1 stored RESPONSE R[407 chars]nel') != (1, '', 'unsupported token at byte 562')
+
+First differing element 2:
+'error: TYPE Order v1: 1 stored RESPONSE R[406 chars]nnel'
+'unsupported token at byte 562'
+
++ (1, '', 'unsupported token at byte 562')
+- (1,
+-  '',
+-  'error: TYPE Order v1: 1 stored RESPONSE RECORD of operation orders.list has '
+-  'a value of field channel that is no ENUM LITERAL of Channel now (DL-122)\n'
+-  '  record source: '
+-  '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-yy3ay8y0/stored/responses.jsonl:1 '
+-  '(line 1)\n'
+-  '  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE '
+-  'STEP form for an enum field (D6B-39), so restore the removed or changed ENUM '
+-  'LITERAL of Channel')
+
+======================================================================
+FAIL: test_N2_to_N11_orders_runtime (__main__.Slice6Db.test_N2_to_N11_orders_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 450, in test_N2_to_N11_orders_runtime
+    self.runtime(ORDERS, ORDERS_CASES)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 418, in runtime
+    stdout = self.built(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 413, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported token at byte 603
+
+
+======================================================================
+FAIL: test_N5_control_plain_v1_writer (__main__.Slice6Db.test_N5_control_plain_v1_writer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 453, in test_N5_control_plain_v1_writer
+    self.runtime(PLAIN, PLAIN_CASES)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 418, in runtime
+    stdout = self.built(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 413, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported token at byte 214
+
+
+======================================================================
+FAIL: test_N5_migrate_chain_on_read (__main__.Slice6Db.test_N5_migrate_chain_on_read)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 456, in test_N5_migrate_chain_on_read
+    self.runtime(PLAIN_V2, PLAIN_V2_CASES)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 418, in runtime
+    stdout = self.built(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 413, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported token at byte 301
+
+
+----------------------------------------------------------------------
+Ran 16 tests in 4.652s
+
+FAILED (failures=40, skipped=1)
+
+
+===== P4b RED run, 2026-11-08, By: Opus (RED db-stored) =====
+git archive HEAD (b0a27004) experiments/0001-syntax-to-beam | tar -x -C <scratch>/head; cargo build --offline
+BEAML_SPIKE=<scratch>/head/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_db_stored_test.py
+
+test_N10_constructor_record (__main__.Slice6DbStored.test_N10_constructor_record) ... compiler: <scratch>/head/target/debug/beaml-spike
+FAIL
+test_N17_clean_rows (__main__.Slice6DbStored.test_N17_clean_rows) ... FAIL
+test_N17b_empty_row_snapshot (__main__.Slice6DbStored.test_N17b_empty_row_snapshot) ... FAIL
+test_N18_control_old_source_builds (__main__.Slice6DbStored.test_N18_control_old_source_builds) ... FAIL
+test_N18_control_stricter_without_the_row_builds (__main__.Slice6DbStored.test_N18_control_stricter_without_the_row_builds) ... FAIL
+test_N18_stricter_constructor_blocks (__main__.Slice6DbStored.test_N18_stricter_constructor_blocks) ... FAIL
+test_N18b_two_rows_fail_counted_with_the_first_line (__main__.Slice6DbStored.test_N18b_two_rows_fail_counted_with_the_first_line) ... FAIL
+test_N19_control_kept_value_builds (__main__.Slice6DbStored.test_N19_control_kept_value_builds) ... FAIL
+test_N19_control_the_row_builds_where_the_literal_stands (__main__.Slice6DbStored.test_N19_control_the_row_builds_where_the_literal_stands) ... FAIL
+test_N19_lost_literal_blocks (__main__.Slice6DbStored.test_N19_lost_literal_blocks) ... FAIL
+test_N20_chain_rows_build (__main__.Slice6DbStored.test_N20_chain_rows_build) ... FAIL
+test_N20_newer_version_blocks (__main__.Slice6DbStored.test_N20_newer_version_blocks) ... FAIL
+test_N20_off_chain_row_blocks (__main__.Slice6DbStored.test_N20_off_chain_row_blocks) ... FAIL
+test_N20b_control_note_row_off_its_chain_blocks (__main__.Slice6DbStored.test_N20b_control_note_row_off_its_chain_blocks) ... FAIL
+test_N20b_control_note_row_under_the_order_type_blocks (__main__.Slice6DbStored.test_N20b_control_note_row_under_the_order_type_blocks) ... FAIL
+test_N20b_two_row_types_build (__main__.Slice6DbStored.test_N20b_two_row_types_build) ... FAIL
+test_N21_not_decodable_rows_are_counted (__main__.Slice6DbStored.test_N21_not_decodable_rows_are_counted) ... FAIL
+test_N21b_rejected_row_skips_the_constructor_check (__main__.Slice6DbStored.test_N21b_rejected_row_skips_the_constructor_check) ... FAIL
+test_N21b_rows_not_accepted_are_counted_QV3_8_B (__main__.Slice6DbStored.test_N21b_rows_not_accepted_are_counted_QV3_8_B) ... FAIL
+test_N22_control_put_only_needs_no_row_snapshot (__main__.Slice6DbStored.test_N22_control_put_only_needs_no_row_snapshot) ... FAIL
+test_N22_no_row_snapshot_blocks_a_reader (__main__.Slice6DbStored.test_N22_no_row_snapshot_blocks_a_reader) ... FAIL
+test_N23_line_form (__main__.Slice6DbStored.test_N23_line_form) ... 
+  test_N23_line_form (__main__.Slice6DbStored.test_N23_line_form) [not_json] ... FAIL
+  test_N23_line_form (__main__.Slice6DbStored.test_N23_line_form) [no_source] ... FAIL
+  test_N23_line_form (__main__.Slice6DbStored.test_N23_line_form) [version_2] ... FAIL
+test_N24_control_matching_meta_builds (__main__.Slice6DbStored.test_N24_control_matching_meta_builds) ... FAIL
+test_N24_partial_row_snapshot_blocks (__main__.Slice6DbStored.test_N24_partial_row_snapshot_blocks) ... FAIL
+test_N24_sample_builds (__main__.Slice6DbStored.test_N24_sample_builds) ... FAIL
+test_N24_sample_meta_form (__main__.Slice6DbStored.test_N24_sample_meta_form) ... ok
+test_N25_control_rejected_record_is_counted (__main__.Slice6DbStored.test_N25_control_rejected_record_is_counted) ... FAIL
+test_N25_list_record_constructor_blocks (__main__.Slice6DbStored.test_N25_list_record_constructor_blocks) ... FAIL
+test_N25_save_record_constructor_blocks (__main__.Slice6DbStored.test_N25_save_record_constructor_blocks) ... FAIL
+test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) ... 
+  test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [constructor] ... FAIL
+  test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [literal] ... FAIL
+  test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [path] ... FAIL
+  test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [orphan] ... FAIL
+  test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [list_record] ... FAIL
+  test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [count_line] ... FAIL
+test_N27_events_hold_no_row_value (__main__.Slice6DbStored.test_N27_events_hold_no_row_value) ... FAIL
+test_N28_control_row_of_a_removed_writer_with_a_reader_is_checked (__main__.Slice6DbStored.test_N28_control_row_of_a_removed_writer_with_a_reader_is_checked) ... FAIL
+test_N28_orphan_rows_of_a_removed_db_effect_block (__main__.Slice6DbStored.test_N28_orphan_rows_of_a_removed_db_effect_block) ... FAIL
+test_N28b_retire_line_frees_orphan_rows (__main__.Slice6DbStored.test_N28b_retire_line_frees_orphan_rows) ... skipped 'blocked: the RETIRE LINE meaning for rows is M5, parked by D036 (plan Parked items); no test here'
+test_N29_read_order_digest_before_type_version (__main__.Slice6DbStored.test_N29_read_order_digest_before_type_version) ... FAIL
+test_N29_read_order_type_name_before_type_version (__main__.Slice6DbStored.test_N29_read_order_type_name_before_type_version) ... FAIL
+test_N29_read_order_type_version_before_DL101 (__main__.Slice6DbStored.test_N29_read_order_type_version_before_DL101) ... FAIL
+test_N30_literal_swap_on_a_row_blocks (__main__.Slice6DbStored.test_N30_literal_swap_on_a_row_blocks) ... skipped 'blocked: a ROW CORE holds the wire literal, not the stored variant (plan Limits), and DL-140 is the fate slice with DL-125 (D036); cannot turn green in P4b'
+test_N30b_map_migrate_step_frees_the_swap (__main__.Slice6DbStored.test_N30b_map_migrate_step_frees_the_swap) ... skipped 'blocked: no `map` MIGRATE STEP form exists (DL-140, DL-125, fate slice P6, D036)'
+test_N31_note_chain_read_runtime (__main__.Slice6DbStored.test_N31_note_chain_read_runtime) ... FAIL
+
+======================================================================
+FAIL: test_N10_constructor_record (__main__.Slice6DbStored.test_N10_constructor_record)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 406, in test_N10_constructor_record
+    self.runtime(ORDERS, {
+    ~~~~~~~~~~~~^^^^^^^^^^
+        "N10_constructor_record_list": ('fresh.(); BeamlDb.seed("Order", 1, %s); Orders.list_orders(%%{}); [r] = resp.(); '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+                                        'Map.take(r, ["value", "outcome", "reason"]) == %s' % (bad, want)),
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    })
+    ^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 418, in runtime
+    stdout = self.built(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 413, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported token at byte 603
+
+
+======================================================================
+FAIL: test_N17_clean_rows (__main__.Slice6DbStored.test_N17_clean_rows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 160, in test_N17_clean_rows
+    self.assert_built(ORDERS, [counted(2, 2, 0)], rows=[row(WIRE1), row(WIRE2)])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 2 rows, 2 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 2 rows, 2 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N17b_empty_row_snapshot (__main__.Slice6DbStored.test_N17b_empty_row_snapshot)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 164, in test_N17b_empty_row_snapshot
+    self.assert_built(ORDERS, [counted(0, 0, 0)], rows=[])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 0 rows, 0 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 0 rows, 0 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N18_control_old_source_builds (__main__.Slice6DbStored.test_N18_control_old_source_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 181, in test_N18_control_old_source_builds
+    self.assert_built(ORDERS, [counted(1, 1, 0)], rows=[row(ZERO)])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N18_control_stricter_without_the_row_builds (__main__.Slice6DbStored.test_N18_control_stricter_without_the_row_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 184, in test_N18_control_stricter_without_the_row_builds
+    self.assert_built(STRICTER, [counted(1, 1, 0)], rows=[row(WIRE1)])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 660'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 660'])
+
+======================================================================
+FAIL: test_N18_stricter_constructor_blocks (__main__.Slice6DbStored.test_N18_stricter_constructor_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 170, in test_N18_stricter_constructor_blocks
+    self.assertEqual((1, "", ["error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "field amount with BadAmount", "  record source: %s:1 (line 1)" % rows_path], True),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got[:2], len(got) == 3 and got[2].startswith(HELP_PREFIX)), "\n".join(got))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Order: 1 stored ROW of table [203 chars]True) != (1, '', ['unsupported token at byte 660'], False)
+
+First differing element 2:
+['error: TYPE Order: 1 stored ROW of table [196 chars] 1)']
+['unsupported token at byte 660']
+
++ (1, '', ['unsupported token at byte 660'], False)
+- (1,
+-  '',
+-  ['error: TYPE Order: 1 stored ROW of table records fails the constructor of '
+-   'Amount for field amount with BadAmount',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-0exszbjl/stored/1/rows.jsonl:1 '
+-   '(line 1)'],
+-  True) : unsupported token at byte 660
+
+======================================================================
+FAIL: test_N18b_two_rows_fail_counted_with_the_first_line (__main__.Slice6DbStored.test_N18b_two_rows_fail_counted_with_the_first_line)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 176, in test_N18b_two_rows_fail_counted_with_the_first_line
+    self.assertEqual((1, ["error: TYPE Order: 2 stored ROWS of table records fail the constructor of Amount for "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "field amount with BadAmount", "  record source: %s:2 (line 2)" % rows_path]),
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, got[:2]), "\n".join(got))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, ['error: TYPE Order: 2 stored ROWS of table[197 chars]2)']) != (1, ['unsupported token at byte 660'])
+
+First differing element 1:
+['error: TYPE Order: 2 stored ROWS of table[196 chars] 2)']
+['unsupported token at byte 660']
+
++ (1, ['unsupported token at byte 660'])
+- (1,
+-  ['error: TYPE Order: 2 stored ROWS of table records fail the constructor of '
+-   'Amount for field amount with BadAmount',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ahqrfo84/stored/1/rows.jsonl:2 '
+-   '(line 2)']) : unsupported token at byte 660
+
+======================================================================
+FAIL: test_N19_control_kept_value_builds (__main__.Slice6DbStored.test_N19_control_kept_value_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 195, in test_N19_control_kept_value_builds
+    self.assert_built(NO_APP, [counted(1, 1, 0)], rows=[row(TV, unknown_fields=["channel"])])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 562'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 562'])
+
+======================================================================
+FAIL: test_N19_control_the_row_builds_where_the_literal_stands (__main__.Slice6DbStored.test_N19_control_the_row_builds_where_the_literal_stands)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 198, in test_N19_control_the_row_builds_where_the_literal_stands
+    self.assert_built(ORDERS, [counted(1, 1, 0)], rows=[row(APP)])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N19_lost_literal_blocks (__main__.Slice6DbStored.test_N19_lost_literal_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 190, in test_N19_lost_literal_blocks
+    self.assertEqual((1, "", ["error: TYPE Order v1: 1 stored ROW of table records has a value of field channel that "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "is no ENUM LITERAL of Channel now (DL-122)",
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "  record source: %s:1 (line 1)" % rows_path, LITERAL_HELP]), (code, stdout, got))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Order v1: 1 stored ROW of tab[389 chars]el']) != (1, '', ['unsupported token at byte 562'])
+
+First differing element 2:
+['error: TYPE Order v1: 1 stored ROW of tab[388 chars]nel']
+['unsupported token at byte 562']
+
++ (1, '', ['unsupported token at byte 562'])
+- (1,
+-  '',
+-  ['error: TYPE Order v1: 1 stored ROW of table records has a value of field '
+-   'channel that is no ENUM LITERAL of Channel now (DL-122)',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-hut8dodu/stored/1/rows.jsonl:1 '
+-   '(line 1)',
+-   '  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no '
+-   'MIGRATE STEP form for an enum field (D6B-39), so restore the removed or '
+-   'changed ENUM LITERAL of Channel'])
+
+======================================================================
+FAIL: test_N20_chain_rows_build (__main__.Slice6DbStored.test_N20_chain_rows_build)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 204, in test_N20_chain_rows_build
+    self.assert_built(PLAIN_V2, [counted(2, 2, 0)],
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      rows=[row(PLAIN_ROW, sd.PLAIN_V1), row(V3_ROW, sd.PLAIN_V2_TYPE)])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 2 rows, 2 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 301'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 2 rows, 2 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 301'])
+
+======================================================================
+FAIL: test_N20_newer_version_blocks (__main__.Slice6DbStored.test_N20_newer_version_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 211, in test_N20_newer_version_blocks
+    self.assert_path_block(ORDERS, "Order", line=2, rows=[row(WIRE1), row(WIRE2, retyped(sd.ORDER_TYPE, version=7))])
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 152, in assert_path_block
+    self.assertEqual((1, "", "error: TYPE %s cannot read 1 stored ROW of table records" % type_name, True),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got[0] if got else None,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "  record source: %s (first at line %d)" % (rows_path, line) in got), "\n".join(got))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Order cannot read 1 stored ROW of table records', True) != (1, '', 'unsupported token at byte 603', False)
+
+First differing element 2:
+'error: TYPE Order cannot read 1 stored ROW of table records'
+'unsupported token at byte 603'
+
+- (1, '', 'error: TYPE Order cannot read 1 stored ROW of table records', True)
++ (1, '', 'unsupported token at byte 603', False) : unsupported token at byte 603
+
+======================================================================
+FAIL: test_N20_off_chain_row_blocks (__main__.Slice6DbStored.test_N20_off_chain_row_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 208, in test_N20_off_chain_row_blocks
+    self.assert_path_block(PLAIN_V2, "Order", rows=[row(PLAIN_ROW, retyped(sd.PLAIN_V1, fingerprint=OFF_CHAIN))])
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 152, in assert_path_block
+    self.assertEqual((1, "", "error: TYPE %s cannot read 1 stored ROW of table records" % type_name, True),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got[0] if got else None,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "  record source: %s (first at line %d)" % (rows_path, line) in got), "\n".join(got))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Order cannot read 1 stored ROW of table records', True) != (1, '', 'unsupported token at byte 301', False)
+
+First differing element 2:
+'error: TYPE Order cannot read 1 stored ROW of table records'
+'unsupported token at byte 301'
+
+- (1, '', 'error: TYPE Order cannot read 1 stored ROW of table records', True)
++ (1, '', 'unsupported token at byte 301', False) : unsupported token at byte 301
+
+======================================================================
+FAIL: test_N20b_control_note_row_off_its_chain_blocks (__main__.Slice6DbStored.test_N20b_control_note_row_off_its_chain_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 230, in test_N20b_control_note_row_off_its_chain_blocks
+    self.assert_path_block(TWO_ROWS, "Note", rows=[self.note("off-chain", retyped(NOTE_V1, fingerprint=OFF_CHAIN))])
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 152, in assert_path_block
+    self.assertEqual((1, "", "error: TYPE %s cannot read 1 stored ROW of table records" % type_name, True),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got[0] if got else None,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "  record source: %s (first at line %d)" % (rows_path, line) in got), "\n".join(got))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Note cannot read 1 stored ROW of table records', True) != (1, '', 'unsupported token at byte 609', False)
+
+First differing element 2:
+'error: TYPE Note cannot read 1 stored ROW of table records'
+'unsupported token at byte 609'
+
+- (1, '', 'error: TYPE Note cannot read 1 stored ROW of table records', True)
++ (1, '', 'unsupported token at byte 609', False) : unsupported token at byte 609
+
+======================================================================
+FAIL: test_N20b_control_note_row_under_the_order_type_blocks (__main__.Slice6DbStored.test_N20b_control_note_row_under_the_order_type_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 224, in test_N20b_control_note_row_under_the_order_type_blocks
+    got = self.assert_path_block(TWO_ROWS, "Order", rows=[row(WIRE1), self.note("under-order",
+                                                                                 retyped(NOTE_V1, name="Order"))],
+                                 line=2)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 152, in assert_path_block
+    self.assertEqual((1, "", "error: TYPE %s cannot read 1 stored ROW of table records" % type_name, True),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got[0] if got else None,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "  record source: %s (first at line %d)" % (rows_path, line) in got), "\n".join(got))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Order cannot read 1 stored ROW of table records', True) != (1, '', 'unsupported token at byte 609', False)
+
+First differing element 2:
+'error: TYPE Order cannot read 1 stored ROW of table records'
+'unsupported token at byte 609'
+
+- (1, '', 'error: TYPE Order cannot read 1 stored ROW of table records', True)
++ (1, '', 'unsupported token at byte 609', False) : unsupported token at byte 609
+
+======================================================================
+FAIL: test_N20b_two_row_types_build (__main__.Slice6DbStored.test_N20b_two_row_types_build)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 219, in test_N20b_two_row_types_build
+    self.assert_built(TWO_ROWS, [counted(3, 3, 0)],
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      rows=[row(WIRE1), self.note("first-note"), row({"text": "second-note", "tag": "second-tag"},
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                                    NOTE_V2, operation="notes.save")])
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 3 rows, 3 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 609'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 3 rows, 3 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 609'])
+
+======================================================================
+FAIL: test_N21_not_decodable_rows_are_counted (__main__.Slice6DbStored.test_N21_not_decodable_rows_are_counted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 237, in test_N21_not_decodable_rows_are_counted
+    self.assert_built(ORDERS, [counted(3, 1, 2)], rows=[row(WIRE1), bad_digest, invoice])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 3 rows, 1 checked, 2 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 3 rows, 1 checked, 2 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N21b_rejected_row_skips_the_constructor_check (__main__.Slice6DbStored.test_N21b_rejected_row_skips_the_constructor_check)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 246, in test_N21b_rejected_row_skips_the_constructor_check
+    self.assert_built(STRICTER, [counted(1, 0, 1)], rows=[row(ZERO, outcome="rejected", reason="constructor")])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 0 checked, 1 not decodable']) != (1, False, ['unsupported token at byte 660'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 0 checked, 1 not decodable'])
++ (1, False, ['unsupported token at byte 660'])
+
+======================================================================
+FAIL: test_N21b_rows_not_accepted_are_counted_QV3_8_B (__main__.Slice6DbStored.test_N21b_rows_not_accepted_are_counted_QV3_8_B)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 243, in test_N21b_rows_not_accepted_are_counted_QV3_8_B
+    self.assert_built(ORDERS, [counted(3, 1, 2)], rows=[row(WIRE1), rejected, off])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 3 rows, 1 checked, 2 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 3 rows, 1 checked, 2 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N22_control_put_only_needs_no_row_snapshot (__main__.Slice6DbStored.test_N22_control_put_only_needs_no_row_snapshot)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 271, in test_N22_control_put_only_needs_no_row_snapshot
+    self.assertEqual((0, True, []), (code, "def orders_save(" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, []) != (1, False, ['unsupported effect kind: db.p[51 chars]t)'])
+
+First differing element 0:
+0
+1
+
+- (0, True, [])
++ (1,
++  False,
++  ['unsupported effect kind: db.put in effect orders.save (slice 1 supports '
++   'http.post)'])
+
+======================================================================
+FAIL: test_N22_no_row_snapshot_blocks_a_reader (__main__.Slice6DbStored.test_N22_no_row_snapshot_blocks_a_reader)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 267, in test_N22_no_row_snapshot_blocks_a_reader
+    self.assertEqual((1, "", [UNKNOWN_STORE]), (code, stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: stored ROWS unknown: a source with[90 chars]e)']) != (1, '', ['unsupported token at byte 603'])
+
+First differing element 2:
+['error: stored ROWS unknown: a source with[89 chars]re)']
+['unsupported token at byte 603']
+
++ (1, '', ['unsupported token at byte 603'])
+- (1,
+-  '',
+-  ['error: stored ROWS unknown: a source with db.get or db.list needs '
+-   'rows.jsonl beside --stored (an unknown store is not an empty store)'])
+
+======================================================================
+FAIL: test_N23_line_form (__main__.Slice6DbStored.test_N23_line_form) [not_json]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 287, in test_N23_line_form
+    self.assertEqual((1, "", [text, "  record source: %s:2 (line 2)" % rows_path]), (code, stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: stored ROW is not JSON', '  record[114 chars]2)']) != (1, '', ['unsupported token at byte 603'])
+
+First differing element 2:
+['error: stored ROW is not JSON', '  record[113 chars] 2)']
+['unsupported token at byte 603']
+
++ (1, '', ['unsupported token at byte 603'])
+- (1,
+-  '',
+-  ['error: stored ROW is not JSON',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ybgxl0xo/stored/1/rows.jsonl:2 '
+-   '(line 2)'])
+
+======================================================================
+FAIL: test_N23_line_form (__main__.Slice6DbStored.test_N23_line_form) [no_source]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 287, in test_N23_line_form
+    self.assertEqual((1, "", [text, "  record source: %s:2 (line 2)" % rows_path]), (code, stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: stored ROW has no source "db"', ' [121 chars]2)']) != (1, '', ['unsupported token at byte 603'])
+
+First differing element 2:
+['error: stored ROW has no source "db"', ' [120 chars] 2)']
+['unsupported token at byte 603']
+
++ (1, '', ['unsupported token at byte 603'])
+- (1,
+-  '',
+-  ['error: stored ROW has no source "db"',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ybgxl0xo/stored/2/rows.jsonl:2 '
+-   '(line 2)'])
+
+======================================================================
+FAIL: test_N23_line_form (__main__.Slice6DbStored.test_N23_line_form) [version_2]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 287, in test_N23_line_form
+    self.assertEqual((1, "", [text, "  record source: %s:2 (line 2)" % rows_path]), (code, stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: stored ROW has record version 2; t[172 chars]2)']) != (1, '', ['unsupported token at byte 603'])
+
+First differing element 2:
+['error: stored ROW has record version 2; t[171 chars] 2)']
+['unsupported token at byte 603']
+
++ (1, '', ['unsupported token at byte 603'])
+- (1,
+-  '',
+-  ['error: stored ROW has record version 2; this build reads record version 3 '
+-   'only (DL-143)',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ybgxl0xo/stored/3/rows.jsonl:2 '
+-   '(line 2)'])
+
+======================================================================
+FAIL: test_N24_control_matching_meta_builds (__main__.Slice6DbStored.test_N24_control_matching_meta_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 303, in test_N24_control_matching_meta_builds
+    self.assert_built(ORDERS, [counted(2, 2, 0)], rows=rows, meta=self.meta(rows, 2))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 2 rows, 2 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 2 rows, 2 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N24_partial_row_snapshot_blocks (__main__.Slice6DbStored.test_N24_partial_row_snapshot_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 298, in test_N24_partial_row_snapshot_blocks
+    self.assertEqual((1, "", ["error: rows.jsonl holds 2 rows but snapshot-meta.json counts 3; the ROW SNAPSHOT is "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "partial"]), (code, stdout, got))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: rows.jsonl holds 2 rows but snapsh[48 chars]al']) != (1, '', ['unsupported token at byte 603'])
+
+First differing element 2:
+['error: rows.jsonl holds 2 rows but snapsh[47 chars]ial']
+['unsupported token at byte 603']
+
++ (1, '', ['unsupported token at byte 603'])
+- (1,
+-  '',
+-  ['error: rows.jsonl holds 2 rows but snapshot-meta.json counts 3; the ROW '
+-   'SNAPSHOT is partial'])
+
+======================================================================
+FAIL: test_N24_sample_builds (__main__.Slice6DbStored.test_N24_sample_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 318, in test_N24_sample_builds
+    self.assertEqual((0, True, [counted(2, 2, 0)]), (code, "defmodule Orders do" in stdout, stderr.strip().splitlines()))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 2 rows, 2 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 2 rows, 2 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N25_control_rejected_record_is_counted (__main__.Slice6DbStored.test_N25_control_rejected_record_is_counted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 342, in test_N25_control_rejected_record_is_counted
+    self.assertEqual((0, True, sorted(p2 + [counted(0, 0, 0)]), True),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, "defmodule Orders do" in stdout, sorted(got),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      any(got[i:i + 2] == p2 for i in range(len(got)))), "\n".join(got))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['1 records, 0 checked, 1 reject[90 chars]True) != (1, False, ['unsupported token at byte 660'], False)
+
+First differing element 0:
+0
+1
+
++ (1, False, ['unsupported token at byte 660'], False)
+- (0,
+-  True,
+-  ['1 records, 0 checked, 1 rejected at capture',
+-   'digest not verified (P2b)',
+-   'rows: 0 rows, 0 checked, 0 not decodable'],
+-  True) : unsupported token at byte 660
+
+======================================================================
+FAIL: test_N25_list_record_constructor_blocks (__main__.Slice6DbStored.test_N25_list_record_constructor_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 325, in test_N25_list_record_constructor_blocks
+    self.assertEqual((1, "", ["error: TYPE Order: 1 stored RESPONSE RECORD of operation orders.list fails the "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "constructor of Amount for field amount with BadAmount",
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "  record source: %s:1 (line 1)" % resp], True),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got[:2], len(got) == 3 and got[2].startswith(HELP_PREFIX)), "\n".join(got))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Order: 1 stored RESPONSE RECO[228 chars]True) != (1, '', ['unsupported token at byte 660'], False)
+
+First differing element 2:
+['error: TYPE Order: 1 stored RESPONSE RECO[221 chars] 1)']
+['unsupported token at byte 660']
+
++ (1, '', ['unsupported token at byte 660'], False)
+- (1,
+-  '',
+-  ['error: TYPE Order: 1 stored RESPONSE RECORD of operation orders.list fails '
+-   'the constructor of Amount for field amount with BadAmount',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-u9ymlzn_/stored/1/responses.jsonl:1 '
+-   '(line 1)'],
+-  True) : unsupported token at byte 660
+
+======================================================================
+FAIL: test_N25_save_record_constructor_blocks (__main__.Slice6DbStored.test_N25_save_record_constructor_blocks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 333, in test_N25_save_record_constructor_blocks
+    self.assertEqual((1, "", ["error: TYPE Order: 1 stored RESPONSE RECORD of operation orders.save fails the "
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "constructor of Amount for field amount with BadAmount",
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "  record source: %s:1 (line 1)" % resp]), (code, stdout, got[:2]), "\n".join(got))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: TYPE Order: 1 stored RESPONSE RECO[222 chars]1)']) != (1, '', ['unsupported token at byte 660'])
+
+First differing element 2:
+['error: TYPE Order: 1 stored RESPONSE RECO[221 chars] 1)']
+['unsupported token at byte 660']
+
++ (1, '', ['unsupported token at byte 660'])
+- (1,
+-  '',
+-  ['error: TYPE Order: 1 stored RESPONSE RECORD of operation orders.save fails '
+-   'the constructor of Amount for field amount with BadAmount',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-ff3xo6cx/stored/1/responses.jsonl:1 '
+-   '(line 1)']) : unsupported token at byte 660
+
+======================================================================
+FAIL: test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [constructor]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 363, in test_N26_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : unsupported token at byte 660
+
+======================================================================
+FAIL: test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [literal]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 363, in test_N26_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : unsupported token at byte 562
+
+======================================================================
+FAIL: test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [path]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 363, in test_N26_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : unsupported token at byte 609
+
+======================================================================
+FAIL: test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [orphan]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 363, in test_N26_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : unsupported token at byte 603
+
+======================================================================
+FAIL: test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [list_record]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 363, in test_N26_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : unsupported token at byte 660
+
+======================================================================
+FAIL: test_N26_no_stored_value_in_any_text (__main__.Slice6DbStored.test_N26_no_stored_value_in_any_text) [count_line]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 363, in test_N26_no_stored_value_in_any_text
+    self.assertEqual((True, []), (anchor in text, [w for w in sorted(self.words) if w in text]), text)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (True, []) != (False, [])
+
+First differing element 0:
+True
+False
+
+- (True, [])
++ (False, []) : unsupported token at byte 603
+
+======================================================================
+FAIL: test_N27_events_hold_no_row_value (__main__.Slice6DbStored.test_N27_events_hold_no_row_value)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 368, in test_N27_events_hold_no_row_value
+    self.assert_built(ORDERS, [counted(1, 1, 0)], rows=[row(WIRE1)])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N28_control_row_of_a_removed_writer_with_a_reader_is_checked (__main__.Slice6DbStored.test_N28_control_row_of_a_removed_writer_with_a_reader_is_checked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 384, in test_N28_control_row_of_a_removed_writer_with_a_reader_is_checked
+    self.assert_built(ORDERS, [counted(1, 1, 0)], rows=[row(WIRE1, operation="orders.import")])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 1 checked, 0 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 1 checked, 0 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N28_orphan_rows_of_a_removed_db_effect_block (__main__.Slice6DbStored.test_N28_orphan_rows_of_a_removed_db_effect_block)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 378, in test_N28_orphan_rows_of_a_removed_db_effect_block
+    self.assertEqual((1, "", ["error: stored ROW of operation notes.save has no effect in the source",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "  record source: %s:2 (line 2)" % rows_path,
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "  stored ROWS of operation notes.save: 2"]), (code, stdout, got[:3]), "\n".join(got))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', ['error: stored ROW of operation notes.save[198 chars] 2']) != (1, '', ['unsupported token at byte 603'])
+
+First differing element 2:
+['error: stored ROW of operation notes.save[197 chars]: 2']
+['unsupported token at byte 603']
+
++ (1, '', ['unsupported token at byte 603'])
+- (1,
+-  '',
+-  ['error: stored ROW of operation notes.save has no effect in the source',
+-   '  record source: '
+-   '/var/folders/0y/gcbfrs51401ghzf3hxdm3l5c0000gp/T/beaml-0004-s6entry-wr3pdxux/stored/1/rows.jsonl:2 '
+-   '(line 2)',
+-   '  stored ROWS of operation notes.save: 2']) : unsupported token at byte 603
+
+======================================================================
+FAIL: test_N29_read_order_digest_before_type_version (__main__.Slice6DbStored.test_N29_read_order_digest_before_type_version)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 253, in test_N29_read_order_digest_before_type_version
+    self.assert_built(ORDERS, [counted(1, 0, 1)], rows=[bad])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 0 checked, 1 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 0 checked, 1 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N29_read_order_type_name_before_type_version (__main__.Slice6DbStored.test_N29_read_order_type_name_before_type_version)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 256, in test_N29_read_order_type_name_before_type_version
+    self.assert_built(ORDERS, [counted(1, 0, 1)], rows=[row({"invoice_id": "invoice-7"}, retyped(INVOICE, version=7))])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 142, in assert_built
+    self.assertEqual((0, True, lines), (code, "defmodule Orders do" in stdout, got))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, ['rows: 1 rows, 0 checked, 1 not decodable']) != (1, False, ['unsupported token at byte 603'])
+
+First differing element 0:
+0
+1
+
+- (0, True, ['rows: 1 rows, 0 checked, 1 not decodable'])
++ (1, False, ['unsupported token at byte 603'])
+
+======================================================================
+FAIL: test_N29_read_order_type_version_before_DL101 (__main__.Slice6DbStored.test_N29_read_order_type_version_before_DL101)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 260, in test_N29_read_order_type_version_before_DL101
+    got = self.assert_path_block(STRICTER, "Order", rows=[row(ZERO, retyped(sd.ORDER_TYPE, fingerprint=OFF_CHAIN))])
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 152, in assert_path_block
+    self.assertEqual((1, "", "error: TYPE %s cannot read 1 stored ROW of table records" % type_name, True),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     (code, stdout, got[0] if got else None,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "  record source: %s (first at line %d)" % (rows_path, line) in got), "\n".join(got))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: TYPE Order cannot read 1 stored ROW of table records', True) != (1, '', 'unsupported token at byte 660', False)
+
+First differing element 2:
+'error: TYPE Order cannot read 1 stored ROW of table records'
+'unsupported token at byte 660'
+
+- (1, '', 'error: TYPE Order cannot read 1 stored ROW of table records', True)
++ (1, '', 'unsupported token at byte 660', False) : unsupported token at byte 660
+
+======================================================================
+FAIL: test_N31_note_chain_read_runtime (__main__.Slice6DbStored.test_N31_note_chain_read_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_stored_test.py", line 417, in test_N31_note_chain_read_runtime
+    self.runtime(TWO_ROWS, {
+    ~~~~~~~~~~~~^^^^^^^^^^^^
+        "N31_note_v1_reads_with_tag": ('fresh.(); BeamlDb.seed("Note", 1, %s); '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+                                       '[o1.()]}}, {:ok, %%{"items" => [%%{"text" => "n1", "tag" => ""}]}}}' % v1),
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    })
+    ^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 418, in runtime
+    stdout = self.built(source)
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_db_test.py", line 413, in built
+    self.assertEqual((0, True), (code, "defmodule Orders do" in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and the module Orders on stdout; stderr: " + stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and the module Orders on stdout; stderr: unsupported token at byte 609
+
+
+----------------------------------------------------------------------
+Ran 40 tests in 0.729s
+
+FAILED (failures=43, skipped=3)

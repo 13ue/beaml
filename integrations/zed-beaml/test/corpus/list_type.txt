@@ -1,0 +1,18 @@
+==================
+List type field
+==================
+
+type OrderList { items: [Order] }
+
+---
+
+(source_file
+  (type_declaration
+    (type
+      (identifier))
+    (field_declaration
+      (property
+        (identifier))
+      (list_type
+        (type
+          (identifier))))))

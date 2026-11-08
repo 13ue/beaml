@@ -1,5 +1,11 @@
 // D4 (DL-112): a redacted value in a variant payload of an enum that is not a failure.
-type Order { order_id: String  card_holder: redacted String }
-enum State { Open()  Held(String) }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
+enum State {
+  Open()
+  Held(String)
+}
 
 fn state Order { card_holder } -> State = Held(card_holder)

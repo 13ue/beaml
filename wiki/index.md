@@ -29,6 +29,7 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Working glossary](../GLOSSARY.md): scoped terms, proposed owners and German aliases; no universal runtime model.
 - [Candidate context map](planning/context-map.md): language/compilation, execution and Observatory models with explicit translation boundaries.
 - [Local strategy-wiki source](sources/agentic-strategy-wiki.md): selected local glossary/context patterns and provenance; no imported business model or policy.
+- [OWNER ideas](sources/owner-ideas.md) — spoken OWNER statements, captured and paraphrased; highest source of truth for intent.
 - [Engineering specification v0.5](sources/engineering-spec-v0.5.md): preserved PDF, all sections, local S01-S45 inventory, exact proposed gates and phase tables.
 - [Product contract](concepts/product-contract.md): language/runtime/UI/security ownership and validation/trust boundaries.
 - [Knowledge coverage](planning/specification-knowledge-coverage.md): honest subclaim depth audit across the full spec and compiler/VM research.
@@ -45,7 +46,7 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Pinned replay source validation](sources/replay-source-validation.md): missing workflow identity, sink isolation, compatible commands and crash uncertainty.
 - [Vertical integration](concepts/vertical-integration.md): owner goal, one language from source to typed production data.
 - [MIGRATE STEP fates](concepts/migrate-fates.md): DL-125 FATE OPERATIONS `redact`, `quarantine`, `retire`, `map`; proposed semantics and open questions.
-- [Syntax sentiment](concepts/syntax-sentiment.md): loved and hated themes, BEAML scorecard (20 aligned, 5 tension, 7 gap), open items D026 to D033, decided after the first example applications (DL-140).
+- [Syntax sentiment](concepts/syntax-sentiment.md): loved and hated themes, BEAML scorecard (20 aligned, 5 tension, 7 gap), open items D026 to D033, decided after the first example applications (DL-145).
 - [Typed errors and replay](concepts/typed-errors-and-replay.md): compiler/runtime capture profiles, GROUND TRUTH, typed-invalid fixtures, completeness, isolated reproduction and per-context acceptance.
 
 ## Types and formal reasoning
@@ -80,6 +81,7 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [BEAM/OTP/Phoenix overview sources](sources/beam-otp-phoenix.md): earlier selected docs and version limits.
 - [BEAM VM source ledger](sources/beam-vm-internals.md): pinned current OTP source and stale-guide caveats.
 - [Typed BEAM precedents](sources/typed-beam-languages.md): Dialyzer, Gleam and current Elixir mechanisms.
+- [Gleam typed OTP](sources/gleam-typed-otp.md): typed `Subject`, selectors, actors, supervision and their untyped limits; prior art for D046 and D049.
 - [Runtime/interop overview](concepts/beam-runtime-and-interop.md): generated API, Mix lifecycle, atom safety, tasks/cancellation and upgrades.
 - [Execution and compilation](concepts/beam/execution-and-compilation.md): current Core→SSA, validator, register/root/tail-call, container/loader/JIT contracts.
 - [Terms, memory and GC](concepts/beam/terms-memory-and-gc.md): tagged terms, maps, roots/copying, binary retention and streaming lifetime.
@@ -116,3 +118,4 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Karpathy LLM Wiki](sources/karpathy-llm-wiki.md): raw/wiki/index/log workflow inspiration.
 - [Decision4 source](sources/decision4.md) and [decision-consequence lens](concepts/decision-consequences.md): attributed decision framework, not inherited agent policy.
 - [Source registry](sources/README.md), [log](log.md), [repository overview](../README.md), [maintenance guidance](../AGENTS.md).
+- [Totality and let it crash](concepts/totality-and-let-it-crash.md) — how data totality sits beside process let-it-crash; draft, D047.

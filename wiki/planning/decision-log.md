@@ -2,7 +2,7 @@
 id: planning-decision-log
 kind: planning
 status: active
-updated: 2026-11-07
+updated: 2026-11-08
 ---
 
 # Decision log
@@ -615,6 +615,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: A. Built in slice 6b step 10; the fixture `slice6/fmt/header` encodes it.
 → By: 13ue
 → Because: OWNER choice; compact, and the columns follow the values. B gets wide with long TYPE names.
+→ Superseded by DL-148 (2026-11-08)
 
 **DL-115 · Migrate · A REPLAY RUN shows a redacted field as the atom `:redacted` (Q6B-14, A)**
 → Question: the record holds no value for a redacted field (DL-105). What does the host see for that field in a REPLAY RUN?
@@ -765,6 +766,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → By: 13ue
 → Because: the UI must tell "the form is broken" from "the flow failed"; B merges both into one struct and fails for a fn without `!`; C is no TYPE, a host pattern on structs misses it.
 → Effect: D023 closed. Slice 6d generates the `Rejected` struct once per build; reasons are `"decode"` and `"constructor"` (D6B-132, D6B-143).
+→ Note (docs, 2026-11-07): `BeamlSpike.Rejected` named the shape; with several modules per build the name is `<Module>.Rejected` (Q6E-2, default, open)
 
 **DL-134 · Migrate · `--stored` also checks stored ENTRY RECORDS; DL-102 covers every record stream (Q6D-4, option A)**
 → Question: when the input TYPE of an ENTRY LINE gets a stricter constructor or loses an ENUM LITERAL, does the build see the stored UI events?
@@ -813,7 +815,8 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Effect: DL-097 is extended, not replaced. A built default carries `By: Opus (default, open)` in the log and in the ledger; the OWNER's answer closes it as "confirmed" or "repaired". The main agent decides the limit per question and records that call with `By: Fable`.
 → OWNER addition (13ue, same day): every built default is presented to the OWNER explicitly, as its own question with a picture and the options, never only as a line in a list or a log. The OWNER must never find a built default by chance. A built default stays open until the OWNER has signed it off; the main agent repeats the question in every later walk-through until the OWNER confirms or changes it. Silence is not a sign-off (see DL-107).
 
-**DL-140 · Repair · Ingest the PL syntax sentiment research; decide its tensions after the first example applications**
+**DL-145 · Repair · Ingest the PL syntax sentiment research; decide its tensions after the first example applications**
+→ ID note: first written as DL-140 by a parallel session; renumbered to DL-145 on 2026-11-07 because DL-140 was already taken (M2). References in the syntax pages updated.
 → Question: ingest the PL syntax sentiment research (loved and hated features, BEAML lens) into the wiki, and when to decide its tensions and gaps?
 → Options: ingest now and decide the tensions now; ingest now and decide them after the first example applications; keep it as temporary research outside the wiki.
 → Chose: ingest now, decide the tensions after the first example applications.
@@ -822,7 +825,8 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Trigger: research handed back 2026-11-07.
 → Effect: capture under `raw/research/2026-11-07-pl-syntax-sentiment/`, [source page](../sources/pl-syntax-sentiment-2026.md), [concept page](../concepts/syntax-sentiment.md); eight open items D026 to D033 in [decisions to be made](decisions-to-be-made.md), each with trigger "after the first example applications".
 
-**DL-141 · Repair · Take BAML up as a topic in the syntax sentiment research**
+**DL-146 · Repair · Take BAML up as a topic in the syntax sentiment research**
+→ ID note: first written as DL-141 by a parallel session; renumbered to DL-146 on 2026-11-07 (DL-141 is the ENTRY RECORD sign-off).
 → Question: take BAML (BoundaryML's language) up as a topic in the syntax sentiment research?
 → Options: yes, as a syntax precedent and a name question; no, the technical precedent pages suffice.
 → Chose: yes.
@@ -831,7 +835,198 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Trigger: OWNER instruction 2026-11-07 after the PL sentiment ingest.
 → Effect: capture under `raw/research/2026-11-07-baml-syntax-sentiment/`, [source page](../sources/baml-syntax-reception-2026.md), [concept section](../concepts/syntax-sentiment.md#9-baml-as-the-nearest-precedent); one open item D034 (keep or change the name BEAML) in [decisions to be made](decisions-to-be-made.md), trigger "before the first public release or external announcement".
 
-**DL-142 · Repair · Take Terraform HCL up as a topic in the syntax sentiment research**
+**DL-140 · Migrate · A stored value that falls on another known variant than before blocks the build; a `map` MIGRATE STEP is required (RED TEAM 01 M2, option A)**
+→ Question: a literal swap between two known variants (`Authorized = "pending"  Pending = "ok"`) passes `--stored` today, because DL-122 blocks only a literal that is no current literal any more (D1).
+→ Options: A, block under DL-122 with the DL-124 text; the build is freed by a `map` MIGRATE STEP (`map state "ok" -> Pending`); B, count and note under DL-103, build green; C, every literal change needs a new TYPE VERSION.
+→ Chose: A. The migration is forced.
+→ By: 13ue
+→ Because: "stored yesterday, read differently today" is the DL-122 reason, and the OWNER wants the mapping declared, never implicit. C punishes a typo fix with a version jump.
+→ Effect: `--stored` compares the variant a stored value took under the stored source with the variant it takes now (needs the stored version's literal table, or the record's decoded variant); a difference blocks. The same for enum constructors with swapped clauses. D6B-109 and the DL-103 limit close. Slice: with the DL-125 fate forms.
+
+**DL-141 · Migrate · The ENTRY RECORD carries `outcome` and `reason` as two fixed keys (slice 6d record format, sign-off 1 of 3)**
+→ Question: DL-138 gives every ENTRY RECORD a capture outcome. How does it stand in the record? The RED worker built two keys (R6D-13); under DL-139 a record format needs the OWNER's sign-off.
+→ Options: A, `outcome` (`"accepted"` or `"rejected"`) and `reason` (`null`, `"decode"` or `"constructor"`) in every record; B, one key with the reason in the value (`"rejected:decode"`); C, no outcome, only `value: null` on a reject.
+→ Chose: A. The built default is confirmed.
+→ By: 13ue
+→ Because: every record has the same key set, `--stored` filters on one key, a later reason needs no format change. B puts a second grammar into a value. C cannot tell a reject from an accepted empty value.
+→ Effect: R6D-13 closes as confirmed. Sign-off 2 (`unknown_fields`) and 3 (one format for both streams) follow.
+
+**DL-142 · Migrate · The ENTRY RECORD keeps `unknown_keys` and `unknown_fields` as two lists (slice 6d record format, sign-off 2 of 3)**
+→ Question: the RED worker gave the ENTRY RECORD both lists (R6D-05), as the RESPONSE RECORD has them. One list instead?
+→ Options: A, both lists: `unknown_keys` for data keys the TYPE does not declare, `unknown_fields` for fields whose value was kept as `Unknown(...)` at capture; B, one list.
+→ Chose: A. The built default is confirmed.
+→ By: 13ue
+→ Because: DL-122 tells "unknown already at capture" from "literal lost today" by `unknown_fields`; without it an old `Unknown` value blocks the build by mistake. Parity with the RESPONSE RECORD.
+→ Effect: R6D-05 closes as confirmed.
+
+**DL-143 · Migrate · One record format for every EFFECT stream; the RESPONSE RECORD is aligned to it in its own repair step before EXPERIMENT 0005 (slice 6d record format, sign-off 3 of 3)**
+→ Question: RESPONSE RECORD (outbound HTTP) and ENTRY RECORD (inbound UI event) differ in their payload keys, and the RESPONSE RECORD has no `outcome`, `reason` or `redacted`. The database stream (DL-129) comes next.
+→ Options: A, one format with a common core (head keys, `value` + `value_sha256`, `outcome` + `reason`, `unknown_keys` + `unknown_fields`, `redacted`, a span id) and transport-specific extras (`status`, `request`); the RESPONSE RECORD is aligned in its own repair step with the byte-pin proof, before EXPERIMENT 0005; B, two formats stay, every new stream decides again; C, align now inside slice 6d.
+→ Chose: A.
+→ By: 13ue
+→ Because (OWNER): BEAML shall support any number of EFFECT transports; a transport is an interface against the language and must be implementable generically later. One record format is part of that interface. C gives slice 6d two goals.
+→ Effect: a new step "record format v3" after slice 6d TEST: common core, transport extras, `--stored` and the REPLAY RUN read one shape, the four byte-pin sites move with a diff proof. The database stream gets the format from the start. Roadmap note: "EFFECT transport as an interface" (DL-126 candidate, later).
+→ Note (docs, 2026-11-08): built as record format v3 at ca09d361; the RESPONSE RECORD alignment step is done.
+
+**DL-144 · Migrate · Free run for the PROTOTYPE: EXPERIMENT 0005 is built without further OWNER answers; every decision is recorded and walked through the next day**
+→ Question: the OWNER wants the Phoenix PROTOTYPE (DL-127 to DL-129) built now. Who answers the open Migrate questions of 0005 (get key, list order and limit, List TYPE, `--stored` connection, code placement, and whatever the build raises)?
+→ Chose: the workers and the main agent build a default for every question, pin it with a test, and record it in the 0005 ledger with class and author (`By: Opus (default, open)` or `By: Fable (default, open)`). The DL-139 limit (syntax, record formats, host-called names) is lifted for 0005 on this run only; such defaults are marked "big" and listed first in an OWNER review file `experiments/0005-prototype-fullstack/workflow/<date>/owner-review.md`. The OWNER walks through every default the next day (DL-139 sign-off rule: each one explicit, with a picture, repeated until signed off). Nothing is lowered in class silently.
+→ By: 13ue
+→ Because (OWNER, 2026-11-07 evening): "free run, record every decision, we go through it tomorrow in detail; tell me the bigger ones explicitly."
+→ Effect: the pipeline runs PLAN → plan check → RED → RED review → GREEN → TEST → docs for 0005 and its prerequisites (slice 6d GREEN/TEST, record format v3, the `db.*` transport step) without a stop at Migrate. Answer-class questions still stop (nothing in 0005 reaches people outside the team: the PROTOTYPE runs locally, no deploy, no real data). Parked D036 items stay parked; a step that needs one of them builds the smallest form that avoids it or marks the test as blocked.
+
+**DL-147 · Repair · A RED test file joins `run.py` in its GREEN commit, not before**
+→ Question: after DL-135 every slice 6 test file runs in the full `run.py`, so an open RED file turns the whole run `fail` and the run cannot tell an expected RED from a regression (TEST v3/multi O2, 2026-11-08).
+→ Chose: a RED file is listed in `run.py` by the GREEN commit that makes it pass; until then it runs by hand in RED, RED review and GREEN. Over: an expected-RED table in `run.py` (a second source of truth for the same counts), or keeping RED files out of version control.
+→ By: Fable (after the TEST v3/multi review, Opus)
+→ Because: the full run must mean "everything listed passes"; a table of expected failures is a pin that drifts. The multi-effect GREEN listed the two db RED files early; the P4 GREEN closes that.
+→ Effect: `redteam_c3_test` C4 keeps "every slice 6 file"; the rule reads "every slice 6 file that has a GREEN". The C4 test may need that wording; the P4 GREEN checks it.
+
+**DL-148 · Migrate · `beaml fmt` layout rules: multi-line bodies from two members, one clause table per block**
+→ Question: `orders.beaml` (EXPERIMENT 0005) shows TYPE and ENUM bodies on one line and EFFECT blocks and constructor clauses unaligned. Which layout does `fmt` write? (OWNER, 2026-11-08, reading the source in the editor.)
+→ Chose: (1) a TYPE body with zero or one field stays on one line; two or more fields go one per line. (2) An ENUM body with zero or one variant stays on one line; two or more variants go one per line. (3) Every contiguous block of single-line clause lines (`fn`, also constructor clauses and signature lines, also EFFECT lines) is one table: the arguments, `->`, the error `!` part and `=` stand in the same columns across the block. A blank line, a comment line or a multi-line clause ends the block (D6B-44 rules kept).
+→ By: 13ue
+→ Because: the tabular form reads well and is to be carried through the whole file, not only inside one `fn` group.
+→ Open: line breaks inside a clause and a maximum line length (D038), to be discussed with longer functions.
+→ Detail: slice "fmt layout" ledger under `experiments/0004-generated-replay/workflow/2026-11-08/fmt-layout/`.
+
+**DL-149 · Migrate · The 0005 claim is narrowed: String-only chain, blocks proven, no fate form yet**
+→ Question: the slice 6 final review (A1, premise, high) found that the 0005 PASS proves less than the thesis: the `Order` chain waits on M4, DL-140 is not built, the only way out of a block is an SQL delete, the v2→v3 change was a script.
+→ Options: A keep the PASS wording · B narrow the claim in README, register and pages.
+→ Chose: B.
+→ By: 13ue (walk-through D037, page 1, 2026-11-08)
+→ Effect: README of 0005, the register line, `docs/index.html` and the vertical-integration page say "String-only chain through BEAML, blocks proven against live rows, no fate form yet". Done in the next docs pass.
+
+**DL-150 · Migrate · A build blocks on a stored row that is not decodable**
+→ Question: the final review (A2, implementation, high): a build counts a bad row (bad digest, SQL `UPDATE` without a new digest) as "not decodable" and passes; at run time the whole `db.list` fails (QDB-4 A).
+→ Options: A block the build on a not-decodable row · B `db.list` skips the row and reports it · C accept the outage.
+→ Chose: A.
+→ By: 13ue (walk-through D037, page 1, 2026-11-08)
+→ Effect: `--stored` over a ROW SNAPSHOT turns M > 0 into a build error with the row's source and reason; the `rows:` count line stays. The digest half still waits on D035 (P2b): until P2b a bad digest is not detected, so A covers decode faults first. Next slice.
+
+**DL-151 · Migrate · `--stored` reads the rows live from the database, also from production; REDACTED FIELDS stay redacted**
+→ Question: the final review (A3, risk, high): the compiler does not check where a ROW SNAPSHOT came from (no meta file: exit 0; only `row_count` read; `run.py run` builds against 0 rows). Options: A compiler requires the meta file and checks database name and query time · B `--stored` queries the table live (DL-127 wording) · C keep as built.
+→ Chose: B. The build runs against the real database, production included. The REDACTED FIELD rules of DL-127 and the record format apply to what the compiler reads and keeps: a redacted field is never read as clear text into a build, an event, a log or a message.
+→ By: 13ue (walk-through D037, page 1, 2026-11-08; confirmed after the Q5-4 consequence was named)
+→ Over: A' (snapshot stays, meta file required, no build against 0 rows), offered by Fable.
+→ Effect: supersedes the built Q5-4 B (host task writes a snapshot) as the primary path; the snapshot form may stay as a test desk, to be decided in the slice plan. The connection is given to the compiler only inside a process (environment from the host tooling), never as an argument that lands in events, logs or the action log; when a real database needs a secret, the OWNER runs that step. Next: slice "live stored" (plan with options: connection form, which queries, batch size, what the count line prints).
+
+**DL-152 · Migrate · D6B-39 is lifted: a chained TYPE may hold constructor and enum fields, and every MIGRATE STEP must be possible on them**
+→ Question: M4 (D036). D6B-39 bans a constructor or enum field in any TYPE with a MIGRATE CHAIN or VERSION MARK, so the 0005 `Order` (`amount: Amount`, `channel: Channel`) cannot be chained, not even for `add note: String`.
+→ Options: A keep the ban, the DL-102 help names the only exit · B lift D6B-39. Sub-forms offered by Fable: B1 chain allowed while no step names such a field · B2 full support, steps on such fields included.
+→ Chose: B, in the full form B2. OWNER words (voice note, transcribed): full support, lift the rule, every migration must be possible.
+→ By: 13ue (walk-through D037, page 2, 2026-11-08)
+→ Effect: build order: (1) the versioned decode runs the MIGRATE STEPS on the raw values first and the literal map, constructor and shape checks after (PDB-09 form), which frees `add`/`drop` of String fields beside enum and constructor fields and the real `Order` chain in 0005; (2) steps that name an enum or constructor field need the forms of M3 (fate forms, DL-116) and the `map` step of DL-140. M3 is therefore the next OWNER question, with a fresh explanation. Supersedes D6B-39, PDB-09 withdrawal, QDB-8 B.
+→ Effect note (2026-11-08): built in m4-lift-d6b39, commit 26b73524
+
+**DL-153 · Migrate · QDB-8: the chained read in 0005 moves to the real `Order`**
+→ Question: QDB-8, the chained read over rows (N7/N7b) ran on the String-only `Note` under D6B-39. Options: A block on M4 · B `Note` chain · C answer M4 now.
+→ Chose: C; with DL-152 the 0005 chain test moves to `Order v2` (`add note: String`), `Note` stays as the small control.
+→ By: 13ue (walk-through D037, page 2, 2026-11-08)
+→ N9 (voice note): the OWNER reads the N9 item as information, not a choice; it is right as written. N9 stays blocked on M3 (`quarantine amount` needs a fate form), no longer on M4.
+→ Effect note (2026-11-08): built in m4-lift-d6b39, commit 26b73524
+
+**DL-154 · Migrate · The compiler emits a public projection function per TYPE for the host; the internal encoder is not an interface**
+→ Question: the 0005 list page calls the compiler-internal `Orders.__beaml_encode_order/1` to render a BEAML value (GREEN exp0005 default A). Options: A host calls the internal encoder · B host matches the enum tuple itself · C the compiler emits a public `project_<type>/1`.
+→ Chose: C. OWNER words (voice note, transcribed): a special public function must be generated, with a very sensible default and an explicit opt-in.
+→ By: 13ue (walk-through D037, page 3, 2026-11-08)
+→ Effect: the next compiler step names and emits the public function (name and opt-in form: plan options; the DL-105 projection stays the content), 0005 calls it, the double-underscore name stays private. What the host may see at all is D040.
+
+**DL-155 · Migrate · A rule or literal change with affected stored values forces a new TYPE VERSION and a MIGRATE STEP; without affected values it is free**
+→ Question: how do a stricter constructor rule (DL-102), a lost ENUM LITERAL (DL-122) and a literal swap (DL-140) relate to TYPE VERSIONS, now that D6B-39 is lifted (DL-152) and `--stored` reads production live (DL-151)?
+→ Chose: one rule for constructor TYPES and enums. The live build checks whether at least one stored value (row or record) falls differently under the changed rule or literal table. If none does, the change is free: no new version, no `migrate` block. If one does, the build blocks until the source declares the next TYPE VERSION (`type Amount v2`, `enum Channel v2`) and a `migrate vN -> vM` block with a fate line (`quarantine f`, `retire f keep N days`, `redact f`) or a `map "old" -> Variant` line (DL-125 forms). v1 exists from the first declaration. An old version stays readable until production holds no value of it; then the step may leave (SQUASH), and the build says when. Version numbers in records and rows are never renumbered (DL-058).
+→ Options: A rule change inside the same version with a fate line (today's DL-102 form) · B every change a new version (DL-140 C, rejected for typo fixes) · C this gated form.
+→ By: 13ue (walk-through 2026-11-08, after three worked examples; "wird von mir so unterschrieben")
+→ Because: the gate "affected stored values" removes the DL-140 C objection (a typo fix with no data stays free) and keeps the OWNER line "stored yesterday, read differently today is a declared migration, never implicit". Versions make the old rule visible in code and in every record, so a redacted or absent value still says which rule it passed.
+→ Effect: DL-140 A keeps its content, moved under the version; DL-102 and DL-122 blocks keep their texts, the help names the version form. Enum versions (`enum Channel v2`) are new syntax: grammar, fmt, tree-sitter. Supersedes the DL-104 reading that a mark is optional for a chained TYPE only in so far as the version is now forced by data. Next: the fate slice (order vs DL-151 still open, D043), then this rule in `--stored`.
+
+**DL-156 · Repair · Build order: the fate slice comes before live `--stored`**
+→ Question: D043, both slices need the compiler. A fate slice first · B live `--stored` (DL-151) first.
+→ Chose: A. The fate slice: grammar for `quarantine`, `retire … keep N days`, `redact`, `map` inside `migrate`, enum versions `enum E v2`, the DL-155 gate in `--stored`, the three blocks DL-102/DL-122/DL-140 lifted by a fate line, REPLAY RUN skips quarantined values, 0005 N9 (`quarantine value` on the stricter `Amount`) as the use case.
+→ By: 13ue (2026-11-08)
+→ Because: the demo app gets its complete loop first (block → fate → green); production reading follows.
+
+**DL-157 · Migrate · A quarantined row is skipped on read by default and counted; fetching quarantined values is a later option**
+→ Question: QF-1 of the fates plan: what the running app gets when `db.list` or `db.get` meets a row that a `quarantine f` line parks. Options: A skip and count, call stays `accepted`, a new record reason `quarantined` for the skipped rows · B return the value with a mark (D042 form) · C the whole call fails with `reason: quarantined`.
+→ Chose: A as the default. Later an explicit option lets a caller fetch quarantined values too. The skipped rows are counted, in the build report and at run time, so a page never claims "10 orders" while it shows 5: the host can learn the skipped count (how the count reaches the host is a plan question for fates-a2: a field on the list result or a second return value).
+→ By: 13ue (2026-11-08)
+→ Because: a parked row must not break the list (DL-150 covers broken rows at build time) and must not pass as a normal value; skip plus honest count is the smallest total form. The record format gains the reason word `quarantined` (fifth reason beside `transport`, `decode`, `constructor`, `not_found`); the OWNER accepted the question as asked.
+→ Effect: fates-a2 RED pins: list skips and counts, get of a quarantined key returns `{:ok, nil}` plus count or a typed not-found with reason `quarantined` (plan option), replay skips, record reason `quarantined` on the skipped rows. D042 B (value with mark) stays the option for the later fetch.
+
+**DL-158 · Migrate · EXPERIMENT 0005 is the living REFERENCE APP; every slice must prove itself against it**
+→ Question: D048. A 0005 stays and grows with every slice · B 0005 frozen as the slice-5 proof, 0006 as the living app.
+→ Chose: A. 0005 is "living": a slice is done only when its use case has landed in the app and `run.py run` passes with it ("jeder Slice muss sich erstmal gegen die App behaupten"). The local end-to-end desk grows in stages: records plus OpenTelemetry spans to a local collector; a live dashboard page; a `beaml` CLI over build, `--stored`, fmt, replay, snapshot; a `bench` step with build time, decode time per row and page latency at 10k and 100k rows, recorded per run with limits as acceptance criteria.
+→ By: 13ue (2026-11-08)
+→ Because: the app shows how BEAML behaves in reality; one living example beats a frozen proof plus a second app to maintain. A PASS in the app still does not mean production readiness.
+→ Effect: the implement-step pipeline gets the step "land in 0005" before TEST for every slice that changes language, records or transports; the register marks 0005 "living" and cites the latest run; `docs/index.html` shows the latest run. First slice under this rule: fates-a (a3 = N9, N9b). The desk stages get their own small steps (register rows under D048).
+
+**DL-159 · Migrate · Q5-10 signed: a STORED ROW holds the record format v3 core in `value`**
+→ Question: Q5-10, built default B (Fable). A the bare projection · B the v3 core in the row (DL-127, DL-143).
+→ Chose: B, signed by the OWNER on the decision site (page "Zeilen", 2026-11-08 07:39).
+→ By: 13ue
+→ Because: a row and a RESPONSE RECORD are the same thing to `--stored`; one reader for both.
+
+**DL-160 · Migrate · `redacted` only on constructor TYPES with a TYPE VERSION, never on a primitive field**
+→ Question: which fields may be redacted. DL-116 (interim) allowed only plain String or Int fields without a constructor. The OWNER's rule of 2026-11-08: the opposite.
+→ Chose: a REDACTED FIELD must have a named constructor TYPE (`body: redacted Body` with `type Body { text: String }` and its `fn Body` clauses), never a bare `String` or `Int`. The TYPE carries its version (v1 from the start, DL-155), so every stored record says which rule its hidden value passed. A stricter rule is a new version with a fate line; no rule ever runs over an absent value, so `redact` never skips a rule (M3 = A follows).
+→ Options: A DL-116 as is (primitives only) · B any field · C constructor TYPES only.
+→ Chose: C.
+→ By: 13ue (2026-11-08, "nur komplexe Typen mit Version"; confirmed when the main agent had recorded it only as the open item D042)
+→ Because: the history of a hidden value is then complete in code: TYPE, version, rule. A primitive has no version and no rule, so nothing could be said about its old values.
+→ Effect: supersedes DL-116 (its interim limit turns into this rule; the 6b error text changes to "a redacted field needs a constructor TYPE"); M3 closes as A (DL-125 list loses DL-116; `redact f` means "field absent from now on"); D042 keeps only the lazy recheck form (how the app reports an old hidden value that fails the new rule). Built in the fate slice (fates-b, with `redact`) or a small step before it; the `redacted-failure` fixtures (26) change.
+
+**DL-161 · Migrate · DL-140 swap detection stays in fates-a; the build reads the old literal table from the previous TYPE VERSION in the source**
+→ Question: the fates plan moved the literal-swap block (DL-140, "Sperre 3") to fates-b because a row stores only the literal, not the variant it had. Options: A keep it in fates-a, the build takes the previous table from the previous TYPE VERSION that DL-155 keeps in the source · B fates-b.
+→ Chose: A.
+→ By: 13ue (decision site, card DL140-PLACE, 2026-11-08 10:03)
+→ Because: DL-155 keeps v1 in the code, so the old table is there; DL-156 named the three blocks as the scope of the fate slice.
+→ Effect: fates-a gets the swap check: for every enum field of a chained TYPE, compare the variant a stored literal took under the stored version's table with the variant under the current table; a difference blocks under DL-122 wording until a `map` line names it (DL-140 A). RED a1 adds the tests (plan repair); the previous worker's RF-03 ("quarantine channel is an error") is a separate OWNER card (QUAR-LITERAL).
+
+**DL-162 · Migrate · `quarantine` may also park a lost ENUM LITERAL**
+→ Question: QUAR-LITERAL (RED fates-a1, RF-03): a stored literal that no longer exists (DL-122) is lifted only by `map "old" -> Variant`, or also by a quarantine line. Options: A only `map` (a literal always has a meaning, at least `Unknown`) · B `quarantine` allowed too (the rows are parked and counted like a rule failure).
+→ Chose: B. Forms: in an enum's own step `migrate Channel v1 -> v2 { quarantine "fax" }`; in the owning TYPE's step `quarantine channel "fax"` (field then literal). A `map` and a `quarantine` on the same literal is an error.
+→ By: 13ue (2026-11-08, "lass uns hier B nehmen")
+→ Because: parking "not yet clear" must be available for every kind of stored value, not only for failed rules; the OWNER wants that guaranteed.
+→ Effect: fates-a1 GREEN builds both forms with the `fate:` count line; RED gets the tests (lost literal parked and counted; rows skipped at run time under DL-157 in a2; map plus quarantine on one literal is an error). Supersedes RF-03.
+
+**DL-163 · Answer · `retire <op> keep N days` deletes STORED ROWS after N days; retention is a guarantee of the language**
+→ Question: M5 (D036). What the RETIRE LINE means for rows in the database. Options: A rows older than N days leave the checked and read set, deletion is host work · B BEAML deletes them after N days · C as A plus a "due for deletion" list for the host.
+→ Chose: B.
+→ By: 13ue (2026-11-08, "B")
+→ Evidence: observed: the RETIRE LINE exists and governs RESPONSE RECORDS (records leave the checked and replay set, the file stays); for rows it parses and frees orphan rows (P4b GREEN). Observed: the language team round split on exactly this (W2 "the build never deletes" vs W1/W3 "retention is a privacy policy of the language", DL-055, DL-111). Unknown: the age source for a row (the ROW SNAPSHOT has no time key, QF-4). Inferred: nothing unmakes a deletion, so the class is Answer; the OWNER decided.
+→ Effect: fates-b plan: (1) the age source (row `inserted_at` from the table, or a time key in the ROW CORE written by `db.put`; live `--stored` reads it, DL-151); (2) who executes: the generated code on a host call (`<Module>.retire/0` or a scheduled job, D046) or the build itself (the build runs on a developer machine: a deletion from there needs an explicit flag and a count; option for the plan); (3) every deletion writes a record without values (count, operation, version, age window) so the REPLAY and the observability stack see it; (4) the build report prints the due count before any deletion ("dry run" in `--stored`); (5) `retire f keep N days` on a field (DL-125) means the field value leaves the row after N days (set absent), same rules. Supersedes the P4b default "RETIRE LINE frees the rows, meaning M5". D036: M5 answered; M8, M9 stay.
+
+**DL-164 · Migrate · A stored record or row with a wrong digest blocks the build (DL-136 digest half, P2b)**
+→ Question: D035. A build the digest check now: a `value_sha256` that does not match the content is a build error with count and source · B keep counting only.
+→ Chose: A.
+→ By: 13ue (2026-11-08, "auf jeden Fall soll es den Build blocken")
+→ Because: a changed value with an old digest is a hand edit or corruption; the build must not pass it (same line as DL-150).
+→ Effect: small step P2b after fates-a1: `--stored` verifies the digest of every checked record and row (QV3-6 scope: `redacted`, `unknown_keys`, `value`), prints the count, blocks with the record source; the `digest not verified (P2b)` line goes; the fate forms apply (a quarantine line may park such rows: plan option). D035 closed. The format number: the OWNER asked why "v3" before any release; proposal recorded: internal draft numbering stays, the first release restarts at 1 with a one-time rewrite; pages say "Record-Format (Entwurf 3)". Not decided.
+
+**DL-165 · Migrate · Record-format numbers are draft numbers until the first release; the release restarts at 1**
+→ Question: the OWNER asked why the record format is "v3" before any release. Options: A keep counting internal rebuilds forever · B internal draft numbers now, the first release restarts the format at 1 with a one-time rewrite of every stored record and row (as v2→v3 was done).
+→ Chose: B. Pages and the site may say "Record-Format (Entwurf 3)"; the internal `version: 3` stays until the release step.
+→ By: 13ue (2026-11-08, "gerade der Neustart bei Release ist sehr wichtig")
+→ Because: the number a user sees must count released formats, not our rebuilds; the restart is the moment the history is cut once, deliberately.
+→ Effect: a "release" step gets a register entry when the time comes: rewrite tool (like `convert_v3.py`), every reader at 1, pins moved once; the draft numbers appear nowhere outside the repository. Record format changes before that stay cheap: draft 4, 5, … are allowed.
+
+**DL-166 · Migrate · QM4-1 signed (text at the EFFECT with reason); QM4-4 reversed: `rename` onto an enum or constructor field is allowed**
+→ Question: QM4-1 the wording of the error for a MIGRATE STEP on an enum or constructor field (A at the EFFECT with the reason, B at the step). QM4-4 whether `rename` onto such a field stays an error until the fate forms.
+→ Chose: QM4-1 A for every step that stays an error. QM4-4 B: a `rename old -> new` onto an enum or constructor field builds; it only moves the key, the literal and constructor checks run after the steps (DL-152). OWNER words: the error for a rename is "vollkommen schwachsinnig, das soll natürlich so gehen".
+→ By: 13ue (2026-11-08, decision site QM4-1 = A, chat for QM4-4)
+→ Because: a rename changes no value; the fate forms are needed only for steps that change a value's meaning or drop it.
+→ QM4-3 (2026-11-08, OWNER): A, keep the old DL-122 help now; fates-a1 replaces it with the DL-155 wording where a fate line lifts the block. Not done twice.
+→ Note (Fable, Repair, 2026-11-08): built as step a1b after fates-a1, not inside a1 (its full run was already in progress). The QM4-1 A text retires with it: `drop`/`add` on such a field are rejected earlier by the String-only texts (K4/K6), so no step keeps the text; `renamed_onto` is deleted.
+→ Effect: step a1b lifts the rename error (the `renamed_onto` check keeps firing for a step that is not a rename, e.g. a `drop`/`add` with a non-String default on such a field, and keeps the QM4-1 A text); RED: a v1 row with `channel: "web"` decodes to v2 `source: Web` after `rename channel -> source`; the four pinned texts move accordingly; `slice6_m4_test` R2/R3 flip from "error" to "builds". QM4-2 and QM4-3 stay built defaults.
+
+**DL-167 · Repair · Eight walk-through cards closed as superseded by later decisions**
+→ Question: the OWNER asked for the cards that only ask whether to change something that a later decision already changes or removes ("sinnloser Kram").
+→ Chose: closed as superseded, no new choice: QM4-2 (no VERSION MARK on `Order`: DL-155 forces the mark when stored values are affected, the fate slice applies it) · Q5-4, QDB-7, SNAP-SET, STORED-ARG (the ROW SNAPSHOT path `mix beaml.stored DIR`, `rows.jsonl`, `snapshot-meta.json`, empty `responses.jsonl`: DL-151 makes the compiler read the table live; the snapshot stays at most as a test desk, to be decided in the live-stored plan) · QDB-4 (one bad row fails `db.list`: DL-150 blocks the build on a not-decodable row and DL-157 skips quarantined rows; nothing is left for the run-time failure form) · QV3-7 (duplicate of COUNT, the merged count-line question; COUNT stays open) · Q5-1 (duplicate of QDB-1: the `db.get` key is a String field of the key TYPE; QDB-1 stays open).
+→ By: Fable (2026-11-08, on the OWNER's request to group such cards)
+→ Because: a question about an interim that a signed decision already replaces has no answer that matters; closing it keeps the sweep honest.
+→ Effect: the decision site marks them "überholt durch DL-…"; the live-stored plan (after fates-a) names the snapshot's fate explicitly.
+
+**DL-168 · Repair · Take Terraform HCL up as a topic in the syntax sentiment research**
 → Question: take Terraform HCL up as a topic in the syntax sentiment research?
 → Options: yes, as the declarative precedent; no, the general-purpose-language evidence suffices.
 → Chose: yes.
@@ -840,14 +1035,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Trigger: OWNER instruction 2026-11-08 after the BAML reception ingest.
 → Effect: capture under `raw/research/2026-11-08-hcl-syntax-sentiment/`, [source page](../sources/hcl-syntax-reception-2026.md), [concept section](../concepts/syntax-sentiment.md#10-terraform-hcl-as-the-declarative-precedent); no new open item. The lessons attach to D026, D028, D029, D030, D032 and D033 in [decisions to be made](decisions-to-be-made.md).
 
-**DL-143 · Repair · Launch a language team for syntax-minimum proposals**
+**DL-169 · Repair · Launch a language team for syntax-minimum proposals**
 → Question: launch a language team for syntax-minimum proposals?
-→ Options: yes, two independent proposals (conservative, radical) plus a compare page; no, wait for the first example applications (DL-140).
+→ Options: yes, two independent proposals (conservative, radical) plus a compare page; no, wait for the first example applications (DL-145).
 → Chose: yes.
 → By: 13ue
-→ Because: OWNER request 2026-11-08: "I want to minimize. Really only the minimum of syntax." The team delivers proposals only. The decision stays open as D035; no grammar changes before the OWNER answers (DL-139).
+→ Because: OWNER request 2026-11-08: "I want to minimize. Really only the minimum of syntax." The team delivers proposals only. The decision stays open as D050; no grammar changes before the OWNER answers (DL-139).
 → Trigger: OWNER request 2026-11-08 after the HCL reception ingest.
-→ Effect: [syntax minimum hub](syntax-minimum.md), [conservative minimum](syntax-minimum-conservative.md), [radical minimum](syntax-minimum-radical.md); one open item D035 in [decisions to be made](decisions-to-be-made.md), trigger "OWNER review of the syntax minimum hub; before the next syntax DL".
+→ Effect: [syntax minimum hub](syntax-minimum.md), [conservative minimum](syntax-minimum-conservative.md), [radical minimum](syntax-minimum-radical.md); one open item D050 in [decisions to be made](decisions-to-be-made.md), trigger "OWNER review of the syntax minimum hub; before the next syntax DL".
 
 ### Process
 

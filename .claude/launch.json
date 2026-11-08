@@ -4,8 +4,31 @@
     {
       "name": "pages",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8767", "--bind", "127.0.0.1"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8767",
+        "--bind",
+        "127.0.0.1"
+      ],
       "port": 8767
+    },
+    {
+      "name": "proto",
+      "runtimeExecutable": "mix",
+      "runtimeArgs": [
+        "phx.server"
+      ],
+      "cwd": "experiments/0005-prototype-fullstack/app",
+      "port": 4000
+    },
+    {
+      "name": "review",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "experiments/0005-prototype-fullstack/workflow/2026-11-08/review-site/serve.py"
+      ],
+      "port": 8768
     }
   ]
 }

@@ -1,0 +1,240 @@
+# Decisions: DB TRANSPORTS and `--stored` over STORED ROWS (EXPERIMENT 0005 prerequisite P4)
+
+**[Proposal]** PLAN phase, 2026-11-07. Decisions that DL-127, DL-129, DL-137, DL-143 and the 0005 defaults (Q5-1 to Q5-10) do not settle.
+Classes follow Decision4. DL-144 (free run): every Migrate question has a built default, pinned by a test in RED and GREEN, and stays open until the OWNER signs it off (DL-139 rule). "Big" marks a default that touches syntax, a record format or a host-called name; those are appended to the 0005 [owner-review.md](../../../../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) under "Database transports (P4)".
+Every entry carries a `By:` line (DL-107). Workers record each taken default again in their `notes.md`.
+ID check: no `PDB-` or `QDB-` ID exists in `experiments/` or `wiki/` at this plan (grep). Parked D036 items (M3, M4, M5, M8, M9) are not decided here.
+
+## OWNER questions (Migrate, default built)
+
+### QDB-1 · Migrate · big · How `db.get` names its key
+
+- **A.** The input TYPE of `db.get` has exactly one String field; that field name is the key; the ROW TYPE must hold a String field of the same name. `effect orders.load OrderKey -> Order ! StoreError = db.get("records")` with `type OrderKey { order_id: String }`. No new syntax.
+- **B.** The key in the call: `db.get("records", order_id)`. New syntax in the transport call; the input TYPE is free.
+- **Default: A**, because it keeps the DL-129 line form, follows Q5-1 B (a domain field is the key, not the host row id) and needs no parser change. Big: it fixes the meaning of a `db.get` input TYPE. Pinned by N7 and N12.
+- → By: Opus (PLAN db-transport, default, open)
+
+### QDB-2 · Migrate · big · The `BeamlDb` signatures
+
+- **A.** Three functions of arity 3: `put(table, {type, version}, core)`, `get(table, type, key)`, `list(table, type, query)`; `{:ok, id}`, `{:ok, row | nil}`, `{:ok, [row]}` or `{:error, reason}`; `row = %{"id", "version", "value"}` with String keys.
+- **B.** The 0005 plan text: `put(table, type, version, value)` (arity 4), the rest as in A.
+- **Default: A**, because all three calls then carry `(table, what, payload)`, the version travels with the TYPE name it belongs to, and the payload is the ROW CORE (Q5-10 B), not a bare value. Big: a host-called name (DL-139). It changes the 0005 plan's put/4 line; the 0005 GREEN builds put/3. Pinned by N2 and N7.
+- → By: Opus (PLAN db-transport, default, open)
+
+### QDB-3 · Migrate · `db.get` with several rows of one key
+
+- **A.** The newest row wins (`ORDER BY inserted_at DESC, id DESC LIMIT 1` in the host).
+- **B.** Several rows are a failure `reason: "ambiguous"`; a unique index per TYPE and key keeps one row.
+- **Default: A**, because `db.put` appends (no upsert in DL-129) and 0005 uses no `db.get` (P5-05). B needs an index per TYPE, a DDL that a TYPE change would touch (against DL-127). Pinned by the fake in N7 only.
+- → By: Opus (PLAN db-transport, default, open)
+
+### QDB-4 · Migrate · One row of a `db.list` fails its decode
+
+- **A.** The whole call fails with the reason of the first failing row (`decode` or `constructor`). No row is skipped.
+- **B.** The row is skipped; the span gets an attribute with the skipped count; the call succeeds.
+- **Default: A**, because a skipped row is lost data with no trace at the page, and `--stored` already blocks the build for a failing decodable row (DL-102). B hides a corrupt row. Challenge: a bad-digest row passes `--stored` (counted, DL-136) and breaks the page. Pinned by N6.
+- → By: Opus (PLAN db-transport, default, open)
+
+### QDB-5 · Migrate · big · Where the db call records go and what they hold
+
+- **A.** The outbound capture stream `"responses"`, one record per db call: the v3 core plus the extra `request`; `value` is the output projection (put: the written value; get: the row value; list: `{"items": [...]}`).
+- **B.** A separate stream `"db"`; `value` holds row references (ids and digests), not values.
+- **Default: A**, because one outbound stream with one format is DL-143, the REPLAY RUN needs the values (DL-129: replay as for any EFFECT), and P3 selects by operation in one list. B makes a REPLAY RUN read the live table. Big: record format and stream. Pinned by N10 and N11.
+- → By: Opus (PLAN db-transport, default, open)
+
+### QDB-6 · Migrate · big · The `outcome` and `reason` values of a db call record
+
+- **A.** `outcome` `"ok"` with `reason: null`, or `"failed"` with `reason` one of `"transport"`, `"decode"`, `"constructor"`, `"not_found"`.
+- **B.** The ENTRY RECORD words: `"accepted"` and `"rejected"`.
+- **Default: A**, because "rejected" means a refused input at the entry (DL-133, DL-141); a db call does not refuse, it fails. Big: record format. If P2 names outbound outcomes, the P2 names win (PDB-01) and this question closes into the P2 one. Pinned by N10.
+- → By: Opus (PLAN db-transport, default, open)
+
+### QDB-7 · Migrate · big · The ROW SNAPSHOT file
+
+- **A.** `rows.jsonl` beside the `--stored` file (the `entries.jsonl` pattern, R6D-04). Each line: the ROW CORE plus `"source": "db"` and `"row_id"`. `snapshot-meta.json` beside it; the compiler reads only its `row_count`.
+- **B.** One mixed `--stored` file: RESPONSE RECORDS and rows in one JSONL, told apart by `source`.
+- **Default: A**, because it follows the DL-134 build, keeps each stream's line count apart (M9 untouched) and lets the compiler see a missing ROW SNAPSHOT (PDB-23). Big: a record format that `mix beaml.stored` writes. Pinned by N17 to N24.
+- → By: Opus (PLAN db-transport, default, open)
+
+## Undo and Repair decisions
+
+Format: **ID · class · decision.** Chose / Over / Because. Commits us to (Repair only).
+
+**PDB-01 · Repair · Plan against the DL-143 core; the P2 key names win.**
+Chose: the core keys of DL-143 with `version: 3`, `span_id`, `outcome`, `reason`. Over: wait for the P2 ledger. Because: no P2 ledger exists at this plan; P2 runs before P4 (0005 order). Commits us to: the P4 RED worker reads the P2 ledger and maps every key name before writing tests.
+→ By: Opus (PLAN db-transport)
+
+**PDB-02 · Repair · Two behaviour steps in one ledger: P4a transports, P4b `--stored` over rows.**
+Over: one RED and one GREEN for all. Because: two code paths (generated Elixir vs compiler check); a smaller RED is easier to review. Commits us to: two RED reviews, one TEST and one review.
+→ By: Opus (PLAN db-transport)
+
+**PDB-03 · Undo · The KIND check names all four transports; a fifth name is an error with a help line.**
+Chose: `unsupported effect kind: <k> in effect <op> (supported: http.post, db.put, db.get, db.list)` plus a help line. Because: the existing text says "slice 1 supports http.post", which is false after P4.
+→ By: Opus (PLAN db-transport)
+
+**PDB-04 · Undo · The table String must be `"records"`.**
+Over: any lower-case name. Because: DL-127 has one table; a second table needs DDL, which BEAML does not own. Changes the S13 text of `bad/unsupported_effect_kind.beaml` (named in the plan table).
+→ By: Opus (PLAN db-transport)
+
+**PDB-05 · Repair · A ROW TYPE is a plain record: no own constructor, no redacted field, no LIST TYPE field.**
+Over: any TYPE. Because: a constructor TYPE row would decode through `T.new`, a redacted field touches M3 (parked), a nested list has no decode. Commits us to: a ROW TYPE with these needs its own step.
+→ By: Opus (PLAN db-transport)
+
+**PDB-06 · Undo · The http.post wire rules (D6B-40, D6B-19, D6B-03) do not apply to db EFFECTS; db EFFECTS get their own check branch.**
+Because: the ROW CORE holds a typed projection with an encode (PDB-13); the http limits exist for lack of a wire encode. http behaviour and texts do not change.
+→ By: Opus (PLAN db-transport)
+
+**PDB-07 · Undo · An enum in a ROW TYPE needs ENUM LITERALS and a keep-value variant.**
+Over: tagged enums without literals. Because: the row stores an enum by its literal; a tagged enum has no JSON form (D6B-40 reason).
+→ By: Opus (PLAN db-transport)
+
+**PDB-08 · Repair · LIST TYPE `[T]` only as the one field of a `db.list` output TYPE (Q5-3 A, smallest form).**
+Chose: lexer symbols `[` `]`, field TYPE text `[T]`, `__beaml_valid__(v, "[T]")` as `is_list` plus element check, emitted only when a LIST TYPE exists. Over: lists in every position. Because: `db.list` is the only producer; no list operation exists. Commits us to: a grammar rule and a fmt case (N15, N16).
+→ By: Opus (PLAN db-transport)
+
+**PDB-09 · Repair · D6B-39 is narrowed for ROW TYPES: a MIGRATE CHAIN may coexist with constructor and literal enum fields that no MIGRATE CHANGE names.**
+Chose: the versioned decode runs the MIGRATE CHANGES on wire values, then the DL-101 tail (literal map, constructors, shape). Over: keep D6B-39 (0005 N7 then cannot build). Because: the 0005 v2 `Order` adds `note` and keeps `amount` and `channel`. Commits us to: per-version wire TYPE checks; a change that names such a field stays an error.
+→ By: Opus (PLAN db-transport)
+
+**PDB-10 · Undo · The 0004 harness gets a fake `BeamlDb` stub module, not an ExUnit suite.**
+Over: ExUnit (as the task text says). Because: 0004 has no Mix project; every runtime test compiles stub modules from Python (`slice6_effect_reach_test.py`). The real Postgres stays in 0005.
+→ By: Opus (PLAN db-transport)
+
+**PDB-11 · Undo · `BeamlDb` returns rows with String keys at every level.**
+Because: Postgrex returns `jsonb` decoded with String keys; the fake mimics it by a `:json` round trip.
+→ By: Opus (PLAN db-transport)
+
+**PDB-12 · Repair · Every non-`{:ok, _}` result, raise or exit of a `BeamlDb` call is `reason: "transport"`; the host reason is never read.**
+Over: pass the host reason. Because: "transport, status and decode never raise to the caller" (the http rule); a host text could carry a value into a record. Commits us to: a `try` with `rescue` and `catch :exit` around each call.
+→ By: Opus (PLAN db-transport)
+
+**PDB-13 · Repair · A generated encode from typed value to wire per ROW TYPE.**
+Chose: map keeps String keys; constructor struct → its fields under String keys; enum variant → its ENUM LITERAL; keep-value variant → its String. Over: encode from the original input bytes (not available after a fn step). Because: `db.put` receives a typed value from a flow. Commits us to: the round-trip rule (decode of the encode equals the value), pinned by N4.
+→ By: Opus (PLAN db-transport)
+
+**PDB-14 · Repair · The ROW CORE keys and their values.**
+Chose: `version: 3, trace_id, span_id, artifact_id, operation, attempt: 1, type, value, value_sha256, redacted: [], unknown_keys: [], unknown_fields, outcome: "ok", reason: nil`. Over: a bare projection (Q5-10 A). Because: Q5-10 B (By: Fable, default, open) and DL-143. Commits us to: P2 names win (PDB-01); the record format is Q5-10's OWNER question, not a new one.
+→ By: Opus (PLAN db-transport)
+
+**PDB-15 · Repair · The row decode order: TYPE name, digest, TYPE VERSION, MIGRATE CHAIN, DL-101 tail.**
+Because: DL-054 types a stored value by its own version before any step; the digest first means no step runs on a changed value. Every failure is `"decode"` except a failed constructor (`"constructor"`).
+→ By: Opus (PLAN db-transport)
+
+**PDB-16 · Undo · The core `type` key decides the TYPE VERSION on read; the `version` column is not read by generated code.**
+Over: the column. Because: the core carries version and fingerprint (DL-043); the column serves the host query and index only. A column that disagrees with the core is a hand edit.
+→ By: Opus (PLAN db-transport)
+
+**PDB-17 · Undo · db call records carry the extra `request` (the input projection).**
+Over: no request. Because: the http record has `request`; the REPLAY RUN and the record reader keep one shape (DL-143 extras).
+→ By: Opus (PLAN db-transport)
+
+**PDB-18 · Repair · `unknown_fields` of a `db.list` record uses dotted names with the item index (`items.0.channel`).**
+Over: a union of field names. Because: DL-122 must tell "kept at capture" from "literal lost now" per item (DL-142 reason). Commits us to: the `--stored` check of list records reads indexed names (N25).
+→ By: Opus (PLAN db-transport)
+
+**PDB-19 · Repair · A REPLAY RUN never calls `BeamlDb`; it decodes the recorded `value`.**
+Because: DL-129 says a db call replays as any EFFECT; a REPLAY RUN must not read the live table. Commits us to: N11 with the `:forbid` fake mode.
+→ By: Opus (PLAN db-transport)
+
+**PDB-20 · Undo · The `HTTP` module is emitted only when an `http.post` EFFECT exists.**
+Because: a db-only source has no TCP transport. http sources keep their bytes (N13).
+→ By: Opus (PLAN db-transport)
+
+**PDB-21 · Undo · `mix beaml.stored` writes a new directory per build with `rows.jsonl`, `responses.jsonl` and `snapshot-meta.json`.**
+Because: QDB-7 A and the 0005 N8c provenance check (P5-19). The task itself is 0005 host code.
+→ By: Opus (PLAN db-transport)
+
+**PDB-22 · Repair · The compiler checks `row_count` of `snapshot-meta.json` against the row lines.**
+Over: ignore the meta file. Because: a partial ROW SNAPSHOT would pass with fewer rows (false pass). Commits us to: one more read; only `row_count` is read.
+→ By: Opus (PLAN db-transport)
+
+**PDB-23 · Repair · A source with `db.get` or `db.list` and no `rows.jsonl` fails the build.**
+Over: no file means no rows (the `entries.jsonl` rule). Because: DL-094, "an unknown store is not an empty store"; rows are the main store of 0005. Commits us to: `db.put`-only sources need no ROW SNAPSHOT.
+→ By: Opus (PLAN db-transport)
+
+**PDB-24 · Undo · On success `--stored` prints one count line for rows: `rows: N rows, K checked, M not decodable`.**
+Because: DL-136 and DL-138 give each stream a count line; never a value or id (DL-124).
+→ By: Opus (PLAN db-transport)
+
+## Plan repair (after plan check), 2026-11-07
+
+**[Proposal]** Decisions of the PLAN repair after the [plan check](plan-review.md). Plan text: [plan.md](plan.md#plan-repair-after-plan-check-2026-11-07). QDB-6 is withdrawn; it stays above as history.
+
+### QDB-6b · Migrate · big · A failed db call is a rejected record with its reason
+
+- **Default.** `outcome: "rejected"`, `reason` one of `"transport"`, `"decode"`, `"constructor"`, `"not_found"`, `value: null`, in the `"responses"` stream. A success and every ROW CORE: `"accepted"`, `reason: null` (P2 words, DL-141).
+- **Over.** QDB-6 A (`ok`/`failed`): two outcome vocabularies in one stream; the v3 reader stops on them (DL-138 text).
+- **Challenge.** The v3 http writer writes no record on a transport failure (record-v3 plan, QV3-4). A db call writes one. The two transports then replay a transport failure differently (`missing_response` against the recorded reason).
+- → By: Fable (ruling O1 under DL-144, default, open)
+
+### QDB-8 · Migrate · big · 0005 N7 and N7b under D6B-39
+
+- **[Verified] Evidence.** D6B-39 as built (main.rs HEAD lines 1593, 1605) bans any constructor or enum field in a TYPE with a MIGRATE CHAIN or a VERSION MARK. The 0005 `Order` holds `amount: Amount` and `channel: Channel`. The ruling premise "an `add` of a String field, which D6B-39 allows" holds only for a TYPE without such fields.
+- **Option A.** N7 and N7b are `blocked: D036 M4`, as N9 is blocked; `run.py` reports `blocked`, never `pass`. N8c then covers N8 and N8b only. P4 N5 and N20 prove the chain on read with a String-only ROW TYPE.
+- **Option B (default, ruling).** 0005 adds the String-only ROW TYPE `Note { text: String }` with its own chain for N7 and N7b (a second db EFFECT pair and page). Detail: [Plan repair 2](#plan-repair-2-after-re-check-2026-11-07). Challenge: more host code; the page then does not show the main `Order` domain under a chain.
+- **Option C.** The OWNER opens D036 M4 now (M4 B: lift D6B-39 first). Then PDB-09 comes back as its first step.
+- **Default B (ruling, 2026-11-07).** B keeps a thesis proof (a TYPE change travels from the source to a stored row) and decides no parked item (DL-144). It replaces the earlier default A ("it decides no parked item and changes no domain", By: Opus, PLAN repair P3/P4). Ruling in the [0005 decisions](../../../../0005-prototype-fullstack/workflow/2026-11-07/decisions.md#qdb-8-ruling-main-agent-2026-11-07).
+- → By: Fable (default, open); carried into this text by Opus (PLAN repair 2 P4)
+
+### Undo and Repair
+
+**PDB-25 · Undo · Rejected db records follow QV3-8 B and count in the P2 count lines.**
+Because: one reader rule per stream (DL-143); a rejected db call is an outage, not a TYPE change (DL-136).
+→ By: Opus (PLAN repair P3/P4)
+
+**PDB-26 · Undo · A row with `outcome` other than `"accepted"` is counted as not decodable.**
+Because: rows are written on success only; such a row is a hand edit, as a bad digest is.
+→ By: Opus (PLAN repair P3/P4)
+
+**PDB-27 · Repair · The fixture gets the ENTRY LINE `ui.orders`, so the module is `Orders` (Q6E-1 C).**
+Over: `BeamlSpike` in the tests. Because: the 0005 host calls `Orders`; the fixture then has the 0005 shape. Commits us to: the RED worker probes the empty input TYPE entry once. **[Verified]** 2026-11-07: the plan re-check probe built an ENTRY LINE with `type OrderQuery {}` at HEAD 56b705df, exit 0; no RED probe needed ([Plan repair 2](#plan-repair-2-after-re-check-2026-11-07)).
+→ By: Fable (ruling O1 under DL-144)
+
+**PDB-28 · Undo · Variants in their own directories as `orders.beaml` (D6B-210).**
+Chose: `plain/`, `plain_v2/`, `order_v2/`, `stricter/`, `no_app/`, `put_only/` under `slice6/db/`.
+→ By: Opus (PLAN repair P3/P4)
+
+**PDB-29 · Repair · N11 calls `Replay.run(operation, a0, trace_id, records)`; `select/2` by `trace_id` only.**
+Over: "select by `trace_id` and `operation`" (PDB-19, QDB-5 text). Because: Q6E-3 A and Q6E-4 A (one EFFECT per flow). Commits us to: an `:operation_mismatch` case in N11.
+→ By: Fable (ruling O1 under DL-144)
+
+**PDB-30 · Repair · One encoder: the generated code passes `BeamlDb.put/3` the `:json.encode` binary of the ROW CORE; `get` and `list` return JSON binaries that the generated code decodes.**
+Over: a map passed to the host encoder (Jason), with a fake that round-trips through `:json`. Because: it closes the `:null`/`nil` gap with one rule (plan check O2, observed encoder difference). Commits us to: `:null`, never `nil`, in every core; the fake stores binaries; 0005 N2c ties the fake to `jsonb`. Changes QDB-2 (still big), PDB-10, PDB-11.
+→ By: Fable (ruling O2 under DL-144)
+
+**PDB-31 · Repair · PDB-09 is withdrawn; D6B-39 holds for ROW TYPES with its built texts.**
+Over: PDB-09 (narrow D6B-39 for rows). Because: DL-144, avoid a parked item (D036 M4 B), never decide it. Commits us to: N5 and N20 on a String-only ROW TYPE (`plain/`, `plain_v2/`); `order_v2/` is an N12 reject case; QDB-8 for 0005.
+→ By: Fable (ruling O3 under DL-144); the `plain/` fixtures and the reject case → By: Opus (PLAN repair P3/P4)
+
+**PDB-32 · Repair · N18 pins today's RESPONSE RECORD constructor help text, no new row help.**
+Because: a new help wording would decide M4. Commits us to: the row text differs from the RESPONSE RECORD text only in `stored ROW` and `of table records`.
+→ By: Fable (ruling O3 under DL-144)
+
+**PDB-33 · Undo · N25b tests the list-item literal path (M-a).**
+Because: PDB-18 commits the reader to indexed names; N25 tests only a constructor.
+→ By: Opus (PLAN repair P3/P4)
+
+**PDB-18 and PDB-24 are big** (record format), flagged in the 0005 owner review. → By: Fable (ruling under DL-144)
+
+## Plan repair 2 (after re-check), 2026-11-07
+
+**[Proposal]** Decisions of the second PLAN repair after the [re-check](plan-review.md#re-check-after-plan-repair). Plan text: [plan.md](plan.md#plan-repair-2-after-re-check-2026-11-07).
+
+**QDB-8 · Migrate · big · default B (ruling).** The text of QDB-8 above now says B: 0005 N7 and N7b run on the String-only ROW TYPE `Note { text: String }` v1 → v2 (`add tag: String = ""`). Open for the OWNER; listed in "## Big" of the 0005 owner review.
+→ By: Fable (default, open)
+
+**PDB-34 · Repair · N20b: two ROW TYPES in one `rows.jsonl`, each decoded by its own TYPE.**
+Chose: fixture `slice6/db/two_rows/orders.beaml` (`Order` without a chain, `Note` v2 with a chain), rows of both TYPES; exit 0 with `rows: 3 rows, 3 checked, 0 not decodable`. Control: a `Note` row under the `Order` TYPE exits 1 with the `stored ROW` path text naming `Order`. Over: no P4 case (N21 tests only an undeclared TYPE). Because: QDB-8 B rests on it; a reader that drops the second TYPE gives a false pass on 0005 N7. Commits us to: one more fixture directory and one RED case.
+→ By: Fable (ruling R1); fixture shape and the field name `tag` → By: Opus (PLAN repair 2 P4)
+
+**PDB-35 · Undo · N20b keeps a second control: a `Note` row with a fingerprint on no `Note` chain version exits 1 naming `Note`.**
+Because: the ruled control shows the TYPE name is read; this one shows `Note` rows reach the path check (the re-check R1 control).
+→ By: Opus (PLAN repair 2 P4)
+
+**PDB-36 · Repair · N18 compares the help line as a prefix up to the DL reference (changes PDB-32).**
+Over: word-for-word pin of the built help line. Because: an M4 text change then touches one test constant (re-check R2). Commits us to: one text pin site stays; M4 is not decided.
+→ By: Fable (ruling R2)
+
+**PDB-27 · [Verified]** (see PDB-27 above): the empty input TYPE `OrderQuery {}` builds at HEAD 56b705df. → By: Fable · Undo
+
+**R3 · Repair.** QDB-6b, QDB-8, PDB-18, PDB-24 moved into "## Big" of the 0005 owner review; Q5-8 corrected to `put/3`. → By: Fable

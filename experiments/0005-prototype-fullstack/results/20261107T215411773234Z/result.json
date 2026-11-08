@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+    "run.py",
+    "db-down"
+  ],
+  "subcommand": "db-down",
+  "started_at": "2026-11-07T21:54:11.773234+00:00",
+  "finished_at": "2026-11-07T21:54:12.178718+00:00",
+  "toolchain": {
+    "python": "3.13.12",
+    "elixir": "Elixir 1.18.1 (compiled with Erlang/OTP 27)",
+    "otp": "27",
+    "pg_ctl": "pg_ctl (PostgreSQL) 17.11 (Postgres.app)"
+  },
+  "steps": [
+    {
+      "name": "pg-stop",
+      "command": [
+        "pg_ctl",
+        "-D",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgdata",
+        "-m",
+        "fast",
+        "-w",
+        "stop"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    }
+  ],
+  "status": "pass"
+}

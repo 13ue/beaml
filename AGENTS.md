@@ -33,6 +33,10 @@ Record new open R&D decisions in [Decisions to be made](wiki/planning/decisions-
 Record every closed decision in the append-only [decision log](wiki/planning/decision-log.md): question, options, choice, reason, trigger and a link to the detail.
 Give each decision a stable ID, owner, evidence and next check. Every decision also names who made it (`By:`): `13ue` for the OWNER, or the model that decided (for example `Fable` for the main agent, `Opus` for a worker) with its phase. Link related pages to that entry.
 
+## OWNER ideas
+
+Spoken ideas of the OWNER about the language, the roadmap and the far future are the highest source of truth for intent. Capture every such statement the same day as paraphrased `[Requirement]` lines in a dated file under `raw/requirements/` (never dictation text), link it from [the OWNER ideas source page](wiki/sources/owner-ideas.md), give each idea its register or decision-log entry and a line in the affected pages. Record contradictions with earlier statements as tensions; do not resolve them at capture time. Label proposals as proposals.
+
 ## Visual communication
 
 Apply the global visual communication rule to substantive BEAML explanations and reports.

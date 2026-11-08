@@ -1,0 +1,8 @@
+
+22:53:18.929 [info] == Running 20261107000000 Proto.Repo.Migrations.CreateRecords.change/0 forward
+
+22:53:18.930 [info] create table records
+
+22:53:18.931 [info] create index records_type_inserted_at_index
+
+22:53:18.932 [info] == Migrated 20261107000000 in 0.0s

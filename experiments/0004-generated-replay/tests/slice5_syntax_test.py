@@ -37,7 +37,7 @@ BASE = "f29e3f12"
 # PIN, the step 6b compiler (D6B-172: dotted unknown_keys in every EFFECT source, 237a4578..461d024e), pins the
 # bytes; before: 237a4578 (step 12, DL-119), 0747c315 (step 6a).
 PRE_6A = "4a7cffba"
-PIN = "461d024e"
+PIN = "ca09d361"
 U32_MAX = 4294967295
 NO_PATH = "no path from the stored TYPE VERSION"
 FALLBACK = "expected type, enum, effect, migrate, retire or fn"
@@ -798,12 +798,17 @@ class Rewrite(unittest.TestCase):
                     first = lambda text: (text.splitlines() or [""])[0]  # noqa: E731
                     self.assertEqual((base[0], normalise(first(base[2]))), (pre[0], first(pre[2])),
                                      "A2 %s: pre 6a, the same error class (exit, first line after S)" % relative)
-                self.assertEqual(run_at(PIN, [relative] + stored, holder / "new"), now,
-                                 "A2 %s: exit, stdout and stderr equal the PIN compiler" % relative)
+                # 0005 P4 GREEN: a db EFFECT source changes its text on purpose (S13: bad/unsupported_effect_kind.beaml).
+                if not re.search(rb"= *db\.\w+\(", new):
+                    self.assertEqual(run_at(PIN, [relative] + stored, holder / "new"), now,
+                                     "A2 %s: exit, stdout and stderr equal the PIN compiler" % relative)
 
     def test_A3_stored_fixtures_are_unchanged(self):
         # Guard, not RED: every stored fixture keeps its records. Slice 6b step 6a (D6B-69) converts each record to
         # version 2 in place: the BASE record with its body as `value` (st.with_value) equals the record now.
+        # RECORD FORMAT v3 (DL-143) converts that version 2 record once more with convert_v3.py (QV3-5 A).
+        sys.path.insert(0, str(EXPERIMENT / "workflow" / "2026-11-07" / "record-format-v3"))
+        import convert_v3
         prefix = EXPERIMENT_REL + "/stored/"
         names = [n for n in git("ls-tree", "-r", "--name-only", BASE, "--", prefix).decode().splitlines()
                  if n.endswith(".jsonl")]
@@ -812,7 +817,8 @@ class Rewrite(unittest.TestCase):
         for name in names:
             with self.subTest(file=name):
                 old = [json.loads(line) for line in git("show", "%s:%s" % (BASE, name)).decode().splitlines()]
-                converted = [st.with_value(r, json.loads(base64.b64decode(r["body_base64"])), r["unknown_keys"])
+                converted = [convert_v3.convert(dict(st.with_value(r, json.loads(base64.b64decode(r["body_base64"])),
+                                                                   r["unknown_keys"]), version=2), False)
                              for r in old]
                 self.assertEqual(converted, [json.loads(line) for line in (REPO / name).read_text().splitlines()])
 

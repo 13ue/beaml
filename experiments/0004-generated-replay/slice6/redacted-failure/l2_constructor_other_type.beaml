@@ -1,7 +1,10 @@
 // L2 (limit, D6B-174): a constructor that returns another TYPE makes a derived value.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Holder { text: String }
 type Receipt { holder: Holder }
 
-fn Holder s: String -> Holder = Holder { text: s }
+fn Holder  s: String             -> Holder  = Holder { text: s }
 fn receipt Order { card_holder } -> Receipt = Receipt { holder: card_holder |> Holder }

@@ -1,0 +1,184 @@
+{
+  "note": "mix deps.get ran by hand before this run (setup). fetched_from_hex_pm: tarballs new in ~/.hex/packages/hexpm during setup; websock_adapter 0.7.1 came with the first resolve (phoenix 1.8.16) and is not in the final lock.",
+  "fetched_from_hex_pm": [
+    {
+      "name": "bandit",
+      "version": "1.14.1"
+    },
+    {
+      "name": "ecto",
+      "version": "3.14.3"
+    },
+    {
+      "name": "elixir_make",
+      "version": "0.10.1"
+    },
+    {
+      "name": "fine",
+      "version": "0.2.0"
+    },
+    {
+      "name": "lazy_html",
+      "version": "0.1.14"
+    },
+    {
+      "name": "phoenix_html",
+      "version": "4.4.0"
+    },
+    {
+      "name": "websock_adapter",
+      "version": "0.7.1"
+    }
+  ],
+  "resolved_lock": [
+    {
+      "name": "bandit",
+      "version": "1.14.1"
+    },
+    {
+      "name": "cc_precompiler",
+      "version": "0.1.11"
+    },
+    {
+      "name": "cowboy",
+      "version": "2.20.0"
+    },
+    {
+      "name": "cowboy_telemetry",
+      "version": "0.4.0"
+    },
+    {
+      "name": "cowlib",
+      "version": "2.21.0"
+    },
+    {
+      "name": "db_connection",
+      "version": "2.10.2"
+    },
+    {
+      "name": "decimal",
+      "version": "3.2.0"
+    },
+    {
+      "name": "dns_cluster",
+      "version": "0.2.0"
+    },
+    {
+      "name": "ecto",
+      "version": "3.14.3"
+    },
+    {
+      "name": "ecto_sql",
+      "version": "3.14.0"
+    },
+    {
+      "name": "elixir_make",
+      "version": "0.10.1"
+    },
+    {
+      "name": "file_system",
+      "version": "1.1.1"
+    },
+    {
+      "name": "fine",
+      "version": "0.2.0"
+    },
+    {
+      "name": "hpax",
+      "version": "1.1.0"
+    },
+    {
+      "name": "jason",
+      "version": "1.4.5"
+    },
+    {
+      "name": "lazy_html",
+      "version": "0.1.14"
+    },
+    {
+      "name": "mime",
+      "version": "2.0.7"
+    },
+    {
+      "name": "opentelemetry",
+      "version": "1.7.0"
+    },
+    {
+      "name": "opentelemetry_api",
+      "version": "1.5.0"
+    },
+    {
+      "name": "phoenix",
+      "version": "1.8.5"
+    },
+    {
+      "name": "phoenix_ecto",
+      "version": "4.7.0"
+    },
+    {
+      "name": "phoenix_html",
+      "version": "4.4.0"
+    },
+    {
+      "name": "phoenix_live_reload",
+      "version": "1.7.0"
+    },
+    {
+      "name": "phoenix_live_view",
+      "version": "1.1.33"
+    },
+    {
+      "name": "phoenix_pubsub",
+      "version": "2.4.1"
+    },
+    {
+      "name": "phoenix_template",
+      "version": "1.1.0"
+    },
+    {
+      "name": "plug",
+      "version": "1.20.3"
+    },
+    {
+      "name": "plug_cowboy",
+      "version": "2.8.1"
+    },
+    {
+      "name": "plug_crypto",
+      "version": "2.2.1"
+    },
+    {
+      "name": "postgrex",
+      "version": "0.22.4"
+    },
+    {
+      "name": "ranch",
+      "version": "2.3.0"
+    },
+    {
+      "name": "telemetry",
+      "version": "1.4.2"
+    },
+    {
+      "name": "telemetry_metrics",
+      "version": "1.2.0"
+    },
+    {
+      "name": "telemetry_poller",
+      "version": "1.3.0"
+    },
+    {
+      "name": "thousand_island",
+      "version": "1.6.0"
+    },
+    {
+      "name": "websock",
+      "version": "0.5.3"
+    },
+    {
+      "name": "websock_adapter",
+      "version": "0.5.9"
+    }
+  ],
+  "first_resolve_phoenix": "1.8.16 (from ~> 1.8.5); pinned to == 1.8.5, lock rebuilt"
+}

@@ -1,0 +1,94 @@
+{
+  "command": [
+    "/opt/homebrew/Caskroom/miniconda/base/bin/python3",
+    "run.py",
+    "smoke"
+  ],
+  "subcommand": "smoke",
+  "started_at": "2026-11-07T21:54:06.544485+00:00",
+  "finished_at": "2026-11-07T21:54:10.976657+00:00",
+  "toolchain": {
+    "python": "3.13.12",
+    "elixir": "Elixir 1.18.1 (compiled with Erlang/OTP 27)",
+    "otp": "27",
+    "pg_ctl": "pg_ctl (PostgreSQL) 17.11 (Postgres.app)"
+  },
+  "steps": [
+    {
+      "name": "pg-start",
+      "command": [
+        "pg_ctl",
+        "-D",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgdata",
+        "-o",
+        "-k /Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgsock -c listen_addresses='' -c unix_socket_permissions=0700",
+        "-l",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgdata/log",
+        "-w",
+        "start"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "compile",
+      "command": [
+        "mix",
+        "compile",
+        "--warnings-as-errors"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "ecto-create",
+      "command": [
+        "mix",
+        "ecto.create"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "ecto-migrate",
+      "command": [
+        "mix",
+        "ecto.migrate"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "test",
+      "command": [
+        "mix",
+        "test",
+        "--warnings-as-errors"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    },
+    {
+      "name": "pg-stop",
+      "command": [
+        "pg_ctl",
+        "-D",
+        "/Users/lennart/Projects/beaml/experiments/0005-prototype-fullstack/app/.pgdata",
+        "-m",
+        "fast",
+        "-w",
+        "stop"
+      ],
+      "exit_code": 0,
+      "status": "pass"
+    }
+  ],
+  "status": "pass",
+  "lazy_html_nif": [
+    {
+      "file": "lazy_html-nif-2.16-aarch64-apple-darwin-0.1.14.tar.gz",
+      "source_url": "https://github.com/dashbitco/lazy_html/releases/download/v0.1.14/lazy_html-nif-2.16-aarch64-apple-darwin-0.1.14.tar.gz",
+      "sha256": "b485904e96bc8d3de826fdd73fafa1c22b7a9addbac504f74c0110ca3152b8f2"
+    }
+  ]
+}

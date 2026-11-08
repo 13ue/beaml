@@ -1,0 +1,39 @@
+// Slice 6 db: the DB TRANSPORTS db.put, db.get, db.list over the one table "records" (DL-127, DL-129, 0005 P4a).
+type BadAmount {}
+type Amount {
+  value: String
+  currency: String
+}
+fn Amount value: String, currency: String -> Amount ! BadAmount
+fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
+fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
+
+enum Channel {
+  Web = "web"
+  App = "app"
+  Unknown(String)
+}
+
+type Order {
+  order_id: String
+  amount: Amount
+  channel: Channel
+}
+type OrderKey { order_id: String }
+type OrderQuery {}
+type OrderList { items: [Order] }
+type StoreError { reason: String }
+
+// Three DB TRANSPORTS leave the module. Each call is recorded live and substituted in a REPLAY RUN.
+effect orders.save Order      -> Order     ! StoreError = db.put("records")
+effect orders.load OrderKey   -> Order     ! StoreError = db.get("records")
+effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
+
+// Enters the module. The host calls Orders.ui_orders(params).
+effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> list_orders
+
+fn save o: Order -> Order ! StoreError = o |> orders.save
+
+fn load k: OrderKey -> Order ! StoreError = k |> orders.load
+
+fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list

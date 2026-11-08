@@ -1,0 +1,49 @@
+{
+  "task": "M4 step 1: lift D6B-39, migrate first, check after",
+  "basis": ["DL-152", "DL-153", "PDB-09", "QDB-8"],
+  "head": "ffb7605e",
+  "test_first": true,
+  "by": "Opus (PLAN m4-lift)",
+  "production_changes": [
+    "experiments/0001-syntax-to-beam/src/main.rs: output_fields (delete two D6B-39 branches, add the rename check)",
+    "experiments/0001-syntax-to-beam/src/main.rs: versioned_decode (wire check, steps, DL-101 tail; only with enum or constructor fields)"
+  ],
+  "fixture_changes": [
+    "experiments/0004-generated-replay/slice6/db/order_v2/orders.beaml (header comment)",
+    "delete experiments/0004-generated-replay/slice6/db/bad/row_enum_chain.beaml",
+    "delete experiments/0004-generated-replay/slice6/db/bad/row_constructor_chain.beaml",
+    "new experiments/0004-generated-replay/slice6/db/bad/row_rename_enum.beaml",
+    "new experiments/0004-generated-replay/slice6/db/bad/row_rename_constructor.beaml",
+    "new experiments/0005-prototype-fullstack/app/beaml/variants/order_v2/orders.beaml",
+    "delete experiments/0005-prototype-fullstack/app/beaml/variants/note_v2/"
+  ],
+  "test_changes": [
+    "experiments/0004-generated-replay/tests/slice6_db_test.py",
+    "experiments/0004-generated-replay/tests/slice6_db_stored_test.py",
+    "experiments/0004-generated-replay/tests/slice6_decode_test.py",
+    "experiments/0005-prototype-fullstack/app/test/prototype/notes_test.exs",
+    "experiments/0005-prototype-fullstack/run.py"
+  ],
+  "red_tests": ["R1", "R2", "R3", "R3b", "N33 (9 cases)", "R8", "R4", "R5", "R6", "R6b", "R9", "R10", "R11", "R12"],
+  "red_depth_probe": "scratch git archive build with only the two D6B-39 branches deleted; N33 list and replay fail with reason decode",
+  "pin_moves": {"digest": [], "hash": []},
+  "pin_guards_unchanged": [
+    "tests/slice6_pipe_test.py EFFECT_OUTPUTS",
+    "tests/slice6_host_struct_test.py BYTE_GUARD",
+    "slice6/effect-reach/byte-guard.json",
+    "tests/slice5_syntax_test.py PIN",
+    "tests/slice6_entry_test.py BASE",
+    "tests/slice6_multi_test.py BASE",
+    "tests/slice6_db_test.py P4_BASE",
+    "tests/record_v3_test.py V18"
+  ],
+  "checks": [
+    "cargo fmt --check, cargo clippy -- -D warnings, cargo test (experiments/0001-syntax-to-beam)",
+    "python3 -B experiments/0004-generated-replay/run.py",
+    "python3 -B experiments/0005-prototype-fullstack/run.py run"
+  ],
+  "owner_questions": ["QM4-1", "QM4-2", "QM4-3", "QM4-4"],
+  "exclusions": ["steps on enum or constructor fields (M3, DL-140)", "redacted field in a versioned TYPE (DL-125)",
+                 "versioned ENTRY LINE input (D6B-130)", "chain on a nested constructor TYPE",
+                 "one decode form for String-only chains", "DL-154 projection, D040", "docs"]
+}

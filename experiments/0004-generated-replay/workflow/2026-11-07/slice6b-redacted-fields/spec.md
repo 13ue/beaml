@@ -78,3 +78,11 @@ Harness: file-backed stubs (`ProbeSupport.span/5`, `event/2`, `:otel_span.set_at
 - The derived-value rule and the direct-copy rule (DL-112) are 6c.
 - Release path (real ProbeSupport, Logger handler, OTel exporter): plan limit L1. `run.py` not run.
 - The grammar corpus line `drop secret: redacted String` (forms.txt) parses in the grammar; the compiler rejects it by D6B-64. No grammar change in this step.
+
+### Docs additions (2026-11-07, after the TEST re-check of acf12d75)
+
+By: Opus (docs slice6b/6c). The lines above stay as the RED record.
+
+- **[Verified]** Correction of the line "a nested TYPE with a constructor is a DL-116 reject": the review repair (D6B-184) rejects two forms. (1) A redacted field below an enum payload (`Payment.pay` holds an enum whose payload TYPE `Holder` has the redacted `name`). (2) A redacted field below a TYPE with a constructor (`Amount` has a constructor; `Inner.s` is redacted). Both give the DL-116 interim text, exit 1, no stdout. Fixtures: `bad/output_enum_payload.beaml`, `bad/output_constructor_above.beaml`.
+- **[Verified]** D6B-184 wording limit: the DL-116 text names the field (`Holder.name`, `Inner.s`), not the enum or the constructor TYPE above it. Its clause "a TYPE without a constructor" does not describe these two cases: `Holder` and `Inner` have no constructor. The text gives no reason for the reject. The help line ("remove redacted from T.F") is correct. A new text is a later choice.
+- **[Verified]** D6B-31 form: `with` takes top-level names only. A dotted name (`with card.holder`) is a parse error, `expected identifier at byte N`, not a named rule text (observed with the HEAD build 5b7feb92).

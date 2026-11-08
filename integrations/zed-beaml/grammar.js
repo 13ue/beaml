@@ -28,7 +28,9 @@ module.exports = grammar({
     field_declaration: ($) => seq($.property, ":", $._field_type),
 
     // `redacted` marks PII before the field TYPE (DL-059).
-    _field_type: ($) => seq(optional($.redacted), $.type),
+    _field_type: ($) => seq(optional($.redacted), choice($.type, $.list_type)),
+    // `[Order]`: the LIST TYPE, only as the one field of a db.list output TYPE (0005 Q5-3).
+    list_type: ($) => seq("[", $.type, "]"),
     redacted: () => "redacted",
 
     enum_declaration: ($) =>

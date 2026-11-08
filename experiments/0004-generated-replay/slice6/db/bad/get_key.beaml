@@ -1,0 +1,7 @@
+// Slice 6 db reject (N12): the db.get key TYPE has one String field (QDB-1).
+type Order { order_id: String label: String }
+type TwoKey { order_id: String label: String }
+type StoreError { reason: String }
+effect orders.load TwoKey -> Order ! StoreError = db.get("records")
+
+fn load k: TwoKey -> Order ! StoreError = k |> orders.load

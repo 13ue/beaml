@@ -1,0 +1,264 @@
+Running ExUnit with seed: 837809, max_cases: 28
+Excluding tags: [:phase]
+
+*.......
+
+  1) test N1 orders.beaml generates the module Orders and the host builds without a warning (Proto.Prototype.BuildTest)
+     test/prototype/build_test.exs:11
+     ** (Mix.NoTaskError) The task "beaml.stored" could not be found
+     code: {exit, output, generated} = host_build(nil, "n1")
+     stacktrace:
+       (mix 1.18.1) lib/mix/task.ex:345: Mix.Task.get!/1
+       (proto 0.1.0) test/support/prototype.ex:124: Proto.Prototype.snapshot!/1
+       (proto 0.1.0) test/support/prototype.ex:193: Proto.Prototype.live_build/2
+       (proto 0.1.0) test/support/prototype.ex:222: Proto.Prototype.host_build/2
+       test/prototype/build_test.exs:12: (test)
+
+
+
+  2) test N10 a removed ui.place line stops the host build at Orders.ui_place/1 (Proto.Prototype.BuildTest)
+     test/prototype/build_test.exs:27
+     ** (Mix.NoTaskError) The task "beaml.stored" could not be found
+     code: {exit, output, generated} = host_build("no_place", "n10")
+     stacktrace:
+       (mix 1.18.1) lib/mix/task.ex:345: Mix.Task.get!/1
+       (proto 0.1.0) test/support/prototype.ex:124: Proto.Prototype.snapshot!/1
+       (proto 0.1.0) test/support/prototype.ex:193: Proto.Prototype.live_build/2
+       (proto 0.1.0) test/support/prototype.ex:222: Proto.Prototype.host_build/2
+       test/prototype/build_test.exs:28: (test)
+
+
+
+  3) test N4 a constructor reject writes no row and no db record (Proto.Prototype.OrderPagesTest)
+     test/prototype/order_pages_test.exs:63
+     ** (FunctionClauseError) no function clause matching in Phoenix.LiveViewTest.connect_from_static_token/3
+
+     The following arguments were given to Phoenix.LiveViewTest.connect_from_static_token/3:
+
+         # 1
+         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{reason: %Phoenix.Router.NoRouteError{plug_status: 404, message: "no route found for GET /orders/new (ProtoWeb.Router)", conn: %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg9nLWPKGfsAAAhB"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}, router: ProtoWeb.Router}, status: 404, stack: [{ProtoWeb.Router, :call, 2, [file: ~c"deps/phoenix/lib/phoenix/router.ex", line: 465]}, {ProtoWeb.Endpoint, :plug_builder_call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {ProtoWeb.Endpoint, :call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {Phoenix.ConnTest, :dispatch, 5, [file: ~c"lib/phoenix/test/conn_test.ex", line: 225]}, {Proto.Prototype.OrderPagesTest, :place, 2, [file: ~c"test/prototype/order_pages_test.exs", line: 11]}, {Proto.Prototype.OrderPagesTest, :"test N4 a constructor reject writes no row and no db record", 1, [file: ~c"test/prototype/order_pages_test.exs", line: 66]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}], kind: :error, layout: false, __changed__: nil}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_template => "404.html", :phoenix_view => %{_: ProtoWeb.ErrorHTML}, :phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => false, :phoenix_layout => %{_: false}, :phoenix_format => "html", :phoenix_root_layout => %{_: false}}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: "Not Found", resp_cookies: %{}, resp_headers: [{"content-type", "text/html; charset=utf-8"}, {"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg9nLWPKGfsAAAhB"}], scheme: :http, script_name: [], secret_key_base: :..., state: :sent, status: 404}
+
+         # 2
+         "/orders/new"
+
+         # 3
+         []
+
+     Attempted function clauses (showing 3 out of 3):
+
+         defp connect_from_static_token(-%Plug.Conn{status: 200, assigns: %{live_module: live_module}} = conn-, path, opts)
+         defp connect_from_static_token(-%Plug.Conn{status: 200}-, _path, _opts)
+         defp connect_from_static_token(%Plug.Conn{status: redir} = conn, _path, _opts) when -redir === 301- or -redir === 302- or -redir === 303-
+
+     code: html = place(conn, put_in(good(), ["amount", "currency"], ""))
+     stacktrace:
+       (phoenix_live_view 1.1.33) lib/phoenix_live_view/test/live_view_test.ex:324: Phoenix.LiveViewTest.connect_from_static_token/3
+       test/prototype/order_pages_test.exs:11: Proto.Prototype.OrderPagesTest.place/2
+       test/prototype/order_pages_test.exs:66: (test)
+
+
+
+  4) test N12 the host writes one action event per action and no value (Proto.Prototype.OrderPagesTest)
+     test/prototype/order_pages_test.exs:110
+     ** (FunctionClauseError) no function clause matching in Phoenix.LiveViewTest.connect_from_static_token/3
+
+     The following arguments were given to Phoenix.LiveViewTest.connect_from_static_token/3:
+
+         # 1
+         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{reason: %Phoenix.Router.NoRouteError{plug_status: 404, message: "no route found for GET /orders/new (ProtoWeb.Router)", conn: %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-e4Xq2DEQAAALD"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}, router: ProtoWeb.Router}, status: 404, stack: [{ProtoWeb.Router, :call, 2, [file: ~c"deps/phoenix/lib/phoenix/router.ex", line: 465]}, {ProtoWeb.Endpoint, :plug_builder_call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {ProtoWeb.Endpoint, :call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {Phoenix.ConnTest, :dispatch, 5, [file: ~c"lib/phoenix/test/conn_test.ex", line: 225]}, {Proto.Prototype.OrderPagesTest, :place, 2, [file: ~c"test/prototype/order_pages_test.exs", line: 11]}, {Proto.Prototype.OrderPagesTest, :"test N12 the host writes one action event per action and no value", 1, [file: ~c"test/prototype/order_pages_test.exs", line: 112]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}], kind: :error, layout: false, __changed__: nil}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_template => "404.html", :phoenix_view => %{_: ProtoWeb.ErrorHTML}, :phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => false, :phoenix_layout => %{_: false}, :phoenix_format => "html", :phoenix_root_layout => %{_: false}}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: "Not Found", resp_cookies: %{}, resp_headers: [{"content-type", "text/html; charset=utf-8"}, {"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-e4Xq2DEQAAALD"}], scheme: :http, script_name: [], secret_key_base: :..., state: :sent, status: 404}
+
+         # 2
+         "/orders/new"
+
+         # 3
+         []
+
+     Attempted function clauses (showing 3 out of 3):
+
+         defp connect_from_static_token(-%Plug.Conn{status: 200, assigns: %{live_module: live_module}} = conn-, path, opts)
+         defp connect_from_static_token(-%Plug.Conn{status: 200}-, _path, _opts)
+         defp connect_from_static_token(%Plug.Conn{status: redir} = conn, _path, _opts) when -redir === 301- or -redir === 302- or -redir === 303-
+
+     code: assert {:error, {:live_redirect, _}} = place(conn, good())
+     stacktrace:
+       (phoenix_live_view 1.1.33) lib/phoenix_live_view/test/live_view_test.ex:324: Phoenix.LiveViewTest.connect_from_static_token/3
+       test/prototype/order_pages_test.exs:11: Proto.Prototype.OrderPagesTest.place/2
+       test/prototype/order_pages_test.exs:112: (test)
+
+
+
+  5) test N3 the submit writes one ENTRY RECORD and one db record with one trace (Proto.Prototype.OrderPagesTest)
+     test/prototype/order_pages_test.exs:39
+     ** (FunctionClauseError) no function clause matching in Phoenix.LiveViewTest.connect_from_static_token/3
+
+     The following arguments were given to Phoenix.LiveViewTest.connect_from_static_token/3:
+
+         # 1
+         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{reason: %Phoenix.Router.NoRouteError{plug_status: 404, message: "no route found for GET /orders/new (ProtoWeb.Router)", conn: %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-j4rqzkWgAAB4F"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}, router: ProtoWeb.Router}, status: 404, stack: [{ProtoWeb.Router, :call, 2, [file: ~c"deps/phoenix/lib/phoenix/router.ex", line: 465]}, {ProtoWeb.Endpoint, :plug_builder_call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {ProtoWeb.Endpoint, :call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {Phoenix.ConnTest, :dispatch, 5, [file: ~c"lib/phoenix/test/conn_test.ex", line: 225]}, {Proto.Prototype.OrderPagesTest, :place, 2, [file: ~c"test/prototype/order_pages_test.exs", line: 11]}, {Proto.Prototype.OrderPagesTest, :"test N3 the submit writes one ENTRY RECORD and one db record with one trace", 1, [file: ~c"test/prototype/order_pages_test.exs", line: 42]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}], kind: :error, layout: false, __changed__: nil}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_template => "404.html", :phoenix_view => %{_: ProtoWeb.ErrorHTML}, :phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => false, :phoenix_layout => %{_: false}, :phoenix_format => "html", :phoenix_root_layout => %{_: false}}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: "Not Found", resp_cookies: %{}, resp_headers: [{"content-type", "text/html; charset=utf-8"}, {"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-j4rqzkWgAAB4F"}], scheme: :http, script_name: [], secret_key_base: :..., state: :sent, status: 404}
+
+         # 2
+         "/orders/new"
+
+         # 3
+         []
+
+     Attempted function clauses (showing 3 out of 3):
+
+         defp connect_from_static_token(-%Plug.Conn{status: 200, assigns: %{live_module: live_module}} = conn-, path, opts)
+         defp connect_from_static_token(-%Plug.Conn{status: 200}-, _path, _opts)
+         defp connect_from_static_token(%Plug.Conn{status: redir} = conn, _path, _opts) when -redir === 301- or -redir === 302- or -redir === 303-
+
+     code: assert {:error, {:live_redirect, _}} = place(conn, good())
+     stacktrace:
+       (phoenix_live_view 1.1.33) lib/phoenix_live_view/test/live_view_test.ex:324: Phoenix.LiveViewTest.connect_from_static_token/3
+       test/prototype/order_pages_test.exs:11: Proto.Prototype.OrderPagesTest.place/2
+       test/prototype/order_pages_test.exs:42: (test)
+
+
+
+  6) test N2 a form submit writes one Order row through db.put (Proto.Prototype.OrderPagesTest)
+     test/prototype/order_pages_test.exs:18
+     ** (FunctionClauseError) no function clause matching in Phoenix.LiveViewTest.connect_from_static_token/3
+
+     The following arguments were given to Phoenix.LiveViewTest.connect_from_static_token/3:
+
+         # 1
+         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{reason: %Phoenix.Router.NoRouteError{plug_status: 404, message: "no route found for GET /orders/new (ProtoWeb.Router)", conn: %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-ozYRHp24AAAPE"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}, router: ProtoWeb.Router}, status: 404, stack: [{ProtoWeb.Router, :call, 2, [file: ~c"deps/phoenix/lib/phoenix/router.ex", line: 465]}, {ProtoWeb.Endpoint, :plug_builder_call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {ProtoWeb.Endpoint, :call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {Phoenix.ConnTest, :dispatch, 5, [file: ~c"lib/phoenix/test/conn_test.ex", line: 225]}, {Proto.Prototype.OrderPagesTest, :place, 2, [file: ~c"test/prototype/order_pages_test.exs", line: 11]}, {Proto.Prototype.OrderPagesTest, :"test N2 a form submit writes one Order row through db.put", 1, [file: ~c"test/prototype/order_pages_test.exs", line: 19]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}], kind: :error, layout: false, __changed__: nil}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_template => "404.html", :phoenix_view => %{_: ProtoWeb.ErrorHTML}, :phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => false, :phoenix_layout => %{_: false}, :phoenix_format => "html", :phoenix_root_layout => %{_: false}}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: "Not Found", resp_cookies: %{}, resp_headers: [{"content-type", "text/html; charset=utf-8"}, {"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-ozYRHp24AAAPE"}], scheme: :http, script_name: [], secret_key_base: :..., state: :sent, status: 404}
+
+         # 2
+         "/orders/new"
+
+         # 3
+         []
+
+     Attempted function clauses (showing 3 out of 3):
+
+         defp connect_from_static_token(-%Plug.Conn{status: 200, assigns: %{live_module: live_module}} = conn-, path, opts)
+         defp connect_from_static_token(-%Plug.Conn{status: 200}-, _path, _opts)
+         defp connect_from_static_token(%Plug.Conn{status: redir} = conn, _path, _opts) when -redir === 301- or -redir === 302- or -redir === 303-
+
+     code: assert {:error, {:live_redirect, %{to: "/orders"}}} = place(conn, good())
+     stacktrace:
+       (phoenix_live_view 1.1.33) lib/phoenix_live_view/test/live_view_test.ex:324: Phoenix.LiveViewTest.connect_from_static_token/3
+       test/prototype/order_pages_test.exs:11: Proto.Prototype.OrderPagesTest.place/2
+       test/prototype/order_pages_test.exs:19: (test)
+
+
+
+  7) test N6 an Unknown channel lists as its text (Proto.Prototype.OrderPagesTest)
+     test/prototype/order_pages_test.exs:103
+     ** (FunctionClauseError) no function clause matching in Phoenix.LiveViewTest.connect_from_static_token/3
+
+     The following arguments were given to Phoenix.LiveViewTest.connect_from_static_token/3:
+
+         # 1
+         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{reason: %Phoenix.Router.NoRouteError{plug_status: 404, message: "no route found for GET /orders/new (ProtoWeb.Router)", conn: %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-uxNww9lIAAAQE"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}, router: ProtoWeb.Router}, status: 404, stack: [{ProtoWeb.Router, :call, 2, [file: ~c"deps/phoenix/lib/phoenix/router.ex", line: 465]}, {ProtoWeb.Endpoint, :plug_builder_call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {ProtoWeb.Endpoint, :call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {Phoenix.ConnTest, :dispatch, 5, [file: ~c"lib/phoenix/test/conn_test.ex", line: 225]}, {Proto.Prototype.OrderPagesTest, :place, 2, [file: ~c"test/prototype/order_pages_test.exs", line: 11]}, {Proto.Prototype.OrderPagesTest, :"test N6 an Unknown channel lists as its text", 1, [file: ~c"test/prototype/order_pages_test.exs", line: 104]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}], kind: :error, layout: false, __changed__: nil}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_template => "404.html", :phoenix_view => %{_: ProtoWeb.ErrorHTML}, :phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => false, :phoenix_layout => %{_: false}, :phoenix_format => "html", :phoenix_root_layout => %{_: false}}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: "Not Found", resp_cookies: %{}, resp_headers: [{"content-type", "text/html; charset=utf-8"}, {"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-uxNww9lIAAAQE"}], scheme: :http, script_name: [], secret_key_base: :..., state: :sent, status: 404}
+
+         # 2
+         "/orders/new"
+
+         # 3
+         []
+
+     Attempted function clauses (showing 3 out of 3):
+
+         defp connect_from_static_token(-%Plug.Conn{status: 200, assigns: %{live_module: live_module}} = conn-, path, opts)
+         defp connect_from_static_token(-%Plug.Conn{status: 200}-, _path, _opts)
+         defp connect_from_static_token(%Plug.Conn{status: redir} = conn, _path, _opts) when -redir === 301- or -redir === 302- or -redir === 303-
+
+     code: assert {:error, {:live_redirect, _}} = place(conn, Map.put(good(), "channel", "tv"))
+     stacktrace:
+       (phoenix_live_view 1.1.33) lib/phoenix_live_view/test/live_view_test.ex:324: Phoenix.LiveViewTest.connect_from_static_token/3
+       test/prototype/order_pages_test.exs:11: Proto.Prototype.OrderPagesTest.place/2
+       test/prototype/order_pages_test.exs:104: (test)
+
+
+
+  8) test N2c the reason of the row is a JSON null (Proto.Prototype.OrderPagesTest)
+     test/prototype/order_pages_test.exs:31
+     ** (FunctionClauseError) no function clause matching in Phoenix.LiveViewTest.connect_from_static_token/3
+
+     The following arguments were given to Phoenix.LiveViewTest.connect_from_static_token/3:
+
+         # 1
+         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{reason: %Phoenix.Router.NoRouteError{plug_status: 404, message: "no route found for GET /orders/new (ProtoWeb.Router)", conn: %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-y3qrfiUwAAARE"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}, router: ProtoWeb.Router}, status: 404, stack: [{ProtoWeb.Router, :call, 2, [file: ~c"deps/phoenix/lib/phoenix/router.ex", line: 465]}, {ProtoWeb.Endpoint, :plug_builder_call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {ProtoWeb.Endpoint, :call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {Phoenix.ConnTest, :dispatch, 5, [file: ~c"lib/phoenix/test/conn_test.ex", line: 225]}, {Proto.Prototype.OrderPagesTest, :place, 2, [file: ~c"test/prototype/order_pages_test.exs", line: 11]}, {Proto.Prototype.OrderPagesTest, :"test N2c the reason of the row is a JSON null", 1, [file: ~c"test/prototype/order_pages_test.exs", line: 32]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}], kind: :error, layout: false, __changed__: nil}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_template => "404.html", :phoenix_view => %{_: ProtoWeb.ErrorHTML}, :phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => false, :phoenix_layout => %{_: false}, :phoenix_format => "html", :phoenix_root_layout => %{_: false}}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: "Not Found", resp_cookies: %{}, resp_headers: [{"content-type", "text/html; charset=utf-8"}, {"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-y3qrfiUwAAARE"}], scheme: :http, script_name: [], secret_key_base: :..., state: :sent, status: 404}
+
+         # 2
+         "/orders/new"
+
+         # 3
+         []
+
+     Attempted function clauses (showing 3 out of 3):
+
+         defp connect_from_static_token(-%Plug.Conn{status: 200, assigns: %{live_module: live_module}} = conn-, path, opts)
+         defp connect_from_static_token(-%Plug.Conn{status: 200}-, _path, _opts)
+         defp connect_from_static_token(%Plug.Conn{status: redir} = conn, _path, _opts) when -redir === 301- or -redir === 302- or -redir === 303-
+
+     code: assert {:error, {:live_redirect, _}} = place(conn, good())
+     stacktrace:
+       (phoenix_live_view 1.1.33) lib/phoenix_live_view/test/live_view_test.ex:324: Phoenix.LiveViewTest.connect_from_static_token/3
+       test/prototype/order_pages_test.exs:11: Proto.Prototype.OrderPagesTest.place/2
+       test/prototype/order_pages_test.exs:32: (test)
+
+
+
+  9) test N5 the list page shows both orders through db.list, newest first (Proto.Prototype.OrderPagesTest)
+     test/prototype/order_pages_test.exs:87
+     ** (FunctionClauseError) no function clause matching in Phoenix.LiveViewTest.connect_from_static_token/3
+
+     The following arguments were given to Phoenix.LiveViewTest.connect_from_static_token/3:
+
+         # 1
+         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{reason: %Phoenix.Router.NoRouteError{plug_status: 404, message: "no route found for GET /orders/new (ProtoWeb.Router)", conn: %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-3kcpJhukAAASE"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}, router: ProtoWeb.Router}, status: 404, stack: [{ProtoWeb.Router, :call, 2, [file: ~c"deps/phoenix/lib/phoenix/router.ex", line: 465]}, {ProtoWeb.Endpoint, :plug_builder_call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {ProtoWeb.Endpoint, :call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {Phoenix.ConnTest, :dispatch, 5, [file: ~c"lib/phoenix/test/conn_test.ex", line: 225]}, {Proto.Prototype.OrderPagesTest, :place, 2, [file: ~c"test/prototype/order_pages_test.exs", line: 11]}, {Proto.Prototype.OrderPagesTest, :"test N5 the list page shows both orders through db.list, newest first", 1, [file: ~c"test/prototype/order_pages_test.exs", line: 88]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}], kind: :error, layout: false, __changed__: nil}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_template => "404.html", :phoenix_view => %{_: ProtoWeb.ErrorHTML}, :phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => false, :phoenix_layout => %{_: false}, :phoenix_format => "html", :phoenix_root_layout => %{_: false}}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: "Not Found", resp_cookies: %{}, resp_headers: [{"content-type", "text/html; charset=utf-8"}, {"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-3kcpJhukAAASE"}], scheme: :http, script_name: [], secret_key_base: :..., state: :sent, status: 404}
+
+         # 2
+         "/orders/new"
+
+         # 3
+         []
+
+     Attempted function clauses (showing 3 out of 3):
+
+         defp connect_from_static_token(-%Plug.Conn{status: 200, assigns: %{live_module: live_module}} = conn-, path, opts)
+         defp connect_from_static_token(-%Plug.Conn{status: 200}-, _path, _opts)
+         defp connect_from_static_token(%Plug.Conn{status: redir} = conn, _path, _opts) when -redir === 301- or -redir === 302- or -redir === 303-
+
+     code: assert {:error, {:live_redirect, _}} = place(conn, good())
+     stacktrace:
+       (phoenix_live_view 1.1.33) lib/phoenix_live_view/test/live_view_test.ex:324: Phoenix.LiveViewTest.connect_from_static_token/3
+       test/prototype/order_pages_test.exs:11: Proto.Prototype.OrderPagesTest.place/2
+       test/prototype/order_pages_test.exs:88: (test)
+
+
+
+ 10) test N4 an unknown channel is accepted and stored as its text (Proto.Prototype.OrderPagesTest)
+     test/prototype/order_pages_test.exs:79
+     ** (FunctionClauseError) no function clause matching in Phoenix.LiveViewTest.connect_from_static_token/3
+
+     The following arguments were given to Phoenix.LiveViewTest.connect_from_static_token/3:
+
+         # 1
+         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{reason: %Phoenix.Router.NoRouteError{plug_status: 404, message: "no route found for GET /orders/new (ProtoWeb.Router)", conn: %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-63Yr1FHgAAAiB"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}, router: ProtoWeb.Router}, status: 404, stack: [{ProtoWeb.Router, :call, 2, [file: ~c"deps/phoenix/lib/phoenix/router.ex", line: 465]}, {ProtoWeb.Endpoint, :plug_builder_call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {ProtoWeb.Endpoint, :call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {Phoenix.ConnTest, :dispatch, 5, [file: ~c"lib/phoenix/test/conn_test.ex", line: 225]}, {Proto.Prototype.OrderPagesTest, :place, 2, [file: ~c"test/prototype/order_pages_test.exs", line: 11]}, {Proto.Prototype.OrderPagesTest, :"test N4 an unknown channel is accepted and stored as its text", 1, [file: ~c"test/prototype/order_pages_test.exs", line: 81]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}], kind: :error, layout: false, __changed__: nil}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_template => "404.html", :phoenix_view => %{_: ProtoWeb.ErrorHTML}, :phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => false, :phoenix_layout => %{_: false}, :phoenix_format => "html", :phoenix_root_layout => %{_: false}}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: "Not Found", resp_cookies: %{}, resp_headers: [{"content-type", "text/html; charset=utf-8"}, {"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQg-63Yr1FHgAAAiB"}], scheme: :http, script_name: [], secret_key_base: :..., state: :sent, status: 404}
+
+         # 2
+         "/orders/new"
+
+         # 3
+         []
+
+     Attempted function clauses (showing 3 out of 3):
+
+         defp connect_from_static_token(-%Plug.Conn{status: 200, assigns: %{live_module: live_module}} = conn-, path, opts)
+         defp connect_from_static_token(-%Plug.Conn{status: 200}-, _path, _opts)
+         defp connect_from_static_token(%Plug.Conn{status: redir} = conn, _path, _opts) when -redir === 301- or -redir === 302- or -redir === 303-
+
+     code: place(conn, Map.put(good(), "channel", "tv"))
+     stacktrace:
+       (phoenix_live_view 1.1.33) lib/phoenix_live_view/test/live_view_test.ex:324: Phoenix.LiveViewTest.connect_from_static_token/3
+       test/prototype/order_pages_test.exs:11: Proto.Prototype.OrderPagesTest.place/2
+       test/prototype/order_pages_test.exs:81: (test)
+
+
+Finished in 0.1 seconds (0.07s async, 0.1s sync)
+26 tests, 10 failures, 8 excluded, 1 skipped

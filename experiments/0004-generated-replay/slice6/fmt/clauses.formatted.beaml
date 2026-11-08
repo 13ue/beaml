@@ -3,7 +3,12 @@
 type DeclineReason { text: String }
 fn DeclineReason text: String -> DeclineReason = DeclineReason { text: text }
 
-enum PaymentState { Authorized  Pending  Declined(DeclineReason)  Unknown(String) }
+enum PaymentState {
+  Authorized
+  Pending
+  Declined(DeclineReason)
+  Unknown(String)
+}
 
 fn PaymentState status: String, decline_reason: String -> PaymentState
 // Group A: three single-line clauses of one fn. Arguments, `->` and `=` align.
@@ -31,7 +36,10 @@ fn label Declined(r)   -> String = "declined"
 fn lone x: String -> String = x
 
 type Order { order_id: String }
-type Payment { order_id: String state: String }
+type Payment {
+  order_id: String
+  state: String
+}
 type PaymentError { reason: String }
 
 // An EFFECT line is a group of one (slice 1 supports one EFFECT): `->` and `=` get one space before them.
@@ -42,7 +50,7 @@ fn place order: Order -> Payment ! PaymentError =
   |> payments.authorize
 
 // Two adjacent one-line fns of different names: two groups of one, no padding between them (DL-083).
-fn one a: String -> String = a
+fn one        a: String  -> String = a
 fn other_name bb: String -> String = bb
 
 fn check key: String -> String ! PaymentError

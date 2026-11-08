@@ -105,7 +105,10 @@ fn lex(source: &str) -> Checked<Vec<(Token, Range<usize>)>> {
                 chars.next();
                 Token::Pipe
             }
-            '{' | '}' | '(' | ')' | ':' | ',' | '=' | '+' | '!' | '|' => Token::Symbol(ch),
+            // `[` and `]` hold the TYPE of a LIST TYPE field (0005 Q5-3).
+            '{' | '}' | '(' | ')' | '[' | ']' | ':' | ',' | '=' | '+' | '!' | '|' => {
+                Token::Symbol(ch)
+            }
             _ => return Err(format!("unsupported token at byte {pos}")),
         };
         let end = chars.peek().map_or(source.len(), |&(next, _)| next);
@@ -157,6 +160,8 @@ struct SignatureLine {
     output: String,
     failures: Vec<String>,
     start: usize,
+    // DL-148: the byte end of the line, so `fmt` can make it a row of a clause table.
+    end: usize,
 }
 // `effect NAME IN -> OUT ! ERR = KIND("path")`: an operation that leaves the module.
 #[derive(Clone, Debug)]
@@ -169,6 +174,18 @@ struct Effect {
     path: String,
     // Slice 6b step 6b (D6B-31): `with f1, f2` after the target names redacted input fields that go on the wire.
     with: Vec<String>,
+    source_range: Range<usize>,
+}
+// `effect NAME IN -> OUT ! ERR = ui.event("e") |> f` (slice 6d, DL-130): an ENTRY LINE, an operation that enters the
+// module. The head TYPES equal those of fn f (drift rule); the host calls `NAME_with_underscore(params)` (DL-131).
+#[derive(Clone, Debug)]
+struct Entry {
+    name: String,
+    input: String,
+    output: String,
+    failures: Vec<String>,
+    kind: String,
+    target: String,
     source_range: Range<usize>,
 }
 // `migrate T va -> vb { change, change }`: one MIGRATE STEP of the MIGRATE CHAIN of the TYPE T.
@@ -205,6 +222,7 @@ struct Program {
     clauses: Vec<Clause>,
     signature_lines: Vec<SignatureLine>,
     effects: Vec<Effect>,
+    entries: Vec<Entry>,
     migrations: Vec<Migration>,
     retires: Vec<Retire>,
     // Slice 5: the VERSION MARK `type T vN { ... }` per record TYPE that has one (DL-070, DL-071).
@@ -510,7 +528,15 @@ impl Parser {
                             self.at += 1;
                             program.redacted.insert((name.clone(), field.clone()));
                         }
-                        fields.push((field, self.word()?));
+                        // A LIST TYPE `[T]` keeps its text, also in the fingerprint (PDB-08).
+                        let ty = if self.eat('[') {
+                            let inner = self.word()?;
+                            self.expect(']')?;
+                            format!("[{inner}]")
+                        } else {
+                            self.word()?
+                        };
+                        fields.push((field, ty));
                         self.eat(',');
                     }
                     if program
@@ -610,6 +636,7 @@ impl Parser {
                             output,
                             failures,
                             start,
+                            end: self.tokens[self.at - 1].1.end,
                         });
                         continue;
                     }
@@ -646,6 +673,21 @@ impl Parser {
                         _ => return Err(self.error("expected effect target string")),
                     };
                     self.expect(')')?;
+                    // Slice 6d (DL-130): `|> f` after the call makes the line an ENTRY LINE; the event String is free text.
+                    if self.peek() == &Token::Pipe {
+                        self.at += 1;
+                        let target = self.word()?;
+                        program.entries.push(Entry {
+                            name,
+                            input,
+                            output,
+                            failures,
+                            kind,
+                            target,
+                            source_range: start..self.tokens[self.at - 1].1.end,
+                        });
+                        continue;
+                    }
                     let mut with = Vec::new();
                     if matches!(self.peek(), Token::Word(w) if w == "with") {
                         self.at += 1;
@@ -797,6 +839,8 @@ struct Checker<'a> {
     constructors: BTreeSet<String>,
     // DL-108, D6B-84: the EFFECTS that each signature key reaches through call edges, transitively. Set by `validate`.
     reach: BTreeMap<String, BTreeSet<String>>,
+    // Q6E-1 C: the generated module name, from the stem for an ENTRY LINE source. Set by `build_with_refusals`.
+    module: String,
 }
 // The Elixir name of a signature key: signature k of a constructor `fn T` (`T#k`) is `new_T_k` (D6B-15).
 fn elixir_name(key: &str) -> String {
@@ -1012,6 +1056,10 @@ fn upper(name: &str) -> bool {
 fn lower(name: &str) -> bool {
     name.as_bytes().first().is_some_and(u8::is_ascii_lowercase)
 }
+// The element TYPE of a LIST TYPE `[T]` (0005 Q5-3).
+fn list_inner(ty: &str) -> Option<&str> {
+    ty.strip_prefix('[')?.strip_suffix(']')
+}
 fn unique(names: impl Iterator<Item = String>) -> Checked<()> {
     let mut seen = BTreeSet::new();
     for name in names {
@@ -1038,6 +1086,7 @@ impl<'a> Checker<'a> {
                 .cloned()
                 .collect(),
             reach: BTreeMap::new(),
+            module: "BeamlSpike".into(),
         };
         for (name, def) in &program.types {
             if !upper(name) || name == "String" || name == "Int" {
@@ -1070,6 +1119,31 @@ impl<'a> Checker<'a> {
                     if let Some(literals) = program.literals.get(name) {
                         checker.literal_rules(name, variants, literals)?;
                     }
+                }
+            }
+        }
+        // Q5-3: a LIST TYPE holds a record TYPE and stands only as the one field of a db.list output TYPE.
+        for (owner, def) in &program.types {
+            let Definition::Record(fields) = def else {
+                continue;
+            };
+            for (field, ty) in fields {
+                let Some(inner) = list_inner(ty) else {
+                    continue;
+                };
+                if !matches!(program.types.get(inner), Some(Definition::Record(_))) {
+                    return Err(format!(
+                        "error: the LIST TYPE {ty} needs a record TYPE inside the brackets"
+                    ));
+                }
+                let output = program
+                    .effects
+                    .iter()
+                    .any(|e| e.kind == "db.list" && &e.output == owner);
+                if !output || fields.len() != 1 {
+                    return Err(format!(
+                        "error: the LIST TYPE {ty} of {owner}.{field} stands only as the field of a db.list output TYPE (Q5-3)"
+                    ));
                 }
             }
         }
@@ -1422,7 +1496,7 @@ impl<'a> Checker<'a> {
                     "retire {op}: the operation is retired two times; declare one RETIRE LINE per operation"
                 ));
             }
-            if self.effect(op).is_some() {
+            if self.effect(op).is_some() || self.program.entries.iter().any(|e| &e.name == op) {
                 return Err(format!(
                     "retire {op}: the source still declares effect {op}; remove the effect or the RETIRE LINE"
                 ));
@@ -1443,9 +1517,17 @@ impl<'a> Checker<'a> {
         let effects = &self.program.effects;
         for effect in effects {
             let name = &effect.name;
-            if effect.kind != "http.post" {
+            if !["http.post", "db.put", "db.get", "db.list"].contains(&effect.kind.as_str()) {
                 return Err(format!(
-                    "unsupported effect kind: {} in effect {name} (slice 1 supports http.post)",
+                    "unsupported effect kind: {} in effect {name} (supported: http.post, db.put, db.get, db.list)\n  help: write http.post(\"path\"), db.put(\"records\"), db.get(\"records\") or db.list(\"records\")",
+                    effect.kind
+                ));
+            }
+            let db = effect.kind != "http.post";
+            // DL-127: one table.
+            if db && effect.path != "records" {
+                return Err(format!(
+                    "error: effect {name}: {} uses the table \"records\" only (DL-127)",
                     effect.kind
                 ));
             }
@@ -1459,6 +1541,12 @@ impl<'a> Checker<'a> {
                 || effects.iter().filter(|e| &e.name == name).count() != 1
             {
                 return Err(format!("duplicate name: {elixir}"));
+            }
+            // A DB TRANSPORT has its own rules, not the http wire rules (D6B-40, D6B-19, D6B-03).
+            if db {
+                self.effect_failures(effect)?;
+                self.db_effect(effect)?;
+                continue;
             }
             if effect.path.is_empty()
                 || effect.path.starts_with('/')
@@ -1556,60 +1644,181 @@ impl<'a> Checker<'a> {
                     }
                 }
             }
-            for (field, ty) in self.record(&effect.output)? {
-                let output = &effect.output;
-                // Slice 6b step 7: an enum with ENUM LITERALS decodes by its mapping (D6B-35).
-                if self.program.literals.contains_key(ty) {
-                    if self.versioned(output) {
-                        return Err(format!(
-                            "error: effect {name}: the enum field {output}.{field} cannot stand in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n  help: remove the MIGRATE CHAIN and the VERSION MARK of {output}, or make {field} a String field"
-                        ));
-                    }
-                    if self.keep_variant(ty).is_none() {
-                        return Err(format!(
-                            "error: effect {name}: the enum {ty} of {output}.{field} has no keep-value variant (DL-065)\n  help: add the variant Unknown(String) to enum {ty}"
-                        ));
-                    }
-                } else if self.constructors.contains(ty) && self.ctor_signatures(ty).is_some() {
-                    // Step 8 (DL-101): the decode calls the constructor with String parameters (S4).
-                    if self.versioned(output) {
-                        return Err(format!(
-                            "error: effect {name}: the constructor field {output}.{field} cannot stand in a TYPE with a MIGRATE CHAIN or a VERSION MARK in slice 6b (D6B-39)\n  help: remove the MIGRATE CHAIN and the VERSION MARK of {output}"
-                        ));
-                    }
-                    self.ctor_keeps(name, output, field, ty)?;
-                } else if ty != "String" {
-                    return Err(format!(
-                        "effect {name}: slice 1 decodes String fields only, not {}.{field}",
-                        effect.output
-                    ));
-                }
-            }
-            let owner = format!("effect {name}");
-            self.failure_types(&owner, &effect.failures)?;
-            self.overlap(&owner, &effect.output, &effect.failures, false)?;
-            // The failure struct gets only `reason`, so an Int field would stay nil (D6B-03).
-            if let Some(place) = effect.failures.iter().find_map(|f| self.int_inside(f)) {
-                return Err(format!(
-                    "effect {name}: slice 6b fails with String fields only, not {place}"
-                ));
-            }
-            match effect.failures.as_slice() {
-                [failure]
-                    if self.record(failure).is_ok_and(|fields| {
-                        fields.iter().any(|(f, t)| f == "reason" && t == "String")
-                    }) => {}
-                _ => {
-                    return Err(format!(
-                        "effect {name} needs one failure type with the field reason: String"
-                    ));
-                }
-            }
-        }
-        if effects.len() > 1 {
-            return Err("slice 1 supports one effect".into());
+            self.output_fields(name, &effect.output)?;
+            self.effect_failures(effect)?;
         }
         Ok(())
+    }
+    // The fields of an EFFECT output TYPE or a ROW TYPE that the decode reads (steps 7 and 8). M4 step 1 (DL-152):
+    // a versioned TYPE may hold enum and constructor fields; only a MIGRATE STEP that names one stays an error.
+    fn output_fields(&self, name: &str, output: &str) -> Checked<()> {
+        for (field, ty) in self.record(output)? {
+            // Slice 6b step 7: an enum with ENUM LITERALS decodes by its mapping (D6B-35).
+            if self.program.literals.contains_key(ty) {
+                self.renamed_onto(
+                    name,
+                    output,
+                    field,
+                    "enum",
+                    &format!(", or make {field} a String field"),
+                )?;
+                if self.keep_variant(ty).is_none() {
+                    return Err(format!(
+                        "error: effect {name}: the enum {ty} of {output}.{field} has no keep-value variant (DL-065)\n  help: add the variant Unknown(String) to enum {ty}"
+                    ));
+                }
+            } else if self.constructors.contains(ty) && self.ctor_signatures(ty).is_some() {
+                // Step 8 (DL-101): the decode calls the constructor with String parameters (S4).
+                self.renamed_onto(name, output, field, "constructor", "")?;
+                self.ctor_keeps(name, output, field, ty)?;
+            } else if ty != "String" {
+                return Err(format!(
+                    "effect {name}: slice 1 decodes String fields only, not {}.{field}",
+                    output
+                ));
+            }
+        }
+        Ok(())
+    }
+    // M4 step 1 (DL-152, QM4-1 A): `rename old -> field` onto an enum or constructor field waits for the fate forms
+    // (M3). `add` and `drop` take String fields only (`type_versions`), so `rename` is the one step to check here.
+    fn renamed_onto(
+        &self,
+        name: &str,
+        output: &str,
+        field: &str,
+        kind: &str,
+        help: &str,
+    ) -> Checked<()> {
+        for step in self.migrations(output) {
+            for change in &step.changes {
+                if let Change::Rename(old, new) = change
+                    && new == field
+                {
+                    let (from, to) = (step.from, step.to);
+                    return Err(format!(
+                        "error: effect {name}: migrate {output} v{from} -> v{to}: rename {old} -> {new} names the {kind} field {output}.{field}; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)\n  help: remove rename {old} -> {new} from the MIGRATE STEP{help}"
+                    ));
+                }
+            }
+        }
+        Ok(())
+    }
+    // D6B-04, D6B-03: the one failure TYPE of an EFFECT with the field reason: String.
+    fn effect_failures(&self, effect: &Effect) -> Checked<()> {
+        let name = &effect.name;
+        let owner = format!("effect {name}");
+        self.failure_types(&owner, &effect.failures)?;
+        self.overlap(&owner, &effect.output, &effect.failures, false)?;
+        // The failure struct gets only `reason`, so an Int field would stay nil (D6B-03).
+        if let Some(place) = effect.failures.iter().find_map(|f| self.int_inside(f)) {
+            return Err(format!(
+                "effect {name}: slice 6b fails with String fields only, not {place}"
+            ));
+        }
+        match effect.failures.as_slice() {
+            [failure]
+                if self.record(failure).is_ok_and(|fields| {
+                    fields.iter().any(|(f, t)| f == "reason" && t == "String")
+                }) => {}
+            _ => {
+                return Err(format!(
+                    "effect {name} needs one failure type with the field reason: String"
+                ));
+            }
+        }
+        Ok(())
+    }
+    // 0005 P4 (DL-127, DL-129): the transport shape of a db EFFECT, then the ROW TYPE rules (PDB-05 to PDB-07).
+    fn db_effect(&self, effect: &Effect) -> Checked<()> {
+        let (name, input, output) = (&effect.name, &effect.input, &effect.output);
+        let error = |text: String| Err(format!("error: effect {name}: {text}"));
+        if !effect.with.is_empty() {
+            return error("with stands only after http.post (D6B-31)".into());
+        }
+        match effect.kind.as_str() {
+            "db.put" if output != input => {
+                return error(format!(
+                    "db.put returns its input TYPE; write {input} -> {input}"
+                ));
+            }
+            "db.get" => {
+                let [(key, t)] = self.record(input)?.as_slice() else {
+                    return error("db.get takes a key TYPE with one String field (QDB-1)".into());
+                };
+                if t != "String" {
+                    return error("db.get takes a key TYPE with one String field (QDB-1)".into());
+                }
+                if !self
+                    .record(output)?
+                    .iter()
+                    .any(|(f, t)| f == key && t == "String")
+                {
+                    return error(format!(
+                        "the key field {key} of {input} is not a String field of {output} (QDB-1)"
+                    ));
+                }
+            }
+            "db.list" => {
+                if !self.record(input)?.is_empty() {
+                    return error("db.list takes a query TYPE with no fields (Q5-2)".into());
+                }
+                if !matches!(self.record(output)?.as_slice(), [(_, t)] if list_inner(t).is_some()) {
+                    return error("db.list returns a TYPE with one field of a LIST TYPE, for example type OrderList { items: [Order] } (Q5-3)".into());
+                }
+            }
+            _ => {}
+        }
+        let row = self.row_type(effect);
+        if self.constructors.contains(&row) {
+            return error(format!(
+                "the ROW TYPE {row} has a constructor; a row holds a plain record (PDB-06)"
+            ));
+        }
+        let fields = self.record(&row)?;
+        if let Some((f, _)) = fields.iter().find(|(f, _)| self.is_redacted(&row, f)) {
+            return error(format!(
+                "the ROW TYPE {row} has the redacted field {f}; rows hold no redacted field yet (M3, DL-116)"
+            ));
+        }
+        for (f, t) in fields {
+            if matches!(self.program.types.get(t), Some(Definition::Enum(_)))
+                && !self.program.literals.contains_key(t)
+            {
+                return error(format!(
+                    "the enum {t} of {row}.{f} has no ENUM LITERALS; a row stores an enum by its literal (PDB-07)"
+                ));
+            }
+        }
+        self.output_fields(name, &row)?;
+        // PDB-13: the encode writes a constructor value by its String fields; the decode reads them back through
+        // the first signature, so that signature takes exactly those fields.
+        for (f, t) in fields.iter().filter(|(_, t)| self.ctor_record(t)) {
+            let own = self.record(t)?;
+            let first = &self.ctor_signatures(t).expect("checked signatures")[0].1;
+            let same = own.len() == first.len()
+                && own.iter().all(|(g, u)| u == "String" && first.contains(g));
+            if !same {
+                return error(format!(
+                    "the constructor {t} of {row}.{f} needs a first signature that takes the String fields of {t}; a row stores the field values (PDB-13)"
+                ));
+            }
+        }
+        Ok(())
+    }
+    // The ROW TYPE of a db EFFECT: the input of db.put, the output of db.get, the element of the db.list output.
+    fn row_type(&self, effect: &Effect) -> String {
+        match effect.kind.as_str() {
+            "db.put" => effect.input.clone(),
+            "db.list" => self
+                .record(&effect.output)
+                .ok()
+                .and_then(|f| f.first())
+                .and_then(|(_, t)| list_inner(t))
+                .unwrap_or_default()
+                .to_string(),
+            _ => effect.output.clone(),
+        }
     }
     // The first TYPE with a constructor in `ty`: itself (`""`) or the place ` field Owner.field` that holds it.
     fn constructor_inside(&self, ty: &str) -> Option<(String, String)> {
@@ -1819,6 +2028,9 @@ impl<'a> Checker<'a> {
     fn check_type(&self, name: &str, path: &mut Vec<String>) -> Checked<()> {
         if name == "String" || name == "Int" {
             return Ok(());
+        }
+        if let Some(inner) = list_inner(name) {
+            return self.check_type(inner, path);
         }
         if path.iter().any(|n| n == name) || path.len() > 32 {
             return Err("recursive or deeply nested types are outside this spike".into());
@@ -2403,11 +2615,148 @@ impl Checker<'_> {
             }
         }
         // After the pipe checks, so that a pipe error names its step first.
+        let mut flows: BTreeMap<&str, &str> = BTreeMap::new();
         for effect in &self.program.effects {
-            self.flow(effect)?;
+            let flow = &self.flow(effect)?.name;
+            // Q6E-4 A: a flow calls one EFFECT, so a REPLAY RUN selects one RESPONSE RECORD per trace.
+            if let Some(first) = flows.insert(flow, &effect.name) {
+                return Err(format!(
+                    "error: fn {flow} calls the effects {first} and {}; slice 6e replays a flow with one effect",
+                    effect.name
+                ));
+            }
         }
         self.reach = self.reach_map();
-        self.pure_constructors()
+        self.pure_constructors()?;
+        self.entries()
+    }
+    // Slice 6d: the ENTRY LINE checks in the order of R6D-03, so that each text is reachable: line form, target kind,
+    // parameter count, drift rule (DL-130), input TYPE (D6B-130), flow (D6B-129), names (D6B-138).
+    fn entries(&self) -> Checked<()> {
+        for entry in &self.program.entries {
+            let (op, target, input) = (&entry.name, &entry.target, &entry.input);
+            let error = |text: String| Err(format!("error: effect {op}: {text}"));
+            if !operation_name(op) {
+                return Err(format!(
+                    "invalid effect name: {op} (expected namespace.operation)"
+                ));
+            }
+            if entry.kind != "ui.event" {
+                return error(
+                    "slice 6d supports the inbound transport ui.event only (HTTP route entries come later)"
+                        .into(),
+                );
+            }
+            if upper(target) {
+                return error(format!(
+                    "{target} is a constructor; an ENTRY LINE calls a fn (DL-120)"
+                ));
+            }
+            let Some((params, output)) = self.signatures.get(target) else {
+                return error(format!("fn {target} is not declared"));
+            };
+            let [param] = params.as_slice() else {
+                return error(format!("fn {target} must take one parameter"));
+            };
+            let none = |f: &[String]| {
+                if f.is_empty() {
+                    "none".to_string()
+                } else {
+                    f.join(" | ")
+                }
+            };
+            let roles = [
+                ("input", input.clone(), param.clone()),
+                ("output", entry.output.clone(), output.clone()),
+                (
+                    "failure",
+                    none(&entry.failures),
+                    none(&self.failures[target]),
+                ),
+            ];
+            for (role, head, fun) in roles {
+                if head != fun {
+                    return Err(format!(
+                        "error: effect {op}: the {role} TYPE is {head} in the head but {fun} in fn {target} (DL-130)\n  help: write the input, output and failure TYPE of fn {target} in the head of effect {op}"
+                    ));
+                }
+            }
+            if self.constructors.contains(input) {
+                return error(format!(
+                    "{input} has a constructor; slice 6d decodes a plain record (D6B-130)"
+                ));
+            }
+            if self.versioned(input) {
+                return error(format!(
+                    "{input} has a MIGRATE CHAIN or a VERSION MARK; slice 6d decodes the newest TYPE only (D6B-130)"
+                ));
+            }
+            for (field, ty) in self.record(input)? {
+                if self.program.literals.contains_key(ty) && self.keep_variant(ty).is_none() {
+                    return error(format!(
+                        "the enum {ty} of {input}.{field} has no keep-value variant (DL-065)\n  help: add the variant Unknown(String) to enum {ty}"
+                    ));
+                }
+                if self.constructors.contains(ty) {
+                    if self.ctor_signatures(ty).is_none() {
+                        return error(format!(
+                            "the constructor {ty} of {input}.{field} takes a parameter that is not name: String (S4)"
+                        ));
+                    }
+                    self.ctor_keeps(op, input, field, ty)?;
+                }
+            }
+            // TEST O1 (DL-144): the decode maps an enum or constructor field at the top level only, so a deeper one
+            // is a build error, not a reject of every event. check_type has already rejected recursive TYPES.
+            let mut nested: Vec<&String> = self.record(input)?.iter().map(|(_, t)| t).collect();
+            nested.retain(|t| !self.constructors.contains(*t));
+            let mut next = 0;
+            while let Some(ty) = nested.get(next).copied() {
+                next += 1;
+                let Some(Definition::Record(fields)) = self.program.types.get(ty) else {
+                    continue;
+                };
+                for (field, t) in fields {
+                    let kind = match self.program.types.get(t) {
+                        _ if self.constructors.contains(t) => "constructor",
+                        Some(Definition::Enum(_)) => "enum",
+                        _ => {
+                            nested.push(t);
+                            continue;
+                        }
+                    };
+                    return error(format!(
+                        "the {kind} field {ty}.{field} below the top level of {input} is a slice 6d limit (DL-144)\n  help: move {ty}.{field} to the top level of {input}; slice 6d decodes enum and constructor fields at the top level only"
+                    ));
+                }
+            }
+            for reached in &self.reach[target] {
+                let effect = self.effect(reached).expect("reached effect");
+                if &self.flow(effect)?.name != target {
+                    return error(format!(
+                        "fn {target} reaches {reached} but is not its flow; slice 6d replays the flow only"
+                    ));
+                }
+            }
+            let elixir = op.replace('.', "_");
+            if self.signatures.contains_key(&elixir)
+                || self
+                    .program
+                    .effects
+                    .iter()
+                    .any(|e| e.name.replace('.', "_") == elixir)
+                // D6B-201: two ENTRY LINES with one operation collide on the generated name.
+                || self.program.entries.iter().filter(|e| &e.name == op).count() > 1
+            {
+                return Err(format!("duplicate name: {elixir}"));
+            }
+            if self.program.types.contains_key("Rejected") {
+                return error(
+                    "the TYPE name Rejected is reserved next to an ENTRY LINE (DL-133)".into(),
+                );
+            }
+        }
+        Ok(())
     }
     // The call edges of each signature key, in source order (clause order, then step order): signature keys,
     // variant names and EFFECT names (D6B-85: call forms, nested pipes and whole-body pipe steps).
@@ -2655,6 +3004,7 @@ impl Checker<'_> {
             && !ctor
             && self.program.effects.is_empty()
             && self.program.retires.is_empty()
+            && self.program.entries.is_empty()
         {
             ""
         } else {
@@ -2671,15 +3021,38 @@ impl Checker<'_> {
         let is_integer = if int { " is_integer: 1," } else { "" };
         let is_struct = if ctor { " is_struct: 2," } else { "" };
         let mut out = format!(
-            "# Generated by experiment 0001. Not a stable ABI.\ndefmodule BeamlSpike do\n  import Kernel, only: [and: 2, is_binary: 1,{is_integer} is_map: 1,{is_struct} map_size: 1, ==: 2, <>: 2, if: 2, raise: 2, def: 2, defp: 2{nested}]\n",
+            "# Generated by experiment 0001. Not a stable ABI.\ndefmodule {} do\n  import Kernel, only: [and: 2, is_binary: 1,{is_integer} is_map: 1,{is_struct} map_size: 1, ==: 2, <>: 2, if: 2, raise: 2, def: 2, defp: 2{nested}]\n",
+            self.module
         );
         // D6B-07: the failure structs that no EFFECT names, or that a clause body builds, come first.
         out.push_str(
             &self.emit_structs(|f| self.ctor_record(f) || !self.effect_failure(f) || self.built(f)),
         );
+        if !self.program.entries.is_empty() {
+            // DL-133: the decode reject of an ENTRY LINE, apart from the failure TYPES of the fn.
+            out.push_str("  defmodule Rejected do\n    import Kernel, only: [defstruct: 1]\n    defstruct [:reason]\n  end\n");
+        }
         out.push_str("  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and String.valid?(v)\n");
         if int {
             out.push_str("  defp __beaml_valid__(v, <<73,110,116>>), do: is_integer(v)\n");
+        }
+        // Q5-3: a LIST TYPE value is a list of values of its record TYPE.
+        let lists: BTreeSet<&String> = self
+            .program
+            .types
+            .values()
+            .flat_map(|def| match def {
+                Definition::Record(fields) => fields.iter().map(|(_, t)| t).collect(),
+                Definition::Enum(_) => Vec::new(),
+            })
+            .filter(|t| list_inner(t).is_some())
+            .collect();
+        for ty in lists {
+            out.push_str(&format!(
+                "  defp __beaml_valid__(v, {}), do: :erlang.is_list(v) and Enum.all?(v, fn x -> __beaml_valid__(x, {}) end)\n",
+                binary(ty),
+                binary(list_inner(ty).expect("a LIST TYPE"))
+            ));
         }
         // DL-115 (Q6B-14 A): a marked EFFECT output field holds a value of its TYPE or the atom `:redacted`.
         let marked: BTreeSet<String> = self
@@ -2809,7 +3182,17 @@ impl Checker<'_> {
             }
         }
         for effect in &self.program.effects {
-            out.push_str(&self.emit_effect(effect, service));
+            out.push_str(&if effect.kind == "http.post" {
+                self.emit_effect(effect, service)
+            } else {
+                self.emit_db_effect(effect, service)
+            });
+        }
+        if !self.program.effects.is_empty() {
+            out.push_str(&self.emit_replay(service));
+        }
+        for entry in &self.program.entries {
+            out.push_str(&self.emit_entry(entry, service));
         }
         if self.program.effects.is_empty() && !self.program.retires.is_empty() {
             // Slice 4: a RETIRE LINE without an `effect`. A REPLAY RUN gives the `Retired` reject for a
@@ -2820,8 +3203,31 @@ impl Checker<'_> {
             ));
         }
         out.push_str("end\n");
-        out
+        written_once(&out)
     }
+}
+
+// D6B-198: a module-level item (a def clause, a nested module, a comment) that stands two times in the same text is
+// written once, at its first place. Several EFFECTS and ENTRY LINES share `Http`, `BeamlFailure`, the failure structs
+// and the decode helpers of a shared TYPE. A one-EFFECT source repeats no item, so its bytes stay (N13).
+// ponytail: keyed by text, not by name; a def with one name and other text still reaches elixirc (N2 catches it).
+fn written_once(code: &str) -> String {
+    let (mut seen, mut out, mut item) = (BTreeSet::new(), String::new(), String::new());
+    for line in code.split_inclusive('\n').chain([""]) {
+        let starts = line.is_empty()
+            || (line != "  end\n"
+                && !line.starts_with("   ")
+                && line != "\n"
+                && !line.starts_with("  end "));
+        if starts {
+            if !item.starts_with("  ") || seen.insert(item.clone()) {
+                out.push_str(&item);
+            }
+            item.clear();
+        }
+        item.push_str(line);
+    }
+    out
 }
 
 // How a pipe step is emitted: in the live flow (spans, the prepared event, the EFFECT call)
@@ -2956,6 +3362,23 @@ impl Checker<'_> {
                 .collect::<Vec<_>>()
                 .join(", "),
             binary(&fingerprint(&fields))
+        )
+    }
+    // The `type` key of an ENTRY RECORD, a ROW CORE and a db call record: the newest TYPE VERSION, fields in source
+    // order (DL-141, R6D-05, R6D-13); the fingerprint sorts.
+    fn emit_type_key(&self, ty: &str) -> String {
+        let versions = self.type_versions(ty);
+        let type_fields = versions.last().expect("one TYPE VERSION");
+        format!(
+            "%{{name: {}, version: {}, fields: [{}], fingerprint: {}}}",
+            binary(ty),
+            self.newest_version(ty),
+            type_fields
+                .iter()
+                .map(|(f, t)| format!("[{}, {}]", binary(f), binary(t)))
+                .collect::<Vec<_>>()
+                .join(", "),
+            binary(&fingerprint(type_fields))
         )
     }
     // Record failure TYPES named in any `!` list; each becomes a nested struct module (D6B-04, D6B-07).
@@ -3170,6 +3593,29 @@ impl Checker<'_> {
                         binary(step)
                     ));
                     clauses.push(":ok <- expect(record[\"attempt\"], 1, :attempt_mismatch)".into());
+                    // 0005 P4 (PDB-19): a db step checks the request projection and the digest, then decodes the
+                    // recorded `value` in `replay_<elixir>`; BeamlDb is never called.
+                    if effect.kind != "http.post" {
+                        let request = if effect.kind == "db.put" {
+                            format!(
+                                "@parent.__beaml_encode_{}({input})",
+                                effect.input.to_ascii_lowercase()
+                            )
+                        } else {
+                            input.clone()
+                        };
+                        clauses.push(format!(
+                            ":ok <- expect(record[\"request\"], {request}, :request_mismatch)"
+                        ));
+                        clauses.push("{:ok, bytes, _keys} <- body(record)".into());
+                        clauses.push(format!(
+                            "{{:ok, {output}}} <- @parent.__beaml_attempt__(fn -> ProbeSupport.span({}, :internal, {head}, nil, fn -> replay_{}(record[\"outcome\"], record[\"reason\"], bytes) end) end)",
+                            binary(&format!("{service}.{step}")),
+                            effect.name.replace('.', "_"),
+                        ));
+                        matched = true;
+                        continue;
+                    }
                     clauses.push(format!(
                         ":ok <- expect(record[\"request\"], {}, :request_mismatch)",
                         self.redact(&input, &effect.input, &[], "@parent.")
@@ -3263,7 +3709,6 @@ impl Checker<'_> {
         let elixir = name.replace('.', "_");
         let namespace = name.split('.').next().unwrap();
         let decode = decode_name(&effect.output);
-        let flow = self.flow(effect).expect("checked flow");
         let mut out = format!(
             "  # beaml-declaration-v1 {name} {} {}\n",
             effect.source_range.start, effect.source_range.end
@@ -3272,8 +3717,9 @@ impl Checker<'_> {
         // `{:error, %Failure{reason: r}}` outside it. Transport, status and decode never raise to the caller.
         let failure = &effect.failures[0];
         out.push_str(&format!(
-            "  def {elixir}(a0) do\n    if __beaml_valid__(a0, {input}) do\n      __beaml_attempt__(fn ->\n        ProbeSupport.span({span}, :client, {record}, nil, fn ->\n          carrier = if ProbeSupport.config(:drop_context), do: [], else: :otel_propagator_text_map.inject([])\n\n          case __MODULE__.Http.post(:{namespace}_port, {path}, {wire}, carrier) do\n            {{:ok, status, bytes}} ->\n              __MODULE__.Replay.record({record}, status, bytes)\n              if status == 200, do: __beaml_result_{elixir}(bytes), else: __beaml_fail_{elixir}({status_reason})\n\n            :error ->\n              __beaml_fail_{elixir}({transport_reason})\n          end\n        end)\n      end)\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n",
+            "  def {elixir}(a0) do\n    if __beaml_valid__(a0, {input}) do\n      __beaml_attempt__(fn ->\n        ProbeSupport.span({span}, :client, {record}, nil, fn ->\n          carrier = if ProbeSupport.config(:drop_context), do: [], else: :otel_propagator_text_map.inject([])\n\n          case __MODULE__.Http.post(:{namespace}_port, {path}, {wire}, carrier) do\n            {{:ok, status, bytes}} ->\n              __MODULE__.Replay.record({op}{record}, status, bytes)\n              if status == 200, do: __beaml_result_{elixir}(bytes), else: __beaml_fail_{elixir}({status_reason})\n\n            :error ->\n              __beaml_fail_{elixir}({transport_reason})\n          end\n        end)\n      end)\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n",
             input = binary(&effect.input),
+            op = self.replay_op(name),
             span = binary(&format!("{service}.{name}")),
             path = binary(&effect.path),
             status_reason = binary("status"),
@@ -3301,239 +3747,33 @@ impl Checker<'_> {
         // VERSION (DL-054): every field of that version must hold its TYPE, every other key goes to
         // `unknown_keys` (sorted). The steps then work on typed data only: `rename old -> new` moves the
         // value, `add f = c` puts `c`, `drop f` removes the (already typed) field.
+        // M4 step 1 (DL-152): enum and constructor fields pass the steps raw; the DL-101 tail types them after.
         // A record `type` with another TYPE name, an unknown version or another fingerprint is a typed
         // decode error. No `type` key: the newest version. Without a chain the decode stays the slice 1 form.
-        let migrations = self.migrations(&effect.output);
-        let versions = self.type_versions(&effect.output);
-        let start = self.chain_start(&effect.output) as usize;
-        let newest = self.newest_version(&effect.output);
-        let list = |last: usize| {
-            (start..=last)
-                .map(|v| v.to_string())
-                .collect::<Vec<_>>()
-                .join(", ")
-        };
-        // Slice 6b step 7 (D6B-35, D6B-37): a literal enum field maps its wire String by `__beaml_literal_E`:
-        // a literal gives its variant, another String the keep-value variant, any other value `:error` (the
-        // typed reject `decode`). Only with literal fields; other outputs keep their bytes.
-        let literal_fields = self.literal_fields(&effect.output);
+        let parts = self.decode_parts(name, &effect.output);
+        out.push_str(&parts.0);
+        let (_, literal_map, tail, keeps, ctor_fields, inner) = parts;
         let unknown_fields = format!(
             "__beaml_unknown_fields_{}",
             effect.output.to_ascii_lowercase()
         );
-        // Step 8 (DL-101, S5): (field, enum, keep-value variant) of literal and constructor enum fields.
-        let ctor_fields = self.ctor_fields(&effect.output);
-        let mut keeps: Vec<(String, String, String)> = literal_fields
-            .iter()
-            .map(|(f, e)| {
-                let keep = self.keep_variant(e).expect("checked keep-value variant");
-                (f.clone(), e.clone(), keep.to_string())
-            })
-            .collect();
-        for (field, ty) in &ctor_fields {
-            for variant in self
-                .ctor_keeps(name, &effect.output, field, ty)
-                .expect("checked keep-value variants")
-            {
-                keeps.push((field.clone(), ty.clone(), variant));
-            }
-        }
-        keeps.sort();
-        let mut literal_map = String::new();
-        if !literal_fields.is_empty() {
-            let enums: BTreeSet<&String> = literal_fields.iter().map(|(_, e)| e).collect();
-            for enum_name in enums {
-                for (variant, literal) in &self.program.literals[enum_name] {
-                    out.push_str(&format!(
-                        "  defp __beaml_literal_{enum_name}({}), do: {{{}, {}, []}}\n",
-                        binary(literal),
-                        binary(enum_name),
-                        binary(variant)
-                    ));
-                }
-                out.push_str(&format!(
-                    "  defp __beaml_literal_{enum_name}(v) when is_binary(v), do: {{{}, {}, [v]}}\n  defp __beaml_literal_{enum_name}(_), do: :error\n",
-                    binary(enum_name),
-                    binary(self.keep_variant(enum_name).expect("checked keep-value variant"))
-                ));
-            }
-        }
-        if !keeps.is_empty() {
-            // D6B-37: the field names whose value went to the keep-value variant, sorted, no values.
-            let listed: Vec<String> = keeps
-                .iter()
-                .map(|(f, e, v)| format!("{{{}, {}, {}}}", binary(f), binary(e), binary(v)))
-                .collect();
-            out.push_str(&format!(
-                "  def {unknown_fields}(value) do\n    Enum.flat_map([{}], fn {{field, owner, keep}} ->\n      case Map.get(value, field) do\n        {{^owner, ^keep, _}} -> [field]\n        _ -> []\n      end\n    end)\n  end\n",
-                listed.join(", ")
-            ));
-        }
-        if !literal_fields.is_empty() {
-            for (field, enum_name) in &literal_fields {
-                literal_map.push_str(&format!(
-                    "    shape =\n      if is_map(shape) and Map.has_key?(shape, {field}),\n        do: Map.update!(shape, {field}, &__beaml_literal_{enum_name}/1),\n        else: shape\n\n",
-                    field = binary(field)
-                ));
-            }
-        }
-        // Step 8 (DL-084, DL-085, DL-099, DL-101, D6B-48): `__beaml_from_T` tries the signatures of `fn T` top to
-        // bottom. A signature matches when all its keys hold Strings (one parameter: the field value is the
-        // String). A constructor failure is `:constructor` (the typed reject `constructor`), no match `:error`.
-        let ctor_types: BTreeSet<&String> = ctor_fields.iter().map(|(_, t)| t).collect();
-        let string = binary("String");
-        for ty in ctor_types {
-            let mut branches = String::new();
-            for (key, names) in self.ctor_signatures(ty).expect("checked signatures") {
-                let (test, args) = if let [_] = names.as_slice() {
-                    (format!("__beaml_valid__(v, {string})"), "v".to_string())
-                } else {
-                    let gets: Vec<String> = names
-                        .iter()
-                        .map(|n| format!("Map.get(v, {})", binary(n)))
-                        .collect();
-                    let tests: Vec<String> = gets
-                        .iter()
-                        .map(|g| format!(" and __beaml_valid__({g}, {string})"))
-                        .collect();
-                    (format!("is_map(v){}", tests.concat()), gets.join(", "))
-                };
-                let call = format!("{}({args})", elixir_name(&key));
-                let body = if self.failures[&key].is_empty() {
-                    call
-                } else {
-                    format!(
-                        "case {call} do\n          {{:ok, value}} -> value\n          {{:error, _}} -> :constructor\n        end"
-                    )
-                };
-                branches.push_str(&format!("      {test} ->\n        {body}\n\n"));
-            }
-            out.push_str(&format!(
-                "  defp __beaml_from_{ty}(v) do\n    cond do\n{branches}      true ->\n        :error\n    end\n  end\n"
-            ));
-        }
-        for (field, ty) in &ctor_fields {
-            literal_map.push_str(&format!(
-                "    shape =\n      if is_map(shape) and Map.has_key?(shape, {field}),\n        do: Map.update!(shape, {field}, &__beaml_from_{ty}/1),\n        else: shape\n\n",
-                field = binary(field)
-            ));
-        }
-        // D6B-49, S8: the declared keys inside a constructor field value: every parameter name of every signature.
-        let inner: Vec<String> = ctor_fields
-            .iter()
-            .map(|(field, ty)| {
-                let mut names: Vec<String> = Vec::new();
-                for (_, list) in self.ctor_signatures(ty).expect("checked signatures") {
-                    for n in list {
-                        if !names.contains(&n) {
-                            names.push(n);
-                        }
-                    }
-                }
-                let names: Vec<String> = names.iter().map(|n| binary(n)).collect();
-                format!("{{{}, [{}]}}", binary(field), names.join(", "))
-            })
-            .collect();
-        let tail = if ctor_fields.is_empty() {
-            format!(
-                "    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n",
-                output = binary(&effect.output)
-            )
-        } else {
-            // D6B-49, S8: a stray key inside a constructor field value is `FIELD.KEY`.
-            format!(
-                "    cond do\n      is_map(shape) and Enum.member?(Map.values(shape), :constructor) ->\n        {{:error, {constructor}}}\n\n      __beaml_valid__(shape, {output}) ->\n        nested =\n          Enum.flat_map([{inner}], fn {{field, names}} ->\n            case Map.get(value, field) do\n              inner when is_map(inner) -> Enum.map(Map.keys(Map.drop(inner, names)), &(field <> {dot} <> &1))\n              _ -> []\n            end\n          end)\n\n        {{:ok, shape, Enum.sort(Enum.concat(Map.keys(Map.drop(value, declared)), nested))}}\n\n      true ->\n        :error\n    end\n",
-                constructor = binary("constructor"),
-                output = binary(&effect.output),
-                inner = inner.join(", "),
-                dot = binary("."),
-            )
-        };
         if !self.versioned(&effect.output) {
-            // DL-115 (Q6B-14 A): a REPLAY RUN puts `:redacted` into each marked field before the TYPE check.
-            let (head, shape) = if marks.is_empty() {
-                (format!("  def {decode}(a0) do\n"), "value")
-            } else {
-                (
-                    format!(
-                        "  def {decode}(a0), do: {decode}(a0, [])\n  def {decode}(a0, marked) do\n"
-                    ),
-                    "Map.merge(value, Map.new(List.wrap(marked), &{&1, :redacted}))",
-                )
-            };
-            out.push_str(&format!(
-                "{head}    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take({shape}, declared), else: nil\n\n{literal_map}{tail}  end\n",
-                declared.join(", "),
+            out.push_str(&self.plain_decode(
+                &effect.output,
+                &marks,
+                &declared,
+                &literal_map,
+                &tail,
             ));
         } else {
-            let known: Vec<String> = versions
-                .iter()
-                .enumerate()
-                .map(|(index, fields)| {
-                    format!("{{{}, {}}}", index + start, binary(&fingerprint(fields)))
-                })
-                .collect();
-            // Per TYPE VERSION: its fields with their TYPES (DL-054).
-            let by_version: String = versions
-                .iter()
-                .enumerate()
-                .map(|(index, fields)| {
-                    let pairs: Vec<String> = sorted_fields(fields)
-                        .iter()
-                        .map(|(f, t)| format!("{{{}, {}}}", binary(f), binary(t)))
-                        .collect();
-                    format!(
-                        "        {} -> {{:ok, [{}]}}\n",
-                        index + start,
-                        pairs.join(", ")
-                    )
-                })
-                .collect();
-            let mut changes = String::new();
-            for step in &migrations {
-                let guard = format!(
-                    "Enum.member?([{}], version) and is_map(value)",
-                    list(step.from as usize)
-                );
-                for change in &step.changes {
-                    changes.push_str(&match change {
-                        Change::Rename(old, new) => format!(
-                            "    value =\n      if {guard},\n        do: Map.delete(Map.put(value, {new}, Map.get(value, {old})), {old}),\n        else: value\n\n",
-                            old = binary(old),
-                            new = binary(new)
-                        ),
-                        Change::Add(field, _, constant) => format!(
-                            "    value = if {guard}, do: Map.put(value, {field}, {constant}), else: value\n\n",
-                            field = binary(field),
-                            constant = binary(constant.as_ref().expect("checked constant"))
-                        ),
-                        Change::Drop(field, _) => format!(
-                            "    value = if {guard}, do: Map.delete(value, {field}), else: value\n\n",
-                            field = binary(field)
-                        ),
-                    });
-                }
-            }
-            out.push_str(&format!(
-                "  def {decode}(a0), do: {decode}(a0, nil)\n  def {decode}(a0, type_version) do\n    declared = [{declared}]\n\n    version =\n      case type_version do\n        nil ->\n          {newest}\n\n        %{{{name_key} => {name}, {version_key} => v, {fingerprint_key} => f}} ->\n          if Enum.member?([{known}], {{v, f}}), do: v, else: 0\n\n        _ ->\n          0\n      end\n\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    fields =\n      case version do\n{by_version}        _ -> :none\n      end\n\n    {{value, unread}} =\n      case {{fields, body}} do\n        {{{{:ok, fields}}, %{{}}}} ->\n          names = Enum.map(fields, fn {{field, _}} -> field end)\n\n          if Enum.all?(fields, fn {{field, type}} -> __beaml_valid__(Map.get(body, field), type) end),\n            do: {{Map.take(body, names), Enum.sort(Map.keys(Map.drop(body, names)))}},\n            else: {{nil, []}}\n\n        _ ->\n          {{nil, []}}\n      end\n\n{changes}    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n    if __beaml_valid__(shape, {output}) do\n      {{:ok, shape, unread}}\n    else\n      :error\n    end\n  end\n",
-                declared = declared.join(", "),
-                name_key = binary("name"),
-                name = binary(&effect.output),
-                version_key = binary("version"),
-                fingerprint_key = binary("fingerprint"),
-                known = known.join(", "),
-                by_version = by_version,
-                output = binary(&effect.output),
-            ));
+            out.push_str(&self.versioned_decode(&effect.output, &declared, &literal_map, &tail));
         }
         // Slice 6b step 6a (DL-105, D6B-54, D6B-56, D6B-57): the projection of a body for the RESPONSE RECORD.
         // `value`: the wire values under the declared keys of the newest TYPE VERSION, nested by DL-099 and D6B-49,
         // not validated; `:null` when the body is not a JSON object. `unknown_keys`: the other key names, dotted.
         // D6B-56 amendment: a dotted name per level, also below an undeclared key. D6B-55: a marked field leaves
         // `value`; `redacted` lists it when it was present and valid.
-        let (marked, null) = if marks.is_empty() {
-            (String::new(), "")
-        } else {
+        if !marks.is_empty() {
             let pairs: Vec<String> = marks
                 .iter()
                 .map(|(f, t)| format!("{{{}, {}}}", binary(f), binary(t)))
@@ -3542,35 +3782,10 @@ impl Checker<'_> {
                 "  def __beaml_marked_{elixir}(body) do\n    Enum.sort(Enum.flat_map([{}], fn {{field, type}} -> if __beaml_valid__(Map.get(body, field), type), do: [field], else: [] end))\n  end\n",
                 pairs.join(", ")
             ));
-            (format!(", __beaml_marked_{elixir}(body)"), ", []")
-        };
+        }
         // D6B-56 amendment, D6B-172: a dotted name per level for every EFFECT source (one record shape).
-        let dot = binary(".");
-        let keys_fn = format!(
-            "  def __beaml_keys__(v, prefix) when is_map(v), do: Enum.flat_map(Map.keys(v), fn k -> [prefix <> k | __beaml_keys__(Map.get(v, k), prefix <> k <> {dot})] end)\n  def __beaml_keys__(_, _), do: []\n"
-        );
-        let inner_keys = format!("__beaml_keys__(Map.drop(v, names), field <> {dot})");
-        let top_keys = format!("__beaml_keys__(Map.drop(body, declared), {})", binary(""));
-        let kept: Vec<String> = self
-            .record(&effect.output)
-            .expect("checked output")
-            .iter()
-            .filter(|(f, _)| !marks.iter().any(|(m, _)| m == f))
-            .map(|(f, _)| binary(f))
-            .collect();
-        out.push_str(&format!(
-            "{keys_fn}  def __beaml_project_{elixir}(a0) do\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    if is_map(body) do\n      declared = [{declared}]\n\n      nested =\n        Enum.flat_map([{inner}], fn {{field, names}} ->\n          case Map.get(body, field) do\n            v when is_map(v) -> [{{field, Map.take(v, names), {inner_keys}}}]\n            _ -> []\n          end\n        end)\n\n      value = Enum.reduce(nested, Map.take(body, {kept}), fn {{field, v, _}}, acc -> Map.put(acc, field, v) end)\n      {{value, Enum.sort(Enum.concat({top_keys}, Enum.flat_map(nested, fn {{_, _, keys}} -> keys end))){marked}}}\n    else\n      {{:null, []{null}}}\n    end\n  end\n",
-            declared = declared.join(", "),
-            kept = if marks.is_empty() {
-                "declared".to_string()
-            } else {
-                format!("[{}]", kept.join(", "))
-            },
-            inner = inner.join(", "),
-            keys_fn = keys_fn,
-            inner_keys = inner_keys,
-            top_keys = top_keys,
-        ));
+        out.push_str(&keys_fn());
+        out.push_str(&self.emit_project(&elixir, &effect.output, &marks, &declared, &inner));
         // D6B-60: a REPLAY RUN passes the record `unknown_keys` as `extra`; the span gets the sorted union.
         let (result_head, arity) = if !marks.is_empty() {
             (
@@ -3616,20 +3831,17 @@ impl Checker<'_> {
         );
         out.push_str("  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n");
         out.push_str(HTTP);
-        out.push_str(&format!(
-            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{retired}\n    def record(request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n      {{value, unknown_keys{marked}}} = @parent.__beaml_project_{elixir}(bytes)\n{unknown}\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 2,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        client_span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        value: value,\n        redacted: {redacted},\n        unknown_keys: unknown_keys,\n        value_sha256: digest(value, unknown_keys, {redacted}),\n{fields_key}        type: {type_version}\n      }})\n    end\n\n    def run(a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n{REPLAY_HELPERS}  end\n",
-            operation = binary(name),
-            marked = if marks.is_empty() { "" } else { ", redacted" },
-            redacted = if marks.is_empty() { "[]" } else { "redacted" },
-            // Step 7 (notes.md S4): the RESPONSE RECORD key `unknown_fields` holds field names only.
-            unknown = if keeps.is_empty() {
-                String::new()
-            } else {
-                format!("      unknown_fields =\n        case @parent.{decode}(bytes) do\n          {{:ok, decoded, _}} -> @parent.{unknown_fields}(decoded)\n          _ -> []\n        end\n")
-            },
-            fields_key = if keeps.is_empty() { "" } else { "        unknown_fields: unknown_fields,\n" },
-            retired = self.emit_retired(),
-            type_version = self.emit_type_version(&effect.output),
+        out
+    }
+    // D6B-199: the `Replay` clauses of one EFFECT: `record` and `run`, with the operation first from two EFFECTS on.
+    fn emit_replay_clauses(&self, effect: &Effect, service: &str) -> (String, String) {
+        let name = &effect.name;
+        let elixir = name.replace('.', "_");
+        let decode = decode_name(&effect.output);
+        let flow = self.flow(effect).expect("checked flow");
+        let op = self.replay_op(name);
+        let run = format!(
+            "    def run({op}a0, trace_id, records) do\n      p0 = a0\n{chain}    end\n",
             chain = self.emit_chain(
                 &self.body_type(flow).1,
                 Some(flow),
@@ -3638,8 +3850,915 @@ impl Checker<'_> {
                 Step::Replay,
                 &self.redact("p0", &self.signatures[&flow.key].0[0], &[], "@parent."),
             ),
-        ));
+        );
+        if effect.kind != "http.post" {
+            return (self.emit_db_replay(effect), run);
+        }
+        let marks = self.output_marks(&effect.output);
+        let (_, _, _, keeps, ctor_fields, _) = self.decode_parts(name, &effect.output);
+        let unknown_fields = format!(
+            "__beaml_unknown_fields_{}",
+            effect.output.to_ascii_lowercase()
+        );
+        let record = format!(
+            "    def record({op}request, status, bytes) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n      {{value, unknown_keys{marked}}} = @parent.__beaml_project_{elixir}(bytes)\n\n      {{unknown_fields, outcome, reason}} =\n        case @parent.{decode}(bytes) do\n          {fields}\n          :error -> {{[], \"rejected\", \"decode\"}}{ctor_capture}\n        end\n\n      {{outcome, reason}} = if status == 200, do: {{outcome, reason}}, else: {{\"rejected\", \"status\"}}\n\n      ProbeSupport.Capture.write(\"responses\", %{{\n        version: 3,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        request: request,\n        status: status,\n        value: value,\n        redacted: {redacted},\n        unknown_keys: unknown_keys,\n        value_sha256: digest(value, unknown_keys, {redacted}),\n        unknown_fields: unknown_fields,\n        type: {type_version},\n        outcome: outcome,\n        reason: reason\n      }})\n    end\n",
+            operation = binary(name),
+            marked = if marks.is_empty() { "" } else { ", redacted" },
+            redacted = if marks.is_empty() { "[]" } else { "redacted" },
+            // Step 7 (notes.md S4): `unknown_fields` holds field names only. DL-143 (QV3-4 A): `outcome` and
+            // `reason` from the status, then the decode, then the constructor; `unknown_fields` always.
+            fields = if keeps.is_empty() {
+                "{:ok, _, _} -> {[], \"accepted\", :null}".to_string()
+            } else {
+                format!(
+                    "{{:ok, decoded, _}} -> {{@parent.{unknown_fields}(decoded), \"accepted\", :null}}"
+                )
+            },
+            ctor_capture = if ctor_fields.is_empty() {
+                ""
+            } else {
+                "\n          {:error, reason} -> {[], \"rejected\", reason}"
+            },
+            type_version = self.emit_type_version(&effect.output),
+        );
+        (record, run)
+    }
+    // 0005 P4: a db EFFECT in the parent module. The call runs in `Replay` (the ROW CORE, the db call record and the
+    // row decode need its `digest/3` and `body/1`); the parent keeps the input check, the client span, the failure
+    // and the decode and encode of the ROW TYPE.
+    fn emit_db_effect(&self, effect: &Effect, service: &str) -> String {
+        let name = &effect.name;
+        let elixir = name.replace('.', "_");
+        let row = self.row_type(effect);
+        let kind = &effect.kind[3..];
+        let mut out = format!(
+            "  # beaml-declaration-v1 {name} {} {}\n  def {elixir}(a0) do\n    if __beaml_valid__(a0, {}) do\n      __beaml_attempt__(fn ->\n        ProbeSupport.span({}, :client, a0, nil, fn -> __MODULE__.Replay.{kind}_{elixir}(a0) end)\n      end)\n    else\n      raise ArgumentError, \"invalid BEAML input\"\n    end\n  end\n  def __beaml_fail_{elixir}(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: Kernel.struct!(__MODULE__.{}, reason: a0))\n  end\n",
+            effect.source_range.start,
+            effect.source_range.end,
+            binary(&effect.input),
+            binary(&format!("{service}.{name}")),
+            effect.failures[0],
+        );
+        let declared: Vec<String> = self
+            .record(&row)
+            .expect("checked ROW TYPE")
+            .iter()
+            .map(|(f, _)| binary(f))
+            .collect();
+        let (defs, literal_map, tail, _, _, _) = self.decode_parts(name, &row);
+        out.push_str(&defs);
+        out.push_str(&if self.versioned(&row) {
+            self.versioned_decode(&row, &declared, &literal_map, &tail)
+        } else {
+            self.plain_decode(&row, &[], &declared, &literal_map, &tail)
+        });
+        out.push_str(&self.emit_encode(&row));
+        // The ENTRY LINE projection uses it too (D6B-172).
+        out.push_str(&keys_fn());
+        out.push_str(
+            &self
+                .emit_structs(|f| !self.ctor_record(f) && self.effect_failure(f) && !self.built(f)),
+        );
+        out.push_str(ATTEMPT_FAILURE);
         out
+    }
+    // PDB-13: `__beaml_encode_<t>/1`, a typed value as its wire map (the inverse of the decode): a constructor
+    // struct gives its String fields, a literal enum its ENUM LITERAL, the keep-value variant its String.
+    fn emit_encode(&self, ty: &str) -> String {
+        let fun = |t: &str| format!("__beaml_encode_{}", t.to_ascii_lowercase());
+        let mut out = String::new();
+        let mut todo = vec![ty.to_string()];
+        while let Some(ty) = todo.pop() {
+            match self.program.types.get(&ty) {
+                Some(Definition::Record(fields)) => {
+                    let key = |f: &str| {
+                        if self.ctor_record(&ty) {
+                            format!(":{f}")
+                        } else {
+                            binary(f)
+                        }
+                    };
+                    let pairs: Vec<String> = fields
+                        .iter()
+                        .map(|(f, t)| {
+                            let get = format!("Map.get(v, {})", key(f));
+                            if self.ctor_record(t) || self.program.literals.contains_key(t) {
+                                todo.push(t.clone());
+                                format!("{} => {}({get})", binary(f), fun(t))
+                            } else {
+                                format!("{} => {get}", binary(f))
+                            }
+                        })
+                        .collect();
+                    out.push_str(&format!(
+                        "  def {}(v), do: %{{{}}}\n",
+                        fun(&ty),
+                        pairs.join(", ")
+                    ));
+                }
+                Some(Definition::Enum(_)) => {
+                    for (variant, literal) in &self.program.literals[&ty] {
+                        out.push_str(&format!(
+                            "  def {}({{{}, {}, []}}), do: {}\n",
+                            fun(&ty),
+                            binary(&ty),
+                            binary(variant),
+                            binary(literal)
+                        ));
+                    }
+                    out.push_str(&format!(
+                        "  def {}({{{}, {}, [v]}}), do: v\n",
+                        fun(&ty),
+                        binary(&ty),
+                        binary(self.keep_variant(&ty).expect("checked keep-value variant"))
+                    ));
+                }
+                None => {}
+            }
+        }
+        out
+    }
+    // Inside `Replay`: the live call of a db EFFECT (`put_`, `get_` or `list_` + its Elixir name) and its REPLAY RUN
+    // step `replay_<elixir>`. Every host error, other shape, raise and exit is the reason transport (PDB-12).
+    fn emit_db_replay(&self, effect: &Effect) -> String {
+        let name = &effect.name;
+        let elixir = name.replace('.', "_");
+        let row = self.row_type(effect);
+        let low = row.to_ascii_lowercase();
+        let op = binary(name);
+        let ty = binary(&row);
+        let fail = format!("@parent.__beaml_fail_{elixir}");
+        let type_key = self.emit_type_key(&effect.output);
+        let failed = |request: &str, reason: &str| {
+            format!("{fail}(db_failed({op}, {request}, {type_key}, {reason}))")
+        };
+        let keeps = !self.literal_fields(&row).is_empty();
+        let fields = |v: &str| {
+            if keeps {
+                format!("@parent.__beaml_unknown_fields_{low}({v})")
+            } else {
+                "[]".to_string()
+            }
+        };
+        let write = |value: &str, fields: &str, request: &str| {
+            format!(
+                "ProbeSupport.Capture.write(\"responses\", Map.put(db_core({op}, {value}, {fields}, {type_key}), :request, {request}))"
+            )
+        };
+        let transport = failed("a0", "\"transport\"");
+        let call = match effect.kind.as_str() {
+            "db.put" => format!(
+                "    def put_{elixir}(a0) do\n      value = @parent.__beaml_encode_{low}(a0)\n      core = db_core({op}, value, {}, {type_key})\n\n      case db_call(fn -> BeamlDb.put(\"records\", {{{ty}, {}}}, IO.iodata_to_binary(:json.encode(core))) end) do\n        {{:ok, id}} when is_integer(id) ->\n          ProbeSupport.Capture.write(\"responses\", Map.put(core, :request, value))\n          {{:ok, a0}}\n\n        _ ->\n          {}\n      end\n    end\n",
+                fields("a0"),
+                self.newest_version(&row),
+                failed("value", "\"transport\""),
+            ),
+            "db.get" => format!(
+                "    def get_{elixir}(a0) do\n      case db_call(fn -> BeamlDb.get(\"records\", {ty}, a0) end) do\n        {{:ok, nil}} ->\n          {}\n\n        {{:ok, %{{\"value\" => json}}}} ->\n          case row_{low}(json) do\n            {{:ok, v}} ->\n              {}\n              {{:ok, v}}\n\n            {{:error, reason}} ->\n              {}\n          end\n\n        _ ->\n          {transport}\n      end\n    end\n",
+                failed("a0", "\"not_found\""),
+                write(
+                    &format!("@parent.__beaml_encode_{low}(v)"),
+                    &fields("v"),
+                    "a0"
+                ),
+                failed("a0", "reason"),
+            ),
+            _ => {
+                let items = binary(&self.record(&effect.output).expect("checked output")[0].0);
+                let listed = if keeps {
+                    format!(
+                        "items |> Enum.with_index() |> Enum.flat_map(fn {{v, i}} -> Enum.map({}, &({items} <> \".#{{i}}.\" <> &1)) end)",
+                        fields("v")
+                    )
+                } else {
+                    "[]".to_string()
+                };
+                format!(
+                    "    def list_{elixir}(a0) do\n      case db_call(fn -> BeamlDb.list(\"records\", {ty}, a0) end) do\n        {{:ok, rows}} when is_list(rows) ->\n          case rows_{low}(rows) do\n            {{:ok, items}} ->\n              fields = {listed}\n              value = %{{{items} => Enum.map(items, fn v -> @parent.__beaml_encode_{low}(v) end)}}\n              {}\n              {{:ok, %{{{items} => items}}}}\n\n            {{:error, reason}} ->\n              {}\n          end\n\n        _ ->\n          {transport}\n      end\n    end\n",
+                    write("value", "fields", "a0"),
+                    failed("a0", "reason"),
+                )
+            }
+        };
+        // PDB-19: the REPLAY RUN decodes the recorded `value`; a rejected record replays its reason.
+        let decode = decode_name(&row);
+        let replay = if effect.kind == "db.list" {
+            let items = binary(&self.record(&effect.output).expect("checked output")[0].0);
+            format!(
+                "    defp replay_{elixir}(_outcome, _reason, bytes) do\n      decoded =\n        case :json.decode(bytes) do\n          %{{{items} => items}} when is_list(items) -> Enum.map(items, fn item -> @parent.{decode}(IO.iodata_to_binary(:json.encode(item))) end)\n          _ -> [:error]\n        end\n\n      if Enum.all?(decoded, &match?({{:ok, _, _}}, &1)),\n        do: {{:ok, %{{{items} => Enum.map(decoded, fn {{:ok, v, _}} -> v end)}}}},\n        else: {fail}(\"decode\")\n    end\n"
+            )
+        } else {
+            format!(
+                "    defp replay_{elixir}(_outcome, _reason, bytes) do\n      case @parent.{decode}(bytes) do\n        {{:ok, value, _}} -> {{:ok, value}}\n        _ -> {fail}(\"decode\")\n      end\n    end\n"
+            )
+        };
+        format!(
+            "{call}\n    defp replay_{elixir}(\"rejected\", reason, _bytes) when is_binary(reason), do: {fail}(reason)\n\n{replay}"
+        )
+    }
+    // Inside `Replay`, once per source with a db EFFECT: the ROW CORE (DL-143 core, PDB-14), the rejected db call
+    // record (QDB-6b), the transport guard and, per ROW TYPE, the row decode (PDB-15: TYPE name, digest, TYPE
+    // VERSION, MIGRATE CHAIN, DL-101 tail) and the list decode (QDB-4 A: the first bad row fails the list).
+    fn emit_db_rows(&self) -> String {
+        let rows: BTreeSet<String> = self
+            .program
+            .effects
+            .iter()
+            .filter(|e| e.kind != "http.post")
+            .map(|e| self.row_type(e))
+            .collect();
+        if rows.is_empty() {
+            return String::new();
+        }
+        let mut out = String::from(DB_HELPERS);
+        for row in rows {
+            let low = row.to_ascii_lowercase();
+            let versions = self.type_versions(&row);
+            let start = self.chain_start(&row) as usize;
+            let known: Vec<String> = versions
+                .iter()
+                .enumerate()
+                .map(|(i, fields)| format!("{{{}, {}}}", i + start, binary(&fingerprint(fields))))
+                .collect();
+            let (type_bind, type_arg) = if self.versioned(&row) {
+                (" = type", ", type")
+            } else {
+                ("", "")
+            };
+            let reject = if self.ctor_fields(&row).is_empty() {
+                ""
+            } else {
+                "\n          {:error, reason} -> {:error, reason}"
+            };
+            out.push_str(&format!(
+                "\n    defp row_{low}(json) do\n      core =\n        try do\n          if is_binary(json), do: :json.decode(json)\n        rescue\n          _ -> nil\n        end\n\n      with %{{\"type\" => %{{\"name\" => {name}, \"version\" => v, \"fingerprint\" => f}}{type_bind}}} <- core,\n           {{:ok, bytes, _keys}} <- body(core),\n           true <- Enum.member?([{known}], {{v, f}}) do\n        case @parent.{decode}(bytes{type_arg}) do\n          {{:ok, value, _}} -> {{:ok, value}}{reject}\n          :error -> {{:error, \"decode\"}}\n        end\n      else\n        _ -> {{:error, \"decode\"}}\n      end\n    end\n\n    defp rows_{low}(rows) do\n      Enum.reduce_while(rows, {{:ok, []}}, fn row, {{:ok, items}} ->\n        case row_{low}(if is_map(row), do: Map.get(row, \"value\")) do\n          {{:ok, v}} -> {{:cont, {{:ok, items ++ [v]}}}}\n          error -> {{:halt, error}}\n        end\n      end)\n    end\n",
+                name = binary(&row),
+                known = known.join(", "),
+                decode = decode_name(&row),
+            ));
+        }
+        out
+    }
+    // Q6E-3 A: the operation argument of `Replay.record` and `Replay.run`, only with two or more EFFECTS.
+    fn replay_op(&self, name: &str) -> String {
+        if self.program.effects.len() > 1 {
+            format!("{}, ", binary(name))
+        } else {
+            String::new()
+        }
+    }
+    // One `Replay` module after the EFFECT loop (D6B-199). With one EFFECT the slice 6 shape stays byte-equal.
+    // ponytail: two shapes (with and without the operation argument); join them when the four pins move anyway.
+    fn emit_replay(&self, service: &str) -> String {
+        let (records, mut runs): (Vec<String>, Vec<String>) = self
+            .program
+            .effects
+            .iter()
+            .map(|e| self.emit_replay_clauses(e, service))
+            .unzip();
+        if runs.len() > 1 {
+            runs.push("    def run(_operation, _a0, _trace_id, _records), do: {:error, :operation_mismatch}\n".into());
+        }
+        format!(
+            "  defmodule Replay do\n    import Kernel\n    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> Module.concat()\n{}\n{}{}\n{}{}{REPLAY_HELPERS}  end\n",
+            self.emit_retired(),
+            records.join("\n"),
+            self.emit_db_rows(),
+            runs.join("\n"),
+            self.emit_replay_entry(),
+        )
+    }
+}
+
+impl Checker<'_> {
+    // The decode helpers of a record TYPE `ty` (steps 7 and 8): the defs (literal maps, `unknown_fields`, `__beaml_from_T`),
+    // the literal map lines, the decode tail, the keep-value triples, the constructor fields and the inner key lists.
+    // Slice 6d: the outbound decode of the EFFECT output TYPE and the ENTRY LINE decode of the input TYPE share it.
+    #[allow(clippy::type_complexity)]
+    fn decode_parts(
+        &self,
+        op: &str,
+        ty: &str,
+    ) -> (
+        String,
+        String,
+        String,
+        Vec<(String, String, String)>,
+        Vec<(String, String)>,
+        Vec<String>,
+    ) {
+        let mut defs = String::new();
+        // Slice 6b step 7 (D6B-35, D6B-37): a literal enum field maps its wire String by `__beaml_literal_E`:
+        // a literal gives its variant, another String the keep-value variant, any other value `:error` (the
+        // typed reject `decode`). Only with literal fields; other outputs keep their bytes.
+        let literal_fields = self.literal_fields(ty);
+        let unknown_fields = format!("__beaml_unknown_fields_{}", ty.to_ascii_lowercase());
+        // Step 8 (DL-101, S5): (field, enum, keep-value variant) of literal and constructor enum fields.
+        let ctor_fields = self.ctor_fields(ty);
+        let mut keeps: Vec<(String, String, String)> = literal_fields
+            .iter()
+            .map(|(f, e)| {
+                let keep = self.keep_variant(e).expect("checked keep-value variant");
+                (f.clone(), e.clone(), keep.to_string())
+            })
+            .collect();
+        for (field, ty) in &ctor_fields {
+            for variant in self
+                .ctor_keeps(op, ty, field, ty)
+                .expect("checked keep-value variants")
+            {
+                keeps.push((field.clone(), ty.clone(), variant));
+            }
+        }
+        keeps.sort();
+        let mut literal_map = String::new();
+        if !literal_fields.is_empty() {
+            let enums: BTreeSet<&String> = literal_fields.iter().map(|(_, e)| e).collect();
+            for enum_name in enums {
+                for (variant, literal) in &self.program.literals[enum_name] {
+                    defs.push_str(&format!(
+                        "  defp __beaml_literal_{enum_name}({}), do: {{{}, {}, []}}\n",
+                        binary(literal),
+                        binary(enum_name),
+                        binary(variant)
+                    ));
+                }
+                defs.push_str(&format!(
+                    "  defp __beaml_literal_{enum_name}(v) when is_binary(v), do: {{{}, {}, [v]}}\n  defp __beaml_literal_{enum_name}(_), do: :error\n",
+                    binary(enum_name),
+                    binary(self.keep_variant(enum_name).expect("checked keep-value variant"))
+                ));
+            }
+        }
+        if !keeps.is_empty() {
+            // D6B-37: the field names whose value went to the keep-value variant, sorted, no values.
+            let listed: Vec<String> = keeps
+                .iter()
+                .map(|(f, e, v)| format!("{{{}, {}, {}}}", binary(f), binary(e), binary(v)))
+                .collect();
+            defs.push_str(&format!(
+                "  def {unknown_fields}(value) do\n    Enum.flat_map([{}], fn {{field, owner, keep}} ->\n      case Map.get(value, field) do\n        {{^owner, ^keep, _}} -> [field]\n        _ -> []\n      end\n    end)\n  end\n",
+                listed.join(", ")
+            ));
+        }
+        if !literal_fields.is_empty() {
+            for (field, enum_name) in &literal_fields {
+                literal_map.push_str(&format!(
+                    "    shape =\n      if is_map(shape) and Map.has_key?(shape, {field}),\n        do: Map.update!(shape, {field}, &__beaml_literal_{enum_name}/1),\n        else: shape\n\n",
+                    field = binary(field)
+                ));
+            }
+        }
+        // Step 8 (DL-084, DL-085, DL-099, DL-101, D6B-48): `__beaml_from_T` tries the signatures of `fn T` top to
+        // bottom. A signature matches when all its keys hold Strings (one parameter: the field value is the
+        // String). A constructor failure is `:constructor` (the typed reject `constructor`), no match `:error`.
+        let ctor_types: BTreeSet<&String> = ctor_fields.iter().map(|(_, t)| t).collect();
+        let string = binary("String");
+        for ty in ctor_types {
+            let mut branches = String::new();
+            for (key, names) in self.ctor_signatures(ty).expect("checked signatures") {
+                let (test, args) = if let [_] = names.as_slice() {
+                    (format!("__beaml_valid__(v, {string})"), "v".to_string())
+                } else {
+                    let gets: Vec<String> = names
+                        .iter()
+                        .map(|n| format!("Map.get(v, {})", binary(n)))
+                        .collect();
+                    let tests: Vec<String> = gets
+                        .iter()
+                        .map(|g| format!(" and __beaml_valid__({g}, {string})"))
+                        .collect();
+                    (format!("is_map(v){}", tests.concat()), gets.join(", "))
+                };
+                let call = format!("{}({args})", elixir_name(&key));
+                let body = if self.failures[&key].is_empty() {
+                    call
+                } else {
+                    format!(
+                        "case {call} do\n          {{:ok, value}} -> value\n          {{:error, _}} -> :constructor\n        end"
+                    )
+                };
+                branches.push_str(&format!("      {test} ->\n        {body}\n\n"));
+            }
+            defs.push_str(&format!(
+                "  defp __beaml_from_{ty}(v) do\n    cond do\n{branches}      true ->\n        :error\n    end\n  end\n"
+            ));
+        }
+        for (field, ty) in &ctor_fields {
+            literal_map.push_str(&format!(
+                "    shape =\n      if is_map(shape) and Map.has_key?(shape, {field}),\n        do: Map.update!(shape, {field}, &__beaml_from_{ty}/1),\n        else: shape\n\n",
+                field = binary(field)
+            ));
+        }
+        // D6B-49, S8: the declared keys inside a constructor field value: every parameter name of every signature.
+        let inner: Vec<String> = ctor_fields
+            .iter()
+            .map(|(field, ty)| {
+                let mut names: Vec<String> = Vec::new();
+                for (_, list) in self.ctor_signatures(ty).expect("checked signatures") {
+                    for n in list {
+                        if !names.contains(&n) {
+                            names.push(n);
+                        }
+                    }
+                }
+                let names: Vec<String> = names.iter().map(|n| binary(n)).collect();
+                format!("{{{}, [{}]}}", binary(field), names.join(", "))
+            })
+            .collect();
+        let tail = if ctor_fields.is_empty() {
+            format!(
+                "    if __beaml_valid__(shape, {output}),\n      do: {{:ok, shape, Enum.sort(Map.keys(Map.drop(value, declared)))}},\n      else: :error\n",
+                output = binary(ty)
+            )
+        } else {
+            // D6B-49, S8: a stray key inside a constructor field value is `FIELD.KEY`.
+            format!(
+                "    cond do\n      is_map(shape) and Enum.member?(Map.values(shape), :constructor) ->\n        {{:error, {constructor}}}\n\n      __beaml_valid__(shape, {output}) ->\n        nested =\n          Enum.flat_map([{inner}], fn {{field, names}} ->\n            case Map.get(value, field) do\n              inner when is_map(inner) -> Enum.map(Map.keys(Map.drop(inner, names)), &(field <> {dot} <> &1))\n              _ -> []\n            end\n          end)\n\n        {{:ok, shape, Enum.sort(Enum.concat(Map.keys(Map.drop(value, declared)), nested))}}\n\n      true ->\n        :error\n    end\n",
+                constructor = binary("constructor"),
+                output = binary(ty),
+                inner = inner.join(", "),
+                dot = binary("."),
+            )
+        };
+        (defs, literal_map, tail, keeps, ctor_fields, inner)
+    }
+    // The decode of a TYPE with a MIGRATE CHAIN (DL-043, DL-054): `{decode}(bytes, type_version)`.
+    // M4 step 1 (DL-152, PM4-06): with enum or constructor fields (`literal_map` not empty) the per-version check takes
+    // those fields raw, the MIGRATE CHANGES run on the raw values, then the DL-101 tail of `decode_parts` runs on the
+    // shape. Its key list is the per-version `unread` list plus the nested keys. Other TYPES keep their bytes.
+    fn versioned_decode(
+        &self,
+        ty: &str,
+        declared: &[String],
+        literal_map: &str,
+        tail: &str,
+    ) -> String {
+        let raw = !literal_map.is_empty();
+        let decode = decode_name(ty);
+        let migrations = self.migrations(ty);
+        let versions = self.type_versions(ty);
+        let start = self.chain_start(ty) as usize;
+        let newest = self.newest_version(ty);
+        let list = |last: usize| {
+            (start..=last)
+                .map(|v| v.to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
+        };
+        let known: Vec<String> = versions
+            .iter()
+            .enumerate()
+            .map(|(index, fields)| {
+                format!("{{{}, {}}}", index + start, binary(&fingerprint(fields)))
+            })
+            .collect();
+        // Per TYPE VERSION: its fields with their TYPES (DL-054).
+        let by_version: String = versions
+            .iter()
+            .enumerate()
+            .map(|(index, fields)| {
+                let pairs: Vec<String> = sorted_fields(fields)
+                    .iter()
+                    .map(|(f, t)| {
+                        let raw_field = raw
+                            && (self.program.literals.contains_key(t)
+                                || self.constructors.contains(t));
+                        let t = if raw_field {
+                            ":raw".to_string()
+                        } else {
+                            binary(t)
+                        };
+                        format!("{{{}, {t}}}", binary(f))
+                    })
+                    .collect();
+                format!(
+                    "        {} -> {{:ok, [{}]}}\n",
+                    index + start,
+                    pairs.join(", ")
+                )
+            })
+            .collect();
+        let mut changes = String::new();
+        for step in &migrations {
+            let guard = format!(
+                "Enum.member?([{}], version) and is_map(value)",
+                list(step.from as usize)
+            );
+            for change in &step.changes {
+                changes.push_str(&match change {
+                    Change::Rename(old, new) => format!(
+                        "    value =\n      if {guard},\n        do: Map.delete(Map.put(value, {new}, Map.get(value, {old})), {old}),\n        else: value\n\n",
+                        old = binary(old),
+                        new = binary(new)
+                    ),
+                    Change::Add(field, _, constant) => format!(
+                        "    value = if {guard}, do: Map.put(value, {field}, {constant}), else: value\n\n",
+                        field = binary(field),
+                        constant = binary(constant.as_ref().expect("checked constant"))
+                    ),
+                    Change::Drop(field, _) => format!(
+                        "    value = if {guard}, do: Map.delete(value, {field}), else: value\n\n",
+                        field = binary(field)
+                    ),
+                });
+            }
+        }
+        // `or` is not in the Kernel import of the module, so the raw fields leave the checked list.
+        let checked = if raw {
+            "Enum.reject(fields, fn {_, type} -> type == :raw end)"
+        } else {
+            "fields"
+        };
+        // The tail reads the keys from `value`; after the steps they are the per-version `unread` list.
+        let end = if raw {
+            format!(
+                "{literal_map}{}",
+                tail.replacen("Map.keys(Map.drop(value, declared))", "unread", 1)
+            )
+        } else {
+            format!(
+                "    if __beaml_valid__(shape, {}) do\n      {{:ok, shape, unread}}\n    else\n      :error\n    end\n",
+                binary(ty)
+            )
+        };
+        format!(
+            "  def {decode}(a0), do: {decode}(a0, nil)\n  def {decode}(a0, type_version) do\n    declared = [{declared}]\n\n    version =\n      case type_version do\n        nil ->\n          {newest}\n\n        %{{{name_key} => {name}, {version_key} => v, {fingerprint_key} => f}} ->\n          if Enum.member?([{known}], {{v, f}}), do: v, else: 0\n\n        _ ->\n          0\n      end\n\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    fields =\n      case version do\n{by_version}        _ -> :none\n      end\n\n    {{value, unread}} =\n      case {{fields, body}} do\n        {{{{:ok, fields}}, %{{}}}} ->\n          names = Enum.map(fields, fn {{field, _}} -> field end)\n\n          if Enum.all?({checked}, fn {{field, type}} -> __beaml_valid__(Map.get(body, field), type) end),\n            do: {{Map.take(body, names), Enum.sort(Map.keys(Map.drop(body, names)))}},\n            else: {{nil, []}}\n\n        _ ->\n          {{nil, []}}\n      end\n\n{changes}    shape = if is_map(value), do: Map.take(value, declared), else: nil\n\n{end}  end\n",
+            declared = declared.join(", "),
+            name_key = binary("name"),
+            name = binary(ty),
+            version_key = binary("version"),
+            fingerprint_key = binary("fingerprint"),
+            known = known.join(", "),
+            by_version = by_version,
+        )
+    }
+    // The decode of a TYPE without a MIGRATE CHAIN (slice 1 form, steps 7 and 8).
+    fn plain_decode(
+        &self,
+        ty: &str,
+        marks: &[(String, String)],
+        declared: &[String],
+        literal_map: &str,
+        tail: &str,
+    ) -> String {
+        let decode = decode_name(ty);
+        // DL-115 (Q6B-14 A): a REPLAY RUN puts `:redacted` into each marked field before the TYPE check.
+        let (head, shape) = if marks.is_empty() {
+            (format!("  def {decode}(a0) do\n"), "value")
+        } else {
+            (
+                format!(
+                    "  def {decode}(a0), do: {decode}(a0, [])\n  def {decode}(a0, marked) do\n"
+                ),
+                "Map.merge(value, Map.new(List.wrap(marked), &{&1, :redacted}))",
+            )
+        };
+        format!(
+            "{head}    declared = [{}]\n\n    value =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    shape = if is_map(value), do: Map.take({shape}, declared), else: nil\n\n{literal_map}{tail}  end\n",
+            declared.join(", "),
+        )
+    }
+    // Slice 6b step 6a (DL-105, D6B-54, D6B-56, D6B-57): `__beaml_project_<elixir>`, the record projection of a body of TYPE `ty`.
+    fn emit_project(
+        &self,
+        elixir: &str,
+        ty: &str,
+        marks: &[(String, String)],
+        declared: &[String],
+        inner: &[String],
+    ) -> String {
+        let dot = binary(".");
+        let (marked, null) = if marks.is_empty() {
+            (String::new(), "")
+        } else {
+            (format!(", __beaml_marked_{elixir}(body)"), ", []")
+        };
+        let inner_keys = format!("__beaml_keys__(Map.drop(v, names), field <> {dot})");
+        let top_keys = format!("__beaml_keys__(Map.drop(body, declared), {})", binary(""));
+        let kept: Vec<String> = self
+            .record(ty)
+            .expect("checked output")
+            .iter()
+            .filter(|(f, _)| !marks.iter().any(|(m, _)| m == f))
+            .map(|(f, _)| binary(f))
+            .collect();
+        format!(
+            "  def __beaml_project_{elixir}(a0) do\n    body =\n      try do\n        :json.decode(a0)\n      rescue\n        _ -> nil\n      end\n\n    if is_map(body) do\n      declared = [{declared}]\n\n      nested =\n        Enum.flat_map([{inner}], fn {{field, names}} ->\n          case Map.get(body, field) do\n            v when is_map(v) -> [{{field, Map.take(v, names), {inner_keys}}}]\n            _ -> []\n          end\n        end)\n\n      value = Enum.reduce(nested, Map.take(body, {kept}), fn {{field, v, _}}, acc -> Map.put(acc, field, v) end)\n      {{value, Enum.sort(Enum.concat({top_keys}, Enum.flat_map(nested, fn {{_, _, keys}} -> keys end))){marked}}}\n    else\n      {{:null, []{null}}}\n    end\n  end\n",
+            declared = declared.join(", "),
+            kept = if marks.is_empty() {
+                "declared".to_string()
+            } else {
+                format!("[{}]", kept.join(", "))
+            },
+            inner = inner.join(", "),
+            inner_keys = inner_keys,
+            top_keys = top_keys,
+        )
+    }
+}
+
+impl Checker<'_> {
+    // Slice 6d (DL-130, DL-131, DL-133, D6B-133, D6B-143): `def ui_<event>(params)`. The strict term check, the DL-101
+    // decode of the input TYPE on the JSON of the params, the ENTRY RECORD (only for the flow of an EFFECT, D6B-136) and
+    // the call of the target fn run inside the root span. A reject raises inside the span and returns
+    // `{:error, %Rejected{reason: r}}` outside it; a domain failure of the fn passes unchanged.
+    fn emit_entry(&self, entry: &Entry, service: &str) -> String {
+        let op = &entry.name;
+        let elixir = op.replace('.', "_");
+        let input = &entry.input;
+        let declared: Vec<String> = self
+            .record(input)
+            .expect("checked input")
+            .iter()
+            .map(|(f, _)| binary(f))
+            .collect();
+        let (defs, literal_map, tail, keeps, ctors, inner) = self.decode_parts(op, input);
+        let mut out = format!(
+            "  # beaml-declaration-v1 {op} {} {}\n{defs}",
+            entry.source_range.start, entry.source_range.end
+        );
+        out.push_str(&self.plain_decode(input, &[], &declared, &literal_map, &tail));
+        let capture = self.reaches(&entry.target);
+        if capture {
+            out.push_str(&self.emit_project(&elixir, input, &[], &declared, &inner));
+        }
+        let target = &entry.target;
+        let call = if self.failures[target].is_empty() {
+            format!("{{:ok, __MODULE__.{target}(value)}}")
+        } else {
+            format!("__MODULE__.{target}(value)")
+        };
+        let mark = if keeps.is_empty() {
+            String::new()
+        } else {
+            format!(
+                "    fields = __beaml_unknown_fields_{}(value)\n    if fields == [], do: :ok, else: :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_fields, fields)\n",
+                input.to_ascii_lowercase()
+            )
+        };
+        out.push_str(&format!(
+            "  def {elixir}(a0) do\n    __beaml_attempt__(fn ->\n      ProbeSupport.span({span}, :server, nil, nil, fn ->\n        bytes = if __beaml_term__(a0), do: IO.iodata_to_binary(:json.encode(a0)), else: nil\n        decoded = if bytes == nil, do: :error, else: {decode}(bytes)\n{record}        __beaml_enter_{elixir}(decoded)\n      end)\n    end)\n  end\n  defp __beaml_enter_{elixir}({{:ok, value, keys}}) do\n    if keys == [], do: :ok, else: :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :unknown_keys, keys)\n{mark}    {call}\n  end\n{ctor}  defp __beaml_enter_{elixir}(:error), do: __beaml_reject__({decode_reason})\n  def __beaml_rejected__(a0), do: %__MODULE__.Rejected{{reason: a0}}\n  defp __beaml_reject__(a0) do\n    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), :reason, a0)\n    raise(__MODULE__.BeamlFailure, error: __beaml_rejected__(a0))\n  end\n  # D6B-143: maps with String keys, lists, Strings, numbers, true and false; any other term is the reject decode.\n  defp __beaml_term__(v) do\n    cond do\n      is_map(v) -> Enum.all?(Map.to_list(v), fn {{k, x}} -> is_binary(k) and String.valid?(k) and __beaml_term__(x) end)\n      :erlang.is_list(v) -> if List.improper?(v), do: false, else: Enum.all?(v, &__beaml_term__/1)\n      is_binary(v) -> String.valid?(v)\n      :erlang.is_number(v) -> true\n      true -> Enum.member?([true, false], v)\n    end\n  end\n",
+            span = binary(&format!("{service}.{op}")),
+            decode = decode_name(input),
+            record = if capture {
+                format!("        __MODULE__.Replay.entry_record({}, bytes, decoded)\n", binary(op))
+            } else {
+                String::new()
+            },
+            decode_reason = binary("decode"),
+            // Only a constructor field gives the reject `constructor` (step 8).
+            ctor = if ctors.is_empty() {
+                String::new()
+            } else {
+                format!("  defp __beaml_enter_{elixir}({{:error, reason}}), do: __beaml_reject__(reason)\n")
+            },
+        ));
+        if self.program.effects.is_empty() {
+            // A pure source has no EFFECT that defines these two (D6B-136).
+            out.push_str(ATTEMPT_FAILURE);
+        }
+        out
+    }
+    // Inside `Replay`, per ENTRY LINE that targets the flow of an EFFECT: the ENTRY RECORD writer (D6B-135, D6B-145,
+    // DL-138) and an `entry/2` clause, the REPLAY RUN from an ENTRY RECORD (D6B-137). D6B-200: both dispatch on the
+    // operation. Empty without such an ENTRY LINE, so other sources keep their bytes.
+    fn emit_replay_entry(&self) -> String {
+        let (records, mut entries): (Vec<String>, Vec<String>) = self
+            .program
+            .entries
+            .iter()
+            .filter(|e| self.reaches(&e.target))
+            .map(|e| self.emit_replay_entry_clauses(e))
+            .unzip();
+        if entries.is_empty() {
+            return String::new();
+        }
+        entries
+            .push("    def entry(_record, _records), do: {:error, :operation_mismatch}\n".into());
+        format!("\n{}\n{}", records.join("\n"), entries.join("\n"))
+    }
+    fn emit_replay_entry_clauses(&self, entry: &Entry) -> (String, String) {
+        let op = &entry.name;
+        let elixir = op.replace('.', "_");
+        let input = &entry.input;
+        let decode = decode_name(input);
+        let (_, _, _, keeps, ctors, _) = self.decode_parts(op, input);
+        let (ctor_capture, ctor_replay) = if ctors.is_empty() {
+            ("", "")
+        } else {
+            (
+                "\n          {:error, reason} -> {[], \"rejected\", reason}",
+                "\n          {:error, reason} -> {:error, @parent.__beaml_rejected__(reason)}",
+            )
+        };
+        let fields = if keeps.is_empty() {
+            "{:ok, _, _} -> {[], \"accepted\", :null}".to_string()
+        } else {
+            format!(
+                "{{:ok, value, _}} -> {{@parent.__beaml_unknown_fields_{}(value), \"accepted\", :null}}",
+                input.to_ascii_lowercase()
+            )
+        };
+        // DL-141, R6D-05, R6D-13: the field list in source order, as the fixtures hold it; the fingerprint sorts.
+        let type_key = self.emit_type_key(input);
+        let record = format!(
+            "    def entry_record({operation}, bytes, decoded) do\n      ctx = OpenTelemetry.Tracer.current_span_ctx()\n      {{value, unknown_keys}} = if bytes == nil, do: {{:null, []}}, else: @parent.__beaml_project_{elixir}(bytes)\n\n      {{fields, outcome, reason}} =\n        case decoded do\n          {fields}\n          :error -> {{[], \"rejected\", \"decode\"}}{ctor_capture}\n        end\n\n      ProbeSupport.Capture.write(\"entries\", %{{\n        version: 3,\n        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),\n        span_id: OpenTelemetry.Span.hex_span_id(ctx),\n        artifact_id: ProbeSupport.beam_hash(@parent),\n        operation: {operation},\n        attempt: 1,\n        value: value,\n        redacted: [],\n        unknown_keys: unknown_keys,\n        unknown_fields: fields,\n        value_sha256: digest(value, unknown_keys, []),\n        type: {type_key},\n        outcome: outcome,\n        reason: reason\n      }})\n    end\n",
+            operation = binary(op),
+        );
+        // Q6E-3 A: with two or more EFFECTS the run names the EFFECT of the flow (one EFFECT per flow, Q6E-4 A).
+        let effect = self.reach[&entry.target].first().expect("reached effect");
+        let entry_clause = format!(
+            "    def entry(%{{\"operation\" => {operation}}} = record, records) do\n      with {{:ok, bytes, _keys}} <- body(record) do\n        case @parent.{decode}(bytes) do\n          {{:ok, value, _}} -> run({run_op}value, record[\"trace_id\"], records)\n          :error -> {{:error, @parent.__beaml_rejected__({decode_reason})}}{ctor_replay}\n        end\n      end\n    end\n",
+            operation = binary(op),
+            run_op = self.replay_op(effect),
+            decode_reason = binary("decode"),
+        );
+        (record, entry_clause)
+    }
+}
+
+impl Checker<'_> {
+    // Slice 6d (DL-134, DL-136, DL-138, R6D-14, R6D-15): the stored ENTRY RECORDS. Only accepted records of the ENTRY
+    // LINE are checked: the DL-122 literals and the DL-102 constructors of the input TYPE over `value`. A record of an
+    // operation with neither an ENTRY LINE nor a RETIRE LINE blocks as a removed EFFECT does (DL-040 text, every record
+    // counts). Gives the DL-136 count line. Names, counts and lines only, never a value (DL-124).
+    fn check_entries(
+        &self,
+        source: &str,
+        text: &str,
+        code: &str,
+        snapshot: &mut Snapshot,
+    ) -> Checked<String> {
+        let (mut total, mut checked, mut rejected) = (0, 0, 0);
+        let mut orphans: BTreeMap<String, (usize, usize)> = BTreeMap::new();
+        let mut lost: BTreeMap<(String, String, String, String), Vec<usize>> = BTreeMap::new();
+        let mut faults: BTreeMap<(FieldKey, Option<String>), (usize, usize)> = BTreeMap::new();
+        let mut calls: Vec<(FieldKey, usize, String, Vec<String>)> = Vec::new();
+        for (index, line) in text.lines().enumerate() {
+            let number = index + 1;
+            if line.trim().is_empty() {
+                continue;
+            }
+            let at = format!("record source: {source}:{number} (line {number})");
+            let record = parse_json(line)
+                .ok_or_else(|| format!("error: stored ENTRY RECORD is not JSON\n  {at}"))?;
+            // DL-143 (RV3-06): this build reads ENTRY RECORD version 3 only.
+            let version = match record.get("version") {
+                Some(Json::Number(n)) if n == "3" => None,
+                Some(Json::Number(n)) => Some(n.as_str()),
+                None => Some("none"),
+                Some(_) => Some("malformed"),
+            };
+            if let Some(v) = version {
+                return Err(format!(
+                    "error: stored ENTRY RECORD has record version {v}; this build reads record version 3 only (DL-143)\n  {at}"
+                ));
+            }
+            let op = record
+                .get("operation")
+                .and_then(Json::text)
+                .ok_or_else(|| format!("error: stored ENTRY RECORD has no operation\n  {at}"))?
+                .to_string();
+            let accepted = match record.get("outcome").and_then(Json::text) {
+                Some("accepted") => true,
+                Some("rejected") => false,
+                _ => {
+                    return Err(format!(
+                        "error: stored ENTRY RECORD has no capture outcome accepted or rejected (DL-138)\n  {at}"
+                    ));
+                }
+            };
+            total += 1;
+            rejected += usize::from(!accepted);
+            snapshot.operations.insert(op.clone());
+            let Some(entry) = self.program.entries.iter().find(|e| e.name == op) else {
+                if self.retire(&op).is_none() {
+                    orphans.entry(op).or_insert((0, number)).0 += 1;
+                }
+                continue;
+            };
+            if !accepted {
+                continue;
+            }
+            checked += 1;
+            let ty = &entry.input;
+            let body = record.get("value");
+            let kept = |field: &str| match record.get("unknown_fields") {
+                Some(Json::List(names)) => names.iter().any(|n| n.text() == Some(field)),
+                _ => false,
+            };
+            for (field, enum_name) in self.literal_fields(ty) {
+                let value = body.and_then(|b| b.get(&field)).and_then(Json::text);
+                let literal = value.is_some_and(|text| {
+                    self.program.literals[&enum_name]
+                        .iter()
+                        .any(|(_, l)| l == text)
+                });
+                if value.is_some() && !literal && !kept(&field) {
+                    lost.entry((ty.clone(), op.clone(), field, enum_name))
+                        .or_default()
+                        .push(number);
+                }
+            }
+            for (field, ctor) in self.ctor_fields(ty) {
+                let value = body.and_then(|b| b.get(&field));
+                let key = (ty.clone(), op.clone(), field, ctor);
+                match self.ctor_pick(&key.3, value) {
+                    None => faults.entry((key, None)).or_insert((0, number)).0 += 1,
+                    Some((sig, inputs)) if !self.failures[&sig].is_empty() => {
+                        calls.push((key, number, sig, inputs))
+                    }
+                    Some(_) => {}
+                }
+            }
+        }
+        if !orphans.is_empty() {
+            return Err(orphans
+                .iter()
+                .map(|(op, (count, line))| {
+                    format!(
+                        "error: stored ENTRY RECORD of operation {op} has no effect in the source\n  record source: {source}:{line} (line {line})\n  stored ENTRY RECORDS of operation {op}: {count}\n  help: if the effect is deleted on purpose, declare: retire {op} keep <n> days"
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("\n"));
+        }
+        let plural = |n: usize| if n == 1 { "" } else { "S" };
+        let mut errors = Vec::new();
+        for ((ty, op, field, enum_name), lines) in &lost {
+            let one = lines.len() == 1;
+            errors.push(format!(
+                "error: TYPE {ty} v{}: {} stored ENTRY RECORD{} of operation {op} {} of field {field} that {} no ENUM LITERAL of {enum_name} now (DL-122)\n{}\n  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of {enum_name}",
+                self.newest_version(ty),
+                lines.len(),
+                plural(lines.len()),
+                if one { "has a value" } else { "have values" },
+                if one { "is" } else { "are" },
+                lines
+                    .iter()
+                    .map(|n| format!("  record source: {source}:{n} (line {n})"))
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            ));
+        }
+        // D6B-105: Elixir starts only when the static pass gives no error.
+        if errors.is_empty() && !faults.keys().any(|(_, r)| r.is_none()) && !calls.is_empty() {
+            let failures: Vec<&[String]> = calls
+                .iter()
+                .map(|c| self.failures[&c.2].as_slice())
+                .collect();
+            let stdin = format!(
+                "{{\"module\":{},\"name\":{},\"calls\":[{}]}}",
+                json_string(code),
+                json_string(&self.module),
+                calls
+                    .iter()
+                    .map(|(key, _, sig, inputs)| format!(
+                        "[{},{},[{}]]",
+                        json_string(&elixir_name(sig)),
+                        json_string(&key.3),
+                        inputs
+                            .iter()
+                            .map(|i| json_string(i))
+                            .collect::<Vec<_>>()
+                            .join(",")
+                    ))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            );
+            for ((key, number, _, _), verdict) in calls.iter().zip(run_elixir(&stdin, &failures)?) {
+                if let Some(failure) = verdict {
+                    faults
+                        .entry((key.clone(), Some(failure)))
+                        .or_insert((0, *number))
+                        .0 += 1;
+                }
+            }
+        }
+        for (((ty, op, field, ctor), reason), (failed, line)) in &faults {
+            let one = *failed == 1;
+            let what = match reason {
+                Some(failure) => format!(
+                    "{} the constructor of {ctor} for field {field} with {failure}",
+                    if one { "fails" } else { "fail" }
+                ),
+                None => format!(
+                    "{} no signature of {ctor} for field {field}",
+                    if one { "matches" } else { "match" }
+                ),
+            };
+            errors.push(format!(
+                "error: TYPE {ty}: {failed} stored ENTRY RECORD{} of operation {op} {what}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP (DL-102); slice 6d has no MIGRATE STEP for an input TYPE (D6B-130), so restore the constructor rule of {ctor}",
+                plural(*failed)
+            ));
+        }
+        if !errors.is_empty() {
+            return Err(errors.join("\n"));
+        }
+        Ok(format!(
+            "{total} entries, {checked} checked, {rejected} rejected at capture"
+        ))
     }
 }
 
@@ -3677,6 +4796,56 @@ impl Checker<'_> {
         out
     }
 }
+
+// D6B-56 amendment, D6B-172: the dotted key names of a projection, one per level.
+fn keys_fn() -> String {
+    let dot = binary(".");
+    format!(
+        "  def __beaml_keys__(v, prefix) when is_map(v), do: Enum.flat_map(Map.keys(v), fn k -> [prefix <> k | __beaml_keys__(Map.get(v, k), prefix <> k <> {dot})] end)\n  def __beaml_keys__(_, _), do: []\n"
+    )
+}
+
+// `__beaml_attempt__` and `BeamlFailure`: a failure raises inside its span and returns `{:error, failure}` outside it.
+const ATTEMPT_FAILURE: &str = "  def __beaml_attempt__(a0) do\n    try do\n      a0.()\n    rescue\n      failure in __MODULE__.BeamlFailure -> {:error, failure.error}\n    end\n  end\n  defmodule BeamlFailure do\n    import Kernel\n    defexception [:error]\n\n    @impl true\n    def message(_), do: \"BEAML failure\"\n  end\n";
+
+// Inside `Replay` for a source with a db EFFECT (0005 P4): the ROW CORE and db call record (DL-143 core, PDB-14,
+// QDB-6b: a failed call is a rejected record with value null) and the transport guard (PDB-12).
+const DB_HELPERS: &str = r#"
+    defp db_core(operation, value, unknown_fields, type) do
+      ctx = OpenTelemetry.Tracer.current_span_ctx()
+
+      %{
+        version: 3,
+        trace_id: OpenTelemetry.Span.hex_trace_id(ctx),
+        span_id: OpenTelemetry.Span.hex_span_id(ctx),
+        artifact_id: ProbeSupport.beam_hash(@parent),
+        operation: operation,
+        attempt: 1,
+        type: type,
+        value: value,
+        value_sha256: digest(value, [], []),
+        redacted: [],
+        unknown_keys: [],
+        unknown_fields: unknown_fields,
+        outcome: "accepted",
+        reason: :null
+      }
+    end
+
+    defp db_failed(operation, request, type, reason) do
+      core = db_core(operation, :null, [], type)
+      ProbeSupport.Capture.write("responses", Map.merge(core, %{request: request, outcome: "rejected", reason: reason}))
+      reason
+    end
+
+    defp db_call(call) do
+      try do
+        call.()
+      catch
+        _, _ -> :error
+      end
+    end
+"#;
 
 // The record selection of a REPLAY RUN (the first helper of REPLAY_HELPERS).
 const SELECT: &str = r#"
@@ -4095,6 +5264,81 @@ fn json_hex(bytes: &[u8], at: &mut usize) -> Option<u32> {
     u32::from_str_radix(hex, 16).ok()
 }
 
+// D6B-58: the digest of a stored projection holds: the lower-case hex SHA-256 of the compact JSON of
+// `{"redacted", "unknown_keys", "value"}`, keys sorted at every level, as `digest/3` in `Replay` writes it.
+fn digest_holds(record: &Json) -> bool {
+    let (Some(value), Some(keys), Some(redacted), Some(Json::Text(sha))) = (
+        record.get("value"),
+        record.get("unknown_keys"),
+        record.get("redacted"),
+        record.get("value_sha256"),
+    ) else {
+        return false;
+    };
+    let projection = Json::Object(vec![
+        ("redacted".into(), redacted.clone()),
+        ("unknown_keys".into(), keys.clone()),
+        ("value".into(), value.clone()),
+    ]);
+    let mut text = String::new();
+    canonical(&projection, &mut text);
+    let hex: String = sha256(text.as_bytes())
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
+    &hex == sha
+}
+// Compact JSON with sorted object keys; strings escaped as `:json.encode` writes them.
+// ponytail: number text is kept as read; an exponent or float form from another encoder would not match.
+fn canonical(json: &Json, out: &mut String) {
+    match json {
+        Json::Null => out.push_str("null"),
+        Json::Bool(b) => out.push_str(if *b { "true" } else { "false" }),
+        Json::Number(n) => out.push_str(n),
+        Json::Text(text) => {
+            out.push('"');
+            for c in text.chars() {
+                match c {
+                    '"' => out.push_str("\\\""),
+                    '\\' => out.push_str("\\\\"),
+                    '\n' => out.push_str("\\n"),
+                    '\r' => out.push_str("\\r"),
+                    '\t' => out.push_str("\\t"),
+                    '\u{8}' => out.push_str("\\b"),
+                    '\u{c}' => out.push_str("\\f"),
+                    c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+                    c => out.push(c),
+                }
+            }
+            out.push('"');
+        }
+        Json::List(items) => {
+            out.push('[');
+            for (i, item) in items.iter().enumerate() {
+                if i > 0 {
+                    out.push(',');
+                }
+                canonical(item, out);
+            }
+            out.push(']');
+        }
+        Json::Object(pairs) => {
+            let mut sorted: Vec<&(String, Json)> = pairs.iter().collect();
+            sorted.sort_by(|a, b| a.0.cmp(&b.0));
+            out.push('{');
+            for (i, (key, value)) in sorted.into_iter().enumerate() {
+                if i > 0 {
+                    out.push(',');
+                }
+                canonical(&Json::Text(key.clone()), out);
+                out.push(':');
+                canonical(value, out);
+            }
+            out.push('}');
+        }
+    }
+}
+
 // What the DEAD LINE rules read from a RECORD SNAPSHOT (slice 4).
 #[derive(Default)]
 struct Snapshot {
@@ -4108,6 +5352,24 @@ struct Snapshot {
 
 // (TYPE, operation, field, enum) of a literal enum field in the `--stored` check.
 type FieldKey = (String, String, String, String);
+
+// The DL-102, DL-103 and DL-122 findings over stored values; keys hold the place (`operation <op>`, `table records`).
+#[derive(Default)]
+struct ValueChecks {
+    // DL-102, DL-103: per (TYPE, operation, field, enum) of a literal enum field: (failed records, first
+    // failed line, resolved records). The body is mapped by the current literals (one file, one environment).
+    mapped: BTreeMap<FieldKey, (usize, usize, usize)>,
+    // Step 8 (DL-102, S9): per (TYPE, operation, field, constructor, failure TYPE or None for no signature):
+    // (failed records, first failed line).
+    faults: BTreeMap<(FieldKey, Option<String>), (usize, usize)>,
+    // DL-122, DL-124: per (TYPE, TYPE VERSION, operation, field, enum): the lines of records with a lost ENUM LITERAL.
+    lost: BTreeMap<(String, u32, String, String, String), Vec<usize>>,
+    // D6B-102: the constructor calls for the Elixir run: (field key, line, signature key, inputs).
+    calls: Vec<(FieldKey, usize, String, Vec<String>)>,
+    // 0005 P4c (DL-102, DL-124): per (TYPE, place, field) of a String field without a String value: (failed
+    // records, first failed line, last counted line; a list record counts once, not per item).
+    strings: BTreeMap<(String, String, String), (usize, usize, usize)>,
+}
 
 // A DEAD LINE: its byte range in the source, its form (`retire ...` or `migrate T a -> b`) and why it is dead.
 #[derive(Clone, Debug)]
@@ -4204,18 +5466,11 @@ impl Checker<'_> {
         let mut snapshot = Snapshot::default();
         // Operation -> (record count, first line) of records with no `effect` and no RETIRE LINE.
         let mut orphans: BTreeMap<String, (usize, usize)> = BTreeMap::new();
-        // DL-102, DL-103: per (TYPE, operation, field, enum) of a literal enum field: (failed records, first
-        // failed line, resolved records). The body is mapped by the current literals (one file, one environment).
-        let mut mapped: BTreeMap<FieldKey, (usize, usize, usize)> = BTreeMap::new();
-        // Step 8 (DL-102, S9): per (TYPE, operation, field, constructor, failure TYPE or None for no signature):
-        // (failed records, first failed line).
-        let mut faults: BTreeMap<(FieldKey, Option<String>), (usize, usize)> = BTreeMap::new();
-        // DL-122, DL-124: per (TYPE, TYPE VERSION, operation, field, enum): the lines of records with a lost ENUM LITERAL.
-        let mut lost: BTreeMap<(String, u32, String, String, String), Vec<usize>> = BTreeMap::new();
-        // D6B-102: the constructor calls for the Elixir run: (field key, line, signature key, inputs).
-        let mut calls: Vec<(FieldKey, usize, String, Vec<String>)> = Vec::new();
+        let mut checks = ValueChecks::default();
         // D6B-72, D6B-163: per (TYPE, operation, dotted path, place): (records that hold a value there, first line).
         let mut held: BTreeMap<(String, String, String, &str), (usize, usize)> = BTreeMap::new();
+        // DL-143 (QV3-7 A, QV3-8 B): records, checked records, records rejected at capture.
+        let (mut total, mut checked, mut rejected) = (0, 0, 0);
         for (index, line) in text.lines().enumerate() {
             let number = index + 1;
             if line.trim().is_empty() {
@@ -4224,26 +5479,32 @@ impl Checker<'_> {
             let at = format!("record source: {source}:{number} (line {number})");
             let record = parse_json(line)
                 .ok_or_else(|| format!("error: stored RESPONSE RECORD is not JSON\n  {at}"))?;
-            // D6B-59 (plan repair O1): this build reads RESPONSE RECORD version 2 only.
+            // D6B-59, DL-143: this build reads RESPONSE RECORD version 3 only.
             let version = match record.get("version") {
-                Some(Json::Number(n)) if n == "2" => None,
+                Some(Json::Number(n)) if n == "3" => None,
                 Some(Json::Number(n)) => Some(n.as_str()),
                 None => Some("none"),
                 Some(_) => Some("malformed"),
             };
             if let Some(v) = version {
                 return Err(format!(
-                    "error: stored RESPONSE RECORD has record version {v}; this build reads record version 2 only (DL-105)\n  {at}"
+                    "error: stored RESPONSE RECORD has record version {v}; this build reads record version 3 only (DL-143)\n  {at}"
                 ));
             }
+            let accepted = match record.get("outcome").and_then(Json::text) {
+                Some("accepted") => true,
+                Some("rejected") => false,
+                _ => {
+                    return Err(format!(
+                        "error: stored RESPONSE RECORD has no capture outcome accepted or rejected (DL-138)\n  {at}"
+                    ));
+                }
+            };
+            total += 1;
+            rejected += usize::from(!accepted);
             let stored = stored_version(&record).map_err(|e| format!("error: {e}\n  {at}"))?;
             snapshot.operations.insert(stored.operation.clone());
             if let Some(effect) = self.effect(&stored.operation) {
-                let oldest = snapshot
-                    .oldest
-                    .entry(effect.output.clone())
-                    .or_insert(stored.version);
-                *oldest = (*oldest).min(stored.version);
                 for (place, ty) in [("request", &effect.input), ("value", &effect.output)] {
                     for path in self.redacted_paths(ty) {
                         let mut at = record.get(place);
@@ -4256,65 +5517,57 @@ impl Checker<'_> {
                         }
                     }
                 }
-                let literal_fields = self.literal_fields(&effect.output);
-                let ctor_fields = self.ctor_fields(&effect.output);
-                if stored.name == effect.output
-                    && !(literal_fields.is_empty() && ctor_fields.is_empty())
-                {
-                    // Slice 6b step 6a (DL-105): the DL-102 checks read the projection `value`.
-                    let body = record.get("value");
+                // QV3-8 B (DL-136): a record rejected at capture skips the value, path and W2 checks.
+                if !accepted {
+                    continue;
+                }
+                checked += 1;
+                let oldest = snapshot
+                    .oldest
+                    .entry(effect.output.clone())
+                    .or_insert(stored.version);
+                *oldest = (*oldest).min(stored.version);
+                // 0005 P4 (N25, N25b): a db.list record holds ROW TYPE items; each item is checked as the ROW TYPE.
+                let list = (effect.kind == "db.list").then(|| self.row_type(effect));
+                let ty = list.clone().unwrap_or_else(|| effect.output.clone());
+                if stored.name == effect.output {
+                    let place = format!("operation {}", stored.operation);
                     // A record without the key `unknown_fields` (written before step 7) kept nothing.
                     let kept = |field: &str| match record.get("unknown_fields") {
                         Some(Json::List(names)) => names.iter().any(|n| n.text() == Some(field)),
                         _ => false,
                     };
-                    for (field, enum_name) in literal_fields {
-                        let value = body.and_then(|b| b.get(&field));
-                        let literal = value.and_then(Json::text).is_some_and(|text| {
-                            self.program.literals[&enum_name]
-                                .iter()
-                                .any(|(_, l)| l == text)
-                        });
-                        let resolved = literal && kept(&field);
-                        // DL-122: a String that is no current literal and was not kept was an ENUM LITERAL at capture.
-                        if value.and_then(Json::text).is_some() && !literal && !kept(&field) {
-                            lost.entry((
-                                effect.output.clone(),
-                                stored.version,
-                                stored.operation.clone(),
-                                field.clone(),
-                                enum_name.clone(),
-                            ))
-                            .or_default()
-                            .push(number);
-                        }
-                        let entry = mapped
-                            .entry((
-                                effect.output.clone(),
-                                stored.operation.clone(),
-                                field,
-                                enum_name,
-                            ))
-                            .or_insert((0, 0, 0));
-                        // A String always has a variant (D6B-36); any other value has none.
-                        if value.and_then(Json::text).is_none() {
-                            entry.0 += 1;
-                            if entry.1 == 0 {
-                                entry.1 = number;
+                    if list.is_none() {
+                        // Slice 6b step 6a (DL-105): the DL-102 checks read the projection `value`.
+                        let body = record.get("value");
+                        self.value_checks(
+                            &mut checks,
+                            &ty,
+                            &place,
+                            stored.version,
+                            number,
+                            body,
+                            &kept,
+                        );
+                    } else {
+                        // PDB-18: a kept value of item i is named `<field>.<i>.<name>`.
+                        let field = &self.record(&effect.output).expect("checked output")[0].0;
+                        if let Some(Json::List(items)) =
+                            record.get("value").and_then(|v| v.get(field))
+                        {
+                            for (i, item) in items.iter().enumerate() {
+                                let kept = |f: &str| kept(&format!("{field}.{i}.{f}"));
+                                let version = self.newest_version(&ty);
+                                self.value_checks(
+                                    &mut checks,
+                                    &ty,
+                                    &place,
+                                    version,
+                                    number,
+                                    Some(item),
+                                    &kept,
+                                );
                             }
-                        }
-                        entry.2 += usize::from(resolved);
-                    }
-                    for (field, ty) in ctor_fields {
-                        let value = body.and_then(|b| b.get(&field));
-                        let key = (effect.output.clone(), stored.operation.clone(), field, ty);
-                        match self.ctor_pick(&key.3, value) {
-                            None => faults.entry((key, None)).or_insert((0, number)).0 += 1,
-                            // D6B-104: a constructor without a failure TYPE cannot reject; no call.
-                            Some((sig, inputs)) if !self.failures[&sig].is_empty() => {
-                                calls.push((key, number, sig, inputs))
-                            }
-                            Some(_) => {}
                         }
                     }
                 }
@@ -4336,91 +5589,23 @@ impl Checker<'_> {
         }
         let mut errors: Vec<String> = groups
             .iter()
-            .filter_map(|(stored, (count, line))| self.no_path(source, stored, *count, *line))
+            .filter_map(|(stored, (count, line))| {
+                let output = &self.effect(&stored.operation)?.output;
+                let place = format!("operation {}", stored.operation);
+                self.no_path(
+                    source,
+                    stored,
+                    *count,
+                    *line,
+                    output,
+                    "RESPONSE RECORD",
+                    &place,
+                )
+            })
             .collect();
         if errors.is_empty() {
-            let plural = |n: usize| if n == 1 { "" } else { "S" };
-            for ((ty, op, field, enum_name), (failed, line, resolved)) in &mapped {
-                if *failed > 0 {
-                    errors.push(format!(
-                        "error: TYPE {ty}: {failed} stored RESPONSE RECORD{} of operation {op} {} no variant of {enum_name} for field {field}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of {ty} (DL-102)",
-                        plural(*failed),
-                        if *failed == 1 { "has" } else { "have" }
-                    ));
-                } else if *resolved > 0 {
-                    snapshot.notes.push(format!(
-                        "note: TYPE {ty}: {resolved} stored RESPONSE RECORD{} of operation {op} kept a value of field {field} that a literal of {enum_name} maps now (DL-103)",
-                        plural(*resolved)
-                    ));
-                }
-            }
-            for ((ty, version, op, field, enum_name), lines) in &lost {
-                let one = lines.len() == 1;
-                errors.push(format!(
-                    "error: TYPE {ty} v{version}: {} stored RESPONSE RECORD{} of operation {op} {} of field {field} that {} no ENUM LITERAL of {enum_name} now (DL-122)\n{}\n  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of {enum_name}",
-                    lines.len(),
-                    plural(lines.len()),
-                    if one { "has a value" } else { "have values" },
-                    if one { "is" } else { "are" },
-                    lines
-                        .iter()
-                        .map(|n| format!("  record source: {source}:{n} (line {n})"))
-                        .collect::<Vec<_>>()
-                        .join("\n")
-                ));
-            }
-            // D6B-105: Elixir starts only when the static pass gives no error.
-            if errors.is_empty() && !faults.keys().any(|(_, r)| r.is_none()) && !calls.is_empty() {
-                let failures: Vec<&[String]> = calls
-                    .iter()
-                    .map(|c| self.failures[&c.2].as_slice())
-                    .collect();
-                let stdin = format!(
-                    "{{\"module\":{},\"calls\":[{}]}}",
-                    json_string(code),
-                    calls
-                        .iter()
-                        .map(|(key, _, sig, inputs)| format!(
-                            "[{},{},[{}]]",
-                            json_string(&elixir_name(sig)),
-                            json_string(&key.3),
-                            inputs
-                                .iter()
-                                .map(|i| json_string(i))
-                                .collect::<Vec<_>>()
-                                .join(",")
-                        ))
-                        .collect::<Vec<_>>()
-                        .join(",")
-                );
-                for ((key, number, _, _), verdict) in
-                    calls.iter().zip(run_elixir(&stdin, &failures)?)
-                {
-                    if let Some(failure) = verdict {
-                        faults
-                            .entry((key.clone(), Some(failure)))
-                            .or_insert((0, *number))
-                            .0 += 1;
-                    }
-                }
-            }
-            for (((ty, op, field, ctor), reason), (failed, line)) in &faults {
-                let one = *failed == 1;
-                let what = match reason {
-                    Some(failure) => format!(
-                        "{} the constructor of {ctor} for field {field} with {failure}",
-                        if one { "fails" } else { "fail" }
-                    ),
-                    None => format!(
-                        "{} no signature of {ctor} for field {field}",
-                        if one { "matches" } else { "match" }
-                    ),
-                };
-                errors.push(format!(
-                    "error: TYPE {ty}: {failed} stored RESPONSE RECORD{} of operation {op} {what}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of {ty} (DL-102)",
-                    plural(*failed)
-                ));
-            }
+            errors =
+                self.value_errors(checks, source, code, "RESPONSE RECORD", &mut snapshot.notes)?;
         }
         // D6B-72, D6B-149, D6B-151, D6B-152: a stored value under a field that is now redacted blocks, also when
         // the path check fails. Names and counts only (DL-032).
@@ -4435,10 +5620,209 @@ impl Checker<'_> {
             ));
         }
         if errors.is_empty() {
+            if rejected > 0 {
+                snapshot.notes.push(format!(
+                    "{total} records, {checked} checked, {rejected} rejected at capture"
+                ));
+                snapshot.notes.push("digest not verified (P2b)".to_string());
+            }
             Ok(snapshot)
         } else {
             Err(errors.join("\n"))
         }
+    }
+    // DL-102, DL-103, DL-122 over one stored value of TYPE `ty`: the literal enum and constructor fields. `place` is
+    // `operation <op>` for a RESPONSE RECORD or `table records` for a stored ROW (0005 P4b).
+    #[allow(clippy::too_many_arguments)]
+    fn value_checks(
+        &self,
+        checks: &mut ValueChecks,
+        ty: &str,
+        place: &str,
+        version: u32,
+        number: usize,
+        body: Option<&Json>,
+        kept: &dyn Fn(&str) -> bool,
+    ) {
+        // 0005 P4c: each String field of a ROW TYPE holds a String, by the fields of the stored TYPE VERSION (P4c
+        // TEST O1; a version off the chain gets the path text). A redacted field is absent from the projection.
+        // http records stay unchecked (O3, Migrate, default A, open).
+        let row =
+            (self.program.effects.iter()).any(|e| e.kind != "http.post" && self.row_type(e) == ty);
+        let fields = (version.checked_sub(self.chain_start(ty)))
+            .and_then(|i| self.type_versions(ty).get(i as usize).cloned());
+        if row {
+            for (field, t) in fields.unwrap_or_default() {
+                if t == "String"
+                    && !self.is_redacted(ty, &field)
+                    && body
+                        .and_then(|b| b.get(&field))
+                        .and_then(Json::text)
+                        .is_none()
+                {
+                    let key = (ty.to_string(), place.to_string(), field);
+                    let entry = checks.strings.entry(key).or_insert((0, number, 0));
+                    if entry.2 != number {
+                        (entry.0, entry.2) = (entry.0 + 1, number);
+                    }
+                }
+            }
+        }
+        for (field, enum_name) in self.literal_fields(ty) {
+            let value = body.and_then(|b| b.get(&field));
+            let literal = value.and_then(Json::text).is_some_and(|text| {
+                self.program.literals[&enum_name]
+                    .iter()
+                    .any(|(_, l)| l == text)
+            });
+            let resolved = literal && kept(&field);
+            // DL-122: a String that is no current literal and was not kept was an ENUM LITERAL at capture.
+            if value.and_then(Json::text).is_some() && !literal && !kept(&field) {
+                checks
+                    .lost
+                    .entry((
+                        ty.to_string(),
+                        version,
+                        place.to_string(),
+                        field.clone(),
+                        enum_name.clone(),
+                    ))
+                    .or_default()
+                    .push(number);
+            }
+            let entry = checks
+                .mapped
+                .entry((ty.to_string(), place.to_string(), field, enum_name))
+                .or_insert((0, 0, 0));
+            // A String always has a variant (D6B-36); any other value has none.
+            if value.and_then(Json::text).is_none() {
+                entry.0 += 1;
+                if entry.1 == 0 {
+                    entry.1 = number;
+                }
+            }
+            entry.2 += usize::from(resolved);
+        }
+        for (field, ctor) in self.ctor_fields(ty) {
+            let value = body.and_then(|b| b.get(&field));
+            let key = (ty.to_string(), place.to_string(), field, ctor);
+            match self.ctor_pick(&key.3, value) {
+                None => checks.faults.entry((key, None)).or_insert((0, number)).0 += 1,
+                // D6B-104: a constructor without a failure TYPE cannot reject; no call.
+                Some((sig, inputs)) if !self.failures[&sig].is_empty() => {
+                    checks.calls.push((key, number, sig, inputs))
+                }
+                Some(_) => {}
+            }
+        }
+    }
+    // The errors (and DL-103 notes) of the value checks; one Elixir run for the constructors with a failure TYPE.
+    fn value_errors(
+        &self,
+        mut checks: ValueChecks,
+        source: &str,
+        code: &str,
+        noun: &str,
+        notes: &mut Vec<String>,
+    ) -> Checked<Vec<String>> {
+        let mut errors = Vec::new();
+        let plural = |n: usize| if n == 1 { "" } else { "S" };
+        for ((ty, op, field), (failed, line, _)) in &checks.strings {
+            errors.push(format!(
+                "error: TYPE {ty}: {failed} stored {noun}{} of {op} {} no String value for field {field}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of {ty} (DL-102)",
+                plural(*failed),
+                if *failed == 1 { "has" } else { "have" }
+            ));
+        }
+        for ((ty, op, field, enum_name), (failed, line, resolved)) in &checks.mapped {
+            if *failed > 0 {
+                errors.push(format!(
+                    "error: TYPE {ty}: {failed} stored {noun}{} of {op} {} no variant of {enum_name} for field {field}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of {ty} (DL-102)",
+                    plural(*failed),
+                    if *failed == 1 { "has" } else { "have" }
+                ));
+            } else if *resolved > 0 {
+                notes.push(format!(
+                    "note: TYPE {ty}: {resolved} stored {noun}{} of {op} kept a value of field {field} that a literal of {enum_name} maps now (DL-103)",
+                    plural(*resolved)
+                ));
+            }
+        }
+        for ((ty, version, op, field, enum_name), lines) in &checks.lost {
+            let one = lines.len() == 1;
+            errors.push(format!(
+                "error: TYPE {ty} v{version}: {} stored {noun}{} of {op} {} of field {field} that {} no ENUM LITERAL of {enum_name} now (DL-122)\n{}\n  help: declare the fate in a MIGRATE STEP (DL-122); slice 6b has no MIGRATE STEP form for an enum field (D6B-39), so restore the removed or changed ENUM LITERAL of {enum_name}",
+                lines.len(),
+                plural(lines.len()),
+                if one { "has a value" } else { "have values" },
+                if one { "is" } else { "are" },
+                lines
+                    .iter()
+                    .map(|n| format!("  record source: {source}:{n} (line {n})"))
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            ));
+        }
+        // D6B-105: Elixir starts only when the static pass gives no error.
+        if errors.is_empty()
+            && !checks.faults.keys().any(|(_, r)| r.is_none())
+            && !checks.calls.is_empty()
+        {
+            let failures: Vec<&[String]> = checks
+                .calls
+                .iter()
+                .map(|c| self.failures[&c.2].as_slice())
+                .collect();
+            let stdin = format!(
+                "{{\"module\":{},\"name\":{},\"calls\":[{}]}}",
+                json_string(code),
+                json_string(&self.module),
+                checks
+                    .calls
+                    .iter()
+                    .map(|(key, _, sig, inputs)| format!(
+                        "[{},{},[{}]]",
+                        json_string(&elixir_name(sig)),
+                        json_string(&key.3),
+                        inputs
+                            .iter()
+                            .map(|i| json_string(i))
+                            .collect::<Vec<_>>()
+                            .join(",")
+                    ))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            );
+            for ((key, number, _, _), verdict) in
+                checks.calls.iter().zip(run_elixir(&stdin, &failures)?)
+            {
+                if let Some(failure) = verdict {
+                    checks
+                        .faults
+                        .entry((key.clone(), Some(failure)))
+                        .or_insert((0, *number))
+                        .0 += 1;
+                }
+            }
+        }
+        for (((ty, op, field, ctor), reason), (failed, line)) in &checks.faults {
+            let one = *failed == 1;
+            let what = match reason {
+                Some(failure) => format!(
+                    "{} the constructor of {ctor} for field {field} with {failure}",
+                    if one { "fails" } else { "fail" }
+                ),
+                None => format!(
+                    "{} no signature of {ctor} for field {field}",
+                    if one { "matches" } else { "match" }
+                ),
+            };
+            errors.push(format!(
+                "error: TYPE {ty}: {failed} stored {noun}{} of {op} {what}\n  record source: {source}:{line} (line {line})\n  help: declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION of {ty} (DL-102)",
+                plural(*failed)
+            ));
+        }
+        Ok(errors)
     }
     // Step 8 (D6B-48, DL-101): the first signature of `fn T` whose keys all hold Strings (one parameter: the field
     // value is the String), with its inputs. None: no signature matches.
@@ -4536,15 +5920,152 @@ impl Checker<'_> {
         }
         out
     }
-    // The message for a stored TYPE VERSION without a path to the newest TYPE VERSION, or None.
+    // 0005 P4b (Q5-4 B, PDB-21 to PDB-26): the ROW SNAPSHOT `rows.jsonl`. A row is decodable when it is accepted, its
+    // `type.name` is a ROW TYPE that a db.get or db.list reads (DL-137) and its digest holds (D6B-58); every other row
+    // is counted, not checked (DL-136, QV3-8 B). A decodable row gets the path check of its TYPE (an off-chain TYPE
+    // VERSION blocks), then the DL-102 and DL-122 checks. A row of an operation with no EFFECT and no RETIRE LINE
+    // whose TYPE has no reader blocks as DL-040. Names, counts and lines only, never a value (DL-124).
+    fn check_rows(
+        &self,
+        source: &str,
+        text: &str,
+        meta: Option<&str>,
+        code: &str,
+        snapshot: &mut Snapshot,
+    ) -> Checked<String> {
+        let lines = text.lines().filter(|l| !l.trim().is_empty()).count();
+        // PDB-22: the compiler reads `row_count` only.
+        if let Some(meta) = meta {
+            let count = parse_json(meta)
+                .and_then(|m| m.get("row_count").cloned())
+                .and_then(|n| match n {
+                    Json::Number(n) => n.parse::<usize>().ok(),
+                    _ => None,
+                })
+                .ok_or("error: snapshot-meta.json has no row_count (P5-19)")?;
+            if count != lines {
+                return Err(format!(
+                    "error: rows.jsonl holds {lines} rows but snapshot-meta.json counts {count}; the ROW SNAPSHOT is partial"
+                ));
+            }
+        }
+        let readers: BTreeSet<String> = self
+            .program
+            .effects
+            .iter()
+            .filter(|e| e.kind == "db.get" || e.kind == "db.list")
+            .map(|e| self.row_type(e))
+            .collect();
+        let (mut total, mut checked) = (0, 0);
+        let mut orphans: BTreeMap<String, (usize, usize)> = BTreeMap::new();
+        let mut groups: BTreeMap<StoredVersion, (usize, usize)> = BTreeMap::new();
+        let mut checks = ValueChecks::default();
+        let place = "table records";
+        for (index, line) in text.lines().enumerate() {
+            let number = index + 1;
+            if line.trim().is_empty() {
+                continue;
+            }
+            let at = format!("record source: {source}:{number} (line {number})");
+            let row =
+                parse_json(line).ok_or_else(|| format!("error: stored ROW is not JSON\n  {at}"))?;
+            if row.get("source").and_then(Json::text) != Some("db") {
+                return Err(format!("error: stored ROW has no source \"db\"\n  {at}"));
+            }
+            let version = match row.get("version") {
+                Some(Json::Number(n)) if n == "3" => None,
+                Some(Json::Number(n)) => Some(n.as_str()),
+                None => Some("none"),
+                Some(_) => Some("malformed"),
+            };
+            if let Some(v) = version {
+                return Err(format!(
+                    "error: stored ROW has record version {v}; this build reads record version 3 only (DL-143)\n  {at}"
+                ));
+            }
+            total += 1;
+            let name = row
+                .get("type")
+                .and_then(|t| t.get("name"))
+                .and_then(Json::text);
+            let read = name.is_some_and(|n| readers.contains(n));
+            if let Some(op) = row.get("operation").and_then(Json::text) {
+                snapshot.operations.insert(op.to_string());
+                if !read && self.effect(op).is_none() && self.retire(op).is_none() {
+                    orphans.entry(op.to_string()).or_insert((0, number)).0 += 1;
+                    continue;
+                }
+            }
+            let accepted = row.get("outcome").and_then(Json::text) == Some("accepted");
+            let Ok(stored) = stored_version(&row) else {
+                continue;
+            };
+            if !accepted || !read || !digest_holds(&row) {
+                continue;
+            }
+            checked += 1;
+            let oldest = snapshot
+                .oldest
+                .entry(stored.name.clone())
+                .or_insert(stored.version);
+            *oldest = (*oldest).min(stored.version);
+            let kept = |field: &str| match row.get("unknown_fields") {
+                Some(Json::List(names)) => names.iter().any(|n| n.text() == Some(field)),
+                _ => false,
+            };
+            let ty = stored.name.clone();
+            self.value_checks(
+                &mut checks,
+                &ty,
+                place,
+                stored.version,
+                number,
+                row.get("value"),
+                &kept,
+            );
+            groups.entry(stored).or_insert((0, number)).0 += 1;
+        }
+        if !orphans.is_empty() {
+            return Err(orphans
+                .iter()
+                .map(|(op, (count, line))| {
+                    format!(
+                        "error: stored ROW of operation {op} has no effect in the source\n  record source: {source}:{line} (line {line})\n  stored ROWS of operation {op}: {count}\n  help: if the effect is deleted on purpose, declare: retire {op} keep <n> days"
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("\n"));
+        }
+        let mut errors: Vec<String> = groups
+            .iter()
+            .filter_map(|(stored, (count, line))| {
+                self.no_path(source, stored, *count, *line, &stored.name, "ROW", place)
+            })
+            .collect();
+        if errors.is_empty() {
+            errors = self.value_errors(checks, source, code, "ROW", &mut snapshot.notes)?;
+        }
+        if !errors.is_empty() {
+            return Err(errors.join("\n"));
+        }
+        Ok(format!(
+            "rows: {total} rows, {checked} checked, {} not decodable",
+            total - checked
+        ))
+    }
+    // The message for a stored TYPE VERSION without a path to the newest TYPE VERSION of `type_name`, or None.
+    // `noun` and `place` name the stored item: `RESPONSE RECORD` of `operation <op>`, or `ROW` of `table records`.
+    #[allow(clippy::too_many_arguments)]
     fn no_path(
         &self,
         source: &str,
         stored: &StoredVersion,
         count: usize,
         line: usize,
+        type_name: &str,
+        noun: &str,
+        place: &str,
     ) -> Option<String> {
-        let type_name = &self.effect(&stored.operation)?.output;
         let versions = self.type_versions(type_name);
         let start = self.chain_start(type_name);
         let newest = self.newest_version(type_name);
@@ -4553,19 +6074,15 @@ impl Checker<'_> {
             .checked_sub(start)
             .and_then(|index| versions.get(index as usize));
         // Slice 4: a stored version below the chain start (a removed DEAD LINE needed again, E17).
-        let below_start = stored.version < start && &stored.name == type_name;
-        if &stored.name == type_name
-            && derived.is_some_and(|d| fingerprint(d) == stored.fingerprint)
+        let below_start = stored.version < start && stored.name == type_name;
+        if stored.name == type_name && derived.is_some_and(|d| fingerprint(d) == stored.fingerprint)
         {
             return None;
         }
         let newest_fields = versions.last().unwrap();
         let plural = if count == 1 { "" } else { "S" };
         let mut m = vec![
-            format!(
-                "error: TYPE {type_name} cannot read {count} stored RESPONSE RECORD{plural} of operation {}",
-                stored.operation
-            ),
+            format!("error: TYPE {type_name} cannot read {count} stored {noun}{plural} of {place}"),
             format!(
                 "  stored TYPE VERSION: {} v{} {} (fingerprint {})",
                 stored.name,
@@ -4583,7 +6100,7 @@ impl Checker<'_> {
         // Slice 5 final review (medium 1): the version check comes before the name check. A stored TYPE of another
         // name with a newer version also gets N1, never a help line that counts backwards.
         if stored.version > newest {
-            if &stored.name != type_name {
+            if stored.name != type_name {
                 m.push(format!(
                     "  the stored TYPE name {} is not {type_name}",
                     stored.name
@@ -4610,7 +6127,7 @@ impl Checker<'_> {
                 &fingerprint(d)[..12]
             ));
         }
-        if &stored.name != type_name {
+        if stored.name != type_name {
             m.push(format!(
                 "  the stored TYPE name {} is not {type_name}",
                 stored.name
@@ -4777,6 +6294,18 @@ fn build(source: &str, service: Option<&str>, stored: Option<&std::path::Path>) 
     build_with_refusals(source, service, stored).map(|(built, _, _)| built)
 }
 
+// Q6E-1: one capital per `_` segment (`order_flow` -> `OrderFlow`).
+fn module_name_from_stem(stem: &str) -> String {
+    stem.split('_')
+        .map(|part| {
+            let mut chars = part.chars();
+            chars.next().map_or(String::new(), |c| {
+                c.to_ascii_uppercase().to_string() + chars.as_str()
+            })
+        })
+        .collect()
+}
+
 // What the removal command reads about the record TYPES of a build (slice 5): the newest version per TYPE, the
 // TYPES with a VERSION MARK, and the byte end of each TYPE name in its `type` declaration.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -4807,8 +6336,8 @@ fn build_with_refusals(
     let mut checker = Checker::new(&program)?;
     checker.validate()?;
     checker.redacted_copies()?;
-    // D6B-28: only an EFFECT pipe names spans.
-    let spans = !program.effects.is_empty();
+    // D6B-28: only an EFFECT pipe names spans. Slice 6d: an ENTRY LINE names its root span.
+    let spans = !program.effects.is_empty() || !program.entries.is_empty();
     let service = match service {
         Some(name)
             if lower(name)
@@ -4823,6 +6352,35 @@ fn build_with_refusals(
         }
         _ => "",
     };
+    // Q6E-1 C: a host-called (ENTRY LINE) source takes its module name from the stem; any other keeps BeamlSpike.
+    if !program.entries.is_empty() {
+        checker.module = module_name_from_stem(service);
+        // D6B-203: a module that the generated code calls cannot be redefined.
+        const CALLED: [&str; 15] = [
+            "Kernel",
+            "String",
+            "Enum",
+            "Map",
+            "List",
+            "IO",
+            "Base",
+            "Module",
+            "Code",
+            "Integer",
+            "OpenTelemetry",
+            "ProbeSupport",
+            "ArgumentError",
+            // TEST v3/multi O1: System is called too; 0005 P4: the generated code calls the host BeamlDb.
+            "System",
+            "BeamlDb",
+        ];
+        if CALLED.contains(&checker.module.as_str()) {
+            return Err(format!(
+                "error: the source file name {service} gives the module {}, which the generated code calls; rename the file",
+                checker.module
+            ));
+        }
+    }
     // Step 13 (contract 8): the same module goes to the --stored check and to the build output.
     let code = checker.emit(service);
     let (dead, refusals, notes) = match stored {
@@ -4830,7 +6388,46 @@ fn build_with_refusals(
             let text = std::fs::read_to_string(path)
                 .map_err(|e| format!("cannot read --stored input: {}", e.kind()))?;
             let label = path.display().to_string();
-            let snapshot = checker.check_stored(&label, &text, &code)?;
+            let mut snapshot = checker.check_stored(&label, &text, &code)?;
+            // DL-134, R6D-04: the ENTRY RECORDS in `entries.jsonl` beside the --stored file; no file, no ENTRY RECORD.
+            let entries = path
+                .parent()
+                .unwrap_or(std::path::Path::new(""))
+                .join("entries.jsonl");
+            if entries.is_file() {
+                let text = std::fs::read_to_string(&entries).map_err(|e| {
+                    format!("cannot read entries.jsonl beside --stored: {}", e.kind())
+                })?;
+                let line = checker.check_entries(
+                    &entries.display().to_string(),
+                    &text,
+                    &code,
+                    &mut snapshot,
+                )?;
+                snapshot.notes.push(line);
+            }
+            // 0005 P4b (PDB-21 to PDB-23): the ROW SNAPSHOT `rows.jsonl` beside the --stored file.
+            let dir = path.parent().unwrap_or(std::path::Path::new(""));
+            let rows = dir.join("rows.jsonl");
+            if rows.is_file() {
+                let text = std::fs::read_to_string(&rows)
+                    .map_err(|e| format!("cannot read rows.jsonl beside --stored: {}", e.kind()))?;
+                let meta = std::fs::read_to_string(dir.join("snapshot-meta.json")).ok();
+                let line = checker.check_rows(
+                    &rows.display().to_string(),
+                    &text,
+                    meta.as_deref(),
+                    &code,
+                    &mut snapshot,
+                )?;
+                snapshot.notes.push(line);
+            } else if program
+                .effects
+                .iter()
+                .any(|e| e.kind == "db.get" || e.kind == "db.list")
+            {
+                return Err("error: stored ROWS unknown: a source with db.get or db.list needs rows.jsonl beside --stored (an unknown store is not an empty store)".into());
+            }
             (
                 checker.dead_lines(&snapshot),
                 checker.refusals(&snapshot, &label),
@@ -5216,11 +6813,13 @@ fn fmt_file(path: &std::path::Path, label: &str) -> Checked<usize> {
     if new == old {
         return Ok(0);
     }
-    let changed = old
-        .split('\n')
-        .zip(new.split('\n'))
-        .filter(|(a, b)| a != b)
-        .count();
+    // fmt-layout F2 (DL-148 adds lines): the old lines that the diff removes or replaces.
+    let (a, b) = (split_lines(&old), split_lines(&new));
+    let changed = a.len()
+        - matching_blocks(&a, &b)
+            .iter()
+            .map(|block| block.2)
+            .sum::<usize>();
     let diff = unified_diff(&old, &new, label);
     write_atomic(path, &new)?;
     std::io::stdout()
@@ -5264,6 +6863,7 @@ fn formatted(source: &str) -> Checked<String> {
         }
     }
     edits.extend(aligned(source, &tokens, &program));
+    edits.extend(bodies(source, &tokens, &program));
     edits.sort_by_key(|(range, _)| range.start);
     let mut text = source.to_string();
     for (range, with) in edits.into_iter().rev() {
@@ -5272,18 +6872,97 @@ fn formatted(source: &str) -> Checked<String> {
     Ok(text)
 }
 
-// One single-line clause or EFFECT line: its line, group key, line start, cells and the `=` byte.
-struct Row {
-    line: usize,
-    key: String,
-    start: usize,
-    cells: Vec<Range<usize>>,
-    equals: usize,
+// DL-148 (1, 2): a TYPE or ENUM body with two or more members takes one member per line (two-space indent, `}` on
+// its own line); zero or one member stays on one line. Members keep their text; a body with a comment stays.
+fn bodies(
+    source: &str,
+    tokens: &[(Token, Range<usize>)],
+    program: &Program,
+) -> Vec<(Range<usize>, String)> {
+    let nl = if source.contains("\r\n") {
+        "\r\n"
+    } else {
+        "\n"
+    };
+    let mut edits = Vec::new();
+    for (i, (token, r)) in tokens.iter().enumerate() {
+        let is_enum = match token {
+            Token::Word(w) if w == "type" => false,
+            Token::Word(w) if w == "enum" => true,
+            _ => continue,
+        };
+        let line_start = source[..r.start].rfind('\n').map_or(0, |i| i + 1);
+        let indent = &source[line_start..r.start];
+        if !indent.trim().is_empty()
+            || !matches!(&tokens[i + 1].0, Token::Word(name) if program.types.contains_key(name))
+        {
+            continue;
+        }
+        let Some(open) =
+            (i + 2..(i + 4).min(tokens.len())).find(|&k| tokens[k].0 == Token::Symbol('{'))
+        else {
+            continue;
+        };
+        let close = open
+            + tokens[open..]
+                .iter()
+                .position(|(t, _)| *t == Token::Symbol('}'))
+                .unwrap();
+        if (open..close).any(|k| {
+            !source[tokens[k].1.end..tokens[k + 1].1.start]
+                .trim()
+                .is_empty()
+        }) {
+            continue;
+        }
+        let mut members: Vec<Range<usize>> = Vec::new();
+        let mut depth = 0;
+        for k in open + 1..close {
+            let (t, r) = &tokens[k];
+            let starts = depth == 0
+                && matches!(t, Token::Word(_))
+                && (is_enum || tokens[k + 1].0 == Token::Symbol(':'));
+            match t {
+                Token::Symbol('(') => depth += 1,
+                Token::Symbol(')') => depth -= 1,
+                _ => {}
+            }
+            match members.last_mut() {
+                Some(m) if !starts => m.end = r.end,
+                _ => members.push(r.clone()),
+            }
+        }
+        let text: Vec<&str> = members.iter().map(|m| &source[m.clone()]).collect();
+        let body = match text.len() {
+            0 => "{}".to_string(),
+            1 => format!("{{ {} }}", text[0]),
+            _ => {
+                let lines: String = text.iter().map(|m| format!("{indent}  {m}{nl}")).collect();
+                format!("{{{nl}{lines}{indent}}}")
+            }
+        };
+        edits.push((tokens[open].1.start..tokens[close].1.end, body));
+    }
+    edits
 }
 
-// DL-083, D6B-44, DL-013: consecutive single-line clauses of one signature (or EFFECT lines) form a group. Cells
-// are `fn NAME` (or `effect NAME IN`), each top-level argument with its comma, `->` and the return text; each cell
-// and `=` start one space after the longest previous cell. Only the gaps between cells change.
+// Cell columns of a clause table (DL-148): 0 the name part, 1.. the arguments, then `->`, output, `! ERR`, `=`.
+const ARROW: usize = 1000;
+const OUT: usize = 1001;
+const ERR: usize = 1002;
+const EQUALS: usize = 1003;
+
+// One single-line clause, signature or EFFECT line: its line, line start and (column, cell) pairs.
+struct Row {
+    line: usize,
+    start: usize,
+    cells: Vec<(usize, Range<usize>)>,
+}
+
+// DL-083, D6B-44, DL-013, DL-148: every block of consecutive single-line clause, signature, EFFECT and ENTRY lines is
+// one table. Cells are `fn NAME` (or `effect NAME`), each top-level argument with its comma (the EFFECT input), `->`,
+// the output, the `! ERR` part and `=`; each column starts one space after the longest previous cell of the block.
+// Only the gaps between cells change.
 fn aligned(
     source: &str,
     tokens: &[(Token, Range<usize>)],
@@ -5299,10 +6978,13 @@ fn aligned(
     let items = program
         .clauses
         .iter()
-        .map(|c| (c.key.as_str(), &c.source_range))
-        .chain(program.effects.iter().map(|e| ("effect", &e.source_range)));
+        .map(|c| c.source_range.clone())
+        .chain(program.signature_lines.iter().map(|l| l.start..l.end))
+        .chain(program.effects.iter().map(|e| e.source_range.clone()))
+        // Slice 6d (R6D-06): an ENTRY LINE is an EFFECT line; its head normalizes the same way.
+        .chain(program.entries.iter().map(|e| e.source_range.clone()));
     let mut rows = Vec::new();
-    for (key, range) in items {
+    for range in items {
         let first = tokens
             .iter()
             .position(|(_, r)| r.start == range.start)
@@ -5320,87 +7002,80 @@ fn aligned(
         {
             continue;
         }
-        let effect = key == "effect";
-        let mut cells = Vec::new();
-        let skip = if effect {
-            0
-        } else {
-            cells.push(tokens[first].1.start..tokens[first + 1].1.end);
-            2
-        };
-        let (mut open, mut depth, mut arrow, mut equals) = (None::<Range<usize>>, 0, false, None);
-        for (token, r) in &tokens[first + skip..=last] {
+        let mut cells = vec![(0, tokens[first].1.start..tokens[first + 1].1.end)];
+        let (mut open, mut depth, mut column) = (None::<Range<usize>>, 0, 1);
+        for (token, r) in &tokens[first + 2..=last] {
             match token {
                 Token::Symbol('(' | '{') => depth += 1,
                 Token::Symbol(')' | '}') => depth -= 1,
                 _ => {}
             }
-            if depth == 0 && !arrow && *token == Token::Arrow {
-                cells.extend(open.take());
-                cells.push(r.clone());
-                arrow = true;
+            let mark = match token {
+                _ if depth != 0 => None,
+                Token::Arrow if column < ARROW => Some(ARROW),
+                Token::Symbol('!') if column == OUT => Some(ERR),
+                Token::Symbol('=') if column >= OUT => Some(EQUALS),
+                _ => None,
+            };
+            if let Some(mark) = mark {
+                cells.extend(open.take().map(|o| (column, o)));
+                if mark == ERR {
+                    (column, open) = (ERR, Some(r.clone()));
+                    continue;
+                }
+                cells.push((mark, r.clone()));
+                if mark == EQUALS {
+                    break;
+                }
+                column = OUT;
                 continue;
             }
-            if depth == 0 && arrow && *token == Token::Symbol('=') {
-                cells.extend(open.take());
-                equals = Some(r.start);
-                break;
-            }
             open = Some(open.map_or(r.clone(), |o| o.start..r.end));
-            if depth == 0 && !effect && !arrow && *token == Token::Symbol(',') {
-                cells.extend(open.take());
+            if depth == 0 && column < ARROW && *token == Token::Symbol(',') {
+                cells.extend(open.take().map(|o| (column, o)));
+                column += 1;
             }
         }
+        // A signature line ends without `=`.
+        cells.extend(open.take().map(|o| (column, o)));
         let start = source[..range.start].rfind('\n').map_or(0, |i| i + 1);
-        rows.push(Row {
-            line,
-            key: key.to_string(),
-            start,
-            cells,
-            equals: equals.unwrap(),
-        });
+        rows.push(Row { line, start, cells });
     }
     rows.sort_by_key(|row| row.line);
     let mut edits = Vec::new();
     let mut begin = 0;
     for end in 1..=rows.len() {
-        let (a, b) = (&rows[end - 1], rows.get(end));
-        if b.is_some_and(|b| {
-            b.line == a.line + 1 && b.key == a.key && b.cells.len() == a.cells.len()
-        }) {
+        if rows
+            .get(end)
+            .is_some_and(|b| b.line == rows[end - 1].line + 1)
+        {
             continue;
         }
         let group = &rows[begin..end];
         begin = end;
-        let n = group[0].cells.len();
-        // columns[k]: the column of cell k (k == n is `=`); cell 0 keeps its place on each line.
-        let mut columns = vec![0; n + 1];
-        for k in 1..=n {
-            columns[k] = group
+        // cursor: the column after the last placed cell of each row; cell 0 keeps its place.
+        let mut cursor: Vec<usize> = group.iter().map(|r| r.cells[0].1.end - r.start).collect();
+        let mut columns: Vec<usize> = group
+            .iter()
+            .flat_map(|r| r.cells[1..].iter().map(|c| c.0))
+            .collect();
+        columns.sort_unstable();
+        columns.dedup();
+        for column in columns {
+            let at = group
                 .iter()
-                .map(|row| {
-                    let cell = &row.cells[k - 1];
-                    let at = if k == 1 {
-                        cell.start - row.start
-                    } else {
-                        columns[k - 1]
-                    };
-                    at + cell.len()
-                })
+                .zip(&cursor)
+                .filter(|(row, _)| row.cells.iter().any(|c| c.0 == column))
+                .map(|(_, &c)| c)
                 .max()
                 .unwrap()
                 + 1;
-        }
-        for row in group {
-            for k in 1..=n {
-                let cell = &row.cells[k - 1];
-                let at = if k == 1 {
-                    cell.start - row.start
-                } else {
-                    columns[k - 1]
-                };
-                let gap = cell.end..row.cells.get(k).map_or(row.equals, |c| c.start);
-                edits.push((gap, " ".repeat(columns[k] - at - cell.len())));
+            for (row, cur) in group.iter().zip(cursor.iter_mut()) {
+                if let Some(k) = row.cells.iter().position(|c| c.0 == column) {
+                    let cell = &row.cells[k].1;
+                    edits.push((row.cells[k - 1].1.end..cell.start, " ".repeat(at - *cur)));
+                    *cur = at + cell.len();
+                }
             }
         }
     }
@@ -5421,19 +7096,23 @@ fn warning(source: &str, label: &str, stored: &str, dead: &Dead) -> String {
 // stdin, compiles the module in memory and prints one line per call. No `rescue`, `catch` or `try`: any other result
 // raises, and the run error follows. The first line is the process marker (E8).
 const DRIVER: &str = r#"# beaml-stored-check
-%{"module" => module, "calls" => calls} = JSON.decode!(IO.binread(:stdio, :eof))
+%{"module" => module, "name" => name, "calls" => calls} = JSON.decode!(IO.binread(:stdio, :eof))
 Code.compile_string(module)
+parent = Module.concat([name])
 
 for [fun, type, args] <- calls do
-  ok = Module.concat(BeamlSpike, type)
+  ok = Module.concat(parent, type)
 
-  case apply(BeamlSpike, String.to_atom(fun), args) do
+  case apply(parent, String.to_atom(fun), args) do
     {:ok, %{__struct__: ^ok}} ->
       IO.puts("ok")
 
+    {:ok, {^type, variant, payload}} when is_binary(variant) and is_list(payload) ->
+      IO.puts("ok")
+
     {:error, %{__struct__: failure}} ->
-      ["BeamlSpike", name] = Module.split(failure)
-      IO.puts("error " <> name)
+      [^name, short] = Module.split(failure)
+      IO.puts("error " <> short)
   end
 end
 "#;
@@ -5564,10 +7243,13 @@ fn action(action: &str, result: &str, counts: &[(&str, usize)]) {
             .iter()
             .map(|(key, n)| format!(",\"{key}\":{n}"))
             .collect();
-        writeln!(
-            file,
-            "{{\"ts\":{ts},\"source\":\"cli\",\"action\":\"{action}\",\"target\":\"experiment-0001\",\"result\":\"{result}\"{count}}}"
-        )
+        // D6B-188: one write of one full line, so parallel runs never interleave pieces of a line.
+        // ponytail: relies on one short O_APPEND write landing whole (local APFS, ext4); add a flock for a network
+        // file system or a much longer event.
+        let line = format!(
+            "{{\"ts\":{ts},\"source\":\"cli\",\"action\":\"{action}\",\"target\":\"experiment-0001\",\"result\":\"{result}\"{count}}}\n"
+        );
+        file.write_all(line.as_bytes())
     })();
 }
 fn main() {
@@ -6124,6 +7806,18 @@ mod tests {
                 .iter()
                 .any(|w| DRIVER.contains(w))
         );
+    }
+
+    #[test]
+    fn module_name_from_stem() {
+        // N15, Q6E-1: one capital per `_` segment.
+        for (stem, module) in [
+            ("orders", "Orders"),
+            ("order_flow", "OrderFlow"),
+            ("v2_orders", "V2Orders"),
+        ] {
+            assert_eq!(module, super::module_name_from_stem(stem));
+        }
     }
 
     #[test]

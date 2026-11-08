@@ -46,8 +46,8 @@ OUTCOME = "enum Outcome { Approved()  Declined(String)  Two(String, String) }\n"
 # pure steps lose their spans, see slice6b-effect-reach/notes.md and slice6/effect-reach/byte-guard.json; before:
 # the step 6a compiler (commit 0747c315, slice6b-records-v2/repin.md), the baseline compiler (commit 80bd33cd).
 EFFECT_OUTPUTS = {
-    "arms/gen/orders.beaml": "f8998ed508b056d36debe444c8539f8ab20f2840710b48e452751d4d87ec9871",
-    "slice2/reuse/orders.beaml": "586e1943b3c863a996834b95ade5f89da308703014a9331092f921e3e112266a",
+    "arms/gen/orders.beaml": "0e2dff8a6854833b56cce9384bec7af5307536965ef55a6b1df410854d780f1f",
+    "slice2/reuse/orders.beaml": "4beb087b12d79f95fc373ca8f5669b809bf23d96b6aa695c73a5be4193ed0f36",
 }
 PAYMENTS = REPO / "experiments/0002-http-correlation/apps/payments_api/priv/payments.beaml"
 PAYMENTS_SNAPSHOT = EXPERIMENT / "tests" / "payments.generated.snapshot"
@@ -57,7 +57,8 @@ BAD = {
     "pipe_type_mismatch.beaml": "type mismatch in pipe step finish: expected Payment, got Order",
     "undeclared_failure.beaml": "pipe step payments.authorize can fail with PaymentError, which is not in the ! list of place",
     "unknown_pipe_step.beaml": "unknown pipe step: charge",
-    "unsupported_effect_kind.beaml": "unsupported effect kind: db.get in effect payments.authorize (slice 1 supports http.post)",
+    # 0005 P4: db.get is a KIND now, so the table check fires first (db-transport plan, "Existing assertions that change").
+    "unsupported_effect_kind.beaml": 'error: effect payments.authorize: db.get uses the table "records" only (DL-127)',
 }
 
 

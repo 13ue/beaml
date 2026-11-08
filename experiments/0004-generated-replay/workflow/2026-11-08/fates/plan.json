@@ -1,0 +1,69 @@
+{
+  "task": "FATE slice, part fates-a: fate lines and enum versions, quarantine and map end to end, DL-155 gate, 0005 N9",
+  "basis": ["DL-102", "DL-111", "DL-116", "DL-122", "DL-124", "DL-125", "DL-134", "DL-137", "DL-140", "DL-142",
+            "DL-150", "DL-151", "DL-152", "DL-153", "DL-155", "DL-156"],
+  "head": "5e05b5f3",
+  "test_first": true,
+  "by": "Opus (PLAN fates)",
+  "split": {
+    "fates-a": "syntax of quarantine, retire, redact, map (both forms), enum E vN; quarantine and map in checker, --stored, DL-155 gate, generated decode, REPLAY RUN; 0005 N9, N9b; fmt; tree-sitter",
+    "fates-b": "redact semantics (QF-9), retire semantics (M5, QF-4), DL-140 swap detection and in-place gap (QF-8), SQUASH note, D042"
+  },
+  "steps": [
+    {"id": "a1", "behavior": "parse, check, --stored lift and fate lines, DL-155 help",
+     "red": ["F1", "F2", "F3", "F4", "F5", "F6", "S1", "S1b", "S1c", "S1d", "S1e", "S2", "S2b", "S2c", "S3", "S3b", "S4"],
+     "owner_before_green": ["QF-7"]},
+    {"id": "a2", "behavior": "generated decode: map, quarantine skip and count; REPLAY RUN quarantined",
+     "red": ["R1", "R2", "R3", "R4", "R5", "R6", "R7"],
+     "owner_before_green": ["QF-1"]},
+    {"id": "a3", "behavior": "0005 stricter v2 quarantine, channel_v2 map, run.py acceptance",
+     "red": ["N9", "N9b"]},
+    {"id": "a4", "behavior": "fmt migrate body rule, tree-sitter grammar, highlights, corpus, wasm",
+     "red": ["T1", "T2", "T2b", "G1"]}
+  ],
+  "production_changes": [
+    "experiments/0001-syntax-to-beam/src/main.rs: Parser::change, top-level enum (VERSION MARK), derive_versions (enum chains, fate-only steps), new fate_lines check",
+    "experiments/0001-syntax-to-beam/src/main.rs: check_stored / value_checks (quarantine and map exits, fate lines, DL-155 help at lines 4692, 4752, 5732, 5740, 5754, 5821)",
+    "experiments/0001-syntax-to-beam/src/main.rs: decode_parts literal map (bare map), versioned_decode (qualified map), row_<t> and rows_<t> (quarantined skip), replay clauses (quarantined)",
+    "experiments/0001-syntax-to-beam/src/main.rs: fn bodies (migrate body layout)",
+    "integrations/zed-beaml/grammar.js, languages/beaml/highlights.scm, test/corpus/fates.txt, grammars/beaml.wasm, src/ (generated)"
+  ],
+  "fixture_changes": [
+    "new experiments/0004-generated-replay/slice6/db/fates/ (db sources only, PF-20)",
+    "experiments/0005-prototype-fullstack/app/beaml/variants/stricter/orders.beaml (Amount v2, quarantine value)",
+    "new experiments/0005-prototype-fullstack/app/beaml/variants/stricter_v1/orders.beaml (old stricter, N8)",
+    "new experiments/0005-prototype-fullstack/app/beaml/variants/channel_v2/orders.beaml (enum Channel v2, map)"
+  ],
+  "test_changes": [
+    "new experiments/0004-generated-replay/tests/slice6_fates_test.py",
+    "experiments/0004-generated-replay/run.py (step slice6-fates)",
+    "experiments/0004-generated-replay/tests/slice6_fmt_test.py (T1, T2, T2b)",
+    "help constants: slice6_db_stored_test.py, slice6_entry_test.py, slice6_stored_elixir_test.py, slice6_decode_test.py, slice6_db_test.py, slice6_decode_ctor_test.py",
+    "experiments/0005-prototype-fullstack/app/test/prototype/fate_test.exs (N9, N9b), stored_test.exs (variant stricter_v1)",
+    "experiments/0005-prototype-fullstack/run.py (BLOCKED empty, EXPECTED N9b, gen-stricter.stderr check)"
+  ],
+  "red_depth_probe": "scratch build with the parser accepting the words and every check a no-op must fail S1b, S2b, S2c, F5, R1",
+  "pin_moves": {"digest": [], "hash": []},
+  "pin_condition": "PF-16 (only TYPES and enums with a fate line change bytes) and PF-20 (no tracked non-db source with new syntax); if broken, digest pins move in GREEN with the hunk list and hash pins in the next commit (RV3-14)",
+  "pin_guards_unchanged": [
+    "tests/slice6_pipe_test.py EFFECT_OUTPUTS",
+    "tests/slice6_host_struct_test.py BYTE_GUARD",
+    "slice6/effect-reach/byte-guard.json",
+    "tests/slice5_syntax_test.py PIN",
+    "tests/slice6_entry_test.py BASE",
+    "tests/slice6_multi_test.py BASE",
+    "tests/slice6_db_test.py P4_BASE"
+  ],
+  "checks": [
+    "cargo fmt --check, cargo clippy -- -D warnings, cargo test (experiments/0001-syntax-to-beam)",
+    "python3 -B experiments/0004-generated-replay/run.py",
+    "python3 -B experiments/0005-prototype-fullstack/run.py run",
+    "tree-sitter test --wasm --rebuild; tree-sitter parse --wasm -q over slice6/db/fates/ and the 0005 variants; tree-sitter build --wasm -o grammars/beaml.wasm"
+  ],
+  "owner_questions": ["QF-1", "QF-2", "QF-3", "QF-4", "QF-5", "QF-6", "QF-7", "QF-8", "QF-9"],
+  "defaults": "PF-01 to PF-24",
+  "exclusions": ["redact semantics (fates-b, QF-9)", "retire semantics (M5, QF-4)", "DL-140 swap detection (QF-8)",
+                 "live --stored (DL-151)", "DL-150 block", "D035 digest half", "DL-154 projection, D040",
+                 "lifting a quarantine, dead fate lines, SQUASH text", "nested fate paths", "fate on a top-level input TYPE (D6B-130)",
+                 "D042 lazy recheck", "D041 decision", "docs (separate worker)"]
+}

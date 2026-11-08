@@ -1,4 +1,7 @@
 // F7 (D6B-67 c): the whole clause body is a redacted value of the failure TYPE.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 
 fn check Order { card_holder } -> Int ! String = card_holder

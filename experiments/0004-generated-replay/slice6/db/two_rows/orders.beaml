@@ -1,0 +1,52 @@
+// Slice 6 db variant two_rows: two ROW TYPES in one table, Order without a chain, Note with a chain (QDB-8 B, PDB-34).
+type BadAmount {}
+type Amount {
+  value: String
+  currency: String
+}
+fn Amount value: String, currency: String -> Amount ! BadAmount
+fn Amount _,             ""               -> Amount ! BadAmount = BadAmount {}
+fn Amount value,         currency         -> Amount ! BadAmount = Amount { value: value, currency: currency }
+
+enum Channel {
+  Web = "web"
+  App = "app"
+  Unknown(String)
+}
+
+type Order {
+  order_id: String
+  amount: Amount
+  channel: Channel
+}
+type OrderKey { order_id: String }
+type OrderQuery {}
+type OrderList { items: [Order] }
+type StoreError { reason: String }
+type Note {
+  text: String
+  tag: String
+}
+migrate Note v1 -> v2 { add tag: String = "" }
+type NoteQuery {}
+type NoteList { items: [Note] }
+
+// Three DB TRANSPORTS leave the module. Each call is recorded live and substituted in a REPLAY RUN.
+effect orders.save Order      -> Order     ! StoreError = db.put("records")
+effect orders.load OrderKey   -> Order     ! StoreError = db.get("records")
+effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
+effect notes.save  Note       -> Note      ! StoreError = db.put("records")
+effect notes.list  NoteQuery  -> NoteList  ! StoreError = db.list("records")
+
+// Enters the module. The host calls Orders.ui_orders(params).
+effect ui.orders OrderQuery -> OrderList ! StoreError = ui.event("orders") |> list_orders
+
+fn save o: Order -> Order ! StoreError = o |> orders.save
+
+fn load k: OrderKey -> Order ! StoreError = k |> orders.load
+
+fn list_orders q: OrderQuery -> OrderList ! StoreError = q |> orders.list
+
+fn save_note n: Note -> Note ! StoreError = n |> notes.save
+
+fn list_notes q: NoteQuery -> NoteList ! StoreError = q |> notes.list

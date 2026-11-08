@@ -1,0 +1,35 @@
+Running ExUnit with seed: 0, max_cases: 28
+Excluding tags: [:test, :phase]
+Including tags: [phase: "n7_seed"]
+
+
+
+  1) test N7 note_v2 builds against a live Note v1 row and an Order row (Proto.Prototype.NotesSeedTest)
+     test/prototype/notes_test.exs:12
+     ** (FunctionClauseError) no function clause matching in Phoenix.LiveViewTest.connect_from_static_token/3
+
+     The following arguments were given to Phoenix.LiveViewTest.connect_from_static_token/3:
+
+         # 1
+         %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{reason: %Phoenix.Router.NoRouteError{plug_status: 404, message: "no route found for GET /orders/new (ProtoWeb.Router)", conn: %Plug.Conn{adapter: {Plug.Adapters.Test.Conn, :...}, assigns: %{}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => true}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: nil, resp_cookies: %{}, resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQln7gsJDpVUAAAFK"}], scheme: :http, script_name: [], secret_key_base: :..., state: :unset, status: nil}, router: ProtoWeb.Router}, status: 404, stack: [{ProtoWeb.Router, :call, 2, [file: ~c"deps/phoenix/lib/phoenix/router.ex", line: 465]}, {ProtoWeb.Endpoint, :plug_builder_call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {ProtoWeb.Endpoint, :call, 2, [file: ~c"lib/proto_web/endpoint.ex", line: 1]}, {Phoenix.ConnTest, :dispatch, 5, [file: ~c"lib/phoenix/test/conn_test.ex", line: 225]}, {Proto.Prototype.NotesSeedTest, :"test N7 note_v2 builds against a live Note v1 row and an Order row", 1, [file: ~c"test/prototype/notes_test.exs", line: 13]}, {ExUnit.Runner, :exec_test, 2, [file: ~c"lib/ex_unit/runner.ex", line: 511]}, {:timer, :tc, 2, [file: ~c"timer.erl", line: 595]}, {ExUnit.Runner, :"-spawn_test_monitor/4-fun-1-", 6, [file: ~c"lib/ex_unit/runner.ex", line: 433]}], kind: :error, layout: false, __changed__: nil}, body_params: %{}, cookies: %Plug.Conn.Unfetched{aspect: :cookies}, halted: false, host: "www.example.com", method: "GET", owner: nil, params: %{}, path_info: ["orders", "new"], path_params: %{}, port: 80, private: %{:phoenix_template => "404.html", :phoenix_view => %{_: ProtoWeb.ErrorHTML}, :phoenix_endpoint => ProtoWeb.Endpoint, ProtoWeb.Router => [], :phoenix_router => ProtoWeb.Router, :plug_session_fetch => #Function<1.49469887/1 in Plug.Session.fetch_session/1>, :before_send => [#Function<0.106864063/1 in Plug.Telemetry.call/2>], :plug_skip_csrf_protection => true, :phoenix_recycled => false, :phoenix_format => "html", :phoenix_layout => %{_: false}, :phoenix_root_layout => %{_: false}}, query_params: %{}, query_string: "", remote_ip: {127, 0, 0, 1}, req_cookies: %Plug.Conn.Unfetched{aspect: :cookies}, req_headers: [], request_path: "/orders/new", resp_body: "Not Found", resp_cookies: %{}, resp_headers: [{"content-type", "text/html; charset=utf-8"}, {"cache-control", "max-age=0, private, must-revalidate"}, {"x-request-id", "GOXqQln7gsJDpVUAAAFK"}], scheme: :http, script_name: [], secret_key_base: :..., state: :sent, status: 404}
+
+         # 2
+         "/orders/new"
+
+         # 3
+         []
+
+     Attempted function clauses (showing 3 out of 3):
+
+         defp connect_from_static_token(-%Plug.Conn{status: 200, assigns: %{live_module: live_module}} = conn-, path, opts)
+         defp connect_from_static_token(-%Plug.Conn{status: 200}-, _path, _opts)
+         defp connect_from_static_token(%Plug.Conn{status: redir} = conn, _path, _opts) when -redir === 301- or -redir === 302- or -redir === 303-
+
+     code: {:ok, view, _} = live(conn, "/orders/new")
+     stacktrace:
+       (phoenix_live_view 1.1.33) lib/phoenix_live_view/test/live_view_test.ex:324: Phoenix.LiveViewTest.connect_from_static_token/3
+       test/prototype/notes_test.exs:13: (test)
+
+
+Finished in 0.09 seconds (0.06s async, 0.03s sync)
+26 tests, 1 failure, 25 excluded

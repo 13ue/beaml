@@ -2,7 +2,7 @@
 id: planning-decisions-to-be-made
 kind: planning
 status: active
-updated: 2026-11-07
+updated: 2026-11-08
 ---
 
 # Offene Fragen / Decisions to be made
@@ -564,7 +564,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Does BEAML need an absent-value form, and how does it meet the historical S06 "missing vs explicit null" requirement? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Does BEAML need an absent-value form, and how does it meet the historical S06 "missing vs explicit null" requirement? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-145](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [hated row 1](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (null references), [loved row 4](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (ergonomic null handling).
 
@@ -579,7 +579,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: When a deep `effect` gains a failure TYPE, must every caller's `!` list change? Is that ripple accepted or softened (generic `-> T ! E`, failure groups)? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
+**[Proposal]** Question: When a deep `effect` gains a failure TYPE, must every caller's `!` list change? Is that ripple accepted or softened (generic `-> T ! E`, failure groups)? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-145](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [hated row 11](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (checked exceptions, versionability), [loved row 3](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (errors as values).
 
@@ -594,7 +594,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Does `#{...}` stay literal text permanently, or does BEAML get a checked interpolation form? What is the recorded reason either way? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Does `#{...}` stay literal text permanently, or does BEAML get a checked interpolation form? What is the recorded reason either way? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-145](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [loved row 16](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (string interpolation).
 
@@ -609,7 +609,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Which collection TYPES and literals does BEAML get, and in what form, given DL-129 already needs a `List` TYPE? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Which collection TYPES and literals does BEAML get, and in what form, given DL-129 already needs a `List` TYPE? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-145](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [loved row 11](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (comprehensions), [hated row 21](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (missing sum types and `Option` in Go).
 
@@ -624,7 +624,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Does BEAML get an anonymous-function form, or do top-level clauses remain the only functions? How are `map` and `filter` then written? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Does BEAML get an anonymous-function form, or do top-level clauses remain the only functions? How are `map` and `filter` then written? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-145](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [loved row 10](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (closures, lambdas, first-class functions).
 
@@ -639,7 +639,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Does BEAML expose BEAM concurrency in syntax, and would such a form stay uncolored? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Does BEAML expose BEAM concurrency in syntax, and would such a form stay uncolored? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-145](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [loved row 13](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (lightweight concurrency), [hated row 5](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (async function coloring).
 
@@ -654,7 +654,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Do optional separators between fields and variants stay? Is bare `Pending` next to `Approved()` one spelling or two? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Do optional separators between fields and variants stay? Is bare `Pending` next to `Approved()` one spelling or two? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-145](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [hated row 25](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (silent adjacent concatenation), [profile gap list](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-syntax-profile.md#6-gaps-noticed-in-the-kb-for-the-synthesis-worker).
 
@@ -669,13 +669,13 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** After the first example applications are built.
 - **Next check** When the first example application is planned.
 
-**[Proposal]** Question: Is there a budget for top-level forms, and who counts against it when `on`, the FATE OPERATIONS and `effect` policies arrive? Set the budget before these forms land? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-140](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Is there a budget for top-level forms, and who counts against it when `on`, the FATE OPERATIONS and `effect` policies arrive? Set the budget before these forms land? Candidate from the [BEAML lens](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#8-candidate-open-decisions), accepted as an open question by the OWNER on 2026-11-07 ([DL-145](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: [hated row 4](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) (complexity creep, 28 % of Rust respondents), [loved row 22](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) (small language, one way).
 
-**[Verified]** BEAML today: six top-level keyword forms (`type`, `enum`, `fn`, `effect`, `migrate`, `retire`) plus `redacted`, `with` release, `with ... do`, VERSION MARK; sketched: `on`, four FATE OPERATIONS, policy on `effect` lines, `where` rules (DL-125, DL-126, DL-128). No budget is recorded ([scorecard](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#2-scorecard)). The conservative syntax minimum proposes a ceiling of 39 with one-in-one-out; see D035 and the [syntax minimum hub](syntax-minimum.md).
+**[Verified]** BEAML today: six top-level keyword forms (`type`, `enum`, `fn`, `effect`, `migrate`, `retire`) plus `redacted`, `with` release, `with ... do`, VERSION MARK; sketched: `on`, four FATE OPERATIONS, policy on `effect` lines, `where` rules (DL-125, DL-126, DL-128). No budget is recorded ([scorecard](../../raw/research/2026-11-07-pl-syntax-sentiment/beaml-lens.md#2-scorecard)). The conservative syntax minimum proposes a ceiling of 39 with one-in-one-out; see D050 and the [syntax minimum hub](syntax-minimum.md).
 
-## D035 — Which syntax minimum does BEAML adopt
+## D050 — Which syntax minimum does BEAML adopt
 
 - **Status** OPEN
 - **Decision owner** OWNER
@@ -684,7 +684,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** OWNER review of the syntax minimum hub; before the next syntax DL.
 - **Next check** When the next syntax decision is proposed.
 
-**[Proposal]** Question: Which syntax minimum does BEAML adopt: the agreed 39-item set (D032 only), the conservative set with growth rules, or the radical set that reopens DL-014, DL-015, DL-022, DL-055, DL-061? Raised by the OWNER on 2026-11-08 ("really only the minimum of syntax", [DL-143](decision-log.md)). Two independent proposals and one compare page exist; no option is recommended.
+**[Proposal]** Question: Which syntax minimum does BEAML adopt: the agreed 39-item set (D032 only), the conservative set with growth rules, or the radical set that reopens DL-014, DL-015, DL-022, DL-055, DL-061? Raised by the OWNER on 2026-11-08 ("really only the minimum of syntax", [DL-169](decision-log.md)). Two independent proposals and one compare page exist; no option is recommended.
 
 **[Verified]** Evidence: the [syntax minimum hub](syntax-minimum.md) (one inventory of 40 items, the agreed set, the differences, the OWNER questions), the [conservative minimum](syntax-minimum-conservative.md) (38 proposed, ceiling 39, six growth rules), the [radical minimum](syntax-minimum-radical.md) (29 proposed, four top-level forms, six reopened decisions), the [syntax sentiment concept](../concepts/syntax-sentiment.md) sections [1](../concepts/syntax-sentiment.md#1-question) to [10](../concepts/syntax-sentiment.md#10-terraform-hcl-as-the-declarative-precedent), and the open items D032 (separators, zero-argument variant) and D033 (form budget) above.
 
@@ -699,7 +699,7 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** Before the first public release or external announcement.
 - **Next check** When a public repository, package or talk is planned.
 
-**[Proposal]** Question: Keep the name BEAML next to BAML, or change it, given the name proximity and the shared design space? Raised by the OWNER on 2026-11-07 when BAML was taken up in the syntax sentiment research ([DL-141](decision-log.md)). No option is recommended.
+**[Proposal]** Question: Keep the name BEAML next to BAML, or change it, given the name proximity and the shared design space? Raised by the OWNER on 2026-11-07 when BAML was taken up in the syntax sentiment research ([DL-146](decision-log.md)). No option is recommended.
 
 **[Verified]** Evidence: the [name proximity facts](../../raw/research/2026-11-07-baml-syntax-sentiment/baml-reception.md#6-name-proximity-baml-and-beaml). BAML is "Basically A Made-up Language" per its README, "tongue-in-cheek" per the team; third parties expand it as "Boundary AI Markup Language"; BAML also named a bank brand until 2019 and a WPF markup format. No project, package or page named `beaml` exists on GitHub, PyPI, npm, Hex or in web search. BEAML is BAML plus one letter and contains "BEAM". Both are typed languages for agent software with a Rust toolchain, typed LLM functions, exhaustive `match`, typed errors and telemetry by default ([shared design space](../sources/baml-v1.md#beaml-relevance)).
 
@@ -707,8 +707,176 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Unknown]** Pronunciation of BAML; trademark status of BAML and BEAML (no register searched); whether a reader confuses the two in practice. By: Fable (INGEST, baml-reception).
 
+## D036 — RED TEAM 01 questions M3, M4, M5, M8, M9 (parked by the OWNER; M3 DL-160, M4 DL-152, M5 DL-163 answered 2026-11-08)
+
+- **ID note** first written as D026 by mistake (D026 is the absent-value form); renamed D036 the same day, references in the 0005 and P2/P4 ledgers updated.
+- **Status** OPEN, parked 2026-11-07 by the OWNER ("later, in detail"); M1, M2, M6, M7 are answered (DL-136, DL-140, DL-139, DL-135). M4 is answered (DL-152, 2026-11-08); M3, M5, M8, M9 stay open.
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** fate forms (DL-125, DL-137, DL-140), the DL-102 help text, the host value rule, block text size
+- **Decision trigger** Before the fate slice starts (M3, M4, M5) and before the record format v3 step (M8, M9). The main agent opens each as its own question with a picture (DL-139 rule).
+
+**[Verified]** Options and evidence: [red team report](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/report.md), Migrate list. M3 needs a fresh explanation of DL-116 for the OWNER (asked for on 2026-11-07).
+
+**[Verified]** M4 answered by [DL-152](decision-log.md) (D6B-39 lifted, B2). Step 1 is built in [m4-lift-d6b39](../../experiments/0004-generated-replay/workflow/2026-11-08/m4-lift-d6b39/review.md), GREEN `26b73524`, TEST PASS: a chained TYPE holds enum and constructor fields, the MIGRATE STEPS run before the literal map and constructor checks. A MIGRATE STEP that names such a field stays an error until M3 (fate forms, DL-116) and the `map` step of DL-140. N9 now waits on M3 only (DL-153). By: Opus (m4-lift, docs).
+
+## D035 — P2b: the DL-136 digest half for stored records
+
+- **Status** CLOSED 2026-11-08: A, DL-164 (step P2b after fates-a1)
+- **Decision owner** Fable and workers under DL-144 (free run)
+- **Class** Repair
+- **Scope** `--stored` over RESPONSE RECORDS and ENTRY RECORDS
+- **Decision trigger** Before EXPERIMENT 0005 TEST.
+- **Next check** At the record format v3 (P2) TEST commit.
+
+**[Proposal]** Question: Build the second half of [DL-136](decision-log.md): a stored record with a bad `value_sha256` is counted and not checked, for both streams. P2 (record format v3) builds only the `outcome` half. Until P2b lands, the P2 count line is followed by `digest not verified (P2b)`. Ledger: [record-format-v3 plan repair](../../experiments/0004-generated-replay/workflow/2026-11-07/record-format-v3/plan.md#plan-repair-after-plan-check-2026-11-07) (RV3-07, RV3-15). By: Fable (ruling O3 under DL-144).
+- **[Inference]** Carried from slice 6d TEST O3: R1, a captured reject that a looser rule accepts now, is not reported; one test covers both streams. Ledger: [slice 6d review](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/review.md) (O3). By: Fable (ruling O3 under DL-144).
+- **[Observed]** Carried from slice 6d TEST O3: `check_entries` does not verify `value_sha256` of a stored ENTRY RECORD (the C5 gap of the ENTRY stream); `Replay.entry` rejects a bad digest. Ledger: [slice 6d review](../../experiments/0004-generated-replay/workflow/2026-11-07/slice6d-inbound-effect/review.md) (O3). By: Fable (ruling O3 under DL-144).
+
+## D037 — EXPERIMENT 0005 built defaults (DL-144 walk-through)
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** every built default of EXPERIMENT 0005 and its prerequisites P2 to P5, P4c and slice 6d: 19 big lines in 9 groups, 35 other lines, 6 parked lines
+- **Decision trigger** the walk-through on 2026-11-08
+- **Next check** after each OWNER answer: one DL entry per signed-off line (DL-139 sign-off rule)
+
+**[Proposal]** Walk through [the OWNER review list](../../experiments/0005-prototype-fullstack/workflow/2026-11-07/owner-review.md), big items first: M4 (D036, critical path), the host-called `Orders.__beaml_encode_order/1`, Q5-10, Q6E-1/Q6E-2, QDB-6b/QDB-8, QV3-1 to QV3-8, the count-line print rule, the row shape check P4c, G6D-03/G6D-04. Every default stays as built until the OWNER signs it off. D035 and D036 stay separate entries. By: Opus (docs exp0005).
+**[Verified]** Evidence: 0005 TEST PASS ([review](../../experiments/0005-prototype-fullstack/workflow/2026-11-08/review.md), O1 to O3 medium, open) and [run 20261108T003740313204Z](../../experiments/0005-prototype-fullstack/results/20261108T003740313204Z/result.json).
+
+## D038 — Line length and line breaks inside a clause
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** the clause table of DL-148: may a clause break across lines, or does the language set a maximum line length (the OWNER named 120 as an example) and forbid breaks inside a clause?
+- **Decision trigger** the first EXPERIMENT with longer functions
+- **Next check** when such a function appears
+
+**[Proposal]** Raised by the OWNER on 2026-11-08 together with DL-148: a hard maximum would force a style of short clauses; a break rule keeps the table readable. Not decided; the current `fmt` keeps multi-line clauses as written (D6B-44).
+
+**[Verified]** Evidence from the [fmt layout review](../../experiments/0004-generated-replay/workflow/2026-11-08/fmt-layout/review.md) (2026-11-08, By: Opus (fmt-layout, review)): the CLAUSE TABLE counts bytes, not characters. A row with the argument `"ä"` stands 1 column left on screen, `"äöü"` 3 columns (O2). No tracked source is affected today. One block-wide table also widens lines: 19 of 83 changed sources have a line over 120 characters after `fmt`, 17 before (O3). The width unit and the maximum line length belong to this decision.
+
+## D039 — How a REDACTED FIELD is stored in the records
+
+- **Status** OPEN (idea, raised by the OWNER on 2026-11-08 during the D037 walk-through)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** the ENTRY RECORDS, RESPONSE RECORDS and STORED ROWS keep, beside the real state in the database, the values that led there; a REDACTED FIELD must not be readable there. A configuration with a safe default decides the form.
+- **Decision trigger** the first REDACTED FIELD in an EXPERIMENT source, or the slice that builds DL-151 (live `--stored`)
+- **Next check** when the redaction syntax (DL-127 wording) gets its first step
+
+**[Proposal]** Two forms, by the OWNER:
+- **Option 1, the default: hash.** The record keeps a hash of the value. A later check can confirm "this value was entered here" without anyone reading it. Note for the plan (Fable): a plain hash of a low-entropy value (an e-mail, a name) is guessable by a dictionary; the step needs a keyed or salted hash, with the key handled like every secret (inside a process only).
+- **Option 2, not the default: encrypt.** The value is encrypted with a server secret and can be made readable for an emergency. The OWNER names this the form that does not respect privacy; it exists as an explicit setting only.
+- Open points for the plan: the setting's place (source line, build flag or host config), whether `value_sha256` (record format v3) is computed over the redacted form, what `--stored` compares for such a field (DL-151 keeps it redacted), and what a REPLAY RUN does with it.
+
+## D040 — Visibility: what a module hides from the host
+
+- **Status** OPEN (idea, raised by the OWNER on 2026-11-08 with DL-154)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** a BEAML module should be able to keep a TYPE, a field or the whole module internal, so that nothing of it reaches the host or leaves the module by accident. Open: is this declared on the TYPE, on the field, or on the module; what the default is (the OWNER wants a sensible default and explicit opt-in to expose); how it relates to the REDACTED FIELD (DL-059) and to the public projection of DL-154.
+- **Decision trigger** the plan of the DL-154 step (public projection), at the latest the first EXPERIMENT with a second module
+- **Next check** when that plan is written
+
+**[Proposal]** Sketch for the plan, not decided: three levels to compare: module-level `private`, TYPE-level, field-level; and a default where nothing is projected unless the TYPE opts in. By: Fable (note of the OWNER's voice note).
+
+## D041 — Remove the ENUM CONSTRUCTOR; enums decode by ENUM LITERALS only
+
+- **Status** OPEN (language simplification team round, candidate 2, 2026-11-08)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** today a `fn` named like an `enum` maps outside Strings to variants with logic (DL-082, DL-100). Proposal: only the literal table says which String is which variant; `fn <Capital>` always means a record constructor. Possibly a multi-literal form `Web = "web" | "WEB"` (sketch, not built).
+- **Decision trigger** before the fate slice touches enum decoding, or when a real provider needs two spellings
+- **Next check** the paper check in [synthesis.md](../../experiments/0005-prototype-fullstack/workflow/2026-11-08/language-simplification/synthesis.md) candidate 2
+
+**[Proposal]** Options: A literals only, normalisation in the parent record constructor · B literals plus a multi-literal form · C keep DL-082. Lost under A/B: mapping with logic, Int to variant; 9 enums use a constructor today, all fixtures, none in 0005. Gain: DL-122 and DL-140 become a diff of two literal tables (DL-155). The OWNER saw the proposal on 2026-11-08 and asked for it to be shown; not decided.
+
+## D042 — Lazy recheck of a rule over a REDACTED FIELD (M3 follow-up)
+
+- **Status** OPEN, narrowed 2026-11-08: the "redacted only on versioned constructor TYPES" half is decided as DL-160; M3 closes as A; open here is only the form of the lazy recheck outcome
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** a redacted value is absent from records, so the build cannot check a stricter rule over it. With DL-155 the stricter rule is a new TYPE VERSION; old values are `T v1`. Idea: the check runs lazily where the value exists (the host app, on read or re-entry), declared by a fate line (`recheck f`, sketch). Totality end to end: the compiler lists every place the outcome "old value fails the new rule" can reach (ENTRY LINE, generated function, page, replay, records, observability) and the host must handle it.
+- **Decision trigger** the first redacted field with a rule in an EXPERIMENT, or the fate slice plan
+- **Next check** the fate slice plan
+
+**[Proposal]** Open form of the outcome: A an own state in the TYPE, visible in every signature (`Stale(T)` or the version itself, `T v1 | T v2`) · B a reject reason in `! StoreError` per call (the list breaks, see DL-150). The OWNER's answer to "old row fails on read": value comes back with a mark, never a crash, never a silent skip (leans to A). Also open: whether `redact` may ever skip a rule (M3 D3): the OWNER leans to "no; DL-116 leaves the fate list" (A), to be confirmed.
+
+## D043 — Build order: fate slice before or after live `--stored`
+
+- **Status** CLOSED 2026-11-08: A, DL-156
+- **Decision owner** OWNER
+- **Class** Repair (order of work), listed because both slices need the compiler
+- **Scope** A fate slice first (grammar for the four fate lines and `map`, the three blocks lifted by a fate line, REPLAY RUN skips quarantined values, 0005 N9 as the use case, DL-155 gate in `--stored`) · B live `--stored` (DL-151) first, then the fate slice.
+- **Decision trigger** now
+- **Next check** OWNER answer on the walk-through page "M3: Fate-Formen", card FATE-NEXT
+
+## D044 — One contract construct instead of Protocols and Behaviours
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** a single, simple interface construct: a contract declared once, implemented by TYPES or modules; the compiler maps it to Elixir Protocol or Behaviour as needed. Open: dispatch, generics in contracts, naming.
+- **Decision trigger** the first EXPERIMENT that needs two implementations of one operation
+- **Next check** a concept page with three worked examples before any syntax
+
+## D045 — Generics (type variables)
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** type variables after accepted standards; where they appear (TYPE, fn, EFFECT, contract), inference vs annotation, interaction with TYPE VERSIONS, the record format (`type: {name, version}` for a `List(Order)`?) and the LIST TYPE `[T]` already built.
+- **Decision trigger** the first EXPERIMENT with a reusable container or operation
+- **Next check** compare three standards on paper against `OrderList { items: [Order] }`
+
+## D046 — Async compute: OTP and Oban from BEAML
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** processes, supervision, state and timers from BEAML; Oban as the job library (a job as an EFFECT with an `oban` transport, attempts as records, retries and uniqueness as declared lines). Open: BEAML vs host ownership, TYPE VERSION and trace on a job, replay of a job.
+- **Decision trigger** the first EXPERIMENT that needs background work
+- **Next check** a concept page; the register of transports (http, db, ui) gets a candidate row
+
+## D047 — Totality and let it crash: the explanation
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08); concept page drafted as [Proposal]
+- **Decision owner** OWNER
+- **Class** Repair (documentation), Migrate if it changes a rule
+- **Scope** how BEAML's totality over stored data sits beside the BEAM's let-it-crash. See [the concept page](../concepts/totality-and-let-it-crash.md).
+- **Decision trigger** the first external reader; before the public pages claim either word
+- **Next check** OWNER reads the page
+
+## D048 — EXPERIMENT 0005 as the living REFERENCE APP and end-to-end desk
+
+- **Status** CLOSED 2026-11-08: A, DL-158; the desk stages (telemetry, dashboard, CLI, bench) stay open sub-items here (OWNER idea, 2026-11-08, [capture](../../raw/requirements/2026-11-08-owner-ideas-reference-app.md))
+- **Decision owner** OWNER
+- **Class** Migrate (changes how experiments are run and reported)
+- **Scope** 0005 is upgraded with every slice and stays the standing example; a local end-to-end desk covers database, BEAML module, LiveView, telemetry, live dashboard and CLI; the desk is used to try, feel and benchmark against the speed promises.
+- **Decision trigger** now (the fate slice is the first that would land in it)
+- **Next check** OWNER answer on the main agent's proposal (below)
+
+**[Proposal]** (Fable) A: 0005 becomes the REFERENCE APP: every slice ends with its use case landed in the app (`run.py run` grows), the register marks it "living", results stay per run; telemetry = the records plus OpenTelemetry spans to a local collector and a live dashboard page; a `beaml` CLI wraps build, `--stored`, fmt and replay; a `bench` step records build time, decode time per row and page latency into the results. B: keep 0005 frozen as the slice-5 proof and start 0006 as the living app. Options for the OWNER.
+
+## D049 — PubSub and sockets as hard-typed EFFECTS
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08, [capture](../../raw/requirements/2026-11-08-owner-ideas-pubsub-sockets.md))
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** Phoenix.PubSub topics, channels and LiveView socket events as EFFECTS with typed messages: a topic carries one BEAML TYPE (or an enum of message TYPES), publish is an outbound EFFECT, subscribe/receive is an inbound ENTRY LINE like `ui.event`, socket pushes are outbound. Every message is a record in the streams (format v3), replayable; TYPE VERSIONS apply to messages in flight (an old subscriber reads a new message: the MIGRATE CHAIN on read, as for rows). Tackled with D046 (OTP, GenServer).
+- **Decision trigger** the first EXPERIMENT with a second process or a live update on a page (the 0005 orders list updating on a new order would be the smallest case)
+- **Research first (OWNER)** study Gleam: `gleam_otp` and `gleam_erlang` (typed `Subject(msg)`, actors, selectors, supervision) as the closest prior art for hard-typed messages on the BEAM; source page with excerpts and limits before any BEAML form.
+- **Next check** a concept page sketch: `effect orders.changed Order -> Order ! PubError = pubsub.publish("orders")` and `effect ui.live Order -> Order ! … = pubsub.subscribe("orders") |> refresh` as forms to compare (sketch, not built)
+
+**[Proposal]** Smallest 0005 case: `/orders` refreshes when another session places an order; one topic, one TYPE, records for publish and receive, the trace spans both. Open: what "hard typed" means for a topic shared by two modules (D040, D044), and backpressure (event-flows page).
+
 ## Answered 2026-11-07
 
+- [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).
+- [DL-140](decision-log.md): M2, a known-to-known variant change blocks; a `map` MIGRATE STEP is forced (A).
 - [DL-139](decision-log.md): M6, a slice may build and pin a Migrate default, except syntax and record formats (B with a limit).
 - [DL-137](decision-log.md): D020, one `migrate` block governs RESPONSE RECORDS and database rows (A).
 - [DL-136](decision-log.md): M1, `--stored` checks only replayable records; non-200 and bad digest are counted (A).

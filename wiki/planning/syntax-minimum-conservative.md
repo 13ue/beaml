@@ -127,7 +127,7 @@ type Customer { name: String, address: MaybeAddress }
 3. **Policy is a TYPE, not a keyword.** Retry, timeout, retention, field rules and other policy enter as TYPE values in a position that already takes a value, never as a new word. Motivation: [L15](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) a `type` line derives the rest, [L18](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) no hidden behaviour; DL-126 keeps policy declarative. Check: lint on a grammar diff: a new `seq("word"` needs a decision-log entry with the `Budget` field.
 4. **One token, one meaning.** No existing token gets a further meaning: no `.` for field access, no `|` for variants, no `=>`, no third `with`. Motivation: [H8](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) inconsistency, [H20](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) Scala `implicit`, one keyword for several concepts. Check: a meaning table per token in the grammar README; the grammar test fails when a token appears in a new rule family.
 5. **One spelling per concept.** The grammar accepts one spelling; `fmt` changes layout only, never a spelling, and every rejected spelling has a `bad/` fixture with a help line. Motivation: [L23](../../raw/research/2026-11-07-pl-syntax-sentiment/loved.md#1-ranked-table-top-celebrated-features) gofmt, [H25](../../raw/research/2026-11-07-pl-syntax-sentiment/hated.md#ranked-table-the-top-26) optional separators; DL-072, DL-088. Check: fixture pairs, one accepted and one rejected, per decision.
-6. **A fixture before a form.** A new form enters the grammar only with a `.beaml` fixture from an example application, never from a sketch. Motivation: DL-132 (`#` and `--` came from sketches), D025 (the `=` and `|` form came from a sketch), DL-140 (decide after the first example applications). Check: a `Fixture:` path field in the decision-log entry.
+6. **A fixture before a form.** A new form enters the grammar only with a `.beaml` fixture from an example application, never from a sketch. Motivation: DL-132 (`#` and `--` came from sketches), D025 (the `=` and `|` form came from a sketch), DL-145 (decide after the first example applications). Check: a `Fixture:` path field in the decision-log entry.
 
 ## 4. Planned forms under the budget
 
@@ -152,7 +152,7 @@ type Customer { name: String, address: MaybeAddress }
 - **[Verified]** `with` keeps two meanings (DL-014, DL-089); the minimum cannot remove this without reopening two closed decisions.
 - **[Inference]** Absence as a hand-written `enum` per TYPE repeats two variants for every optional field until generics exist; the loved row L4 ergonomics are not reached.
 - **[Inference]** Without lambdas, `map` and `filter` have no idiom; the ceiling forces a trade or a wait, which blocks L10 and L11.
-- **[Inference]** A hard ceiling turns every good new form into a retirement fight; BEAML "wants the best syntax ever built" (DL-140), and a ceiling can block innovation as well as creep.
+- **[Inference]** A hard ceiling turns every good new form into a retirement fight; BEAML "wants the best syntax ever built" (DL-145), and a ceiling can block innovation as well as creep.
 - **[Inference]** The count of 39 is one counting unit (one row per spelling); another unit gives another number, so the ceiling must name its unit.
 
 ## 6. Smallest next test

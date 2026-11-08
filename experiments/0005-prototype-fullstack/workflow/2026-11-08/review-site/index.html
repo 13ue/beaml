@@ -1,0 +1,249 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Übersicht · Entscheidungen</title><style>
+:root{color-scheme:light dark;--bg:#f6f7f9;--fg:#24272e;--mut:#555b66;--bd:#c9ced6;--card:#fff;--soft:#eef0f4;
+--acc:#1f5fbf;--acc-fg:#fff;--focus:#1f5fbf;
+--k:#a626a4;--t:#8a5d00;--f:#2c5ccf;--p:#c2392c;--s:#3a7a39;--c:#016a96;--o:#383a42;--m:#636975;
+--ok:#1d6b3f;--open:#b02a1f;--def:#80530a;--park:#555b66;--new:#6b3fa0}
+@media (prefers-color-scheme:dark){:root{--bg:#17191e;--fg:#d5d9e0;--mut:#a3aab6;--bd:#424854;--card:#21252c;--soft:#2a2f37;
+--acc:#7fb0ff;--acc-fg:#10141a;--focus:#9cc2ff;
+--k:#d38ae6;--t:#e5c07b;--f:#7ab8f5;--p:#f08a92;--s:#a5cf88;--c:#6cc6d1;--o:#c8ced8;--m:#9aa1ad;
+--ok:#8fd19e;--open:#ff9a8f;--def:#f0c674;--park:#b4bac4;--new:#c9a6f2}}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0 auto;max-width:880px;padding:0 16px 64px;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--acc);text-underline-offset:2px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+main:focus,.card:focus,.done:focus{outline:none}
+.skip{position:absolute;left:8px;top:-60px;background:var(--acc);color:var(--acc-fg);padding:8px 12px;border-radius:6px;z-index:10}
+.skip:focus{top:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.top nav{display:flex;flex-wrap:wrap;gap:4px 18px;padding:14px 0 10px;border-bottom:1px solid var(--bd);margin-bottom:8px;font-size:15px}
+.top a{text-decoration:none;padding:4px 0}.top a:hover{text-decoration:underline}
+.top a[aria-current]{color:var(--fg);font-weight:700;border-bottom:3px solid var(--acc)}
+.count{display:inline-block;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--new);color:var(--card);font-size:12px;font-weight:700;text-align:center}
+h1{font-size:28px;line-height:1.2;margin:18px 0 6px}
+.sec{font-size:19px;margin:28px 0 8px}
+.lead{color:var(--mut);margin:0 0 16px}.mut{color:var(--mut)}
+.crumb{font-size:14px;color:var(--mut);margin:14px 0 0}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:14px 16px;border:1px solid var(--bd);border-radius:8px;margin:12px 0;background:var(--soft);font:13.5px/1.7 ui-monospace,Menlo,monospace}
+code{font:0.9em ui-monospace,Menlo,monospace;background:var(--soft);border:1px solid var(--bd);border-radius:4px;padding:0 4px;overflow-wrap:anywhere}
+i{font-style:normal}.k{color:var(--k)}.t{color:var(--t)}.f{color:var(--f)}.p{color:var(--p)}.s{color:var(--s)}.c{color:var(--c)}.o,.b{color:var(--o)}.m{color:var(--m);font-style:italic}
+.ico{width:1em;height:1em;vertical-align:-0.12em}
+.btn{font:600 15px/1.2 system-ui,sans-serif;padding:10px 14px;min-height:44px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;display:inline-flex;gap:6px;align-items:center;text-decoration:none}
+.btn:hover{border-color:var(--acc)}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:var(--acc-fg)}
+.btn.big{font-size:17px;padding:14px 20px}
+.btn.link{border:0;background:none;color:var(--acc);padding:2px 4px;min-height:0;text-decoration:underline;font-weight:600}
+.pill{display:inline-flex;gap:4px;align-items:center;font:600 12.5px/1 system-ui,sans-serif;padding:5px 9px;border-radius:999px;border:1px solid currentColor;color:var(--mut);white-space:nowrap}
+.st-decided{color:var(--ok)}.st-open{color:var(--open)}.st-default{color:var(--def)}.st-parked{color:var(--park)}.st-new{color:var(--new)}
+.card{border:1px solid var(--bd);border-radius:12px;padding:16px 18px;margin:16px 0;background:var(--card)}
+.card.answered{border-left:5px solid var(--ok)}
+.card-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.card-id{font:700 13px ui-monospace,Menlo,monospace;color:var(--mut)}
+.card-title{font-size:19px;line-height:1.3;margin:8px 0 4px}
+.meta{display:flex;flex-wrap:wrap;gap:2px 16px;font-size:13.5px;color:var(--mut);margin:0 0 8px}
+.why{border-left:3px solid var(--def);padding:2px 12px;margin:10px 0}
+.note{color:var(--mut);font-size:14px}
+ul.arrows{list-style:none;padding-left:0;margin:8px 0}ul.arrows li{margin:3px 0;padding-left:1.4em;text-indent:-1.4em}ul.arrows li::before{content:"→ ";color:var(--mut)}
+ul.arrows li.sub{padding-left:0;text-indent:0}ul.arrows li.sub::before{content:none}
+.opts{display:grid;gap:8px;margin:14px 0 6px}
+.opt{display:grid;grid-template-columns:2em 1fr;gap:4px 10px;align-items:start;text-align:left;width:100%;font:15px/1.45 system-ui,sans-serif;color:var(--fg);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;min-height:44px;cursor:pointer}
+.opt:hover{border-color:var(--acc);background:var(--soft)}
+.opt.built{border-style:dashed;border-color:var(--def)}
+.opt[aria-pressed=true]{border:2px solid var(--ok);background:var(--soft)}
+.opt-l{font-weight:800;font-size:16px}
+.opt-tags{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}.opt-tags:empty{display:none}
+.tag{font:600 12.5px/1 system-ui;padding:4px 8px;border-radius:999px;border:1px solid currentColor}
+.tag-built{color:var(--def)}.tag-mine{color:var(--ok);display:none}.opt[aria-pressed=true] .tag-mine{display:inline-block}
+.ans{font-size:14.5px}.ans-row{border-left:3px solid var(--ok);padding:4px 12px;margin:8px 0;background:var(--soft);border-radius:0 6px 6px 0}
+.ans time{color:var(--mut);margin:0 4px}
+.fb{margin-top:12px}.fbt{width:100%;font:15px/1.45 system-ui,sans-serif;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);resize:vertical;min-height:44px}
+.fb-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.mic{user-select:none;-webkit-user-select:none;touch-action:none}.mic.on{background:var(--open);border-color:var(--open);color:var(--card)}.mic.busy{opacity:.7}
+.fbs{font-size:13.5px;color:var(--mut)}
+.prog{display:flex;align-items:center;gap:10px;margin:10px 0;font-size:14px;color:var(--mut)}
+progress{flex:0 1 220px;height:10px;accent-color:var(--ok)}
+.frozen,.hint{background:var(--soft);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:14.5px}
+.bulk{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:12px 0}
+.empty{color:var(--mut);font-style:italic;border:1px dashed var(--bd);border-radius:8px;padding:12px}
+dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--fg);max-width:min(560px,calc(100vw - 32px));padding:18px 20px}
+dialog::backdrop{background:rgba(0,0,0,.45)}dialog h2{margin-top:0;font-size:19px}
+.dlg-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin-top:14px}
+ul.plain{list-style:none;padding-left:0;margin:8px 0}ul.list li{padding:6px 0;border-bottom:1px solid var(--bd)}
+#bulk-list{max-height:40vh;overflow:auto}
+.tier{margin:26px 0}.tier h2{font-size:20px;margin:0 0 4px}
+.qrow{border:1px solid var(--bd);border-radius:10px;background:var(--card);padding:10px 12px;margin:8px 0}
+.qrow:focus-within{border-color:var(--acc)}.qrow.answered{border-left:5px solid var(--ok)}
+.row-head{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}.row-title{font-weight:600}
+.row-def{font-size:14px;color:var(--mut);margin:4px 0}
+.qrow .opts{grid-template-columns:repeat(auto-fill,minmax(44px,max-content));margin:6px 0 0}
+.qrow .opt{grid-template-columns:auto;padding:8px 14px;width:auto;justify-items:center}.qrow .opt-t,.qrow .opt-tags{display:none}
+.qrow .opt.built .opt-l::after{content:" ◆"}
+.qrow .ans .ans-row{margin:6px 0 0}
+.news time{color:var(--mut);font-size:13.5px;margin-right:6px}
+#toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:10px;max-width:calc(100vw - 32px);z-index:20}
+#toast .btn.link{color:var(--bg)}
+.hero{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:16px 0 8px}
+.stacks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.stack{border:1px solid var(--bd);border-radius:12px;padding:14px 16px;background:var(--card)}
+.stack h2{font-size:18px;margin:0 0 4px}.stack-n{font-size:26px;font-weight:800;margin-right:4px}
+.stack .mut{font-size:14px;margin:0}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0 24px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14.5px}
+td,th{border-bottom:1px solid var(--bd);padding:8px 6px;text-align:left;vertical-align:top}thead th{color:var(--mut);font-weight:600}
+td.n,th.n{text-align:right;white-space:nowrap}td.nw{white-space:nowrap}
+th.n .pill{font-size:11.5px;padding:3px 6px}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:28px;padding-top:14px;border-top:1px solid var(--bd);font-size:15px}
+.pager span:last-child{text-align:right}
+.qbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0;border-bottom:1px solid var(--bd)}
+.qpos{margin:0;font-size:15px}
+.keys{font-size:13.5px;color:var(--mut)}kbd{font:600 12px ui-monospace,Menlo,monospace;border:1px solid var(--bd);border-bottom-width:2px;border-radius:4px;padding:1px 5px;background:var(--card);color:var(--fg)}
+.qnav{display:flex;justify-content:flex-end;margin:8px 0}
+.done{border:2px solid var(--ok);border-radius:12px;padding:16px 18px;background:var(--card);margin:16px 0}.done h2{margin-top:0;color:var(--ok)}
+.new-tag{margin:22px 0 -8px;font-size:14px;color:var(--mut)}
+@media (max-width:560px){h1{font-size:24px}.card{padding:14px}.btn{width:auto}th.n .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}th.n .pill{padding:4px 7px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+</style></head><body data-page="index"><a class="skip" href="#main">Zum Inhalt springen</a><header class="top"><nav aria-label="Hauptnavigation"><a href="index.html" aria-current=page>Übersicht</a><a href="next.html">Nächste Frage</a><a href="schnell.html">Schnelldurchgang</a><a href="eingang.html">Eingang <span class="count">10</span></a><a href="entschieden.html">Entschieden</a><a href="aenderungen.html">Änderungen</a></nav></header><main id="main" tabindex="-1"><h1>Deine Entscheidungen zu BEAML</h1><p class="lead">Stand 08.11.2026, 11:42. 93 Karten auf 14 Seiten und im Eingang. Quelle: <code>owner-review.md</code>, Register D037.</p><div class="hero"><a class="btn primary big" href="next.html">Nächste Frage beantworten</a><a class="btn big" href="schnell.html">Schnelldurchgang</a><span class="mut"><b data-left="QF-2 QF-5 ENUM-V1-DECL BLOCKS P4c P4c-http P4c-text QDB-3 Q6E-1 Q6E-2 Q5-6 RESV QDB-2 QDB-6b QDB-1 GET QDB-5 Q5-7 Q5-2 ORPHAN OFFCHAIN QV3-1 QV3-2 QV3-3 QV3-4 QV3-5 QV3-6 QV3-8 COUNT PDB-18 G6D-04 G6D-03 G6D-12 Q5-9 NOTES Q5-3 CTOR-ROW ROW-FIELDS Q6E-4 Q6E-3 TEXTS Q5-5 TEST-O1">43</b> Karten warten auf dich</span></div><div class="stacks"><section class="stack" aria-labelledby="s-block"><h2 id="s-block"><span class="stack-n">0</span> Blockt Arbeit</h2><p class="mut">Offene Fragen und Migrate-Fragen, die den nächsten Slice aufhalten.</p><div class="prog" data-ids="" data-label="beantwortet"><progress max="1" value="0"></progress><span class="prog-t">0 von 0 beantwortet</span></div><p class="empty">Nichts hier.</p></section><section class="stack" aria-labelledby="s-defaults"><h2 id="s-defaults"><span class="stack-n">43</span> Gebaute Defaults</h2><p class="mut">Gebaut nach DL-139. Gilt erst, wenn du es abnimmst.</p><div class="prog" data-ids="QF-2 QF-5 ENUM-V1-DECL BLOCKS P4c P4c-http P4c-text QDB-3 Q6E-1 Q6E-2 Q5-6 RESV QDB-2 QDB-6b QDB-1 GET QDB-5 Q5-7 Q5-2 ORPHAN OFFCHAIN QV3-1 QV3-2 QV3-3 QV3-4 QV3-5 QV3-6 QV3-8 COUNT PDB-18 G6D-04 G6D-03 G6D-12 Q5-9 NOTES Q5-3 CTOR-ROW ROW-FIELDS Q6E-4 Q6E-3 TEXTS Q5-5 TEST-O1" data-label="beantwortet"><progress max="43" value="0"></progress><span class="prog-t">0 von 43 beantwortet</span></div><ul class="plain list"><li><a href="eingang.html">Eingang</a> <span class="mut">3</span></li><li><a href="02b-fates.html">M3: Fate-Formen</a> <span class="mut">1</span></li><li><a href="04-rows.html">Zeilen: Inhalt und Form-Prüfung</a> <span class="mut">4</span></li><li><a href="05-names.html">Namen: Modul, Rejected, reservierte Namen</a> <span class="mut">4</span></li><li><a href="06-db.html">Datenbank-Transporte</a> <span class="mut">9</span></li><li><a href="07-record-v3.html">Record-Format v3</a> <span class="mut">9</span></li><li><a href="08-entry.html">ENTRY LINE und Seiten</a> <span class="mut">5</span></li><li><a href="09-syntax.html">Syntax-Regeln</a> <span class="mut">6</span></li><li><a href="10-misc.html">Kleines</a> <span class="mut">2</span></li></ul></section><section class="stack" aria-labelledby="s-ideas"><h2 id="s-ideas"><span class="stack-n">9</span> Ideen für später</h2><p class="mut">Notiert oder geparkt. Blockt nichts.</p><div class="prog" data-ids="N9 D025 M8 M9 D038 D039 D040 D041 D042" data-label="mit Notiz oder Wahl"><progress max="9" value="0"></progress><span class="prog-t">0 von 9 mit Notiz oder Wahl</span></div><ul class="plain list"><li><a href="02-order-chain.html">M4: die echte Order-Kette</a> <span class="mut">1</span></li><li><a href="09-syntax.html">Syntax-Regeln</a> <span class="mut">1</span></li><li><a href="11-parked.html">Geparkt (D036)</a> <span class="mut">2</span></li><li><a href="12b-register.html">Neue Fragen aus dem Walk-through</a> <span class="mut">5</span></li></ul></section></div><div class="duo"><section aria-labelledby="h-in"><h2 id="h-in" class="sec">Eingang</h2><p><a href="eingang.html"><b>10</b> neue Karten</a> für eingefrorene Seiten.</p><h2 class="sec">Entschieden</h2><p><a href="entschieden.html"><b>40</b> Karten entschieden</a>, dazu deine Antworten.</p></section><section aria-labelledby="h-news"><h2 id="h-news" class="sec">Was ist neu</h2><ul class="plain list news"><li><time>08.11.2026, 11:42</time> <a href="eingang.html#QM4-2">QM4-2</a> · entschieden</li><li><time>08.11.2026, 11:42</time> <a href="04-rows.html#QDB-4">QDB-4</a> · entschieden</li><li><time>08.11.2026, 11:42</time> <a href="06-db.html#QDB-7">QDB-7</a> · entschieden</li><li><time>08.11.2026, 11:42</time> <a href="06-db.html#Q5-4">Q5-4</a> · entschieden</li><li><time>08.11.2026, 11:42</time> <a href="06-db.html#STORED-ARG">STORED-ARG</a> · entschieden</li><li><time>08.11.2026, 11:42</time> <a href="06-db.html#SNAP-SET">SNAP-SET</a> · entschieden</li><li><time>08.11.2026, 11:39</time> schnell · view added</li><li><time>08.11.2026, 11:37</time> <a href="eingang.html#QM4-3">QM4-3</a> · entschieden</li></ul><p><a href="aenderungen.html">Ganzes Änderungsprotokoll</a></p></section></div><h2 class="sec">Alle Seiten</h2><div class="tablewrap"><table><thead><tr><th scope="col">#</th><th scope="col">Seite</th><th scope="col" class="n"><span class="pill st-open"><span aria-hidden="true">?</span> <span class="lbl">offen</span></span></th><th scope="col" class="n"><span class="pill st-default"><span aria-hidden="true">◆</span> <span class="lbl">Default, gebaut</span></span></th><th scope="col" class="n"><span class="pill st-parked"><span aria-hidden="true">‖</span> <span class="lbl">geparkt</span></span></th><th scope="col" class="n"><span class="pill st-decided"><span aria-hidden="true">✓</span> <span class="lbl">entschieden</span></span></th></tr></thead><tbody><tr><td>1</td><td><a href="01-review.html">Schlussreview Slice 6: drei hohe Einwände</a> <span class="mut"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg> eingefroren</span></td><td class="n"></td><td class="n"></td><td class="n"></td><td class="n">3</td></tr><tr><td>2</td><td><a href="02-order-chain.html">M4: die echte Order-Kette</a> <span class="mut"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg> eingefroren</span></td><td class="n"></td><td class="n"></td><td class="n">1</td><td class="n">2</td></tr><tr><td>3</td><td><a href="02b-fates.html">M3: Fate-Formen</a> <span class="mut"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg> eingefroren</span></td><td class="n"></td><td class="n">1</td><td class="n"></td><td class="n">3</td></tr><tr><td>4</td><td><a href="03-encoder.html">Wie eine Seite einen BEAML-Wert anzeigt</a> <span class="mut"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg> eingefroren</span></td><td class="n"></td><td class="n"></td><td class="n"></td><td class="n">1</td></tr><tr><td>5</td><td><a href="04-rows.html">Zeilen: Inhalt und Form-Prüfung</a> <span class="mut"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg> eingefroren</span></td><td class="n"></td><td class="n">4</td><td class="n"></td><td class="n">2</td></tr><tr><td>6</td><td><a href="05-names.html">Namen: Modul, Rejected, reservierte Namen</a> </td><td class="n"></td><td class="n">4</td><td class="n"></td><td class="n"></td></tr><tr><td>7</td><td><a href="06-db.html">Datenbank-Transporte</a> </td><td class="n"></td><td class="n">9</td><td class="n"></td><td class="n">4</td></tr><tr><td>8</td><td><a href="07-record-v3.html">Record-Format v3</a> <span class="mut"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg> eingefroren</span></td><td class="n"></td><td class="n">9</td><td class="n"></td><td class="n">2</td></tr><tr><td>9</td><td><a href="08-entry.html">ENTRY LINE und Seiten</a> <span class="mut"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg> eingefroren</span></td><td class="n"></td><td class="n">5</td><td class="n"></td><td class="n">1</td></tr><tr><td>10</td><td><a href="09-syntax.html">Syntax-Regeln</a> <span class="mut"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg> eingefroren</span></td><td class="n">1</td><td class="n">6</td><td class="n"></td><td class="n">1</td></tr><tr><td>11</td><td><a href="10-misc.html">Kleines</a> </td><td class="n"></td><td class="n">2</td><td class="n"></td><td class="n">1</td></tr><tr><td>12</td><td><a href="11-parked.html">Geparkt (D036)</a> <span class="mut"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg> eingefroren</span></td><td class="n"></td><td class="n"></td><td class="n">2</td><td class="n">2</td></tr><tr><td>13</td><td><a href="12b-register.html">Neue Fragen aus dem Walk-through</a> </td><td class="n">5</td><td class="n"></td><td class="n"></td><td class="n"></td></tr><tr><td>14</td><td><a href="12-decided.html">Schon entschieden</a> <span class="mut"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7h1zm2 0h4V5a2 2 0 1 0-4 0v2z"/></svg> eingefroren</span></td><td class="n"></td><td class="n"></td><td class="n"></td><td class="n">12</td></tr><tr><td></td><td><a href="eingang.html">Eingang</a></td><td class="n"></td><td class="n">3</td><td class="n"></td><td class="n">7</td></tr></tbody><tfoot><tr><td></td><th scope="row">Summe</th><td class="n">6</td><td class="n">43</td><td class="n">3</td><td class="n">41</td></tr></tfoot></table></div><p class="mut">Status: <span class="pill st-decided"><span aria-hidden="true">✓</span> <span class="lbl">entschieden</span></span> · <span class="pill st-open"><span aria-hidden="true">?</span> <span class="lbl">offen</span></span> · <span class="pill st-default"><span aria-hidden="true">◆</span> <span class="lbl">Default, gebaut</span></span> · <span class="pill st-parked"><span aria-hidden="true">‖</span> <span class="lbl">geparkt</span></span>. <span aria-hidden="true">◆</span> gebaut = so steht es heute im Code. Eingefroren = die Seite bekommt keine neuen Karten mehr.</p></main><footer><nav class="pager" aria-label="Seiten blättern"><span></span><span><a href="01-review.html" rel="next">Schlussreview Slice 6: drei hohe Einwände →</a></span></nav></footer><div id="toast" role="status" aria-live="polite" hidden><span class="toast-t"></span> <button type="button" class="btn link toast-undo">Rückgängig</button></div><script>
+(() => {
+const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const PAGE = document.body.dataset.page;
+const post = (u, b) => fetch(u, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b)}).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+const act = (action, target, result, source='mouse') => post('/api/act', {source, action, target, result}).catch(()=>{});
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtT = t => { try { return new Date(t).toLocaleString('de-DE', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}); } catch { return t; } };
+let A = {}, offline = false;
+const has = id => { const a = A[id]; return !!a && (!!a.choice || !!a.note); };  // choice "" = cleared (Rückgängig)
+
+function toast(msg, undo) {
+  const t = $('#toast'); $('.toast-t', t).textContent = msg; const b = $('.toast-undo', t);
+  b.hidden = !undo; b.onclick = async () => { t.hidden = true; await undo(); };
+  t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 10000);
+}
+function paint(card) {
+  const id = card.dataset.id, a = A[id] || {}, ch = a.choice || '';
+  $$('.opt', card).forEach(b => b.setAttribute('aria-pressed', String(!!ch && b.dataset.choice === ch)));
+  let h = '';
+  if (ch) h += `<p class="ans-row"><span aria-hidden="true">✓</span> Deine Wahl: <b>${esc(ch)}</b> <time>${fmtT(a.choice_ts || a.ts)}</time> <button type="button" class="btn link undo">Rückgängig</button></p>`;
+  for (const n of (a.notes || (a.note ? [{ts: a.note_ts || a.ts, text: a.note}] : []))) h += `<p class="ans-row"><span aria-hidden="true">✎</span> Deine Notiz <time>${fmtT(n.ts)}</time>: ${esc(n.text)}</p>`;
+  const box = $('.ans', card); box.innerHTML = h; card.classList.toggle('answered', has(id));
+  const u = $('.undo', box); if (u) u.onclick = async () => { try { await post('/api/answer', {id, choice: ''}); act('undo', id, ch); await load(); toast(`Wahl ${ch} zu ${id} zurückgenommen.`); } catch (e) { toast('Nicht gespeichert: ' + e.message); } };
+}
+function summary() {
+  $$('.prog').forEach(p => { const ids = p.dataset.ids.split(' ').filter(Boolean), n = ids.filter(has).length;
+    $('progress', p).value = n; $('.prog-t', p).textContent = `${n} von ${ids.length} ${p.dataset.label}`; });
+  $$('[data-left]').forEach(el => el.textContent = el.dataset.left.split(' ').filter(i => i && !has(i)).length);
+  const mine = $('#mine');
+  if (mine) { const idx = JSON.parse($('#idx').textContent);
+    const rows = Object.entries(A).filter(([id, a]) => (a.choice || a.note) && idx[id] && idx[id][2] !== 'decided').sort((x, y) => (y[1].ts > x[1].ts) - (y[1].ts < x[1].ts));
+    mine.innerHTML = rows.length ? rows.map(([id, a]) => `<li><a href="${idx[id][1]}"><b>${esc(id)}</b> ${esc(idx[id][0])}</a> · ${a.choice ? 'deine Wahl <b>' + esc(a.choice) + '</b>' : 'nur Notiz'} <time class="mut">${fmtT(a.choice_ts || a.ts)}</time></li>`).join('')
+      : '<li class="empty">Noch keine Antworten auf offene Karten.</li>'; }
+}
+async function load() {
+  try { A = await (await fetch('/api/answers', {cache: 'no-store'})).json(); offline = false; }
+  catch { offline = true; }
+  $$('section.card, .qrow').forEach(paint); summary();
+}
+async function choose(card, L, source) {
+  const id = card.dataset.id, st = $('.fbs', card);
+  try { await post('/api/answer', {id, choice: L}); act('choose', id, L, source); st.textContent = `Wahl ${L} gespeichert`; await load(); card.dispatchEvent(new Event('chosen')); }
+  catch (e) { st.textContent = 'Nicht gespeichert: ' + e.message; }
+}
+let hot = null;
+$$('section.card').forEach(card => {
+  const id = card.dataset.id, ta = $('.fbt', card), st = $('.fbs', card), mic = $('.mic', card);
+  $$('.opt', card).forEach(b => b.addEventListener('click', ev => choose(card, b.dataset.choice, ev.detail === 0 ? 'key' : 'mouse')));
+  const save = async () => { const note = ta.value.trim(); if (!note) { st.textContent = 'Notiz ist leer'; return; }
+    try { await post('/api/answer', {id, note}); act('note', id, note.length + ' chars', 'key'); ta.value = ''; st.textContent = 'Notiz gespeichert'; await load(); }
+    catch (e) { st.textContent = 'Nicht gespeichert: ' + e.message; } };
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); save(); } });
+  $('.save', card).addEventListener('click', save);
+  // push-to-talk: hold the button, or hold M while the card has the pointer or the focus
+  let rec = null, stream = null, chunks = [], t0 = 0;
+  card._down = async () => {
+    if (rec) return; st.textContent = 'Mikrofon…'; fetch('/api/stt/warm', {method:'POST'}).catch(()=>{});
+    try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); } catch (e) { st.textContent = 'Kein Mikrofon: ' + e.message + '. Tippe die Notiz.'; return; }
+    const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+    rec = new MediaRecorder(stream, mime ? {mimeType: mime} : {}); chunks = []; t0 = performance.now();
+    rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+    rec.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop()); const blob = new Blob(chunks, {type: rec.mimeType || mime || 'audio/webm'}); rec = null;
+      mic.classList.remove('on'); mic.classList.add('busy'); st.textContent = 'Schreibe ab…';
+      try { const r = await fetch('/api/stt?id=' + encodeURIComponent(id), {method:'POST', headers:{'Content-Type': blob.type}, body: blob}); const j = await r.json();
+        st.textContent = r.ok ? (j.text ? 'Sprachnotiz gespeichert' : 'Nichts gehört') : ('Fehler: ' + (j.error || r.status) + '. Tippe die Notiz.'); if (!r.ok) ta.focus(); }
+      catch (e) { st.textContent = 'Fehler: ' + e.message; }
+      mic.classList.remove('busy'); act('voice', id, Math.round((performance.now() - t0) / 100) / 10 + ' s', 'voice'); load();
+    };
+    rec.start(); mic.classList.add('on'); st.textContent = 'Aufnahme läuft. Loslassen zum Senden.';
+  };
+  card._up = () => { if (rec && rec.state === 'recording') rec.stop(); };
+  mic.addEventListener('pointerdown', e => { e.preventDefault(); mic.setPointerCapture?.(e.pointerId); card._down(); });
+  mic.addEventListener('pointerup', card._up); mic.addEventListener('pointercancel', card._up);
+  mic.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); card._down(); } });
+  mic.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') card._up(); });
+  card.addEventListener('pointerenter', () => hot = card); card.addEventListener('focusin', () => hot = card);
+});
+const typing = e => e.target.matches?.('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey;
+document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'm' && !e.repeat && hot && !hot.hidden && !typing(e)) hot._down(); });
+document.addEventListener('keyup', e => { if (e.key.toLowerCase() === 'm' && hot) hot._up(); });
+
+// Gruppenweise abnicken: every [data-bulk] button accepts the built option of the unanswered [data-bulkable] items in its scope
+const dlg = $('#bulk-dlg'); let todo = [], bst = null, bscope = '';
+$$('[data-bulk]').forEach(btn => btn.addEventListener('click', () => {
+  bst = $(btn.dataset.st); bscope = btn.dataset.scope;
+  todo = $$('[data-bulkable]', $(bscope)).filter(c => c.dataset.built && !has(c.dataset.id)).map(c => [c.dataset.id, c.dataset.built, $('.card-title, .row-title', c).textContent]);
+  if (!todo.length) { bst.textContent = 'Nichts zu tun: jede Karte hier hat schon eine Antwort oder Notiz.'; return; }
+  $('#bulk-h').textContent = btn.textContent + '?';
+  $('#bulk-n').textContent = todo.length;
+  $('#bulk-list').innerHTML = todo.map(([id, b, t]) => `<li><b>${esc(id)}</b> → ${esc(b)} <span class="mut">${esc(t)}</span></li>`).join('');
+  dlg.showModal();
+}));
+if (dlg) {
+  $('#bulk-cancel').addEventListener('click', () => dlg.close());
+  $('#bulk-ok').addEventListener('click', async () => {
+    dlg.close(); const done = [], st = bst, scope = PAGE + (bscope.startsWith('#tier') ? bscope : '');
+    for (const [id, b] of todo) { try { await post('/api/answer', {id, choice: b, note: 'Gruppe abgenickt'}); done.push(id); } catch {} }
+    act('bulk-accept', scope, done.length + ' ids: ' + done.join(' ')); await load();
+    st.textContent = `${done.length} von ${todo.length} gespeichert.`;
+    toast(`${done.length} Defaults abgenickt.`, async () => {
+      for (const id of done) { try { await post('/api/answer', {id, choice: '', note: ''}); } catch {} }
+      act('bulk-undo', scope, done.length + ' ids'); await load(); st.textContent = 'Zurückgenommen.';
+    });
+  });
+}
+
+// Schnelldurchgang: options on rows; letters choose on the focused row
+if (PAGE === 'schnell') {
+  $$('.qrow').forEach(row => $$('.opt', row).forEach(b => b.addEventListener('click', ev => choose(row, b.dataset.choice, ev.detail === 0 ? 'key' : 'mouse'))));
+  document.addEventListener('keydown', e => {
+    if (typing(e) || e.repeat) return; const row = document.activeElement?.closest?.('.qrow'); if (!row) return;
+    const b = $$('.opt', row).find(b => b.dataset.choice === e.key.toUpperCase());
+    if (b) { e.preventDefault(); choose(row, b.dataset.choice, 'key'); }
+  });
+}
+
+// Eine Frage auf einmal
+let start = () => {};
+if (PAGE === 'next') {
+  const cards = $$('#queue section.card'), nx = $('#qnext'); let q = [], i = 0;
+  const show = () => {
+    cards.forEach(c => c.hidden = true);
+    const end = i >= q.length; $('#done').hidden = !end; $('#qbar').hidden = end; nx.hidden = end; $('.keys').hidden = end;
+    if (end) { const left = cards.filter(c => !has(c.dataset.id)).length; $('#again-p').hidden = !left; $('#again-n').textContent = left; $('#done').focus(); act('focus-done', 'next', left + ' left'); return; }
+    const c = q[i]; c.hidden = false; hot = c; $('#qpos').textContent = `${i + 1} von ${q.length}`;
+    nx.textContent = has(c.dataset.id) ? 'Weiter (N)' : 'Überspringen (N)'; c.focus({preventScroll: true}); window.scrollTo(0, 0);
+  };
+  start = () => { q = cards.filter(c => !has(c.dataset.id)); i = 0; show(); };
+  nx.addEventListener('click', ev => { const c = q[i]; if (c) act(has(c.dataset.id) ? 'next' : 'skip', c.dataset.id, null, ev.detail === 0 ? 'key' : 'mouse'); i++; show(); });
+  cards.forEach(c => c.addEventListener('chosen', () => { nx.textContent = 'Weiter (N)'; nx.focus(); }));
+  $('#again').addEventListener('click', start);
+  document.addEventListener('keydown', e => {
+    if (typing(e) || e.repeat) return; const k = e.key.toUpperCase(), c = q[i];
+    if (k === 'N' && c) { e.preventDefault(); nx.click(); return; }
+    const b = c && $$('.opt', c).find(b => b.dataset.choice === k);
+    if (b) { e.preventDefault(); choose(c, k, 'key'); }
+  });
+}
+load().then(() => { $$('.qrow').forEach(r => { if (has(r.dataset.id)) r.hidden = true; }); $$('.tier').forEach(t => { const e = $('.tier-empty', t); if (e) e.hidden = $$('.qrow', t).some(r => !r.hidden); }); if (offline) toast('Server nicht erreichbar: Antworten werden nicht gespeichert.'); start(); });
+$$('a[href]').forEach(a => a.addEventListener('click', () => act('nav', a.getAttribute('href'))));
+})();
+</script></body></html>

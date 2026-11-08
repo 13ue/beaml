@@ -1,0 +1,9 @@
+// Slice 6 db reject (N12): a ROW TYPE has no own constructor (PDB-05, PDB-06).
+type BadTicket {}
+type Ticket { id: String }
+fn Ticket id: String -> Ticket ! BadTicket
+fn Ticket id -> Ticket ! BadTicket = Ticket { id: id }
+type StoreError { reason: String }
+effect tickets.save Ticket -> Ticket ! StoreError = db.put("records")
+
+fn save t: Ticket -> Ticket ! StoreError = t |> tickets.save

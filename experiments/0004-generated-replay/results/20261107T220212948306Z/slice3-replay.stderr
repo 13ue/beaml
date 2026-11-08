@@ -1,0 +1,36 @@
+test_D10_live_body_gets_no_constant (__main__.FixtureNames.test_D10_live_body_gets_no_constant) ... ok
+test_D11_each_stored_version_replays_by_its_version (__main__.FixtureNames.test_D11_each_stored_version_replays_by_its_version) ... ok
+test_D11b_v1_record_with_both_names_reads_the_old_field_by_its_version (__main__.FixtureNames.test_D11b_v1_record_with_both_names_reads_the_old_field_by_its_version) ... ok
+test_D11c_v1_record_with_a_stray_new_name_reads_by_its_version (__main__.FixtureNames.test_D11c_v1_record_with_a_stray_new_name_reads_by_its_version) ... ok
+test_D14_live_body_keeps_its_value (__main__.FixtureNames.test_D14_live_body_keeps_its_value) ... ok
+test_D14_v1_record_gets_the_constant_not_the_stored_value (__main__.FixtureNames.test_D14_v1_record_gets_the_constant_not_the_stored_value) ... ok
+test_D14_v3_record_with_the_v1_fingerprint_replays_by_its_version (__main__.FixtureNames.test_D14_v3_record_with_the_v1_fingerprint_replays_by_its_version) ... ok
+test_D17_stray_key_never_beats_the_constant_or_the_typed_field (__main__.FixtureNames.test_D17_stray_key_never_beats_the_constant_or_the_typed_field) ... ok
+test_D18_old_field_is_type_checked_and_stray_key_is_unknown (__main__.FixtureNames.test_D18_old_field_is_type_checked_and_stray_key_is_unknown) ... ok
+test_D1_v1_record_gets_the_add_constant (__main__.FixtureNames.test_D1_v1_record_gets_the_add_constant) ... ok
+test_D4_live_body_keeps_dropped_key_as_unknown (__main__.FixtureNames.test_D4_live_body_keeps_dropped_key_as_unknown) ... ok
+test_D4_v1_record_drops_the_field_and_consumes_its_key (__main__.FixtureNames.test_D4_v1_record_drops_the_field_and_consumes_its_key) ... ok
+test_D8_body_key_of_added_field_is_unknown_and_the_constant_wins (__main__.FixtureNames.test_D8_body_key_of_added_field_is_unknown_and_the_constant_wins) ... ok
+test_D9_dropped_field_missing_or_not_string_is_typed_decode_error (__main__.FixtureNames.test_D9_dropped_field_missing_or_not_string_is_typed_decode_error) ... ok
+test_build_radd_compiles_with_warnings_as_errors (__main__.FixtureNames.test_build_radd_compiles_with_warnings_as_errors) ... ok
+test_D10_live_body_gets_no_constant (__main__.RandomNames.test_D10_live_body_gets_no_constant) ... ok
+test_D11_each_stored_version_replays_by_its_version (__main__.RandomNames.test_D11_each_stored_version_replays_by_its_version) ... ok
+test_D11b_v1_record_with_both_names_reads_the_old_field_by_its_version (__main__.RandomNames.test_D11b_v1_record_with_both_names_reads_the_old_field_by_its_version) ... ok
+test_D11c_v1_record_with_a_stray_new_name_reads_by_its_version (__main__.RandomNames.test_D11c_v1_record_with_a_stray_new_name_reads_by_its_version) ... ok
+test_D14_live_body_keeps_its_value (__main__.RandomNames.test_D14_live_body_keeps_its_value) ... ok
+test_D14_v1_record_gets_the_constant_not_the_stored_value (__main__.RandomNames.test_D14_v1_record_gets_the_constant_not_the_stored_value) ... ok
+test_D14_v3_record_with_the_v1_fingerprint_replays_by_its_version (__main__.RandomNames.test_D14_v3_record_with_the_v1_fingerprint_replays_by_its_version) ... ok
+test_D17_stray_key_never_beats_the_constant_or_the_typed_field (__main__.RandomNames.test_D17_stray_key_never_beats_the_constant_or_the_typed_field) ... ok
+test_D18_old_field_is_type_checked_and_stray_key_is_unknown (__main__.RandomNames.test_D18_old_field_is_type_checked_and_stray_key_is_unknown) ... ok
+test_D1_v1_record_gets_the_add_constant (__main__.RandomNames.test_D1_v1_record_gets_the_add_constant) ... ok
+test_D4_live_body_keeps_dropped_key_as_unknown (__main__.RandomNames.test_D4_live_body_keeps_dropped_key_as_unknown) ... ok
+test_D4_v1_record_drops_the_field_and_consumes_its_key (__main__.RandomNames.test_D4_v1_record_drops_the_field_and_consumes_its_key) ... ok
+test_D8_body_key_of_added_field_is_unknown_and_the_constant_wins (__main__.RandomNames.test_D8_body_key_of_added_field_is_unknown_and_the_constant_wins) ... ok
+test_D9_dropped_field_missing_or_not_string_is_typed_decode_error (__main__.RandomNames.test_D9_dropped_field_missing_or_not_string_is_typed_decode_error) ... ok
+test_build_radd_compiles_with_warnings_as_errors (__main__.RandomNames.test_build_radd_compiles_with_warnings_as_errors) ... ok
+test_control_originals_unchanged_by_slice_3_runs (__main__.ZzControlUnchanged.test_control_originals_unchanged_by_slice_3_runs) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 264.294s
+
+OK

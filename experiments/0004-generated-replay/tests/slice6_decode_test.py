@@ -125,12 +125,10 @@ REST = ("type Order { order_id: String }\ntype PaymentError { reason: String }\n
         "fn place order: Order -> Payment ! PaymentError = order |> payments.authorize\n")
 NO_KEEP = ('enum PaymentState { Authorized = "ok"  Pending = "pending" }\n'
            "type Payment { order_id: String state: PaymentState }\n" + REST)
+# CHAIN and MARK: used by slice6_m4_test.py (M4 step 1, DL-152).
 CHAIN = (PS_LITERALS + "type Payment v2 { order_id: String state: PaymentState }\n"
          "migrate Payment v1 -> v2 { rename status -> state }\n" + REST)
 MARK = PS_LITERALS + "type Payment v3 { order_id: String state: PaymentState }\n" + REST
-VERSIONED = ("error: effect payments.authorize: the enum field Payment.state cannot stand in a TYPE with a MIGRATE CHAIN "
-             "or a VERSION MARK in slice 6b (D6B-39)\n"
-             "  help: remove the MIGRATE CHAIN and the VERSION MARK of Payment, or make state a String field")
 
 
 class Slice6Decode(unittest.TestCase):
@@ -221,12 +219,6 @@ class Slice6Decode(unittest.TestCase):
         self.assert_rejected(NO_KEEP, (
             "error: effect payments.authorize: the enum PaymentState of Payment.state has no keep-value variant "
             "(DL-065)\n  help: add the variant Unknown(String) to enum PaymentState"), EMPTY)
-
-    def test_enum_output_field_with_a_chain(self):
-        self.assert_rejected(CHAIN, VERSIONED, EMPTY)
-
-    def test_enum_output_field_with_a_version_mark(self):
-        self.assert_rejected(MARK, VERSIONED, EMPTY)
 
 
 if __name__ == "__main__":

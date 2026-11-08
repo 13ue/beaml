@@ -60,3 +60,12 @@ By: Opus (RED, slice6b-redacted-failure). RED repair changes (O1, O2): By: Opus 
 - No field access form exists (`o.card_holder` does not parse), so no case for it.
 - Compile only. No runtime harness, so no fixture passes a failure struct back as a host value (red-team-01 B4).
 - `redacted` in an enum payload stays a D6B-64 reject; a redacted value can never stand in a payload.
+
+### Docs additions (2026-11-07, after TEST PASS of 51fd79b2)
+
+By: Opus (docs slice6b/6c). The lines above stay as the RED record.
+
+- **[Verified]** `o |> holder |> Holder` (an accessor step, then the constructor of a plain `Holder { name: String }`) builds. It is a limit like `l2`: a constructor step makes a derived value (D6B-193). `o |> holder |> Held` (a variant step) is the payload reject.
+- **[Verified]** Review O1 (medium): a derived copy reaches the store. An accessor, then a fn that builds a record (`fn wrap s: String -> Lookup = Lookup { name: s }`), then the EFFECT builds. The live run writes the value in plain form to `responses.jsonl` and the span. The D6B-72 stored-value block does not see it later, because the stored field `name` is not redacted. This is inside the DL-112 limit ("only the direct copy is caught", limit `l3`). It is evidence for the flow check (DL-029).
+- **[Verified]** Review O2 (medium): the reach covers one-parameter fns only (D6B-174, D6B-182). A two-parameter accessor (`fn pick Order { card_holder }, x: String -> String = card_holder`) and a one-parameter failure builder (`fn bad s: String -> Bad = Bad { reason: s }`) build. An unused second parameter bypasses the accessor rule.
+- **[Verified]** D6B-191: `fmt` does not run this check. `fmt` gives exit 0 on a source that the build rejects (`f1_failure_record.beaml`). `fmt` exit 0 is not a validity check; use the build.

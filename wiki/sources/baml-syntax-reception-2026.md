@@ -46,4 +46,4 @@ updated: 2026-11-07
 
 ## Use in this repository
 
-**[Verified]** The OWNER decided on 2026-11-07 to take BAML up as a topic in the syntax sentiment research ([DL-141](../planning/decision-log.md)). The name question is open item D034 in [decisions to be made](../planning/decisions-to-be-made.md). See the [syntax sentiment concept](../concepts/syntax-sentiment.md), [BAML language and tooling](../concepts/baml-language-and-tooling.md) and the [source registry](README.md).
+**[Verified]** The OWNER decided on 2026-11-07 to take BAML up as a topic in the syntax sentiment research ([DL-146](../planning/decision-log.md)). The name question is open item D034 in [decisions to be made](../planning/decisions-to-be-made.md). See the [syntax sentiment concept](../concepts/syntax-sentiment.md), [BAML language and tooling](../concepts/baml-language-and-tooling.md) and the [source registry](README.md).

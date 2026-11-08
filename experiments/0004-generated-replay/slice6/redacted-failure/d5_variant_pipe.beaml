@@ -1,6 +1,12 @@
 // D5 (DL-112): a variant as a pipe step puts a redacted value into its payload.
-type Order { order_id: String  card_holder: redacted String }
-enum State { Open()  Held(String) }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
+enum State {
+  Open()
+  Held(String)
+}
 type Box { state: State }
 
 fn box Order { card_holder } -> Box = Box { state: card_holder |> Held }

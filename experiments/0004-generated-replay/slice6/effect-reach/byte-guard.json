@@ -7,7 +7,7 @@
  "experiments/0004-generated-replay/arms/gen/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "f8998ed508b056d36debe444c8539f8ab20f2840710b48e452751d4d87ec9871"
+  "sha256": "0e2dff8a6854833b56cce9384bec7af5307536965ef55a6b1df410854d780f1f"
  },
  "experiments/0004-generated-replay/bad/field_not_in_type.beaml": {
   "changed": false,
@@ -37,7 +37,7 @@
  "experiments/0004-generated-replay/drift/N/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "46fb1cff9ee837139806ff44534422a6229ed7302d84f4882fdde87d26d1a83a"
+  "sha256": "820c8503145e7e8080c82ea59d9aa312fa46cbcff4505c2a1830ae9b47e5db9b"
  },
  "experiments/0004-generated-replay/drift/N/payments.beaml": {
   "changed": false,
@@ -47,7 +47,7 @@
  "experiments/0004-generated-replay/drift/Q/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "eb42d7ae73b92a72ebba983e3be46e12f8d99591558825682adda021f46b4cb5"
+  "sha256": "f5abaacc6f779aef8b386a3c34bec996602369e5064083ff14281f79596b653d"
  },
  "experiments/0004-generated-replay/drift/Q/payments.beaml": {
   "changed": false,
@@ -57,7 +57,7 @@
  "experiments/0004-generated-replay/drift/R/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "a17e2815416156970cf0a693df0ddbeabab035764df5661b8393723cba7d218b"
+  "sha256": "bb5019a7f0b06f98d471d660bdcbf6fed0f46f0ea4a37543369dee6c4cbccf4d"
  },
  "experiments/0004-generated-replay/drift/R/payments.beaml": {
   "changed": false,
@@ -72,47 +72,47 @@
  "experiments/0004-generated-replay/slice2/N-chain/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "d7bccf7eba4d6816662686eb911dff1e134ee9b2f889377644d1ef5b8aa9b2b8"
+  "sha256": "d95d1006769ed16ece2ae7a24f30533773ef027c70f10c47018a532e705f287b"
  },
  "experiments/0004-generated-replay/slice2/N-statuz/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "ece06065c682c451da9750fb93ffa0783cbdb2a7f6955529776e57e3985aab75"
+  "sha256": "59215dcb9d92140acd2b119e032d3b38610e091d2b48d1746e04e76c75a2efcc"
  },
  "experiments/0004-generated-replay/slice2/N2-chain/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "5f799772a35ab70e6969367f80399f67137b51102eed567f8a603b48d09e078e"
+  "sha256": "645f223ab8a83a81d77e7d174850d58e8df53b38fa8ce5e89883b5338381749a"
  },
  "experiments/0004-generated-replay/slice2/N2/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "72f7af619dc1e88b406821ee62d34585a8ffc9d26965c47dc0f00de4638aebdc"
+  "sha256": "1a72a60849ee2f805f8a3935031ce4decdb26b7f2c10959072a1833f63d21758"
  },
  "experiments/0004-generated-replay/slice2/reuse/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "586e1943b3c863a996834b95ade5f89da308703014a9331092f921e3e112266a"
+  "sha256": "4beb087b12d79f95fc373ca8f5669b809bf23d96b6aa695c73a5be4193ed0f36"
  },
  "experiments/0004-generated-replay/slice2/rotation/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "f3ce2f8ad1aacea3ec6921e91ecf5816ab66f77c9ade5117c871de3420967d7e"
+  "sha256": "6abe409bcd39942ccd731362c61e0b64c65b5afba0d9adb264ecccba5485d005"
  },
  "experiments/0004-generated-replay/slice3/D-drop/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "41d9c975ef48194986d5bf9b58e86edb3730e1e621b3e91289fb833125a52387"
+  "sha256": "4dd97d1a6cccdaa71665afc73909b92fb6511b74f350beab4994d6e74a130519"
  },
  "experiments/0004-generated-replay/slice3/D/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "b837576a4108a99d43a3bded42dd6d00a2bae64162a373d0afcdc89bf9e6fba4"
+  "sha256": "c16ef954372c6e64d911b3c1a9eb30ced18de217e93dfd441020c5e0eddad688"
  },
  "experiments/0004-generated-replay/slice3/D15/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "07a3a07337619f6c809412a1fbd3f5dfe3013ffbc39e136f1a9c9683a3444d47"
+  "sha256": "55364128684f0db4f25d316e3f91afffe59d3693313ac67c35d9aad919d2621e"
  },
  "experiments/0004-generated-replay/slice3/D7/orders.beaml": {
   "changed": false,
@@ -127,37 +127,37 @@
  "experiments/0004-generated-replay/slice3/M/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "9d99e95283498959ad79bb930e9299561497c271d08d7f020c517a654ad8ff2c"
+  "sha256": "01c353a8123eb51dffd68542985a110c5579cb7994a06bca0006dad6c12a797d"
  },
  "experiments/0004-generated-replay/slice3/R-add/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "f78b847c277aa41c8f18a2e0d2370943556704c1f6a0542428327761911d9271"
+  "sha256": "7af4c0f72152f1cfeab99c44b7f6214b7da46029f0875dbb2f49a4a36c3cc1c4"
  },
  "experiments/0004-generated-replay/slice3/R2/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "f377087ebf831c7798c9ad709fa409109359c16ae7ac92a734655fb9a0ead8de"
+  "sha256": "fb76abdf03c2fe68e4a263a074b480fb1d39b775efaf6b656bda4e46d3e27902"
  },
  "experiments/0004-generated-replay/slice3/RD/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "43d4b67850e40cbeaf0c67f79f4a136885aff5b9cdbc07cf67d2e57418fc62b6"
+  "sha256": "4434b62fb44436b8d2f1728f7503b16dbece0ce6a3cd9156c35cce80bb289ebb"
  },
  "experiments/0004-generated-replay/slice3/RR/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "5d0a42b9857001356bc3abfbba3438a3d530fbc0610e883b70dad7517c8f8c86"
+  "sha256": "3cc26b6cbcffc64b0f8c212e5d8d850f693bf4cacb997b9d2798c39ef99fdf3d"
  },
  "experiments/0004-generated-replay/slice3/SAR/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "af340840a484ea30bfae7246bb45ed54d5493f0d60fc69f566826faefad2d276"
+  "sha256": "ac06d83d9c6602e05577494603d7e03cd2fa9f94970dba69744017d31f49b245"
  },
  "experiments/0004-generated-replay/slice3/Z/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "337081451576796f4b5c9a1ac25939b4d54f416fd17bff163b59b767457ddd53"
+  "sha256": "d5d6a0a5727af97cba1182912e0be6dafc2431925158612ee0359f8fe305bc3e"
  },
  "experiments/0004-generated-replay/slice4/B+r/orders.beaml": {
   "changed": false,
@@ -167,27 +167,27 @@
  "experiments/0004-generated-replay/slice4/B/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "9470820cc703c763a39e63331e501a291c7908ea554dd8fb80fc7b6148c4d354"
+  "sha256": "dcc04b0fda6024cd96fcb5bcb60a05577479137ee56932f2f583d74514ea61e6"
  },
  "experiments/0004-generated-replay/slice4/C2/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "a70c23d05cc372a716b5705e0ecd905bb1ef616f8869e7d4e628c6374213ac40"
+  "sha256": "893fd983dbdb532143677f06ec0d1a765f2023750535e7b6265824702c254b79"
  },
  "experiments/0004-generated-replay/slice4/G+r/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "1cebddca3b0253dc5198113a6e7db0b05e6c952c74709f9817146c73fa735f22"
+  "sha256": "aa84c9605843184b4a69fe60059c36370218be76e4f0c676fa0f4068121f5076"
  },
  "experiments/0004-generated-replay/slice4/G+r0/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "c2103aff00aa448bcb663fa47d98f5ede57d0e7a9a77e6551ac02d065f9fdd99"
+  "sha256": "946310992592466cd9bd28be43842f1d5b1b6ebb113ca4224bcbc96ef0e46259"
  },
  "experiments/0004-generated-replay/slice4/G/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "92307f003f3cda8df377cbd3a84e02712cfb98bf79cb9315d88afe45dfd61002"
+  "sha256": "a2ff09353c20bc4f28fe741fd026ec661dafba7067037481a909480b52d6b058"
  },
  "experiments/0004-generated-replay/slice4/P+r/orders.beaml": {
   "changed": false,
@@ -202,67 +202,67 @@
  "experiments/0004-generated-replay/slice4/Q4-crlf/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "d8441e928d2c31bbccd7ceeb73d2e759dd69e657ab713f64aacd138aead065ea"
+  "sha256": "39447dbdb7200c520c67b48a451ede7cdb308f0777ac1fd14d1aec63eca9f17f"
  },
  "experiments/0004-generated-replay/slice4/Q4-oneline/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "2daf5a5f7255dfe249f87632044150fe1efd352826c88982cbd615bb9e32668f"
+  "sha256": "9cf6b403677d2e1e68fbe77f747103ece7c5cecc72a22e4a51cea811a196c3dd"
  },
  "experiments/0004-generated-replay/slice4/Q4/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "fd48d34c4f564ff29c6348e3d328ad6ae213d1ccd5ac3a4e6df5b07919487e50"
+  "sha256": "4475b9193ca0132219f09f097fef404a5071b7cc03dbf50c197a741f006f85b5"
  },
  "experiments/0004-generated-replay/slice4/Q4g+r/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "0e413cc55dcdd9fb4c14e0ac43ecab1474c230793582b86bfe42931a563d8fda"
+  "sha256": "39f3e890b527d5f997193c511b97d431dce6aec499b266ed1daf56652d62d73f"
  },
  "experiments/0004-generated-replay/slice4/Q4s-crlf/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "9c8e9d8f1b5f66679e4c102734b35a7772954d20b6c539545c9b7e0be13e135b"
+  "sha256": "e8cc8b999bbd5cef5e18951e20c0ac261b562ff96fc8e1f29bd0ca8b5a6ba4fa"
  },
  "experiments/0004-generated-replay/slice4/Q4s/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "282f3dd67735e1b763ad7f9da97692bcab15f1942a93fa4432586fd32412ba54"
+  "sha256": "728e8ae3b1d7564573605cdae1437383b9c965b3cffdf622ce12b3d80303ee8a"
  },
  "experiments/0004-generated-replay/slice5/B5/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "f8998ed508b056d36debe444c8539f8ab20f2840710b48e452751d4d87ec9871"
+  "sha256": "0e2dff8a6854833b56cce9384bec7af5307536965ef55a6b1df410854d780f1f"
  },
  "experiments/0004-generated-replay/slice5/C2/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "2da3cced10acaf3640ef38b58329ee6c3a8c8118476ae2ce3ff3b9f32a617d02"
+  "sha256": "99c55fe302ba6b6ac791803785c8916264687bd30c5cc88de907cb5e4db8e471"
  },
  "experiments/0004-generated-replay/slice5/M3/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "cf145abde7720abfb344ba77ac2e3acca17e81cee2b528a0aa51e8b6429276ea"
+  "sha256": "9f3e4fe30bd9bcab17d320ae63ea962a5be81481840d04ab71247a5d8511ee65"
  },
  "experiments/0004-generated-replay/slice5/Q4-crlf/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "cc697a012be04141e2d8e8123c72e40ef8f03e8720f3516a93350222aeaee7d9"
+  "sha256": "bace6a1f9aa50c206e171d21ca79eb2e9e21020b8f688a9a499e2c422cc70e92"
  },
  "experiments/0004-generated-replay/slice5/Q4/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "ee7b80587479e1b50accac044ec5899438a900787e1e5c75cde2a17d10df36ee"
+  "sha256": "485ec2c48571bc03b93f02ac9d8a8c0ee7cd7d3c33af72a58e38226592e705fd"
  },
  "experiments/0004-generated-replay/slice5/Q4s/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "c793f6277e72cb982bbbcb4004c8cd06d395fe7ae1312101f5cf43aba6bf005f"
+  "sha256": "63173a4d64744c3d83384deff6563547faa5413185afcaa02813cad88bc88607"
  },
  "experiments/0004-generated-replay/slice5/Q4z/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "e21a7392deaa4ee3b43b85b17b0a943dcae09c1d1bac6e81d071ab8a4756be30"
+  "sha256": "a8bb80e3af450442362b6bf3d806b13dc19d26ce33d1cce482f209c4ebf15cd0"
  },
  "experiments/0004-generated-replay/slice6/constructor/nonzero.beaml": {
   "changed": false,
@@ -277,12 +277,12 @@
  "experiments/0004-generated-replay/slice6/decode-ctor/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "8f6e1142d5ea72c11e7cb98bdf2e4dbf37df97daef36adcb2eb9073d9b70e7b9"
+  "sha256": "867cffc53046c5f4e323284931a47d08b7605f4477da2eb7e0ecc7450f63b633"
  },
  "experiments/0004-generated-replay/slice6/decode/orders.beaml": {
   "changed": true,
   "code": 0,
-  "sha256": "69e144b22cfce342246ad1090679204c2f9bacf06a71ff90292d26bd41c075e9"
+  "sha256": "f07ddeaec0adb1c389883f96dedc711d6e6ed3156f412f9960a75e031e74f836"
  },
  "experiments/0004-generated-replay/slice6/enum/constructor.beaml": {
   "changed": false,
@@ -307,7 +307,7 @@
  "experiments/0004-generated-replay/slice6/fmt/clauses.beaml": {
   "changed": false,
   "code": 0,
-  "sha256": "dd1dda5d6e2a8ae489f1628c3bcf5572662b1735d6d817c9a670f8f31171a166"
+  "sha256": "952133ce5d54d721982923bcf2e84393f7d11f55ac6082ca165ae877d9f47c1d"
  },
  "experiments/0004-generated-replay/slice6/fmt/clauses.formatted.beaml": {
   "changed": false,
@@ -322,12 +322,12 @@
  "experiments/0004-generated-replay/slice6/fmt/header.formatted.beaml": {
   "changed": false,
   "code": 0,
-  "sha256": "82bb06ecfb290db075543498e291f0da24c8230cb1bec7fc153bab9d3a8d36e9"
+  "sha256": "0fa8a5d276f35d721656dea43e1baee8a14049111190b77cada80c49093dbe22"
  },
  "experiments/0004-generated-replay/slice6/fmt/marks.beaml": {
   "changed": false,
   "code": 0,
-  "sha256": "4314f0b40eb150938b936fe8fb7989ea4d9c9508a7116d7c3267469a1fbdfa68"
+  "sha256": "5fb307613097c6b6332029beba158e8e3284ff2c79256e79ea4b7652caf7e40e"
  },
  "experiments/0004-generated-replay/slice6/fmt/marks.formatted.beaml": {
   "changed": false,

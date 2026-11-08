@@ -1,6 +1,6 @@
-"""EXPERIMENT 0004 slice 6b step 10: `beaml-spike fmt SOURCE.beaml` (DL-013, DL-081, DL-083, DL-104).
+"""EXPERIMENT 0004 slice 6b step 10: `beaml-spike fmt SOURCE.beaml` (DL-013, DL-081, DL-083, DL-104, DL-148).
 
-Plan step 10, D6B-41 to D6B-46. Fixtures: slice6/fmt/<name>.beaml and the expected <name>.formatted.beaml, written
+Plan step 10, D6B-41 to D6B-46; fmt layout (DL-148, ledger workflow/2026-11-08/fmt-layout/). Fixtures: slice6/fmt/<name>.beaml and the expected <name>.formatted.beaml, written
 by hand from DL-083 and DL-104 (never from the new compiler). The guard test checks with the compiler under test
 that each expected file compiles like its source except the `beaml-declaration-v1` byte offsets.
 Run: python3 -B experiments/0004-generated-replay/tests/slice6_fmt_test.py [-k NAME]
@@ -23,10 +23,17 @@ import stored_types_test as st  # noqa: E402
 FMT = EXPERIMENT / "slice6" / "fmt"
 EMPTY_STORED = EXPERIMENT / "stored" / "empty.jsonl"
 OFFSETS = re.compile(r"(# beaml-declaration-v1 \S+) \d+ \d+")
-# header holds the only signature line directly above clauses (OWNER question Q6B-9, notes.md F4).
-NAMES = ("clauses", "marks", "header")
-# The number of lines that fmt changes in each fixture (D6B-46 event count).
-CHANGED = {"clauses": 8, "marks": 2}
+# header holds the only signature line directly above clauses (DL-114, replaced by DL-148: the line is a table row).
+# layout holds the DL-148 cases: TYPE and ENUM bodies, one table per block of clause and EFFECT lines.
+NAMES = ("clauses", "marks", "header", "layout")
+# The number of source lines that the fmt diff removes or replaces (D6B-46 event count; fmt-layout notes.md F2).
+CHANGED = {"clauses": 11, "marks": 5}
+
+
+def after_line(n):
+    """The clauses.formatted.beaml line of clauses.beaml line `n` (DL-148 adds 5 enum and 3 TYPE lines)."""
+    assert n not in (6, 34), "lines 6 and 34 become several lines"
+    return n if n < 6 else n + 5 if n < 34 else n + 8
 
 
 def source(name):
@@ -131,57 +138,57 @@ class Slice6Fmt(unittest.TestCase):
             b'fn PaymentState "ok",       _      -> PaymentState = Authorized',
             b'fn PaymentState "declined", reason -> PaymentState = reason |> DeclineReason |> Declined',
             b"fn PaymentState other,      _      -> PaymentState = Unknown(other)",
-        ], [line(after, n) for n in range(10, 13)], "group A; a comment line separates it from its signature line")
+        ], [line(after, n) for n in range(15, 18)], "group A; a comment line separates it from its signature line")
 
-    def test_signature_line_ends_a_group(self):
-        # OWNER question Q6B-9 (notes.md F4): the current reading lives only in header.formatted.beaml.
+    def test_signature_line_is_a_table_row(self):
+        # DL-148 replaces DL-114 (Q6B-9 A): the signature line is a row; the reading lives in header.formatted.beaml.
         self.assertEqual(expected("header"), self.formatted("header"))
 
-    def test_one_line_fns_of_different_names_do_not_align(self):
-        # R1, DL-083: a group holds clauses of one fn name. An adjacency-only rule would pad line 45.
+    def test_one_line_fns_of_different_names_align(self):
+        # DL-148 (replaces R1 of DL-083): a block of single-line clauses is one table across fn names.
         after = self.formatted("clauses")
-        self.assertEqual([b"fn one a: String -> String = a", b"fn other_name bb: String -> String = bb"],
-                         [line(after, 45), line(after, 46)])
+        self.assertEqual([b"fn one        a: String  -> String = a", b"fn other_name bb: String -> String = bb"],
+                         [line(after, 53), line(after, 54)])
 
     def test_equals_column_aligns_when_only_the_return_text_differs(self):
         # The `=` column has test power: arguments and `->` already align; one space before `=` is not enough.
         after = self.formatted("clauses")
         self.assertEqual([b'fn check "abc" -> String ! PaymentError  = "x"',
                           b"fn check other -> String !  PaymentError = other"],
-                         [line(after, 50), line(after, 51)])
+                         [line(after, 58), line(after, 59)])
 
     def test_extra_spaces_before_equals_become_one_column(self):
         after = self.formatted("clauses")
         self.assertEqual([b'fn tag "a = b",       x -> String = x', b'fn tag "long -> key", x -> String = "k"'],
-                         [line(after, 16), line(after, 17)], "`->` and `=` inside strings are not columns")
+                         [line(after, 21), line(after, 22)], "`->` and `=` inside strings are not columns")
 
     def test_blank_line_breaks_a_group(self):
         after = self.formatted("clauses")
-        self.assertEqual(b'fn tag "m", x -> String = x', line(after, 19),
+        self.assertEqual(b'fn tag "m", x -> String = x', line(after, 24),
                          "the clause after the blank line does not align with lines 16 and 17")
 
     def test_comment_line_breaks_a_group(self):
         after = self.formatted("clauses")
         self.assertEqual([b'fn tag "m", x -> String = x', line(source("clauses"), 20),
                           b"fn tag other, y -> String = other"],
-                         [line(after, n) for n in (19, 20, 21)])
+                         [line(after, n) for n in (24, 25, 26)])
 
     def test_multi_line_clause_breaks_a_group(self):
         after = self.formatted("clauses")
         self.assertEqual([line(source("clauses"), n) for n in (24, 25, 26)]
                          + [b"fn label Unknown(text) -> String = text",
                             b'fn label Declined(r)   -> String = "declined"'],
-                         [line(after, n) for n in range(24, 29)])
+                         [line(after, n) for n in range(29, 34)])
 
     def test_lone_clause_is_a_group_of_one(self):
         after = self.formatted("clauses")
-        self.assertEqual(b"fn lone x: String -> String = x", line(after, 31))
+        self.assertEqual(b"fn lone x: String -> String = x", line(after, 36))
 
     def test_effect_line_aligns_arrow_and_equals(self):
         # DL-013 for one EFFECT line (slice 1 supports one EFFECT; notes.md F3).
         after = self.formatted("clauses")
         self.assertEqual(b'effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize")',
-                         line(after, 38))
+                         line(after, 46))
 
     def test_comments_stay_byte_for_byte(self):
         before = source("clauses")
@@ -190,34 +197,75 @@ class Slice6Fmt(unittest.TestCase):
         self.assertTrue(len(comments) >= 7 and any(row.endswith(b"   ") for _, row in comments), "fixture check")
         for n, row in comments:
             tail = row[row.index(b"//"):]
-            self.assertTrue(line(after, n).endswith(tail), "line %d keeps its comment bytes" % n)
+            self.assertTrue(line(after, after_line(n)).endswith(tail), "line %d keeps its comment bytes" % n)
         self.assertEqual([line(before, 26), line(before, 40), line(before, 41), line(before, 42)],
-                         [line(after, 26), line(after, 40), line(after, 41), line(after, 42)],
+                         [line(after, after_line(n)) for n in (26, 40, 41, 42)],
                          "a string with `//` and the multi-line clause bodies stay")
 
     # VERSION MARK form (b) by DL-104 (D6B-43).
 
     def test_mark_removed_when_a_chain_from_v1_implies_it(self):
         after = self.formatted("marks")
-        self.assertEqual(b"type Chained { id: String state: String channel: String }", line(after, 3))
+        self.assertIn(b"\ntype Chained {\n  id: String\n  state: String\n  channel: String\n}\n", after)
 
     def test_squash_mark_without_chain_is_kept(self):
         after = self.formatted("marks")
-        self.assertEqual(b"type Squashed v3 { id: String }", line(after, 8))
+        self.assertIn(b"\ntype Squashed v3 { id: String }\n", after)
 
     def test_v1_mark_without_chain_is_kept(self):
         # O3: `type Payment v1` selects the versioned decode of the EFFECT output.
         after = self.formatted("marks")
-        self.assertEqual(b"type Payment v1 { order_id: String state: String }", line(after, 24))
+        self.assertIn(b"\ntype Payment v1 {\n  order_id: String\n  state: String\n}\n", after)
 
     def test_mark_written_when_the_chain_starts_above_v1(self):
         after = self.formatted("marks")
-        self.assertEqual(b"type Shortened v5 { id: String note: String }", line(after, 11))
+        self.assertIn(b"\ntype Shortened v5 {\n  id: String\n  note: String\n}\n", after)
 
     def test_mark_kept_beside_a_chain_above_v1_and_chain_from_v1_unchanged(self):
         after = self.formatted("marks")
-        self.assertEqual([b"type Kept v5 { id: String note: String }", b"type Plain { id: String state: String }"],
-                         [line(after, 15), line(after, 19)])
+        self.assertIn(b"\ntype Kept v5 {\n  id: String\n  note: String\n}\n", after)
+        self.assertIn(b"\ntype Plain {\n  id: String\n  state: String\n}\n", after)
+
+    # Layout (DL-148): TYPE and ENUM bodies, one clause table per block.
+
+    def test_type_body_one_line_up_to_one_field_else_one_field_per_line(self):
+        after = self.formatted("layout")
+        self.assertEqual([b"type Empty {}", b"type Note { text: String }", b"type Amount {", b"  value: String",
+                          b"  currency: String", b"}", b"type Order {", b"  order_id: String", b"  amount: Amount",
+                          b"}", b"type One { id: String }", b"type Pair {", b"  a: String,", b"  b: String", b"}"],
+                         [line(after, n) for n in range(2, 17)], "a one-line body expands, a lone field collapses")
+
+    def test_type_body_with_a_comment_stays_as_written(self):
+        after = self.formatted("layout")
+        self.assertEqual([line(source("layout"), n) for n in range(13, 17)], [line(after, n) for n in range(17, 21)])
+
+    def test_enum_body_one_line_up_to_one_variant_else_one_variant_per_line(self):
+        after = self.formatted("layout")
+        self.assertEqual([b"enum Channel {", b'  Web = "web"', b'  App = "app"', b"  Unknown(String)", b"}",
+                          b"enum Single { Only }"], [line(after, n) for n in range(21, 27)],
+                         "literal and payload variants keep their form")
+
+    def test_one_table_across_signature_constructor_fn_and_effect_lines(self):
+        after = self.formatted("layout")
+        self.assertEqual([
+            b"fn Amount             value: String, currency: String -> Amount ! BadAmount",
+            b'fn Amount             _,             ""               -> Amount ! BadAmount  = BadAmount {}',
+            b"fn Amount             value,         currency         -> Amount ! BadAmount  = Amount { value: value, "
+            b"currency: currency }",
+            b'effect orders.save    Order                           -> Order  ! StoreError = db.put("records")',
+            b'effect payments.check Note                            -> Note   ! StoreError = http.post("payments/check")',
+            b'effect ui.save        Order                           -> Order  ! StoreError = ui.event("save") |> save',
+            b"fn check_note         n: Note                         -> Note   ! StoreError = n |> payments.check",
+            b'fn label              c: Channel                      -> String              = "a -> b = c"',
+        ], [line(after, n) for n in range(31, 39)])
+
+    def test_comment_line_and_multi_line_clause_end_a_table(self):
+        after = self.formatted("layout")
+        self.assertEqual([line(source("layout"), 31),
+                          b"fn save o: Order -> Order ! StoreError = o |> orders.save",
+                          b"fn keep n: Note  -> Note               = n",
+                          b"fn tidy Only -> String =", b'  "a"', b"fn tidy_one x: String -> String = x"],
+                         [line(after, n) for n in range(39, 45)])
 
     # Invariants (D6B-45).
 

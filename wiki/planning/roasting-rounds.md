@@ -171,11 +171,11 @@ Use no third service. Keep production durability and composed replay outside thi
 Target: git HEAD `7ee5c89e`: the BEAML compiler (EXPERIMENT 0001), EXPERIMENT 0004 slices 1 to 6b, the tree-sitter grammar, the decision log and the Pages site.
 Method: a lead (Fable) and three Opus workers (correctness, boundary, design), two rounds, scratch builds only, no full `run.py` run, no code or test changed.
 See the [consolidated report](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/report.md) and the [capture](../../raw/requirements/2026-11-07-roasting-round-4-red-team-01.md).
-Counts: high 6, medium 13, low 4, critical 0. Every disposition below is pending. No OWNER decision is inferred.
+Counts: high 6, medium 13, low 4, critical 0. Every disposition below was pending at capture. No OWNER decision is inferred. Dispositions recorded 2026-11-07: see [Dispositions](#dispositions-2026-11-07-after-the-red-team-01-repairs).
 
 ### 1. The `--stored` check and the REPLAY RUN read different records
 
-Category: implementation. Severity: high. Disposition: pending. Disposition rationale: null.
+Category: implementation. Severity: high. Disposition: answered by the OWNER (M1, [DL-136](decision-log.md)); code pending in D035 (P2b) and record format v3. Disposition rationale: see Dispositions.
 
 **[Verified]** `check_stored` never reads `status`; `Replay.run` stops at `status_mismatch` before it reads `value`. A 503 record beside valid records gives exit 1 with the DL-102 text and the MIGRATE STEP help ([C2](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/rt-correctness.md)). DL-121 claims "the check result equals the REPLAY RUN result".
 **[Verified]** The same gap: a tampered `value_sha256` passes the check and never replays (C5).
@@ -184,7 +184,7 @@ Resolving test: a mixed snapshot (200, 503, 503 without `value`, bad digest); th
 
 ### 2. An enum constructor with a failure TYPE breaks the Elixir pass for valid records
 
-Category: implementation. Severity: high. Disposition: pending. Disposition rationale: null.
+Category: implementation. Severity: high. Disposition: C1 repaired (D6B-187, commit `0397d62e`, TEST `45c97bfb`); B1, B2 pending. Disposition rationale: see Dispositions.
 
 **[Verified]** The DRIVER matches only `{:ok, %{__struct__: ^ok}}`; an enum constructor returns a tuple; the child exits 1 and the build blocks with the run error (C1, [B1](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/rt-boundary.md)). A non-record failure TYPE gives the run error instead of the DL-102 text (B2). No test covers the DRIVER; `elixir_results_are_strict` tests the Rust line parser only.
 **[Verified]** P9 in the step 8 ledger named the case and nobody closed it.
@@ -192,7 +192,7 @@ Resolving test: one DRIVER test per return shape (record, enum, scalar failure),
 
 ### 3. The DRIFT status ignores outcome classes; a crash run is `pass`
 
-Category: evidence quality. Severity: high. Disposition: pending. Disposition rationale: null.
+Category: evidence quality. Severity: high. Disposition: answered by the OWNER (M7, [DL-135](decision-log.md)); C3, C4 repaired (commit `1ec666a7`, TEST `45c97bfb`). Disposition rationale: see Dispositions.
 
 **[Verified]** `run.py:609` sets the status from the freeze only; `drift_test.py` is not in the STEPS and asserts no expected class. The retained run `results/20261107T171545190446Z` has `untyped_crash` on R, N and Q with `status: pass` and is named nowhere (C3).
 **[Verified]** "Recorded, not asserted" is the slice 1 Undo D12 and README line 1561 states the limit for 6a. The full `run.py` runs no slice 6 file (C4); "full suite 14 of 14" stands beside slice 6 results without a limit line in the log, the register and the README ([D10](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/rt-design.md)).
@@ -201,7 +201,7 @@ Resolving test: pin the observed classes per derivative; fail `run.py drift` on 
 
 ### 4. A swapped ENUM LITERAL passes `--stored` and replays as another variant
 
-Category: specification gap. Severity: high. Disposition: pending. Disposition rationale: null.
+Category: specification gap. Severity: high. Disposition: answered by the OWNER (M2, [DL-140](decision-log.md)); code pending with the fate slice. Disposition rationale: see Dispositions.
 
 **[Verified]** `main.rs:3851` blocks only a String that is no current literal. The swap `Authorized = "pending"  Pending = "ok"` gives exit 0; `Replay.run` flips the variants (D1, confirmed by rt-correctness R2-1). The same for an enum constructor, with and without `!`.
 **[Verified]** The DL-103 limit ("moves a value from one known variant to another ... stays open until a case shows up") and README line 1770 (D6B-109) have no register entry.
@@ -209,14 +209,14 @@ Resolving test: the swap fixture with `--stored`, expect exit 1 with the DL-122 
 
 ### 5. The DL-102 help line names an exit that the compiler refuses
 
-Category: agent trap. Severity: high. Disposition: pending. Disposition rationale: null.
+Category: agent trap. Severity: high. Disposition: parked by the OWNER (M4, [D036](decisions-to-be-made.md)). Disposition rationale: see Dispositions.
 
 **[Verified]** The help says "declare the fate of these records in a MIGRATE STEP to a new TYPE VERSION"; a MIGRATE STEP on that TYPE gives the D6B-39 error, because every DL-102 hit sits on a TYPE with an enum or constructor field (D2, confirmed by rt-correctness R2-2 and rt-boundary). D6B-39 is a plan default with no DL entry and no line in the fate concept.
 Resolving step: the help names the slice 6b exit as the DL-122 help does; the fate concept names "lift D6B-39" as a prerequisite.
 
 ### 6. DL-125 misstates DL-116; a FATE OPERATION cannot lift it
 
-Category: decision consistency. Severity: high. Disposition: pending. Disposition rationale: null.
+Category: decision consistency. Severity: high. Disposition: parked by the OWNER (M3, [D036](decisions-to-be-made.md)). Disposition rationale: see Dispositions.
 
 **[Verified]** DL-125 names "a redacted field without a constructor (DL-116)"; DL-116 blocks the redacted field on a constructor TYPE. [The fate concept](../concepts/migrate-fates.md) says `redact` lifts DL-116 because "the rule does not run over an absent value"; that is DL-116 option B, which the OWNER rejected ("B would make a replay silently skip a rule") (D3).
 Resolving step: DL-116 leaves the DL-125 list; a new OWNER question on a rule over an absent value.
@@ -233,6 +233,30 @@ Low: tampered digest (C5), byte guard hashes edited by hand pass the count guard
 ### Open questions for the OWNER (Migrate, pending)
 
 M1 replayable records in `--stored`; M2 known-to-known literal remap; M3 DL-125 scope; M4 D6B-39 against the DL-102 help; M5 `retire` semantics; M6 slice 6d defaults; M7 DRIFT status and coverage claims; M8 failure struct at the host; M9 record lines against DL-032. Options in the [report](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01/report.md#decisions-decision4).
+
+### Dispositions (2026-11-07, after the RED TEAM 01 repairs)
+
+Repaired, by phase records in the [repairs ledger](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01-repairs/) ([spec](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01-repairs/spec.md), [TEST](../../experiments/0004-generated-replay/workflow/2026-11-07/red-team-01-repairs/test-review.md)):
+
+- **[Verified]** C1: the DRIVER accepts the enum success tuple `{:ok, {^type, variant, payload}}` (D6B-187). Commit `0397d62e`.
+- **[Verified]** B3: `fn action` writes one full line with one `write_all` (D6B-188). Commit `0397d62e`.
+- **[Verified]** C3: `drift_status` in `run.py` pins the classes per derivative; a crash, a build change or `repaired_all` false is `fail` (D6B-189, DL-135). Commit `1ec666a7`.
+- **[Verified]** C4: the full `run.py` run lists the 16 slice 6 files, the three `redteam_*` files and a `drift-test` step (D6B-190). Commit `1ec666a7`.
+- **[Verified]** TEST `45c97bfb`: full run 34 of 34 steps in 1058 s ([`results/20261107T220212948306Z`](../../experiments/0004-generated-replay/results/20261107T220212948306Z/result.json)); DRIFT rows equal the pin.
+- **[Verified]** D10: the limit lines are unnecessary now; the full run covers slice 6 (DL-135 effect). The old lines stay as history, with a dated closing note.
+
+Answered by the OWNER ([decision log](decision-log.md)):
+
+- **[Verified]** M1 → [DL-136](decision-log.md) (option A). M2 → [DL-140](decision-log.md) (option A). M6 → [DL-139](decision-log.md) (option B with a limit). M7 → [DL-135](decision-log.md) (option A).
+- **[Verified]** C2, C5: answered by DL-136. Code pending in [D035](decisions-to-be-made.md) (P2b) and record format v3.
+- **[Verified]** D1: answered by DL-140. Code pending with the fate slice.
+
+Parked by the OWNER ([D036](decisions-to-be-made.md)):
+
+- **[Verified]** M3, M4, M5, M8, M9. D2 (M4) and D3 (M3) stay parked with them.
+
+Pending, no disposition recorded: B1, B2, B4 to B9, D4 to D9, R2-5. **[Unknown]** Their outcome. No acceptance is inferred.
+**[Inference]** D5, D7, B4 and B6 relate to M5, M6, M8 and M9. This record does not map their dispositions.
 
 ### Deliberately not challenged
 

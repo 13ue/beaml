@@ -1,0 +1,36 @@
+Running ExUnit with seed: 0, max_cases: 28
+Excluding tags: [:test, :phase]
+Including tags: [phase: "n7_read"]
+
+
+
+  1) test N7 the v1 row lists through the MIGRATE CHAIN with tag empty and stays version 1 (Proto.Prototype.NotesReadTest)
+     test/prototype/notes_test.exs:52
+     the host runs no Note v2 module
+     code: v2_module!()
+     stacktrace:
+       test/prototype/notes_test.exs:55: (test)
+
+
+
+  2) test N7b a submit under v2 writes a version 2 row and the list shows v1 and v2 (Proto.Prototype.NotesReadTest)
+     test/prototype/notes_test.exs:62
+     the host runs no Note v2 module
+     code: v2_module!()
+     stacktrace:
+       test/prototype/notes_test.exs:63: (test)
+
+
+
+  3) test N11 a TYPE change reached the table and the DDL did not move (Proto.Prototype.NotesReadTest)
+     test/prototype/notes_test.exs:80
+     Assertion with == failed
+     code:  assert rows() |> notes() |> Enum.map(&elem(&1, 1)) |> Enum.uniq() |> Enum.sort() == [1, 2]
+     left:  []
+     right: [1, 2]
+     stacktrace:
+       test/prototype/notes_test.exs:82: (test)
+
+
+Finished in 0.08 seconds (0.07s async, 0.01s sync)
+26 tests, 3 failures, 23 excluded

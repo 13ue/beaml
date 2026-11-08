@@ -1,0 +1,718 @@
+# command: BEAML_SPIKE=<scratch>/head2/target/debug/beaml-spike python3 -B experiments/0004-generated-replay/tests/slice6_multi_test.py
+# compiler: git archive 545dded0 experiments/0001-syntax-to-beam | tar -x, cargo build --offline (HEAD at RED end)
+# Elixir 1.18.1 (compiled with Erlang/OTP 27); Python 3.13.12; cargo 1.94.0 (85eff7c80 2026-01-15)
+# date: 2026-11-07T22:42:01Z
+test_n10_rejects (__main__.Slice6Multi.test_n10_rejects) ... compiler: <scratch>/head2/target/debug/beaml-spike
+
+  test_n10_rejects (__main__.Slice6Multi.test_n10_rejects) [two_effects_in_one_pipe] ... FAIL
+  test_n10_rejects (__main__.Slice6Multi.test_n10_rejects) [same_entry_operation] ... FAIL
+  test_n10_rejects (__main__.Slice6Multi.test_n10_rejects) [enum] ... FAIL
+test_n11_fmt_keeps_the_fixture (__main__.Slice6Multi.test_n11_fmt_keeps_the_fixture) ... FAIL
+test_n11b_fmt_aligns_a_single_spaced_effect_line (__main__.Slice6Multi.test_n11b_fmt_aligns_a_single_spaced_effect_line) ... FAIL
+test_n13_sources_without_an_entry_keep_their_bytes (__main__.Slice6Multi.test_n13_sources_without_an_entry_keep_their_bytes) ... compiler 545dded0: <tmp>/beaml-0004-s5-545dded0-fyfifz0g/target/debug/beaml-spike
+ok
+test_n14_entry_line_sources_take_the_stem (__main__.Slice6Multi.test_n14_entry_line_sources_take_the_stem) ... 
+  test_n14_entry_line_sources_take_the_stem (__main__.Slice6Multi.test_n14_entry_line_sources_take_the_stem) [slice6/entry/orders.beaml] ... FAIL
+  test_n14_entry_line_sources_take_the_stem (__main__.Slice6Multi.test_n14_entry_line_sources_take_the_stem) [slice6/entry/echo.beaml] ... FAIL
+  test_n14_entry_line_sources_take_the_stem (__main__.Slice6Multi.test_n14_entry_line_sources_take_the_stem) [slice6/entry/count.beaml] ... FAIL
+  test_n14_entry_line_sources_take_the_stem (__main__.Slice6Multi.test_n14_entry_line_sources_take_the_stem) [slice6/multi/copy/orders.beaml] ... FAIL
+test_n14b_source_without_entry_line_stays_beamlspike (__main__.Slice6Multi.test_n14b_source_without_entry_line_stays_beamlspike) ... ok
+test_n14c_non_identifier_stem_keeps_the_stem_error (__main__.Slice6Multi.test_n14c_non_identifier_stem_keeps_the_stem_error) ... ok
+test_n15_module_name_from_stem (__main__.Slice6Multi.test_n15_module_name_from_stem) ... 
+  test_n15_module_name_from_stem (__main__.Slice6Multi.test_n15_module_name_from_stem) [order_flow] ... FAIL
+  test_n15_module_name_from_stem (__main__.Slice6Multi.test_n15_module_name_from_stem) [v2_orders] ... FAIL
+test_n1_two_effects_and_two_entry_lines_build (__main__.Slice6Multi.test_n1_two_effects_and_two_entry_lines_build) ... FAIL
+test_n2_output_compiles_without_warnings (__main__.Slice6Multi.test_n2_output_compiles_without_warnings) ... FAIL
+test_n3_to_n6_runtime (__main__.Slice6Multi.test_n3_to_n6_runtime) ... FAIL
+test_n7_stored_snapshot_with_two_operations_builds (__main__.Slice6Multi.test_n7_stored_snapshot_with_two_operations_builds) ... FAIL
+test_n8_orphan_block_per_operation (__main__.Slice6Multi.test_n8_orphan_block_per_operation) ... FAIL
+test_n9_dead_line_per_operation (__main__.Slice6Multi.test_n9_dead_line_per_operation) ... FAIL
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Multi.test_n10_rejects) [two_effects_in_one_pipe]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 403, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: fn place calls the effects payment[63 chars]ect') != (1, '', 'slice 1 supports one effect')
+
+First differing element 2:
+'error: fn place calls the effects payment[62 chars]fect'
+'slice 1 supports one effect'
+
++ (1, '', 'slice 1 supports one effect')
+- (1,
+-  '',
+-  'error: fn place calls the effects payments.authorize and audit.log; slice 6e '
+-  'replays a flow with one effect') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Multi.test_n10_rejects) [same_entry_operation]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 403, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'duplicate name: ui_place') != (1, '', 'error: effect ui.place: slice 6d supports[33 chars]47)')
+
+First differing element 2:
+'duplicate name: ui_place'
+'error: effect ui.place: slice 6d supports one ENTRY LINE per source (D6B-147)'
+
+- (1, '', 'duplicate name: ui_place')
++ (1,
++  '',
++  'error: effect ui.place: slice 6d supports one ENTRY LINE per source '
++  '(D6B-147)') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n10_rejects (__main__.Slice6Multi.test_n10_rejects) [enum]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 403, in test_n10_rejects
+    self.assertEqual((1, "", message), (code, stdout, stderr.strip()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 1, no stdout and the exact message")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (1, '', 'error: the source file name enum [67 chars]ile') != (0, '# Generated by experiment 0001. Not a[8240 chars], '')
+
+First differing element 0:
+1
+0
+
+- (1,
++ (0,
++  '# Generated by experiment 0001. Not a stable ABI.\n'
++  'defmodule BeamlSpike do\n'
++  '  import Kernel, only: [and: 2, is_binary: 1, is_map: 1, is_struct: 2, '
++  'map_size: 1, ==: 2, <>: 2, if: 2, raise: 2, def: 2, defp: 2, defmodule: 2]\n'
++  '  defmodule Amount do\n'
++  '    import Kernel\n'
++  '    @parent __MODULE__ |> Module.split() |> Enum.drop(-1) |> '
++  'Module.concat()\n'
++  '    defstruct [:value, :currency]\n'
++  '\n'
++  '    def new(%{value: a0, currency: a1} = m) when map_size(m) == 2, do: '
++  '@parent.new_Amount_1(a0, a1)\n'
++  '\n'
++  '    def new(m) when is_map(m) do\n'
++  '      text = "Amount.new/1: no signature takes these keys"\n'
++  '      help = "\\n  help: keys must be atoms; decode outside data through the '
++  'EFFECT"\n'
++  '      {:error, {:no_signature, if(Enum.all?(Map.keys(m), &is_atom/1), do: '
++  'text, else: text <> help)}}\n'
++  '    end\n'
++  '\n'
++  '    def new(_), do: raise(ArgumentError, "invalid BEAML input")\n'
++  '  end\n'
++  '  defmodule NoCurrency do\n'
++  '    import Kernel, only: [defstruct: 1]\n'
++  '    defstruct []\n'
++  '  end\n'
++  '  defmodule Rejected do\n'
++  '    import Kernel, only: [defstruct: 1]\n'
++  '    defstruct [:reason]\n'
++  '  end\n'
++  '  defp __beaml_valid__(v, <<83,116,114,105,110,103>>), do: is_binary(v) and '
++  'String.valid?(v)\n'
++  '  defp __beaml_valid__(v, <<65,109,111,117,110,116>>) when is_struct(v, '
++  '__MODULE__.Amount), do: __beaml_valid__(Map.get(v, :value), '
++  '<<83,116,114,105,110,103>>) and __beaml_valid__(Map.get(v, :currency), '
++  '<<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__({<<67,104,97,110,110,101,108>>, <<87,101,98>>, []}, '
++  '<<67,104,97,110,110,101,108>>), do: true\n'
++  '  defp __beaml_valid__({<<67,104,97,110,110,101,108>>, <<65,112,112>>, []}, '
++  '<<67,104,97,110,110,101,108>>), do: true\n'
++  '  defp __beaml_valid__({<<67,104,97,110,110,101,108>>, '
++  '<<85,110,107,110,111,119,110>>, [v0]}, <<67,104,97,110,110,101,108>>), do: '
++  '__beaml_valid__(v0, <<83,116,114,105,110,103>>)\n'
++  '  defp __beaml_valid__(v, <<78,111,67,117,114,114,101,110,99,121>>) when '
++  'is_map(v) and map_size(v) == 0, do: true\n'
++  '  defp __beaml_valid__(v, <<80,108,97,99,101,79,114,100,101,114>>) when '
++  'is_map(v) and map_size(v) == 3, do: __beaml_valid__(Map.get(v, '
++  '<<111,114,100,101,114,95,105,100>>), <<83,116,114,105,110,103>>) and '
++  '__beaml_valid__(Map.get(v, <<97,109,111,117,110,116>>), '
++  '<<65,109,111,117,110,116>>) and __beaml_valid__(Map.get(v, '
++  '<<99,104,97,110,110,101,108>>), <<67,104,97,110,110,101,108>>)\n'
++  '  defp __beaml_valid__(_, _), do: false\n'
++  '  def new_Amount_1(a0, a1) do\n'
++  '    if __beaml_valid__(a0, <<83,116,114,105,110,103>>) and '
++  '__beaml_valid__(a1, <<83,116,114,105,110,103>>) do\n'
++  '      case __beaml_new_Amount_1(a0, a1) do\n'
++  '        {:ok, result} ->\n'
++  '          if __beaml_valid__(result, <<65,109,111,117,110,116>>), do: {:ok, '
++  'result}, else: raise(ArgumentError, "invalid BEAML output")\n'
++  '\n'
++  '        {:error, error} ->\n'
++  '          {:error, error}\n'
++  '      end\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 Amount 223 287\n'
++  '  defp __beaml_new_Amount_1(_, <<>>), do: {:error, '
++  '%__MODULE__.NoCurrency{}}\n'
++  '  # beaml-declaration-v1 Amount 288 382\n'
++  '  defp __beaml_new_Amount_1(v_value, v_currency), do: {:ok, '
++  '%__MODULE__.Amount{value: v_value, currency: v_currency}}\n'
++  '  def echo(a0) do\n'
++  '    if __beaml_valid__(a0, <<80,108,97,99,101,79,114,100,101,114>>) do\n'
++  '      result = __beaml_echo(a0)\n'
++  '      if __beaml_valid__(result, <<80,108,97,99,101,79,114,100,101,114>>), '
++  'do: result, else: raise(ArgumentError, "invalid BEAML output")\n'
++  '    else\n'
++  '      raise ArgumentError, "invalid BEAML input"\n'
++  '    end\n'
++  '  end\n'
++  '  # beaml-declaration-v1 echo 590 629\n'
++  '  defp __beaml_echo(v_p), do: v_p\n'
++  '  # beaml-declaration-v1 ui.echo 522 588\n'
++  '  defp __beaml_literal_Channel(<<119,101,98>>), do: '
++  '{<<67,104,97,110,110,101,108>>, <<87,101,98>>, []}\n'
++  '  defp __beaml_literal_Channel(<<97,112,112,45,99,104,97,110,110,101,108>>), '
++  'do: {<<67,104,97,110,110,101,108>>, <<65,112,112>>, []}\n'
++  '  defp __beaml_literal_Channel(v) when is_binary(v), do: '
++  '{<<67,104,97,110,110,101,108>>, <<85,110,107,110,111,119,110>>, [v]}\n'
++  '  defp __beaml_literal_Channel(_), do: :error\n'
++  '  def __beaml_unknown_fields_placeorder(value) do\n'
++  '    Enum.flat_map([{<<99,104,97,110,110,101,108>>, '
++  '<<67,104,97,110,110,101,108>>, <<85,110,107,110,111,119,110>>}], fn {field, '
++  'owner, keep} ->\n'
++  '      case Map.get(value, field) do\n'
++  '        {^owner, ^keep, _} -> [field]\n'
++  '        _ -> []\n'
++  '      end\n'
++  '    end)\n'
++  '  end\n'
++  '  defp __beaml_from_Amount(v) do\n'
++  '    cond do\n'
++  '      is_map(v) and __beaml_valid__(Map.get(v, <<118,97,108,117,101>>), '
++  '<<83,116,114,105,110,103>>) and __beaml_valid__(Map.get(v, '
++  '<<99,117,114,114,101,110,99,121>>), <<83,116,114,105,110,103>>) ->\n'
++  '        case new_Amount_1(Map.get(v, <<118,97,108,117,101>>), Map.get(v, '
++  '<<99,117,114,114,101,110,99,121>>)) do\n'
++  '          {:ok, value} -> value\n'
++  '          {:error, _} -> :constructor\n'
++  '        end\n'
++  '\n'
++  '      true ->\n'
++  '        :error\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_decode_placeorder(a0) do\n'
++  '    declared = [<<111,114,100,101,114,95,105,100>>, '
++  '<<97,109,111,117,110,116>>, <<99,104,97,110,110,101,108>>]\n'
++  '\n'
++  '    value =\n'
++  '      try do\n'
++  '        :json.decode(a0)\n'
++  '      rescue\n'
++  '        _ -> nil\n'
++  '      end\n'
++  '\n'
++  '    shape = if is_map(value), do: Map.take(value, declared), else: nil\n'
++  '\n'
++  '    shape =\n'
++  '      if is_map(shape) and Map.has_key?(shape, '
++  '<<99,104,97,110,110,101,108>>),\n'
++  '        do: Map.update!(shape, <<99,104,97,110,110,101,108>>, '
++  '&__beaml_literal_Channel/1),\n'
++  '        else: shape\n'
++  '\n'
++  '    shape =\n'
++  '      if is_map(shape) and Map.has_key?(shape, <<97,109,111,117,110,116>>),\n'
++  '        do: Map.update!(shape, <<97,109,111,117,110,116>>, '
++  '&__beaml_from_Amount/1),\n'
++  '        else: shape\n'
++  '\n'
++  '    cond do\n'
++  '      is_map(shape) and Enum.member?(Map.values(shape), :constructor) ->\n'
++  '        {:error, <<99,111,110,115,116,114,117,99,116,111,114>>}\n'
++  '\n'
++  '      __beaml_valid__(shape, <<80,108,97,99,101,79,114,100,101,114>>) ->\n'
++  '        nested =\n'
++  '          Enum.flat_map([{<<97,109,111,117,110,116>>, '
++  '[<<118,97,108,117,101>>, <<99,117,114,114,101,110,99,121>>]}], fn {field, '
++  'names} ->\n'
++  '            case Map.get(value, field) do\n'
++  '              inner when is_map(inner) -> Enum.map(Map.keys(Map.drop(inner, '
++  'names)), &(field <> <<46>> <> &1))\n'
++  '              _ -> []\n'
++  '            end\n'
++  '          end)\n'
++  '\n'
++  '        {:ok, shape, Enum.sort(Enum.concat(Map.keys(Map.drop(value, '
++  'declared)), nested))}\n'
++  '\n'
++  '      true ->\n'
++  '        :error\n'
++  '    end\n'
++  '  end\n'
++  '  def ui_echo(a0) do\n'
++  '    __beaml_attempt__(fn ->\n'
++  '      ProbeSupport.span(<<101,110,117,109,46,117,105,46,101,99,104,111>>, '
++  ':server, nil, nil, fn ->\n'
++  '        bytes = if __beaml_term__(a0), do: '
++  'IO.iodata_to_binary(:json.encode(a0)), else: nil\n'
++  '        decoded = if bytes == nil, do: :error, else: '
++  '__beaml_decode_placeorder(bytes)\n'
++  '        __beaml_enter_ui_echo(decoded)\n'
++  '      end)\n'
++  '    end)\n'
++  '  end\n'
++  '  defp __beaml_enter_ui_echo({:ok, value, keys}) do\n'
++  '    if keys == [], do: :ok, else: '
++  ':otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':unknown_keys, keys)\n'
++  '    fields = __beaml_unknown_fields_placeorder(value)\n'
++  '    if fields == [], do: :ok, else: '
++  ':otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':unknown_fields, fields)\n'
++  '    {:ok, __MODULE__.echo(value)}\n'
++  '  end\n'
++  '  defp __beaml_enter_ui_echo({:error, reason}), do: '
++  '__beaml_reject__(reason)\n'
++  '  defp __beaml_enter_ui_echo(:error), do: '
++  '__beaml_reject__(<<100,101,99,111,100,101>>)\n'
++  '  def __beaml_rejected__(a0), do: %__MODULE__.Rejected{reason: a0}\n'
++  '  defp __beaml_reject__(a0) do\n'
++  '    :otel_span.set_attribute(OpenTelemetry.Tracer.current_span_ctx(), '
++  ':reason, a0)\n'
++  '    raise(__MODULE__.BeamlFailure, error: __beaml_rejected__(a0))\n'
++  '  end\n'
++  '  # D6B-143: maps with String keys, lists, Strings, numbers, true and false; '
++  'any other term is the reject decode.\n'
++  '  defp __beaml_term__(v) do\n'
++  '    cond do\n'
++  '      is_map(v) -> Enum.all?(Map.to_list(v), fn {k, x} -> is_binary(k) and '
++  'String.valid?(k) and __beaml_term__(x) end)\n'
++  '      :erlang.is_list(v) -> if List.improper?(v), do: false, else: '
++  'Enum.all?(v, &__beaml_term__/1)\n'
++  '      is_binary(v) -> String.valid?(v)\n'
++  '      :erlang.is_number(v) -> true\n'
++  '      true -> Enum.member?([true, false], v)\n'
++  '    end\n'
++  '  end\n'
++  '  def __beaml_attempt__(a0) do\n'
++  '    try do\n'
++  '      a0.()\n'
++  '    rescue\n'
++  '      failure in __MODULE__.BeamlFailure -> {:error, failure.error}\n'
++  '    end\n'
++  '  end\n'
++  '  defmodule BeamlFailure do\n'
++  '    import Kernel\n'
++  '    defexception [:error]\n'
++  '\n'
++  '    @impl true\n'
++  '    def message(_), do: "BEAML failure"\n'
++  '  end\n'
++  'end\n',
+-  '',
+?    ^
+
++  '')
+?    ^
+
+-  'error: the source file name enum gives the module Enum, which the generated '
+-  'code calls; rename the file') : expected exit 1, no stdout and the exact message
+
+======================================================================
+FAIL: test_n11_fmt_keeps_the_fixture (__main__.Slice6Multi.test_n11_fmt_keeps_the_fixture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 418, in test_n11_fmt_keeps_the_fixture
+    self.assertEqual((0, MULTI.read_text()), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6e: two EFFECTS and two ENTR[1551 chars]e\n') != (1, '// Slice 6e: two EFFECTS and two ENTR[1551 chars]e\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6e: two EFFECTS and two ENTRY LINES in one source; the module is '
+   'named from the stem (Q6E-1 C).\n'
+   'type NoCurrency {}\n'
+   'type Amount { value: String currency: String }\n'
+   'fn Amount value: String, currency: String -> Amount ! NoCurrency\n'
+   'fn Amount _,     ""       -> Amount ! NoCurrency = NoCurrency {}\n'
+   'fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, '
+   'currency: currency }\n'
+   '\n'
+   'enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }\n'
+   '\n'
+   'type PlaceOrder { order_id: String amount: Amount channel: Channel }\n'
+   'type Order { order_id: String }\n'
+   'type Payment { order_id: String status: String }\n'
+   'type PaymentError { reason: String }\n'
+   'type Hold { order_id: String amount: Amount }\n'
+   'type StockError { reason: String }\n'
+   '\n'
+   '// Two EFFECTS leave the module. Each is recorded live and substituted in a '
+   'REPLAY RUN by its operation.\n'
+   'effect payments.authorize Order -> Payment ! PaymentError = '
+   'http.post("payments/authorize")\n'
+   'effect stock.reserve Order      -> Hold ! StockError      = '
+   'http.post("stock/reserve")\n'
+   '\n'
+   '// Two ENTRY LINES enter the module. The host calls Orders.ui_place(params) '
+   'and Orders.ui_hold(params).\n'
+   'effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> '
+   'place\n'
+   'effect ui.hold PlaceOrder  -> Hold ! StockError      = ui.event("hold") |> '
+   'hold\n'
+   '\n'
+   'fn to_order PlaceOrder { order_id, amount, channel } -> Order = Order { '
+   'order_id: order_id }\n'
+   '\n'
+   'fn place p: PlaceOrder -> Payment ! PaymentError =\n'
+   '  p\n'
+   '  |> to_order\n'
+   '  |> payments.authorize\n'
+   '\n'
+   'fn hold p: PlaceOrder -> Hold ! StockError =\n'
+   '  p\n'
+   '  |> to_order\n'
+   '  |> stock.reserve\n') : slice 1 supports one effect
+
+
+======================================================================
+FAIL: test_n11b_fmt_aligns_a_single_spaced_effect_line (__main__.Slice6Multi.test_n11b_fmt_aligns_a_single_spaced_effect_line)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 425, in test_n11b_fmt_aligns_a_single_spaced_effect_line
+    self.assertEqual((0, text), (code, after), stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '// Slice 6e: two EFFECTS and two ENTR[1551 chars]e\n') != (1, '// Slice 6e: two EFFECTS and two ENTR[1541 chars]e\n')
+
+First differing element 0:
+0
+1
+
+- (0,
++ (1,
+   '// Slice 6e: two EFFECTS and two ENTRY LINES in one source; the module is '
+   'named from the stem (Q6E-1 C).\n'
+   'type NoCurrency {}\n'
+   'type Amount { value: String currency: String }\n'
+   'fn Amount value: String, currency: String -> Amount ! NoCurrency\n'
+   'fn Amount _,     ""       -> Amount ! NoCurrency = NoCurrency {}\n'
+   'fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, '
+   'currency: currency }\n'
+   '\n'
+   'enum Channel { Web = "web"  App = "app-channel"  Unknown(String) }\n'
+   '\n'
+   'type PlaceOrder { order_id: String amount: Amount channel: Channel }\n'
+   'type Order { order_id: String }\n'
+   'type Payment { order_id: String status: String }\n'
+   'type PaymentError { reason: String }\n'
+   'type Hold { order_id: String amount: Amount }\n'
+   'type StockError { reason: String }\n'
+   '\n'
+   '// Two EFFECTS leave the module. Each is recorded live and substituted in a '
+   'REPLAY RUN by its operation.\n'
+   'effect payments.authorize Order -> Payment ! PaymentError = '
+   'http.post("payments/authorize")\n'
+-  'effect stock.reserve Order      -> Hold ! StockError      = '
+?                              -----                     -----
+
++  'effect stock.reserve Order -> Hold ! StockError = '
+   'http.post("stock/reserve")\n'
+   '\n'
+   '// Two ENTRY LINES enter the module. The host calls Orders.ui_place(params) '
+   'and Orders.ui_hold(params).\n'
+   'effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> '
+   'place\n'
+   'effect ui.hold PlaceOrder  -> Hold ! StockError      = ui.event("hold") |> '
+   'hold\n'
+   '\n'
+   'fn to_order PlaceOrder { order_id, amount, channel } -> Order = Order { '
+   'order_id: order_id }\n'
+   '\n'
+   'fn place p: PlaceOrder -> Payment ! PaymentError =\n'
+   '  p\n'
+   '  |> to_order\n'
+   '  |> payments.authorize\n'
+   '\n'
+   'fn hold p: PlaceOrder -> Hold ! StockError =\n'
+   '  p\n'
+   '  |> to_order\n'
+   '  |> stock.reserve\n') : slice 1 supports one effect
+
+
+======================================================================
+FAIL: test_n14_entry_line_sources_take_the_stem (__main__.Slice6Multi.test_n14_entry_line_sources_take_the_stem) [slice6/entry/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 450, in test_n14_entry_line_sources_take_the_stem
+    stdout, _ = self.built(source, extra, module)
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 252, in built
+    self.assertEqual((0, True), (code, "defmodule %s do" % module in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and defmodule %s on stdout; stderr: %s" % (module, stderr))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (0, False)
+
+First differing element 1:
+True
+False
+
+- (0, True)
++ (0, False) : expected exit 0 and defmodule Orders on stdout; stderr: 
+
+======================================================================
+FAIL: test_n14_entry_line_sources_take_the_stem (__main__.Slice6Multi.test_n14_entry_line_sources_take_the_stem) [slice6/entry/echo.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 450, in test_n14_entry_line_sources_take_the_stem
+    stdout, _ = self.built(source, extra, module)
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 252, in built
+    self.assertEqual((0, True), (code, "defmodule %s do" % module in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and defmodule %s on stdout; stderr: %s" % (module, stderr))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (0, False)
+
+First differing element 1:
+True
+False
+
+- (0, True)
++ (0, False) : expected exit 0 and defmodule Echo on stdout; stderr: 
+
+======================================================================
+FAIL: test_n14_entry_line_sources_take_the_stem (__main__.Slice6Multi.test_n14_entry_line_sources_take_the_stem) [slice6/entry/count.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 450, in test_n14_entry_line_sources_take_the_stem
+    stdout, _ = self.built(source, extra, module)
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 252, in built
+    self.assertEqual((0, True), (code, "defmodule %s do" % module in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and defmodule %s on stdout; stderr: %s" % (module, stderr))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (0, False)
+
+First differing element 1:
+True
+False
+
+- (0, True)
++ (0, False) : expected exit 0 and defmodule Count on stdout; stderr: 
+
+======================================================================
+FAIL: test_n14_entry_line_sources_take_the_stem (__main__.Slice6Multi.test_n14_entry_line_sources_take_the_stem) [slice6/multi/copy/orders.beaml]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 450, in test_n14_entry_line_sources_take_the_stem
+    stdout, _ = self.built(source, extra, module)
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 252, in built
+    self.assertEqual((0, True), (code, "defmodule %s do" % module in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and defmodule %s on stdout; stderr: %s" % (module, stderr))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (0, False)
+
+First differing element 1:
+True
+False
+
+- (0, True)
++ (0, False) : expected exit 0 and defmodule Orders on stdout; stderr: 
+
+======================================================================
+FAIL: test_n15_module_name_from_stem (__main__.Slice6Multi.test_n15_module_name_from_stem) [order_flow]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 472, in test_n15_module_name_from_stem
+    self.assertEqual((0, True, False), (code, "defmodule %s do" % module in stdout,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                        "BeamlSpike" in stdout), stderr)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, False) != (0, False, True)
+
+First differing element 1:
+True
+False
+
+- (0, True, False)
++ (0, False, True) : 
+
+======================================================================
+FAIL: test_n15_module_name_from_stem (__main__.Slice6Multi.test_n15_module_name_from_stem) [v2_orders]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 472, in test_n15_module_name_from_stem
+    self.assertEqual((0, True, False), (code, "defmodule %s do" % module in stdout,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                        "BeamlSpike" in stdout), stderr)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True, False) != (0, False, True)
+
+First differing element 1:
+True
+False
+
+- (0, True, False)
++ (0, False, True) : 
+
+======================================================================
+FAIL: test_n1_two_effects_and_two_entry_lines_build (__main__.Slice6Multi.test_n1_two_effects_and_two_entry_lines_build)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 300, in test_n1_two_effects_and_two_entry_lines_build
+    self.assertEqual((0, ""), (code, stderr.strip()), "expected exit 0 and no stderr")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, '') != (1, 'slice 1 supports one effect')
+
+First differing element 0:
+0
+1
+
+- (0, '')
++ (1, 'slice 1 supports one effect') : expected exit 0 and no stderr
+
+======================================================================
+FAIL: test_n2_output_compiles_without_warnings (__main__.Slice6Multi.test_n2_output_compiles_without_warnings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 311, in test_n2_output_compiles_without_warnings
+    stdout, _ = self.built(MULTI)
+                ~~~~~~~~~~^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 252, in built
+    self.assertEqual((0, True), (code, "defmodule %s do" % module in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and defmodule %s on stdout; stderr: %s" % (module, stderr))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and defmodule Orders on stdout; stderr: slice 1 supports one effect
+
+
+======================================================================
+FAIL: test_n3_to_n6_runtime (__main__.Slice6Multi.test_n3_to_n6_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 319, in test_n3_to_n6_runtime
+    out = self.compiled()
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 268, in compiled
+    stdout, _ = self.built(MULTI)
+                ~~~~~~~~~~^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 252, in built
+    self.assertEqual((0, True), (code, "defmodule %s do" % module in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and defmodule %s on stdout; stderr: %s" % (module, stderr))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and defmodule Orders on stdout; stderr: slice 1 supports one effect
+
+
+======================================================================
+FAIL: test_n7_stored_snapshot_with_two_operations_builds (__main__.Slice6Multi.test_n7_stored_snapshot_with_two_operations_builds)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 333, in test_n7_stored_snapshot_with_two_operations_builds
+    entries, responses = self.records()
+                         ~~~~~~~~~~~~^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 277, in records
+    out = self.compiled()
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 268, in compiled
+    stdout, _ = self.built(MULTI)
+                ~~~~~~~~~~^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 252, in built
+    self.assertEqual((0, True), (code, "defmodule %s do" % module in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and defmodule %s on stdout; stderr: %s" % (module, stderr))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and defmodule Orders on stdout; stderr: slice 1 supports one effect
+
+
+======================================================================
+FAIL: test_n8_orphan_block_per_operation (__main__.Slice6Multi.test_n8_orphan_block_per_operation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 339, in test_n8_orphan_block_per_operation
+    entries, responses = self.records()
+                         ~~~~~~~~~~~~^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 277, in records
+    out = self.compiled()
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 268, in compiled
+    stdout, _ = self.built(MULTI)
+                ~~~~~~~~~~^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 252, in built
+    self.assertEqual((0, True), (code, "defmodule %s do" % module in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and defmodule %s on stdout; stderr: %s" % (module, stderr))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and defmodule Orders on stdout; stderr: slice 1 supports one effect
+
+
+======================================================================
+FAIL: test_n9_dead_line_per_operation (__main__.Slice6Multi.test_n9_dead_line_per_operation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 369, in test_n9_dead_line_per_operation
+    entries, responses = self.records()
+                         ~~~~~~~~~~~~^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 277, in records
+    out = self.compiled()
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 268, in compiled
+    stdout, _ = self.built(MULTI)
+                ~~~~~~~~~~^^^^^^^
+  File "/Users/lennart/Projects/beaml/experiments/0004-generated-replay/tests/slice6_multi_test.py", line 252, in built
+    self.assertEqual((0, True), (code, "defmodule %s do" % module in stdout),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "expected exit 0 and defmodule %s on stdout; stderr: %s" % (module, stderr))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: (0, True) != (1, False)
+
+First differing element 0:
+0
+1
+
+- (0, True)
++ (1, False) : expected exit 0 and defmodule Orders on stdout; stderr: slice 1 supports one effect
+
+
+----------------------------------------------------------------------
+Ran 14 tests in 4.512s
+
+FAILED (failures=17)
+# exit 1

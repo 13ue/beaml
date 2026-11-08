@@ -2,7 +2,7 @@
 id: experiment-0004-generated-replay-plan
 kind: experiment
 status: proposed
-updated: 2026-11-07
+updated: 2026-11-08
 revision: 9.3 (O7 answered)
 ---
 
@@ -135,6 +135,7 @@ fn place order: Order -> Payment ! PaymentError =
    - **DRIFT-Q.** Add a field with a literal value to the request TYPE that `prepare` returns, and the matching Payments input.
    For each derivative and arm, record the outcome at build, on a new live record and on the pre-change record. Outcome classes: compile error with a clear message, typed reject, correct accept, false reject, wrong accept, crash without a typed reason. Then repair each arm until (d) or (e) passes again. Count manual change sites per arm.
    **[Verified]** After slice 6b step 6a (DL-118, D6B-96): GEN rows only. The repair check is the GEN REPLAY RUN of the repaired tree, after a rebuild of every release that the repair touches. Each row needs a version 2 record with status 200, `ok` and host validation `ok`. See [slice 6b step 6a](#slice-6b-step-6a-response-record-version-2).
+   **[Verified]** Since 2026-11-07 (DL-135, D6B-189): the outcome classes are asserted, not only recorded. The DRIFT status is `pass` only with a freeze `pass`, `repaired_all` true and each GEN row equal to the pin. See [DRIFT status](#drift-status-dl-135).
 
 ### Case (d2): TYPE mismatch cases
 
@@ -1558,7 +1559,7 @@ error: stored RESPONSE RECORD has record version V; this build reads record vers
 
 **Limits (step 6a).**
 
-- **[Verified]** RV6A-2 and RC1 (medium, open): `run.py` runs no `slice6_*_test.py` and not `drift_test.py`. Its `drift` step does not read `repaired_all`. A full-suite `pass` thus holds no 6a acceptance. The evidence is the separate runs above.
+- **[Verified]** RV6A-2 and RC1 (medium, open): `run.py` runs no `slice6_*_test.py` and not `drift_test.py`. Its `drift` step does not read `repaired_all`. A full-suite `pass` thus holds no 6a acceptance. The evidence is the separate runs above. **[Verified]** Closed 2026-11-07 ([RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4), DL-135): the full run now runs every slice 6 file and `drift_test.py`. `drift_status` reads `repaired_all`.
 - **[Inference]** An edit of the umbrella `config/*.exs` or `mix.exs` rebuilds no release (`repair_releases`). No repair spec edits these files today.
 - **[Verified]** The `:json` encoder limit for exponent floats in `digest/3` is marked `ponytail:` in the generated code.
 - **[Verified]** `run.py` `proxy` still writes `body_base64` into the proxy exchange. That is a DRIFT diagnostic, not a RESPONSE RECORD.
@@ -1614,7 +1615,7 @@ The five rules of `T.new/1` (D6B-97 to D6B-101, class Repair by DL-123):
   - **[Verified]** Correction 2026-11-07 (RED TEAM 01, finding B5): the sentence above is too wide. The check requires the struct TYPE. A struct built by `new/1` carries validated fields. A struct update (`%{s | value: 0}`, the normal Elixir edit) and a forged `__struct__` map pass the check, also inside a nested field. The check does not run the constructor again. This is the DL-106 limit. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md).
 - **[Verified]** A forged map `%{__struct__: BeamlSpike.NonZeroInt, value: 4, x: 1}` with an extra key also passes the input check. It is the same class as the DL-106 limit (review probe).
 - **[Inference]** A struct from an older build with another field set is untested.
-- **[Verified]** N1 (medium): `run.py` runs no slice 6 test file. The full-suite run holds no step 11 evidence; unittest keeps no result directory. The evidence for 149 of 149 is the [review](workflow/2026-11-07/slice6b-host-structs/review.md).
+- **[Verified]** N1 (medium): `run.py` runs no slice 6 test file. The full-suite run holds no step 11 evidence; unittest keeps no result directory. The evidence for 149 of 149 is the [review](workflow/2026-11-07/slice6b-host-structs/review.md). **[Verified]** Closed 2026-11-07 ([RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4), DL-135): the full run now runs every slice 6 file and `drift_test.py`.
 - **[Verified]** The reject of a constructor that reaches an EFFECT is not in this step (DL-120). Step 12b adds it: [steps 12 and 12b](#slice-6b-steps-12-and-12b-spans-on-the-effect-path-and-a-pure-constructor).
 
 ### Decisions (Decision4, slice 6b DOCS 6a and 11)
@@ -1686,7 +1687,7 @@ error: fn T: a constructor cannot reach an EFFECT: T -> f -> ... -> effect.name 
 - **[Verified]** N1 (medium): no 0002 test calls `event/2` without a span. Only `arms_test` covers D6B-127, indirectly. A consumer that joins on `span_id` drops a `"none"` row.
 - **[Inference]** The real OTel exporter runs only for the GEN orders source, which has no indirect pipe. The indirect pipes run with stubs.
 - **[Verified]** Spans for call forms and nested pipes, the REPLAY RUN of an indirect caller and a `check --json` reach output are out of scope (D6B-85, D6B-93, D6B-94).
-- **[Verified]** Limit of the full suite (added 2026-11-07, RED TEAM 01, finding D10): the full `run.py` run covers slices 1 to 5. It runs no `slice6_*_test.py` file and not `drift_test.py`, and its `drift` step does not read `repaired_all`. The 13 slice 6 files (172 of 172) and `drift_test.py` (5 of 5) ran apart and keep no `results/` directory. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md).
+- **[Verified]** Limit of the full suite (added 2026-11-07, RED TEAM 01, finding D10): the full `run.py` run covers slices 1 to 5. It runs no `slice6_*_test.py` file and not `drift_test.py`, and its `drift` step does not read `repaired_all`. The 13 slice 6 files (172 of 172) and `drift_test.py` (5 of 5) ran apart and keep no `results/` directory. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md). **[Verified]** Closed 2026-11-07 ([RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4), DL-135): the full run now runs every slice 6 file and `drift_test.py`.
 
 ### Slice 6b step 13: stored check through Elixir
 
@@ -1700,6 +1701,7 @@ error: fn T: a constructor cannot reach an EFFECT: T -> f -> ... -> effect.name 
 2. **Elixir pass.** For each record and each constructor field, the compiler picks the first matching signature (the Rust mirror of the `cond` in `__beaml_from_T`, D6B-103). Only a signature with a failure TYPE gives a call (D6B-104). When the list is not empty, one `elixir -e DRIVER` process runs (D6B-102). Stdin holds `{"module": <generated code>, "calls": [[new_T_k, T, [inputs]], ...]}`. The driver compiles the module in memory and prints one line per call: `ok` or `error F`. No file holds a record value.
 
 - **Strict protocol (D6B-121, D6B-122).** Success needs exit 0, exactly one line per call, and each line `ok` or `error F` with F in the failure list of that signature. The driver has no `rescue`, `catch` or `try`. Any other result is a run error. The unit test `elixir_results_are_strict` pins this.
+- **Stored driver enum clause (D6B-187, 2026-11-07).** Success is `{:ok, %{__struct__: BeamlSpike.<type>}}` or, for an enum constructor, `{:ok, {<type>, variant, payload}}` with `<type>` equal to the call TYPE, `variant` a binary and `payload` a list. Every other shape still raises. Before this clause a valid enum record gave the run error (RED TEAM 01 C1). See [RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4).
 - **Time limit (D6B-119).** 60 s by default. `BEAML_STORED_ELIXIR_LIMIT_S` sets whole seconds from 1. On expiry the compiler kills the process group and gives the run error.
 - **Child env (D6B-123).** `ERL_CRASH_DUMP=/dev/null`, so a crash writes no dump with record values.
 - **No values out (DL-032, D6B-106).** The compiler reads and drops the child stdout and stderr; it never forwards them.
@@ -1739,6 +1741,7 @@ error: the --stored check: the Elixir run of the generated constructors failed (
 - A bad limit value: `error: BEAML_STORED_ELIXIR_LIMIT_S must be a whole number of seconds from 1`. Exit 1 for every text above.
 
 **Event [Verified].** Each Elixir run appends one event `stored-elixir` to `.beaml/actions.jsonl` with `result` (`ok`, `blocked` or `error`), Int `ms` and `calls` (D6B-107). The keys are `ts`, `source`, `action`, `target`, `result`, `ms`, `calls`; no path, no source text, no value. No Elixir on `PATH` gives `result: "error"`, `ms: 0`. A build with 0 calls or a static error writes no `stored-elixir` event.
+**[Verified]** Since 2026-11-07 (D6B-188): `fn action` writes each event as one full line with one `write_all` on the `O_APPEND` file. Parallel runs no longer split a line (RED TEAM 01 B3).
 
 **Timings observed [Verified]** (macOS, Elixir 1.18.1, OTP 27):
 
@@ -1770,7 +1773,7 @@ error: the --stored check: the Elixir run of the generated constructors failed (
 - **[Inference]** The process-group kill is shown on this host only.
 - **[Inference]** The signature pick is a Rust mirror of the generated `cond` (D6B-103). The guards E9a and E9b catch a drift of the order. A new signature rule must change both.
 - **[Verified]** Lost mappings of constructor enums are not checked (D6B-109).
-- **[Verified]** Limit of the full suite (added 2026-11-07, RED TEAM 01, finding D10): the full `run.py` run (14 of 14) covers slices 1 to 5. `slice6_stored_elixir` (15 of 15), the other slice 6 files (172 of 172 in total) and `drift_test.py` ran apart. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md).
+- **[Verified]** Limit of the full suite (added 2026-11-07, RED TEAM 01, finding D10): the full `run.py` run (14 of 14) covers slices 1 to 5. `slice6_stored_elixir` (15 of 15), the other slice 6 files (172 of 172 in total) and `drift_test.py` ran apart. See [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md). **[Verified]** Closed 2026-11-07 ([RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4), DL-135): the full run now runs every slice 6 file and `drift_test.py`.
 - **[Inference]** `elixir` from asdf reads `~/.tool-versions` in a temporary cwd. A machine with only a project-local `.tool-versions` gets the run error, not a pass.
 
 ### Decisions (Decision4, slice 6b DOCS 12, 12b and 13)
@@ -1780,3 +1783,700 @@ error: the --stored check: the Elixir run of the generated constructors failed (
 | No glossary term STORED CHECK; the text says "the `--stored` check" | Undo | One flag name is clearer than a second term | Opus (DOCS, slice6b 12+13) |
 | N1 and N2 of both reviews stated as open limits | Undo | No code change in DOCS; a fix is a separate step | Opus (DOCS, slice6b 12+13) |
 | Steps 12, 12b and 13 in one DOCS pass, with one shared TEST table | Undo | One TEST run covers both steps | Opus (DOCS, slice6b 12+13) |
+
+### Slice 6b step 6b: redacted fields
+
+**[Verified]** Pass after one review repair (O1, O2 closed in acf12d75), one medium note (O3). Ledger: [slice6b-redacted-fields](workflow/2026-11-07/slice6b-redacted-fields/). Contract: [spec.md](workflow/2026-11-07/slice6b-redacted-fields/spec.md). Review and re-check: [review.md](workflow/2026-11-07/slice6b-redacted-fields/review.md). Plan: [slice6b-redacted](workflow/2026-11-07/slice6b-redacted/plan.md). Decisions: DL-059, DL-089, DL-105, DL-111, DL-113, DL-115, DL-116, DL-125 in the [decision log](../../wiki/planning/decision-log.md); D6B-148 to D6B-173, D6B-184 to D6B-186 in the ledger.
+
+**[Requirement]** A field declared `redacted` stays out of logs, traces and records (DL-059). An EFFECT sends it only when the EFFECT names it with `with` (DL-089).
+
+```beaml
+type Order { order_id: String  card_holder: redacted String }
+effect payments.authorize Order -> Payment ! PaymentError = http.post("payments/authorize") with card_holder
+```
+
+**Forms [Verified].**
+
+- `name: redacted TYPE` stands only in a `type` field. In an enum payload, a signature line or a MIGRATE CHANGE it is the D6B-64 error.
+- `with f1, f2` stands after the `)` of the EFFECT target. Each name is a top-level redacted field of the input TYPE (D6B-65 texts: not a field, not a redacted field, named twice).
+- A dotted name (`with card.holder`) is a parse error, `expected identifier at byte N`, not a named rule text (D6B-31).
+
+**Projections [Verified].**
+
+| Channel | Holds a redacted input field |
+| --- | --- |
+| Wire body | only when `with` names it |
+| Record `request`, `:request_mismatch` compare, span input, `ProbeSupport.event` | never, also not a `with` name; the key is removed, no placeholder |
+| Record `value` (output) | never; the `redacted` list names the field when it was present and valid (D6B-55) |
+| Live flow (output) | yes, the real value |
+| REPLAY RUN (output) | the atom `:redacted` (DL-115) |
+
+- Record `unknown_keys` holds dotted names per level for every EFFECT source (D6B-56 amendment, D6B-172).
+- The record `type` key and the fingerprint write `redacted String` (D6B-148).
+- A same-named plain output field beside a redacted input field keeps its value (DL-113).
+
+**DL-116 walk [Verified].** A redacted EFFECT output field must be a String or Int field of a TYPE without a constructor. The walk goes to any depth of the output TYPE, before the slice 1 decode limit (D6B-157). Since the review repair, a field below an enum payload or below a TYPE with a constructor is also rejected (D6B-184).
+
+```text
+error: effect E: the redacted field T.F must be a String or Int field of a TYPE without a constructor in slice 6b (DL-116)
+  help: remove redacted from T.F; the limit holds until a rule over an absent value exists (DL-116)
+```
+
+**Stored-value block [Verified].** `--stored` blocks a stored value under a field that is now redacted, per TYPE, operation, dotted path and place (`request` or `value`). The help line names `redact F` (DL-111), which has no syntax yet (DL-125). No stored value byte reaches stderr (DL-032).
+
+| Step | Owner |
+| --- | --- |
+| Parse `redacted` and `with`, D6B-64, D6B-65, DL-116 walk, stored-value block | BEAML (COMPILER) |
+| Wire, record, span and event projections; `redacted` list; `:redacted` in a REPLAY RUN | BEAML (generated) |
+| `ProbeSupport` span, event and capture, HTTP service, RECORD SNAPSHOT file | host (file-backed stubs in the test) |
+
+**Result [Verified].** `slice6_redacted_test.py` 20 of 20 after the repair. Full suite [`results/20261107T200526124175Z`](results/20261107T200526124175Z/result.json): pass, 14 of 14 steps, `slice5-syntax` 60 OK. Other slice 6 files all OK (re-check table). Byte check of the repair: 0 of 2036 tracked `.beaml` sources differ.
+
+**Limits (step 6b).**
+
+- **[Verified]** D6B-184 wording: the DL-116 text names the field, not the enum or the constructor TYPE above it. For `Holder.name` below an enum payload and `Inner.s` below `Amount`, "a TYPE without a constructor" is true of the field TYPE, so the text gives no reason for the reject. The help line is correct.
+- **[Verified]** No accept case for a redacted Int output field or a redacted nested output field: the slice 1 decode limit rejects them first (D6B-156).
+- **[Verified]** The slice 5 PIN: the D6B-172 re-pin moved three pins and missed `PIN` in `tests/slice5_syntax_test.py`. The review repair moved it from `237a4578` to `461d024e` (review O1). The re-pin changed 80 pinned hashes; EFFECT sources without `redacted` are no longer byte-equal to the step 6a output.
+- **[Verified]** O3 (medium, open): the stored-value block reads no `status`.
+- **[Verified]** Release path (real `ProbeSupport`, Logger handler, OTel exporter): not run (plan L1). The marker scan of the test does not cover upper-case hex or JSON `\u` escapes.
+- **[Verified]** The full suite covers slices 1 to 5. The slice 6 files ran apart (RED TEAM 01, finding D10). **[Verified]** Closed 2026-11-07 ([RED TEAM 01 repairs](#red-team-01-repairs-c1-b3-c3-c4), DL-135): the full run now runs every slice 6 file and `drift_test.py`.
+
+### Slice 6b step 6c: redacted copies
+
+**[Verified]** Pass, three medium notes (O1 to O3), no block. Ledger: [slice6b-redacted-failure](workflow/2026-11-07/slice6b-redacted-failure/). Contract: [spec.md](workflow/2026-11-07/slice6b-redacted-failure/spec.md). Review: [review.md](workflow/2026-11-07/slice6b-redacted-failure/review.md). Decisions: DL-105, DL-112, DL-113 in the [decision log](../../wiki/planning/decision-log.md); D6B-174 to D6B-183, D6B-191 to D6B-196 in the ledger.
+
+**[Requirement]** A direct copy of a redacted value into a field that is not redacted is a compile error everywhere (DL-112). DL-105 names the failure TYPES; DL-112 widens the rule to every record literal and variant payload. Only the direct copy is caught; a derived value is the implicit flow, a later target (DL-029).
+
+**Direct value [Verified].** A variable that a record pattern binds to a redacted field, at any depth, also under another name. One call or pipe step keeps it direct: into an identity fn (every clause returns the parameter, D6B-174) or into an accessor (every clause returns a direct redacted value, D6B-182). Both fns have one parameter. One hop only.
+
+**Rejected places [Verified].** (a) A field of a record literal that is not `redacted`, also nested. (b) A variant payload, also a variant as a pipe step. (c) The whole clause body when its TYPE is the failure TYPE. The text says "failure TYPE" with `(DL-105)` for a failure TYPE of the fn, else "TYPE" with `(DL-112)` (D6B-175, D6B-192).
+
+```text
+error: fn receipt copies the redacted field card_holder of Order into holder of the TYPE Receipt, which is not redacted
+  help: mark holder as redacted in Receipt, or do not copy the value (DL-112)
+```
+
+**Cases [Verified].**
+
+| Group | Fixtures | Outcome |
+| --- | --- | --- |
+| Failure TYPE copies (DL-105) | `f1`, `f3`, `f4`, `f7` | rejected |
+| Copies everywhere (DL-112) | `d1` record field, `d2` pipe into identity, `d3` call of identity, `d4` enum payload, `d5` variant pipe, `d6` renamed binding, `d7` nested pattern, `d8` call of accessor, `d9` pipe into accessor | rejected |
+| g1 to g5 (guards) | `g1` redacted target, `g2` redacted failure field, `g3` same-named plain field with another value (DL-113), `g4` whole record into a field of its own TYPE, `g5` accessor result into a redacted target | build |
+| l1 to l8 (limits) | `l1` `+`, `l2` constructor of another TYPE, `l3` fn that builds a record, `l4` two identity levels, `l5` the accessor alone, `l6` accessor in the first clause only, `l7` identity in the last clause only, `l8` accessor in the last clause only | build (pinned limit) |
+
+| Step | Owner |
+| --- | --- |
+| Pattern binds, identity and accessor hop, copy walk, texts | BEAML (COMPILER), build only |
+| Every derived path (`l1` to `l8`, O1, O2) | nobody yet (DL-029 target) |
+
+**Result [Verified].** `slice6_redacted_failure_test.py` 8 tests OK (13 RED subtests, 5 guards, 8 limits). Full suite [`results/20261107T200526124175Z`](results/20261107T200526124175Z/result.json): pass, 14 of 14 steps. Byte check: of 2044 tracked `.beaml` sources, exactly the 13 RED fixtures differ.
+
+**Limits (step 6c).**
+
+- **[Verified]** The rule is syntactic. `l1` to `l8` build; a later flow check changes them.
+- **[Verified]** `o |> holder |> Holder` (an accessor step, then a constructor) builds, a limit like `l2`. `o |> holder |> Held` is the payload reject (D6B-193).
+- **[Verified]** O1 (medium): a derived copy reaches the store. An accessor, a fn that builds a record and an EFFECT (`o |> holder |> wrap |> payments.authorize`) build. The live run writes the value in plain form to `responses.jsonl` and the span, with no `with`. The stored-value block of step 6b does not see it, because the stored field is not redacted. This is inside the DL-112 limit; it is evidence for DL-029.
+- **[Verified]** O2 (medium): the check reaches one-parameter fns only. A two-parameter accessor and a one-parameter failure builder build. An unused second parameter bypasses the accessor rule.
+- **[Verified]** O3 (D6B-191): the check runs in the build, after `validate`, not in `fmt`. `fmt` gives exit 0 on a source that the build rejects. `fmt` is not a validity check.
+- **[Verified]** No field access form exists (`o.card_holder` does not parse) and no list TYPE exists, so no case for them.
+- **[Verified]** Compile only: no runtime harness checks the rejected cases, because a reject builds no module.
+- **[Inference]** The accessor itself builds because no redacted return form exists. A return form would let the check move into the accessor.
+
+### Decisions (Decision4, slice 6b DOCS 6b and 6c)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| Steps 6b and 6c in one DOCS pass, with the shared full-suite run `20261107T200526124175Z` | Undo | One TEST run covers both steps | Opus (docs slice6b/6c) |
+| The TEST docs defects go into the ledger as dated additions, not as edits of the RED text | Repair | Chose: append. Over: rewrite `spec.md`. Because: the ledger is a phase record. Commits us to: a reader reads the addition after the contract | Opus (docs slice6b/6c) |
+| O1, O2 of 6c and the D6B-184 wording stated as open limits | Undo | No code change in DOCS; a fix is a separate step or an OWNER choice | Opus (docs slice6b/6c) |
+| No new glossary term for "direct value", "identity fn" or "accessor" | Undo | Scoped to step 6c; the ledger defines them | Opus (docs slice6b/6c) |
+
+## RED TEAM 01 repairs (C1, B3, C3, C4)
+
+**[Verified]** 2026-11-07. Commits `0397d62e` (C1, B3) and `1ec666a7` (C3, C4), TEST `45c97bfb`: PASS. Ledger: [red-team-01-repairs](workflow/2026-11-07/red-team-01-repairs/) ([spec](workflow/2026-11-07/red-team-01-repairs/spec.md), [TEST](workflow/2026-11-07/red-team-01-repairs/test-review.md)). Findings: [RED TEAM 01](workflow/2026-11-07/red-team-01/report.md), round 4 in [roasting rounds](../../wiki/planning/roasting-rounds.md).
+
+| Step | Owner | Repair |
+|---|---|---|
+| `--stored` Elixir pass, DRIVER text | BEAML (COMPILER, `main.rs`) | C1, D6B-187 |
+| action event write | BEAML (COMPILER, `fn action`) | B3, D6B-188 |
+| DRIFT status, full-run steps | HARNESS (`run.py`) | C3, C4, D6B-189, D6B-190 |
+| Elixir on `PATH`, parallel test runs | host | none |
+
+### DRIFT status (DL-135)
+
+**[Verified]** `run.py` `drift_status(summary)` gives `pass` only when all hold, else `fail`:
+
+1. the freeze status is `pass`;
+2. `repaired_all` is `true`;
+3. each GEN row (`build`, `new_live`, `pre_change`) equals the pin. A missing row is `fail`.
+
+| Derivative | build | new_live | pre_change |
+|---|---|---|---|
+| R | correct_accept | false_reject | typed_reject |
+| N | correct_accept | false_reject | typed_reject |
+| Q | correct_accept | typed_reject | typed_reject |
+
+- **[Verified]** Crash class = fail: `untyped_crash` in any cell of any row gives `fail` (TEST probe, 9 cases). `run.py drift` exits 1 on `fail`.
+- **[Verified]** The pin is literal in `run.py` (`DRIFT_PIN`) and in `tests/drift_test.py` (`PIN`); `test_f_drift_pin_matches_run_py` ties both. A wanted class change moves both in one commit with a diff proof.
+- **[Verified]** The `drift-test` step runs `tests/drift_test.py` last in the full run. The `drift` step stays; the full run thus starts two DRIFT runs (N1, medium, accepted).
+- **[Verified]** Over the retained `results/*/drift.json` before GREEN: 60 of 63 `pass`; the 3 `fail` are the crash run `20261107T171545190446Z` and two runs with `repaired_all` false.
+- **[Verified]** This replaces the slice 1 Undo D12 "recorded, not asserted" for the DRIFT status (DL-135).
+- **[Verified]** DL-147 (2026-11-08, Repair, By: Fable): a RED test file joins `run.py` `SLICE_TESTS` in its GREEN commit, not before. Until then it runs by hand in RED, RED review and GREEN. Because: a listed open RED turns the full run `fail` and hides a regression (TEST v3/multi O2). **[Verified]** At `0311306a` the two db RED files (`slice6_db`, `slice6_db_stored`) are still listed (multi-effect GREEN); the P4 GREEN closes that and checks the C4 wording ("every slice 6 file that has a GREEN").
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| Full `run.py`, [`results/20261107T220212948306Z`](results/20261107T220212948306Z/result.json) | pass, 34 of 34 steps (16 `slice6-*`, `redteam-c1`, `redteam-b3`, `redteam-c3`, `drift-test`), 1058 s |
+| `drift` step, [`results/20261107T220254343850Z`](results/20261107T220254343850Z/drift.json) | pass; rows equal the pin, `repaired_all` true |
+| `drift-test` | 7 tests, 107.6 s |
+| `redteam_c1_test.py` | 8 of 8 (C1g 3 accepted shapes, C1h 7 wrong shapes raise) |
+| `redteam_b3_test.py` | 1 of 1 (parallel runs write whole JSON lines) |
+| 0001 `run.py`, `cargo test`, `fmt --check`, `clippy -D warnings` | pass; 21 + 14; clean |
+
+### Limits
+
+- **[Inference]** One `write(2)` to an `O_APPEND` file keeps a short line whole on a local file system; it is no POSIX promise for every size. A network file system needs a lock (`ponytail:` comment in `fn action`).
+- **[Verified]** The repo-root `.beaml/actions.jsonl` keeps its 396 old invalid lines; B3 stops new ones only.
+- **[Unknown]** The cause of the first `drift_test.py` crash in the C3/C4 GREEN run (`20261107T205750509480Z`, no `drift.json`). It did not recur in TEST.
+- **[Verified]** C2, C5 (DL-136) and D1 (DL-140) are answered but not built. A full-run `pass` holds no evidence for them.
+- **[Proposal]** Smallest next test: the DL-136 mixed snapshot (200, 503, bad digest) under `--stored`, in D035 (P2b).
+
+### Decisions (Decision4, DOCS RED TEAM 01 repairs)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| Old "14 of 14" and D10 limit lines kept, with a dated closing note | Repair | Chose: append. Over: delete. Because: each line is true for the run it names. Commits us to: a reader reads the note after the limit | Opus (docs red-team-01-repairs) |
+| One new section for the four repairs, plus short pointers in step 13 and the (f) DRIFT case | Undo | One place for the pin; the step text keeps its history | Opus (docs red-team-01-repairs) |
+
+## Slice 6d: the ENTRY LINE (inbound EFFECT)
+
+**[Verified]** 2026-11-07. GREEN `35c7e3bf`, TEST BLOCK (O1 high) at that commit, TEST repair `f9b9083c`, TEST re-check `545dded0`: PASS. Ledger: [slice6d-inbound-effect](workflow/2026-11-07/slice6d-inbound-effect/) ([plan](workflow/2026-11-07/slice6d-inbound-effect/plan.md), [decisions](workflow/2026-11-07/slice6d-inbound-effect/decisions.md), [RED plan](workflow/2026-11-07/slice6d-inbound-effect/red-plan.md), [GREEN](workflow/2026-11-07/slice6d-inbound-effect/green-output.md), [TEST and re-check](workflow/2026-11-07/slice6d-inbound-effect/review.md)). Tests: [`tests/slice6_entry_test.py`](tests/slice6_entry_test.py), fixtures [`slice6/entry/`](slice6/entry/).
+
+| Step | Owner |
+|---|---|
+| ENTRY LINE parse, drift rule, subset checks | BEAML (COMPILER) |
+| `ui_<event>/1`: root span, term check, decode, ENTRY RECORD write, target call | BEAML (generated Elixir) |
+| `Rejected` struct, `Replay.entry/2` | BEAML (generated Elixir) |
+| `--stored` over `entries.jsonl` | BEAML (COMPILER) |
+| `handle_event("place", params, socket)` calls `ui_place(params)` | host |
+| `Capture.write/2` stores the record, span stack | host (test stubs) |
+
+### ENTRY LINE form (DL-130)
+
+**[Verified]** An inbound EFFECT is written like an outbound EFFECT: head with input, output and failure TYPE, body with the inbound transport and the target fn. Corpus syntax only; comments are `//` (DL-132).
+
+```beaml
+// Enters the module. The host calls ui_place(params) from handle_event("place", params, socket).
+effect ui.place PlaceOrder -> Payment ! PaymentError = ui.event("place") |> place
+```
+
+- **[Verified]** Drift rule (DL-130, By: Fable, Repair): the head input, output and failure TYPE must equal those of the target fn. A difference, or a failure TYPE on one side and none on the other, is a compile error with the DL-130 text (`bad/drift_*.beaml`, `test_n10_rejects`).
+- **[Verified]** Checks (`test_n10_rejects`, 16 rows): one ENTRY LINE per source (D6B-147); name `namespace.operation`; transport `ui.event` only; the target is a declared fn, not a constructor (DL-120), with one parameter; the input TYPE has no constructor, MIGRATE CHAIN or VERSION MARK (D6B-130); a target that reaches an EFFECT must be the flow of that EFFECT (D6B-129); `ui_<event>` must be a free name; the TYPE name `Rejected` is reserved (DL-133).
+- **[Verified]** `beaml fmt` aligns an ENTRY LINE with the EFFECT rows (`test_n11_fmt_keeps_the_fixtures`, `test_n11b_...`).
+- **[Verified]** No other source changes a byte: N13 compares 122 tracked sources without an ENTRY LINE against the pre-6d compiler (`test_n13_...`). No EFFECT byte pin moved.
+
+### Host function and reject (DL-131, DL-133)
+
+- **[Verified]** One generated function per ENTRY LINE: `ui_<event>/1` (`ui_place/1` above). A removed ENTRY LINE gives an undefined-function warning in the host build, not an error (`test_h1_...`, `test_h2_...`; see Limits).
+- **[Verified]** A decode or constructor failure returns `{:error, %Rejected{reason: "decode" | "constructor"}}`, apart from the fn's failure TYPE. Inside the root span the reject raises, so the span outcome is `error`; no raise reaches the host (G6D-06; TEST probe).
+- **[Verified]** Today the struct is `BeamlSpike.Rejected` (one module per build). The DL-133 note names `<Module>.Rejected` for several modules per build (Q6E-2, default, open; slice 6e).
+
+### ENTRY RECORD (DL-138, DL-141, DL-142)
+
+**[Verified]** A flow target writes one ENTRY RECORD per call to `entries.jsonl`, after the decode and before the target call (G6D-07). 14 keys (`N8_entry_keys`). Redacted example, every value is a placeholder:
+
+```json
+{"version": 2, "trace_id": "<id>", "server_span_id": "<id>", "artifact_id": "<id>",
+ "operation": "ui.place", "attempt": 1, "value": {"<field>": "<value>"}, "redacted": [],
+ "unknown_keys": ["<host key>"], "unknown_fields": [], "value_sha256": "<sha256>",
+ "type": {"name": "PlaceOrder", "version": 1, "fields": [["<field>", "<TYPE>"]], "fingerprint": "<sha256>"},
+ "outcome": "accepted", "reason": null}
+```
+
+- **[Verified]** `outcome` is `"accepted"` or `"rejected"`; `reason` is `null`, `"decode"` or `"constructor"` (DL-141, OWNER confirmed). After a term check reject, `value` is `null` and `unknown_keys` is `[]`.
+- **[Verified]** `unknown_keys` holds the data keys the TYPE does not declare (a host key such as the CSRF token reaches no value); `unknown_fields` holds fields kept as `Unknown(...)` at capture (DL-142, OWNER confirmed).
+- **[Verified]** `Replay.entry/2` checks the operation and the digest, decodes the stored `value` and runs the flow (`test_n5_to_n9_orders_runtime`).
+
+### `--stored` over `entries.jsonl` (DL-134, DL-138)
+
+- **[Verified]** `--stored` reads `entries.jsonl` beside the snapshot file when it exists. Only accepted records of the ENTRY LINE run the DL-102 constructors and the DL-122 literal check (`test_s2_...`, `test_s3_...`, `test_s3b_...`). Rejected records are counted, not checked. A `null` value does not crash the check (`test_s1_...`).
+- **[Verified]** One count line on stderr, as a note: `N entries, K checked, M rejected at capture`. A block text names no stored value (DL-124, `test_s4_...`).
+- **[Verified]** Removed ENTRY LINE with stored ENTRY RECORDS: the DL-040 parity block `stored ENTRY RECORD of operation ui.place has no effect in the source`, with the count of all records (`test_s5_...`). The RETIRE LINE `retire ui.place keep 30 days` frees the build, with no DEAD LINE warning (`test_s5b_...`). A RETIRE LINE beside a kept ENTRY LINE gets the "still declares effect" text (G6D-10).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| Full `run.py`, [`results/20261107T220212948306Z`](results/20261107T220212948306Z/result.json), at `35c7e3bf`, before the TEST repair | pass, 34 of 34 steps; `slice6-entry` 18 tests; 1058 s |
+| TEST repair (O1), at `f9b9083c` | `slice6_entry_test.py` 19 OK; all 16 `slice6_*` files, `redteam_*`, `drift_test.py`, `slice5_syntax_test.py` OK; cargo clean; 21 + 14 |
+| TEST re-check, at `f9b9083c` | 5 of 5 sequential `slice6_entry_test.py` runs OK, 19 tests each; O1 probes exit 1 with the field name |
+| Host build | `elixirc --warnings-as-errors` compiles the generated module; good map gives the flow result, bad forms give `Rejected` |
+
+- **[Verified]** No full `run.py` ran after the TEST repair; the full-run evidence is from `35c7e3bf`.
+
+### Limits
+
+- **[Verified]** An enum or constructor field below the top level of the input TYPE is a compile error that names the field (`bad/nested_enum.beaml`, `bad/nested_constructor.beaml`; TEST O1, slice 6d limit under DL-144). Before the repair it built and rejected every event.
+- **[Inference]** Input and output that share a literal enum or a constructor TYPE, or the same TYPE, get duplicate helper defs. No fixture has it. Upgrade: emit each helper once per TYPE.
+- **[Inference]** A constructor or enum field deeper inside a top-level constructor TYPE is not walked; such a value rejects as `decode` (no crash).
+- **[Verified]** No DL-103 notes for ENTRY RECORDS. The count line says "1 entries" for one record.
+- **[Verified]** `elixirc --warnings-as-errors` exits 0 on warnings in Elixir 1.18.1; only `mix compile` honours it (R6D-11). The host tests read the warning text. Every 0004 runtime harness that relies on the flag gets no warning check.
+- **[Unknown]** One of 12 `slice6_entry_test.py` runs failed in the TEST repair loop; the test name was not captured and 0 of 5 later runs failed. Cause unknown. Next check: keep the `-v` output of the `slice6-entry` step in `run.py` results.
+- **[Unknown]** R1 (a captured reject that a looser rule accepts now) and the missing `value_sha256` check in `--stored` stay open in D035.
+
+### Built defaults (DL-139, DL-144)
+
+- G6D-03 (default, open): the ENTRY RECORD `type` key lists the fields in source order; the RESPONSE RECORD sorts them. Record format, so it waits for the OWNER (record format v3, DL-143).
+- G6D-04 (default, open): a pure target in a source with an outbound EFFECT writes no ENTRY RECORD and has no `Replay.entry`. Repair, raised from Undo by TEST O2.
+- G6D-12 (default, open): the input TYPE needs a keep-value variant for literal enum fields and `name: String` constructor signatures, with the outbound texts in the `effect <op>:` form. Not pinned by a test.
+- All three are listed in the [0005 OWNER review](../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md) for an explicit sign-off.
+
+### Decisions (Decision4, DOCS slice 6d)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| One section for slice 6d, after the RED TEAM 01 repairs | Undo | Order of the build | Opus (docs slice6d) |
+| The ENTRY RECORD example uses placeholders only | Undo | No stored value or test MARKER in docs | Opus (docs slice6d) |
+| The full run of `35c7e3bf` stays the full-run evidence, labelled "before the TEST repair" | Repair | Chose: label it. Over: start a new full run. Because: docs phase runs no tests; the re-check covers the repair. Commits us to: the next full run confirms 19 entry tests | Opus (docs slice6d) |
+
+## Record format v3: one record core for every EFFECT stream
+
+**[Verified]** 2026-11-08. EXPERIMENT 0005 prerequisite P2 (DL-143). GREEN `ca09d361`, pin commit `b1879fa8`, TEST `0311306a`: PASS. Ledger: [record-format-v3](workflow/2026-11-07/record-format-v3/) ([plan with repair](workflow/2026-11-07/record-format-v3/plan.md), [decisions](workflow/2026-11-07/record-format-v3/decisions.md), [RED plan](workflow/2026-11-07/record-format-v3/red-plan.md), [RED review](workflow/2026-11-07/record-format-v3/red-review.md), [GREEN](workflow/2026-11-07/record-format-v3/green-output.md), [TEST and review](workflow/2026-11-07/record-format-v3/review.md)). Tests: [`tests/record_v3_test.py`](tests/record_v3_test.py), fixtures [`slice6/record-v3/`](slice6/record-v3/).
+
+| Step | Owner |
+|---|---|
+| RESPONSE RECORD write, `outcome`/`reason` at capture (`Replay.record/3`) | BEAML (generated Elixir) |
+| ENTRY RECORD write (`Replay.entry_record`) | BEAML (generated Elixir) |
+| `--stored` version check, skip rule, count lines | BEAML (COMPILER) |
+| REPLAY RUN (`Replay.run/3`, `Replay.entry/2`) | BEAML (generated Elixir), unchanged |
+| `Capture.write/2`, the store of the lines | host |
+| One-time rewrite of the fixtures (`convert_v3.py`) | HARNESS (ledger script, run once) |
+
+### RECORD CORE (14 keys)
+
+**[Verified]** Every record of every EFFECT stream holds the same 14 keys (`test_V1_to_V10_response_record`, `test_V11_entry_record`, `test_V17_tracked_fixtures_are_v3`). Every value below is a placeholder:
+
+```json
+{"version": 3, "trace_id": "<id>", "span_id": "<id>", "artifact_id": "<id>",
+ "operation": "<namespace.operation>", "attempt": 1,
+ "type": {"name": "<TYPE>", "version": 1, "fields": [["<field>", "<TYPE>"]], "fingerprint": "<sha256>"},
+ "value": {"<field>": "<value>"}, "value_sha256": "<sha256>", "redacted": [],
+ "unknown_keys": [], "unknown_fields": [], "outcome": "accepted", "reason": null}
+```
+
+- **[Verified]** `version` is the record format version (3), not a TYPE VERSION; that stays `type.version` (QV3-1).
+- **[Verified]** `span_id` is the client span for HTTP and the root server span for UI. `client_span_id` and `server_span_id` are gone (QV3-2).
+- **[Verified]** `unknown_fields` is always written; `[]` when the TYPE has no KEEP-VALUE VARIANT (RV3-03).
+- **[Verified]** HTTP extras (RESPONSE RECORD only): `request` and `status`, flat at the top level (QV3-3). So a RESPONSE RECORD has 16 keys. The ENTRY RECORD has no extras. The db extras come in P4.
+- **[Verified]** `value_sha256` keeps the D6B-58 rule over `redacted`, `unknown_keys` and `value` (QV3-6). No stored digest changed.
+
+### `outcome` and `reason` of a RESPONSE RECORD (QV3-4)
+
+**[Verified]** `Replay.record/3` writes them at capture from the live call facts (`test_V1_to_V10_response_record`, `test_V4_V7_V8_constructor_outcome`, `test_V8_guard_live_status_reason`):
+
+| Capture fact | `outcome` | `reason` |
+|---|---|---|
+| `status` other than 200 | `rejected` | `status` |
+| 200, decode fails | `rejected` | `decode` |
+| 200, constructor fails | `rejected` | `constructor` |
+| 200, decode passes | `accepted` | `null` |
+
+- **[Verified]** The record `reason` equals the `reason` of the failure that the live call returns (V8). A transport failure writes no record, as before.
+
+### `--stored` over v3 records
+
+- **[Verified]** Version check, both streams (`test_V12_*`, `test_V13_entry_record_version_2_blocks`). Exit 1, empty stdout, stderr:
+  - `error: stored RESPONSE RECORD has record version 2; this build reads record version 3 only (DL-143)` with `  record source: <file>:1 (line 1)`. A version 1 record gives `1`; a record without `version` gives `none`.
+  - `error: stored ENTRY RECORD has record version 2; this build reads record version 3 only (DL-143)` (new for the ENTRY stream, RV3-06).
+- **[Verified]** A missing or unknown `outcome` blocks: `error: stored RESPONSE RECORD has no capture outcome accepted or rejected (DL-138)` (`test_O2_missing_or_unknown_outcome_blocks`).
+- **[Verified]** Skip rule, QV3-8 default B (`test_V22_*`, `test_V23_*`, controls `test_V24_*`, `test_V25_*`, `test_O1_*`, `test_N2_*`):
+
+| Check | `accepted` | `rejected` |
+|---|---|---|
+| DL-102 constructors, DL-122 literals | run | skip |
+| TYPE path check, W2 version count | run | skip |
+| Orphan count (DL-040) | run | run |
+| Redacted-held check (D6B-72) | run | run |
+
+- **[Verified]** Count lines (QV3-7), on stderr after a green check, only when M > 0 (`test_V14_count_lines`, `test_V15_no_count_lines_when_nothing_is_rejected`):
+  - `N records, K checked, M rejected at capture`
+  - `digest not verified (P2b)`
+  - Both lines print together or not at all. One form `N records`, no singular (RV3-16). They come before the ENTRY count line (`test_V14c_*`). A block prints no count line.
+- **[Verified]** No count line or block text names a stored value (DL-124, `test_V16_no_stored_value_in_stderr`).
+- **[Verified]** DL-136 is half built: the `outcome` half is in P2. The digest half (a bad `value_sha256` is counted, not checked) is open as P2b, [D035](../../wiki/planning/decisions-to-be-made.md#d035--p2b-the-dl-136-digest-half-for-stored-records). The second count line marks it until P2b lands.
+
+### One-time rewrite of 15 fixtures (QV3-5)
+
+- **[Verified]** [`convert_v3.py`](workflow/2026-11-07/record-format-v3/convert_v3.py) ran once over the 15 tracked v2 fixtures (`stored/v1.jsonl`, `stored/v1-v2.jsonl`, the `slice6/decode`, `decode-ctor`, `redacted`, `stored-elixir` stored files, `slice6/entry/stored/entries.jsonl`). Per record: `version` 3, `span_id`, `unknown_fields` `[]` when absent, RESPONSE `outcome`/`reason` from `status` only (RV3-12). It asserts the digest. A rerun at `545dded0` gives byte-equal files (TEST probe, `test_V17b_tracked_fixtures_equal_the_converter_output`).
+- **[Verified]** Not converted: `slice6/record/stored-v1.jsonl` (the version 1 reject fixture) and every `results/*` run (retained evidence).
+
+### Six pin sites and the two-commit rule (RV3-14)
+
+- **[Verified]** Byte pins, moved in GREEN `ca09d361` with the diff proof (only hunk owner `def record(request, status, bytes)`; `def entry_record` in ENTRY LINE sources):
+  1. `tests/slice6_pipe_test.py` `EFFECT_OUTPUTS` (2 digests);
+  2. `tests/slice6_host_struct_test.py` `BYTE_GUARD` (36 digests);
+  3. `slice6/effect-reach/byte-guard.json` (42 digests, `(71, 40)` invariant kept).
+- **[Verified]** Commit pins, set to the GREEN hash in the next commit `b1879fa8` (RV3-14, the `acf12d75` pattern):
+  4. `tests/slice5_syntax_test.py` `PIN`;
+  5. `tests/slice6_entry_test.py` `BASE` (6d N13);
+  6. `tests/slice6_multi_test.py` `BASE` (6e N13, found in GREEN).
+- **[Verified]** `payments.generated.snapshot` is unchanged (no EFFECT).
+- **[Verified]** V18 (`test_V18_only_the_two_writers_change`) is retired with `@unittest.skip` and a reason: a one-time P2 diff proof, passed at `ca09d361`. ENTRY LINE sources change by design after `ce190054`. Successor proof: the TEST comparison of the `ca09d361` and HEAD compilers over 2092 sources without an ENTRY LINE (equal stdout, stderr and exit).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| Full `run.py`, [`results/20261107T230714580577Z`](results/20261107T230714580577Z/result.json) | status `fail`: 36 of 38 steps pass; only `slice6-db` and `slice6-db-stored` fail, equal to their open P4 RED counts (40 and 43 failures); `record-v3` 26 tests OK (1 skipped: V18); 976.6 s |
+| 0001 `run.py`, `cargo test`, `fmt --check`, `clippy -D warnings` | pass; 22 + 14 |
+| TEST probes | accepted, rejected (`constructor`, `status`), held, missing `outcome`, v2 file, orphan: the texts above |
+
+### Limits
+
+- **[Inference]** The digest does not cover `outcome`, `reason`, `status`, `span_id` or `unknown_fields` (QV3-6). A hand-edited `outcome` is not detected.
+- **[Inference]** A converted v2 RESPONSE RECORD with status 200 is `accepted`, even if its body failed at capture (RV3-12).
+- **[Inference]** A rejected record of a TYPE VERSION without a path is not seen by the path check (QV3-8 B); only the orphan and held checks read it.
+- **[Inference]** The REPLAY RUN reads no `version`: a v2 record still replays. Only `--stored` enforces v3 (RV3-04).
+- **[Verified]** The full run status is `fail` while the db RED files are listed; see DL-147 in [DRIFT status](#drift-status-dl-135).
+
+### Built defaults (DL-144)
+
+- QV3-1 A `version` key (default, open). QV3-2 A one `span_id` (default, open). QV3-3 A flat extras (default, open). QV3-4 A `outcome` at capture from status and decode (default, open). QV3-5 A one-time rewrite, v3 only (default, open). QV3-6 A digest unchanged (default, open). QV3-7 A count lines only when M > 0 (default, open). QV3-8 B rejected skips value, path and W2 checks (default, open).
+- All are listed in the [0005 OWNER review](../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md#record-format-v3-p2).
+
+## Several EFFECTS per source and the module name
+
+**[Verified]** 2026-11-08. EXPERIMENT 0005 prerequisites P3 and P5 (D6B-147, Q5-6). GREEN `ce190054`, pin commit `b3e75b6e`, TEST `0311306a`: PASS. Ledger: [multi-effect-module](workflow/2026-11-07/multi-effect-module/) ([plan with repair](workflow/2026-11-07/multi-effect-module/plan.md), [decisions](workflow/2026-11-07/multi-effect-module/decisions.md), [RED review](workflow/2026-11-07/multi-effect-module/red-review.md), [GREEN](workflow/2026-11-07/multi-effect-module/green-output.md), [TEST and review](workflow/2026-11-07/multi-effect-module/review.md)). Tests: [`tests/slice6_multi_test.py`](tests/slice6_multi_test.py), fixtures [`slice6/multi/`](slice6/multi/).
+
+| Step | Owner |
+|---|---|
+| Lift the one-EFFECT and one-ENTRY-LINE checks, one EFFECT per flow | BEAML (COMPILER) |
+| Module name from the stem, reserved names | BEAML (COMPILER) |
+| Shared defs once, one `Replay` with clauses by operation | BEAML (generated Elixir) |
+| DRIVER with the module `"name"` | BEAML (COMPILER, `--stored`) |
+| `Orders.ui_place(params)` from `handle_event` | host |
+
+### Several EFFECTS and ENTRY LINES (D6B-197)
+
+- **[Verified]** `slice 1 supports one effect` and the D6B-147 one-ENTRY-LINE check are gone. `slice6/multi/orders.beaml` builds with two http EFFECTS and two ENTRY LINES (`test_n1_two_effects_and_two_entry_lines_build`); its output compiles under `elixirc --warnings-as-errors` (`test_n2_output_compiles_without_warnings`).
+- **[Verified]** Shared defs are written once (D6B-198): `__beaml_attempt__`, `BeamlFailure`, `Http`, `__beaml_redact__`, the failure structs and each decode helper. A one-EFFECT source writes nothing twice, so its bytes stay.
+- **[Verified]** One EFFECT per flow (Q6E-4 A): `error: fn <f> calls the effects <a> and <b>; slice 6e replays a flow with one effect` (`test_n10_rejects`).
+- **[Verified]** Duplicate operation: two ENTRY LINES with one operation give `duplicate name: ui_<op>` (D6B-201); two EFFECT lines with one operation give `duplicate name: <ns>_<op>` (TEST probe). Two ENTRY LINES may target one flow (D6B-207, `slice6/entry/two_entries.beaml`).
+
+### REPLAY RUN by operation (Q6E-3, D6B-199, D6B-200)
+
+- **[Verified]** One EFFECT: `Replay.record/3` and `run/3`, byte-equal to before. Two or more: `Replay.record(operation, request, status, bytes)` and `Replay.run(operation, a0, trace_id, records)`, one clause per EFFECT; an unknown or other-flow operation gives `{:error, :operation_mismatch}` (`test_n3_to_n6_runtime`).
+- **[Verified]** Every ENTRY LINE source: `entry_record(operation, bytes, decoded)` and `entry/2` with one clause per ENTRY LINE on `%{"operation" => op}`, then a last `{:error, :operation_mismatch}` clause.
+- **[Verified]** `--stored` needs no code change (D6B-206): orphans, DEAD LINES and the W2 count are per operation (`test_n7_*`, `test_n8_orphan_block_per_operation`, `test_n9_dead_line_per_operation`).
+
+### Module name (Q6E-1 C, Q6E-2 A, D6B-203)
+
+- **[Verified]** Only a source with an ENTRY LINE takes its module from the stem, one capital per `_` segment: `orders` gives `Orders`, `order_flow` gives `OrderFlow` (`test_n14_entry_line_sources_take_the_stem`, `test_n15_module_name_from_stem`). Every other source stays `BeamlSpike` (`test_n14b_*`), so no byte pin moved.
+- **[Verified]** Reserved names: a stem whose module the generated code calls is a compile error: `error: the source file name <stem> gives the module <M>, which the generated code calls; rename the file` (13 names, `bad/enum.beaml`).
+- **[Verified]** Gap (TEST O1, medium): `System` is not in the list; `system.beaml` builds `defmodule System do` and the host build redefines Elixir's `System`. **[Proposal]** The P4 GREEN closes it (the stem `system` gives the D6B-203 text). Not built at `0311306a`. **[Verified]** Closed 2026-11-08 by the P4 GREEN `060a075d`, see [Database transports](#database-transports-dbput-dbget-dblist-and---stored-over-rows).
+- **[Verified]** `Rejected` stays nested, so it is `<Module>.Rejected` (`Orders.Rejected`). The DL-133 note explains the name.
+- **[Verified]** The DRIVER of `--stored` reads the key `"name"` beside `"module"` and uses `Module.concat([name])` (D6B-204). No generated byte changes.
+- **[Verified]** Variant sources keep the stem `orders` in their own directory (`slice6/multi/no_hold/`, `no_hold_retired/`, `copy/`; D6B-210).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| Full `run.py`, [`results/20261107T230714580577Z`](results/20261107T230714580577Z/result.json) | 36 of 38 steps; `slice6-multi` 14 and `slice6-entry` 20 tests OK; the two db REDs fail as expected |
+| TEST probe `shop_flow.beaml` | `defmodule ShopFlow do`; shared modules once; live, `run/4` and `entry/2` values equal |
+| `ca09d361` against HEAD over 2092 sources without an ENTRY LINE | stdout, stderr and exit equal |
+
+### Limits
+
+- **[Inference]** The dedupe keys on text: two defs with one name and other text still reach `elixirc` (N2 covers the fixture only).
+- **[Inference]** `Replay` has two shapes (one EFFECT; two or more), with a `ponytail:` comment at `emit_replay`.
+- **[Inference]** A source that gains its first ENTRY LINE renames its module; the host build shows every old call.
+- **[Inference]** The reserved list is hand-kept; another host module name (for example `Task`) is reported by the host build, not by BEAML.
+- **[Unknown]** The host error when two generated sources with one stem meet in one host build.
+
+### Built defaults (DL-144)
+
+- Q6E-1 C stem only for ENTRY LINE sources (default, open). Q6E-2 A `<Module>.Rejected` (default, open). Q6E-3 A `run/4` and `record/4` by operation (default, open). Q6E-4 A one EFFECT per flow (default, open).
+- All are listed in the [0005 OWNER review](../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md#several-effects-and-module-name-p3-p5).
+
+### Decisions (Decision4, DOCS record format v3 and several EFFECTS)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| Two sections after slice 6d | Undo | Order of the build | Opus (docs v3/multi) |
+| The record example uses placeholders only | Undo | No stored value or test MARKER in docs | Opus (docs v3/multi) |
+| `System` gap written as a P4 proposal, not as closed | Repair | Chose: state it open at `0311306a`. Over: "closed". Because: not in the reserved list at HEAD or in the working copy. Commits us to: the P4 docs mark it closed | Opus (docs v3/multi) |
+
+## Database transports: `db.put`, `db.get`, `db.list` and `--stored` over rows
+
+**[Verified]** 2026-11-08. EXPERIMENT 0005 prerequisite P4 (P4a transports, P4b `--stored` over rows; DL-127, DL-129, DL-134, DL-137, DL-141 to DL-143). GREEN `060a075d`, pin commit `b332b12c`, TEST `9f1fad53`: PASS, three medium notes. Ledger: [db-transport](workflow/2026-11-07/db-transport/) ([plan with both repairs](workflow/2026-11-07/db-transport/plan.md), [decisions PDB-01 to PDB-36, QDB-1 to QDB-8](workflow/2026-11-07/db-transport/decisions.md), [RED plan](workflow/2026-11-07/db-transport/red-plan.md), [RED output](workflow/2026-11-07/db-transport/red-output.md), [RED review](workflow/2026-11-07/db-transport/red-review.md), [GREEN](workflow/2026-11-07/db-transport/green-output.md), [TEST and review](workflow/2026-11-07/db-transport/review.md)). Tests: [`tests/slice6_db_test.py`](tests/slice6_db_test.py) (P4a), [`tests/slice6_db_stored_test.py`](tests/slice6_db_stored_test.py) (P4b), fixtures [`slice6/db/`](slice6/db/).
+
+| Step | Owner |
+|---|---|
+| KIND, table, key, LIST TYPE and ROW TYPE checks | BEAML (COMPILER) |
+| ROW CORE encode, `:json` encode and decode, row decode, db call record, span | BEAML (generated Elixir) |
+| REPLAY RUN of a db call from its record | BEAML (generated Elixir) |
+| `--stored` over `rows.jsonl` and `snapshot-meta.json` | BEAML (COMPILER) |
+| `BeamlDb.put/3`, `get/3`, `list/3`, the table `records` (`jsonb`) | host |
+| `mix beaml.stored`, the write of the ROW SNAPSHOT | host (EXPERIMENT 0005) |
+
+### The three `effect` lines
+
+**[Verified]** One DB TRANSPORT per line, the table String `"records"` only ([`slice6/db/orders.beaml`](slice6/db/orders.beaml), `test_N1_db_source_builds`, `test_N1b_variants_build`):
+
+```beaml
+type OrderKey { order_id: String }
+type OrderQuery {}
+type OrderList { items: [Order] }
+type StoreError { reason: String }
+
+// Three DB TRANSPORTS leave the module. Each call is recorded live and substituted in a REPLAY RUN.
+effect orders.save Order      -> Order ! StoreError     = db.put("records")
+effect orders.load OrderKey   -> Order ! StoreError     = db.get("records")
+effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
+```
+
+- **[Verified]** Four KINDS: a fifth gives `unsupported effect kind: <k> in effect <op> (supported: http.post, db.put, db.get, db.list)` plus a help line (PDB-03). Another table gives `db.put uses the table "records" only (DL-127)` (PDB-04, `test_N12_rejects`).
+- **[Verified]** `db.put` returns its input TYPE (`write Order -> Order`). `db.get` takes a key TYPE with one String field, and the ROW TYPE holds a String field of that name (QDB-1). `db.list` takes a query TYPE with no fields (Q5-2) and returns a TYPE with one field of a LIST TYPE.
+- **[Verified]** `[T]` rule (Q5-3 A, PDB-08): a LIST TYPE stands only as the one field of a `db.list` output TYPE, and `T` is a record TYPE. Elsewhere: `the LIST TYPE [Order] of Basket.items stands only as the field of a db.list output TYPE (Q5-3)`; `[String]`: `needs a record TYPE inside the brackets`. `[[Order]]` is a parse error. The grammar has `list_type` (`test_N16_grammar_list_type`); `beaml fmt` keeps and aligns the lines (`test_N15_*`).
+- **[Verified]** ROW TYPE rules (PDB-05, PDB-07, GREEN): a plain record with String fields, literal enums with a keep-value variant and constructor fields; no own constructor, no `redacted` field, no LIST TYPE field. A constructor field needs a first signature that takes exactly its String fields (PDB-13 text). Since M4 step 1 a chained ROW TYPE may hold constructor and enum fields; only a MIGRATE STEP that names one is an error ([M4 step 1](#m4-step-1-migrate-first-then-check-dl-152-dl-153), DL-152). The D6B-39 rejects `row_enum_chain`, `row_constructor_chain` and `test_N12_order_v2_chain_with_constructor_and_enum_fields` are retired.
+- **[Verified]** A db-only source emits no `Http` module (PDB-20). `with` after a db call is a parse error (TEST probe).
+
+### `BeamlDb` contract (QDB-2, PDB-30)
+
+**[Verified]** The generated code calls three host functions of arity 3. JSON travels as binaries both ways, encoded and decoded by OTP `:json` in the generated code (`test_N2_to_N11_orders_runtime`: `N2_one_put_with_a_json_binary`, `N4_list_round_trip`, `N7_get`):
+
+| Call | Arguments | Result |
+|---|---|---|
+| `BeamlDb.put(table, {type, version}, json)` | `"records"`, `{"Order", 1}`, the ROW CORE as a JSON binary | `{:ok, id}` or `{:error, _}` |
+| `BeamlDb.get(table, type, key)` | `"records"`, `"Order"`, the key projection | `{:ok, %{"id", "version", "value" => json}}`, `{:ok, nil}` or `{:error, _}` |
+| `BeamlDb.list(table, type, query)` | `"records"`, `"Order"`, `%{}` | `{:ok, [row]}` or `{:error, _}` |
+
+- **[Verified]** Every JSON null is `:null`, never `nil` (`N2_reason_is_json_null`); `:json.encode(nil)` writes the String `"nil"`, so the check is real (TEST probe).
+- **[Verified]** Any other result, a raise or an exit of a `BeamlDb` call is `rejected` / `transport`; the host reason is never read (PDB-12, `N9_failure_sets_reason`, `N10_transport_record`).
+- **[Verified]** The input is checked before the call: an extra key raises `invalid BEAML input` and `BeamlDb` is not called (TEST probe).
+- **[Unknown]** The real Postgres `jsonb` path: only a fake `BeamlDb` ran (`test_N2c_jsonb_typeof_reason_is_null` skipped, 0005).
+
+### The db call record (v3 words, QDB-5, QDB-6b)
+
+**[Verified]** Each db call writes one record to the `"responses"` stream: the 14-key RECORD CORE plus the extra `request` (PDB-17), in the P2 words `accepted` / `rejected` (`N10_save_record`, `N10_load_record`, `N10_list_record`):
+
+| Call fact | `outcome` | `reason` | `value` |
+|---|---|---|---|
+| success | `accepted` | `null` | put: the written value; get: the row value; list: `{"items": [...]}` |
+| host error, raise or exit | `rejected` | `transport` | `null` |
+| row does not decode | `rejected` | `decode` | `null` |
+| row constructor fails | `rejected` | `constructor` | `null` |
+| `db.get` finds no row | `rejected` | `not_found` | `null` |
+
+- **[Verified]** A list record names a held KEEP-VALUE VARIANT per item: `items.<i>.<field>` (PDB-18, `test_N25b_*`).
+- **[Verified]** A REPLAY RUN decodes the recorded `value` and never calls `BeamlDb`; a rejected record replays its reason (PDB-19, `N11_replay_save`, `N11_replay_list`, `N11_replay_load`, `N11_rejected_record_replays_its_reason`, `N11_operation_mismatch`).
+- **[Verified]** Rejected db records follow QV3-8 B and count in the P2 count lines (PDB-25, `test_N25_control_rejected_record_is_counted`).
+
+### ROW CORE and its decode order
+
+**[Verified]** `db.put` writes the ROW CORE: the RECORD CORE with `operation` of the put, `attempt: 1`, `type` the newest TYPE VERSION of the ROW TYPE, `outcome: "accepted"`, `reason: null` (PDB-14, `N2_core_key_set`, `N2_core_values`). A generated encode writes constructor structs as their fields and enum variants as their ENUM LITERAL or kept String (PDB-13, `N3_kept_value`).
+
+- **[Verified]** Read order (PDB-15, `test_N29_read_order_*`): TYPE name, digest, TYPE VERSION, MIGRATE CHAIN, then the DL-101 tail (literal map, constructors). Every failure is `decode`, except a failed constructor (`constructor`).
+- **[Verified]** The core `type` decides the TYPE VERSION; the `version` column serves the host only (PDB-16).
+- **[Verified]** `db.get`: the key is the one String field of the key TYPE (QDB-1). The newest row wins (QDB-3, host `ORDER BY` newest first), also when the newest row is bad (`decode`, TEST probe). No row is `not_found` (`N7_not_found`).
+- **[Verified]** `db.list`: one bad row fails the whole call with its reason; no row is skipped (QDB-4, `N6_list_core_not_a_map`, `N6_list_core_not_json`, `N6_list_value_not_a_binary`, `N10_decode_record`).
+
+### `--stored` over `rows.jsonl` (QDB-7, P4b)
+
+**[Verified]** The ROW SNAPSHOT is `rows.jsonl` beside the `--stored` file. Each line is a ROW CORE plus `"source": "db"` and `"row_id"`. `snapshot-meta.json` beside it holds `row_count`, the only key the compiler reads (`test_N23_line_form`, `test_N24_sample_meta_form`). Fixture: [`slice6/db/stored/meta/`](slice6/db/stored/meta/).
+
+- **[Verified]** `row_count` must equal the row lines, both ways (PDB-22): `error: rows.jsonl holds <n> rows but snapshot-meta.json counts <m>; the ROW SNAPSHOT is partial` (`test_N24_partial_row_snapshot_blocks`, `test_N24_row_count_below_lines_blocks`). A missing or non-integer `row_count` gives `snapshot-meta.json has no row_count (P5-19)` (TEST probe, no test).
+- **[Verified]** A source with `db.get` or `db.list` and no `rows.jsonl` blocks: `error: stored ROWS unknown: ... (an unknown store is not an empty store)` (PDB-23, DL-094, `test_N22_no_row_snapshot_blocks_a_reader`). A `db.put`-only source needs none (`test_N22_control_put_only_needs_no_row_snapshot`).
+- **[Verified]** DL-102 over rows: a stricter constructor blocks with `error: TYPE Order: 1 stored ROW of table records fails the constructor of Amount for field amount with BadAmount`, the record source line and the RESPONSE RECORD help (prefix pin, PDB-36) (`test_N18_stricter_constructor_blocks`, `test_N18b_two_rows_fail_counted_with_the_first_line`).
+- **[Verified]** DL-122 over rows: a lost ENUM LITERAL blocks with `... has a value of field channel that is no ENUM LITERAL of Channel now (DL-122)`; a kept value builds (`test_N19_*`). No block text names a stored value or row id (DL-124, `test_N26_no_stored_value_in_any_text`, `test_N27_events_hold_no_row_value`).
+- **[Verified]** Rows count line (PDB-24), printed on every success, also with 0 not decodable: `rows: N rows, K checked, M not decodable` (`test_N17_clean_rows`). A bad digest, a malformed `type` or an `outcome` other than `accepted` is counted as not decodable (`test_N21_*`, `test_N21b_*`, PDB-26). The P2 pair prints before it only when records are rejected (QV3-7 A). Whether both streams should print always or only when M > 0 is one merged OWNER question ([owner review](../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md#count-line-print-rule-one-question-for-both-streams-merged-after-the-p4b-red-review), open).
+- **[Verified]** Two ROW TYPES in one table, each decoded by its own TYPE (PDB-34, [`two_rows/`](slice6/db/two_rows/orders.beaml)): exit 0 with `rows: 3 rows, 3 checked, 0 not decodable` (`test_N20b_two_row_types_build`). A `Note` row under the `Order` TYPE, or off the `Note` chain, blocks with `error: TYPE <T> cannot read 1 stored ROW of table records` (`test_N20b_control_*`, `test_N20_off_chain_row_blocks`).
+- **[Verified]** Orphan rows (DL-040 parity): a row whose `operation` has no EFFECT and whose TYPE has no reader blocks with `error: stored ROW of operation <op> has no effect in the source` and the count (`test_N28_orphan_rows_of_a_removed_db_effect_block`). A row of a removed writer with a kept reader is checked (DL-137, `test_N28_control_*`).
+- **[Verified]** The RETIRE LINE `retire <op> keep <n> days` frees orphan rows (counted, not checked; TEST probe). **[Unknown]** Its meaning for rows is M5, parked by D036; `test_N28b_retire_line_frees_orphan_rows` stays skipped (TEST O2).
+
+### The Note v1 → v2 chain on read (QDB-8 B)
+
+**[Verified]** In [`two_rows/`](slice6/db/two_rows/orders.beaml) the String-only ROW TYPE `Note` has `migrate Note v1 -> v2 { add tag: String = "" }`. A stored v1 `Note` row reads as v2 with `tag: ""`; `save_note` writes v2; `Order` rows beside it stay readable (`test_N31_note_chain_read_runtime`; String-only `plain/` → `plain_v2/`: `test_N5_migrate_chain_on_read`, `test_N20_chain_rows_build`). The real `Order` chain is built since M4 step 1 ([`order_v2/`](slice6/db/order_v2/orders.beaml), [M4 step 1](#m4-step-1-migrate-first-then-check-dl-152-dl-153)); `Note` stays the String-only control.
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| Full `run.py`, [`results/20261108T000131342068Z`](results/20261108T000131342068Z/result.json) | status `pass`, 38 of 38 steps, 1035 s; `slice6-db` 16 tests (1 skipped: N2c), `slice6-db-stored` 41 tests (3 skipped: N28b, N30, N30b) |
+| 0001 `run.py`, `cargo test`, `fmt --check`, `clippy -D warnings` | pass; 22 + 14 |
+| tree-sitter `test`, `parse -q` over `slice6/db/` and `slice6/multi/` | 24 of 24; 33 of 33 fixtures, no `ERROR` |
+| Byte guards | `slice6_db_test` N13 (every source without a db EFFECT or LIST TYPE against `ce190054`) and the four outbound pins unchanged |
+| `tests/overlay_diff_test.py` | fails, pre-existing (0002 `query.py` line count), retired from `run.py` by DL-110 |
+
+### Limits
+
+- **[Verified]** row shape check (P4c, GREEN `fdc5fe59`, TEST repair `b95313a0`; TEST repair done, re-check PASS (2026-11-08)): `--stored` checks every declared String field of a stored ROW CORE, at the row's own stored TYPE VERSION, and of a db RESPONSE RECORD value, each `[T]` item included. A missing field or a non-String value blocks the build with the DL-102 text: `error: TYPE <T>: <n> stored <ROW|RESPONSE RECORD>[S] of <place> has|have no String value for field <f>`, the source line and the help line. The text names TYPE and field, never a stored value (DL-124). A list record with several bad items counts once (`slice6_db_stored_test.py` N32, N32b, N32c with `item_1`, `N32c_two_bad_items_count_one_record`, `N32d_old_version_row_shape_blocks`; 49 tests OK, 3 skipped).
+- **[Verified]** Limits of the row shape check: http RESPONSE RECORDS keep the gap (Migrate, default A, open; pinned by `N32e_http_record_shape_gap_builds`); enum and constructor counts in list records still count items; redacted String fields are skipped (ROW TYPES forbid them, M3). List items use the newest TYPE VERSION of the ROW TYPE. The run-time decode of a fixed old-version row was not run again ([ledger](workflow/2026-11-07/db-transport/green-output.md#p4c-test-repair), [review](workflow/2026-11-07/db-transport/review.md#p4c-test)).
+- **[Inference]** N27 can fail at random: 4-digit row ids may match digits of event timestamps in the action log (TEST O3). A false fail only, never a false pass.
+- **[Verified]** The entry and multi N13 guards and the slice 5 A2 PIN compare skip sources with a db EFFECT or a LIST TYPE by a text filter; `slice6_db_test` N13 guards the rest.
+- **[Verified]** `System` and `BeamlDb` are reserved module names. The `System` gap of the multi step (TEST O1) is closed: the stem `system` gives the D6B-203 text (`slice6_multi_test.py` `BAD_CASES["system"]`).
+- **[Inference]** The row digest is checked in Rust over the number text as read; a float or exponent text from another encoder would not match.
+- **[Unknown]** Real Postgres `jsonb` and the real `BeamlDb`: EXPERIMENT 0005.
+
+### Built defaults (DL-144)
+
+- QDB-1 A key TYPE with one String field (default, open). QDB-2 A `put/3`, `get/3`, `list/3` with JSON binaries (default, open). QDB-3 A newest row wins (default, open). QDB-4 A one bad row fails the list (default, open). QDB-5 A `"responses"` stream, core plus `request` (default, open). QDB-6b `accepted` / `rejected` with four reasons (default, open). QDB-7 A `rows.jsonl` and `snapshot-meta.json` (default, open). QDB-8 B String-only `Note` chain for 0005 N7 (default, open).
+- GREEN defaults: constructor field needs a first signature of its String fields (default, open); `BeamlDb` reserved (default, open); ROW TYPE fields as the http output rule (default, open); orphan rows get the DL-040 help and a RETIRE LINE frees them (default, open, M5); no DL-101 shape check over rows (default, open, now Migrate, P4c; built by P4c as the row shape check, http gap default A, open).
+- All are listed in the [0005 OWNER review](../0005-prototype-fullstack/workflow/2026-11-07/owner-review.md#database-transports-p4).
+
+### Decisions (Decision4, DOCS database transports)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| One section after "Several EFFECTS" | Undo | Order of the build | Opus (docs db-transport) |
+| Placeholders only, no row value or test MARKER | Undo | Security rule | Opus (docs db-transport) |
+| RETIRE LINE for rows written as built but [Unknown] in meaning | Repair | Chose: state the probe and M5. Over: "frees rows" as settled. Because: N28b skipped, M5 parked. Commits us to: rewrite when M5 is answered | Opus (docs db-transport) |
+
+## `beaml fmt` layout (DL-148)
+
+**[Requirement]** DL-148 (OWNER, 2026-11-08) sets the layout that `beaml-spike fmt SOURCE` writes. It replaces DL-114 (a signature line ended the group). Ledger: [notes.md](workflow/2026-11-08/fmt-layout/notes.md), [green-output.md](workflow/2026-11-08/fmt-layout/green-output.md), [review.md](workflow/2026-11-08/fmt-layout/review.md). GREEN `ffb7605e`. Code: `fn formatted`, `fn bodies`, `fn aligned` in [`main.rs`](../0001-syntax-to-beam/src/main.rs).
+
+### Rules (built)
+
+- **[Verified]** A TYPE body with zero or one field stays on one line: `type Note { text: String }`, `type Empty {}`. A body with one field written over several lines goes onto one line.
+- **[Verified]** Two or more fields go one per line, two spaces in, `}` on its own line. ENUM bodies follow the same rule per variant.
+- **[Verified]** Members keep their own text, commas included. A body with a comment inside stays as written (F4, worker decision, review O1).
+- **[Verified]** One CLAUSE TABLE per contiguous block of single-line lines: `fn` clauses, constructor clauses, signature lines, EFFECT lines and ENTRY LINES. The arguments, `->`, the output, the `!` part and `=` stand in the same columns. A row with fewer arguments skips the missing argument columns (F6).
+- **[Verified]** Only gaps between cells change. Comments, strings and the text after `=` stay byte for byte.
+
+### What ends a block
+
+- A blank line.
+- A comment line.
+- A multi-line clause (it keeps its form, D6B-44; line breaks inside a clause are D038).
+- Any other line, for example a `type` line.
+
+```beaml
+// before (excerpt; checked with fmt on a full source, review 2026-11-08)
+fn Amount value: String, currency: String -> Amount ! BadAmount
+fn Amount _, "" -> Amount ! BadAmount = BadAmount {}
+fn Amount value, currency -> Amount ! BadAmount = Amount { value: value, currency: currency }
+effect orders.save Order -> Order ! StoreError = db.put("records")
+
+// after
+fn Amount          value: String, currency: String -> Amount ! BadAmount
+fn Amount          _,             ""               -> Amount ! BadAmount  = BadAmount {}
+fn Amount          value,         currency         -> Amount ! BadAmount  = Amount { value: value, currency: currency }
+effect orders.save Order                           -> Order  ! StoreError = db.put("records")
+```
+
+### Fixtures
+
+- [`slice6/fmt/layout.beaml`](slice6/fmt/layout.beaml) and its expected [`layout.formatted.beaml`](slice6/fmt/layout.formatted.beaml): bodies, one table across signature, constructor, EFFECT, ENTRY and `fn` lines, the block ends.
+- `clauses`, `header`, `marks`: their `.formatted.beaml` files moved to DL-148; `header.formatted.beaml` is the one byte-guard row that was re-pinned (P3).
+- 34 fixtures of the fixed-point tests (db, entry, multi, redacted-failure) were formatted once (P1); their compiled output is equal after the offset mask.
+- The 0005 sources were formatted; `app/lib/generated/orders.ex` changed only in `# beaml-declaration-v1` offset lines (P6).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| `tests/slice6_fmt_test.py` | 30 tests OK |
+| 0001 `cargo test` | 22 + 14 pass |
+| Full `run.py`, [`results/20261108T063109487177Z`](results/20261108T063109487177Z/result.json) | status `pass`, 38 of 38 steps |
+| Idempotence, all 185 tracked sources (review) | 83 change, 58 rejected as invalid, second run empty for 83 of 83 |
+| Compiled output before and after `fmt`, 83 sources, plain and `--stored` (review) | 166 pairs: 68 byte-equal, 98 equal after the offset and line-number mask, 0 differ |
+| Comments and strings, 83 sources (review) | 216 comments and 316 strings equal |
+
+### Limits
+
+- **[Verified]** The `fmt` test inputs (`slice6/fmt/{clauses,header,marks,layout}.beaml`) stay unformatted on purpose: they are the input side of the test.
+- **[Verified]** The slice 2 to 5 templates and snapshots, the layout cases (`slice4/Q4-oneline`, the CRLF cases) and 82 other tracked sources stay unformatted on purpose (P1). They change on their first `fmt`; only offset and line-number pins move.
+- **[Verified]** Columns count bytes: a non-ASCII argument shifts its row on screen (review O2, D038). No tracked source is affected today.
+- **[Verified]** One long name cell widens the whole block (review O3). The maximum line length is open (D038).
+- **[Verified]** `fmt` exits 1 on a source that the checker rejects and writes nothing; it is still no full validity check (D6B-191).
+
+### Decisions (Decision4, DOCS fmt layout)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| One section at the end of the README | Undo | Order of the build | Opus (fmt-layout, docs) |
+| New glossary term CLAUSE TABLE | Repair | Chose: one term. Over: "alignment group" (DL-083 words). Because: DL-148 spans several `fn` names and EFFECT lines. Commits us to: use it in later fmt pages | Opus (fmt-layout, docs) |
+| Review evidence O2 and O3 noted under D038 | Undo | The task named D038 | Opus (fmt-layout, docs) |
+| No repair in `main.rs` | Undo | Review found no bug | Opus (fmt-layout, review) |
+
+## M4 step 1: migrate first, then check (DL-152, DL-153)
+
+**[Requirement]** DL-152 (OWNER, 2026-11-08) lifts D6B-39: a TYPE with a MIGRATE CHAIN or a VERSION MARK may hold enum and constructor fields, and every MIGRATE STEP must become possible on them. DL-153 moves the 0005 chained read to the real `Order`. Step 1 builds the first half. Ledger: [plan.md](workflow/2026-11-08/m4-lift-d6b39/plan.md), [decisions PM4-01 to PM4-27, QM4-1 to QM4-4](workflow/2026-11-08/m4-lift-d6b39/decisions.md), [RED plan](workflow/2026-11-08/m4-lift-d6b39/red-plan.md), [RED output](workflow/2026-11-08/m4-lift-d6b39/red-output.md), [RED review](workflow/2026-11-08/m4-lift-d6b39/red-review.md), [GREEN](workflow/2026-11-08/m4-lift-d6b39/green-output.md), [TEST review](workflow/2026-11-08/m4-lift-d6b39/review.md). GREEN `26b73524`, TEST PASS. Tests: [`tests/slice6_m4_test.py`](tests/slice6_m4_test.py) (step `slice6-m4` of `run.py`, DL-147).
+
+| Step | Owner |
+|---|---|
+| The rename check on enum and constructor fields, the per-version field list | BEAML (COMPILER) |
+| Per-version check, MIGRATE CHANGES on raw values, literal map, constructor call, shape check | BEAML (generated Elixir) |
+| `--stored` over rows and RESPONSE RECORDS of a chained TYPE (unchanged, PM4-08) | BEAML (COMPILER) |
+| Rows in `records`, the dev server, the page | host (EXPERIMENT 0005) |
+
+### Migrate first, then check
+
+**[Verified]** The versioned decode of a TYPE with an enum or constructor field (GREEN, `versioned_decode` in [`main.rs`](../0001-syntax-to-beam/src/main.rs)):
+
+1. The per-version field list writes `:raw` for each enum and constructor field; the per-version check tests the other fields only (PM4-20).
+2. The MIGRATE CHANGES run on the raw map (`add note: String = ""` puts `note`).
+3. Then `Map.take(value, declared)`, the literal map and the DL-101 constructor tail run on the shape. The keys of the body that the version does not name (`unread`) join the nested keys of the tail (PM4-21).
+
+A TYPE without such fields keeps the old bytes: 31 tracked chained fixtures compile byte-equal with `850b52ee` and `26b73524` (TEST review (d)).
+
+```beaml
+// slice6/db/order_v2: enum and constructor fields beside an `add` step (DL-152 step 1)
+type Order {
+  order_id: String
+  amount: Amount
+  channel: Channel
+  note: String
+}
+migrate Order v1 -> v2 { add note: String = "" }
+```
+
+**[Verified]** A stored v1 `Order` row reads as v2: Amount struct, `Web` tuple, `note: ""`; the row stays version 1 (DL-127 lazy read). A kept channel `"tv"` reads as `Unknown("tv")` with `unknown_fields` `["items.0.channel"]`. A bad currency gives `constructor`, a missing `amount` gives `decode`: the tail runs after the steps (N33). The DL-122 block for a removed ENUM LITERAL still fires at build time with an `add` step beside it (TEST review (b)).
+
+### The rename error
+
+**[Verified]** A `rename` onto an enum or constructor field is a compile error (QM4-1 A, QM4-4 A defaults, open). `add` and `drop` already take String fields only.
+
+```
+error: effect orders.save: migrate Order v1 -> v2: rename via -> channel names the enum field Order.channel; a MIGRATE STEP on an enum or constructor field waits for the fate forms (M3, DL-152)
+  help: remove rename via -> channel from the MIGRATE STEP, or make channel a String field
+```
+
+Fixtures: [`slice6/db/bad_rename/`](slice6/db/bad_rename/) (PM4-22).
+
+### What still waits for M3
+
+- **[Verified]** A MIGRATE STEP that names an enum or constructor field (`rename` now; later `map` of DL-140 and the fate forms of DL-116). The second half of DL-152.
+- **[Verified]** A `redacted` field in a chained TYPE keeps the D6B-39 text (PM4-05, DL-125; R14 pins it).
+- **[Verified]** The two DL-122 help texts still name D6B-39 (QM4-3 A, open).
+- **[Verified]** N9 (`quarantine amount`) in 0005 waits on M3 only (DL-153).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| `tests/slice6_m4_test.py` (debug and release) | 14 OK |
+| `slice6_db_test`, `slice6_decode_test`, `slice6_db_stored_test` | 15 OK (1 skip), 8 OK, 49 OK (3 skips) |
+| Pin tests `slice6_pipe`, `slice6_host_struct`, `slice6_effect_reach`, `slice5_syntax` | 12, 3, 8, 60 OK; no pin moved |
+| GREEN full `run.py`, [`results/20261108T074403452811Z`](results/20261108T074403452811Z/result.json) | status `pass`, 39 of 39 steps |
+| Probe (only the two D6B-39 branches deleted) | N33 cases, R8, R8b, R13 and the TEST record checks fail: the lift alone is not enough |
+| TEST (c): RESPONSE RECORD file and replay of a v1 record, chained constructor output | `unknown_keys` `["amount.extra", "extra"]`, digest verifies, `note: ""` |
+
+### Limits
+
+- **[Verified]** A live body is always read as the newest TYPE VERSION; the per-version join matters for a REPLAY RUN and for stored rows.
+- **[Verified]** The record and replay checks of TEST (c) and the removed-literal check (b) are not committed tests (review O2).
+- **[Verified]** QM4-1 to QM4-4 stay open with their built defaults. `Order` in 0005 has no VERSION MARK (QM4-2).
+- **[Verified]** A passed step does not establish production readiness.
+
+### Decisions (Decision4, DOCS M4 step 1)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| TEST verdict PASS, no repair | Undo | All five challenges hold; O1, O2 medium, pending | Opus (m4-lift, TEST) |
+| One new section; the two D6B-39 lines of the db section point to it | Undo | The ban text is spread, not one section | Opus (m4-lift, docs) |
+| No new glossary term | Undo | MIGRATE STEP, MIGRATE CHANGE, ENUM LITERAL exist | Opus (m4-lift, docs) |

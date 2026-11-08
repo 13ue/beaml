@@ -1,0 +1,15 @@
+// Slice 6 db reject (N12): a MIGRATE STEP that names an enum field waits for M3 (DL-152 step 1).
+enum Channel {
+  Web = "web"
+  App = "app"
+  Unknown(String)
+}
+type Order {
+  order_id: String
+  channel: Channel
+}
+migrate Order v1 -> v2 { rename via -> channel }
+type StoreError { reason: String }
+effect orders.save Order -> Order ! StoreError = db.put("records")
+
+fn save o: Order -> Order ! StoreError = o |> orders.save

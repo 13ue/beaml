@@ -1,0 +1,10 @@
+test_host_structs_and_new (__main__.Slice6HostStruct.test_host_structs_and_new) ... compiler: /Users/lennart/Projects/beaml/experiments/0001-syntax-to-beam/target/debug/beaml-spike
+ok
+test_limit_deliberate_struct_literal_is_not_caught (__main__.Slice6HostStruct.test_limit_deliberate_struct_literal_is_not_caught)
+H7 records the DL-106 limit, not a wanted outcome: Elixir has no private constructors, so a host can write ... ok
+test_sources_without_a_record_constructor_stay_byte_equal (__main__.Slice6HostStruct.test_sources_without_a_record_constructor_stay_byte_equal) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.529s
+
+OK

@@ -1,0 +1,27 @@
+{"ts": "2026-11-08T06:18:44Z", "id": "A1", "choice": "A", "note": null}
+{"ts": "2026-11-08T06:18:45Z", "id": "A1", "choice": "B", "note": null}
+{"ts": "2026-11-08T06:18:46Z", "id": "A1", "choice": "A", "note": null}
+{"ts": "2026-11-08T06:19:15Z", "id": "A1", "choice": "B", "note": null}
+{"ts": "2026-11-08T06:20:12Z", "id": "A2", "choice": "A", "note": null}
+{"ts": "2026-11-08T06:20:45Z", "id": "A3", "choice": "B", "note": null}
+{"ts": "2026-11-08T06:38:06Z", "id": "M4", "choice": "A", "note": null}
+{"ts": "2026-11-08T06:38:07Z", "id": "M4", "choice": "B", "note": null}
+{"ts": "2026-11-08T06:38:42Z", "id": "M4", "note": "Naja, also da müssen wir natürlich den vollen Support bauen und diese Regel aufheben. Wir müssen natürlich alles, jede Migration muss möglich sein, das ist klar.", "audio": "2026-11-08T063841Z-M4.webm"}
+{"ts": "2026-11-08T06:39:14Z", "id": "QDB-8", "choice": "C", "note": null}
+{"ts": "2026-11-08T06:40:29Z", "id": "N9", "note": "verstehe ich nicht weil es sind keine sachen die auswählen kann ja du stellst es hier einfach nur so hin ist aber nur so ein fyi oder was also ich meine es auch als es klingt ja alles richtig was was da steht soll erstreckt sein", "audio": "2026-11-08T064028Z-N9.webm"}
+{"ts": "2026-11-08T06:47:10Z", "id": "ENC", "choice": "C", "note": null}
+{"ts": "2026-11-08T06:48:28Z", "id": "ENC", "note": "Also das muss auf jeden Fall hier eine spezielle öffentliche Funktion erzeugt werden, definitiv. Das muss natürlich geil sein. Vielleicht gibt es da einfach einen sehr sensiblen Default und man kann dann da rein opten, in irgendeiner Art und Weise. Jetzt kann man sich überlegen, ob man noch, ob man Sachen auch versteckt vor dem Host, vielleicht an einer gewissen Stelle, dass man sagt, okay, das hier ist ein Private-Type oder das ganze Modul ist Private oder was auch immer, ich weiß es noch nicht genau. Aber ich will quasi was ganz explizit davon ausschließen, dass es nach außen gerät. Das ist sozusagen ein internes Ding. Ich weiß noch nicht, ist das jetzt was, was ich auf Typenlevel deklariere, ist das was, was ich auf Feldlevel, zum Beispiel Wie läuft das?", "audio": "2026-11-08T064825Z-ENC.webm"}
+{"ts": "2026-11-08T07:07:38Z", "id": "Q5-10", "note": "Was ist denn das? Also wir wollen ja nicht wie WordPress eine Tabelle noch haben. Wir wollen ja auch Migration generieren. Und Corona ist das hierfür relevant?", "audio": "2026-11-08T070737Z-Q5-10.webm"}
+{"ts": "2026-11-08T07:39:34Z", "id": "Q5-10", "choice": "B", "note": null}
+{"ts": "2026-11-08T07:39:39Z", "id": "Q5-10", "choice": "B", "note": null}
+{"ts": "2026-11-08T07:39:40Z", "id": "Q5-10", "choice": "A", "note": null}
+{"ts": "2026-11-08T07:39:42Z", "id": "Q5-10", "choice": "B", "note": null}
+{"ts": "2026-11-08T09:44:45Z", "id": "TEST-site-v2", "choice": "A", "note": null}
+{"ts": "2026-11-08T09:44:45Z", "id": "TEST-site-v2", "choice": "", "note": null}
+{"ts": "2026-11-08T09:49:00Z", "id": "M3", "note": "Also wir hatten uns hier jetzt ja überlegt, ich weiß nicht, ob das, das ist vielleicht hier noch gar nicht angekommen, aber dass wir halt ja Bedeckt nun nur auf Typen, auf komplexen Datentypen mit einer Version erlauben, wodurch wir quasi die History immer komplett kennen. Ich weiß jetzt nicht, welche Auswirkungen das genau auf diese Frage hier hat. Das verstehe ich noch nicht ganz. Das ist bestimmt nicht irrelevant.", "audio": "2026-11-08T094859Z-M3.webm"}
+{"ts": "2026-11-08T09:51:12Z", "id": "D035", "note": "Das verstehe ich so nicht. Weiß ich jetzt nicht, habe ich keine Ahnung was zu mir meins genau.", "audio": "2026-11-08T095111Z-D035.webm"}
+{"ts": "2026-11-08T09:51:26Z", "id": "D035", "note": "Fehlt halt auch jetzt hier ein Beispiel. Also ein Beispiel zum Beispiel mit unserer App oder sowas. Und Co.", "audio": "2026-11-08T095125Z-D035.webm"}
+{"ts": "2026-11-08T10:03:50Z", "id": "DL140-PLACE", "choice": "A", "note": null}
+{"ts": "2026-11-08T10:09:41Z", "id": "QUAR-LITERAL", "choice": "B", "note": null}
+{"ts": "2026-11-08T10:34:34Z", "id": "QM4-1", "choice": "A", "note": null}
+{"ts": "2026-11-08T10:35:18Z", "id": "QM4-2", "choice": "A", "note": null}

@@ -1,0 +1,13 @@
+// Slice 6d reject case: a constructor TYPE field below the top level of the input TYPE (TEST O1, DL-144).
+type NoCurrency {}
+type Amount { value: String currency: String }
+fn Amount value: String, currency: String -> Amount ! NoCurrency
+fn Amount _, "" -> Amount ! NoCurrency = NoCurrency {}
+fn Amount value, currency -> Amount ! NoCurrency = Amount { value: value, currency: currency }
+
+type Line { amount: Amount }
+type PlaceOrder { order_id: String line: Line }
+
+effect ui.echo PlaceOrder -> PlaceOrder = ui.event("echo") |> echo
+
+fn echo p: PlaceOrder -> PlaceOrder = p

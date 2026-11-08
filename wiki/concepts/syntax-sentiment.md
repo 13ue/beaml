@@ -78,15 +78,15 @@ updated: 2026-11-08
 
 ## 8. How to use this page
 
-**[Requirement]** OWNER decision of 2026-11-07 ([DL-140](../planning/decision-log.md)): the research is ingested. Its tensions and gaps are not decided now. They stay open and visible as D026 to D033 in [decisions to be made](../planning/decisions-to-be-made.md). Trigger: after the first example applications are built, not too late and not too early. Goal: BEAML wants the best syntax ever built and wants to innovate; this research stays present in every syntax decision.
+**[Requirement]** OWNER decision of 2026-11-07 ([DL-145](../planning/decision-log.md)): the research is ingested. Its tensions and gaps are not decided now. They stay open and visible as D026 to D033 in [decisions to be made](../planning/decisions-to-be-made.md). Trigger: after the first example applications are built, not too late and not too early. Goal: BEAML wants the best syntax ever built and wants to innovate; this research stays present in every syntax decision.
 
 **[Proposal]** At every syntax decision, read sections 5 to 7 of this page. Name the row the decision touches. When the decision moves a tension or a gap, link the decision-log entry from the open item.
 
-See also the [syntax minimum hub](../planning/syntax-minimum.md): two proposals (conservative, radical) compared against this page, open item D035.
+See also the [syntax minimum hub](../planning/syntax-minimum.md): two proposals (conservative, radical) compared against this page, open item D050.
 
 ## 9. BAML as the nearest precedent
 
-**[Verified]** Source: the [BAML syntax reception research](../sources/baml-syntax-reception-2026.md) of 2026-11-07, captured under [raw/research/2026-11-07-baml-syntax-sentiment/](../../raw/research/2026-11-07-baml-syntax-sentiment/CAPTURE.md). Taken up at the OWNER's instruction ([DL-141](../planning/decision-log.md)). BAML is BoundaryML's language, a technical precedent already on [BAML language and tooling](baml-language-and-tooling.md); this section is about how its syntax is received.
+**[Verified]** Source: the [BAML syntax reception research](../sources/baml-syntax-reception-2026.md) of 2026-11-07, captured under [raw/research/2026-11-07-baml-syntax-sentiment/](../../raw/research/2026-11-07-baml-syntax-sentiment/CAPTURE.md). Taken up at the OWNER's instruction ([DL-146](../planning/decision-log.md)). BAML is BoundaryML's language, a technical precedent already on [BAML language and tooling](baml-language-and-tooling.md); this section is about how its syntax is received.
 
 **[Verified]** What BAML's syntax is praised for ([praise table](../../raw/research/2026-11-07-baml-syntax-sentiment/baml-reception.md#2-what-people-praise)):
 
@@ -112,7 +112,7 @@ See also the [syntax minimum hub](../planning/syntax-minimum.md): two proposals 
 
 ## 10. Terraform HCL as the declarative precedent
 
-**[Verified]** Source: the [Terraform HCL reception research](../sources/hcl-syntax-reception-2026.md) of 2026-11-08, captured under [raw/research/2026-11-08-hcl-syntax-sentiment/](../../raw/research/2026-11-08-hcl-syntax-sentiment/CAPTURE.md). Taken up at the OWNER's instruction ([DL-142](../planning/decision-log.md)). HCL is the most widely used declarative configuration language with an expression sublanguage; BEAML walks the same line ([DL-126](../planning/decision-log.md): declarative for shape and policy, expressions for computation).
+**[Verified]** Source: the [Terraform HCL reception research](../sources/hcl-syntax-reception-2026.md) of 2026-11-08, captured under [raw/research/2026-11-08-hcl-syntax-sentiment/](../../raw/research/2026-11-08-hcl-syntax-sentiment/CAPTURE.md). Taken up at the OWNER's instruction ([DL-168](../planning/decision-log.md)). HCL is the most widely used declarative configuration language with an expression sublanguage; BEAML walks the same line ([DL-126](../planning/decision-log.md): declarative for shape and policy, expressions for computation).
 
 - **[Verified]** Praised ([table](../../raw/research/2026-11-08-hcl-syntax-sentiment/hcl-reception.md#2-what-people-praise)): the declarative shape and the plan as an inspectable diff; the deliberate limit ("not Turing-complete"); first-class expressions since 0.12; `for` expressions and `for_each` keys; rich types with `optional(type, default)`; `moved`, `import` and `check` blocks that keep history and assertions in source; the v1 compatibility promise.
 - **[Verified]** Criticized ([table](../../raw/research/2026-11-08-hcl-syntax-sentiment/hcl-reception.md#3-what-people-criticize)): `count = c ? 1 : 0` as a boolean; `count` index as identity; `dynamic` blocks, which HashiCorp's own docs tell users to limit; no user-defined functions; "not a real language"; implicit string, number and bool conversion; too many concepts in one tool. Nobody attacks the punctuation; the complaints are structural, as for BAML (section 9).

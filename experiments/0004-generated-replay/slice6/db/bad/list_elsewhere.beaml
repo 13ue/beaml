@@ -1,0 +1,7 @@
+// Slice 6 db reject (N12): a LIST TYPE outside a db.list output TYPE (Q5-3).
+type Order { order_id: String label: String }
+type Basket { items: [Order] }
+type StoreError { reason: String }
+effect orders.save Order -> Order ! StoreError = db.put("records")
+
+fn save o: Order -> Order ! StoreError = o |> orders.save

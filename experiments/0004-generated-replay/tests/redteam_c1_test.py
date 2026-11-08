@@ -35,9 +35,9 @@ fn place order: Order -> Payment ! PaymentError =
   order
   |> payments.authorize
 """
-TEMPLATE = {"status": 200, "version": 2, "request": {"order_id": "order-1"}, "operation": "payments.authorize",
+TEMPLATE = {"status": 200, "version": 3, "request": {"order_id": "order-1"}, "operation": "payments.authorize",
             "trace_id": "00000000000000000000000000000001", "unknown_keys": [], "artifact_id": "0" * 64, "attempt": 1,
-            "client_span_id": "0000000000000001",
+            "span_id": "0000000000000001", "outcome": "accepted", "reason": None,
             "type": {"name": "Payment", "version": 1, "fields": [["order_id", "String"], ["state", "PaymentState"]],
                      "fingerprint": "de5ce8775a633272bc181cba11dda0b5b14609068977c0444f6eef5e61650c36"},
             "unknown_fields": [], "redacted": []}
@@ -150,7 +150,8 @@ class RedTeamC1Driver(unittest.TestCase):
     def run_driver(self, fun, type_name):
         driver = driver_text()
         self.assertIsNotNone(driver, "no DRIVER const in main.rs")
-        stdin = json.dumps({"module": DRIVER_MODULE, "calls": [[fun, type_name, ["x"]]]})
+        # D6B-204 (slice 6e): the DRIVER reads the module name from its input.
+        stdin = json.dumps({"module": DRIVER_MODULE, "name": "BeamlSpike", "calls": [[fun, type_name, ["x"]]]})
         with tempfile.TemporaryDirectory(prefix="beaml-0004-c1drv-") as cwd:
             done = subprocess.run(["elixir", "-e", driver], input=stdin, capture_output=True, text=True,
                                   timeout=90, cwd=cwd)

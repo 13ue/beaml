@@ -1,5 +1,8 @@
 // F1 (D6B-67 a): a redacted value in a plain field of the failure TYPE.
-type Order { order_id: String  card_holder: redacted String }
+type Order {
+  order_id: String
+  card_holder: redacted String
+}
 type Bad { reason: String }
 
 fn check Order { card_holder } -> String ! Bad = Bad { reason: card_holder }
