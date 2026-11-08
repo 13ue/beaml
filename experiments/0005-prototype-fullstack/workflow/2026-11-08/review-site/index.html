@@ -23,10 +23,66 @@ ol.opts li.built{border-color:var(--def)}ol.opts .L{font-weight:700;min-width:1.
 nav{display:flex;justify-content:space-between;gap:12px;margin:24px 0 0;padding-top:14px;border-top:1px solid var(--bd);font-size:14px}
 table{border-collapse:collapse;width:100%;margin:14px 0}td,th{border-bottom:1px solid var(--bd);padding:8px 6px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600;font-size:13px}
 td.n{text-align:right;white-space:nowrap}
+ol.opts li{cursor:pointer}ol.opts li:hover{background:var(--bg)}ol.opts li.chosen{outline:2px solid var(--ok);outline-offset:-1px}
+.fb{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.mic{font:600 13px system-ui;padding:8px 12px;border-radius:999px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;white-space:nowrap;user-select:none;-webkit-user-select:none}
+.mic.on{background:var(--open);color:#fff;border-color:var(--open)}.mic.busy{opacity:.6}
+.fbt{flex:1;font:14px/1.4 system-ui;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);resize:vertical;min-height:36px}
+.fbs{font-size:12px;color:var(--mut);align-self:center;white-space:nowrap}
+.ans{font-size:13px;margin-top:8px}.ans .a{border-left:3px solid var(--ok);padding:2px 10px;margin:4px 0}.ans .a time{color:var(--mut);margin-right:6px}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin:12px 0}
 </style></head><body><h1>Walk-through: gebaute Defaults und offene Fragen</h1>
 <p class="lead">Stand 2026-11-08 nach dem Nachtlauf (DL-144). Groß zuerst. Jede Seite ist eine Gruppe; jeder Kasten eine Frage. Quelle: <code>owner-review.md</code>, Register D037.</p>
 <div class="legend"><span class="badge open">offen</span> braucht deine Antwort, nichts gebaut oder Einwand <span class="badge default">Default, gebaut</span> gebaut, gilt erst nach deiner Abnahme (DL-139) <span class="badge parked">geparkt</span> D036 <span class="badge decided">entschieden</span> DL-Eintrag vorhanden</div>
 <table><thead><tr><th>#</th><th>Gruppe</th><th class="open">offen</th><th class="default">Default</th><th class="parked">geparkt</th><th class="decided">entschieden</th></tr></thead><tbody><tr><td>1</td><td><a href="01-review.html">Schlussreview Slice 6: drei hohe Einwände</a><br><span class="note">Der Devil&#x27;s Advocate hat am Ende des Slice drei Einwände mit Stufe hoch stehen lassen. Jeder braucht eine Entscheidung von dir. Sie stehen vor allen anderen Punkten.</span></td><td class="n open">3</td><td class="n default"></td><td class="n parked"></td><td class="n decided"></td></tr><tr><td>2</td><td><a href="02-order-chain.html">M4: die echte Order-Kette</a><br><span class="note">Alles hier dreht sich um eine Regel: D6B-39 verbietet in einem verketteten TYPE ein Konstruktor- oder Enum-Feld. Darum läuft der <code>Order</code>-Pfad noch nicht über Zeilen.</span></td><td class="n open"></td><td class="n default">1</td><td class="n parked">2</td><td class="n decided"></td></tr><tr><td>3</td><td><a href="03-encoder.html">Wie eine Seite einen BEAML-Wert anzeigt</a><br><span class="note">Die Listenseite muss aus dem BEAML-Wert <code>Order</code> etwas machen, das HEEx rendern kann. Die Frage ist, welche Funktion der Host dafür ruft.</span></td><td class="n open"></td><td class="n default">1</td><td class="n parked"></td><td class="n decided"></td></tr><tr><td>4</td><td><a href="04-rows.html">Zeilen: Inhalt und Form-Prüfung</a><br><span class="note">Was steht in einer gespeicherten Zeile, und was prüft <code>--stored</code> daran?</span></td><td class="n open"></td><td class="n default">6</td><td class="n parked"></td><td class="n decided"></td></tr><tr><td>5</td><td><a href="05-names.html">Namen: Modul, Rejected, reservierte Namen</a><br><span class="note">Welche Namen erzeugt der Compiler, und welche darf der Host nicht benutzen?</span></td><td class="n open"></td><td class="n default">4</td><td class="n parked"></td><td class="n decided"></td></tr><tr><td>6</td><td><a href="06-db.html">Datenbank-Transporte</a><br><span class="note">Wie <code>db.put</code>, <code>db.get</code> und <code>db.list</code> den Host rufen, was dabei aufgezeichnet wird und wie <code>--stored</code> an die Zeilen kommt.</span></td><td class="n open"></td><td class="n default">13</td><td class="n parked"></td><td class="n decided"></td></tr><tr><td>7</td><td><a href="07-record-v3.html">Record-Format v3</a><br><span class="note">Ein Format für alle Ströme (DL-143). Die acht Fragen, die der Plan als Default entschieden hat, und die Zählzeilen-Regel.</span></td><td class="n open">1</td><td class="n default">9</td><td class="n parked"></td><td class="n decided">1</td></tr><tr><td>8</td><td><a href="08-entry.html">ENTRY LINE und Seiten</a><br><span class="note">Was die ENTRY LINE aufzeichnet und wie die drei Seiten der Demo-App sie rufen.</span></td><td class="n open"></td><td class="n default">5</td><td class="n parked"></td><td class="n decided">1</td></tr><tr><td>9</td><td><a href="09-syntax.html">Syntax-Regeln</a><br><span class="note">Regeln, die in der Sprache sichtbar sind. Sie sind am teuersten zu ändern.</span></td><td class="n open">1</td><td class="n default">6</td><td class="n parked"></td><td class="n decided">1</td></tr><tr><td>10</td><td><a href="10-misc.html">Kleines</a><br><span class="note">Defaults ohne Sprach- oder Formatwirkung.</span></td><td class="n open"></td><td class="n default">2</td><td class="n parked"></td><td class="n decided">1</td></tr><tr><td>11</td><td><a href="11-parked.html">Geparkt (D036)</a><br><span class="note">Von dir am 2026-11-07 geparkt. Hier nur, damit die Liste vollständig ist; M4 steht auf seiner eigenen Seite.</span></td><td class="n open"></td><td class="n default"></td><td class="n parked">4</td><td class="n decided"></td></tr><tr><td>12</td><td><a href="12-decided.html">Schon entschieden</a><br><span class="note">Zum Nachschlagen. Alles von dir (13ue), außer wo markiert.</span></td><td class="n open"></td><td class="n default"></td><td class="n parked"></td><td class="n decided">12</td></tr></tbody>
 <tfoot><tr><th></th><th>Summe</th><td class="n open">5</td><td class="n default">47</td><td class="n parked">6</td><td class="n decided">16</td></tr></tfoot></table>
-<p class="note">Reihenfolge für das Gespräch: 1 → 2 → 3 → 4, dann 5 bis 10 als Sammelfragen, 11 nur zur Kenntnis.</p><nav><span></span><a href="index.html">Übersicht</a><span><a href="01-review.html">Schlussreview Slice 6: drei hohe Einwände →</a></span></nav></body></html>
+<p class="note">Reihenfolge für das Gespräch: 1 → 2 → 3 → 4, dann 5 bis 10 als Sammelfragen, 11 nur zur Kenntnis.</p><nav><span></span><a href="index.html">Übersicht</a><span><a href="01-review.html">Schlussreview Slice 6: drei hohe Einwände →</a></span></nav>
+<script>
+(() => {
+const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const post = (u, b) => fetch(u, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b)}).then(r => r.json());
+const act = (action, target, result, source='mouse') => post('/api/act', {source, action, target, result}).catch(()=>{});
+const fmtT = ts => { try { return new Date(ts).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}); } catch { return ts; } };
+function paint(id, a) {
+  const sec = document.getElementById(id); if (!sec) return;
+  $$('ol.opts li', sec).forEach(li => li.classList.toggle('chosen', !!a && li.dataset.choice === a.choice));
+  const box = $('.ans', sec); box.innerHTML = '';
+  if (a && a.choice) box.insertAdjacentHTML('beforeend', `<div class=a><time>${fmtT(a.ts)}</time>Deine Wahl: <b>${a.choice}</b></div>`);
+  if (a && a.note) box.insertAdjacentHTML('beforeend', `<div class=a><time>${fmtT(a.ts)}</time>${a.note.replace(/</g,'&lt;')}</div>`);
+}
+async function load() { try { const all = await (await fetch('/api/answers')).json(); $$('section.card').forEach(s => paint(s.id, all[s.id])); } catch {} }
+$$('section.card').forEach(sec => {
+  const id = sec.id;
+  $$('ol.opts li', sec).forEach(li => { const pick = async () => { await post('/api/answer', {id, choice: li.dataset.choice}); act('choose', id, li.dataset.choice); load(); };
+    li.addEventListener('click', pick); li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } }); });
+  const ta = $('.fbt', sec), st = $('.fbs', sec), mic = $('.mic', sec);
+  const save = async () => { const note = ta.value.trim(); if (!note) return; await post('/api/answer', {id, note}); act('note', id, note.length + ' chars', 'key'); ta.value = ''; st.textContent = 'gespeichert'; load(); };
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); } });
+  // push-to-talk: hold the button or the key M while the pointer is over the card
+  let rec = null, stream = null, chunks = [], t0 = 0;
+  async function down() {
+    if (rec) return; st.textContent = 'Mikro…'; fetch('/api/stt/warm', {method:'POST'}).catch(()=>{});
+    try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); } catch (e) { st.textContent = 'kein Mikrofon: ' + e.message; return; }
+    const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+    rec = new MediaRecorder(stream, mime ? {mimeType: mime} : {}); chunks = []; t0 = performance.now();
+    rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+    rec.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop()); const blob = new Blob(chunks, {type: rec.mimeType || mime || 'audio/webm'}); rec = null;
+      mic.classList.remove('on'); mic.classList.add('busy'); st.textContent = 'schreibe ab…';
+      try { const r = await fetch('/api/stt?id=' + encodeURIComponent(id), {method:'POST', headers:{'Content-Type': blob.type}, body: blob}); const j = await r.json();
+        st.textContent = r.ok ? (j.text ? 'notiert' : 'nichts gehört') : ('Fehler: ' + (j.error || r.status)); if (!r.ok) ta.focus(); }
+      catch (e) { st.textContent = 'Fehler: ' + e.message; }
+      mic.classList.remove('busy'); act('voice', id, Math.round((performance.now() - t0) / 100) / 10 + ' s', 'voice'); load();
+    };
+    rec.start(); mic.classList.add('on'); st.textContent = 'aufnahme… loslassen zum Senden';
+  }
+  function up() { if (rec && rec.state === 'recording') rec.stop(); }
+  mic.addEventListener('pointerdown', e => { e.preventDefault(); mic.setPointerCapture?.(e.pointerId); down(); });
+  mic.addEventListener('pointerup', up); mic.addEventListener('pointercancel', up);
+  sec.addEventListener('pointerenter', () => window.__hot = sec); 
+  document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'm' && !e.repeat && window.__hot === sec && !e.target.matches('input, textarea')) down(); });
+  document.addEventListener('keyup', e => { if (e.key.toLowerCase() === 'm' && window.__hot === sec) up(); });
+});
+load();
+$$('a[href]').forEach(a => a.addEventListener('click', () => act('nav', a.getAttribute('href'))));
+})();
+</script></body></html>

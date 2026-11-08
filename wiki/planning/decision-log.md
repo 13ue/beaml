@@ -881,6 +881,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Because: the full run must mean "everything listed passes"; a table of expected failures is a pin that drifts. The multi-effect GREEN listed the two db RED files early; the P4 GREEN closes that.
 → Effect: `redteam_c3_test` C4 keeps "every slice 6 file"; the rule reads "every slice 6 file that has a GREEN". The C4 test may need that wording; the P4 GREEN checks it.
 
+**DL-148 · Migrate · `beaml fmt` layout rules: multi-line bodies from two members, one clause table per block**
+→ Question: `orders.beaml` (EXPERIMENT 0005) shows TYPE and ENUM bodies on one line and EFFECT blocks and constructor clauses unaligned. Which layout does `fmt` write? (OWNER, 2026-11-08, reading the source in the editor.)
+→ Chose: (1) a TYPE body with zero or one field stays on one line; two or more fields go one per line. (2) An ENUM body with zero or one variant stays on one line; two or more variants go one per line. (3) Every contiguous block of single-line clause lines (`fn`, also constructor clauses and signature lines, also EFFECT lines) is one table: the arguments, `->`, the error `!` part and `=` stand in the same columns across the block. A blank line, a comment line or a multi-line clause ends the block (D6B-44 rules kept).
+→ By: 13ue
+→ Because: the tabular form reads well and is to be carried through the whole file, not only inside one `fn` group.
+→ Open: line breaks inside a clause and a maximum line length (D038), to be discussed with longer functions.
+→ Detail: slice "fmt layout" ledger under `experiments/0004-generated-replay/workflow/2026-11-08/fmt-layout/`.
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**

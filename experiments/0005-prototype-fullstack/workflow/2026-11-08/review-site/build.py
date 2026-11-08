@@ -392,6 +392,58 @@ group("12-decided", "Schon entschieden",
       ])
 
 # ---------------------------------------------------------------- render
+JS = r'''
+<script>
+(() => {
+const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const post = (u, b) => fetch(u, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b)}).then(r => r.json());
+const act = (action, target, result, source='mouse') => post('/api/act', {source, action, target, result}).catch(()=>{});
+const fmtT = ts => { try { return new Date(ts).toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}); } catch { return ts; } };
+function paint(id, a) {
+  const sec = document.getElementById(id); if (!sec) return;
+  $$('ol.opts li', sec).forEach(li => li.classList.toggle('chosen', !!a && li.dataset.choice === a.choice));
+  const box = $('.ans', sec); box.innerHTML = '';
+  if (a && a.choice) box.insertAdjacentHTML('beforeend', `<div class=a><time>${fmtT(a.ts)}</time>Deine Wahl: <b>${a.choice}</b></div>`);
+  if (a && a.note) box.insertAdjacentHTML('beforeend', `<div class=a><time>${fmtT(a.ts)}</time>${a.note.replace(/</g,'&lt;')}</div>`);
+}
+async function load() { try { const all = await (await fetch('/api/answers')).json(); $$('section.card').forEach(s => paint(s.id, all[s.id])); } catch {} }
+$$('section.card').forEach(sec => {
+  const id = sec.id;
+  $$('ol.opts li', sec).forEach(li => { const pick = async () => { await post('/api/answer', {id, choice: li.dataset.choice}); act('choose', id, li.dataset.choice); load(); };
+    li.addEventListener('click', pick); li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } }); });
+  const ta = $('.fbt', sec), st = $('.fbs', sec), mic = $('.mic', sec);
+  const save = async () => { const note = ta.value.trim(); if (!note) return; await post('/api/answer', {id, note}); act('note', id, note.length + ' chars', 'key'); ta.value = ''; st.textContent = 'gespeichert'; load(); };
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); } });
+  // push-to-talk: hold the button or the key M while the pointer is over the card
+  let rec = null, stream = null, chunks = [], t0 = 0;
+  async function down() {
+    if (rec) return; st.textContent = 'Mikro…'; fetch('/api/stt/warm', {method:'POST'}).catch(()=>{});
+    try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); } catch (e) { st.textContent = 'kein Mikrofon: ' + e.message; return; }
+    const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+    rec = new MediaRecorder(stream, mime ? {mimeType: mime} : {}); chunks = []; t0 = performance.now();
+    rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+    rec.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop()); const blob = new Blob(chunks, {type: rec.mimeType || mime || 'audio/webm'}); rec = null;
+      mic.classList.remove('on'); mic.classList.add('busy'); st.textContent = 'schreibe ab…';
+      try { const r = await fetch('/api/stt?id=' + encodeURIComponent(id), {method:'POST', headers:{'Content-Type': blob.type}, body: blob}); const j = await r.json();
+        st.textContent = r.ok ? (j.text ? 'notiert' : 'nichts gehört') : ('Fehler: ' + (j.error || r.status)); if (!r.ok) ta.focus(); }
+      catch (e) { st.textContent = 'Fehler: ' + e.message; }
+      mic.classList.remove('busy'); act('voice', id, Math.round((performance.now() - t0) / 100) / 10 + ' s', 'voice'); load();
+    };
+    rec.start(); mic.classList.add('on'); st.textContent = 'aufnahme… loslassen zum Senden';
+  }
+  function up() { if (rec && rec.state === 'recording') rec.stop(); }
+  mic.addEventListener('pointerdown', e => { e.preventDefault(); mic.setPointerCapture?.(e.pointerId); down(); });
+  mic.addEventListener('pointerup', up); mic.addEventListener('pointercancel', up);
+  sec.addEventListener('pointerenter', () => window.__hot = sec); 
+  document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'm' && !e.repeat && window.__hot === sec && !e.target.matches('input, textarea')) down(); });
+  document.addEventListener('keyup', e => { if (e.key.toLowerCase() === 'm' && window.__hot === sec) up(); });
+});
+load();
+$$('a[href]').forEach(a => a.addEventListener('click', () => act('nav', a.getAttribute('href'))));
+})();
+</script>'''
+
 CSS = """
 :root{color-scheme:light dark;--bg:#fafafa;--fg:#383a42;--mut:#8a8f98;--bd:#d9dce2;--card:#fff;
 --k:#a626a4;--t:#c18401;--f:#4078f2;--p:#e45649;--s:#50a14f;--c:#0184bc;--o:#383a42;--m:#9a9fa8;
@@ -417,6 +469,12 @@ ol.opts li.built{border-color:var(--def)}ol.opts .L{font-weight:700;min-width:1.
 nav{display:flex;justify-content:space-between;gap:12px;margin:24px 0 0;padding-top:14px;border-top:1px solid var(--bd);font-size:14px}
 table{border-collapse:collapse;width:100%;margin:14px 0}td,th{border-bottom:1px solid var(--bd);padding:8px 6px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600;font-size:13px}
 td.n{text-align:right;white-space:nowrap}
+ol.opts li{cursor:pointer}ol.opts li:hover{background:var(--bg)}ol.opts li.chosen{outline:2px solid var(--ok);outline-offset:-1px}
+.fb{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.mic{font:600 13px system-ui;padding:8px 12px;border-radius:999px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;white-space:nowrap;user-select:none;-webkit-user-select:none}
+.mic.on{background:var(--open);color:#fff;border-color:var(--open)}.mic.busy{opacity:.6}
+.fbt{flex:1;font:14px/1.4 system-ui;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);resize:vertical;min-height:36px}
+.fbs{font-size:12px;color:var(--mut);align-self:center;white-space:nowrap}
+.ans{font-size:13px;margin-top:8px}.ans .a{border-left:3px solid var(--ok);padding:2px 10px;margin:4px 0}.ans .a time{color:var(--mut);margin-right:6px}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin:12px 0}
 """
 LABEL = dict(decided="entschieden", open="offen", default="Default, gebaut", parked="geparkt")
@@ -424,7 +482,7 @@ LABEL = dict(decided="entschieden", open="offen", default="Default, gebaut", par
 
 def page(title, body, prev=None, nxt=None):
     nav = '<nav><span>' + (f'<a href="{prev[0]}.html">← {html.escape(prev[1])}</a>' if prev else "") + \
-          '</span><a href="index.html">Übersicht</a><span>' + (f'<a href="{nxt[0]}.html">{html.escape(nxt[1])} →</a>' if nxt else "") + '</span></nav>'
+          '</span><a href="index.html">Übersicht</a><span>' + (f'<a href="{nxt[0]}.html">{html.escape(nxt[1])} →</a>' if nxt else "") + '</span></nav>' + JS
     return f'<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)}</title><style>{CSS}</style></head><body>{body}{nav}</body></html>'
 
 
@@ -439,11 +497,14 @@ def render_item(x):
     if x["options"]:
         h.append('<ol class="opts">')
         for L, t, built in x["options"]:
-            h.append(f'<li class="{"built" if built else ""}"><span class="L">{html.escape(L)}</span><span>{text(t)}</span>{"<span class=tag>gebaut</span>" if built else ""}</li>')
+            h.append(f'<li class="{"built" if built else ""}" data-choice="{html.escape(L)}" role="button" tabindex="0"><span class="L">{html.escape(L)}</span><span>{text(t)}</span>{"<span class=tag>gebaut</span>" if built else ""}</li>')
         h.append('</ol>')
     if x["note"]:
         h.append(f'<p class="note">{text(x["note"])}</p>')
-    h.append(f'<p class="by">By: {text(x["by"])}</p></section>')
+    h.append(f'<p class="by">By: {text(x["by"])}</p>')
+    h.append('<div class="fb"><button class="mic" type="button" title="Halten und sprechen (oder Taste M)">🎤 Sprechen</button>'
+             '<textarea class="fbt" rows="1" placeholder="Anmerkung (Enter speichert)"></textarea><span class="fbs"></span></div>'
+             '<div class="ans"></div></section>')
     return "".join(h)
 
 

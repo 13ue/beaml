@@ -728,6 +728,17 @@ type OrderResult = Ok(Order) | Error(OrderError)
 **[Proposal]** Walk through [the OWNER review list](../../experiments/0005-prototype-fullstack/workflow/2026-11-07/owner-review.md), big items first: M4 (D036, critical path), the host-called `Orders.__beaml_encode_order/1`, Q5-10, Q6E-1/Q6E-2, QDB-6b/QDB-8, QV3-1 to QV3-8, the count-line print rule, the row shape check P4c, G6D-03/G6D-04. Every default stays as built until the OWNER signs it off. D035 and D036 stay separate entries. By: Opus (docs exp0005).
 **[Verified]** Evidence: 0005 TEST PASS ([review](../../experiments/0005-prototype-fullstack/workflow/2026-11-08/review.md), O1 to O3 medium, open) and [run 20261108T003740313204Z](../../experiments/0005-prototype-fullstack/results/20261108T003740313204Z/result.json).
 
+## D038 — Line length and line breaks inside a clause
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** the clause table of DL-148: may a clause break across lines, or does the language set a maximum line length (the OWNER named 120 as an example) and forbid breaks inside a clause?
+- **Decision trigger** the first EXPERIMENT with longer functions
+- **Next check** when such a function appears
+
+**[Proposal]** Raised by the OWNER on 2026-11-08 together with DL-148: a hard maximum would force a style of short clauses; a break rule keeps the table readable. Not decided; the current `fmt` keeps multi-line clauses as written (D6B-44).
+
 ## Answered 2026-11-07
 
 - [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).
