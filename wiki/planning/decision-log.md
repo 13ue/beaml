@@ -1060,6 +1060,14 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Trigger: TEST fates-a1 medium objection (`experiments/0004-generated-replay/workflow/2026-11-08/fates/test-a1.md`).
 → Effect: built in step a1b with DL-166; review-site card QUAR-FIELD in the Eingang for the OWNER.
 
+**DL-173 · Repair · DL-147 also covers RED cases in EXPERIMENT 0005**
+→ Question: RED fates-a2a put case N16 into the 0005 `run.py` EXPECTED list and `stored_test.exs` before its GREEN; the 0005 run stays red while a2a waits for the OWNER (QA2-1).
+→ Options: A from now on a 0005 RED case joins `run.py` and the ExUnit run only with its GREEN (tagged or kept in the ledger until then); B keep RED cases live and filter them in TEST.
+→ Chose: A for new steps. N16 stays as committed; until a2a GREEN, a TEST accepts the 0005 run only if N16 is its only failure.
+→ By: Fable (after RED review fates-a4)
+→ Because: a red reference run hides new failures of other steps (DL-158 makes 0005 the check for every slice).
+→ Trigger: RED review fates-a4 O3 (`experiments/0004-generated-replay/workflow/2026-11-08/fates-a4/red-review.md`).
+
 ### Process
 
 **DL-041 · Repair · Continue without a pause**
