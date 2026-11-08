@@ -493,3 +493,5 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [EXPERIMENT 0005 README](../experiments/0005-prototype-fullstack/README.md): `order_v2` chain, `Note` control, N9 blocked on M3 only; the three `note_v2` notes rewritten.
 - [Decision log](planning/decision-log.md): effect notes under DL-152 and DL-153. [Decisions to be made](planning/decisions-to-be-made.md): D036 M4 answered, M3, M5, M8, M9 stay.
 - [Register](planning/research-and-development.md): new M4 step 1 row. No glossary change.
+
+- 2026-11-08 · Roadmap themes D044 to D047 (one contract construct, generics, async compute with OTP and Oban, totality and let it crash) registered from the OWNER walk-through; new concept page totality-and-let-it-crash.md as [Proposal]. By: Fable.

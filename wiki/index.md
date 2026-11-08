@@ -112,3 +112,4 @@ The [source registry](sources/README.md) identifies pins/provenance/coverage; [m
 - [Karpathy LLM Wiki](sources/karpathy-llm-wiki.md): raw/wiki/index/log workflow inspiration.
 - [Decision4 source](sources/decision4.md) and [decision-consequence lens](concepts/decision-consequences.md): attributed decision framework, not inherited agent policy.
 - [Source registry](sources/README.md), [log](log.md), [repository overview](../README.md), [maintenance guidance](../AGENTS.md).
+- [Totality and let it crash](concepts/totality-and-let-it-crash.md) — how data totality sits beside process let-it-crash; draft, D047.

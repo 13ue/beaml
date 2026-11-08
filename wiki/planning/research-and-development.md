@@ -85,6 +85,15 @@ The second round is a pending proposal, not a registered or executed EXPERIMENT.
 It does not settle generic schema evidence, effects, information flow, modules, LSP or production runtime behavior.
 Use its result to select the next small experiment. Do not expand the pipeline before a concrete experiment needs more machinery.
 
+## Roadmap — later themes (OWNER, 2026-11-08)
+
+**[Requirement]** Four themes the OWNER placed on the roadmap during the D037 walk-through. None is planned as a slice yet; each has a register entry. Order among them is open.
+
+- **One contract construct (D044).** Elixir splits Protocols and Behaviours. BEAML unifies them into one simple, classic interface: a contract is declared once and implemented by TYPES or modules. Open: dispatch (by TYPE or by module), generics in contracts, how the generated Elixir maps to Protocol or Behaviour.
+- **Generics (D045).** Type variables after the best accepted standards (the OWNER names "the most popular standards"; candidates to compare: Hindley-Milner style inference with explicit bounds, Rust/Swift-style constrained generics, Elm's simplicity). Open: where variables appear (TYPE, fn, EFFECT, contract), inference vs annotation, interaction with TYPE VERSIONS and the record format.
+- **Async compute (D046).** OTP from BEAML: processes, supervision, GenServer-like state, timers; and Oban as the battle-proven job library (a job = an EFFECT with a transport `oban.enqueue(...)`?; retries and uniqueness as declared lines; records for every attempt). Open: what BEAML owns and what the host owns, how a job carries the TYPE VERSION and the trace.
+- **Totality and let it crash (D047).** The concept page [Totality and let it crash](../concepts/totality-and-let-it-crash.md) explains how BEAML's totality (complete handling of every stored value under every rule) sits beside the BEAM's let-it-crash (process failure is normal and supervised). Both hold: totality is about the data and the real world that engineers otherwise carry in their heads; let it crash is about the running process.
+
 ## Later candidate — Ecto and LiveView
 
 **[Requirement]** Retain an Ecto and LiveView integration slice for later R&D. Its order among follow-up candidates is open.

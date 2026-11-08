@@ -799,6 +799,42 @@ type OrderResult = Ok(Order) | Error(OrderError)
 - **Decision trigger** now
 - **Next check** OWNER answer on the walk-through page "M3: Fate-Formen", card FATE-NEXT
 
+## D044 — One contract construct instead of Protocols and Behaviours
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** a single, simple interface construct: a contract declared once, implemented by TYPES or modules; the compiler maps it to Elixir Protocol or Behaviour as needed. Open: dispatch, generics in contracts, naming.
+- **Decision trigger** the first EXPERIMENT that needs two implementations of one operation
+- **Next check** a concept page with three worked examples before any syntax
+
+## D045 — Generics (type variables)
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** type variables after accepted standards; where they appear (TYPE, fn, EFFECT, contract), inference vs annotation, interaction with TYPE VERSIONS, the record format (`type: {name, version}` for a `List(Order)`?) and the LIST TYPE `[T]` already built.
+- **Decision trigger** the first EXPERIMENT with a reusable container or operation
+- **Next check** compare three standards on paper against `OrderList { items: [Order] }`
+
+## D046 — Async compute: OTP and Oban from BEAML
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08)
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** processes, supervision, state and timers from BEAML; Oban as the job library (a job as an EFFECT with an `oban` transport, attempts as records, retries and uniqueness as declared lines). Open: BEAML vs host ownership, TYPE VERSION and trace on a job, replay of a job.
+- **Decision trigger** the first EXPERIMENT that needs background work
+- **Next check** a concept page; the register of transports (http, db, ui) gets a candidate row
+
+## D047 — Totality and let it crash: the explanation
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08); concept page drafted as [Proposal]
+- **Decision owner** OWNER
+- **Class** Repair (documentation), Migrate if it changes a rule
+- **Scope** how BEAML's totality over stored data sits beside the BEAM's let-it-crash. See [the concept page](../concepts/totality-and-let-it-crash.md).
+- **Decision trigger** the first external reader; before the public pages claim either word
+- **Next check** OWNER reads the page
+
 ## Answered 2026-11-07
 
 - [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).
