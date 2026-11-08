@@ -190,6 +190,15 @@
  },
  {
   "group": "02b-fates",
+  "id": "QA2-3",
+  "status": "open",
+  "page": "eingang",
+  "added": "2026-11-08T13:25:00Z",
+  "source": "fates-a2 plan check 2026-11-08",
+  "by": "Opus (Plan fates-a2); Check: deine DL-157 sagt es anders"
+ },
+ {
+  "group": "02b-fates",
   "id": "VERSION-RULE",
   "status": "decided",
   "page": "eingang",
