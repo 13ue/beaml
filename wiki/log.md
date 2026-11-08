@@ -475,3 +475,12 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [Register](planning/research-and-development.md): new P4c row under P4. [Roadmap page](../docs/index.html): one sentence under db transports.
 - **[Verified]** Limits: http RESPONSE RECORDS keep the gap (Migrate, default A, open, N32e); enum and constructor counts in list records count items; redacted String fields skipped.
 
+
+## 2026-11-08: review and docs | `beaml fmt` layout (DL-148)
+
+**[Verified]** GREEN `ffb7605e`; TEST and REVIEW PASS, no code change ([review](../experiments/0004-generated-replay/workflow/2026-11-08/fmt-layout/review.md), By: Opus (fmt-layout, review)). 83 of 83 changed tracked sources idempotent; 166 build pairs before and after `fmt`, 0 differ after the offset and line-number mask; comments and strings equal. Objections O1 to O3 medium, dispositions pending.
+
+- [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#beaml-fmt-layout-dl-148): new section with the DL-148 rules, the block ends, the fixtures and the limits.
+- [Decision log](planning/decision-log.md): DL-114 gets `→ Superseded by DL-148 (2026-11-08)`.
+- [Decisions to be made](planning/decisions-to-be-made.md): D038 gets the byte-width and line-width evidence (O2, O3).
+- [Register](planning/research-and-development.md): new fmt layout row. [Glossary](../GLOSSARY.md): new term CLAUSE TABLE.

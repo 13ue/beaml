@@ -739,6 +739,8 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** Raised by the OWNER on 2026-11-08 together with DL-148: a hard maximum would force a style of short clauses; a break rule keeps the table readable. Not decided; the current `fmt` keeps multi-line clauses as written (D6B-44).
 
+**[Verified]** Evidence from the [fmt layout review](../../experiments/0004-generated-replay/workflow/2026-11-08/fmt-layout/review.md) (2026-11-08, By: Opus (fmt-layout, review)): the CLAUSE TABLE counts bytes, not characters. A row with the argument `"ä"` stands 1 column left on screen, `"äöü"` 3 columns (O2). No tracked source is affected today. One block-wide table also widens lines: 19 of 83 changed sources have a line over 120 characters after `fmt`, 17 before (O3). The width unit and the maximum line length belong to this decision.
+
 ## D039 — How a REDACTED FIELD is stored in the records
 
 - **Status** OPEN (idea, raised by the OWNER on 2026-11-08 during the D037 walk-through)

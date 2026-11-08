@@ -615,6 +615,7 @@ Entries DL-001 to DL-035 were written after the fact on 2026-11-06 from the sess
 → Chose: A. Built in slice 6b step 10; the fixture `slice6/fmt/header` encodes it.
 → By: 13ue
 → Because: OWNER choice; compact, and the columns follow the values. B gets wide with long TYPE names.
+→ Superseded by DL-148 (2026-11-08)
 
 **DL-115 · Migrate · A REPLAY RUN shows a redacted field as the atom `:redacted` (Q6B-14, A)**
 → Question: the record holds no value for a redacted field (DL-105). What does the host see for that field in a REPLAY RUN?

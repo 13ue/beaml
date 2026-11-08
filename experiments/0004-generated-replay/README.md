@@ -2,7 +2,7 @@
 id: experiment-0004-generated-replay-plan
 kind: experiment
 status: proposed
-updated: 2026-11-07
+updated: 2026-11-08
 revision: 9.3 (O7 answered)
 ---
 
@@ -2334,3 +2334,71 @@ effect orders.list OrderQuery -> OrderList ! StoreError = db.list("records")
 | One section after "Several EFFECTS" | Undo | Order of the build | Opus (docs db-transport) |
 | Placeholders only, no row value or test MARKER | Undo | Security rule | Opus (docs db-transport) |
 | RETIRE LINE for rows written as built but [Unknown] in meaning | Repair | Chose: state the probe and M5. Over: "frees rows" as settled. Because: N28b skipped, M5 parked. Commits us to: rewrite when M5 is answered | Opus (docs db-transport) |
+
+## `beaml fmt` layout (DL-148)
+
+**[Requirement]** DL-148 (OWNER, 2026-11-08) sets the layout that `beaml-spike fmt SOURCE` writes. It replaces DL-114 (a signature line ended the group). Ledger: [notes.md](workflow/2026-11-08/fmt-layout/notes.md), [green-output.md](workflow/2026-11-08/fmt-layout/green-output.md), [review.md](workflow/2026-11-08/fmt-layout/review.md). GREEN `ffb7605e`. Code: `fn formatted`, `fn bodies`, `fn aligned` in [`main.rs`](../0001-syntax-to-beam/src/main.rs).
+
+### Rules (built)
+
+- **[Verified]** A TYPE body with zero or one field stays on one line: `type Note { text: String }`, `type Empty {}`. A body with one field written over several lines goes onto one line.
+- **[Verified]** Two or more fields go one per line, two spaces in, `}` on its own line. ENUM bodies follow the same rule per variant.
+- **[Verified]** Members keep their own text, commas included. A body with a comment inside stays as written (F4, worker decision, review O1).
+- **[Verified]** One CLAUSE TABLE per contiguous block of single-line lines: `fn` clauses, constructor clauses, signature lines, EFFECT lines and ENTRY LINES. The arguments, `->`, the output, the `!` part and `=` stand in the same columns. A row with fewer arguments skips the missing argument columns (F6).
+- **[Verified]** Only gaps between cells change. Comments, strings and the text after `=` stay byte for byte.
+
+### What ends a block
+
+- A blank line.
+- A comment line.
+- A multi-line clause (it keeps its form, D6B-44; line breaks inside a clause are D038).
+- Any other line, for example a `type` line.
+
+```beaml
+// before (excerpt; checked with fmt on a full source, review 2026-11-08)
+fn Amount value: String, currency: String -> Amount ! BadAmount
+fn Amount _, "" -> Amount ! BadAmount = BadAmount {}
+fn Amount value, currency -> Amount ! BadAmount = Amount { value: value, currency: currency }
+effect orders.save Order -> Order ! StoreError = db.put("records")
+
+// after
+fn Amount          value: String, currency: String -> Amount ! BadAmount
+fn Amount          _,             ""               -> Amount ! BadAmount  = BadAmount {}
+fn Amount          value,         currency         -> Amount ! BadAmount  = Amount { value: value, currency: currency }
+effect orders.save Order                           -> Order  ! StoreError = db.put("records")
+```
+
+### Fixtures
+
+- [`slice6/fmt/layout.beaml`](slice6/fmt/layout.beaml) and its expected [`layout.formatted.beaml`](slice6/fmt/layout.formatted.beaml): bodies, one table across signature, constructor, EFFECT, ENTRY and `fn` lines, the block ends.
+- `clauses`, `header`, `marks`: their `.formatted.beaml` files moved to DL-148; `header.formatted.beaml` is the one byte-guard row that was re-pinned (P3).
+- 34 fixtures of the fixed-point tests (db, entry, multi, redacted-failure) were formatted once (P1); their compiled output is equal after the offset mask.
+- The 0005 sources were formatted; `app/lib/generated/orders.ex` changed only in `# beaml-declaration-v1` offset lines (P6).
+
+### Tested flow and results
+
+| Check | Result |
+|---|---|
+| `tests/slice6_fmt_test.py` | 30 tests OK |
+| 0001 `cargo test` | 22 + 14 pass |
+| Full `run.py`, [`results/20261108T063109487177Z`](results/20261108T063109487177Z/result.json) | status `pass`, 38 of 38 steps |
+| Idempotence, all 185 tracked sources (review) | 83 change, 58 rejected as invalid, second run empty for 83 of 83 |
+| Compiled output before and after `fmt`, 83 sources, plain and `--stored` (review) | 166 pairs: 68 byte-equal, 98 equal after the offset and line-number mask, 0 differ |
+| Comments and strings, 83 sources (review) | 216 comments and 316 strings equal |
+
+### Limits
+
+- **[Verified]** The `fmt` test inputs (`slice6/fmt/{clauses,header,marks,layout}.beaml`) stay unformatted on purpose: they are the input side of the test.
+- **[Verified]** The slice 2 to 5 templates and snapshots, the layout cases (`slice4/Q4-oneline`, the CRLF cases) and 82 other tracked sources stay unformatted on purpose (P1). They change on their first `fmt`; only offset and line-number pins move.
+- **[Verified]** Columns count bytes: a non-ASCII argument shifts its row on screen (review O2, D038). No tracked source is affected today.
+- **[Verified]** One long name cell widens the whole block (review O3). The maximum line length is open (D038).
+- **[Verified]** `fmt` exits 1 on a source that the checker rejects and writes nothing; it is still no full validity check (D6B-191).
+
+### Decisions (Decision4, DOCS fmt layout)
+
+| Decision | Class | Choice and reason | By |
+| --- | --- | --- | --- |
+| One section at the end of the README | Undo | Order of the build | Opus (fmt-layout, docs) |
+| New glossary term CLAUSE TABLE | Repair | Chose: one term. Over: "alignment group" (DL-083 words). Because: DL-148 spans several `fn` names and EFFECT lines. Commits us to: use it in later fmt pages | Opus (fmt-layout, docs) |
+| Review evidence O2 and O3 noted under D038 | Undo | The task named D038 | Opus (fmt-layout, docs) |
+| No repair in `main.rs` | Undo | Review found no bug | Opus (fmt-layout, review) |
