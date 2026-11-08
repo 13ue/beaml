@@ -659,11 +659,11 @@
  {
   "group": "11-parked",
   "id": "M5",
-  "status": "parked",
+  "status": "decided",
   "page": "11-parked",
   "added": "2026-11-07",
   "source": "owner-review 2026-11-07",
-  "by": "OWNER"
+  "by": "OWNER; entschieden 13ue: B, BEAML löscht nach N Tagen"
  },
  {
   "group": "11-parked",
