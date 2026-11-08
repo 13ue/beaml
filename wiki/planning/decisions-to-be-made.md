@@ -846,6 +846,17 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Proposal]** (Fable) A: 0005 becomes the REFERENCE APP: every slice ends with its use case landed in the app (`run.py run` grows), the register marks it "living", results stay per run; telemetry = the records plus OpenTelemetry spans to a local collector and a live dashboard page; a `beaml` CLI wraps build, `--stored`, fmt and replay; a `bench` step records build time, decode time per row and page latency into the results. B: keep 0005 frozen as the slice-5 proof and start 0006 as the living app. Options for the OWNER.
 
+## D049 — PubSub and sockets as hard-typed EFFECTS
+
+- **Status** OPEN (roadmap, OWNER 2026-11-08, [capture](../../raw/requirements/2026-11-08-owner-ideas-pubsub-sockets.md))
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** Phoenix.PubSub topics, channels and LiveView socket events as EFFECTS with typed messages: a topic carries one BEAML TYPE (or an enum of message TYPES), publish is an outbound EFFECT, subscribe/receive is an inbound ENTRY LINE like `ui.event`, socket pushes are outbound. Every message is a record in the streams (format v3), replayable; TYPE VERSIONS apply to messages in flight (an old subscriber reads a new message: the MIGRATE CHAIN on read, as for rows). Tackled with D046 (OTP, GenServer).
+- **Decision trigger** the first EXPERIMENT with a second process or a live update on a page (the 0005 orders list updating on a new order would be the smallest case)
+- **Next check** a concept page sketch: `effect orders.changed Order -> Order ! PubError = pubsub.publish("orders")` and `effect ui.live Order -> Order ! … = pubsub.subscribe("orders") |> refresh` as forms to compare (sketch, not built)
+
+**[Proposal]** Smallest 0005 case: `/orders` refreshes when another session places an order; one topic, one TYPE, records for publish and receive, the trace spans both. Open: what "hard typed" means for a topic shared by two modules (D040, D044), and backpressure (event-flows page).
+
 ## Answered 2026-11-07
 
 - [DL-141](decision-log.md), [DL-142](decision-log.md), [DL-143](decision-log.md): ENTRY RECORD format signed off (two outcome keys, both unknown lists, one format for every stream with a later alignment step).
