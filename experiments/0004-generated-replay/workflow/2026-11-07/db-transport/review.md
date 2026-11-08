@@ -104,3 +104,86 @@ Evidence: in one probe test with about 20 compiles, `compile()` reported `N27: e
 → Reversed constructor signature and `[[T]]` parse text dropped as low. → By: Opus (TEST db-transport) · Undo
 → Probes kept in the scratchpad, not added to the repository. → By: Opus (TEST db-transport) · Undo
 → 0001 `run.py` and `cargo test` run while 0004 `run.py` ran (no shared port, binary up to date). → By: Opus (TEST db-transport) · Undo
+
+## P4c TEST
+
+**Verdict: BLOCK** (one high objection, O1). 2026-11-08. By: Opus (TEST P4c). HEAD `fdc5fe59`. Inputs: [red-plan.md](red-plan.md#p4c-row-shape-check), [red-output.md](red-output.md#p4c) (P4c, P4c RED repair), [red-review.md](red-review.md#p4c), [green-output.md](green-output.md#p4c-green). Probes and mutant builds stay in the session scratchpad, not in the repository.
+
+### Checks run (observed)
+
+| Check | Result |
+|---|---|
+| 0004 `python3 run.py` | **pass, 38 of 38**, 16 min 22 s wall (`results/20261108T005120819231Z`). Another run started at 01:06 beside it (`results/20261108T010601499030Z`, not mine). |
+| `slice6_db_stored_test.py` in that run | 46 tests, OK, 3 skipped (N28b, N30, N30b) |
+| 0001 `python3 run.py` | pass (`experiments/0001-syntax-to-beam/results/20261108T005820221494Z`), 3.5 s |
+| `cargo fmt --check` | pass |
+| `cargo clippy --offline -- -D warnings` | pass |
+| `cargo test --offline` | 22 + 14 pass |
+| `python3 scripts/lint_wiki.py` | 85 files, 0 errors |
+| Pin sites | Unchanged: the P4c diff is `main.rs` and `green-output.md` only. Last commits: `slice5_syntax_test.py`, `slice6_entry_test.py`, `slice6_multi_test.py`, `slice6_pipe_test.py` at `060a075d`; `slice6_db_test.py` at `b332b12c`; `slice6_host_struct_test.py` and `slice6/effect-reach/byte-guard.json` at `ca09d361`. No working-tree change. slice5-syntax, slice6-entry, -multi, -db, -pipe, -host-struct, -effect-reach and record-v3 pass in the full run. |
+
+### Probes (observed; `git archive HEAD` build, scratch)
+
+| Probe | Result |
+|---|---|
+| Fault in list item 1 (missing, Int) | blocks, `1 stored RESPONSE RECORD of operation orders.list`, source line 1, help line |
+| Mutant A: list record checked at the top-level `{"items": …}` | the suite fails 4 (N25, **N32c control**, N32c ×2). The RED-repair control catches it. |
+| Mutant B: only item 0 checked (`.take(1)`) | **the suite passes, 46 OK**; my item-1 probe fails on it (exit 0). See O2. |
+| Plural, 2 bad ROWS of 3 | `2 stored ROWS of table records have no String value for field order_id`, first line 2 |
+| One list record with 2 bad items | `2 stored RESPONSE RECORDS … have`: the count is items, not records. See O2. |
+| `null`, a list, an object in `order_id` | blocks (3 ROWS) |
+| Empty String | builds (a String) |
+| `orders.load`, `orders.save` record without `order_id` | blocks, `operation orders.load` / `orders.save` |
+| Newest TYPE VERSION row without the added `note` (PLAIN_V2) | blocks, field `note` |
+| **v1 row without `label` (declared in v1), or with an Int `label`, PLAIN_V2 source** | **builds, `rows: 1 rows, 1 checked, 0 not decodable`.** At run time `Orders.list_orders(%{})` returns `{:error, %Orders.StoreError{reason: "decode"}}` (fake `BeamlDb`, seeded v1 row). See O1. |
+| Redacted String field | not reachable for a ROW TYPE: `bad/row_redacted.beaml` is a compile error (M3, DL-116). The skip in `value_checks` is dead for rows; no test needed. |
+| http record (`arms/gen/orders.beaml`, `stored/v1.jsonl` line 1) without `status`, or with an Int `status` | builds, exit 0 (the narrowed gap). See O3. |
+
+DL-124: **[Observed]** no stored value in any P4c text; the texts name TYPE, field, noun, place, count and line only.
+
+### Objections
+
+**O1 (high). An older TYPE VERSION row with a missing or wrong-type String field passes `--stored` and breaks `db.list` at run time.**
+- **[Observed]** Probe table above: a v1 row of PLAIN_V2 without `label` builds; the run-time list of that table returns the decode error for the whole list. This is the exact P4c fault (owner review item 8), on the MIGRATE CHAIN path.
+- **[Observed]** `value_checks` runs the String check only when `version == self.newest_version(ty)`. The GREEN reason "an older version gets its fields by the MIGRATE CHAIN (N31 `add`)" holds only for fields that a step adds. `label` exists in v1; no step fills it. The plan said the check runs after the MIGRATE CHAIN (red-plan "GREEN notes").
+- Consequence: the commit text "blocks a stored ROW … whose declared String field is missing" is false for every row below the newest TYPE VERSION; a green suite hides it.
+- → Resolving test: `N32d_old_version_row_shape_blocks` (2 subtests): PLAIN_V2, `rows=[row({"order_id": <id>}, sd.PLAIN_V1)]` and the same with an Int `label`. Expect exit 1, `error: TYPE Order: 1 stored ROW of table records has no String value for field label`, the source line, the help line. `N20_chain_rows_build` stays the control (a complete v1 row builds).
+- → Smallest repair: for an older version, check the String fields of that stored TYPE VERSION (the field list the path check has already matched by fingerprint), or check after the chain as planned.
+
+**O2 (medium, no block). Item 1 is not pinned, and a list record count names items as records.**
+- **[Observed]** Mutant B passes all 46 tests. GREEN checks every item today, but nothing keeps it.
+- **[Observed]** One record with two bad items prints `2 stored RESPONSE RECORDS … have`. The source line is right; the count is wrong by noun.
+- → Resolving tests: a third N32c subtest `item_1` with `list_items(WIRE1, NO_ID)` (expect the N32c text); and one record with two bad items expecting `1 stored RESPONSE RECORD … has` (or an OWNER choice to count items, then a text that says items).
+
+**O3 (medium, no block). "ROW TYPES only, http RESPONSE RECORDS keep the gap" is a Migrate default recorded as Repair.**
+- **[Observed]** An http record without a String field builds (probe). The owner review item 8 says "P4c covers both streams or notes the second"; the GREEN chose "note", which decides what `--stored` blocks for the http stream. Under DL-144 that is a Migrate default. It is not "big" (no syntax, record format or host-called name). **[Observed]** No 0005 source uses `http.post` (only plan text), so no wrong 0005 build follows today.
+- **[Inference]** The 6 `stored_types` cases blocked because their http fixtures carry older-shaped `value` projections; the slice 1 decode reads renamed fields there. Extending the check to http needs those fixtures or a version-aware check (O1 repair) first.
+- → Resolving step: one owner-review line under item 8 (Migrate, not big): A http records keep the gap (built), B extend the String check to http records after the O1 repair. By: Opus (GREEN P4c, default, open).
+- → Smallest http test that documents the gap: `N32e_http_record_shape_gap_builds`: `arms/gen/orders.beaml`, `stored/v1.jsonl` line 1 with `value.status` removed; expect exit 0 and the module (a pin of the gap that flips when B is chosen).
+
+### Dropped (low)
+
+- `N17b_empty_row_snapshot` failed once in a probe run while a second full `run.py` ran beside it; it passed alone and in the full run. Not reproduced.
+- A list record whose `value` lacks `items` or holds no list is not shape-checked (the decode fails it as before).
+
+### Limits
+
+→ Probes ran against `git archive HEAD` builds, not the repository target. Mutants A and B are scratch edits only.
+→ The run-time probe uses the fake `BeamlDb` (seeded row), not Postgres.
+→ The full `run.py` shared the machine with another run (timing only).
+
+### Decisions
+
+**Migrate**
+→ O3: http narrowing raised from Repair to Migrate (not big); options A keep the gap, B extend after O1; the OWNER chooses. → By: Opus (TEST P4c) · Migrate
+
+**Repair**
+→ BLOCK statt PASS, weil O1 is a false pass of the step's own fault on the MIGRATE CHAIN path, observed at run time. → By: Opus (TEST P4c) · Repair
+→ O1 high statt medium, weil the GREEN reason is false and the commit text claims the full ROW scope. → By: Opus (TEST P4c) · Repair
+→ O2 and O3 medium statt block, weil GREEN checks item 1 today and 0005 has no http EFFECT. → By: Opus (TEST P4c) · Repair
+
+**Undo**
+→ Mutants A and B and all probes kept in the scratchpad, not in the repository. → By: Opus (TEST P4c) · Undo
+→ Redacted String skip accepted as dead for ROW TYPES (M3); no test. → By: Opus (TEST P4c) · Undo
+→ 0001 `run.py`, fmt, clippy and `cargo test` run while 0004 `run.py` ran (no shared port). → By: Opus (TEST P4c) · Undo
+→ N17b single failure and the `items`-less list record dropped as low. → By: Opus (TEST P4c) · Undo

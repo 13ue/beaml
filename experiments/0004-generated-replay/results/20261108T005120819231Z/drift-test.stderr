@@ -1,0 +1,12 @@
+test_f_drift_fixtures_change_only_beaml_declarations (__main__.DriftFixtures.test_f_drift_fixtures_change_only_beaml_declarations) ... ok
+test_f_6a_drift_has_gen_rows_only (__main__.DriftRun.test_f_6a_drift_has_gen_rows_only) ... ok
+test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree (__main__.DriftRun.test_f_6a_repair_check_is_the_gen_replay_of_the_repaired_tree) ... ok
+test_f_drift_classes_equal_the_pin (__main__.DriftRun.test_f_drift_classes_equal_the_pin) ... ok
+test_f_drift_outcomes_recorded_per_arm_and_derivative (__main__.DriftRun.test_f_drift_outcomes_recorded_per_arm_and_derivative) ... ok
+test_f_drift_pin_matches_run_py (__main__.DriftRun.test_f_drift_pin_matches_run_py) ... ok
+test_f_lib_is_frozen_before_drift (__main__.DriftRun.test_f_lib_is_frozen_before_drift) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 100.855s
+
+OK
