@@ -29,6 +29,64 @@ NAMES = ("clauses", "marks", "header", "layout")
 # The number of source lines that the fmt diff removes or replaces (D6B-46 event count; fmt-layout notes.md F2).
 CHANGED = {"clauses": 11, "marks": 5}
 
+# fates-a4 (workflow/2026-11-08/fates-a4/): fmt and tree-sitter for VERSION MARKS, MIGRATE STEPS and fate lines.
+# Inline sources only: each case edits a read-only copy of a slice6/db/fates fixture (no new tracked slice*/ .beaml).
+FATES = EXPERIMENT / "slice6" / "db" / "fates"
+FATE_NAMES = ("amount_v2", "channel_swap", "channel_v1", "channel_v2", "order_map", "stricter_v1", "two_ctor")
+DB_STORED = EXPERIMENT / "slice6" / "db" / "stored" / "responses.jsonl"
+REPO = EXPERIMENT.parents[1]
+GRAMMAR = REPO / "integrations" / "zed-beaml"
+TREE_SITTER = os.environ.get("TREE_SITTER", "/private/tmp/beaml-zed-highlighting/tools/tree-sitter")
+APP_BEAML = REPO / "experiments" / "0005-prototype-fullstack" / "app" / "beaml"
+TYPE_MARK = re.compile(rb"^(type \w+) v\d+ \{", re.M)
+OM_STEP = b'migrate Order v2 -> v3 { map channel "app" -> Mobile }'
+AM_STEP = b"migrate Amount v1 -> v2 { quarantine value }"
+CS_STEP = b'migrate Channel v1 -> v2 { quarantine "fax" }'
+OM_TWO = b'migrate Order v2 -> v3 {\n  map channel "app" -> Mobile,\n  quarantine channel "fax"\n}'
+AM_TWO = b"migrate Amount v1 -> v2 {\n  quarantine value,\n  quarantine currency\n}"
+# QA4-2 built default (PF-19): (fixture, step line, fmt input, expected step text). Two or more changes: one per line.
+MANY = {
+    "owner TYPE step, map f l and quarantine f l": (
+        "order_map", OM_STEP, b'migrate Order v2 -> v3 {map channel "app" -> Mobile,   quarantine channel "fax"}', OM_TWO),
+    "two quarantine lines on one TYPE (DL-172)": (
+        "amount_v2", AM_STEP, b"migrate Amount v1 -> v2 {quarantine value, quarantine currency}", AM_TWO),
+    "space before the comma (O2)": (
+        "amount_v2", AM_STEP, b"migrate Amount v1 -> v2 {quarantine value ,  quarantine currency}", AM_TWO),
+    "leading comma (O2)": (
+        "order_map", OM_STEP, b'migrate Order v2 -> v3 {map channel "app" -> Mobile\n  , quarantine channel "fax"}',
+        OM_TWO),
+    "enum step, quarantine l and map l": (
+        "channel_swap", CS_STEP, b'migrate Channel v1 -> v2 {quarantine "fax", map "web" -> App}',
+        b'migrate Channel v1 -> v2 {\n  quarantine "fax",\n  map "web" -> App\n}'),
+    "blank lines in the body": (
+        "amount_v2", AM_STEP, b"migrate Amount v1 -> v2 {\n\n  quarantine value,\n\n  quarantine currency\n}", AM_TWO),
+}
+# Zero or one change: `{ change }` on one line.
+ONE = {
+    "one change without spaces": ("channel_swap", CS_STEP, b'migrate Channel v1 -> v2 {quarantine "fax"}', CS_STEP),
+    "one change on its own line": ("amount_v2", AM_STEP, b"migrate Amount v1 -> v2 {\n    quarantine value\n}", AM_STEP),
+}
+
+
+def fate(name):
+    return (FATES / name / "orders.beaml").read_bytes()
+
+
+def edit(data, old, new):
+    assert data.count(old) == 1, "setup: the fixture lost %r" % old
+    return data.replace(old, new)
+
+
+def rename_beside_map():
+    """order_map with `rename note -> remark` beside the map line in the last step (the field is renamed in v3)."""
+    data = edit(fate("order_map"), b"  note: String\n}\nmigrate", b"  remark: String\n}\nmigrate")
+    return edit(data, b'channel: channel, note: "" }', b'channel: channel, remark: "" }')
+
+
+def unmarked(data):
+    """Mask the TYPE VERSION MARK: the body rule (T3, T4, T5) is checked apart from QA4-1 (T1, T2)."""
+    return TYPE_MARK.sub(rb"\1 {", data)
+
 
 def after_line(n):
     """The clauses.formatted.beaml line of clauses.beaml line `n` (DL-148 adds 5 enum and 3 TYPE lines)."""
@@ -351,6 +409,99 @@ class Slice6Fmt(unittest.TestCase):
     def test_action_event_counts_changed_lines_of_marks(self):
         self.fmt(self.place("marks", source("marks")))
         self.assertEqual([CHANGED["marks"]], [e.get("changed") for e in self.fmt_events()])
+
+    # fates-a4: VERSION MARK on a fate chain (QA4-1 A built default) and MIGRATE STEP bodies (QA4-2, QA4-3 defaults).
+
+    def fmt_case(self, data):
+        """fmt of `data` as orders.beaml in a fresh directory; fmt must exit 0 (a no-op exit 1 is no pass)."""
+        holder = tempfile.mkdtemp(prefix="case-", dir=self.work)
+        path = Path(holder) / "orders.beaml"
+        path.write_bytes(data)
+        run = self.fmt(path)
+        self.assertEqual(0, run["code"], "fmt must succeed; stderr: " + run["stderr"])
+        return path, run
+
+    def test_fates_fixtures_are_fmt_fixed_points(self):
+        # T1 (QA4-1 A): the mark stays where a step of the chain holds a fate line; the second fmt prints nothing.
+        for name in FATE_NAMES:
+            with self.subTest(name):
+                _, run = self.fmt_case(fate(name))
+                self.assertEqual(("", fate(name)), (run["stdout"], run["after"]), "fmt must not change " + name)
+
+    def test_mark_kept_when_the_chain_holds_a_fate_line(self):
+        # T2: `type Order v3` with an `add` step and a quarantine step keeps `v3` (DL-155 overrides DL-104 A here).
+        data = edit(fate("order_map"), OM_STEP, b'migrate Order v2 -> v3 { quarantine channel "fax" }')
+        _, run = self.fmt_case(data)
+        self.assertIn(b"\ntype Order v3 {\n", run["after"], "the mark of a fate chain stays")
+        self.assertEqual(data, run["after"])
+
+    def migrate_cases(self, cases):
+        for label, (fixture, step, given, want) in cases.items():
+            yield label, edit(fate(fixture), step, given), edit(fate(fixture), step, want)
+        if cases is MANY:
+            data = rename_beside_map()
+            yield ("rename beside a fate line", edit(data, OM_STEP, b'migrate Order v2 -> v3 {rename note -> remark, '
+                                                     b'map channel "app" -> Mobile}'),
+                   edit(data, OM_STEP, b'migrate Order v2 -> v3 {\n  rename note -> remark,\n'
+                                       b'  map channel "app" -> Mobile\n}'))
+            fixture, step, given, want = MANY["owner TYPE step, map f l and quarantine f l"]
+            yield "CRLF", crlf(edit(fate(fixture), step, given)), crlf(edit(fate(fixture), step, want))
+
+    def test_migrate_body_two_changes_one_per_line(self):
+        # T3 (QA4-2 default): one change per line, two-space indent, comma right after its change, `}` alone.
+        for label, given, want in self.migrate_cases(MANY):
+            with self.subTest(label):
+                _, run = self.fmt_case(given)
+                self.assertEqual(unmarked(want).decode(), unmarked(run["after"]).decode())
+
+    def test_migrate_body_one_change_one_line(self):
+        # T4 (QA4-2 default): zero or one change stays on one line as `{ change }`.
+        for label, given, want in self.migrate_cases(ONE):
+            with self.subTest(label):
+                _, run = self.fmt_case(given)
+                self.assertEqual(unmarked(want).decode(), unmarked(run["after"]).decode())
+
+    def test_migrate_body_with_a_comment_stays(self):
+        # T5 (guard, fmt-layout F4): a MIGRATE body that holds a comment stays as written.
+        data = edit(fate("amount_v2"), AM_STEP, b"migrate Amount v1 -> v2 {\n  quarantine value, // zero amounts\n"
+                                                b"    quarantine currency\n}")
+        _, run = self.fmt_case(data)
+        self.assertEqual(unmarked(data), unmarked(run["after"]))
+
+    def test_fates_layout_idempotent_and_build_equal(self):
+        # T6: every T3 and T4 input gives the full expected text (mark kept), the second fmt prints nothing and leaves
+        # the file, and the build equals the build of the input except the `beaml-declaration-v1` offsets.
+        for n, (label, given, want) in enumerate(list(self.migrate_cases(MANY)) + list(self.migrate_cases(ONE))):
+            with self.subTest(label):
+                before = self.place("orders", given, "before-%d" % n)
+                code, built, stderr = self.compile_db(before)
+                self.assertEqual(0, code, "setup: the input builds; " + stderr)
+                path, first = self.fmt_case(given)
+                self.assertEqual(want.decode(), first["after"].decode(), "first fmt")
+                second = self.fmt(path)
+                self.assertEqual((0, "", want, True), (second["code"], second["stdout"], second["after"],
+                                                       second["same_inode"]), "fmt(fmt(s)) == fmt(s)")
+                code, got, stderr = self.compile_db(path)
+                self.assertEqual((0, OFFSETS.sub(r"\1 N N", built)), (code, OFFSETS.sub(r"\1 N N", got)), stderr)
+
+    def compile_db(self, path):
+        result = subprocess.run([st.compiler(), str(path), "--stored", str(DB_STORED)], cwd=self.work / "cwd",
+                                capture_output=True, text=True)
+        return result.returncode, result.stdout, result.stderr
+
+    # fates-a4 G3: tree-sitter parses the fate sources without ERROR (pattern of slice6_db_test N16).
+
+    def test_grammar_parses_fate_sources(self):
+        if not os.access(TREE_SITTER, os.X_OK):
+            self.skipTest("tree-sitter not found at %s (set TREE_SITTER)" % TREE_SITTER)
+        sources = [FATES / n / "orders.beaml" for n in FATE_NAMES] + [APP_BEAML / "orders.beaml"]
+        sources += sorted(APP_BEAML.glob("variants/*/orders.beaml"))
+        self.assertEqual(12, len(sources), "setup: seven fates fixtures and five 0005 sources")
+        for source in sources:
+            with self.subTest(str(source.relative_to(REPO))):
+                run = subprocess.run([TREE_SITTER, "parse", "-q", str(source)], cwd=GRAMMAR, capture_output=True,
+                                     text=True, timeout=120)
+                self.assertEqual((0, False), (run.returncode, "ERROR" in run.stdout), run.stdout + run.stderr)
 
 
 if __name__ == "__main__":

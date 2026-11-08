@@ -5,7 +5,7 @@ python3 -B run.py [run] | db-up | db-down | db-reset | smoke
 `run` (the default) needs a database that is up (db-up). It never starts or stops it. Steps: the compiler
 (BEAML_SPIKE or a cargo build of 0001), db-reset, stored + gen of app/beaml/orders.beaml (a live ROW SNAPSHOT by
 `mix beaml.stored`, Q5-4 B, then the compiler with --stored), compile, the N-TESTS in mix test, then the phases n8,
-n7_seed, gen rename_channel (N14, build only), gen order_v2, n7_read, and gen orders.beaml again. Every step runs and is recorded; one failed step fails the run.
+n7_seed, gen rename_channel (N14, build only), fmt twice on copies of every source (N17), gen order_v2, n7_read, and gen orders.beaml again. Every step runs and is recorded; one failed step fails the run.
 The run also fails unless every N-TEST of EXPECTED passes (N9 blocked) and the order_v2 snapshot holds 2 rows, no DEAD LINE.
 
 Every call writes results/<UTC>/ with commands, toolchain versions and result.json.
@@ -192,6 +192,27 @@ def main(command):
                                       "use_case": "exp0005-N14", "ts": utc().isoformat()}) + "\n")
         return result_text == "pass"
 
+    def n17():
+        """fates-a4, DL-158: every app/beaml source and variant is a `fmt` fixed point. fmt runs twice on copies in the
+        run directory, so the sources and lib/generated/orders.ex never change. Pass: every run exits 0, prints nothing."""
+        target = "test " + N17
+        sources = [source(None)] + sorted(BEAML.glob("variants/*/orders.beaml"))
+        ok = len(sources) == 5
+        for original in sources:
+            label = original.parent.name if original.parent != BEAML else "orders"
+            copy = run / ("fmt-" + label) / "orders.beaml"
+            copy.parent.mkdir()
+            copy.write_bytes(original.read_bytes())
+            for k in (1, 2):
+                ok = execute("fmt-%s-%d" % (label, k), [env["BEAML_SPIKE"], "fmt", copy], copy.parent) and ok
+                ok = ok and (run / ("fmt-%s-%d.stdout" % (label, k))).read_bytes() == b""
+        result_text = "pass" if ok else "fail: fmt"
+        with (run / "use-cases.jsonl").open("a") as out:
+            for action, res in (("start", "running"), ("finish", result_text)):
+                out.write(json.dumps({"result": res, "source": "cli", "target": target, "action": action,
+                                      "use_case": "exp0005-N17", "ts": utc().isoformat()}) + "\n")
+        return ok
+
     def run_all():
         if not (pg_running() and PGSOCK.is_dir()):
             print("ERROR DATABASE: not reachable at app/.pgsock. Run run.py db-up.", file=sys.stderr)
@@ -213,6 +234,7 @@ def main(command):
                     lambda: execute(*phase("n8"), APP),
                     lambda: execute(*phase("n7_seed"), APP),
                     n14,
+                    n17,
                     lambda: gen("order_v2"),
                     lambda: execute("compile-order_v2", ["mix", "compile", "--force", "--warnings-as-errors"], APP),
                     lambda: execute(*phase("n7_read"), APP),
@@ -273,6 +295,7 @@ def main(command):
 
 
 N14 = "N14 a rename onto the enum field channel builds against the live v1 rows"
+N17 = "N17 every app source and variant is a fmt fixed point"
 # RED repair O2: the acceptance set (plan.md "Acceptance"). Every pair must pass; only N9 is blocked.
 BLOCKED = {"N9": "blocked: fate slice (D036)"}
 EXPECTED = {("exp0005-" + u, "test " + t) for u, t in [
@@ -300,7 +323,8 @@ EXPECTED = {("exp0005-" + u, "test " + t) for u, t in [
     ("N13", "N13 git holds no database dir, no env file and no secret literal in config or lib"),
     ("N14", N14),
     ("N15", "N15 an SQL edit of a row value without a new digest blocks the build"),
-    ("N16", "N16 a live row carries type.nested (DL-168)")]}
+    ("N16", "N16 a live row carries type.nested (DL-168)"),
+    ("N17", N17)]}
 
 
 def acceptance(run, cases):

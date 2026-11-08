@@ -218,3 +218,18 @@ OWNER picks B, the move follows the two-commit rule with a masked diff proof.
 → grammar node names `quarantine_operation`, `map_operation`, `redact_operation`, `retire_operation`
 → a2a GREEN first, a4 after; either order is safe
 → plan.json beside this file
+
+## Repairs (after the plan check, By: Fable)
+
+The plan check ([plan-review.md](plan-review.md)) gave GO for RED with three medium objections. Rulings:
+
+- **QA4-1, QA4-2, QA4-3:** the defaults are built. They are formatter choices, not syntax (plan check DL-139 table).
+  Each one stays an OWNER card. The QA4-1 card says "overrides DL-104 A as written".
+- **O1:** T3 holds two quarantine lines on one TYPE (DL-172), `quarantine f "l"` and `map f "l" -> C`. G1 names all
+  seven fate-line forms: `quarantine f`, `quarantine "l"`, `quarantine f "l"`, `map "l" -> C`, `map f "l" -> C`,
+  `redact f`, `retire f keep N days`, plus two `quarantine` lines in one body.
+- **O2:** T6 runs `fmt` twice on every T3 and T4 output. T3 gets inputs with `quarantine value ,` and a leading comma;
+  the expected text has the comma directly after its change.
+- **O3:** G1 has keyword controls: `fn map`, a field named `map:`, `rename map -> route`, `quarantine map`.
+  G2 asserts that those names are `property` (or `function` for `fn map`), not `keyword`.
+- The hash-guard rule stays: no new tracked `slice*/**.beaml` fixture; inline sources only. 0005 N17 as planned.

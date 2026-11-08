@@ -1,0 +1,35 @@
+// fates-a4 G2: fate lines, the ENUM VERSION MARK and the keyword controls (DL-155, DL-172).
+enum Channel v2 { Web = "web" Mobile = "mobile" }
+// <- keyword
+//           ^ number
+migrate Channel v1 -> v2 { map "app" -> Mobile, quarantine "fax" }
+//                         ^ keyword
+//                             ^ string
+//                                      ^ constructor
+//                                              ^ keyword
+migrate Order v2 -> v3 { map channel "app" -> Mobile, quarantine channel "fax" }
+//                       ^ keyword
+//                           ^ property
+//                                            ^ constructor
+//                                                    ^ keyword
+//                                                               ^ property
+migrate Payment v1 -> v2 { redact card_holder, retire note keep 30 days }
+//                         ^ keyword
+//                                ^ property
+//                                             ^ keyword
+//                                                    ^ property
+//                                                         ^ keyword
+//                                                              ^ number
+//                                                                 ^ keyword
+fn map x: String -> String = x
+// ^ function
+type T { map: String, quarantine: String, redact: String }
+//       ^ property
+//                    ^ property
+//                                        ^ property
+migrate T v1 -> v2 { rename map -> route, quarantine map, drop redact: String }
+//                   ^ keyword
+//                          ^ property
+//                                        ^ keyword
+//                                                   ^ property
+//                                                             ^ property

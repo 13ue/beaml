@@ -1,0 +1,247 @@
+==================
+ENUM VERSION MARK and two declarations of one enum (DL-155, DL-161)
+==================
+
+enum Channel v1 { Web = "web" App = "app" }
+enum Channel v2 { Web = "web" Mobile = "mobile" Unknown(String) }
+
+---
+
+(source_file
+  (enum_declaration
+    (type
+      (identifier))
+    (version)
+    (variant_declaration
+      (constructor
+        (identifier))
+      (string))
+    (variant_declaration
+      (constructor
+        (identifier))
+      (string)))
+  (enum_declaration
+    (type
+      (identifier))
+    (version)
+    (variant_declaration
+      (constructor
+        (identifier))
+      (string))
+    (variant_declaration
+      (constructor
+        (identifier))
+      (string))
+    (variant_declaration
+      (constructor
+        (identifier))
+      (type
+        (identifier)))))
+
+==================
+Fate lines: quarantine f, quarantine "l", quarantine f "l", two quarantine lines on one TYPE (DL-172)
+==================
+
+migrate Amount v1 -> v2 { quarantine value, quarantine currency }
+migrate Channel v1 -> v2 { quarantine "fax" }
+migrate Order v2 -> v3 { quarantine channel "fax" }
+
+---
+
+(source_file
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (quarantine_operation
+      (property
+        (identifier)))
+    (quarantine_operation
+      (property
+        (identifier))))
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (quarantine_operation
+      (string)))
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (quarantine_operation
+      (property
+        (identifier))
+      (string))))
+
+==================
+Fate lines: map "l" -> C, map f "l" -> C
+==================
+
+migrate Channel v1 -> v2 { map "app" -> Mobile }
+migrate Order v2 -> v3 { map channel "app" -> Mobile, quarantine channel "fax" }
+
+---
+
+(source_file
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (map_operation
+      (string)
+      (constructor
+        (identifier))))
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (map_operation
+      (property
+        (identifier))
+      (string)
+      (constructor
+        (identifier)))
+    (quarantine_operation
+      (property
+        (identifier))
+      (string))))
+
+==================
+Fate lines: redact f, retire f keep N days in a MIGRATE STEP
+==================
+
+migrate Payment v1 -> v2 { redact card_holder, retire note keep 30 days }
+
+---
+
+(source_file
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (redact_operation
+      (property
+        (identifier)))
+    (retire_operation
+      (property
+        (identifier))
+      (integer))))
+
+==================
+Multi-line MIGRATE body with fate lines, a leading comma and a comment
+==================
+
+migrate Order v2 -> v3 {
+  // the stored "app" value moves to Mobile
+  map channel "app" -> Mobile,
+  rename note -> remark
+  , quarantine channel "fax"
+}
+
+---
+
+(source_file
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (comment)
+    (map_operation
+      (property
+        (identifier))
+      (string)
+      (constructor
+        (identifier)))
+    (rename_operation
+      (property
+        (identifier))
+      (property
+        (identifier)))
+    (quarantine_operation
+      (property
+        (identifier))
+      (string))))
+
+==================
+Keyword controls: map, quarantine and redact as fn, field and property names (guard)
+==================
+
+fn map x: String -> String = x
+type T { map: String, quarantine: String, redact: String }
+migrate T v1 -> v2 { rename map -> route, drop redact: String }
+
+---
+
+(source_file
+  (function_clause
+    (identifier)
+    (parameter
+      (identifier)
+      (type
+        (identifier)))
+    (type
+      (identifier))
+    (identifier))
+  (type_declaration
+    (type
+      (identifier))
+    (field_declaration
+      (property
+        (identifier))
+      (type
+        (identifier)))
+    (field_declaration
+      (property
+        (identifier))
+      (type
+        (identifier)))
+    (field_declaration
+      (property
+        (identifier))
+      (type
+        (identifier))))
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (rename_operation
+      (property
+        (identifier))
+      (property
+        (identifier)))
+    (drop_operation
+      (property
+        (identifier))
+      (type
+        (identifier)))))
+
+==================
+Keyword control: quarantine of a field named map
+==================
+
+migrate T v2 -> v3 { quarantine map, quarantine redact "x" }
+
+---
+
+(source_file
+  (migrate_declaration
+    (type
+      (identifier))
+    (version)
+    (version)
+    (quarantine_operation
+      (property
+        (identifier)))
+    (quarantine_operation
+      (property
+        (identifier))
+      (string))))
