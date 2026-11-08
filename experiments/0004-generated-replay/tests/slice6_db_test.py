@@ -45,7 +45,7 @@ import slice6_entry_test as se  # noqa: E402
 import slice6_record_test as sr  # noqa: E402
 import stored_types_test as st  # noqa: E402
 
-P4_BASE = "ce190054"  # the multi-effect GREEN commit; P4a GREEN moves it to its own commit (see the docstring)
+P4_BASE = "060a075d"  # the db transports GREEN commit (RV3-14 rule)
 FIX = EXPERIMENT / "slice6" / "db"
 ORDERS = FIX / "orders.beaml"
 PLAIN, PLAIN_V2, TWO_ROWS = FIX / "plain" / "orders.beaml", FIX / "plain_v2" / "orders.beaml", FIX / "two_rows" / "orders.beaml"
