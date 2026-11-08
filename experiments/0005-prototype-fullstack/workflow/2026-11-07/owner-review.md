@@ -104,6 +104,14 @@ Plan: [db-transport/plan.md](../../../0004-generated-replay/workflow/2026-11-07/
 - **Off-chain row:** A an accepted row of a ROW TYPE with a TYPE VERSION on no chain blocks with the path text (N20, N20b) · B counted as not decodable (the plan line "every other row is counted"). Default A.
 - **Rows count line:** A `rows: N rows, K checked, M not decodable` prints on every success, also with M = 0 · B QV3-7 A (only when M > 0). Default A; the P2 RESPONSE pair keeps QV3-7 A.
 
+**P4 GREEN defaults**, 2026-11-08. Ledger: [green-output.md](../../../0004-generated-replay/workflow/2026-11-07/db-transport/green-output.md). By: Opus (GREEN db-transport, default, open) for every line.
+
+- **Constructor field in a ROW TYPE** (big, syntax rule): the first signature of the constructor takes exactly its String fields, else a build error (`... needs a first signature that takes the String fields of Amount; a row stores the field values (PDB-13)`). Reason: the encode writes the struct fields and the decode reads the first matching signature, so any other constructor cannot be read back. Options: A this rule · B encode by signature names (needs a field-to-parameter map) · C allow it and lose rows. Default A.
+- **`BeamlDb` reserved as a module name** (big, host-called name): a stem `beaml_db` gives `error: ... gives the module BeamlDb, which the generated code calls`. Same rule as D6B-203; `System` added too (TEST O1).
+- **ROW TYPE fields** (not big): String, literal enums with a keep-value variant, constructor records only, the http output rule. The plan also listed Int and nested plain records; they are a build error (`slice 1 decodes String fields only`). Default: as built.
+- **Orphan row help line**: the DL-040 help (`declare: retire <op> keep <n> days`) is printed, and a RETIRE LINE frees the rows (they are then counted, not checked). This follows the RED orphan default A; the RETIRE LINE meaning for rows stays M5.
+- **No DL-101 shape check over stored rows**: `--stored` checks path, literals and constructors; a row with a missing field passes the build and fails `db.list` at run time (`decode`).
+
 ## First question tomorrow: M4 (D036)
 
 - **QDB-8** (big): the chained read over rows (N7/N7b) runs on a String-only ROW TYPE because the built D6B-39 bans constructor and enum fields in a chained TYPE. The real `Order` chain waits on M4 (help text vs lifting D6B-39). Default B, By: Fable (default, open). Options: A block N7/N7b on M4 · B String-only ROW TYPE · C answer M4 now.

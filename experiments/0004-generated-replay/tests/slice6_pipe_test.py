@@ -57,7 +57,8 @@ BAD = {
     "pipe_type_mismatch.beaml": "type mismatch in pipe step finish: expected Payment, got Order",
     "undeclared_failure.beaml": "pipe step payments.authorize can fail with PaymentError, which is not in the ! list of place",
     "unknown_pipe_step.beaml": "unknown pipe step: charge",
-    "unsupported_effect_kind.beaml": "unsupported effect kind: db.get in effect payments.authorize (slice 1 supports http.post)",
+    # 0005 P4: db.get is a KIND now, so the table check fires first (db-transport plan, "Existing assertions that change").
+    "unsupported_effect_kind.beaml": 'error: effect payments.authorize: db.get uses the table "records" only (DL-127)',
 }
 
 

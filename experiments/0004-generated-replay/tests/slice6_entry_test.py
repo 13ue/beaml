@@ -491,7 +491,9 @@ class Slice6Entry(unittest.TestCase):
                                 capture_output=True, text=True, check=True).stdout.split()
         # GREEN slice6d: an ENTRY LINE is an `effect` line with `|>` after the call; `ui.event(` alone missed
         # bad/transport_route.beaml (http.route), which N10 needs to change its bytes.
-        sources = [REPO / p for p in listed if not re.search(r"^effect .*\)\s*\|>", (REPO / p).read_text(), re.M)]
+        # 0005 P4 GREEN: a db EFFECT or a LIST TYPE changes bytes on purpose (slice6_db_test N13 guards the rest).
+        sources = [REPO / p for p in listed if not re.search(r"^effect .*\)\s*\|>", (REPO / p).read_text(), re.M)
+                   and not re.search(r"= *db\.\w+\(|: *\[", (REPO / p).read_text())]
         self.assertGreater(len(sources), 100, "setup: too few tracked sources")
         base = s5.compiler_at(BASE)
         for path in sources:

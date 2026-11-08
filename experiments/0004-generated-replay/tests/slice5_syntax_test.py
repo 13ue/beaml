@@ -798,8 +798,10 @@ class Rewrite(unittest.TestCase):
                     first = lambda text: (text.splitlines() or [""])[0]  # noqa: E731
                     self.assertEqual((base[0], normalise(first(base[2]))), (pre[0], first(pre[2])),
                                      "A2 %s: pre 6a, the same error class (exit, first line after S)" % relative)
-                self.assertEqual(run_at(PIN, [relative] + stored, holder / "new"), now,
-                                 "A2 %s: exit, stdout and stderr equal the PIN compiler" % relative)
+                # 0005 P4 GREEN: a db EFFECT source changes its text on purpose (S13: bad/unsupported_effect_kind.beaml).
+                if not re.search(rb"= *db\.\w+\(", new):
+                    self.assertEqual(run_at(PIN, [relative] + stored, holder / "new"), now,
+                                     "A2 %s: exit, stdout and stderr equal the PIN compiler" % relative)
 
     def test_A3_stored_fixtures_are_unchanged(self):
         # Guard, not RED: every stored fixture keeps its records. Slice 6b step 6a (D6B-69) converts each record to

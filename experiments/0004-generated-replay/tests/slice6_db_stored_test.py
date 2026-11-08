@@ -298,6 +298,13 @@ class Slice6DbStored(unittest.TestCase):
         self.assertEqual((1, "", ["error: rows.jsonl holds 2 rows but snapshot-meta.json counts 3; the ROW SNAPSHOT is "
                                   "partial"]), (code, stdout, got))
 
+    def test_N24_row_count_below_lines_blocks(self):
+        # P4b RED review M2: PDB-22 says "differs", so a row_count below the row lines blocks too (appended rows).
+        rows = [row(WIRE1), row(WIRE2)]
+        code, stdout, got, _, _ = self.blocked(ORDERS, rows=rows, meta=self.meta(rows, 1))
+        self.assertEqual((1, "", ["error: rows.jsonl holds 2 rows but snapshot-meta.json counts 1; the ROW SNAPSHOT is "
+                                  "partial"]), (code, stdout, got))
+
     def test_N24_control_matching_meta_builds(self):
         rows = [row(WIRE1), row(WIRE2)]
         self.assert_built(ORDERS, [counted(2, 2, 0)], rows=rows, meta=self.meta(rows, 2))

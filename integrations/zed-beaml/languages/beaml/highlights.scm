@@ -6,7 +6,7 @@
 ] @keyword
 (redacted) @keyword
 ["->" "=" ":" "+" "|>" "!" "|" "<-"] @operator
-["{" "}" "(" ")"] @punctuation.bracket
+["{" "}" "(" ")" "[" "]"] @punctuation.bracket
 "," @punctuation.delimiter
 
 (comment) @comment

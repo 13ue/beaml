@@ -11,15 +11,17 @@ Expected values come from the plan, DL-143 and this file's own digest and finger
 never from the new compiler. The fake BeamlDb (PDB-10, PDB-30) stores and returns the JSON binary as given.
 Not here: the host-side `jsonb_typeof(value->'reason') = 'null'` tie (0005 N2c, Postgres only).
 
-Byte guard (N13). Five pin sites hold the bytes of every existing source; P4 moves none of them (plan "Byte changes"):
+Byte guard (N13). These pin sites hold the bytes of every existing source; P4 moves none of them (plan "Byte changes"):
   1. tests/slice5_syntax_test.py PIN
   2. tests/slice6_pipe_test.py EFFECT_OUTPUTS (also read by slice6_struct_order_test.py)
   3. tests/slice6_host_struct_test.py BYTE_GUARD
   4. slice6/effect-reach/byte-guard.json (the (71, 40) setup invariant)
-  5. tests/slice6_entry_test.py BASE (N13 of slice 6d)
-A GREEN that must change an existing byte stops and reports a blocker; a re-pin moves all five together.
-N13 here compares every tracked source without a db EFFECT against P4_BASE. P4_BASE is the HEAD at this RED; P2 and P3
-GREEN change bytes first, so the P4 GREEN worker sets P4_BASE to the commit it starts from (after P2 and P3 TEST).
+  5. tests/slice6_entry_test.py BASE (N13 of slice 6d) and tests/slice6_multi_test.py BASE (N13 of P3)
+  6. P4_BASE below (N13 of this file)
+A GREEN that must change an existing byte stops and reports a blocker; a re-pin moves all of them together.
+N13 here compares every tracked source without a db EFFECT or a LIST TYPE against P4_BASE. P4_BASE is the multi-effect
+GREEN commit ce190054 (set by the pin commit b1879fa8, RED review M3); after the P4 GREEN commit the main agent moves it
+to that commit. The two N13 guards of item 5 skip db sources since the P4 GREEN, so this N13 guards the rest.
 
 Depends on P2 (v3 key names, `accepted`/`rejected`, the v3 `--stored` reader) and P3/P5 (several EFFECTS per source,
 `Replay.run(operation, a0, trace_id, records)`, module `Orders` from the stem): see red-plan.md, "Dependencies".

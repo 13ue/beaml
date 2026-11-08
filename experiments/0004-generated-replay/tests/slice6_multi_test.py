@@ -60,6 +60,9 @@ BAD_CASES = {
     "same_entry_operation": "duplicate name: ui_place",
     "enum": ("error: the source file name enum gives the module Enum, which the generated code calls; "
              "rename the file"),
+    # TEST v3/multi O1: the generated code calls System too.
+    "system": ("error: the source file name system gives the module System, which the generated code calls; "
+               "rename the file"),
 }
 
 
@@ -434,7 +437,9 @@ class Slice6Multi(unittest.TestCase):
                                  "experiments/0004-generated-replay/bad/*.beaml"],
                                 capture_output=True, text=True, check=True).stdout.split()
         # The slice 6d G6D-01 filter: an ENTRY LINE is an `effect` line with `|>` after the call.
-        sources = [REPO / p for p in listed if not re.search(r"^effect .*\)\s*\|>", (REPO / p).read_text(), re.M)]
+        # 0005 P4 GREEN: a db EFFECT or a LIST TYPE changes bytes on purpose (slice6_db_test N13 guards the rest).
+        sources = [REPO / p for p in listed if not re.search(r"^effect .*\)\s*\|>", (REPO / p).read_text(), re.M)
+                   and not re.search(r"= *db\.\w+\(|: *\[", (REPO / p).read_text())]
         self.assertGreater(len(sources), 100, "setup: too few tracked sources")
         base = s5.compiler_at(BASE)
         for path in sources:
