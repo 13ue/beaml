@@ -56,11 +56,11 @@
  {
   "group": "02-order-chain",
   "id": "QM4-2",
-  "status": "default",
+  "status": "decided",
   "page": "eingang",
   "added": "2026-11-08T09:19:32Z",
   "source": "m4-plan",
-  "by": "Opus (PLAN m4-lift, Default, offen)"
+  "by": "Opus (PLAN m4-lift, Default, offen); überholt durch DL-155 (DL-167)"
  },
  {
   "group": "02-order-chain",
@@ -227,11 +227,11 @@
  {
   "group": "04-rows",
   "id": "QDB-4",
-  "status": "default",
+  "status": "decided",
   "page": "04-rows",
   "added": "2026-11-07",
   "source": "owner-review 2026-11-07",
-  "by": "Opus (PLAN db-transport)"
+  "by": "Opus (PLAN db-transport); überholt durch DL-150/157 (DL-167)"
  },
  {
   "group": "04-rows",
@@ -326,38 +326,38 @@
  {
   "group": "06-db",
   "id": "QDB-7",
-  "status": "default",
+  "status": "decided",
   "page": "06-db",
   "added": "2026-11-07",
   "source": "owner-review 2026-11-07",
-  "by": "Opus (PLAN db-transport)"
+  "by": "Opus (PLAN db-transport); überholt durch DL-151 (DL-167)"
  },
  {
   "group": "06-db",
   "id": "Q5-4",
-  "status": "default",
+  "status": "decided",
   "page": "06-db",
   "added": "2026-11-07",
   "source": "owner-review 2026-11-07",
-  "by": "Opus (PLAN exp0005)"
+  "by": "Opus (PLAN exp0005); überholt durch DL-151 (DL-167)"
  },
  {
   "group": "06-db",
   "id": "STORED-ARG",
-  "status": "default",
+  "status": "decided",
   "page": "06-db",
   "added": "2026-11-07",
   "source": "owner-review 2026-11-07",
-  "by": "Opus (RED exp0005)"
+  "by": "Opus (RED exp0005); überholt durch DL-151 (DL-167)"
  },
  {
   "group": "06-db",
   "id": "SNAP-SET",
-  "status": "default",
+  "status": "decided",
   "page": "06-db",
   "added": "2026-11-07",
   "source": "owner-review 2026-11-07",
-  "by": "Opus (RED exp0005)"
+  "by": "Opus (RED exp0005); überholt durch DL-151 (DL-167)"
  },
  {
   "group": "06-db",

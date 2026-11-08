@@ -137,3 +137,9 @@
 {"ts": "2026-11-08T10:35:58Z", "id": "QM4-4", "page": "eingang", "change": "status decided", "by": "Opus (PLAN m4-lift, Default, offen); entschieden 13ue: B, rename geht"}
 {"ts": "2026-11-08T10:37:49Z", "id": "QM4-3", "page": "eingang", "change": "status decided", "by": "Opus (PLAN m4-lift, Default, offen); entschieden 13ue: A, nicht doppelt machen; Text kommt mit fates-a1 (DL-155)"}
 {"ts": "2026-11-08T10:39:53Z", "id": "schnell", "page": "schnell", "change": "view added", "by": "Opus (site-v2)"}
+{"ts": "2026-11-08T10:42:44Z", "id": "QM4-2", "page": "eingang", "change": "status decided", "by": "Opus (PLAN m4-lift, Default, offen); überholt durch DL-155 (DL-167)"}
+{"ts": "2026-11-08T10:42:44Z", "id": "QDB-4", "page": "04-rows", "change": "status decided", "by": "Opus (PLAN db-transport); überholt durch DL-150/157 (DL-167)"}
+{"ts": "2026-11-08T10:42:44Z", "id": "QDB-7", "page": "06-db", "change": "status decided", "by": "Opus (PLAN db-transport); überholt durch DL-151 (DL-167)"}
+{"ts": "2026-11-08T10:42:44Z", "id": "Q5-4", "page": "06-db", "change": "status decided", "by": "Opus (PLAN exp0005); überholt durch DL-151 (DL-167)"}
+{"ts": "2026-11-08T10:42:44Z", "id": "STORED-ARG", "page": "06-db", "change": "status decided", "by": "Opus (RED exp0005); überholt durch DL-151 (DL-167)"}
+{"ts": "2026-11-08T10:42:44Z", "id": "SNAP-SET", "page": "06-db", "change": "status decided", "by": "Opus (RED exp0005); überholt durch DL-151 (DL-167)"}
