@@ -1,0 +1,31 @@
+{
+  "step": "fates-a4",
+  "phase": "plan",
+  "date": "2026-11-08",
+  "head": "7c459b54",
+  "by": "Opus (PLAN fates-a4)",
+  "test_first": {"applies": true, "reason": "fmt output and tree-sitter parse trees are behavior"},
+  "owner_questions": [
+    {"id": "QA4-1", "class": "Migrate", "topic": "keep the TYPE VERSION MARK on a chain with a fate line", "default": "A keep; DL-104 A for other chains"},
+    {"id": "QA4-2", "class": "Migrate", "topic": "MIGRATE STEP body layout", "default": "PF-19: 0 or 1 change on one line, 2+ one per line, comma kept, comment body stays"},
+    {"id": "QA4-3", "class": "Migrate", "topic": "table alignment inside a migrate body", "default": "none"}
+  ],
+  "files": [
+    "experiments/0001-syntax-to-beam/src/main.rs",
+    "experiments/0004-generated-replay/tests/slice6_fmt_test.py",
+    "integrations/zed-beaml/grammar.js",
+    "integrations/zed-beaml/languages/beaml/highlights.scm",
+    "integrations/zed-beaml/src/parser.c",
+    "integrations/zed-beaml/src/grammar.json",
+    "integrations/zed-beaml/src/node-types.json",
+    "integrations/zed-beaml/grammars/beaml.wasm",
+    "integrations/zed-beaml/test/corpus/fates.txt",
+    "integrations/zed-beaml/test/highlight/fates.beaml",
+    "experiments/0005-prototype-fullstack/run.py"
+  ],
+  "red": ["T1", "T2", "T3", "T4", "T6", "G1", "G2", "G3"],
+  "guards": ["T2b", "T5", "N17 (until a3 lands)"],
+  "pins_moved": [],
+  "order": "a2a GREEN first, then a4; either order safe; one code writer at a time",
+  "excluded": ["fate semantics", "checker texts", "--stored", "record format", "0005 fate variants (a3)", "D038", "Zed itself"]
+}
