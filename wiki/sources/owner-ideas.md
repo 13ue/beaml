@@ -18,6 +18,7 @@ updated: 2026-11-08
 | 2026-11-08 | [owner-ideas-pubsub-sockets](../../raw/requirements/2026-11-08-owner-ideas-pubsub-sockets.md) | PubSub and sockets as typed EFFECTS, with OTP | D046, D049 |
 | 2026-11-08 | [owner-ideas-gleam](../../raw/requirements/2026-11-08-owner-ideas-gleam.md) | study Gleam for typed OTP and messages | D046, D049, research task |
 | 2026-11-08 | [owner-ideas-relational](../../raw/requirements/2026-11-08-owner-ideas-relational.md) | when to move from the JSONB table to a relational schema | D050, DL-168 |
+| 2026-11-09 | [owner-ideas-secrets-access](../../raw/requirements/2026-11-09-owner-ideas-secrets-access.md) | secret handling and access management in the language | D053 |
 
 ## How a capture is made
 

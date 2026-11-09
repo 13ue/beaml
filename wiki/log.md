@@ -542,3 +542,7 @@ Created the [BAML v1 source page](sources/baml-v1.md). Corrected the v0/v1 track
 - [EXPERIMENT 0004 README](../experiments/0004-generated-replay/README.md#fates-step-a4-fmt-and-tree-sitter-for-fate-lines-dl-148-dl-155): new section; the a1 fmt exclusion and the DL-148 rules get update lines.
 - [EXPERIMENT 0005 README](../experiments/0005-prototype-fullstack/README.md): N17 row. [Zed README](../integrations/zed-beaml/README.md): fate lines and ENUM VERSIONS.
 - [Migrate fates concept](concepts/migrate-fates.md): a4 built status. [Register](planning/research-and-development.md): new fates step a4 row. [Decisions to be made](planning/decisions-to-be-made.md): new D052 (QA4-1 to QA4-3). [Vertical integration](concepts/vertical-integration.md), [conservative minimum](planning/syntax-minimum-conservative.md): mark rule note. No GLOSSARY change. By: Opus (fates-a4, docs).
+
+## 2026-11-09 — OWNER idea: secrets and access management
+
+- Captured [owner-ideas-secrets-access](../raw/requirements/2026-11-09-owner-ideas-secrets-access.md): secret handling in the language, merged with later access management. Register entry D053 (open, OWNER). Tensions with `redacted` (DL-160, D039) recorded.

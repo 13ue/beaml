@@ -690,6 +690,21 @@ type OrderResult = Ok(Order) | Error(OrderError)
 
 **[Verified]** BEAML today: 40 syntax items by the hub's unit, 6 top-level forms; the compiler and the grammar disagree on the comma between MIGRATE CHANGES ([hub section 6](syntax-minimum.md#6-what-both-pages-miss)). **[Unknown]** Token cost and error rate for agent-written code under each set; no measurement exists.
 
+## D053 — Secrets and access management as one language construct
+
+- **Status** OPEN
+- **Decision owner** OWNER
+- **Class** Migrate
+- **Scope** LANGUAGE/COMPILATION and HOST: secret values (environment variables, keys), who may read RESPONSE RECORDS and logs, who may compile
+- **Decision trigger** OWNER idea 2026-11-09 ([capture](../../raw/requirements/2026-11-09-owner-ideas-secrets-access.md)); before the first EFFECT that needs a credential in EXPERIMENT 0005.
+- **Next check** OWNER answer to the walk-through question on secrets.
+
+**[Requirement]** Secret handling belongs in the language; access management (log readers, compile rights) comes later and should share the construct.
+
+**[Proposal]** One label on values: public, `redacted` (stored only hashed or encrypted, D039), secret (never stored, never in a record, a log, a URL or an event). The compiler checks where a labelled value may flow. Access rules say which principal may see which label. Open: one construct or two; how the host supplies secrets (environment, `op run`); whether compile rights belong to the language at all.
+
+**[Unknown]** No evidence yet; no BEAML code reads a secret today.
+
 ## D052 — fmt layout of fate chains and MIGRATE STEP bodies (fates a4)
 
 - **Status** OPEN
